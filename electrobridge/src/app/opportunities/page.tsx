@@ -82,7 +82,7 @@ export default function OpportunitiesPage() {
   }, [fetchOpportunities]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden py-10 pt-24">
+    <div className="relative min-h-screen overflow-hidden py-10">
       {/* BACKGROUND DECORATIONS (GLOWING CYBER BLOBS) */}
       <div className="absolute top-[20%] left-[-15%] w-[45vw] h-[45vw] rounded-full bg-accent/5 cyber-blob animate-blob-slow" />
       <div className="absolute bottom-[20%] right-[-15%] w-[40vw] h-[40vw] rounded-full bg-blue-500/5 cyber-blob animate-blob-slower" />

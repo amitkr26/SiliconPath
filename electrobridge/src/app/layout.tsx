@@ -73,7 +73,7 @@ export default function RootLayout({
       >
         <div className="flex flex-col min-h-screen">
           <Navbar />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 pt-16">{children}</main>
           <Footer />
         </div>
         <Toaster position="bottom-right" toastOptions={{ style: { background: '#111827', border: '1px solid #374151', color: '#F9FAFB' } }} />

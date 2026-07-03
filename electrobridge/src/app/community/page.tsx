@@ -153,8 +153,8 @@ export default function CommunityPage() {
                 <button
                   key={cat.key}
                   onClick={() => { setCategory(cat.key); setSort(cat.key === "latest" ? "latest" : cat.key === "all" ? "trending" : "latest"); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
-                    isActive ? "bg-accent text-bg-primary" : "bg-surface text-text-secondary border border-border hover:text-text-primary"
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
+                    isActive ? "bg-accent text-bg-primary shadow-glow-sm" : "glass-premium text-text-secondary hover:text-accent"
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -170,7 +170,7 @@ export default function CommunityPage() {
               <Loader2 className="w-6 h-6 text-accent animate-spin" />
             </div>
           ) : posts.length === 0 ? (
-            <div className="text-center py-20 bg-surface border border-border rounded-xl">
+            <div className="text-center py-20 glass-premium rounded-xl">
               <MessageSquare className="w-12 h-12 text-text-muted mx-auto mb-4" />
               <h3 className="font-display text-lg font-bold text-text-primary mb-2">Be the first to post!</h3>
               <p className="text-text-secondary text-sm max-w-md mx-auto mb-6">
@@ -189,7 +189,7 @@ export default function CommunityPage() {
                 <Link
                   key={post.id}
                   href={`/community/${post.id}`}
-                  className="block bg-surface border border-border rounded-xl p-4 sm:p-5 hover:border-accent/30 transition-all"
+                  className="block glass-premium rounded-xl p-5 hover:-translate-y-0.5 transition-all duration-300"
                 >
                   <div className="flex items-start gap-3">
                     {/* Upvote */}
@@ -244,27 +244,27 @@ export default function CommunityPage() {
 
         {/* Right Sidebar */}
         <div className="lg:w-[280px] space-y-4">
-          <div className="bg-surface border border-border rounded-xl p-4">
+          <div className="glass-premium rounded-xl p-5 hover:-translate-y-0.5 transition-all duration-300">
             <h3 className="font-display text-sm font-bold text-text-primary mb-3 flex items-center gap-2">
               <Users className="w-4 h-4 text-accent" />
               Top Contributors
             </h3>
-            <p className="text-text-muted text-xs">Start posting to appear here!</p>
+            <p className="text-text-muted text-xs font-medium">Start posting to appear here!</p>
           </div>
-          <div className="bg-surface border border-border rounded-xl p-4">
+          <div className="glass-premium rounded-xl p-5 hover:-translate-y-0.5 transition-all duration-300">
             <h3 className="font-display text-sm font-bold text-text-primary mb-3 flex items-center gap-2">
               <Hash className="w-4 h-4 text-accent" />
               Trending Tags
             </h3>
-            <p className="text-text-muted text-xs">Tags will appear as the community grows.</p>
+            <p className="text-text-muted text-xs font-medium">Tags will appear as the community grows.</p>
           </div>
         </div>
       </div>
 
       {/* New Post Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-surface border border-border rounded-xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="glass-premium rounded-xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-display text-lg font-bold text-text-primary">New Post</h2>
               <button onClick={() => setShowModal(false)} className="text-text-muted hover:text-text-primary">
