@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { fetchAllNews, fetchOpportunitiesFromRSS } from "@/lib/scrapers/rss-parser";
 import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper";
-import { cleanTitle, slugify } from "@/lib/scrapers/utils";
+import { cleanTitle, slugify, normalizeUrl } from "@/lib/scrapers/utils";
 import { isElectronicsNews, autoTagArticle } from "@/lib/scrapers/news-filter";
 import { enrichOpportunity } from "@/lib/scrapers/deep-scraper";
 
@@ -23,11 +23,15 @@ export async function GET(request: NextRequest) {
     const cronSecret = process.env.CRON_SECRET;
     const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
-    const isValidAuth =
-      authHeader === `Bearer ${cronSecret}` ||
-      authHeader === `Bearer ${adminPassword}`;
+    if (process.env.NODE_ENV === "production" && !cronSecret && !adminPassword) {
+      return NextResponse.json({ error: "Fail-Secure: Server keys are missing." }, { status: 500 });
+    }
 
-    if (cronSecret && !isValidAuth) {
+    const isValidAuth =
+      (cronSecret && authHeader === `Bearer ${cronSecret}`) ||
+      (adminPassword && authHeader === `Bearer ${adminPassword}`);
+
+    if (!isValidAuth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -51,13 +55,20 @@ export async function GET(request: NextRequest) {
           continue;
         }
 
-        const { data: existing } = await supabaseAdmin
+        const normalizedUrl = normalizeUrl(article.source_url);
+        const { data: existingUrl } = await supabaseAdmin
           .from("news_articles")
           .select("id")
-          .eq("source_url", article.source_url)
+          .or(`source_url.eq."${article.source_url.replace(/"/g, '""')}",source_url.eq."${normalizedUrl.replace(/"/g, '""')}"`)
           .maybeSingle();
 
-        if (existing) {
+        const { data: existingTitle } = await supabaseAdmin
+          .from("news_articles")
+          .select("id")
+          .ilike("title", article.title.trim())
+          .maybeSingle();
+
+        if (existingUrl || existingTitle) {
           newsSkipped++;
           continue;
         }
@@ -76,7 +87,7 @@ export async function GET(request: NextRequest) {
             slug,
             summary: article.summary,
             source: article.source,
-            source_url: article.source_url,
+            source_url: normalizedUrl,
             published_at: article.published_at,
             image_url: article.image_url,
             tags,
@@ -107,14 +118,21 @@ export async function GET(request: NextRequest) {
           continue;
         }
         const cleanedTitle = cleanTitle(opp.title, opp.organization);
+        const normalizedUrl = normalizeUrl(opp.source_url);
 
-        const { data: existing } = await supabaseAdmin
+        const { data: existingUrl } = await supabaseAdmin
           .from("opportunities")
           .select("id")
-          .eq("source_url", opp.source_url)
+          .or(`source_url.eq."${opp.source_url.replace(/"/g, '""')}",source_url.eq."${normalizedUrl.replace(/"/g, '""')}"`)
           .maybeSingle();
 
-        if (existing) {
+        const { data: existingTitle } = await supabaseAdmin
+          .from("opportunities")
+          .select("id")
+          .ilike("title", cleanedTitle)
+          .maybeSingle();
+
+        if (existingUrl || existingTitle) {
           oppSkipped++;
           continue;
         }
@@ -132,7 +150,7 @@ export async function GET(request: NextRequest) {
                   eligibility: opp.eligibility,
                   description: opp.description,
                   apply_link: opp.apply_link,
-                  source_url: opp.source_url,
+                  source_url: normalizedUrl,
                   tags: opp.tags,
                   verification_status: "pending",
                   is_active: false,

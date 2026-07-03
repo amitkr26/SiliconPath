@@ -55,3 +55,33 @@ export function slugify(name: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 }
+
+export function normalizeUrl(urlStr: string): string {
+  if (!urlStr) return "";
+  try {
+    const url = new URL(urlStr.trim());
+    const paramsToRemove = [
+      "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content",
+      "ref", "ref_", "origin", "source", "gclid", "fbclid"
+    ];
+    paramsToRemove.forEach(p => url.searchParams.delete(p));
+    let normalized = url.toString();
+    if (normalized.endsWith("/") && url.pathname !== "/") {
+      normalized = normalized.slice(0, -1);
+    }
+    return normalized;
+  } catch {
+    let clean = urlStr.trim();
+    const qIndex = clean.indexOf("?");
+    if (qIndex !== -1) {
+      const base = clean.slice(0, qIndex);
+      const query = clean.slice(qIndex + 1);
+      const parts = query.split("&").filter(p => {
+        const key = p.split("=")[0].toLowerCase();
+        return !["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "ref", "ref_", "origin", "source"].includes(key);
+      });
+      return parts.length > 0 ? `${base}?${parts.join("&")}` : base;
+    }
+    return clean;
+  }
+}

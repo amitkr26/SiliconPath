@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
-import { slugify } from "@/lib/scrapers/utils";
+import { slugify, normalizeUrl } from "@/lib/scrapers/utils";
 
 export async function POST(request: NextRequest) {
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -9,7 +9,12 @@ export async function POST(request: NextRequest) {
 
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+
+  if (process.env.NODE_ENV === "production" && !cronSecret) {
+    return NextResponse.json({ error: "Fail-Secure: Cron Secret is missing." }, { status: 500 });
+  }
+
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -29,12 +34,17 @@ export async function POST(request: NextRequest) {
 
     results.total = allNews.length;
 
-    // Group by dedup key (source_url if present, otherwise title)
+    // Group by dedup key (normalized source_url if present, otherwise normalized title)
     const seen = new Map<string, string>(); // key → first (keep) id
     const toDelete: string[] = [];
 
     for (const article of allNews) {
-      const key = article.source_url || article.title;
+      let key = "";
+      if (article.source_url) {
+        key = `url:${normalizeUrl(article.source_url)}`;
+      } else if (article.title) {
+        key = `title:${article.title.trim().toLowerCase()}`;
+      }
       if (!key) continue;
 
       if (!seen.has(key)) {
