@@ -1,0 +1,206 @@
+import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { fetchAllNews, fetchOpportunitiesFromRSS } from "@/lib/scrapers/rss-parser";
+import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper";
+import { cleanTitle, slugify } from "@/lib/scrapers/utils";
+import { isElectronicsNews, autoTagArticle } from "@/lib/scrapers/news-filter";
+import { enrichOpportunity } from "@/lib/scrapers/deep-scraper";
+
+export async function GET(request: NextRequest) {
+  if (!isAdminConfigured) {
+    return NextResponse.json(
+      { error: "Database not configured." },
+      { status: 503 }
+    );
+  }
+
+  try {
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: "Admin access not configured." }, { status: 503 });
+    }
+
+    const authHeader = request.headers.get("authorization") || "";
+    const cronSecret = process.env.CRON_SECRET;
+    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+
+    const isValidAuth =
+      authHeader === `Bearer ${cronSecret}` ||
+      authHeader === `Bearer ${adminPassword}`;
+
+    if (cronSecret && !isValidAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const mode = request.nextUrl.searchParams.get("mode") || "all";
+
+    const result: Record<string, any> = {};
+
+    if (mode === "news" || mode === "all") {
+      const articles = await fetchAllNews();
+      let newsInserted = 0;
+      let newsSkipped = 0;
+
+      for (const article of articles) {
+        if (!isElectronicsNews(article.title, article.summary, 1)) {
+          newsSkipped++;
+          continue;
+        }
+
+        if (!article.source_url) {
+          newsSkipped++;
+          continue;
+        }
+
+        const { data: existing } = await supabaseAdmin
+          .from("news_articles")
+          .select("id")
+          .eq("source_url", article.source_url)
+          .maybeSingle();
+
+        if (existing) {
+          newsSkipped++;
+          continue;
+        }
+
+        const tags = article.tags.length > 0
+          ? article.tags
+          : autoTagArticle(article.title, article.summary || "");
+
+        let slug = slugify(article.title);
+        if (!slug) slug = `news-${Date.now()}`;
+
+        const { error } = await supabaseAdmin
+          .from("news_articles")
+          .insert([{
+            title: article.title,
+            slug,
+            summary: article.summary,
+            source: article.source,
+            source_url: article.source_url,
+            published_at: article.published_at,
+            image_url: article.image_url,
+            tags,
+          }]);
+
+        if (!error) newsInserted++;
+        else newsSkipped++;
+      }
+
+      result.news = {
+        total_fetched: articles.length,
+        inserted: newsInserted,
+        skipped: newsSkipped,
+      };
+    }
+
+    if (mode === "opportunities" || mode === "all") {
+      const { opportunities: scrapedOpps, results: scrapeResults, total } = await scrapeAllOpportunities();
+      const rssOpps = await fetchOpportunitiesFromRSS();
+      const allOpportunities = [...scrapedOpps, ...rssOpps];
+      let oppInserted = 0;
+      let oppSkipped = 0;
+      const newOppIds: { id: string; source_url: string; title: string; organization: string }[] = [];
+
+      for (const opp of allOpportunities) {
+        if (!opp.source_url) {
+          oppSkipped++;
+          continue;
+        }
+        const cleanedTitle = cleanTitle(opp.title, opp.organization);
+
+        const { data: existing } = await supabaseAdmin
+          .from("opportunities")
+          .select("id")
+          .eq("source_url", opp.source_url)
+          .maybeSingle();
+
+        if (existing) {
+          oppSkipped++;
+          continue;
+        }
+
+            const { data, error } = await supabaseAdmin
+              .from("opportunities")
+              .insert([
+                {
+                  title: cleanedTitle,
+                  organization: opp.organization,
+                  category: opp.category,
+                  location: opp.location,
+                  stipend: opp.stipend,
+                  deadline: opp.deadline,
+                  eligibility: opp.eligibility,
+                  description: opp.description,
+                  apply_link: opp.apply_link,
+                  source_url: opp.source_url,
+                  tags: opp.tags,
+                  verification_status: "pending",
+                  is_active: false,
+                },
+              ])
+              .select("id, source_url, title, organization")
+              .single();
+
+        if (!error && data) {
+          oppInserted++;
+          newOppIds.push({ id: data.id, source_url: data.source_url, title: data.title, organization: data.organization });
+        } else {
+          oppSkipped++;
+        }
+      }
+
+      // Deep scrape — enrich newly inserted opportunities with full detail page data
+      let enrichedCount = 0;
+      if (newOppIds.length > 0) {
+        const batchSize = 5;
+        for (const item of newOppIds.slice(0, batchSize)) {
+          const original = allOpportunities.find((o) => o.source_url === item.source_url);
+          if (!original) continue;
+
+          try {
+            const enriched = await enrichOpportunity(original, item.id);
+            if (enriched.description || enriched.eligibility || enriched.stipend || enriched.apply_link_type) {
+              await supabaseAdmin
+                .from("opportunities")
+                .update({
+                  description: enriched.description,
+                  eligibility: enriched.eligibility,
+                  stipend: enriched.stipend,
+                  deadline: enriched.deadline,
+                  location: enriched.location,
+                  tags: enriched.tags,
+                  apply_link_type: enriched.apply_link_type,
+                  official_page_url: enriched.official_page_url,
+                })
+                .eq("id", item.id);
+              enrichedCount++;
+            }
+          } catch {
+            // skip — detail page fetching failed, keep listing data
+          }
+        }
+      }
+
+      result.opportunities = {
+        sources: scrapeResults,
+        total_fetched: allOpportunities.length,
+        inserted: oppInserted,
+        skipped: oppSkipped,
+        rss_sources: rssOpps.length,
+        enriched: enrichedCount,
+        enriched_pending: Math.max(0, oppInserted - enrichedCount),
+      };
+    }
+
+    return NextResponse.json({
+      message: `Scrape complete (${mode})`,
+      ...result,
+    });
+  } catch (error) {
+    console.error("Error in scrape endpoint:", error);
+    return NextResponse.json(
+      { error: "Failed to scrape" },
+      { status: 500 }
+    );
+  }
+}

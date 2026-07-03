@@ -1,0 +1,29 @@
+.vercel
+.env*
+!.env.example
+SECRETS.md
+api.txt
+api_key.txt
+*.secret.md
+env_temp.txt
+*.log
+
+# Local Netlify folder
+.netlify
+
+# Build artifacts
+node_modules/
+.next/
+dist/
+build/
+out/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

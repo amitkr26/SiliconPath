@@ -1,0 +1,7 @@
+DELETE FROM news_articles WHERE (
+  lower(title) NOT SIMILAR TO 
+  '%(semiconductor|electronics|vlsi|chip|transistor|wafer|fab|foundry|embedded|microcontroller|fpga|asic|pcb|circuit|sensor|mems|photonics|spintronics|antenna|radar|rf |signal processing|power electronics|battery|solar cell|led|laser|optoelectronics|nanotechnology|quantum dot|graphene|silicon|gallium|gan|sic|germanium|indium|cadmium|intel|nvidia|tsmc|samsung|qualcomm|amd|arm|broadcom|texas instruments|applied materials|asml|lam research|kla|synopsys|cadence|drdo|isro|csir|iit|nit|barc|tifr|jrf|phd|fellowship|research position|scientist|5g|iot|ai chip|neural processing|edge computing|electric vehicle|ev battery|motor drive|inverter|space electronics|satellite|defence electronics)%'
+  AND
+  lower(coalesce(summary, '')) NOT SIMILAR TO 
+  '%(semiconductor|electronics|vlsi|chip|transistor|wafer|fab|foundry|embedded|microcontroller|fpga|asic|pcb|circuit|sensor|mems|photonics|spintronics|antenna|radar|rf |signal processing|power electronics|battery|solar cell|led|laser|optoelectronics|nanotechnology|quantum dot|graphene|silicon|gallium|gan|sic|germanium|indium|intel|nvidia|tsmc|samsung|qualcomm|amd|arm|broadcom|texas instruments|applied materials|asml|lam research|kla|synopsys|cadence|drdo|isro|csir|iit|nit|barc|tifr|jrf|phd|fellowship|research position|scientist|5g|iot|ai chip|neural processing|electric vehicle|ev battery|space electronics|satellite|defence electronics)%'
+);

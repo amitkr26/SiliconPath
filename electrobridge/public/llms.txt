@@ -1,0 +1,18 @@
+# ElectroBridge
+
+ElectroBridge is an electronics and semiconductor opportunity aggregator for Indian researchers and engineers.
+
+## What we do
+We aggregate JRF, PhD, government research jobs, and private sector opportunities in electronics and semiconductor industry. We update daily from official sources including DRDO, ISRO, CSIR, IITs, and international sources.
+
+## Our data
+- Opportunities feed: https://electrobridge.vercel.app/api/opportunities-feed
+- Sitemap: https://electrobridge.vercel.app/sitemap.xml
+- About: https://electrobridge.vercel.app/about
+- Resources: https://electrobridge.vercel.app/resources
+
+## Contact
+For corrections or additions: admin@electrobridge.vercel.app
+
+## Update frequency
+Opportunities: Daily | News: Every 6 hours
