@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ExternalLink, Clock, Newspaper } from "lucide-react";
+import Link from "next/link";
 import type { NewsArticle } from "@/types";
 
 interface NewsCardProps {
@@ -27,11 +28,6 @@ const SOURCE_COLORS: Record<string, string> = {
   "IESA News": "bg-amber-500",
 };
 
-const SOURCE_DOT: Record<string, string> = {};
-for (const key of Object.keys(SOURCE_COLORS)) {
-  SOURCE_DOT[key] = SOURCE_COLORS[key];
-}
-
 function timeAgo(dateString: string): string {
   const now = new Date();
   const date = new Date(dateString);
@@ -50,13 +46,11 @@ export default function NewsCard({ article }: NewsCardProps) {
   const tags = (article as any).tags || [];
   const sourceDotColor = (article.source && SOURCE_COLORS[article.source]) || "bg-gray-500";
 
-  return (
-    <a
-      href={article.source_url || "#"}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="glass-premium rounded-xl p-5 hover:-translate-y-1 transition-all duration-300 block group"
-    >
+  // Prefer internal slug route for SEO; fall back to external URL if no slug
+  const internalHref = article.slug ? `/news/${article.slug}` : null;
+
+  const CardContent = (
+    <div className="glass-premium rounded-xl p-5 hover:-translate-y-1 transition-all duration-300 block group">
       <div className="flex items-start gap-3">
         {article.image_url && !imgError ? (
           <img
@@ -91,7 +85,7 @@ export default function NewsCard({ article }: NewsCardProps) {
               {tags.slice(0, 2).map((tag: string) => (
                 <span
                   key={tag}
-                    className="px-1.5 py-0.5 bg-accent/20 text-accent rounded text-[9px] font-medium border border-accent/15"
+                  className="px-1.5 py-0.5 bg-accent/20 text-accent rounded text-[9px] font-medium border border-accent/15"
                 >
                   {tag}
                 </span>
@@ -106,11 +100,41 @@ export default function NewsCard({ article }: NewsCardProps) {
               {article.summary}
             </p>
           )}
-          <div className="flex items-center gap-1 mt-2 text-accent text-[10px] font-medium opacity-0 group-hover:opacity-100">
-            Read More <ExternalLink className="w-3 h-3" />
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center gap-1 text-accent text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+              {internalHref ? "Read Article" : "Read Original"} <ExternalLink className="w-3 h-3" />
+            </div>
+            {/* Always show external link to source */}
+            {article.source_url && (
+              <a
+                href={article.source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-text-muted text-[10px] hover:text-accent transition-colors flex items-center gap-0.5"
+              >
+                Source <ExternalLink className="w-2.5 h-2.5" />
+              </a>
+            )}
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  // If internal route exists, use Next Link (SEO-friendly); else go external
+  if (internalHref) {
+    return <Link href={internalHref} className="block">{CardContent}</Link>;
+  }
+
+  return (
+    <a
+      href={article.source_url || "#"}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block"
+    >
+      {CardContent}
     </a>
   );
 }

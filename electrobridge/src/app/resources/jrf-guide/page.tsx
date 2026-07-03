@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "Complete JRF Guide 2026 — Electronics Science | ElectroBridge",
+  title: "Complete JRF Guide 2026 — Electronics Science | SiliconPath",
   description: "Everything about Junior Research Fellowship for electronics researchers: eligibility, stipend ₹37,000-42,000/month, age limit, how to apply, documents needed, DRDO ISRO CSIR openings.",
-  alternates: { canonical: "https://electrobridge.vercel.app/resources/jrf-guide" },
+  alternates: { canonical: "https://siliconpath.vercel.app/resources/jrf-guide" },
 };
 
 const faqSchema = {
@@ -39,7 +39,7 @@ export default async function JRFGuidePage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: "Complete JRF Guide 2026 — Electronics Science", description: "Everything about Junior Research Fellowship for electronics researchers", author: { "@type": "Organization", name: "ElectroBridge" } }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: "Complete JRF Guide 2026 — Electronics Science", description: "Everything about Junior Research Fellowship for electronics researchers", author: { "@type": "Organization", name: "SiliconPath" } }) }} />
 
       <Link href="/resources" className="text-cyan text-sm hover:underline mb-4 inline-block">&larr; Back to Resources</Link>
       <h1 className="font-display text-3xl font-bold text-text-primary mb-8">Junior Research Fellowship (JRF) Complete Guide 2026 — Electronics Science</h1>

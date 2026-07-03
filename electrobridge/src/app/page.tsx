@@ -107,21 +107,22 @@ export default async function Home() {
     "@type": "FAQPage",
     mainEntity: [
       { "@type": "Question", name: "What is JRF in electronics?", acceptedAnswer: { "@type": "Answer", text: "Junior Research Fellowship (JRF) in electronics is a funded research position offered by government organizations like DRDO, CSIR, ISRO and IITs. Eligibility typically requires MSc Electronics or Physics with NET/GATE qualification. Stipend ranges from ₹31,000 to ₹37,000 per month." } },
-      { "@type": "Question", name: "How to find JRF positions in electronics in India?", acceptedAnswer: { "@type": "Answer", text: "JRF positions in electronics are posted on official websites of DRDO, CSIR labs, ISRO centers, IITs, and NITs. ElectroBridge aggregates all these opportunities in one place, updated daily." } },
+      { "@type": "Question", name: "How to find JRF positions in electronics in India?", acceptedAnswer: { "@type": "Answer", text: "JRF positions in electronics are posted on official websites of DRDO, CSIR labs, ISRO centers, IITs, and NITs. SiliconPath aggregates all these opportunities in one place, updated daily — no need to visit 100+ websites separately." } },
       { "@type": "Question", name: "What is the stipend for JRF in DRDO/ISRO/CSIR?", acceptedAnswer: { "@type": "Answer", text: "JRF stipend at DRDO, ISRO, and CSIR is typically ₹37,000 per month plus HRA. SRF (Senior Research Fellow) receives ₹42,000 per month. These are as per DST/SERB norms." } },
       { "@type": "Question", name: "Do I need NET or GATE for JRF positions?", acceptedAnswer: { "@type": "Answer", text: "Most government JRF positions require either UGC-NET (Electronics Science) or GATE (Electronics & Communication) qualification. Some CSIR labs have walk-in positions that may accept MSc without NET/GATE." } },
+      { "@type": "Question", name: "What VLSI jobs are available in India?", acceptedAnswer: { "@type": "Answer", text: "VLSI design jobs in India are available at companies like Intel, Qualcomm, Texas Instruments, ARM, and Indian startups. Roles include ASIC design, RTL design, verification engineer, and physical design. SiliconPath aggregates openings from all major company career portals." } },
     ],
   };
 
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "ElectroBridge",
-    url: "https://electrobridge.vercel.app",
-    description: "Electronics and semiconductor opportunity aggregator for Indian researchers",
+    name: "SiliconPath",
+    url: "https://siliconpath.vercel.app",
+    description: "Semiconductor, VLSI and electronics opportunity aggregator for Indian and global researchers",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://electrobridge.vercel.app/opportunities?search={search_term_string}",
+      target: "https://siliconpath.vercel.app/opportunities?search={search_term_string}",
       "query-input": "required name=search_term_string",
     },
   };
@@ -134,7 +135,7 @@ export default async function Home() {
     { name: "Research & PhD", icon: GraduationCap, count: stats.phd },
     { name: "Signal Processing", icon: Activity, count: Math.floor(stats.total * 0.1) },
     { name: "AI Hardware", icon: Sparkles, count: Math.floor(stats.total * 0.15) },
-    { name: "Fellowships", icon: Award, count: stats.jrf + stats.govt },
+    { name: "Fellowships & JRF", icon: Award, count: stats.jrf + stats.govt },
   ];
 
   return (
@@ -157,13 +158,13 @@ export default async function Home() {
               AI-Powered Career Intelligence for Semiconductors & VLSI
             </div>
             <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-text-primary leading-[1.1] mb-6">
-              Discover Your Path in{" "}
+              Your Gateway to{" "}
               <span className="text-transparent bg-clip-text bg-gradient-hero neon-glow-cyan">
-                Semiconductors & Electronics
+                Semiconductors & VLSI Careers
               </span>
             </h1>
             <p className="mt-8 text-lg sm:text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
-              The premier ecosystem for VLSI engineers, semiconductor researchers, and embedded systems professionals. Find JRF/PhD positions, government fellowships, and industry opportunities.
+              The premier aggregator for semiconductor engineers, VLSI researchers, and embedded systems professionals. Browse JRF, PhD, fellowships, and industry opportunities from 100+ organizations — no login required.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/opportunities" className="inline-flex items-center gap-2 bg-accent text-bg-primary font-semibold rounded-lg px-8 py-3.5 hover:bg-accent-hover hover:scale-[1.02] active:scale-[0.98] transition-all shadow-glow-btn">

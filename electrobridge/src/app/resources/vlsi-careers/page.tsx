@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "VLSI Career India 2026 — Jobs, Salaries, Skills & Companies | ElectroBridge",
+  title: "VLSI Career India 2026 — Jobs, Salaries, Skills & Companies | SiliconPath",
   description: "Complete VLSI career guide for India 2026. RTL design, physical design, verification jobs. Companies: Intel, Qualcomm, AMD, TI. Salaries ₹5-50 LPA. Skills: Verilog, SystemVerilog, Cadence.",
-  alternates: { canonical: "https://electrobridge.vercel.app/resources/vlsi-careers" },
+  alternates: { canonical: "https://siliconpath.vercel.app/resources/vlsi-careers" },
 };
 
 export default async function VLSICareersPage() {

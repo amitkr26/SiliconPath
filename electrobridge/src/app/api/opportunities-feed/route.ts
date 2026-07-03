@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET() {
@@ -14,7 +14,7 @@ export async function GET() {
     .order("created_at", { ascending: false });
 
   return NextResponse.json({
-    platform: "ElectroBridge",
+    platform: "SiliconPath",
     description: "Electronics and semiconductor opportunities aggregator",
     last_updated: new Date().toISOString(),
     total_count: data?.length || 0,
@@ -27,7 +27,7 @@ export async function GET() {
       deadline: opp.deadline,
       eligibility: opp.eligibility,
       tags: opp.tags,
-      url: `https://electrobridge.vercel.app/opportunities/${opp.slug}`,
+      url: `https://siliconpath.vercel.app/opportunities/${opp.slug}`,
       apply_url: opp.apply_link,
       official_url: opp.official_page_url,
       verification_status: opp.verification_status,

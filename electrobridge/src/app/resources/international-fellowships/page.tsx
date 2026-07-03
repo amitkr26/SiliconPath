@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "International Fellowships for Electronics Researchers India 2026 | ElectroBridge",
+  title: "International Fellowships for Electronics Researchers India 2026 | SiliconPath",
   description: "Complete guide to DAAD Germany, SINGA Singapore, MEXT Japan, Marie Curie fellowships for Indian MSc electronics researchers. Eligibility, stipends, application deadlines.",
-  alternates: { canonical: "https://electrobridge.vercel.app/resources/international-fellowships" },
+  alternates: { canonical: "https://siliconpath.vercel.app/resources/international-fellowships" },
 };
 
 export default async function InternationalFellowshipsPage() {

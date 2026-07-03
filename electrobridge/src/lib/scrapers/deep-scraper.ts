@@ -1,4 +1,4 @@
-import * as cheerio from "cheerio";
+﻿import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
 
 interface EnrichedFields {
@@ -105,7 +105,7 @@ export async function enrichOpportunity(opp: ScrapedOpportunity, id: string): Pr
 
     const response = await fetch(url, {
       signal: controller.signal,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; ElectroBridge/1.0)" },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; SiliconPath/1.0)" },
       redirect: "follow",
     });
     clearTimeout(timeout);

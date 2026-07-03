@@ -1,15 +1,15 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen, GraduationCap, Briefcase, Globe, FileText, BookMarked, ArrowRight, Zap, Award, Network } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Resources — JRF Guide, PhD Guide, DRDO Labs, CSIR Research | ElectroBridge",
+  title: "Resources — JRF Guide, PhD Guide, DRDO Labs, CSIR Research | SiliconPath",
   description: "Comprehensive guide to JRF positions in India, PhD admissions, list of DRDO and CSIR labs for electronics research, NET vs GATE comparison, international fellowship programs, and more.",
-  alternates: { canonical: "https://electrobridge.vercel.app/resources" },
+  alternates: { canonical: "https://siliconpath.vercel.app/resources" },
   openGraph: {
-    title: "ElectroBridge Resources — JRF Guide & Research Information",
+    title: "SiliconPath Resources — JRF Guide & Research Information",
     description: "Step-by-step JRF application guide, PhD admission guide, NET vs GATE comparison, DRDO/CSIR lab directory, international fellowship programs for Indian researchers.",
-    url: "https://electrobridge.vercel.app/resources",
+    url: "https://siliconpath.vercel.app/resources",
   },
 };
 

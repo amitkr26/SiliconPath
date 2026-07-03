@@ -1,4 +1,4 @@
-import type { Opportunity } from "@/types";
+﻿import type { Opportunity } from "@/types";
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID;
@@ -10,11 +10,11 @@ export async function postToTelegram(opportunity: Opportunity) {
   }
 
   const detailUrl = opportunity.slug
-    ? `https://electrobridge.vercel.app/opportunities/${opportunity.slug}`
-    : `https://electrobridge.vercel.app/opportunities/${opportunity.id}`;
+    ? `https://siliconpath.vercel.app/opportunities/${opportunity.slug}`
+    : `https://siliconpath.vercel.app/opportunities/${opportunity.id}`;
 
   const message = `
-🔬 *New Opportunity on ElectroBridge*
+🔬 *New Opportunity on SiliconPath*
 
 📌 *${opportunity.title}*
 🏛️ ${opportunity.organization}
@@ -27,7 +27,7 @@ ${opportunity.tags?.map((t) => "#" + t.replace(/\s+/g, "_")).join(" ")}
 
 🔗 [View Details & Apply](${detailUrl})
 
-_ElectroBridge — Electronics & Semiconductor Opportunities_
+_SiliconPath — Electronics & Semiconductor Opportunities_
   `;
 
   try {

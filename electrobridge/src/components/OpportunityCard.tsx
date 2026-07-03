@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { MapPin, Currency, Bookmark, ExternalLink, Heart } from "lucide-react";
+import { MapPin, IndianRupee, Bookmark, ExternalLink, Heart } from "lucide-react";
 import type { Opportunity } from "@/types";
 import CategoryBadge from "./CategoryBadge";
 import DeadlineCountdown from "./DeadlineCountdown";
@@ -51,7 +51,7 @@ function getInitials(name: string): string {
 function getLocalBookmarks(): string[] {
   if (typeof window === "undefined") return [];
   try {
-    const stored = localStorage.getItem("electrobridge_bookmarks");
+    const stored = localStorage.getItem("SiliconPath_bookmarks");
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
@@ -59,7 +59,7 @@ function getLocalBookmarks(): string[] {
 }
 
 function setLocalBookmarks(ids: string[]) {
-  localStorage.setItem("electrobridge_bookmarks", JSON.stringify(ids));
+  localStorage.setItem("SiliconPath_bookmarks", JSON.stringify(ids));
 }
 
 export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
@@ -165,7 +165,7 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
               )}
               {opportunity.stipend && (
                 <span className="flex items-center gap-1 text-text-muted text-xs">
-                  <Currency className="w-3 h-3" />
+                  <IndianRupee className="w-3 h-3" />
                   {opportunity.stipend}
                 </span>
               )}
@@ -206,7 +206,7 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
                 title={opportunity.title}
                 organization={opportunity.organization}
                 deadline={opportunity.deadline}
-                opportunityUrl={`https://electrobridge.vercel.app/opportunities/${opportunity.slug}`}
+                opportunityUrl={`https://siliconpath.vercel.app/opportunities/${opportunity.slug}`}
               />
             </div>
           </div>

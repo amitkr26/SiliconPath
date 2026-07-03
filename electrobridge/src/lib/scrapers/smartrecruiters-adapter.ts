@@ -1,4 +1,4 @@
-import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
+﻿import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
 
 interface SmartRecruitersJobResponse {
   jobId: string;
@@ -41,7 +41,7 @@ export const smartRecruitersAdapter: ATSAdapter = {
       headers: {
         "Accept": "application/json",
         "apikey": apiKey,
-        "User-Agent": "ElectroBridge-Scraper/1.0",
+        "User-Agent": "SiliconPath-Scraper/1.0",
       },
     });
 

@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
 import { ArrowRight, GraduationCap, BookOpen, Award, Calendar, Mail } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "PhD in Electronics India 2026 — Admission Guide | ElectroBridge",
+  title: "PhD in Electronics India 2026 — Admission Guide | SiliconPath",
   description: "Complete PhD admission guide for electronics researchers in India. IIT, IISc, TIFR, IISER, CSIR labs. Funding options, stipends, application process. Everything you need to know.",
-  alternates: { canonical: "https://electrobridge.vercel.app/resources/phd-guide" },
+  alternates: { canonical: "https://siliconpath.vercel.app/resources/phd-guide" },
 };
 
 const TOP_INSTITUTIONS = [

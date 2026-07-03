@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Career Assistant — ElectroBridge",
+  title: "AI Career Assistant — SiliconPath",
   description:
     "Ask anything about electronics and semiconductor careers, JRF, PhD admissions, government research jobs, and more.",
 };

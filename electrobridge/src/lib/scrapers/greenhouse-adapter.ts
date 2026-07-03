@@ -1,4 +1,4 @@
-import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
+﻿import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
 
 interface GreenhouseJobResponse {
   id: number;
@@ -37,7 +37,7 @@ export const greenhouseAdapter: ATSAdapter = {
     const response = await fetch(url, {
       headers: {
         "Accept": "application/json",
-        "User-Agent": "ElectroBridge-Scraper/1.0",
+        "User-Agent": "SiliconPath-Scraper/1.0",
       },
     });
 

@@ -1,4 +1,4 @@
-import * as cheerio from "cheerio";
+﻿import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
 
 const DRDO_VACANCIES_URL = "https://drdo.gov.in/drdo/en/offerings/vacancies";
@@ -80,7 +80,7 @@ export async function scrapeDRDO(): Promise<ScrapedOpportunity[]> {
   try {
     const res = await fetch(DRDO_VACANCIES_URL, {
       signal: AbortSignal.timeout(15000),
-      headers: { "User-Agent": "Mozilla/5.0 (ElectroBridge/1.0)" },
+      headers: { "User-Agent": "Mozilla/5.0 (SiliconPath/1.0)" },
     });
     if (!res.ok) {
       console.error(`DRDO scraper: HTTP ${res.status}`);

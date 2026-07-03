@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Zap, ShieldCheck, Globe, BookOpen, Newspaper, MessageSquare,
@@ -7,13 +7,13 @@ import {
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "About — ElectroBridge | Electronics & Semiconductor Opportunities",
-  description: "Learn about ElectroBridge — a free platform aggregating JRF, PhD, government, and private sector opportunities in electronics and semiconductor research across India and internationally.",
-  alternates: { canonical: "https://electrobridge.vercel.app/about" },
+  title: "About — SiliconPath | Electronics & Semiconductor Opportunities",
+  description: "Learn about SiliconPath — a free platform aggregating JRF, PhD, government, and private sector opportunities in electronics and semiconductor research across India and internationally.",
+  alternates: { canonical: "https://siliconpath.vercel.app/about" },
   openGraph: {
-    title: "About ElectroBridge",
+    title: "About SiliconPath",
     description: "Free platform for JRF, PhD, DRDO, ISRO, CSIR opportunities in electronics & semiconductor.",
-    url: "https://electrobridge.vercel.app/about",
+    url: "https://siliconpath.vercel.app/about",
   },
 };
 
@@ -108,8 +108,8 @@ const verificationSteps = [
 
 const faqItems = [
   {
-    q: "Is ElectroBridge free?",
-    a: "Yes, ElectroBridge is completely free for all users. Browse, search, filter, and apply for opportunities without any subscription or payment.",
+    q: "Is SiliconPath free?",
+    a: "Yes, SiliconPath is completely free for all users. Browse, search, filter, and apply for opportunities without any subscription or payment.",
   },
   {
     q: "How often are opportunities updated?",
@@ -128,7 +128,7 @@ const faqItems = [
     a: "Each opportunity page has a report button. You can also use our Contact page to send suggestions or report issues directly to our team.",
   },
   {
-    q: "Which organizations does ElectroBridge cover?",
+    q: "Which organizations does SiliconPath cover?",
     a: "We cover DRDO labs (LRDE, DEAL, RCI, CAIR), CSIR institutes (NPL, CEERI, CSIO), ISRO centers, IITs, NITs, BARC, and private companies like Intel, Qualcomm, AMD, Texas Instruments, and more.",
   },
 ];
@@ -145,12 +145,12 @@ export default async function AboutPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "ElectroBridge",
-    url: "https://electrobridge.vercel.app",
+    name: "SiliconPath",
+    url: "https://siliconpath.vercel.app",
     description: "Electronics and semiconductor opportunity aggregator for Indian researchers",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://electrobridge.vercel.app/opportunities?search={search_term_string}",
+      target: "https://siliconpath.vercel.app/opportunities?search={search_term_string}",
       "query-input": "required name=search_term_string",
     },
   };
@@ -173,7 +173,7 @@ export default async function AboutPage() {
       {/* Hero */}
       <div className="text-center mb-12">
         <h1 className="font-display text-4xl sm:text-5xl font-bold text-text-primary mb-4">
-          About ElectroBridge
+          About SiliconPath
         </h1>
         <p className="text-text-secondary text-lg max-w-2xl mx-auto">
           Your gateway to electronics and semiconductor research opportunities in India and globally.
@@ -200,7 +200,7 @@ export default async function AboutPage() {
           opportunities remains fragmented across dozens of websites, portals, and notice boards.
         </p>
         <p className="text-text-secondary text-sm leading-relaxed mb-4">
-          ElectroBridge was built to solve this. We aggregate JRF, PhD, government research jobs, and private sector
+          SiliconPath was built to solve this. We aggregate JRF, PhD, government research jobs, and private sector
           opportunities from across India and internationally — all in one searchable, verified platform.
         </p>
         <p className="text-text-secondary text-sm leading-relaxed">

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai/providers";
 
-const SYSTEM_PROMPT = `You are ElectroBridge Assistant, a helpful AI for electronics and semiconductor researchers in India.
+const SYSTEM_PROMPT = `You are SiliconPath Assistant, a helpful AI for electronics and semiconductor researchers in India.
 You help users:
 - Find relevant JRF, PhD, and job opportunities
 - Understand eligibility criteria (NET, GATE, age limits)

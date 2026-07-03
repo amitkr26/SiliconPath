@@ -1,10 +1,10 @@
-import { callAIAdvanced } from "./providers";
+﻿import { callAIAdvanced } from "./providers";
 
 export async function generateWeeklyDigest(
   opportunities: any[],
   newsArticles: any[]
 ): Promise<string> {
-  const prompt = `You are the editor of ElectroBridge, a platform for electronics and semiconductor researchers in India.
+  const prompt = `You are the editor of SiliconPath, a platform for electronics and semiconductor researchers in India.
 
 Write a weekly digest email. This week we have:
 

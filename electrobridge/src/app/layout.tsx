@@ -13,36 +13,36 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://electrobridge.vercel.app"),
+  metadataBase: new URL("https://siliconpath.vercel.app"),
   title: {
-    default: "ElectroBridge — Electronics & Semiconductor Opportunities India",
-    template: "%s | ElectroBridge",
+    default: "SiliconPath — Semiconductor, VLSI & Electronics Opportunities India",
+    template: "%s | SiliconPath",
   },
   description:
-    "Find JRF, PhD positions, government research jobs, and private sector opportunities in electronics and semiconductor industry. DRDO, ISRO, CSIR, IIT opportunities in one place.",
+    "Find JRF, PhD positions, government research jobs, fellowships, and private sector opportunities in semiconductor, VLSI, and electronics industry. DRDO, ISRO, CSIR, IIT opportunities aggregated in one place.",
   keywords: [
     "JRF", "Junior Research Fellow", "electronics jobs India", "semiconductor jobs",
     "DRDO recruitment", "ISRO JRF", "CSIR fellowship", "PhD electronics India",
-    "VLSI jobs", "embedded systems jobs", "research fellowship India",
-    "NET electronics jobs", "GATE electronics jobs",
+    "VLSI jobs", "ASIC design jobs", "embedded systems jobs", "research fellowship India",
+    "NET electronics jobs", "GATE electronics jobs", "SiliconPath", "semiconductor India",
   ],
-  authors: [{ name: "ElectroBridge" }],
-  creator: "ElectroBridge",
+  authors: [{ name: "SiliconPath" }],
+  creator: "SiliconPath",
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://electrobridge.vercel.app",
-    siteName: "ElectroBridge",
-    title: "ElectroBridge — Electronics & Semiconductor Opportunities",
+    url: "https://siliconpath.vercel.app",
+    siteName: "SiliconPath",
+    title: "SiliconPath — Semiconductor & VLSI Opportunities Aggregator",
     description:
-      "One-stop platform for JRF, PhD, government and private sector opportunities in electronics and semiconductor industry.",
-    images: [{ url: "/api/og", width: 1200, height: 630, alt: "ElectroBridge" }],
+      "One-stop platform for JRF, PhD, government and private sector opportunities in semiconductor, VLSI, and electronics industry.",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "SiliconPath" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ElectroBridge — Electronics & Semiconductor Opportunities",
+    title: "SiliconPath — Semiconductor & Electronics Opportunities",
     description:
-      "Find JRF, PhD, DRDO, ISRO, CSIR opportunities in electronics & semiconductor.",
+      "Find JRF, PhD, DRDO, ISRO, CSIR opportunities in VLSI & semiconductor. Updated daily.",
     images: ["/api/og"],
   },
   robots: {
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
     },
   },
-  alternates: { canonical: "https://electrobridge.vercel.app" },
+  alternates: { canonical: "https://siliconpath.vercel.app" },
   verification: {
     google: "QnEIBEpKxP_ZiQxtneegX-6WWKxO_FZ8Yzzxp4kOqxA",
   },
@@ -77,7 +77,7 @@ export default function RootLayout({
           <Footer />
         </div>
         <Toaster position="bottom-right" toastOptions={{ style: { background: '#111827', border: '1px solid #374151', color: '#F9FAFB' } }} />
-        <Script defer data-domain="electrobridge.vercel.app" src="https://plausible.io/js/script.js" strategy="afterInteractive" />
+        <Script defer data-domain="siliconpath.vercel.app" src="https://plausible.io/js/script.js" strategy="afterInteractive" />
       </body>
     </html>
   );

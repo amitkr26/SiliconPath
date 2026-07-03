@@ -1,8 +1,9 @@
+/* Google Fonts must come BEFORE @tailwind directives */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   --bg-primary: #0A0E1A;
@@ -94,8 +95,10 @@ body {
   .glass-premium {
     background: linear-gradient(135deg, rgba(17, 24, 39, 0.7) 0%, rgba(10, 14, 26, 0.8) 100%);
     backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(34, 211, 238, 0.08);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    transition: border-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .glass-premium:hover {
@@ -138,5 +141,15 @@ body {
 
   .animate-blob-slowest {
     animation: float-blob 30s infinite ease-in-out;
+  }
+
+  /* Smooth button glow lift */
+  .shadow-glow-btn {
+    box-shadow: 0 0 24px rgba(34, 211, 238, 0.2);
+    transition: box-shadow 200ms ease, transform 150ms ease;
+  }
+
+  .shadow-glow-btn:hover {
+    box-shadow: 0 0 32px rgba(34, 211, 238, 0.35), 0 4px 16px rgba(34, 211, 238, 0.15);
   }
 }

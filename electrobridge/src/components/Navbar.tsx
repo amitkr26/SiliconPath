@@ -8,7 +8,7 @@ import {
   Search, Menu, X, Briefcase, BookOpen, GraduationCap, BookMarked,
   Globe, Sparkles, Network, FileText, ArrowRight, MessageSquare,
   Newspaper, TrendingUp, HelpCircle, Bell, Home, Building2,
-  Users, Send
+  Users, Send, CircuitBoard
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
@@ -166,7 +166,7 @@ export default function Navbar() {
   };
 
   const displayName = user?.user_metadata?.full_name || user?.email || "User";
-  const isAdmin = user?.email === "admin@electrobridge.tech" || user?.user_metadata?.role === "admin";
+  const isAdmin = user?.user_metadata?.role === "admin";
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -205,7 +205,7 @@ export default function Navbar() {
                   <Zap className="w-4 h-4 text-accent" />
                 </div>
                 <span className="font-display text-lg font-bold tracking-tight text-text-primary">
-                  Electro<span className="text-accent">Bridge</span>
+                  Silicon<span className="text-accent">Path</span>
                 </span>
               </Link>
 

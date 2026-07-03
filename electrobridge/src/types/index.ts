@@ -2,7 +2,7 @@ export interface Opportunity {
   id?: string;
   title: string;
   organization: string;
-  category: "JRF" | "SRF" | "PhD" | "Govt Job" | "Private Job" | "Fellowship";
+  category: "JRF" | "SRF" | "PhD" | "Govt Job" | "Private Job" | "Fellowship" | "Internship";
   location: string | null;
   stipend: string | null;
   deadline: string | null;
@@ -36,6 +36,7 @@ export interface NewsArticle {
   published_at: string | null;
   image_url: string | null;
   tags: string[];
+  slug?: string;
   created_at?: string;
 }
 

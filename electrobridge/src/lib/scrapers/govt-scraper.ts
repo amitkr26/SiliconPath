@@ -1,4 +1,4 @@
-import Parser from "rss-parser";
+﻿import Parser from "rss-parser";
 import type { ScrapedOpportunity, ScrapeResult } from "./types";
 
 function inferCategory(title: string): string {
@@ -62,7 +62,7 @@ async function scrapeCSIR_RSS(): Promise<ScrapedOpportunity[]> {
   try {
     const parser = new Parser({
       timeout: 8000,
-      headers: { "User-Agent": "Mozilla/5.0 (ElectroBridge/1.0)" },
+      headers: { "User-Agent": "Mozilla/5.0 (SiliconPath/1.0)" },
     });
     const feed = await parser.parseURL("https://www.csir.res.in/en/rss.xml");
     for (const item of feed.items) {

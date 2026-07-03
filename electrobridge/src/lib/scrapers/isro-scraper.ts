@@ -1,4 +1,4 @@
-import * as cheerio from "cheerio";
+﻿import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
 
 const ISRO_URL = "https://www.isro.gov.in/Careers.html";
@@ -75,7 +75,7 @@ export async function scrapeISRO(): Promise<ScrapedOpportunity[]> {
   try {
     const res = await fetch(ISRO_URL, {
       signal: AbortSignal.timeout(15000),
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; ElectroBridge/1.0)" },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; SiliconPath/1.0)" },
     });
     if (!res.ok) {
       console.error(`ISRO scraper: HTTP ${res.status}`);

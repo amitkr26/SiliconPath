@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, Loader2, Zap, Sparkles, Plus, MessageSquare, Target, TrendingUp, Lightbulb, Route } from "lucide-react";
@@ -45,7 +45,7 @@ export default function ChatPage() {
     {
       role: "assistant",
       content:
-        "Hi! I'm ElectroBridge Assistant. I can help you find opportunities, understand eligibility criteria, and guide you through research careers in electronics and semiconductor fields. What would you like to know?",
+        "Hi! I'm SiliconPath Assistant. I can help you find opportunities, understand eligibility criteria, and guide you through research careers in electronics and semiconductor fields. What would you like to know?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -117,7 +117,7 @@ export default function ChatPage() {
               onClick={() => {
                 setMessages([{
                   role: "assistant",
-                  content: "Hi! I'm ElectroBridge Assistant. I can help you find opportunities, understand eligibility criteria, and guide you through research careers in electronics and semiconductor fields. What would you like to know?",
+                  content: "Hi! I'm SiliconPath Assistant. I can help you find opportunities, understand eligibility criteria, and guide you through research careers in electronics and semiconductor fields. What would you like to know?",
                 }]);
                 setShowSuggestions(true);
               }}
@@ -183,7 +183,7 @@ export default function ChatPage() {
               </div>
               <div>
                 <h1 className="font-display text-xl font-bold text-text-primary flex items-center gap-2">
-                  ElectroBridge AI
+                  SiliconPath AI
                   <span className="flex items-center gap-1 text-xs text-success font-medium">
                     <span className="w-1.5 h-1.5 rounded-full bg-success" />
                     Online

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Zap } from "lucide-react";
+import { Zap, CircuitBoard } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -8,13 +8,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-3">
-              <Zap className="w-5 h-5 text-accent" />
+              <CircuitBoard className="w-5 h-5 text-accent" />
               <span className="font-display text-lg font-bold text-text-primary">
-                Electro<span className="text-accent">Bridge</span>
+                Silicon<span className="text-accent">Path</span>
               </span>
             </Link>
             <p className="text-text-secondary text-sm leading-relaxed mb-4">
-              AI-powered career platform for the semiconductor and electronics engineering community.
+              AI-powered opportunity aggregator for the semiconductor, VLSI, and electronics engineering community. Updated daily.
             </p>
           </div>
           <div>
@@ -24,6 +24,7 @@ export default function Footer() {
               <Link href="/news" className="text-text-secondary hover:text-accent transition-colors text-sm">News</Link>
               <Link href="/chat" className="text-text-secondary hover:text-accent transition-colors text-sm">Ask AI</Link>
               <Link href="/match" className="text-text-secondary hover:text-accent transition-colors text-sm">Find My Match</Link>
+              <Link href="/community" className="text-text-secondary hover:text-accent transition-colors text-sm">Community</Link>
             </div>
           </div>
           <div>
@@ -33,6 +34,7 @@ export default function Footer() {
               <Link href="/resources/phd-guide" className="text-text-secondary hover:text-accent transition-colors text-sm">PhD Admission Guide</Link>
               <Link href="/resources/international-fellowships" className="text-text-secondary hover:text-accent transition-colors text-sm">International Fellowships</Link>
               <Link href="/resources/vlsi-careers" className="text-text-secondary hover:text-accent transition-colors text-sm">VLSI Career Guide</Link>
+              <Link href="/resources/net-vs-gate" className="text-text-secondary hover:text-accent transition-colors text-sm">NET vs GATE</Link>
             </div>
           </div>
           <div>
@@ -45,9 +47,12 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="border-t border-border/50 mt-10 pt-6 text-center">
+        <div className="border-t border-border/50 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-text-muted text-xs">
-            &copy; {new Date().getFullYear()} ElectroBridge. Built for India&apos;s semiconductor revolution.
+            &copy; {new Date().getFullYear()} SiliconPath. Built for India&apos;s semiconductor revolution.
+          </p>
+          <p className="text-text-muted text-xs">
+            Data aggregated from DRDO, ISRO, CSIR, IITs & 100+ organizations
           </p>
         </div>
       </div>

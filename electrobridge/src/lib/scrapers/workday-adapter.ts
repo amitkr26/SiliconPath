@@ -1,4 +1,4 @@
-import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
+﻿import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
 
 interface WorkdayJobResponse {
   jobRequisitionId: string;
@@ -41,7 +41,7 @@ export const workdayAdapter: ATSAdapter = {
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "User-Agent": "ElectroBridge-Scraper/1.0",
+        "User-Agent": "SiliconPath-Scraper/1.0",
       },
       body: JSON.stringify(body),
     });

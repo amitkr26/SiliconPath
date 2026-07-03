@@ -1,4 +1,4 @@
-import { neonPrimary } from "@/lib/db";
+﻿import { neonPrimary } from "@/lib/db";
 
 export type AIProvider = "bedrock" | "groq" | "nvidia" | "gemini" | "openrouter" | "cloudflare" | "huggingface";
 
@@ -196,8 +196,8 @@ async function callOpenRouter(prompt: string, systemPrompt?: string): Promise<st
     headers: {
       Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "https://electrobridge.vercel.app",
-      "X-Title": "ElectroBridge",
+      "HTTP-Referer": "https://siliconpath.vercel.app",
+      "X-Title": "SiliconPath",
     },
     body: JSON.stringify({
       model: "meta-llama/llama-3.1-8b-instruct:free",
