@@ -55,7 +55,7 @@ export default function NewsCard({ article }: NewsCardProps) {
       href={article.source_url || "#"}
       target="_blank"
       rel="noopener noreferrer"
-      className="bg-surface border border-border rounded-xl p-4 hover:border-accent/30 transition-all duration-200 hover:-translate-y-0.5 block group"
+      className="glass-premium rounded-xl p-5 hover:-translate-y-1 transition-all duration-300 block group"
     >
       <div className="flex items-start gap-3">
         {article.image_url && !imgError ? (

@@ -119,7 +119,7 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
       href={`/opportunities/${opportunity.slug}`}
       className={`block group ${linkUnavailable ? "opacity-70" : ""}`}
     >
-      <div className="bg-surface border border-border rounded-card p-5 hover:border-accent/30 hover:shadow-glow-cyan hover:-translate-y-0.5 transition-all duration-200 h-full">
+      <div className="glass-premium rounded-xl p-6 hover:-translate-y-1 transition-all duration-300 h-full">
         <div className="flex items-start gap-4">
           <div className={cn("w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0", getOrgColor(opportunity.organization))}>
             <span className="text-text-primary text-sm font-bold">

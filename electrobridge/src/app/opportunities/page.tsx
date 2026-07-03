@@ -82,20 +82,27 @@ export default function OpportunitiesPage() {
   }, [fetchOpportunities]);
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 py-8">
-      <div className="flex gap-8">
+    <div className="relative min-h-screen overflow-hidden py-10 pt-24">
+      {/* BACKGROUND DECORATIONS (GLOWING CYBER BLOBS) */}
+      <div className="absolute top-[20%] left-[-15%] w-[45vw] h-[45vw] rounded-full bg-accent/5 cyber-blob animate-blob-slow" />
+      <div className="absolute bottom-[20%] right-[-15%] w-[40vw] h-[40vw] rounded-full bg-blue-500/5 cyber-blob animate-blob-slower" />
+
+      <div className="max-w-[1440px] mx-auto px-4 relative z-10">
+        <div className="flex gap-8">
         {/* Left Sidebar — Filters (280px) */}
         <aside className="hidden lg:block w-[280px] flex-shrink-0">
-          <FilterBar
-            selectedCategory={category}
-            selectedEligibility={eligibility}
-            selectedLocation={location}
-            selectedDeadline={deadline}
-            onCategoryChange={setCategory}
-            onEligibilityChange={setEligibility}
-            onLocationChange={setLocation}
-            onDeadlineChange={setDeadline}
-          />
+          <div className="glass-premium rounded-xl p-6 sticky top-24">
+            <FilterBar
+              selectedCategory={category}
+              selectedEligibility={eligibility}
+              selectedLocation={location}
+              selectedDeadline={deadline}
+              onCategoryChange={setCategory}
+              onEligibilityChange={setEligibility}
+              onLocationChange={setLocation}
+              onDeadlineChange={setDeadline}
+            />
+          </div>
         </aside>
 
         {/* Main Content */}
@@ -187,6 +194,7 @@ export default function OpportunitiesPage() {
           onLocationChange={setLocation}
           onDeadlineChange={setDeadline}
         />
+      </div>
       </div>
     </div>
   );

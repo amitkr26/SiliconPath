@@ -138,41 +138,47 @@ export default async function Home() {
   ];
 
   return (
-    <div>
+    <div className="relative min-h-screen overflow-hidden">
+      {/* BACKGROUND DECORATIONS (GLOWING CYBER BLOBS) */}
+      <div className="absolute top-10 left-[-10%] w-[40vw] h-[40vw] rounded-full bg-accent/10 cyber-blob animate-blob-slow" />
+      <div className="absolute top-[40vh] right-[-10%] w-[35vw] h-[35vw] rounded-full bg-blue-500/10 cyber-blob animate-blob-slower" />
+      <div className="absolute bottom-20 left-[20%] w-[30vw] h-[30vw] rounded-full bg-purple-500/5 cyber-blob animate-blob-slowest" />
+
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
 
       {/* HERO SECTION */}
-      <section className="relative overflow-hidden py-20 sm:py-28">
-        <div className="absolute inset-0 bg-gradient-radial-cyan" />
+      <section className="relative overflow-hidden py-24 sm:py-32 bg-grid-cyber border-b border-border/20">
+        <div className="absolute inset-0 bg-gradient-radial-cyan opacity-40" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 border border-accent/30 text-accent text-xs font-medium px-3 py-1 rounded-full mb-6 bg-accent/5">
-              AI-Powered Career Intelligence for Electronics & Semiconductors
+            <div className="inline-flex items-center gap-2 border border-accent/20 text-accent text-xs font-semibold px-4 py-1.5 rounded-full mb-8 bg-accent/5 backdrop-blur-md animate-pulse">
+              <Sparkles className="w-3.5 h-3.5" />
+              AI-Powered Career Intelligence for Semiconductors & VLSI
             </div>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-text-primary">
+            <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-text-primary leading-[1.1] mb-6">
               Discover Your Path in{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-hero">
+              <span className="text-transparent bg-clip-text bg-gradient-hero neon-glow-cyan">
                 Semiconductors & Electronics
               </span>
             </h1>
-            <p className="mt-6 text-lg text-text-secondary max-w-2xl mx-auto">
-              One-stop platform for electronics researchers and professionals. Find JRF, PhD positions, government jobs, and the latest tech news — all in one place.
+            <p className="mt-8 text-lg sm:text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
+              The premier ecosystem for VLSI engineers, semiconductor researchers, and embedded systems professionals. Find JRF/PhD positions, government fellowships, and industry opportunities.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/opportunities" className="inline-flex items-center gap-2 bg-accent text-bg-primary font-semibold rounded-lg px-6 py-3 hover:bg-accent-hover transition-all shadow-glow-btn">
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/opportunities" className="inline-flex items-center gap-2 bg-accent text-bg-primary font-semibold rounded-lg px-8 py-3.5 hover:bg-accent-hover hover:scale-[1.02] active:scale-[0.98] transition-all shadow-glow-btn">
                 Explore Opportunities <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/chat" className="inline-flex items-center gap-2 border border-border text-text-primary font-medium rounded-lg px-6 py-3 hover:border-accent/50 transition-all">
-                Ask AI
+              <Link href="/chat" className="inline-flex items-center gap-2 border border-border bg-surface-elevated/40 backdrop-blur-md text-text-primary font-medium rounded-lg px-8 py-3.5 hover:border-accent/40 hover:bg-surface-elevated/70 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                Ask AI Assistant <Sparkles className="w-4 h-4 text-accent" />
               </Link>
             </div>
             <HeroSearch />
             {trendingTags.length > 0 && (
-              <div className="mt-4 flex items-center justify-center gap-2 text-xs text-text-muted">
-                <span>Popular:</span>
-                {trendingTags.slice(0, 5).map(({ tag }) => (
-                  <Link key={tag} href={`/opportunities?search=${tag}`} className="hover:text-accent transition-colors">{tag}</Link>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5 text-xs text-text-muted">
+                <span className="font-medium">Trending Tags:</span>
+                {trendingTags.slice(0, 6).map(({ tag }) => (
+                  <Link key={tag} href={`/opportunities?search=${tag}`} className="px-2.5 py-1 bg-surface-elevated/30 border border-border/40 rounded-md hover:text-accent hover:border-accent/30 transition-all">{tag}</Link>
                 ))}
               </div>
             )}
@@ -181,42 +187,45 @@ export default async function Home() {
       </section>
 
       {/* STATS STRIP */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-surface border border-border rounded-xl p-5 text-center hover:border-accent/30 transition-all group">
-            <p className="text-3xl font-bold text-accent font-display">{stats.total}</p>
-            <p className="text-text-secondary text-xs mt-1">Active Opportunities</p>
+          <div className="glass-premium rounded-xl p-6 text-center hover:-translate-y-1 transition-all duration-300 group">
+            <p className="text-3xl sm:text-4xl font-bold text-accent font-display tracking-tight group-hover:scale-105 transition-transform">{stats.total}</p>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wider mt-2">Active Opportunities</p>
           </div>
-          <div className="bg-surface border border-border rounded-xl p-5 text-center hover:border-accent/30 transition-all group">
-            <p className="text-3xl font-bold text-accent font-display">{stats.verified}</p>
-            <p className="text-text-secondary text-xs mt-1">Verified</p>
+          <div className="glass-premium rounded-xl p-6 text-center hover:-translate-y-1 transition-all duration-300 group">
+            <p className="text-3xl sm:text-4xl font-bold text-accent font-display tracking-tight group-hover:scale-105 transition-transform">{stats.verified}</p>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wider mt-2">Verified Openings</p>
           </div>
-          <div className="bg-surface border border-border rounded-xl p-5 text-center hover:border-accent/30 transition-all group">
-            <p className="text-3xl font-bold text-accent font-display">{stats.jrf}</p>
-            <p className="text-text-secondary text-xs mt-1">JRF Positions</p>
+          <div className="glass-premium rounded-xl p-6 text-center hover:-translate-y-1 transition-all duration-300 group">
+            <p className="text-3xl sm:text-4xl font-bold text-accent font-display tracking-tight group-hover:scale-105 transition-transform">{stats.jrf}</p>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wider mt-2">JRF Positions</p>
           </div>
-          <div className="bg-surface border border-border rounded-xl p-5 text-center hover:border-accent/30 transition-all group">
-            <p className="text-3xl font-bold text-accent font-display">{stats.phd}</p>
-            <p className="text-text-secondary text-xs mt-1">PhD Positions</p>
+          <div className="glass-premium rounded-xl p-6 text-center hover:-translate-y-1 transition-all duration-300 group">
+            <p className="text-3xl sm:text-4xl font-bold text-accent font-display tracking-tight group-hover:scale-105 transition-transform">{stats.phd}</p>
+            <p className="text-text-secondary text-xs font-medium uppercase tracking-wider mt-2">PhD Programs</p>
           </div>
         </div>
       </section>
 
       {/* BROWSE BY CATEGORY */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
-        <h2 className="font-display text-2xl font-bold text-text-primary mb-6">Browse by Category</h2>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">
+        <div className="flex flex-col mb-8">
+          <h2 className="font-display text-2xl sm:text-3xl font-bold text-text-primary tracking-tight">Browse by Specialization</h2>
+          <p className="text-text-secondary text-sm mt-1">Explore targeted openings across specific microelectronics sectors</p>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {categories.map(({ name, icon: Icon, count }) => (
             <Link
               key={name}
               href={`/opportunities?search=${encodeURIComponent(name)}`}
-              className="bg-surface border border-border rounded-xl p-5 hover:border-accent/30 transition-all group"
+              className="glass-premium rounded-xl p-6 hover:-translate-y-1 transition-all duration-300 group"
             >
-              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center mb-3">
-                <Icon className="w-5 h-5 text-accent" />
+              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 group-hover:scale-110 transition-all">
+                <Icon className="w-6 h-6 text-accent" />
               </div>
-              <h3 className="font-display font-semibold text-text-primary text-sm">{name}</h3>
-              <p className="text-text-muted text-xs mt-1">{count} openings</p>
+              <h3 className="font-display font-semibold text-text-primary text-base group-hover:text-accent transition-colors">{name}</h3>
+              <p className="text-text-muted text-xs mt-1.5 font-medium">{count} active listings</p>
             </Link>
           ))}
         </div>
