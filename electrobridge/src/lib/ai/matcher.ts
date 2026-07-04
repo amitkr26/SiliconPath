@@ -1,4 +1,4 @@
-import { callAI } from "./providers";
+import { callAI, AIProvider } from "./providers";
 
 export interface UserProfile {
   qualification: string;
@@ -15,6 +15,46 @@ export interface MatchResult {
   reason: string;
 }
 
+const PROVIDER_ORDER: AIProvider[] = [
+  "groq",
+  "openrouter",
+  "cloudflare",
+  "gemini",
+  "nvidia",
+  "bedrock",
+  "huggingface"
+];
+
+function extractJSON(text: string): MatchResult[] {
+  // Try parsing the whole text first
+  try {
+    const parsed = JSON.parse(text.trim());
+    if (Array.isArray(parsed)) return parsed;
+  } catch {}
+
+  // Try extracting using regex for markdown codeblocks
+  const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+  if (codeBlockMatch) {
+    try {
+      const parsed = JSON.parse(codeBlockMatch[1].trim());
+      if (Array.isArray(parsed)) return parsed;
+    } catch {}
+  }
+
+  // Try extracting everything between the first '[' and the last ']'
+  const firstBracket = text.indexOf('[');
+  const lastBracket = text.lastIndexOf(']');
+  if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+    const candidate = text.substring(firstBracket, lastBracket + 1);
+    try {
+      const parsed = JSON.parse(candidate);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {}
+  }
+
+  throw new Error("Could not extract valid JSON array from response");
+}
+
 export async function matchOpportunities(
   userProfile: UserProfile,
   opportunities: any[]
@@ -27,7 +67,7 @@ User Profile:
 - NET Qualified: ${userProfile.hasNET}
 - GATE Qualified: ${userProfile.hasGATE}
 - Preferred Location: ${userProfile.preferredLocation}
-  - Looking For: ${(userProfile.lookingFor ?? []).join(", ")}
+- Looking For: ${(userProfile.lookingFor ?? []).join(", ")}
 
 Here are available opportunities:
 ${opportunities
@@ -43,18 +83,46 @@ Return ONLY a JSON array of the top 10 most relevant opportunity numbers with ma
   { "index": 3, "score": 87, "reason": "Strong match - spintronics research aligns well" }
 ]`;
 
-  const response = await callAI(prompt, undefined, {
-    preferredProvider: "groq",
-    feature: "matcher",
-  });
+  let lastError: any = null;
 
-  const matches: MatchResult[] = JSON.parse(
-    response.text.replace(/```json|```/g, "").trim()
+  for (const provider of PROVIDER_ORDER) {
+    try {
+      console.log(`[AI Matcher] Trying provider: ${provider}`);
+      const response = await callAI(prompt, "You are a helpful assistant that returns ONLY strict JSON format data in response to prompt requests.", {
+        preferredProvider: provider,
+        feature: "matcher",
+      });
+
+      console.log(`[AI Matcher] Raw response from ${provider}:`, response.text);
+      const matches = extractJSON(response.text);
+
+      // Validate matches array structure
+      if (!Array.isArray(matches)) {
+        throw new Error("Parsed result is not an array");
+      }
+
+      // Filter out invalid indexes
+      const validMatches = matches.filter(
+        (m) => typeof m.index === "number" && m.index > 0 && m.index <= opportunities.length
+      );
+
+      if (validMatches.length === 0) {
+        throw new Error("No valid opportunity matches found in JSON array");
+      }
+
+      return validMatches.map((m) => ({
+        ...opportunities[m.index - 1],
+        matchScore: m.score,
+        matchReason: m.reason,
+      }));
+    } catch (err: any) {
+      console.warn(`[AI Matcher] Provider ${provider} failed parsing or execution:`, err);
+      lastError = err;
+      continue;
+    }
+  }
+
+  throw new Error(
+    `Failed to match opportunities: ${lastError?.message || "All AI providers failed to return valid JSON."}`
   );
-
-  return matches.map((m) => ({
-    ...opportunities[m.index - 1],
-    matchScore: m.score,
-    matchReason: m.reason,
-  }));
 }

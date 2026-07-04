@@ -62,7 +62,7 @@ export async function GET(_request: Request, { params }: { params: { slug: strin
         <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 24, color: "#0EA5E9" }}>⚡</span>
           <span style={{ fontSize: 20, color: "white", fontWeight: 600 }}>
-            Electro<span style={{ color: "#0EA5E9" }}>Bridge</span>
+            Silicon<span style={{ color: "#0EA5E9" }}>Path</span>
           </span>
         </div>
       </div>

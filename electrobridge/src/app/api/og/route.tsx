@@ -18,7 +18,7 @@ export async function GET() {
       >
         <div style={{ fontSize: 80, color: "#0EA5E9", marginBottom: 20 }}>⚡</div>
         <div style={{ fontSize: 56, fontWeight: 700, color: "white", textAlign: "center" }}>
-          Electro<span style={{ color: "#0EA5E9" }}>Bridge</span>
+          Silicon<span style={{ color: "#0EA5E9" }}>Path</span>
         </div>
         <div style={{ fontSize: 24, color: "#94A3B8", marginTop: 16, textAlign: "center", maxWidth: 800 }}>
           Electronics & Semiconductor Opportunities

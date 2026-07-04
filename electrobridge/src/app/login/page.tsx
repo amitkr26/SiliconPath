@@ -28,8 +28,8 @@ export default function LoginPage() {
         router.push("/dashboard");
         router.refresh();
       }
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+    } catch (err: any) {
+      toast.error(err?.message || err?.error_description || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -43,8 +43,8 @@ export default function LoginPage() {
         options: { redirectTo: `${getURL()}auth/callback` },
       });
       if (error) toast.error(error.message);
-    } catch {
-      toast.error("Failed to sign in with Google.");
+    } catch (err: any) {
+      toast.error(err?.message || err?.error_description || "Failed to sign in with Google.");
     }
   };
 
@@ -55,7 +55,7 @@ export default function LoginPage() {
           <Link href="/" className="flex items-center justify-center gap-2 mb-8">
             <Zap className="w-6 h-6 text-accent" />
             <span className="font-display text-xl font-bold text-text-primary">
-              Electro<span className="text-accent">Bridge</span>
+              Silicon<span className="text-accent">Path</span>
             </span>
           </Link>
 

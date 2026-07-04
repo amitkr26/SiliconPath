@@ -200,17 +200,17 @@ export default function Navbar() {
         )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-4 xl:gap-8">
               <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
                 <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-accent/20 to-accent/5 group-hover:from-accent/30 group-hover:to-accent/10 transition-all shadow-glow-sm">
                   <Zap className="w-4 h-4 text-accent" />
                 </div>
-                <span className="font-display text-lg font-bold tracking-tight text-text-primary">
+                <span className="font-display text-lg font-bold tracking-tight text-text-primary whitespace-nowrap">
                   Silicon<span className="text-accent">Path</span>
                 </span>
               </Link>
 
-              <div className="hidden lg:flex items-center gap-1">
+              <div className="hidden lg:flex items-center gap-0.5 xl:gap-1.5">
                 {NAV_ITEMS.map((item) => {
                   const active = isActive(item.href);
                   const isOpen = openDropdown === item.label;
@@ -226,7 +226,7 @@ export default function Navbar() {
                       >
                         <button
                           onClick={() => toggleDD(item.label)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                          className={`flex items-center gap-1.5 px-2 xl:px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap ${
                             active
                               ? "text-accent bg-accent/10"
                               : isOpen
@@ -280,7 +280,7 @@ export default function Navbar() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                      className={`flex items-center gap-1.5 px-2 xl:px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap ${
                         active
                           ? "text-accent bg-accent/10"
                           : "text-text-secondary hover:text-text-primary hover:bg-surface/50"
@@ -294,7 +294,7 @@ export default function Navbar() {
               </div>
             </div>
 
-            <div className="hidden md:flex items-center flex-1 max-w-md mx-4 lg:mx-6">
+            <div className="hidden md:flex items-center flex-1 max-w-[160px] xl:max-w-md mx-4 lg:mx-6">
               <form onSubmit={doSearch} className="relative w-full group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted group-focus-within:text-accent transition-colors" />
                 <input
@@ -433,7 +433,7 @@ export default function Navbar() {
                 <Zap className="w-3.5 h-3.5 text-accent" />
               </div>
               <span className="font-display text-lg font-bold text-text-primary">
-                Electro<span className="text-accent">Bridge</span>
+                Silicon<span className="text-accent">Path</span>
               </span>
             </Link>
             <button onClick={() => setMenuOpen(false)}
