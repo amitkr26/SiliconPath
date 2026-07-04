@@ -53,7 +53,7 @@ export default function DrdoRecruitmentGuide() {
 
       <div className="prose prose-invert prose-blue max-w-none">
         <p className="text-lg text-[#E2E8F0] font-medium leading-relaxed border-l-4 border-blue-400 pl-4">
-          <strong>The Core Pathway:</strong> Joining the Defence Research and Development Organisation (DRDO) as a Scientist 'B' requires clearing a three-stage process managed by the Recruitment and Assessment Centre (RAC): GATE Shortlisting → Written Exam → Personal Interview.
+          <strong>The Core Pathway:</strong> Joining the Defence Research and Development Organisation (DRDO) as a Scientist &apos;B&apos; requires clearing a three-stage process managed by the Recruitment and Assessment Centre (RAC): GATE Shortlisting → Written Exam → Personal Interview.
         </p>
 
         <h2 className="text-2xl font-bold text-white mt-10 mb-4">1. Eligibility Criteria (Electronics / ECE)</h2>
