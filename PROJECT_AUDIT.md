@@ -6,7 +6,7 @@
 
 ## 1. Executive Summary / Project Vision
 
-**ElectroBridge** is a comprehensive job board and career platform for the **Indian electronics, semiconductor, and VLSI industry**. It aggregates R&D job opportunities, fellowships, PhD positions, and news from 19+ sources (16 RSS feeds + 3 HTML scrapers), then filters, categorizes, and surfaces them to users. The platform provides:
+**SiliconPath** is a comprehensive job board and career platform for the **Indian electronics, semiconductor, and VLSI industry**. It aggregates R&D job opportunities, fellowships, PhD positions, and news from 19+ sources (16 RSS feeds + 3 HTML scrapers), then filters, categorizes, and surfaces them to users. The platform provides:
 
 - **Curated opportunities** — Research and development positions in electronics (JRF, SRF, PhD, fellowships, government jobs, private sector, internships, postdocs)
 - **News aggregation** — Electronics/semiconductor industry news from top sources (IEEE Spectrum, Semiconductor Engineering, EE Times, etc.)
@@ -26,8 +26,8 @@
 
 | Metric | Value |
 |--------|-------|
-| **Full repo path** | `/workspaces/JobsAI` |
-| **Git remote** | `origin https://github.com/amitkr26/JobsAI.git` |
+| **Full repo path** | `/workspaces/SiliconPath` |
+| **Git remote** | `origin https://github.com/amitkr26/SiliconPath.git` |
 | **Default branch** | `main` (only branch, tracks `origin/main`) |
 | **Total commits** | 103 |
 | **Last commit** | `7292134` — "Add files via upload" |
@@ -35,7 +35,7 @@
 | **Active codebase** | `electrobridge/` — ~18,000 lines of TypeScript/TSX/CSS |
 
 ### GitHub Configuration
-- **Repository:** `amitkr26/JobsAI`
+- **Repository:** `amitkr26/SiliconPath`
 - **CI/CD:** 1 GitHub Actions workflow:
   - `ci.yml` — Runs lint, test (31 suites), and build on PRs and pushes to `main`
 - **Deployment:** Vercel (`amitk26/electrobridge`) — auto-deploys from `main`, root dir `electrobridge/`
@@ -45,7 +45,7 @@
 ## 3. Directory Structure
 
 ```
-JobsAI/
+SiliconPath/
 ├── .github/workflows/           # CI/CD
 │   └── ci.yml                   # Lint → Test (31 tests) → Build
 ├── .gitignore
@@ -70,7 +70,7 @@ JobsAI/
 │   ├── sentry.server.config.ts   Sentry server init
 │   ├── .vercel/                  Vercel project link
 │   ├── .env.local                Runtime env vars (gitignored)
-│   └── (published at: electrobridge.vercel.app)
+│   └── (published at: siliconpath.vercel.app)
 ```
 
 ---
@@ -130,7 +130,7 @@ JobsAI/
 **Hosting:**
 | Component | Platform | URL |
 |-----------|----------|-----|
-| **Production** | Vercel | https://electrobridge.vercel.app |
+| **Production** | Vercel | https://siliconpath.vercel.app |
 
 ### 4.2 Source File Summary
 
@@ -589,7 +589,7 @@ All components follow these conventions:
 | `community_votes` | Upvotes (toggle) | post_id, user_id (unique pair) | Anyone read, Auth vote/unvote |
 
 ### 8.2 Supabase Secondary — db2 (Archive / Overflow)
-- **Project:** `jbqjipwanfsxyqkfrrpx` ("ElectroBridge")
+- **Project:** `jbqjipwanfsxyqkfrrpx` ("SiliconPath")
 - **Org:** `mlmrdjqolmmfwnimvbss` (old account)
 - **Region:** `ap-southeast-1` (Singapore)
 - **Status:** ✅ ACTIVE_HEALTHY
@@ -1018,7 +1018,7 @@ Returns JSON with:
 ### Session 9 (Auth Rewrite, Header Redesign, Feature Audit, Deep Scrape, Vercel Deploy)
 - **Auth localhost bug fixed:** `getURL()` in `src/lib/utils.ts` — replaced `??` chain with `||` chain using `.trim()` so empty-string env vars correctly fall through to production URL
 - **Google OAuth root cause identified:** Not a code issue — must be toggled ON in Supabase Dashboard → Authentication → Providers → Google, with Client ID/Secret from Google Cloud Console and redirect URI `https://aqauempuwmbizqoaolop.supabase.co/auth/v1/callback`
-- **Supabase Dashboard configured via API:** `site_url` → `https://electrobridge.vercel.app`, `uri_allow_list` set with production URLs, `external_google_enabled` → `true`
+- **Supabase Dashboard configured via API:** `site_url` → `https://siliconpath.vercel.app`, `uri_allow_list` set with production URLs, `external_google_enabled` → `true`
 - **`.env.local` populated:** All AI provider keys (Groq, Gemini, HuggingFace, Bedrock, OpenRouter, Cloudflare), Resend API key, admin password, site URL — previously tokens were stored in `.env.tokens.local` which Next.js never loads
 - **Header redesigned:** Complete `Navbar.tsx` rewrite — icons on all nav items, News/Community promoted to desktop nav, enhanced glass morphism, gradient accent line on scroll, user dropdown with Resume shortcut, mobile drawer, `⌘K` search shortcut
 - **Home nav item removed** — logo already returns to home
@@ -1028,7 +1028,7 @@ Returns JSON with:
 - **Chat "+ New Chat" button wired:** Resets messages to initial assistant greeting
 - **Deep scrape built** (`src/lib/scrapers/deep-scraper.ts`): After listing scrape inserts new opportunities, pipeline visits each `apply_link` (up to 5 per cron run), extracts full description/eligibility/stipend/deadline/location/tags from detail page HTML, detects `apply_link_type`, stores `official_page_url`
 - **Vercel env vars set:** `NEXT_PUBLIC_SITE_URL`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `HUGGINGFACE_API_KEY`, `OPENROUTER_API_KEY`, `CLOUDFLARE_AI_TOKEN` added to Development environment
-- **Vercel deploy:** Production aliased to `https://electrobridge.vercel.app` (200 OK)
+- **Vercel deploy:** Production aliased to `https://siliconpath.vercel.app` (200 OK)
 - **Build:** 203 static pages, 0 TS errors, 0 lint warnings
 - **Tests:** 31/31 passing across 4 suites
 
@@ -1043,7 +1043,7 @@ Returns JSON with:
 - **Search page:** Two tabs (Opportunities + People), search filters, connect buttons on people results
 - **Navbar updated:** Added Feed, Network, Companies links; notification bell with live count; Messages link in user dropdown; mobile menu links
 - **Notification wiring helper** created and wired into: connect request/accept, follow, post like/comment/repost, skill endorse, recommendation API routes
-- **Repository cleanup:** Legacy `ElectroBridge Web App Design/` (152 files), `docs/legacy/` (16 files), `REFACTOR_SUMMARY.md`, root `supabase/migrations/`, old CI workflows, `opencode.json`, `electrobridge_logo.png` — all removed. `.gitignore` hardened. Backup tag `pre-cleanup-backup` pushed to origin.
+- **Repository cleanup:** Legacy `SiliconPath Web App Design/` (152 files), `docs/legacy/` (16 files), `REFACTOR_SUMMARY.md`, root `supabase/migrations/`, old CI workflows, `opencode.json`, `electrobridge_logo.png` — all removed. `.gitignore` hardened. Backup tag `pre-cleanup-backup` pushed to origin.
 - **Build:** 94+ routes, 206+ static pages, 0 TS errors. Tests: 31/31 passing.
 
 ---

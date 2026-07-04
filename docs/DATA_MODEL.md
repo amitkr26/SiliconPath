@@ -1,4 +1,4 @@
-# Data Model — ElectroBridge
+# Data Model — SiliconPath
 
 > **Last Updated:** July 3, 2026
 
@@ -6,7 +6,7 @@
 
 ## 1. Multi-Database Architecture Overview
 
-ElectroBridge uses a **4-database polyglot persistence** architecture to separate concerns by access pattern and workload.
+SiliconPath uses a **4-database polyglot persistence** architecture to separate concerns by access pattern and workload.
 
 | ID | Database | Type | Region | Purpose |
 |----|----------|------|--------|---------|

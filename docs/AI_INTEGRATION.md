@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-ElectroBridge uses a **7-provider fallback architecture** where AI calls cascade through providers until one succeeds. This multi-provider approach provides:
+SiliconPath uses a **7-provider fallback architecture** where AI calls cascade through providers until one succeeds. This multi-provider approach provides:
 
 - **Redundancy**: If the primary provider is rate-limited or down, traffic automatically falls through to alternatives
 - **Free-tier maximization**: All 7 providers offer generous free tiers, keeping operating costs at ~$0/month

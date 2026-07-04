@@ -1,7 +1,7 @@
 # Security Incident Report — Secrets Exposure Audit
 
 **Date:** July 3, 2026 (Session 14)
-**Repository:** `amitkr26/JobsAI` (Public on GitHub)
+**Repository:** `amitkr26/SiliconPath` (Public on GitHub)
 
 ---
 
@@ -21,7 +21,7 @@
 
 ### 2. Repository Visibility
 
-- **Repo is PUBLIC** on GitHub (`https://github.com/amitkr26/JobsAI`)
+- **Repo is PUBLIC** on GitHub (`https://github.com/amitkr26/SiliconPath`)
 - Because SECRETS.md was never committed, public visibility does not create exposure risk from this file.
 
 ### 3. Hardcoded-Secrets Scan Across Tracked Files

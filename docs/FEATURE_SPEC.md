@@ -1,4 +1,4 @@
-# Full Feature Specification — ElectroBridge
+# Full Feature Specification — SiliconPath
 
 > **Version:** 1.0  
 > **Last Updated:** July 3, 2026  

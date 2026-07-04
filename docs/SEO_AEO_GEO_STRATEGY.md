@@ -50,7 +50,7 @@ All content URLs use clean, human-readable keyword slugs — never UUIDs:
 
 ### Canonical URLs
 
-Every page includes a canonical `<link>` via `alternates.canonical` in `generateMetadata()`. The canonical URL is always the clean slug-based URL with the production domain: `https://electrobridge.vercel.app`.
+Every page includes a canonical `<link>` via `alternates.canonical` in `generateMetadata()`. The canonical URL is always the clean slug-based URL with the production domain: `https://siliconpath.vercel.app`.
 
 ### Sitemap Generation
 
@@ -71,7 +71,7 @@ Sitemap is served at `/sitemap.xml` and referenced in `robots.txt`.
 `/robots.ts` generates `robots.txt`:
 - Allows all user agents on `/`
 - Disallows `/admin` and `/api/` paths
-- Points sitemap to `https://electrobridge.vercel.app/sitemap.xml`
+- Points sitemap to `https://siliconpath.vercel.app/sitemap.xml`
 - Sets canonical host
 
 ### Core Web Vitals Optimization

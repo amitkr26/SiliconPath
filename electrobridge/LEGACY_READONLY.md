@@ -1,12 +1,12 @@
-# ElectroBridge Legacy Codebase — REMOVED
+# SiliconPath Legacy Codebase — REMOVED
 
 **This legacy codebase has been removed from the repository.**
 
-The `ElectroBridge Web App Design/` directory (Next.js 15 frontend + Express 5 backend) was a previous version of the platform that has been fully superseded by the active `electrobridge/` directory.
+The `SiliconPath Web App Design/` directory (Next.js 15 frontend + Express 5 backend) was a previous version of the platform that has been fully superseded by the active `electrobridge/` directory.
 
 ## Cleanup
 
-- All 152 files from `ElectroBridge Web App Design/` were deleted
+- All 152 files from `SiliconPath Web App Design/` were deleted
 - Backup tag `pre-cleanup-backup` was pushed to origin for recovery
 - See `docs/CLEANUP_REPORT.md` for full details
 

@@ -1,6 +1,6 @@
 # Glossary
 
-Reference for domain-specific terms and platform-internal terminology used throughout JobsAI.
+Reference for domain-specific terms and platform-internal terminology used throughout SiliconPath.
 
 ---
 
@@ -14,7 +14,7 @@ Reference for domain-specific terms and platform-internal terminology used throu
 | **Fab (Fabrication Plant)** | A semiconductor manufacturing facility where ICs are fabricated on silicon wafers. |
 | **Foundry** | A semiconductor manufacturing company that produces chips for other companies (e.g., TSMC, GlobalFoundries). Distinction: a fab may produce its own designs; a foundry exclusively manufactures for others. |
 | **EDA (Electronic Design Automation)** | Software tools used to design, simulate, and verify electronic systems (e.g., Cadence, Synopsys, Siemens EDA). |
-| **ATS (Applicant Tracking System)** | A software application used by employers to manage job postings, applications, and candidate pipelines. Also stands for Automatic Test Equipment (context-dependent — JobsAI always uses the first meaning). |
+| **ATS (Applicant Tracking System)** | A software application used by employers to manage job postings, applications, and candidate pipelines. Also stands for Automatic Test Equipment (context-dependent — SiliconPath always uses the first meaning). |
 | **Semiconductor** | A material (typically silicon) with electrical conductivity between a conductor and an insulator, used as the base substrate for all modern microelectronics. |
 | **IC (Integrated Circuit)** | A set of electronic circuits on a small flat piece (chip) of semiconductor material. |
 | **ASIC (Application-Specific Integrated Circuit)** | An IC custom-designed for a particular use, rather than for general-purpose use. |

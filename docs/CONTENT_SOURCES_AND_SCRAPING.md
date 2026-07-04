@@ -1,6 +1,6 @@
 # Content Sources & Scraping
 
-> How JobsAI discovers, fetches, filters, and deduplicates semiconductor & electronics opportunities from across the web.
+> How SiliconPath discovers, fetches, filters, and deduplicates semiconductor & electronics opportunities from across the web.
 
 ---
 

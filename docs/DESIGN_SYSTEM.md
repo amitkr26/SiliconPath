@@ -1,4 +1,4 @@
-# Design System — ElectroBridge
+# Design System — SiliconPath
 
 > **Last Updated:** July 3, 2026
 >

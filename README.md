@@ -2,7 +2,7 @@
   <img src="./electrobridge/public/favicon.ico" alt="SiliconPath Logo" width="80" height="80">
 </p>
 
-<h1 align="center">SiliconPath (formerly ElectroBridge)</h1>
+<h1 align="center">SiliconPath (formerly SiliconPath)</h1>
 
 <p align="center">
   <strong>The global semiconductor, VLSI, and hardware engineering career aggregator.</strong><br>

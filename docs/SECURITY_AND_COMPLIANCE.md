@@ -4,7 +4,7 @@
 
 ### Provider: Supabase Auth
 
-ElectroBridge uses **Supabase Auth** as the sole authentication provider. Two methods are supported:
+SiliconPath uses **Supabase Auth** as the sole authentication provider. Two methods are supported:
 
 | Method | Implementation | Status |
 |--------|---------------|--------|

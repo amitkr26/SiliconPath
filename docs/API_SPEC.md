@@ -1,4 +1,4 @@
-# API Specification — ElectroBridge
+# API Specification — SiliconPath
 
 > **Last Updated:** July 3, 2026
 >

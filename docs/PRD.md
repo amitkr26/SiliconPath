@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD)
 
-**Product Name**: SiliconPath (formerly ElectroBridge)  
+**Product Name**: SiliconPath (formerly SiliconPath)  
 **Status**: Live / Active Development  
 
 ## 1. Product Vision
