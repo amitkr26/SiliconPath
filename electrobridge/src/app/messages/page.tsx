@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -54,16 +54,16 @@ export default function MessagesPage() {
     });
   }, [router, supabase, searchParams]);
 
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async () => {
     const res = await fetch("/api/messages");
     const data = await res.json();
     setConversations(data.conversations || []);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { if (currentUserId) loadConversations(); }, [currentUserId]);
+  useEffect(() => { if (currentUserId) loadConversations(); }, [currentUserId, loadConversations]);
 
-  const loadMessages = async (convId: string) => {
+  const loadMessages = useCallback(async (convId: string) => {
     setChatLoading(true);
     setActiveConv(convId);
     const urlParams = new URLSearchParams(window.location.search);
@@ -74,12 +74,12 @@ export default function MessagesPage() {
     setMessages(data.messages || []);
     setChatLoading(false);
     setNewChatUserId(null);
-  };
+  }, [router]);
 
   useEffect(() => {
     const conv = searchParams.get("conv");
     if (conv && currentUserId) loadMessages(conv);
-  }, [currentUserId, searchParams]);
+  }, [currentUserId, searchParams, loadMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

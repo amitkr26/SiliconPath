@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Search, Building2, Users, MapPin, Globe } from "lucide-react";
 import { Loader2 } from "lucide-react";
@@ -27,15 +27,15 @@ export default function CompaniesPage() {
     });
   }, [supabase]);
 
-  const loadCompanies = async () => {
+  const loadCompanies = useCallback(async () => {
     setLoading(true);
     const res = await fetch(`/api/companies${search ? `?q=${search}` : ""}`);
     const data = await res.json();
     setCompanies(data.companies || []);
     setLoading(false);
-  };
+  }, [search]);
 
-  useEffect(() => { loadCompanies(); }, [search]);
+  useEffect(() => { loadCompanies(); }, [loadCompanies]);
 
   const handleFollow = async (companyId: string, isFollowing: boolean) => {
     if (!currentUserId) { toast.error("Login required"); return; }

@@ -53,6 +53,7 @@ export default function NewsCard({ article }: NewsCardProps) {
     <div className="glass-premium rounded-xl p-5 hover:-translate-y-1 transition-all duration-300 block group">
       <div className="flex items-start gap-3">
         {article.image_url && !imgError ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={article.image_url}
             alt=""

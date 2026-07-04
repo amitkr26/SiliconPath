@@ -365,7 +365,7 @@ export async function callAIAdvanced(
   prompt: string,
   systemPrompt?: string
 ): Promise<AIResponse> {
-  const advancedOrder: AIProvider[] = ["nvidia", "gemini", "groq"];
+  const advancedOrder: AIProvider[] = ["nvidia", "gemini", "groq", "bedrock", "cloudflare"];
 
   for (const provider of advancedOrder) {
     const nowTime = Date.now();

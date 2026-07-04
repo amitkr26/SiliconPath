@@ -121,6 +121,7 @@ export default function ProfilePage() {
       {/* Banner */}
       <div className="h-48 sm:h-56 rounded-xl bg-gradient-to-r from-accent/30 via-accent/20 to-accent/5 mb-16 relative overflow-hidden">
         {profile.banner_url && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img src={profile.banner_url} alt="" className="w-full h-full object-cover" />
         )}
       </div>
@@ -129,6 +130,7 @@ export default function ProfilePage() {
       <div className="relative -mt-24 mb-8 flex flex-col sm:flex-row items-start sm:items-end gap-4 px-4">
         <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-surface border-4 border-bg-primary overflow-hidden flex items-center justify-center bg-gradient-to-br from-accent/30 to-accent/5 flex-shrink-0">
           {profile.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
           ) : (
             <span className="text-3xl font-bold text-accent">

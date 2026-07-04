@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Search as SearchIcon, Users, Briefcase, MapPin, Loader2, ExternalLink, Clock, Calendar } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -46,7 +46,7 @@ export default function SearchPage() {
     });
   }, [router, supabase]);
 
-  const doSearch = async () => {
+  const doSearch = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
     if (query) params.set("q", query);
@@ -67,11 +67,11 @@ export default function SearchPage() {
       }
     }
     setLoading(false);
-  };
+  }, [activeTab, query, categoryFilter, locationFilter]);
 
   useEffect(() => {
     doSearch();
-  }, [activeTab]);
+  }, [activeTab, doSearch]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

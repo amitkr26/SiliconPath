@@ -193,6 +193,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
       <div className="relative -mt-24 mb-8 flex flex-col sm:flex-row items-start sm:items-end gap-4 px-4">
         <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-surface border-4 border-bg-primary overflow-hidden flex items-center justify-center bg-gradient-to-br from-accent/30 to-accent/5 flex-shrink-0">
           {profile.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
           ) : (
             <span className="text-3xl font-bold text-accent">{getInitials(profile.full_name || "")}</span>

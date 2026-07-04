@@ -266,6 +266,7 @@ export default function FeedPage() {
             <div className="px-4 pb-4 -mt-8">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent/30 to-accent/10 border-2 border-bg-primary flex items-center justify-center mx-auto mb-2">
                 {profile.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
                 ) : (
                   <span className="text-lg font-bold text-accent">{getInitials(profile.full_name || "")}</span>
@@ -328,6 +329,7 @@ export default function FeedPage() {
             <div className="flex gap-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent/30 to-accent/10 flex items-center justify-center flex-shrink-0">
                 {profile.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
                 ) : (
                   <span className="text-sm font-bold text-accent">{getInitials(profile.full_name || "")}</span>
@@ -388,6 +390,7 @@ export default function FeedPage() {
                         <Link href={`/people/${p?.username || ""}`} className="flex-shrink-0">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent/30 to-accent/10 flex items-center justify-center">
                             {p?.avatar_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
                               <img src={p.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
                             ) : (
                               <span className="text-xs font-bold text-accent">{getInitials(p?.full_name || "")}</span>

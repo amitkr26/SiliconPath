@@ -8,9 +8,9 @@ export const FEATURES = {
   COMMUNITY_ENABLED: true,
 
   // AI features — active if API key is available
-  AI_CHAT_ENABLED: !!process.env.GROQ_API_KEY || !!process.env.GEMINI_API_KEY,
-  AI_MATCH_ENABLED: !!process.env.GROQ_API_KEY || !!process.env.GEMINI_API_KEY,
-  AI_SEARCH_ENABLED: !!process.env.GROQ_API_KEY || !!process.env.GEMINI_API_KEY,
+  AI_CHAT_ENABLED: !!(process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || process.env.NVIDIA_NIM_API_KEY || process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.CLOUDFLARE_AI_TOKEN),
+  AI_MATCH_ENABLED: !!(process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || process.env.NVIDIA_NIM_API_KEY || process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.CLOUDFLARE_AI_TOKEN),
+  AI_SEARCH_ENABLED: !!(process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || process.env.NVIDIA_NIM_API_KEY || process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.CLOUDFLARE_AI_TOKEN),
 
   // Resume builder — active
   RESUME_ENABLED: true,
