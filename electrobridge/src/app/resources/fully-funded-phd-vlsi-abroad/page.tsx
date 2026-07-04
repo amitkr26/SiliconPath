@@ -53,7 +53,7 @@ export default function FullyFundedPhdAbroadGuide() {
 
       <div className="prose prose-invert prose-emerald max-w-none">
         <p className="text-lg text-[#E2E8F0] font-medium leading-relaxed border-l-4 border-emerald-400 pl-4">
-          <strong>The secret to a fully-funded PhD:</strong> In many top global semiconductor hubs (like Europe and Singapore), a PhD is not considered "studying" — it is a full-time research job with a competitive salary, full benefits, and zero tuition fees. Here is exactly how to find and secure these positions.
+          <strong>The secret to a fully-funded PhD:</strong> In many top global semiconductor hubs (like Europe and Singapore), a PhD is not considered &quot;studying&quot; — it is a full-time research job with a competitive salary, full benefits, and zero tuition fees. Here is exactly how to find and secure these positions.
         </p>
 
         <h2 className="text-2xl font-bold text-white mt-10 mb-4">1. Top Regions for VLSI & Semiconductor PhDs</h2>
@@ -80,7 +80,7 @@ export default function FullyFundedPhdAbroadGuide() {
 
         <h2 className="text-2xl font-bold text-white mt-10 mb-4">2. Step-by-Step Application Strategy</h2>
         
-        <h3 className="text-xl font-semibold text-[#E2E8F0] mt-4">Step 1: The "Cold Email" to Professors</h3>
+        <h3 className="text-xl font-semibold text-[#E2E8F0] mt-4">Step 1: The &quot;Cold Email&quot; to Professors</h3>
         <p>
           For US universities and many European labs, securing funding requires a professor to sponsor you. You must write a highly targeted email:
         </p>
@@ -88,7 +88,7 @@ export default function FullyFundedPhdAbroadGuide() {
           Subject: Prospective PhD Student — Fall 2027 — [Your Area, e.g., Analog IC Design]<br/><br/>
           Dear Prof. [Name],<br/><br/>
           I recently read your paper on [Specific Paper Topic] presented at ISSCC. I am very interested in your approach to [Specific Technical Detail].<br/><br/>
-          I have been working on [Your relevant project/thesis] where I achieved [Result]. I believe my background in [Skill, e.g., Cadence Virtuoso, FinFET modeling] aligns well with your lab's current focus.<br/><br/>
+          I have been working on [Your relevant project/thesis] where I achieved [Result]. I believe my background in [Skill, e.g., Cadence Virtuoso, FinFET modeling] aligns well with your lab&apos;s current focus.<br/><br/>
           Are you accepting new funded PhD students for Fall 2027? I have attached my CV and transcript for your review.<br/><br/>
           Best regards,<br/>
           [Your Name]
@@ -109,8 +109,8 @@ export default function FullyFundedPhdAbroadGuide() {
         <h3 className="text-lg font-bold text-[#E2E8F0]">Which countries offer the best fully-funded PhDs in VLSI?</h3>
         <p>Top destinations for fully-funded VLSI PhDs include Germany (TU Munich, TU Dresden), Netherlands (TU Delft), Belgium (KU Leuven / imec), Singapore (NTU, NUS), and the USA. These programs often treat PhD students as salaried employees.</p>
 
-        <h3 className="text-lg font-bold text-[#E2E8F0] mt-6">Do I need a Master's degree to apply for a PhD abroad?</h3>
-        <p>In Europe, a Master's degree (MTech/MS) is almost strictly required. In the US and Singapore, you can often apply directly after a 4-year BTech/BE degree, provided you have excellent academic records and research experience.</p>
+        <h3 className="text-lg font-bold text-[#E2E8F0] mt-6">Do I need a Master&apos;s degree to apply for a PhD abroad?</h3>
+        <p>In Europe, a Master&apos;s degree (MTech/MS) is almost strictly required. In the US and Singapore, you can often apply directly after a 4-year BTech/BE degree, provided you have excellent academic records and research experience.</p>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, ExternalLink, ShieldAlert, Target, FileText } from "lucide-react";
+import { ArrowLeft, BookOpen, ExternalLink, ShieldAlert, Target, FileText, GraduationCap } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "DRDO Recruitment Process for Electronics Engineers: Complete Guide | SiliconPath",
@@ -58,7 +58,7 @@ export default function DrdoRecruitmentGuide() {
 
         <h2 className="text-2xl font-bold text-white mt-10 mb-4">1. Eligibility Criteria (Electronics / ECE)</h2>
         <ul className="space-y-2 mt-4 bg-[#1A2438] p-6 rounded-xl border border-[#1F2937] list-none">
-          <li className="flex items-start gap-2"><GraduationCap className="w-5 h-5 text-blue-400 shrink-0" /> <strong>Degree:</strong> First Class Bachelor's Degree (B.E. / B.Tech) in Electronics & Communication Engg, Electronics Engg, or equivalent from a recognized university.</li>
+          <li className="flex items-start gap-2"><GraduationCap className="w-5 h-5 text-blue-400 shrink-0" /> <strong>Degree:</strong> First Class Bachelor&apos;s Degree (B.E. / B.Tech) in Electronics &amp; Communication Engg, Electronics Engg, or equivalent from a recognized university.</li>
           <li className="flex items-start gap-2"><Target className="w-5 h-5 text-blue-400 shrink-0" /> <strong>GATE:</strong> Must possess a valid GATE score in Electronics and Communication Engineering (EC).</li>
           <li className="flex items-start gap-2"><ShieldAlert className="w-5 h-5 text-blue-400 shrink-0" /> <strong>Age Limit:</strong> Unreserved (UR): 28 years, OBC (NCL): 31 years, SC/ST: 33 years.</li>
         </ul>
@@ -90,7 +90,7 @@ export default function DrdoRecruitmentGuide() {
         <ul className="list-disc pl-6 space-y-2 mt-2">
           <li><strong>Duration:</strong> Typically 30 to 45 minutes with a panel of 5-6 senior scientists.</li>
           <li><strong>Whiteboard Testing:</strong> You will almost certainly be asked to walk to a whiteboard and draw/explain circuits (e.g., Op-Amp internal architecture, PLL block diagrams, antenna radiation patterns).</li>
-          <li><strong>Core Subjects:</strong> They will ask you to name your 3-4 favorite subjects and drill deep into fundamentals. If you say "Analog Circuits", expect questions starting from basic PN junction physics up to complex amplifier frequency responses.</li>
+          <li><strong>Core Subjects:</strong> They will ask you to name your 3-4 favorite subjects and drill deep into fundamentals. If you say &quot;Analog Circuits&quot;, expect questions starting from basic PN junction physics up to complex amplifier frequency responses.</li>
         </ul>
 
         <h2 className="text-2xl font-bold text-white mt-10 mb-4">3. Final Merit List</h2>
@@ -106,7 +106,7 @@ export default function DrdoRecruitmentGuide() {
         <h2 className="text-xl font-bold text-white mb-4">Frequently Asked Questions</h2>
         
         <h3 className="text-lg font-bold text-[#E2E8F0]">How can an electronics engineer join DRDO?</h3>
-        <p>Electronics Engineers typically join DRDO as Scientist 'B' through the Recruitment and Assessment Centre (RAC). The process involves shortlisting via a valid GATE score in ECE, followed by a written descriptive exam, and finally a rigorous technical interview.</p>
+        <p>Electronics Engineers typically join DRDO as Scientist &apos;B&apos; through the Recruitment and Assessment Centre (RAC). The process involves shortlisting via a valid GATE score in ECE, followed by a written descriptive exam, and finally a rigorous technical interview.</p>
 
         <h3 className="text-lg font-bold text-[#E2E8F0] mt-6">Is GATE mandatory for DRDO Scientist B recruitment?</h3>
         <p>Yes, a valid GATE score is usually mandatory for shortlisting candidates for the written exam. However, candidates with an 8.0+ CGPA from IITs or NITs are sometimes exempted from the GATE requirement and called directly for the written test.</p>

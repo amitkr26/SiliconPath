@@ -43,7 +43,7 @@ export default function JrfSrfDifferenceGuide() {
 
       <div className="mb-8">
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-white leading-tight">
-          JRF vs SRF vs Research Associate: What's the Difference?
+          JRF vs SRF vs Research Associate: What&apos;s the Difference?
         </h1>
         <div className="flex items-center gap-4 mt-4 text-[#94A3B8] text-sm">
           <span>Updated: July 2026</span>
