@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen, GraduationCap, Briefcase, Globe, FileText, BookMarked, ArrowRight, Zap, Award, Network } from "lucide-react";
 
@@ -14,11 +14,11 @@ export const metadata: Metadata = {
 };
 
 const GUIDE_CARDS = [
-  { href: "/resources/jrf-guide", icon: GraduationCap, title: "JRF Complete Guide", description: "Everything about Junior Research Fellowship: eligibility, stipend ₹37,000-42,000/month, age limit, how to apply, documents needed, DRDO/ISRO/CSIR openings.", color: "from-cyan/20 to-blue-500/20 border-cyan/30", iconBg: "bg-cyan/10", iconColor: "text-[#00E5FF]" },
-  { href: "/resources/phd-guide", icon: BookOpen, title: "PhD in Electronics Guide", description: "Complete PhD admission guide: 3 admission routes, top institutions with stipends, funding options (CSIR/UGC/INSPIRE/PMRF), professor email template, application timeline.", color: "from-emerald-500/20 to-teal-500/20 border-emerald-500/30", iconBg: "bg-emerald-500/10", iconColor: "text-emerald-400" },
-  { href: "/resources/vlsi-careers", icon: Zap, title: "VLSI Career Guide", description: "VLSI career paths in India: roles (design, verification, layout), top companies (Intel, AMD, Qualcomm, TI), salary ranges, required skills, and training resources.", color: "from-purple-500/20 to-pink-500/20 border-purple-500/30", iconBg: "bg-purple-500/10", iconColor: "text-purple-400" },
-  { href: "/resources/international-fellowships", icon: Globe, title: "International Fellowships", description: "DAAD (Germany), SINGA (Singapore), MEXT (Japan), Marie Curie (EU) — fully-funded PhD and research fellowships for Indian electronics researchers abroad.", color: "from-blue-500/20 to-indigo-500/20 border-blue-500/30", iconBg: "bg-blue-500/10", iconColor: "text-blue-400" },
-  { href: "/resources/net-vs-gate", icon: Network, title: "NET vs GATE Comparison", description: "Which exam should you choose? UGC-NET Electronic Science vs GATE ECE: syllabus, stipend, career paths, age limits, and strategy to appear for both.", color: "from-amber-500/20 to-orange-500/20 border-amber-500/30", iconBg: "bg-amber-500/10", iconColor: "text-amber-400" },
+  { href: "/resources/jrf-vs-srf-difference", icon: GraduationCap, title: "JRF vs SRF vs RA Guide", description: "Everything about Junior Research Fellowship: eligibility, stipend ₹37,000-42,000/month, age limit, and progression to SRF and RA.", color: "from-cyan/20 to-blue-500/20 border-cyan/30", iconBg: "bg-cyan/10", iconColor: "text-[#00E5FF]" },
+  { href: "/resources/drdo-recruitment-electronics", icon: Briefcase, title: "DRDO Recruitment Guide", description: "Complete process to join DRDO as Scientist B: GATE shortlisting, written exam syllabus, and the rigorous interview format.", color: "from-blue-500/20 to-indigo-500/20 border-blue-500/30", iconBg: "bg-blue-500/10", iconColor: "text-blue-400" },
+  { href: "/resources/fully-funded-phd-vlsi-abroad", icon: Globe, title: "Fully-Funded PhD Abroad", description: "How to secure a salaried PhD position in Europe and Singapore. Email templates and top university programs for VLSI.", color: "from-emerald-500/20 to-teal-500/20 border-emerald-500/30", iconBg: "bg-emerald-500/10", iconColor: "text-emerald-400" },
+  { href: "/resources/vlsi-careers", icon: Zap, title: "VLSI Career Guide", description: "VLSI career paths in India: roles (design, verification, layout), top companies (Intel, AMD, Qualcomm, TI), salary ranges, required skills.", color: "from-purple-500/20 to-pink-500/20 border-purple-500/30", iconBg: "bg-purple-500/10", iconColor: "text-purple-400" },
+  { href: "/resources/net-vs-gate", icon: Network, title: "NET vs GATE Comparison", description: "Which exam should you choose? UGC-NET Electronic Science vs GATE ECE: syllabus, stipend, career paths, age limits, and strategy.", color: "from-amber-500/20 to-orange-500/20 border-amber-500/30", iconBg: "bg-amber-500/10", iconColor: "text-amber-400" },
 ];
 
 const sections = [

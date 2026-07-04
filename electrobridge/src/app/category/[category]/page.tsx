@@ -128,9 +128,20 @@ export default async function CategoryPage({ params }: { params: { category: str
     mainEntity: getFAQ(params.category),
   };
 
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": opportunities.map((opp, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "url": `https://siliconpath.vercel.app/opportunities/${opp.slug}`
+    }))
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
 
       <Link href="/opportunities" className="inline-flex items-center gap-1 text-[#94A3B8] hover:text-white transition-colors text-sm mb-6">
         <ArrowLeft className="w-4 h-4" />

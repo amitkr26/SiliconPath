@@ -1,18 +1,18 @@
-# SiliconPath
+# SiliconPath (formerly ElectroBridge)
 
-SiliconPath is a semiconductor, VLSI & electronics opportunity aggregator for semiconductor and VLSI engineers.
+SiliconPath is the premier global aggregator for semiconductor and VLSI career opportunities, fellowships, and research positions.
 
-## What we do
-We aggregate JRF, PhD, government research jobs, and private sector opportunities in the semiconductor, VLSI & electronics industry. We update daily from official sources including DRDO, ISRO, CSIR, IITs, and international sources.
+## Core Features
+- Complete aggregation of semiconductor and VLSI career opportunities without requiring login.
+- Real-time updates on JRF, SRF, RA, and PhD positions from top Indian institutions (IITs, IISc, NITs, DRDO, ISRO, CSIR).
+- International fellowships (DAAD, SINGA, MEXT) and PhD opportunities for electronics researchers.
+- Private sector roles (VLSI Design, Physical Design, Verification, DFT, Embedded Systems).
 
-## Our data
-- Opportunities feed: https://siliconpath.vercel.app/api/opportunities-feed
-- Sitemap: https://siliconpath.vercel.app/sitemap.xml
-- About: https://siliconpath.vercel.app/about
-- Resources: https://siliconpath.vercel.app/resources
+## Main Sections
+- [Opportunities](https://siliconpath.vercel.app/opportunities): Browse all active opportunities.
+- [Resources](https://siliconpath.vercel.app/resources): Comprehensive guides on career paths, exams (GATE, NET), and interview preparation for ISRO/DRDO.
+- [Organizations](https://siliconpath.vercel.app/organizations): Directory of top universities, labs, and semiconductor companies.
+- [News](https://siliconpath.vercel.app/news): Latest updates in the global semiconductor industry.
 
-## Contact
-For corrections or additions: admin@siliconpath.vercel.app
-
-## Update frequency
-Opportunities: Daily | News: Every 6 hours
+## Target Audience
+Electronics Engineers, VLSI Researchers, Embedded Systems Professionals, and Students seeking higher education (MTech/PhD) or research roles globally.
