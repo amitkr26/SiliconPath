@@ -60,8 +60,8 @@ export async function GET(request: NextRequest) {
             apply_link: opp.apply_link,
             source_url: opp.source_url,
             tags: opp.tags,
-            verification_status: "pending",
-            is_active: false,
+            verification_status: "verified",
+            is_active: true,
           },
         ]);
 

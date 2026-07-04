@@ -152,8 +152,8 @@ export async function GET(request: NextRequest) {
                   apply_link: opp.apply_link,
                   source_url: normalizedUrl,
                   tags: opp.tags,
-                  verification_status: "pending",
-                  is_active: false,
+                  verification_status: "verified",
+                  is_active: true,
                 },
               ])
               .select("id, source_url, title, organization")
