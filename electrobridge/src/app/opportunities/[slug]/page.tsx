@@ -32,7 +32,7 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props) {
-  if (!supabaseAdmin?.from) return { title: "Opportunity | ElectroBridge" };
+  if (!supabaseAdmin?.from) return { title: "Opportunity | SiliconPath" };
 
   const { data: opportunity } = await supabaseAdmin
     .from("opportunities")
@@ -49,19 +49,19 @@ export async function generateMetadata({ params }: Props) {
   return {
     title: `${opportunity.title} — ${opportunity.organization}`,
     description: `${opportunity.category} position at ${opportunity.organization}${opportunity.location ? ` in ${opportunity.location}` : ""}.${opportunity.eligibility ? ` Eligibility: ${opportunity.eligibility}.` : ""}${opportunity.stipend ? ` Stipend: ${opportunity.stipend}.` : ""} Apply by ${deadlineStr}.`,
-    keywords: [...(opportunity.tags || []), opportunity.organization, opportunity.category, opportunity.location, "ElectroBridge"].filter(Boolean),
+    keywords: [...(opportunity.tags || []), opportunity.organization, opportunity.category, opportunity.location, "SiliconPath"].filter(Boolean),
     openGraph: {
       title: `${opportunity.title} | ${opportunity.organization}`,
       description: `${opportunity.category} • ${opportunity.location || "India"} • Deadline: ${deadlineStr} • ${opportunity.eligibility || ""}`,
-      url: `https://electrobridge.vercel.app/opportunities/${params.slug}`,
-      images: [{ url: `https://electrobridge.vercel.app/api/og/opportunity/${params.slug}` }],
+      url: `https://siliconpath.vercel.app/opportunities/${params.slug}`,
+      images: [{ url: `https://siliconpath.vercel.app/api/og/opportunity/${params.slug}` }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${opportunity.title} | ${opportunity.organization}`,
-      images: [`https://electrobridge.vercel.app/api/og/opportunity/${params.slug}`],
+      images: [`https://siliconpath.vercel.app/api/og/opportunity/${params.slug}`],
     },
-    alternates: { canonical: `https://electrobridge.vercel.app/opportunities/${params.slug}` },
+    alternates: { canonical: `https://siliconpath.vercel.app/opportunities/${params.slug}` },
   };
 }
 
@@ -115,16 +115,16 @@ export default async function OpportunityDetailPage({ params }: Props) {
         }
       : undefined,
     datePosted: opportunity.posted_at,
-    url: `https://electrobridge.vercel.app/opportunities/${opportunity.slug}`,
+    url: `https://siliconpath.vercel.app/opportunities/${opportunity.slug}`,
   };
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://electrobridge.vercel.app" },
-      { "@type": "ListItem", position: 2, name: "Opportunities", item: "https://electrobridge.vercel.app/opportunities" },
-      { "@type": "ListItem", position: 3, name: opportunity.title, item: `https://electrobridge.vercel.app/opportunities/${opportunity.slug}` },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://siliconpath.vercel.app" },
+      { "@type": "ListItem", position: 2, name: "Opportunities", item: "https://siliconpath.vercel.app/opportunities" },
+      { "@type": "ListItem", position: 3, name: opportunity.title, item: `https://siliconpath.vercel.app/opportunities/${opportunity.slug}` },
     ],
   };
 
@@ -391,9 +391,9 @@ export default async function OpportunityDetailPage({ params }: Props) {
               title={opportunity.title}
               organization={opportunity.organization}
               deadline={opportunity.deadline}
-              opportunityUrl={`https://electrobridge.vercel.app/opportunities/${opportunity.slug}`}
+              opportunityUrl={`https://siliconpath.vercel.app/opportunities/${opportunity.slug}`}
             />
-            <CopyLinkButton url={`https://electrobridge.vercel.app/opportunities/${opportunity.slug}`} />
+            <CopyLinkButton url={`https://siliconpath.vercel.app/opportunities/${opportunity.slug}`} />
           </div>
         </div>
       </div>
@@ -459,9 +459,9 @@ export default async function OpportunityDetailPage({ params }: Props) {
           title={opportunity.title}
           organization={opportunity.organization}
           deadline={opportunity.deadline}
-          opportunityUrl={`https://electrobridge.vercel.app/opportunities/${opportunity.slug}`}
+          opportunityUrl={`https://siliconpath.vercel.app/opportunities/${opportunity.slug}`}
         />
-        <CopyLinkButton url={`https://electrobridge.vercel.app/opportunities/${opportunity.slug}`} />
+        <CopyLinkButton url={`https://siliconpath.vercel.app/opportunities/${opportunity.slug}`} />
       </div>
 
       {/* AI Summary */}

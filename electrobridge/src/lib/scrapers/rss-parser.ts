@@ -1,4 +1,4 @@
-﻿import Parser from "rss-parser";
+import Parser from "rss-parser";
 import type { ScrapedOpportunity } from "./types";
 import { isElectronicsNews } from "./news-filter";
 import { autoTagArticle } from "./news-filter";
@@ -56,6 +56,18 @@ export const NEWS_SOURCES: NewsSourceConfig[] = [
     tags: ["electronics", "India", "DIY"],
     relevance_tier: 1,
   },
+  {
+    name: "The Electronics Media",
+    url: "https://theelectronicsmedia.com/feed/",
+    tags: ["electronics", "India", "industry"],
+    relevance_tier: 1,
+  },
+  {
+    name: "Electronics Bazaar",
+    url: "https://electronicsbazaar.in/feed/",
+    tags: ["electronics", "India", "bazaar"],
+    relevance_tier: 1,
+  },
   // ── TIER 2: Semiconductor Industry News ──
   {
     name: "AnandTech",
@@ -68,6 +80,36 @@ export const NEWS_SOURCES: NewsSourceConfig[] = [
     url: "https://www.theregister.com/hardware/semiconductors/headlines.atom",
     tags: ["semiconductor", "industry", "business"],
     relevance_tier: 2,
+  },
+  {
+    name: "Tom's Hardware Chips",
+    url: "https://www.tomshardware.com/feeds/all",
+    tags: ["processor", "semiconductor", "hardware"],
+    relevance_tier: 2,
+  },
+  {
+    name: "WikiChip News",
+    url: "https://en.wikichip.org/w/index.php?title=Special:RecentChanges&feed=rss",
+    tags: ["semiconductor", "wiki", "architecture"],
+    relevance_tier: 2,
+  },
+  {
+    name: "Semiconductor Today",
+    url: "http://www.semiconductor-today.com/rss.xml",
+    tags: ["semiconductor", "compound", "materials"],
+    relevance_tier: 1,
+  },
+  {
+    name: "Power Electronics News",
+    url: "https://www.powerelectronicsnews.com/feed/",
+    tags: ["power", "electronics", "EV"],
+    relevance_tier: 1,
+  },
+  {
+    name: "EDN Network",
+    url: "https://www.edn.com/rss/",
+    tags: ["VLSI", "design", "board-design"],
+    relevance_tier: 1,
   },
   // ── TIER 3: Research & Academic ──
   {
@@ -98,6 +140,18 @@ export const NEWS_SOURCES: NewsSourceConfig[] = [
     name: "Phys.org — Electronics",
     url: "https://phys.org/rss-feed/technology-news/electronics/",
     tags: ["research", "technology", "electronics"],
+    relevance_tier: 1,
+  },
+  {
+    name: "MIT News EE",
+    url: "https://news.mit.edu/topic/electrical-engineering-computer-science/rss",
+    tags: ["research", "academic", "MIT"],
+    relevance_tier: 1,
+  },
+  {
+    name: "Stanford EE News",
+    url: "https://ee.stanford.edu/news/rss.xml",
+    tags: ["research", "academic", "Stanford"],
     relevance_tier: 1,
   },
   // ── TIER 4: India-Specific Electronics ──

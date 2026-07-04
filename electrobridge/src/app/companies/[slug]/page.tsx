@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { FEATURES } from "@/lib/feature-flags";
+import { ComingSoon } from "@/components/shared/ComingSoon";
 
 function getInitials(name: string): string {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
@@ -40,8 +42,8 @@ export default function CompanyDetailPage() {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: data.name,
-      description: data.description || `${data.name} — Company profile on ElectroBridge`,
-      url: `https://electrobridge.vercel.app/companies/${slug}`,
+      description: data.description || `${data.name} — Company profile on SiliconPath`,
+      url: `https://siliconpath.vercel.app/companies/${slug}`,
       ...(data.website ? { sameAs: [data.website] } : {}),
       ...(data.industry ? { industry: data.industry } : {}),
     };
@@ -50,8 +52,8 @@ export default function CompanyDetailPage() {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://electrobridge.vercel.app" },
-        { "@type": "ListItem", position: 2, name: "Companies", item: "https://electrobridge.vercel.app/companies" },
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://siliconpath.vercel.app" },
+        { "@type": "ListItem", position: 2, name: "Companies", item: "https://siliconpath.vercel.app/companies" },
         { "@type": "ListItem", position: 3, name: data.name },
       ],
     };
@@ -98,6 +100,15 @@ export default function CompanyDetailPage() {
       toast.success("Following company!");
     }
   };
+
+  if (!FEATURES.LINKEDIN_ENABLED) {
+    return (
+      <ComingSoon
+        feature="Company Profile"
+        description="Follow top VLSI companies, government research labs, and universities to track their hiring updates."
+      />
+    );
+  }
 
   if (loading) {
     return (

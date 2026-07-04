@@ -10,6 +10,8 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import type { UserProfile, SkillEndorsement, Recommendation } from "@/types";
+import { FEATURES } from "@/lib/feature-flags";
+import { ComingSoon } from "@/components/shared/ComingSoon";
 
 function getInitials(name: string): string {
   return name.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase();
@@ -148,6 +150,15 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     }
     setSubmitting(false);
   };
+
+  if (!FEATURES.LINKEDIN_ENABLED) {
+    return (
+      <ComingSoon
+        feature="Public Profile"
+        description="View professional headlines, research summaries, skill endorsements, and peer recommendations."
+      />
+    );
+  }
 
   if (loading) {
     return (

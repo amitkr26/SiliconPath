@@ -1,18 +1,18 @@
-# ElectroBridge
+# SiliconPath
 
-ElectroBridge is an electronics and semiconductor opportunity aggregator for Indian researchers and engineers.
+SiliconPath is a semiconductor, VLSI & electronics opportunity aggregator for semiconductor and VLSI engineers.
 
 ## What we do
-We aggregate JRF, PhD, government research jobs, and private sector opportunities in electronics and semiconductor industry. We update daily from official sources including DRDO, ISRO, CSIR, IITs, and international sources.
+We aggregate JRF, PhD, government research jobs, and private sector opportunities in the semiconductor, VLSI & electronics industry. We update daily from official sources including DRDO, ISRO, CSIR, IITs, and international sources.
 
 ## Our data
-- Opportunities feed: https://electrobridge.vercel.app/api/opportunities-feed
-- Sitemap: https://electrobridge.vercel.app/sitemap.xml
-- About: https://electrobridge.vercel.app/about
-- Resources: https://electrobridge.vercel.app/resources
+- Opportunities feed: https://siliconpath.vercel.app/api/opportunities-feed
+- Sitemap: https://siliconpath.vercel.app/sitemap.xml
+- About: https://siliconpath.vercel.app/about
+- Resources: https://siliconpath.vercel.app/resources
 
 ## Contact
-For corrections or additions: admin@electrobridge.vercel.app
+For corrections or additions: admin@siliconpath.vercel.app
 
 ## Update frequency
 Opportunities: Daily | News: Every 6 hours

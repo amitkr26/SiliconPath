@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { db1, neonSecondary } from "@/lib/db";
 
 export async function GET(request: Request) {
+  if (!db1 || !neonSecondary) {
+    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+  }
+
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

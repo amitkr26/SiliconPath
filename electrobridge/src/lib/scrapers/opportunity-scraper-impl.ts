@@ -1,7 +1,13 @@
 import type { ScrapedOpportunity, ScrapeResult } from "./types";
 import { supabaseAdmin } from "@/lib/supabase";
 import { scrapeISRO } from "./isro-scraper";
-import { scrapeGovtJobs } from "./govt-scraper";
+import { scrapeDRDO } from "./drdo-scraper";
+import { scrapeCSIR } from "./csir-scraper";
+import { scrapeIndiaPSU } from "./india-psu-scraper";
+import { scrapeIndiaAcademic } from "./india-academic-scraper";
+import { scrapeGlobalSemiconductor } from "./global-semiconductor-scraper";
+import { scrapeInternationalAcademic } from "./international-academic-scraper";
+import { scrapeFellowships } from "./fellowship-scraper";
 
 export interface ScrapedSource {
   id: string;
@@ -109,7 +115,13 @@ export async function scrapeAllOpportunities(): Promise<{
 
   const traditionalSources = [
     { name: "ISRO", scraper: scrapeISRO },
-    { name: "GovtJobs", scraper: () => scrapeGovtJobs().then(r => r.opportunities) },
+    { name: "DRDO", scraper: scrapeDRDO },
+    { name: "CSIR", scraper: scrapeCSIR },
+    { name: "IndiaPSU", scraper: scrapeIndiaPSU },
+    { name: "IndiaAcademic", scraper: scrapeIndiaAcademic },
+    { name: "GlobalSemiconductor", scraper: scrapeGlobalSemiconductor },
+    { name: "InternationalAcademic", scraper: scrapeInternationalAcademic },
+    { name: "Fellowships", scraper: scrapeFellowships },
   ];
 
   const databaseSources = await getTraditionalScrapeSources();
@@ -117,6 +129,7 @@ export async function scrapeAllOpportunities(): Promise<{
   const allResults: ScrapeResult[] = [];
   const allOpportunities: ScrapedOpportunity[] = [];
 
+  // Run database-configured ATS sources
   for (const source of databaseSources) {
     const startTime = new Date().toISOString();
     const runId = crypto.randomUUID();
@@ -154,43 +167,60 @@ export async function scrapeAllOpportunities(): Promise<{
     }
   }
 
-  for (const source of traditionalSources) {
+  // Use Promise.allSettled to scrape all traditional/built-in sources concurrently
+  const scrapePromises = traditionalSources.map(async (source) => {
     const startTime = new Date().toISOString();
     const runId = crypto.randomUUID();
     runIds.push(runId);
 
     try {
       const data = await source.scraper();
-      allOpportunities.push(...data);
-      const sourceResult: ScrapeResult = { source: source.name, success: true, count: data.length };
-      allResults.push(sourceResult);
       console.log(`${source.name}: ${data.length} opportunities scraped`);
 
-      await supabaseAdmin.from("scrape_runs").insert([{
-        source_id: runId,
-        source_name: source.name,
-        source_type: "traditional",
-        start_time: startTime,
-        end_time: new Date().toISOString(),
-        success: true,
-        opportunities_scraped: data.length,
-        created_at: new Date().toISOString(),
-      }]);
+      // Log success run details to supabase
+      if (supabaseAdmin) {
+        await supabaseAdmin.from("scrape_runs").insert([{
+          source_id: runId,
+          source_name: source.name,
+          source_type: "traditional",
+          start_time: startTime,
+          end_time: new Date().toISOString(),
+          success: true,
+          opportunities_scraped: data.length,
+          created_at: new Date().toISOString(),
+        }]);
+      }
+
+      return { source: source.name, success: true, count: data.length, data };
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       console.error(`${source.name} scraper failed:`, msg);
-      allResults.push({ source: source.name, success: false, count: 0, error: msg });
-      await supabaseAdmin.from("scrape_runs").insert([{
-        source_id: runId,
-        source_name: source.name,
-        source_type: "traditional",
-        start_time: startTime,
-        end_time: new Date().toISOString(),
-        success: false,
-        opportunities_scraped: 0,
-        error_message: msg,
-        created_at: new Date().toISOString(),
-      }]);
+
+      if (supabaseAdmin) {
+        await supabaseAdmin.from("scrape_runs").insert([{
+          source_id: runId,
+          source_name: source.name,
+          source_type: "traditional",
+          start_time: startTime,
+          end_time: new Date().toISOString(),
+          success: false,
+          opportunities_scraped: 0,
+          error_message: msg,
+          created_at: new Date().toISOString(),
+        }]);
+      }
+
+      return { source: source.name, success: false, count: 0, error: msg, data: [] };
+    }
+  });
+
+  const settles = await Promise.allSettled(scrapePromises);
+
+  for (const settle of settles) {
+    if (settle.status === 'fulfilled') {
+      const val = settle.value;
+      allResults.push({ source: val.source, success: val.success, count: val.count, error: val.error });
+      allOpportunities.push(...val.data);
     }
   }
 

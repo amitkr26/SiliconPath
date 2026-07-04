@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { FEATURES } from "@/lib/feature-flags";
+import { ComingSoon } from "@/components/shared/ComingSoon";
 
 function getInitials(name: string): string {
   return name.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase();
@@ -116,6 +118,15 @@ export default function MessagesPage() {
       toast.error(err.error || "Failed to send");
     }
   };
+
+  if (!FEATURES.LINKEDIN_ENABLED) {
+    return (
+      <ComingSoon
+        feature="Direct Messaging"
+        description="Message other researchers, coordinate projects, and chat with peers in the semiconductor ecosystem."
+      />
+    );
+  }
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-[80vh]"><Loader2 className="w-8 h-8 text-accent animate-spin" /></div>;

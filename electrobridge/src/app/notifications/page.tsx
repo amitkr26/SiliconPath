@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { formatDistanceToNow } from "date-fns";
+import { FEATURES } from "@/lib/feature-flags";
+import { ComingSoon } from "@/components/shared/ComingSoon";
 
 function getInitials(name: string): string {
   return name.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase();
@@ -54,6 +56,7 @@ const TYPE_LINKS: Record<string, string> = {
 
 export default function NotificationsPage() {
   const router = useRouter();
+
   const supabase = createClient();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,6 +96,15 @@ export default function NotificationsPage() {
     if (notif.actor_id) return `/people/${notif.actor_id}`;
     return "#";
   };
+
+  if (!FEATURES.LINKEDIN_ENABLED) {
+    return (
+      <ComingSoon
+        feature="Notification Center"
+        description="Stay updated when someone endorsements your skills, accepts your connection requests, or posts new comments."
+      />
+    );
+  }
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-[80vh]"><Loader2 className="w-8 h-8 text-accent animate-spin" /></div>;

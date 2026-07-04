@@ -83,14 +83,14 @@ export async function generateMetadata({ params }: { params: { category: string 
   const config = CATEGORY_CONFIG[params.category];
   if (!config) return { title: "Category Not Found" };
   return {
-    title: config.title + " | ElectroBridge",
+    title: config.title + " | SiliconPath",
     description: config.metaDesc,
     keywords: config.keywords,
-    alternates: { canonical: `https://electrobridge.vercel.app/category/${params.category}` },
+    alternates: { canonical: `https://siliconpath.vercel.app/category/${params.category}` },
     openGraph: {
       title: config.title,
       description: config.metaDesc,
-      url: `https://electrobridge.vercel.app/category/${params.category}`,
+      url: `https://siliconpath.vercel.app/category/${params.category}`,
     },
   };
 }
@@ -229,7 +229,7 @@ function getFAQ(category: string): any[] {
       { "@type": "Question", name: "What is the JRF stipend in 2026?", acceptedAnswer: { "@type": "Answer", text: "The JRF stipend in India for 2026 is ₹37,000 per month for the first two years, increasing to ₹42,000 per month (SRF) for years 3-5. Additional benefits include HRA (10-30% of stipend depending on city) and an annual contingency grant of ₹20,000 for science researchers." } },
       { "@type": "Question", name: "What is the age limit for JRF?", acceptedAnswer: { "@type": "Answer", text: "The maximum age for JRF is 28 years for General category, 33 years for SC/ST/PwD/Women, and 31 years for OBC-NCL as per UGC and CSIR norms. Age relaxation is applicable as per government rules." } },
       { "@type": "Question", name: "Do I need NET or GATE for JRF?", acceptedAnswer: { "@type": "Answer", text: "Yes, a valid UGC-NET (Electronic Science) or GATE (ECE) score is required for most JRF positions. Some institutional JRFs at IITs and DRDO may accept CSIR-UGC NET. DST-INSPIRE fellowship has a separate eligibility criteria." } },
-      { "@type": "Question", name: "How to apply for JRF positions?", acceptedAnswer: { "@type": "Answer", text: "JRF applications are submitted through individual organization portals. For DRDO labs, check drdo.gov.in/careers. For CSIR labs, visit csirhrdg.res.in. For IIT positions, check each institute's website. Use ElectroBridge to see all active JRF positions in one place and apply through the official links provided." } },
+      { "@type": "Question", name: "How to apply for JRF positions?", acceptedAnswer: { "@type": "Answer", text: "JRF applications are submitted through individual organization portals. For DRDO labs, check drdo.gov.in/careers. For CSIR labs, visit csirhrdg.res.in. For IIT positions, check each institute's website. Use SiliconPath to see all active JRF positions in one place and apply through the official links provided." } },
     ],
     "srf": [
       { "@type": "Question", name: "What is the SRF stipend?", acceptedAnswer: { "@type": "Answer", text: "SRF stipend in 2026 is ₹42,000 per month plus HRA. SRF positions are for researchers with 2+ years of JRF experience or those holding a PhD degree." } },

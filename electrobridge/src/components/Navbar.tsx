@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { FEATURES } from "@/lib/feature-flags";
 
 const OPPORTUNITY_LINKS = [
   { href: "/category/jrf", label: "JRF Positions", icon: GraduationCap },
@@ -32,13 +33,13 @@ const RESOURCE_LINKS = [
 ];
 
 const NAV_ITEMS = [
-  { href: "/feed", label: "Feed", icon: Home },
-  { href: "/network", label: "Network", icon: Users },
-  { href: "/companies", label: "Companies", icon: Building2 },
   { href: "/opportunities", label: "Opportunities", icon: Briefcase, dropdown: OPPORTUNITY_LINKS },
   { href: "/news", label: "News", icon: Newspaper },
-  { href: "/community", label: "Community", icon: MessageSquare },
   { href: "/resources", label: "Resources", icon: BookOpen, dropdown: RESOURCE_LINKS },
+  { href: "/organizations", label: "Organizations", icon: Building2 },
+  { href: "/community", label: "Community", icon: MessageSquare },
+  { href: "/match", label: "Find My Match", icon: Sparkles },
+  { href: "/chat", label: "Ask AI", icon: CircuitBoard },
 ];
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -286,7 +287,7 @@ export default function Navbar() {
                       }`}
                     >
                       <Icon className="w-3.5 h-3.5" />
-                      {item.label}
+                      <span>{item.label}</span>
                     </Link>
                   );
                 })}
@@ -504,7 +505,7 @@ export default function Navbar() {
                     <div className={`flex items-center justify-center w-6 h-6 rounded-md ${active ? "bg-accent/15" : "bg-surface-elevated"}`}>
                       <Icon className="w-3 h-3" />
                     </div>
-                    <span>{item.label}</span>
+                    <span className="flex-1">{item.label}</span>
                   </Link>
                 );
               })}

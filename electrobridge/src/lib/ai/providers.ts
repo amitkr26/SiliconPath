@@ -1,4 +1,4 @@
-﻿import { neonPrimary } from "@/lib/db";
+import { neonPrimary } from "@/lib/db";
 
 export type AIProvider = "bedrock" | "groq" | "nvidia" | "gemini" | "openrouter" | "cloudflare" | "huggingface";
 
@@ -19,6 +19,7 @@ export interface AILogEntry {
 }
 
 async function logAIUsage(entry: AILogEntry) {
+  if (!neonPrimary) return;
   try {
     await neonPrimary`
       INSERT INTO ai_usage_log (feature, provider, model, prompt_length, response_length, success, error_message)
@@ -32,12 +33,12 @@ async function logAIUsage(entry: AILogEntry) {
 }
 
 const PROVIDER_ORDER: AIProvider[] = [
-  "nvidia",      // High quality, very fast (measured 690ms)
-  "cloudflare",  // Good quality, fast (measured 1.2s)
-  "bedrock",     // AWS Bedrock (functional, 6s latency)
-  "gemini",      // Backup
-  "groq",        // Backup
-  "openrouter",  // Backup (using gemma-2-9b-it:free)
+  "groq",        // Tier 1: Ultra-Fast (Llama 3)
+  "openrouter",  // Tier 2: High-Reliability
+  "cloudflare",  // Tier 3: Edge Compute
+  "gemini",      // Tier 4: Heavy NLP
+  "nvidia",      // Tier 5: Enterprise Backup
+  "bedrock",     // Backup
   "huggingface", // Final resort backup
 ];
 
@@ -73,6 +74,7 @@ async function callBedrock(prompt: string, systemPrompt?: string): Promise<strin
         max_tokens: 1024,
         temperature: 0.3,
       }),
+      signal: AbortSignal.timeout(5000),
     }
   );
   if (!response.ok) {
@@ -93,6 +95,7 @@ async function callGemini(prompt: string, systemPrompt?: string): Promise<string
         contents: [{ parts: [{ text: systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt }] }],
         generationConfig: { maxOutputTokens: 1024, temperature: 0.3 },
       }),
+      signal: AbortSignal.timeout(5000),
     }
   );
   if (!response.ok) throw new Error(`Gemini error: ${response.status}`);
@@ -116,6 +119,7 @@ async function callGroq(prompt: string, systemPrompt?: string): Promise<string> 
       max_tokens: 1024,
       temperature: 0.3,
     }),
+    signal: AbortSignal.timeout(4000),
   });
   if (!response.ok) throw new Error(`Groq error: ${response.status}`);
   const data = await response.json();
@@ -142,6 +146,7 @@ async function callNvidia(prompt: string, systemPrompt?: string): Promise<string
         max_tokens: 1024,
         stream: false,
       }),
+      signal: AbortSignal.timeout(5000),
     }
   );
 
@@ -182,6 +187,7 @@ async function callNvidiaAdvanced(
         max_tokens: 2048,
         stream: false,
       }),
+      signal: AbortSignal.timeout(8000), // Slightly longer for advanced
     }
   );
 
@@ -207,6 +213,7 @@ async function callOpenRouter(prompt: string, systemPrompt?: string): Promise<st
       ],
       max_tokens: 1024,
     }),
+    signal: AbortSignal.timeout(4000),
   });
   if (!response.ok) throw new Error(`OpenRouter error: ${response.status}`);
   const data = await response.json();
@@ -228,6 +235,7 @@ async function callCloudflare(prompt: string, systemPrompt?: string): Promise<st
           { role: "user" as const, content: prompt },
         ],
       }),
+      signal: AbortSignal.timeout(4000),
     }
   );
   if (!response.ok) throw new Error(`Cloudflare error: ${response.status}`);
@@ -248,6 +256,7 @@ async function callHuggingFace(prompt: string): Promise<string> {
         inputs: prompt,
         parameters: { max_new_tokens: 512, temperature: 0.3 },
       }),
+      signal: AbortSignal.timeout(5000),
     }
   );
   if (!response.ok) throw new Error(`HuggingFace error: ${response.status}`);

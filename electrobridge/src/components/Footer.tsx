@@ -25,6 +25,8 @@ export default function Footer() {
               <Link href="/chat" className="text-text-secondary hover:text-accent transition-colors text-sm">Ask AI</Link>
               <Link href="/match" className="text-text-secondary hover:text-accent transition-colors text-sm">Find My Match</Link>
               <Link href="/community" className="text-text-secondary hover:text-accent transition-colors text-sm">Community</Link>
+              <Link href="/network" className="text-text-secondary hover:text-accent transition-colors text-sm">Network</Link>
+              <Link href="/feed" className="text-text-secondary hover:text-accent transition-colors text-sm">Feed</Link>
             </div>
           </div>
           <div>

@@ -1,10 +1,10 @@
-# ElectroBridge — Electronics & Semiconductor Opportunities Platform
+# SiliconPath — Semiconductor, VLSI & Electronics Opportunities Platform
 
-AI-powered platform aggregating verified R&D, JRF, PhD, and engineering opportunities from ISRO, DRDO, CSIR, IITs, IISc, TIFR, and industry. Built for India's semiconductor and electronics research community.
+AI-powered platform aggregating verified R&D, JRF, PhD, and engineering opportunities from ISRO, DRDO, CSIR, IITs, IISc, TIFR, and industry. Built for the global semiconductor, VLSI, and electronics research community.
 
 | Component | Live URL | Stack |
 |-----------|----------|-------|
-| **Production** | [electrobridge.vercel.app](https://electrobridge.vercel.app) | Next.js 14.2.21, App Router, 7 AI providers, 4 databases |
+| **Production** | [siliconpath.vercel.app](https://siliconpath.vercel.app) | Next.js 14.2.21, App Router, 7 AI providers, 4 databases |
 
 ## Codebase: `electrobridge/`
 
@@ -54,18 +54,18 @@ npm run dev                        # → http://localhost:3000
 
 ### Key Features
 
-- **Verified Opportunities** — R&D roles from top Indian research orgs with link verification and expiry detection
-- **Electronics News** — Aggregated from 16 RSS sources with AI relevance filtering
-- **AI Chat** — Career assistant specialized in Indian R&D opportunities
+- **Verified Opportunities** — R&D roles from top research orgs with link verification and expiry detection
+- **Semiconductor News** — Aggregated from RSS sources with AI relevance filtering
+- **AI Chat** — Career assistant specialized in semiconductor, VLSI, and electronics opportunities
 - **AI Match** — Profile-to-opportunity matching with scoring
 - **AI Search** — Natural language query parsing
 - **AI Resume Builder** — 6-step wizard with ATS scoring
-- **LinkedIn-style Profiles** — Banner, headline, about, skills endorsements, open-to-work status
-- **Activity Feed** — Posts with 5-reaction picker, comments, reposts
-- **Network System** — Connections, followers, following, connection requests, people suggestions
-- **Company Pages** — Searchable directory with follow, detail pages
-- **Direct Messaging** — Real-time chat with read receipts
-- **Notifications** — In-app notifications with bell badge
+- **LinkedIn-style Profiles** — Banner, headline, about, skills endorsements, open-to-work status (Coming Soon)
+- **Activity Feed** — Posts with reactions, comments, reposts (Coming Soon)
+- **Network System** — Connections, followers, following, requests, suggestions (Coming Soon)
+- **Company Pages** — Searchable directory with follow, detail pages (Coming Soon)
+- **Direct Messaging** — Real-time chat with read receipts (Coming Soon)
+- **Notifications** — In-app notifications with bell badge (Coming Soon)
 - **Community Forum** — Posts, comments, upvotes
 - **Weekly Digest** — AI-generated email newsletter
 - **Multi-Database** — 4 databases: Supabase for core data + archive, Neon for analytics + read replica
@@ -75,8 +75,8 @@ npm run dev                        # → http://localhost:3000
 
 | DB | Type | Purpose | Tables |
 |----|------|---------|--------|
-| Supabase Primary | PostgreSQL | Core data (opportunities, news, auth, community, LinkedIn features) | 31 |
-| Supabase Secondary | PostgreSQL | News archive, subscriber overflow | 13 |
+| Supabase Primary | PostgreSQL | Core data (opportunities, news, auth, community) | 31 |
+| Supabase Secondary | PostgreSQL | News archive, subscriber overflow, LinkedIn features | 13 |
 | Neon Primary | PostgreSQL | Analytics (AI usage, platform analytics) | 4 |
 | Neon Secondary | PostgreSQL | Read replica (opportunities mirror, news mirror) | 2 |
 
@@ -88,4 +88,4 @@ npm run dev                        # → http://localhost:3000
 
 ## License
 
-Built for the electronics research community. 100% free tier.
+Built for the semiconductor & electronics research community. 100% free tier.

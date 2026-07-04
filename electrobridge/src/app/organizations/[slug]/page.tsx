@@ -55,9 +55,9 @@ export async function generateMetadata({ params }: Props) {
   const { name, opportunities } = await getOrganizationOpportunities(params.slug);
   if (!opportunities.length) return { title: "Organization Not Found" };
   return {
-    title: `${name} — ${opportunities.length} Active Opportunities | ElectroBridge`,
-    description: `Browse ${opportunities.length} active JRF, PhD, and research opportunities at ${name}. Find current openings and apply through ElectroBridge.`,
-    alternates: { canonical: `https://electrobridge.vercel.app/organizations/${params.slug}` },
+    title: `${name} — ${opportunities.length} Active Opportunities | SiliconPath`,
+    description: `Browse ${opportunities.length} active JRF, PhD, and research opportunities at ${name}. Find current openings and apply through SiliconPath.`,
+    alternates: { canonical: `https://siliconpath.vercel.app/organizations/${params.slug}` },
   };
 }
 
@@ -70,8 +70,8 @@ export default async function OrganizationPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "Organization",
     name,
-    description: `${name} — ${opportunities.length} active opportunities on ElectroBridge`,
-    url: `https://electrobridge.vercel.app/organizations/${params.slug}`,
+    description: `${name} — ${opportunities.length} active opportunities on SiliconPath`,
+    url: `https://siliconpath.vercel.app/organizations/${params.slug}`,
     numberOfEmployees: { "@type": "QuantitativeValue", value: opportunities.length },
   };
 
@@ -79,8 +79,8 @@ export default async function OrganizationPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://electrobridge.vercel.app" },
-      { "@type": "ListItem", position: 2, name: "Organizations", item: "https://electrobridge.vercel.app/organizations" },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://siliconpath.vercel.app" },
+      { "@type": "ListItem", position: 2, name: "Organizations", item: "https://siliconpath.vercel.app/organizations" },
       { "@type": "ListItem", position: 3, name },
     ],
   };

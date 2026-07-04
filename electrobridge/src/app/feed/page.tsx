@@ -12,6 +12,8 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import type { FeedPost, UserProfile } from "@/types";
+import { FEATURES } from "@/lib/feature-flags";
+import { ComingSoon } from "@/components/shared/ComingSoon";
 
 function getInitials(name: string): string {
   return name.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase();
@@ -46,6 +48,7 @@ const POST_TYPES = [
 
 export default function FeedPage() {
   const router = useRouter();
+
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<Partial<UserProfile>>({});
   const [loading, setLoading] = useState(true);
@@ -235,6 +238,15 @@ export default function FeedPage() {
     const Icon = r.icon;
     return <Icon className={`w-4 h-4 ${r.color}`} />;
   };
+
+  if (!FEATURES.LINKEDIN_ENABLED) {
+    return (
+      <ComingSoon
+        feature="Activity Feed"
+        description="Share posts, discuss semiconductor trends, and collaborate on VLSI research with industry professionals."
+      />
+    );
+  }
 
   if (loading) {
     return (

@@ -42,7 +42,7 @@ export async function GET(
       ? `Apply: ${opportunity.apply_link}`
       : "",
     "",
-    "More opportunities: https://electrobridge.vercel.app",
+    "More opportunities: https://siliconpath.vercel.app",
   ]
     .filter(Boolean)
     .join("\\n")
@@ -51,11 +51,11 @@ export async function GET(
   const icsContent = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//ElectroBridge//Opportunity Calendar//EN",
+    "PRODID:-//SiliconPath//Opportunity Calendar//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
-    `UID:${params.id}@electrobridge.vercel.app`,
+    `UID:${params.id}@siliconpath.vercel.app`,
     `DTSTART;VALUE=DATE:${formatICSDate(deadlineDate).split("T")[0]}`,
     `DTEND;VALUE=DATE:${formatICSDate(deadlineDate).split("T")[0]}`,
     `SUMMARY:DEADLINE: ${escapedTitle} - ${escapedOrg}`,

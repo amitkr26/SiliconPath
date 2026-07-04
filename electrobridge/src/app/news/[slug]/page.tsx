@@ -41,19 +41,19 @@ const SOURCE_COLORS: Record<string, string> = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  if (!supabaseAdmin?.from) return { title: "News | ElectroBridge" };
+  if (!supabaseAdmin?.from) return { title: "News | SiliconPath" };
 
   let article = await lookupArticle(params.slug);
   if (!article) return { title: "Article Not Found" };
 
   return {
-    title: `${article.title} | ElectroBridge News`,
-    description: article.summary || `Latest news from ${article.source || "ElectroBridge"}`,
-    alternates: { canonical: `https://electrobridge.vercel.app/news/${params.slug}` },
+    title: `${article.title} | SiliconPath News`,
+    description: article.summary || `Latest news from ${article.source || "SiliconPath"}`,
+    alternates: { canonical: `https://siliconpath.vercel.app/news/${params.slug}` },
     openGraph: {
       title: article.title,
       description: article.summary || "",
-      url: `https://electrobridge.vercel.app/news/${params.slug}`,
+      url: `https://siliconpath.vercel.app/news/${params.slug}`,
       images: article.image_url ? [{ url: article.image_url }] : [],
       type: "article",
       publishedTime: article.published_at || undefined,
@@ -108,13 +108,13 @@ export default async function NewsDetailPage({ params }: Props) {
     "@type": "NewsArticle",
     headline: article.title,
     description: article.summary,
-    url: `https://electrobridge.vercel.app/news/${params.slug}`,
+    url: `https://siliconpath.vercel.app/news/${params.slug}`,
     image: article.image_url,
     datePublished: article.published_at,
     dateModified: article.created_at || article.published_at,
     publisher: {
       "@type": "Organization",
-      name: article.source || "ElectroBridge",
+      name: article.source || "SiliconPath",
     },
     sourceOrganization: article.source ? {
       "@type": "Organization",
@@ -126,9 +126,9 @@ export default async function NewsDetailPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://electrobridge.vercel.app" },
-      { "@type": "ListItem", position: 2, name: "News", item: "https://electrobridge.vercel.app/news" },
-      { "@type": "ListItem", position: 3, name: article.title, item: `https://electrobridge.vercel.app/news/${params.slug}` },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://siliconpath.vercel.app" },
+      { "@type": "ListItem", position: 2, name: "News", item: "https://siliconpath.vercel.app/news" },
+      { "@type": "ListItem", position: 3, name: article.title, item: `https://siliconpath.vercel.app/news/${params.slug}` },
     ],
   };
 

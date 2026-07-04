@@ -6,6 +6,8 @@ import { Search, Building2, Users, MapPin, Globe } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { FEATURES } from "@/lib/feature-flags";
+import { ComingSoon } from "@/components/shared/ComingSoon";
 
 function getInitials(name: string): string {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
@@ -46,6 +48,15 @@ export default function CompaniesPage() {
     }
     loadCompanies();
   };
+
+  if (!FEATURES.LINKEDIN_ENABLED) {
+    return (
+      <ComingSoon
+        feature="Company Directory"
+        description="Follow top VLSI companies, government research labs, and universities to track their hiring updates."
+      />
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
