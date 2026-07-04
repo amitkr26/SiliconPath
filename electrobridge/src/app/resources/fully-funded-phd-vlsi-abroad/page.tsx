@@ -58,14 +58,14 @@ export default function FullyFundedPhdAbroadGuide() {
 
         <h2 className="text-2xl font-bold text-white mt-10 mb-4">1. Top Regions for VLSI & Semiconductor PhDs</h2>
         
-        <h3 className="text-xl font-semibold text-[#E2E8F0] mt-6">Europe (The "Employee" Model)</h3>
+        <h3 className="text-xl font-semibold text-[#E2E8F0] mt-6">Europe (The &quot;Employee&quot; Model)</h3>
         <p>
           In countries like the Netherlands, Germany, and Belgium, PhD candidates are hired as university employees. You receive a monthly salary (typically €2,300 - €3,000 before tax).
         </p>
         <ul className="space-y-2 mt-4 bg-[#1A2438] p-6 rounded-xl border border-[#1F2937] list-none">
-          <li className="flex items-start gap-2"><Landmark className="w-5 h-5 text-emerald-400 shrink-0" /> <strong>Top Institutions:</strong> TU Delft (Netherlands), KU Leuven & imec (Belgium), TU Munich, TU Dresden (Germany), EPFL (Switzerland).</li>
+          <li className="flex items-start gap-2"><Landmark className="w-5 h-5 text-emerald-400 shrink-0" /> <strong>Top Institutions:</strong> TU Delft (Netherlands), KU Leuven &amp; imec (Belgium), TU Munich, TU Dresden (Germany), EPFL (Switzerland).</li>
           <li className="flex items-start gap-2"><GraduationCap className="w-5 h-5 text-emerald-400 shrink-0" /> <strong>Requirements:</strong> MTech/MSc is strictly required. No GRE needed. IELTS/TOEFL is required.</li>
-          <li className="flex items-start gap-2"><Globe className="w-5 h-5 text-emerald-400 shrink-0" /> <strong>How to Apply:</strong> You don't apply to a general graduate school. You apply directly to "Vacancies" on the university website, just like a corporate job.</li>
+          <li className="flex items-start gap-2"><Globe className="w-5 h-5 text-emerald-400 shrink-0" /> <strong>How to Apply:</strong> You don&apos;t apply to a general graduate school. You apply directly to &quot;Vacancies&quot; on the university website, just like a corporate job.</li>
         </ul>
 
         <h3 className="text-xl font-semibold text-[#E2E8F0] mt-8">Singapore (SINGA Fellowship)</h3>
