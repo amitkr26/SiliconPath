@@ -78,7 +78,7 @@ export default function AIOpportunitySummary({ slug }: { slug: string }) {
             <div className="space-y-6">
               <div>
                 <h4 className="flex items-center gap-1.5 text-accent text-sm font-semibold mb-2">
-                  <Target className="w-4 h-4" /> What You'll Do
+                  <Target className="w-4 h-4" /> What You&apos;ll Do
                 </h4>
                 <p className="text-text-secondary text-sm leading-relaxed">{summary.what_you_will_do}</p>
               </div>
