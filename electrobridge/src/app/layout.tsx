@@ -3,8 +3,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import Script from "next/script";
 import { Toaster } from "sonner";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import AppLayout from "@/components/AppLayout";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const spaceGrotesk = Space_Grotesk({
@@ -71,11 +70,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} font-body bg-navy text-text-primary min-h-screen`}
       >
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-1 pt-16">{children}</main>
-          <Footer />
-        </div>
+        <AppLayout>{children}</AppLayout>
         <Toaster position="bottom-right" toastOptions={{ style: { background: '#111827', border: '1px solid #374151', color: '#F9FAFB' } }} />
         <Script defer data-domain="siliconpath.vercel.app" src="https://plausible.io/js/script.js" strategy="afterInteractive" />
       </body>
