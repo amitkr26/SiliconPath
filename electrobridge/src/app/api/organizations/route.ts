@@ -11,34 +11,45 @@ export async function GET() {
 
   try {
     const today = new Date().toISOString().split("T")[0];
-    const { data } = await supabaseAdmin
+    
+    // 1. Fetch verified company pages
+    const { data: companies, error: companyError } = await supabaseAdmin
+      .from("company_pages")
+      .select("*")
+      .order("name");
+
+    if (companyError) throw companyError;
+
+    // 2. Fetch opportunities to map counts
+    const { data: opportunities, error: oppError } = await supabaseAdmin
       .from("opportunities")
       .select("organization")
       .eq("is_active", true)
       .or(`deadline.gte.${today},deadline.is.null`);
 
-    if (!data) {
-      return NextResponse.json({ organizations: [] });
-    }
+    if (oppError) throw oppError;
 
-    const orgCount: Record<string, number> = {};
-    data.forEach((item: { organization: string }) => {
-      const org = item.organization?.trim();
-      if (org) {
-        orgCount[org] = (orgCount[org] || 0) + 1;
-      }
+    const orgCounts: Record<string, number> = {};
+    (opportunities || []).forEach((o: any) => {
+      const name = o.organization?.toLowerCase().trim();
+      if (name) orgCounts[name] = (orgCounts[name] || 0) + 1;
     });
 
-    const organizations = Object.entries(orgCount)
-      .map(([name, count]) => ({
-        name,
-        slug: name
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-|-$/g, ""),
-        count,
-      }))
-      .sort((a, b) => b.count - a.count);
+    const organizations = (companies || []).map((c: any) => {
+      const countKey = c.name?.toLowerCase().trim();
+      return {
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        tagline: c.tagline,
+        logo_url: c.logo_url,
+        industry: c.industry,
+        company_type: c.company_type,
+        headquarters: c.headquarters,
+        is_verified: c.is_verified,
+        count: orgCounts[countKey] || 0
+      };
+    }).sort((a: any, b: any) => b.count - a.count);
 
     return NextResponse.json({ organizations });
   } catch (error) {

@@ -21,31 +21,35 @@ export default function Footer() {
             <h4 className="font-display text-sm font-semibold text-text-primary mb-4">Platform</h4>
             <div className="flex flex-col gap-2.5">
               <Link href="/opportunities" className="text-text-secondary hover:text-accent transition-colors text-sm">Opportunities</Link>
-              <Link href="/news" className="text-text-secondary hover:text-accent transition-colors text-sm">News</Link>
+              <Link href="/news" className="text-text-secondary hover:text-accent transition-colors text-sm">News Feed</Link>
               <Link href="/chat" className="text-text-secondary hover:text-accent transition-colors text-sm">Ask AI</Link>
               <Link href="/match" className="text-text-secondary hover:text-accent transition-colors text-sm">Find My Match</Link>
-              <Link href="/community" className="text-text-secondary hover:text-accent transition-colors text-sm">Community</Link>
+              <Link href="/community" className="text-text-secondary hover:text-accent transition-colors text-sm">Community Forum</Link>
               <Link href="/network" className="text-text-secondary hover:text-accent transition-colors text-sm">Network</Link>
-              <Link href="/feed" className="text-text-secondary hover:text-accent transition-colors text-sm">Feed</Link>
+              <Link href="/feed" className="text-text-secondary hover:text-accent transition-colors text-sm">Social Feed</Link>
             </div>
           </div>
           <div>
-            <h4 className="font-display text-sm font-semibold text-text-primary mb-4">Resources</h4>
+            <h4 className="font-display text-sm font-semibold text-text-primary mb-4">Opportunities</h4>
             <div className="flex flex-col gap-2.5">
+              <Link href="/category/jrf" className="text-text-secondary hover:text-accent transition-colors text-sm">JRF Positions</Link>
+              <Link href="/category/srf" className="text-text-secondary hover:text-accent transition-colors text-sm">SRF Positions</Link>
+              <Link href="/category/phd" className="text-text-secondary hover:text-accent transition-colors text-sm">PhD Admissions</Link>
+              <Link href="/category/govt-job" className="text-text-secondary hover:text-accent transition-colors text-sm">Government Jobs</Link>
+              <Link href="/category/fellowship" className="text-text-secondary hover:text-accent transition-colors text-sm">Fellowships</Link>
+              <Link href="/category/private" className="text-text-secondary hover:text-accent transition-colors text-sm">Private Sector</Link>
+              <Link href="/category/international" className="text-text-secondary hover:text-accent transition-colors text-sm">International</Link>
+            </div>
+          </div>
+          <div>
+            <h4 className="font-display text-sm font-semibold text-text-primary mb-4">Company & Resources</h4>
+            <div className="flex flex-col gap-2.5">
+              <Link href="/about" className="text-text-secondary hover:text-accent transition-colors text-sm">About Us</Link>
+              <Link href="/organizations" className="text-text-secondary hover:text-accent transition-colors text-sm">Organizations Directory</Link>
               <Link href="/resources/jrf-guide" className="text-text-secondary hover:text-accent transition-colors text-sm">JRF Complete Guide</Link>
               <Link href="/resources/phd-guide" className="text-text-secondary hover:text-accent transition-colors text-sm">PhD Admission Guide</Link>
-              <Link href="/resources/international-fellowships" className="text-text-secondary hover:text-accent transition-colors text-sm">International Fellowships</Link>
               <Link href="/resources/vlsi-careers" className="text-text-secondary hover:text-accent transition-colors text-sm">VLSI Career Guide</Link>
-              <Link href="/resources/net-vs-gate" className="text-text-secondary hover:text-accent transition-colors text-sm">NET vs GATE</Link>
-            </div>
-          </div>
-          <div>
-            <h4 className="font-display text-sm font-semibold text-text-primary mb-4">Company</h4>
-            <div className="flex flex-col gap-2.5">
-              <Link href="/about" className="text-text-secondary hover:text-accent transition-colors text-sm">About</Link>
-              <Link href="/contact" className="text-text-secondary hover:text-accent transition-colors text-sm">Contact</Link>
-              <Link href="/organizations" className="text-text-secondary hover:text-accent transition-colors text-sm">Organizations</Link>
-              <Link href="/admin" className="text-text-secondary hover:text-accent transition-colors text-sm">Admin</Link>
+              <Link href="/contact" className="text-text-secondary hover:text-accent transition-colors text-sm">Contact Support</Link>
             </div>
           </div>
         </div>

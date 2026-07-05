@@ -23,8 +23,9 @@ export async function POST(request: NextRequest) {
     // Extract text from the PDF buffer
     let pdfText = "";
     try {
-      const parsed = await pdf(buffer);
-      pdfText = parsed.text || "";
+      const parser = new pdf.PDFParse({ verbosity: 0 });
+      await parser.load(buffer);
+      pdfText = await parser.getText();
     } catch (parseError: any) {
       console.error("PDF Parsing error:", parseError);
       return NextResponse.json({ error: "Could not read the PDF contents. Make sure it is not encrypted or corrupted." }, { status: 422 });

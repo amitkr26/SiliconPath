@@ -274,12 +274,89 @@ export default async function OpportunityDetailPage({ params }: Props) {
               )}
               {opportunity.stipend && (
                 <div>
-                  <span className="text-text-muted">Compensation</span>
+                  <span className="text-text-muted">Compensation / Stipend</span>
                   <p className="text-text-primary font-medium">{opportunity.stipend}</p>
+                </div>
+              )}
+              {opportunity.duration && (
+                <div>
+                  <span className="text-text-muted">Duration</span>
+                  <p className="text-text-primary font-medium">{opportunity.duration}</p>
+                </div>
+              )}
+              {opportunity.experience_required && (
+                <div>
+                  <span className="text-text-muted">Experience</span>
+                  <p className="text-text-primary font-medium">{opportunity.experience_required}</p>
+                </div>
+              )}
+              {opportunity.min_qualification && (
+                <div className="col-span-2 sm:col-span-1">
+                  <span className="text-text-muted">Min Qualification</span>
+                  <p className="text-text-primary font-medium truncate" title={opportunity.min_qualification}>{opportunity.min_qualification}</p>
                 </div>
               )}
             </div>
           </div>
+
+          {/* RESPONSIBILITIES */}
+          {opportunity.responsibilities && Array.isArray(opportunity.responsibilities) && opportunity.responsibilities.length > 0 && (
+            <div className="mt-6">
+              <div className="flex items-start gap-3">
+                <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
+                <div className="flex-1">
+                  <h2 className="font-display text-lg font-bold text-text-primary mb-2">Key Responsibilities</h2>
+                  <ul className="space-y-2">
+                    {opportunity.responsibilities.map((item: string, i: number) => (
+                      <li key={i} className="flex items-start gap-2 text-text-secondary text-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent/80 flex-shrink-0 mt-1.5" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* REQUIREMENTS */}
+          {opportunity.requirements && Array.isArray(opportunity.requirements) && opportunity.requirements.length > 0 && (
+            <div className="mt-6">
+              <div className="flex items-start gap-3">
+                <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
+                <div className="flex-1">
+                  <h2 className="font-display text-lg font-bold text-text-primary mb-2">Specific Requirements</h2>
+                  <ul className="space-y-2">
+                    {opportunity.requirements.map((item: string, i: number) => (
+                      <li key={i} className="flex items-start gap-2 text-text-secondary text-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent/80 flex-shrink-0 mt-1.5" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SKILLS REQUIRED */}
+          {opportunity.skills_required && Array.isArray(opportunity.skills_required) && opportunity.skills_required.length > 0 && (
+            <div className="mt-6">
+              <div className="flex items-start gap-3">
+                <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
+                <div className="flex-1">
+                  <h2 className="font-display text-lg font-bold text-text-primary mb-2">Required Skills</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {opportunity.skills_required.map((skill: string, i: number) => (
+                      <span key={i} className="px-2.5 py-1 bg-surface-elevated border border-border rounded-md text-text-secondary text-xs font-medium shadow-sm">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Tags */}
           {opportunity.tags && opportunity.tags.length > 0 && (

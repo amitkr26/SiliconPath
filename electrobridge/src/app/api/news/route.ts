@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       .limit(limit);
 
     if (tag) {
-      query = query.contains("tags", [tag]);
+      query = query.or(`tags.cs.{"${tag}"},tags.cs.{"${tag.toLowerCase()}"}`);
     }
 
     if (search) {

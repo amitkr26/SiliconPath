@@ -69,8 +69,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
+      const cleanSearch = search.replace(/"/g, '\\"');
       query = query.or(
-        `title.ilike.%${search}%,organization.ilike.%${search}%,tags.cs.{${search}}`
+        `title.ilike.%${cleanSearch}%,organization.ilike.%${cleanSearch}%,tags.cs.{"${cleanSearch}"}`
       );
     }
 

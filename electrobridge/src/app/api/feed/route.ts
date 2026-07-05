@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     .order("created_at", { ascending: false });
 
   if (relevantIds.length > 0) {
-    query = query.or(`user_id.in.(${relevantIds.join(",")}),visibility.eq.public`);
+    query = query.or(`user_id.in.(${relevantIds.map(id => `"${id}"`).join(",")}),visibility.eq.public`);
   } else {
     query = query.eq("visibility", "public");
   }

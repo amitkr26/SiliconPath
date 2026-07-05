@@ -14,30 +14,11 @@ import { createClient } from "@/lib/supabase/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { FEATURES } from "@/lib/feature-flags";
 
-const OPPORTUNITY_LINKS = [
-  { href: "/category/jrf", label: "JRF Positions", icon: GraduationCap },
-  { href: "/category/srf", label: "SRF Positions", icon: GraduationCap },
-  { href: "/category/phd", label: "PhD Opportunities", icon: BookOpen },
-  { href: "/category/govt-job", label: "Government Jobs", icon: Briefcase },
-  { href: "/category/fellowship", label: "Fellowships", icon: Sparkles },
-  { href: "/category/private", label: "Private Sector", icon: TrendingUp },
-  { href: "/category/international", label: "International", icon: Globe },
-];
-
-const MORE_LINKS = [
-  { href: "/news", label: "News Feed", icon: Newspaper },
-  { href: "/match", label: "Find My Match", icon: Sparkles },
-  { href: "/community", label: "Community Forum", icon: MessageSquare },
-  { href: "/organizations", label: "Organizations", icon: Building2 },
-  { href: "/resources", label: "Resources Hub", icon: BookOpen },
-];
-
 const NAV_ITEMS = [
-  { href: "/opportunities", label: "Opportunities", icon: Briefcase, dropdown: OPPORTUNITY_LINKS },
-  { href: "/academy", label: "Academy", icon: GraduationCap },
+  { href: "/opportunities", label: "Opportunities", icon: Briefcase },
   { href: "/feed", label: "Feed", icon: Users },
+  { href: "/academy", label: "Academy", icon: GraduationCap },
   { href: "/chat", label: "Ask AI", icon: CircuitBoard },
-  { href: "/more", label: "Explore More", icon: Menu, dropdown: MORE_LINKS },
 ];
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -214,80 +195,19 @@ export default function Navbar() {
               <div className="hidden lg:flex items-center gap-0.5 xl:gap-1.5">
                 {NAV_ITEMS.map((item) => {
                   const active = isActive(item.href);
-                  const isOpen = openDropdown === item.label;
                   const Icon = item.icon;
-
-                  if (item.dropdown) {
-                    return (
-                      <div
-                        key={item.label}
-                        className="relative"
-                        onMouseEnter={() => showDD(item.label)}
-                        onMouseLeave={() => hideDD(item.label)}
-                      >
-                        <button
-                          onClick={() => toggleDD(item.label)}
-                          className={`flex items-center gap-1.5 px-2 xl:px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap ${
-                            active
-                              ? "text-accent bg-accent/10"
-                              : isOpen
-                                ? "text-text-primary bg-surface/80"
-                                : "text-text-secondary hover:text-text-primary hover:bg-surface/50"
-                          }`}
-                        >
-                          <Icon className="w-3.5 h-3.5" />
-                          {item.label}
-                          <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
-                        </button>
-                        {isOpen && (
-                          <div
-                            className="absolute top-full left-0 mt-2 w-56 bg-surface/95 backdrop-blur-xl border border-border/80 rounded-xl shadow-2xl py-2 z-50 origin-top-left animate-in fade-in-0 zoom-in-95 duration-150"
-                            onMouseEnter={() => showDD(item.label)}
-                            onMouseLeave={() => hideDD(item.label)}
-                          >
-                            {item.dropdown.map((link) => {
-                              const LinkIcon = link.icon;
-                              const activeSub = isActiveSub(item.href, link.href);
-                              return (
-                                <Link
-                                  key={link.href}
-                                  href={link.href}
-                                  onClick={() => setOpenDropdown(null)}
-                                  className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors mx-1.5 rounded-lg ${
-                                    activeSub
-                                      ? "text-accent bg-accent/8"
-                                      : "text-text-secondary hover:text-accent hover:bg-accent/5"
-                                  }`}
-                                >
-                                  <div className={`flex items-center justify-center w-6 h-6 rounded-md ${
-                                    activeSub ? "bg-accent/15" : "bg-surface-elevated"
-                                  }`}>
-                                    <LinkIcon className="w-3 h-3" />
-                                  </div>
-                                  <span className="flex-1">{link.label}</span>
-                                  <ChevronRight className={`w-3 h-3 transition-all ${
-                                    activeSub ? "text-accent opacity-100" : "text-text-muted opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0"
-                                  }`} />
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }
 
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center gap-1.5 px-2 xl:px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap ${
+                      className={`flex items-center gap-1.5 px-3 xl:px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap ${
                         active
                           ? "text-accent bg-accent/10"
                           : "text-text-secondary hover:text-text-primary hover:bg-surface/50"
                       }`}
                     >
-                      <Icon className="w-3.5 h-3.5" />
+                      <Icon className="w-4 h-4" />
                       <span>{item.label}</span>
                     </Link>
                   );
@@ -295,7 +215,7 @@ export default function Navbar() {
               </div>
             </div>
 
-            <div className="hidden md:flex items-center flex-1 max-w-[160px] xl:max-w-md mx-4 lg:mx-6">
+            <div className="hidden lg:flex items-center flex-1 max-w-[160px] xl:max-w-md mx-4 lg:mx-6">
               <form onSubmit={doSearch} className="relative w-full group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted group-focus-within:text-accent transition-colors" />
                 <input
@@ -315,7 +235,7 @@ export default function Navbar() {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="hidden md:flex items-center gap-2">
+              <div className="hidden lg:flex items-center gap-2">
                 {user && (
                   <>
                     <Link href="/messages" className="relative p-2 text-text-secondary hover:text-text-primary rounded-lg hover:bg-surface/50 transition-colors" title="Messages">
@@ -396,7 +316,7 @@ export default function Navbar() {
                 )}
               </div>
 
-              <div className="flex md:hidden items-center gap-1.5">
+              <div className="flex lg:hidden items-center gap-1.5">
                 {user ? (
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center">
                     <span className="text-accent text-xs font-bold">{initials(user.user_metadata?.full_name, user.email)}</span>
@@ -462,41 +382,6 @@ export default function Navbar() {
                 const isOpen = openDropdown === item.label;
                 const Icon = item.icon;
 
-                if (item.dropdown) {
-                  return (
-                    <div key={item.label}>
-                      <button
-                        onClick={() => toggleDD(item.label)}
-                        className={`flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                          active ? "text-accent bg-accent/10" : "text-text-secondary hover:text-text-primary hover:bg-surface/50"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <div className={`flex items-center justify-center w-6 h-6 rounded-md ${active ? "bg-accent/15" : "bg-surface-elevated"}`}>
-                            <Icon className="w-3 h-3" />
-                          </div>
-                          <span>{item.label}</span>
-                        </div>
-                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
-                      </button>
-                      {isOpen && (
-                        <div className="ml-4 mt-1 mb-1 space-y-0.5">
-                          {item.dropdown.map((link) => {
-                            const LinkIcon = link.icon;
-                            return (
-                              <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)}
-                                className="flex items-center gap-3 px-3 py-2.5 text-sm text-text-secondary hover:text-accent rounded-lg hover:bg-accent/5 transition-colors ml-8">
-                                <LinkIcon className="w-3.5 h-3.5" />
-                                <span>{link.label}</span>
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
                 return (
                   <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}
                     className={`flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
@@ -504,7 +389,7 @@ export default function Navbar() {
                     }`}
                   >
                     <div className={`flex items-center justify-center w-6 h-6 rounded-md ${active ? "bg-accent/15" : "bg-surface-elevated"}`}>
-                      <Icon className="w-3 h-3" />
+                      <Icon className="w-4 h-4" />
                     </div>
                     <span className="flex-1">{item.label}</span>
                   </Link>
