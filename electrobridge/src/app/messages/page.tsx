@@ -82,6 +82,30 @@ export default function MessagesPage() {
   }, [currentUserId, searchParams, loadMessages]);
 
   useEffect(() => {
+    if (!currentUserId) return;
+    const channel = supabase
+      .channel("realtime-messages")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
+          if (activeConv && payload.new.conversation_id === activeConv) {
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === payload.new.id)) return prev;
+              return [...prev, payload.new];
+            });
+          }
+          loadConversations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, currentUserId, activeConv, loadConversations]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
