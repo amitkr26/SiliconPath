@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
-  Zap, ChevronDown, ChevronRight, User, LogOut, LayoutDashboard,
-  Search, Menu, X, Briefcase, BookOpen, GraduationCap, BookMarked,
-  Globe, Sparkles, Network, FileText, ArrowRight, MessageSquare,
-  Newspaper, TrendingUp, HelpCircle, Bell, Home, Building2,
+  Zap, ChevronDown, User, LogOut, LayoutDashboard,
+  Search, Menu, X, Briefcase, GraduationCap,
+  Sparkles, FileText, ArrowRight, Bell,
   Users, Send, CircuitBoard
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -34,31 +33,14 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notifCount, setNotifCount] = useState(0);
-  const ddTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const userRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const debouncedSearch = useDebounce(searchQuery, 300);
-
-  const showDD = useCallback((name: string) => {
-    if (ddTimer.current) clearTimeout(ddTimer.current);
-    setOpenDropdown(name);
-  }, []);
-
-  const hideDD = useCallback((name: string) => {
-    ddTimer.current = setTimeout(() => {
-      setOpenDropdown((prev) => (prev === name ? null : prev));
-    }, 200);
-  }, []);
-
-  const toggleDD = useCallback((name: string) => {
-    setOpenDropdown((prev) => (prev === name ? null : name));
-  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -70,7 +52,6 @@ export default function Navbar() {
     });
     return () => {
       listener?.subscription.unsubscribe();
-      if (ddTimer.current) clearTimeout(ddTimer.current);
     };
   }, []);
 
@@ -157,14 +138,6 @@ export default function Navbar() {
     if (href === "/news") return pathname.startsWith("/news");
     if (href === "/community") return pathname.startsWith("/community");
     if (href === "/resources") return pathname.startsWith("/resources");
-    if (href === "/more") {
-      return MORE_LINKS.some(link => pathname.startsWith(link.href));
-    }
-    return pathname.startsWith(href);
-  };
-
-  const isActiveSub = (parent: string, href: string) => {
-    if (parent === "/opportunities") return pathname === href || pathname.startsWith("/category");
     return pathname.startsWith(href);
   };
 
