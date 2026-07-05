@@ -34,6 +34,7 @@ const RESOURCE_LINKS = [
 
 const NAV_ITEMS = [
   { href: "/opportunities", label: "Opportunities", icon: Briefcase, dropdown: OPPORTUNITY_LINKS },
+  { href: "/academy", label: "Academy", icon: GraduationCap },
   { href: "/news", label: "News", icon: Newspaper },
   { href: "/resources", label: "Resources", icon: BookOpen, dropdown: RESOURCE_LINKS },
   { href: "/organizations", label: "Organizations", icon: Building2 },
