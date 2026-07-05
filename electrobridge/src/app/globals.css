@@ -60,8 +60,22 @@ body {
 }
 
 @media print {
-  body > *:not(.resume-print-area) { display: none; }
-  .resume-print-area { display: block !important; }
+  body > *:not(.resume-print-area) { display: none !important; }
+  .resume-print-area {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    background: white !important;
+    color: black !important;
+  }
+  header, footer, nav, button, .no-print {
+    display: none !important;
+  }
 }
 
 @layer utilities {
