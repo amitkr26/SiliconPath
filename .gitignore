@@ -8,6 +8,11 @@ api_key.txt
 env_temp.txt
 *.log
 
+# Local database temp files
+.temp/
+.temp
+supabase/.temp/
+
 # Local Netlify folder
 .netlify
 
