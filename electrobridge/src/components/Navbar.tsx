@@ -352,7 +352,6 @@ export default function Navbar() {
             <div className="px-3 py-2 space-y-0.5">
               {NAV_ITEMS.map((item) => {
                 const active = isActive(item.href);
-                const isOpen = openDropdown === item.label;
                 const Icon = item.icon;
 
                 return (
