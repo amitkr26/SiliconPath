@@ -1,28 +1,20 @@
 // src/lib/academy/types.ts
-// Shared TypeScript types for the VLSI Academy learning path feature
 
-export type TrackSlug =
-  | 'digital-logic'
-  | 'verilog'
-  | 'systemverilog'
-  | 'uvm'
-  | 'rtl-design'
-  | 'physical-design'
-  | 'interview-prep';
+export type TrackSlug = 'digital-logic' | 'systemverilog' | 'physical-design';
 
 export interface LearningTrack {
   id: string;
-  slug: TrackSlug;
+  name: string;
   title: string;
-  description: string;
-  short_description: string;
+  slug: TrackSlug;
   order_index: number;
+  unlock_condition: string | null;
+  description: string | null;
   estimated_days: number;
   estimated_hours: number;
   color: string;
   icon: string;
   prerequisites: TrackSlug[];
-  is_published: boolean;
 }
 
 export interface LearningDay {
@@ -30,49 +22,51 @@ export interface LearningDay {
   track_id: string;
   day_number: number;
   title: string;
+  theory_ref: string | null;
   theory_summary: string | null;
-  key_concepts: string[];
-  estimated_minutes: number;
-  practice_links: PracticeLink[] | null;
+  video_ref: string | null;
+  video_start_ts: number | null;
+  video_end_ts: number | null;
+  practice_ref: string | null;
+  coding_task: string | null;
+  interview_qs: { question: string; answer: string }[] | null;
+  checkpoint_quiz: { question: string; options: string[]; correct_answer: string }[] | null;
+  // Backward compatibility fields
+  key_concepts?: string[];
+  estimated_minutes?: number;
+  practice_links?: { label: string; url: string; type: string }[];
 }
 
-export interface PracticeLink {
-  label: string;
+export interface ResourceBankItem {
+  id: string;
+  topic_tag: string | null;
+  resource_type: 'video' | 'playlist' | 'article';
   url: string;
-  type: 'practice' | 'tool' | 'quiz' | 'reading';
+  channel_name: string | null;
+  channel_url: string | null;
+  quality_score: number | null;
+  difficulty_level: 'beginner' | 'intermediate' | 'advanced' | null;
+  status: 'unverified' | 'verified' | 'flagged';
+  last_checked_at: string | null;
 }
 
-export interface LearningResource {
+export interface TrackCheckpoint {
   id: string;
-  day_id: string;
-  resource_type: 'youtube_video' | 'youtube_playlist_item' | 'article_link';
-  youtube_video_id: string | null;
-  youtube_playlist_id: string | null;
-  title: string;
-  channel_name: string;
-  channel_url: string;
-  video_url: string | null;
-  duration_seconds: number | null;
-  thumbnail_url: string | null;
-  is_available: boolean;
-  order_index: number;
-  watch_from_seconds: number | null;
-  watch_to_seconds: number | null;
-  notes: string | null;
+  track_id: string;
+  assessment_questions_ref: { question: string; options: string[]; correct_answer: string }[] | null;
+  capstone_brief: string | null;
 }
 
-export interface LearningQuestion {
-  id: string;
-  day_id: string;
-  question_type: 'mcq' | 'short_answer' | 'coding' | 'truefalse';
-  question: string;
-  options: { label: string; value: string }[] | null;
-  correct_answer: string;
-  explanation: string | null;
-  difficulty: 'easy' | 'medium' | 'hard';
-  order_index: number;
+export interface UserProgressItem {
+  user_id: string;
+  track_id: string;
+  day_number: number;
+  status: 'in_progress' | 'completed';
+  checkpoint_score: number | null;
+  capstone_submitted_at: string | null;
 }
 
+// Backward compatibility interfaces
 export interface TrackAssessment {
   id: string;
   track_id: string;
@@ -91,19 +85,26 @@ export interface AssessmentQuestion {
   exp: string;
 }
 
-export interface UserProgress {
-  completed_day_ids: string[];
-  passed_track_slugs: TrackSlug[];
+export interface LearningResource {
+  id: string;
+  day_id: string;
+  resource_type: 'youtube_video' | 'youtube_playlist_item' | 'article_link';
+  youtube_video_id: string | null;
+  title: string;
+  channel_name: string;
+  channel_url: string;
+  watch_from_seconds: number | null;
+  watch_to_seconds: number | null;
+  notes: string | null;
 }
 
-// Composite: full day data for page render
-export interface DayPageData {
-  track: LearningTrack;
-  day: LearningDay;
-  resources: LearningResource[];
-  questions: LearningQuestion[];
-  prev_day: number | null;
-  next_day: number | null;
-  total_days: number;
-  user_completed: boolean;
+export interface LearningQuestion {
+  id: string;
+  day_id: string;
+  question_type: 'mcq' | 'short_answer' | 'coding' | 'truefalse';
+  question: string;
+  options: { label: string; value: string }[] | null;
+  correct_answer: string;
+  explanation: string | null;
+  difficulty: 'easy' | 'medium' | 'hard';
 }

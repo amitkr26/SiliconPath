@@ -24,23 +24,20 @@ const OPPORTUNITY_LINKS = [
   { href: "/category/international", label: "International", icon: Globe },
 ];
 
-const RESOURCE_LINKS = [
-  { href: "/resources/jrf-guide", label: "JRF Complete Guide", icon: BookMarked },
-  { href: "/resources/phd-guide", label: "PhD Admission Guide", icon: BookMarked },
-  { href: "/resources/international-fellowships", label: "International Fellowships", icon: Globe },
-  { href: "/resources/vlsi-careers", label: "VLSI Career Guide", icon: Network },
-  { href: "/resources/net-vs-gate", label: "NET vs GATE", icon: HelpCircle },
+const MORE_LINKS = [
+  { href: "/news", label: "News Feed", icon: Newspaper },
+  { href: "/match", label: "Find My Match", icon: Sparkles },
+  { href: "/community", label: "Community Forum", icon: MessageSquare },
+  { href: "/organizations", label: "Organizations", icon: Building2 },
+  { href: "/resources", label: "Resources Hub", icon: BookOpen },
 ];
 
 const NAV_ITEMS = [
   { href: "/opportunities", label: "Opportunities", icon: Briefcase, dropdown: OPPORTUNITY_LINKS },
   { href: "/academy", label: "Academy", icon: GraduationCap },
-  { href: "/news", label: "News", icon: Newspaper },
-  { href: "/resources", label: "Resources", icon: BookOpen, dropdown: RESOURCE_LINKS },
-  { href: "/organizations", label: "Organizations", icon: Building2 },
-  { href: "/community", label: "Community", icon: MessageSquare },
-  { href: "/match", label: "Find My Match", icon: Sparkles },
+  { href: "/feed", label: "Feed", icon: Users },
   { href: "/chat", label: "Ask AI", icon: CircuitBoard },
+  { href: "/more", label: "Explore More", icon: Menu, dropdown: MORE_LINKS },
 ];
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -176,9 +173,12 @@ export default function Navbar() {
     if (href === "/network") return pathname.startsWith("/network");
     if (href === "/companies") return pathname.startsWith("/companies");
     if (href === "/opportunities") return pathname.startsWith("/opportunities") || pathname.startsWith("/category");
-    if (href === "/news") return pathname.startsWith("/news") && pathname !== "/news/[slug]";
+    if (href === "/news") return pathname.startsWith("/news");
     if (href === "/community") return pathname.startsWith("/community");
     if (href === "/resources") return pathname.startsWith("/resources");
+    if (href === "/more") {
+      return MORE_LINKS.some(link => pathname.startsWith(link.href));
+    }
     return pathname.startsWith(href);
   };
 
