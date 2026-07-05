@@ -1,6 +1,8 @@
 .vercel
 .env*
 !.env.example
+!.env.local.example
+!electrobridge/.env.local.example
 SECRETS.md
 api.txt
 api_key.txt
