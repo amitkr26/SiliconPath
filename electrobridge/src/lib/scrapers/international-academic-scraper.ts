@@ -1,8 +1,10 @@
 import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
 import Parser from "rss-parser";
+import institutions from "@/config/scrapers/institutions.json";
 
-const INTERNATIONAL_SOURCES = [
+// RSS and static external feeds
+const STATIC_INTERNATIONAL_SOURCES = [
   {
     name: 'Academic Positions RSS',
     url: 'https://academicpositions.com/rss/jobs?discipline=electrical-electronic-engineering',
@@ -16,42 +18,21 @@ const INTERNATIONAL_SOURCES = [
     type: 'rss',
     category: 'PhD',
     org: 'Jobs.ac.uk'
-  },
-  {
-    name: 'EURAXESS',
-    url: 'https://euraxess.ec.europa.eu/jobs/search/field_research_profile/first-stage-researcher-r1-445?discipline=electrical-engineering',
-    type: 'html',
-    category: 'Postdoc',
-    org: 'EURAXESS'
-  },
-  {
-    name: 'TU Delft Jobs',
-    url: 'https://www.tudelft.nl/en/about-tu-delft/working-at-tu-delft/vacancies',
-    type: 'html',
-    org: 'TU Delft',
-    category: 'PhD'
-  },
-  {
-    name: 'TU Munich Jobs',
-    url: 'https://www.tum.de/en/about-tum/jobs-at-tum/',
-    type: 'html',
-    org: 'TU Munich',
-    category: 'PhD'
-  },
-  {
-    name: 'ETH Zurich Jobs',
-    url: 'https://jobs.ethz.ch/',
-    type: 'html',
-    org: 'ETH Zurich',
-    category: 'PhD'
-  },
-  {
-    name: 'NUS Singapore Jobs',
-    url: 'https://careers.nus.edu.sg/NUS/search/?q=semiconductor+VLSI',
-    type: 'html',
-    org: 'NUS Singapore',
-    category: 'PhD'
   }
+];
+
+// Combine static feeds with dynamic international institutions from JSON
+const INTERNATIONAL_SOURCES = [
+  ...STATIC_INTERNATIONAL_SOURCES,
+  ...institutions
+    .filter(inst => inst.country !== "India")
+    .map(inst => ({
+      name: inst.name,
+      url: inst.url,
+      type: 'html',
+      category: 'PhD' as const,
+      org: inst.org
+    }))
 ];
 
 async function scrapeRssSource(source: typeof INTERNATIONAL_SOURCES[0]): Promise<ScrapedOpportunity[]> {
@@ -59,7 +40,7 @@ async function scrapeRssSource(source: typeof INTERNATIONAL_SOURCES[0]): Promise
   try {
     const parser = new Parser({
       timeout: 10000,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; SiliconPathBot/1.0)" }
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" }
     });
     const feed = await parser.parseURL(source.url);
 
@@ -90,7 +71,7 @@ async function scrapeHtmlAcademic(source: typeof INTERNATIONAL_SOURCES[0]): Prom
     const res = await fetch(source.url, {
       signal: AbortSignal.timeout(10000),
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; SiliconPathBot/1.0; +https://siliconpath.vercel.app/bot)"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       }
     });
 
@@ -107,7 +88,9 @@ async function scrapeHtmlAcademic(source: typeof INTERNATIONAL_SOURCES[0]): Prom
         text.toLowerCase().includes("research") ||
         text.toLowerCase().includes("postdoc") ||
         text.toLowerCase().includes("vacancy") ||
-        text.toLowerCase().includes("position")
+        text.toLowerCase().includes("position") ||
+        text.toLowerCase().includes("fellow") ||
+        text.toLowerCase().includes("ph.d")
       )) {
         let fullLink = href;
         if (href && !href.startsWith("http")) {
@@ -150,7 +133,7 @@ export async function scrapeInternationalAcademic(): Promise<ScrapedOpportunity[
       results = await scrapeHtmlAcademic(source);
     }
     all.push(...results);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
   }
   return all;
 }
