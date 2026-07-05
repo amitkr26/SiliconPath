@@ -1,90 +1,8 @@
 import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
+import companies from "@/config/scrapers/companies.json";
 
-const SEMICONDUCTOR_COMPANIES = [
-  {
-    name: 'Texas Instruments India',
-    url: 'https://careers.ti.com/search-jobs/?country=India',
-    org: 'Texas Instruments',
-    org_slug: 'texas-instruments',
-    method: 'html'
-  },
-  {
-    name: 'Qualcomm India',
-    url: 'https://www.qualcomm.com/company/careers/students?country=India',
-    org: 'Qualcomm',
-    org_slug: 'qualcomm',
-    method: 'html'
-  },
-  {
-    name: 'NXP Semiconductors India',
-    url: 'https://nxp.wd3.myworkdayjobs.com/careers?locationCountry=India',
-    org: 'NXP Semiconductors',
-    org_slug: 'nxp',
-    method: 'workday_api',
-    workdayConfig: {
-      baseUrl: 'https://nxp.wd3.myworkdayjobs.com',
-      tenant: 'nxp',
-      site: 'careers'
-    }
-  },
-  {
-    name: 'Infineon India',
-    url: 'https://www.infineon.com/cms/en/careers/jobs/?country=India',
-    org: 'Infineon Technologies',
-    org_slug: 'infineon',
-    method: 'html'
-  },
-  {
-    name: 'STMicroelectronics India',
-    url: 'https://www.st.com/content/st_com/en/about/careers/st-jobs.html',
-    org: 'STMicroelectronics',
-    org_slug: 'stmicro',
-    method: 'html'
-  },
-  {
-    name: 'Synopsys India',
-    url: 'https://careers.synopsys.com/search?q=&location=India',
-    org: 'Synopsys',
-    org_slug: 'synopsys',
-    method: 'html'
-  },
-  {
-    name: 'Cadence India',
-    url: 'https://cadence.wd1.myworkdayjobs.com/External_Careers?locationCountry=India',
-    org: 'Cadence Design Systems',
-    org_slug: 'cadence',
-    method: 'workday_api',
-    workdayConfig: {
-      baseUrl: 'https://cadence.wd1.myworkdayjobs.com',
-      tenant: 'cadence',
-      site: 'External_Careers'
-    }
-  },
-  {
-    name: 'Microchip Technology India',
-    url: 'https://careers.microchip.com/us/en/search-results?keywords=&location=India',
-    org: 'Microchip Technology',
-    org_slug: 'microchip',
-    method: 'html'
-  },
-  {
-    name: 'Renesas India',
-    url: 'https://jobs.renesas.com/en/search-results?location=India',
-    org: 'Renesas Electronics',
-    org_slug: 'renesas',
-    method: 'html'
-  },
-  {
-    name: 'onsemi India',
-    url: 'https://www.onsemi.com/company/careers?country=India',
-    org: 'onsemi',
-    org_slug: 'onsemi',
-    method: 'html'
-  }
-];
-
-async function scrapeWorkdayJobs(company: typeof SEMICONDUCTOR_COMPANIES[0]): Promise<ScrapedOpportunity[]> {
+async function scrapeWorkdayJobs(company: any): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
   const cfg = company.workdayConfig;
   if (!cfg) return [];
@@ -96,7 +14,7 @@ async function scrapeWorkdayJobs(company: typeof SEMICONDUCTOR_COMPANIES[0]): Pr
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (compatible; SiliconPathBot/1.0; +https://siliconpath.vercel.app/bot)'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       },
       body: JSON.stringify({
         limit: 20,
@@ -112,16 +30,16 @@ async function scrapeWorkdayJobs(company: typeof SEMICONDUCTOR_COMPANIES[0]): Pr
     for (const p of postings) {
       opportunities.push({
         title: p.title,
-        organization: company.org,
+        organization: company.name,
         category: 'Private Job',
         location: p.primaryLocation?.descriptor || p.location || 'India',
         stipend: null,
         deadline: null,
         eligibility: null,
-        description: `Position available at official ${company.org} career portal. Requisition ID: ${p.jobRequisitionId}`,
+        description: `Position available at official ${company.name} career portal. Requisition ID: ${p.jobRequisitionId}`,
         apply_link: p.externalApplyUrl ? `${cfg.baseUrl}${p.externalApplyUrl}` : company.url,
         source_url: company.url,
-        tags: [company.org, 'Semiconductor', 'Private Job']
+        tags: [company.name, 'Semiconductor', 'Private Job']
       });
     }
   } catch (error) {
@@ -130,13 +48,66 @@ async function scrapeWorkdayJobs(company: typeof SEMICONDUCTOR_COMPANIES[0]): Pr
   return opportunities;
 }
 
-async function scrapeHtmlCompany(company: typeof SEMICONDUCTOR_COMPANIES[0]): Promise<ScrapedOpportunity[]> {
+async function scrapeGreenhouseJobs(company: any): Promise<ScrapedOpportunity[]> {
+  const opportunities: ScrapedOpportunity[] = [];
+  const cfg = company.greenhouseConfig;
+  if (!cfg) return [];
+
+  try {
+    const url = `https://boards-api.greenhouse.io/v1/boards/${cfg.boardToken}/jobs?content=true&render_as=html`;
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
+
+    if (!response.ok) return [];
+    const data = await response.json();
+    const jobs = data.jobs || [];
+
+    for (const job of jobs) {
+      // Filter for semiconductor/VLSI relevant roles
+      const titleLower = job.title.toLowerCase();
+      if (
+        titleLower.includes("design") ||
+        titleLower.includes("hardware") ||
+        titleLower.includes("engineer") ||
+        titleLower.includes("intern") ||
+        titleLower.includes("vlsi") ||
+        titleLower.includes("semiconductor") ||
+        titleLower.includes("analog") ||
+        titleLower.includes("rtl") ||
+        titleLower.includes("verification")
+      ) {
+        opportunities.push({
+          title: job.title,
+          organization: company.name,
+          category: 'Private Job',
+          location: job.location?.name || 'Global',
+          stipend: null,
+          deadline: null,
+          eligibility: null,
+          description: job.content || `Position available at ${company.name} Greenhouse board.`,
+          apply_link: job.absolute_url || company.url,
+          source_url: company.url,
+          tags: [company.name, 'Semiconductor', 'Private Job']
+        });
+      }
+    }
+  } catch (error) {
+    console.error(`Error fetching Greenhouse for ${company.name}:`, error);
+  }
+  return opportunities;
+}
+
+async function scrapeHtmlCompany(company: any): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
   try {
     const res = await fetch(company.url, {
       signal: AbortSignal.timeout(10000),
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; SiliconPathBot/1.0; +https://siliconpath.vercel.app/bot)"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       }
     });
 
@@ -155,7 +126,10 @@ async function scrapeHtmlCompany(company: typeof SEMICONDUCTOR_COMPANIES[0]): Pr
         text.toLowerCase().includes("engineer") ||
         text.toLowerCase().includes("intern") ||
         text.toLowerCase().includes("vlsi") ||
-        text.toLowerCase().includes("semiconductor")
+        text.toLowerCase().includes("semiconductor") ||
+        text.toLowerCase().includes("analog") ||
+        text.toLowerCase().includes("rtl") ||
+        text.toLowerCase().includes("verification")
       )) {
         let fullLink = href;
         if (href && !href.startsWith("http")) {
@@ -169,16 +143,16 @@ async function scrapeHtmlCompany(company: typeof SEMICONDUCTOR_COMPANIES[0]): Pr
 
         opportunities.push({
           title: text.replace(/\s+/g, " ").trim(),
-          organization: company.org,
+          organization: company.name,
           category: 'Private Job',
           location: 'India',
           stipend: null,
           deadline: null,
           eligibility: null,
-          description: `Career opportunity at ${company.org}.`,
+          description: `Career opportunity at ${company.name}.`,
           apply_link: fullLink || company.url,
           source_url: company.url,
-          tags: [company.org, 'Private Job', 'Semiconductor']
+          tags: [company.name, 'Private Job', 'Semiconductor']
         });
       }
     });
@@ -190,15 +164,23 @@ async function scrapeHtmlCompany(company: typeof SEMICONDUCTOR_COMPANIES[0]): Pr
 
 export async function scrapeGlobalSemiconductor(): Promise<ScrapedOpportunity[]> {
   const all: ScrapedOpportunity[] = [];
-  for (const company of SEMICONDUCTOR_COMPANIES) {
+  
+  // We only run a subset of active/prominent companies in a single run to prevent server timeout
+  // but allow full coverage across multiple cron sweeps
+  const activeCompanies = companies.filter(c => c.method === 'workday_api' || c.method === 'greenhouse_api' || Math.random() < 0.2);
+  
+  for (const company of activeCompanies) {
     let results: ScrapedOpportunity[] = [];
     if (company.method === 'workday_api') {
       results = await scrapeWorkdayJobs(company);
+    } else if (company.method === 'greenhouse_api') {
+      results = await scrapeGreenhouseJobs(company);
     } else {
       results = await scrapeHtmlCompany(company);
     }
     all.push(...results);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Be gentle to company servers
+    await new Promise(resolve => setTimeout(resolve, 1500));
   }
   return all;
 }

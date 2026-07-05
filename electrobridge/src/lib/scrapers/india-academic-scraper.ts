@@ -1,58 +1,9 @@
 import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
+import institutions from "@/config/scrapers/institutions.json";
 
-const ACADEMIC_SOURCES = [
-  {
-    name: 'IIT Delhi Jobs',
-    url: 'https://home.iitd.ac.in/jobs-iitd.php',
-    org: 'IIT Delhi', org_slug: 'iit-delhi'
-  },
-  {
-    name: 'IIT Bombay Jobs',
-    url: 'https://www.ircc.iitb.ac.in/IRCC-Webpage/rnd/HRMSLoginPage.jsp',
-    org: 'IIT Bombay', org_slug: 'iit-bombay'
-  },
-  {
-    name: 'IIT Madras Jobs',
-    url: 'https://icsr.iitm.ac.in/jobs.html',
-    org: 'IIT Madras', org_slug: 'iit-madras'
-  },
-  {
-    name: 'IISc Jobs',
-    url: 'https://iisc.ac.in/jobs/',
-    org: 'IISc', org_slug: 'iisc'
-  },
-  {
-    name: 'TIFR Jobs',
-    url: 'https://www.tifr.res.in/TSN/article/Jobs-at-TIFR',
-    org: 'TIFR', org_slug: 'tifr'
-  },
-  {
-    name: 'IIT Kharagpur Jobs',
-    url: 'http://www.iitkgp.ac.in/fac-emp',
-    org: 'IIT Kharagpur', org_slug: 'iit-kharagpur'
-  },
-  {
-    name: 'IIT Kanpur Jobs',
-    url: 'https://www.iitk.ac.in/new/jobs',
-    org: 'IIT Kanpur', org_slug: 'iit-kanpur'
-  },
-  {
-    name: 'IIT Roorkee Jobs',
-    url: 'https://www.iitr.ac.in/campus/pages/jobs-at-iit-roorkee.html',
-    org: 'IIT Roorkee', org_slug: 'iit-roorkee'
-  },
-  {
-    name: 'IISER Pune Jobs',
-    url: 'https://www.iiserpune.ac.in/opportunities/1/Jobs',
-    org: 'IISER Pune', org_slug: 'iiser-pune'
-  },
-  {
-    name: 'NIT Warangal Jobs',
-    url: 'https://www.nitw.ac.in/page/?url=/main/Recruitments/',
-    org: 'NIT Warangal', org_slug: 'nit-warangal'
-  }
-];
+// Filter for Indian academic institutions
+const ACADEMIC_SOURCES = institutions.filter(inst => inst.country === "India" && inst.type !== "Research Lab");
 
 function detectCategory(title: string): string | null {
   const t = title.toUpperCase();
@@ -71,13 +22,13 @@ function cleanTitle(title: string): string {
   return title.replace(/\s+/g, " ").trim();
 }
 
-async function scrapeSingleAcademic(source: typeof ACADEMIC_SOURCES[0]): Promise<ScrapedOpportunity[]> {
+async function scrapeSingleAcademic(source: any): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
   try {
     const res = await fetch(source.url, {
       signal: AbortSignal.timeout(10000),
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; SiliconPathBot/1.0; +https://siliconpath.vercel.app/bot)"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       }
     });
 
@@ -129,7 +80,7 @@ export async function scrapeIndiaAcademic(): Promise<ScrapedOpportunity[]> {
   for (const source of ACADEMIC_SOURCES) {
     const results = await scrapeSingleAcademic(source);
     all.push(...results);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
   }
   return all;
 }
