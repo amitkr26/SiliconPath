@@ -30,7 +30,7 @@ export const TRACK_1_RESOURCES = [
   {
     name: "ASIC World - Verilog Reference",
     url: "http://www.asic-world.com/verilog/",
-    type": "reference",
+    type: "reference",
     topic_tags: ["verilog", "syntax-reference"],
     difficulty: "beginner-intermediate"
   }
