@@ -11,9 +11,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     .from("user_profiles")
     .select("*")
     .eq("id", userId)
-    .single();
+    .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!data) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
   
   if (user.id !== userId) {
     try { await supabase.rpc("increment_profile_views", { profile_id: userId }); } catch {}

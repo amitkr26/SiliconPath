@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     sender_id: user.id,
     receiver_id: receiverId,
     message: message || null,
-  }).select().single();
+  }).select();
 
   if (error) {
     if (error.message?.includes("unique") || error.code === "23505") {
@@ -28,11 +28,11 @@ export async function POST(request: NextRequest) {
     userId: receiverId,
     type: "connection_request",
     actorId: user.id,
-    entityId: data.id,
+    entityId: data && data.length > 0 ? data[0].id : undefined,
     message: message ? `wants to connect: "${message}"` : "wants to connect with you",
   });
 
-  return NextResponse.json(data, { status: 201 });
+  return NextResponse.json(data && data.length > 0 ? data[0] : { success: true }, { status: 201 });
 }
 
 export async function GET(request: NextRequest) {

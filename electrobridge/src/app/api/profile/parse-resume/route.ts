@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { callAI } from "@/lib/ai/providers";
-const pdf = require("pdf-parse");
+import { PDFParse } from "pdf-parse";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     // Extract text from the PDF buffer
     let pdfText = "";
     try {
-      const parser = new pdf.PDFParse({ verbosity: 0 });
+      const parser = new PDFParse({ verbosity: 0 });
       await parser.load(buffer);
       pdfText = await parser.getText();
     } catch (parseError: any) {

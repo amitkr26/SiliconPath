@@ -50,9 +50,22 @@ Provide a helpful, concise analysis in this JSON format:
       feature: "opportunity-summary",
     });
 
-    const summary = JSON.parse(
-      response.text.replace(/```json|```/g, "").trim()
-    );
+    let summary;
+    try {
+      summary = JSON.parse(
+        response.text.replace(/```json|```/g, "").trim()
+      );
+    } catch (parseError) {
+      console.error("AI returned malformed JSON:", response.text);
+      summary = {
+        what_you_will_do: "Details unavailable. Please refer to the full description.",
+        why_apply: "This opportunity provides relevant experience in your field.",
+        typical_documents: ["CV"],
+        tips: "Make sure your application is tailored to the role requirements.",
+        difficulty_level: "Medium",
+        career_stage: "Applicable to relevant researchers"
+      };
+    }
 
     return NextResponse.json(summary);
   } catch (error) {

@@ -8,7 +8,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { comment } = await request.json();
+  let comment = null;
+  try {
+    const body = await request.json();
+    comment = body.comment;
+  } catch (e) {}
 
   const { data: existing } = await supabase
     .from("feed_post_reposts")
