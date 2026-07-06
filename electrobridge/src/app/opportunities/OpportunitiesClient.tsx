@@ -5,7 +5,7 @@ import type { Opportunity } from "@/types";
 import OpportunityCard from "@/components/OpportunityCard";
 import FilterBar from "@/components/FilterBar";
 import SearchBar from "@/components/SearchBar";
-import { Loader2, ShieldCheck, Eye, EyeOff, Sparkles, X } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff, Sparkles, X, Filter } from "lucide-react";
 
 export default function OpportunitiesClient({ initialData }: { initialData: Opportunity[] }) {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(initialData);
@@ -18,6 +18,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   const [showUnverified, setShowUnverified] = useState(false);
   const [aiChips, setAiChips] = useState<Record<string, string>>({});
   const [aiSearching, setAiSearching] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const lastAISearch = useRef("");
 
   const fetchOpportunities = useCallback(async () => {
@@ -92,9 +93,9 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
 
       <div className="max-w-[1440px] mx-auto px-4 relative z-10">
         <div className="flex gap-8">
-        {/* Left Sidebar — Filters (280px) */}
+        {/* Left Sidebar — Filters (280px) Desktop */}
         <aside className="hidden lg:block w-[280px] flex-shrink-0">
-          <div className="glass-premium rounded-xl p-6 sticky top-24">
+          <div className="glass-premium rounded-xl p-6 sticky top-24 z-10">
             <FilterBar
               selectedCategory={category}
               selectedEligibility={eligibility}
@@ -108,6 +109,38 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
           </div>
         </aside>
 
+        {/* Mobile Filter Drawer */}
+        {showMobileFilters && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div className="absolute inset-0 bg-bg-primary/80 backdrop-blur-sm" onClick={() => setShowMobileFilters(false)} />
+            <div className="absolute inset-y-0 right-0 w-[280px] bg-surface border-l border-border shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+              <div className="flex items-center justify-between p-4 border-b border-border">
+                <h2 className="text-text-primary font-bold">Filters</h2>
+                <button onClick={() => setShowMobileFilters(false)} className="text-text-muted hover:text-text-primary">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-4 overflow-y-auto flex-1">
+                <FilterBar
+                  selectedCategory={category}
+                  selectedEligibility={eligibility}
+                  selectedLocation={location}
+                  selectedDeadline={deadline}
+                  onCategoryChange={setCategory}
+                  onEligibilityChange={setEligibility}
+                  onLocationChange={setLocation}
+                  onDeadlineChange={setDeadline}
+                />
+              </div>
+              <div className="p-4 border-t border-border">
+                <button onClick={() => setShowMobileFilters(false)} className="w-full py-2 bg-accent text-bg-primary font-medium rounded-lg hover:bg-accent-hover transition-colors">
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Main Content */}
         <div className="flex-1 min-w-0">
           {/* Page header */}
@@ -117,7 +150,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
           </div>
 
           {/* Search + toggle row */}
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
             <div className="flex-1">
               <SearchBar onSearch={handleSearch} />
               {aiSearching && (
@@ -127,16 +160,24 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                 </div>
               )}
             </div>
-            <button onClick={() => setShowUnverified(!showUnverified)}
-              className={`inline-flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg border transition-colors ${
-                showUnverified
-                  ? "bg-warning/10 border-warning/30 text-warning"
-                  : "bg-surface/50 border-border text-text-secondary hover:text-text-primary"
-              }`}
-            >
-              {showUnverified ? <EyeOff className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
-              {showUnverified ? "Hiding unverified" : "Show unverified"}
-            </button>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setShowMobileFilters(true)}
+                className="lg:hidden inline-flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg border bg-surface/50 border-border text-text-secondary hover:text-text-primary transition-colors flex-1 justify-center"
+              >
+                <Filter className="w-3.5 h-3.5" />
+                Filters
+              </button>
+              <button onClick={() => setShowUnverified(!showUnverified)}
+                className={`inline-flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg border transition-colors flex-1 sm:flex-none justify-center ${
+                  showUnverified
+                    ? "bg-warning/10 border-warning/30 text-warning"
+                    : "bg-surface/50 border-border text-text-secondary hover:text-text-primary"
+                }`}
+              >
+                {showUnverified ? <EyeOff className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                {showUnverified ? "Hiding unverified" : "Show unverified"}
+              </button>
+            </div>
           </div>
 
           {/* AI chips row */}

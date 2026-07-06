@@ -7,7 +7,7 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data } = await supabase.from("user_resumes").select("*").eq("user_id", user.id).maybeSingle();
+  const { data } = await supabase.from("user_profiles").select("*").eq("id", user.id).maybeSingle();
   return NextResponse.json(data || null);
 }
 
@@ -43,7 +43,11 @@ Return ONLY valid JSON (no markdown):
 
   try {
     const aiResponse = await callAI(atsPrompt, undefined, { feature: "resume_ats" });
-    const atsData = JSON.parse(aiResponse.text.replace(/```json|```/g, "").trim());
+    let jsonText = aiResponse.text.trim();
+    if (jsonText.startsWith("\`\`\`")) {
+      jsonText = jsonText.replace(/^\`\`\`json\s*/i, "").replace(/\`\`\`$/, "").trim();
+    }
+    const atsData = JSON.parse(jsonText);
     atsScore = atsData.score || 0;
     atsFeedback = atsData.feedback || [];
   } catch {
@@ -51,33 +55,29 @@ Return ONLY valid JSON (no markdown):
     atsFeedback = ["ATS scoring temporarily unavailable. Resume saved without score."];
   }
 
-  const resumeData = {
-    user_id: user.id,
+  const profileData = {
     full_name: body.full_name || "",
-    email: body.email || "",
-    phone: body.phone || "",
-    linkedin: body.linkedin || "",
-    github: body.github || "",
+    headline: body.headline || "",
+    about: body.summary || body.about || "",
+    city: body.location?.split(',')[0]?.trim() || "",
+    country: body.location?.split(',')[1]?.trim() || "",
     education: body.education || [],
     skills: body.skills || [],
     experience: body.experience || [],
     projects: body.projects || [],
     publications: body.publications || [],
-    ats_score: atsScore,
-    ats_feedback: atsFeedback,
+    resume_ats_score: atsScore,
     updated_at: new Date().toISOString(),
   };
 
-  const { data: existing } = await supabase.from("user_resumes").select("id").eq("user_id", user.id).maybeSingle();
+  // We are assuming the user_profiles row already exists (created on signup)
+  const { error } = await supabase.from("user_profiles").update(profileData).eq("id", user.id);
 
-  let error;
-  if (existing) {
-    ({ error } = await supabase.from("user_resumes").update(resumeData).eq("user_id", user.id));
-  } else {
-    ({ error } = await supabase.from("user_resumes").insert(resumeData));
+  if (error) {
+    // If the columns don't exist yet, we catch it
+    console.error("Error updating user_profiles:", error);
+    return NextResponse.json({ error: "Database schema must be updated with canonical fields. Run the SQL migration." }, { status: 500 });
   }
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   return NextResponse.json({ success: true, ats_score: atsScore, ats_feedback: atsFeedback });
 }

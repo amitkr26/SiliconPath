@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import { postToTelegram } from "@/lib/telegram-bot";
-
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
     return NextResponse.json(
@@ -34,7 +34,13 @@ export async function GET(request: NextRequest) {
     }
 
     if (category && category !== "All") {
-      query = query.eq("category", category);
+      if (category === "Research Fellowship") {
+        query = query.or(`category.ilike.%Research Fellowship%,category.ilike.%JRF%,category.ilike.%SRF%`);
+      } else if (category === "PhD Scholarship") {
+        query = query.or(`category.ilike.%PhD%,category.ilike.%Scholarship%`);
+      } else {
+        query = query.ilike("category", `%${category}%`);
+      }
     }
 
     if (eligibility && eligibility !== "All") {
@@ -90,7 +96,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!isAdminConfigured) {
+  if (!isAdminConfigured || !supabaseAdmin) {
     return NextResponse.json(
       { error: "Database not configured." },
       { status: 503 }
@@ -98,14 +104,28 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    if (!supabaseAdmin) {
-      return NextResponse.json({ error: "Admin access not configured." }, { status: 503 });
+    const authHeader = request.headers.get("x-admin-password") || request.headers.get("Authorization")?.replace("Bearer ", "");
+    const isAdmin = authHeader === process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!isAdmin && !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
     const body = await request.json();
+    
+    let sourceType = body.source_type;
+    if (!isAdmin) {
+      sourceType = "employer_posted";
+    }
+
     const { data, error } = await supabaseAdmin
       .from("opportunities")
       .insert([{
         ...body,
+        source_type: sourceType,
         verification_status: "pending",
         is_active: true,
       }])
@@ -114,7 +134,7 @@ export async function POST(request: NextRequest) {
     if (error) throw error;
 
     const newOpportunity = data?.[0];
-    if (newOpportunity) {
+    if (newOpportunity && isAdmin) {
       postToTelegram(newOpportunity).catch((e) =>
         console.error("Telegram post failed (non-blocking):", e)
       );

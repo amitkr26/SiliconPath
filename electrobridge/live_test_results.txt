@@ -1,0 +1,7 @@
+[Homepage] 'Featured Opportunities' section loads.
+[Opportunities] Loaded. Page length: 106692
+[Opportunity Detail] Could not find any opportunity links to click.
+[News] Seems relevant to VLSI/Semiconductors.
+[Organizations] Found person names misattributed as organizations: Sadia Munir, Muhammad Faizan
+[Academy] STUCK in loading state.
+[Signup] Branding looks okay (no ElectroBridge).

@@ -42,6 +42,12 @@ const BLOCKED_PATTERNS = [
   /sponsored/i,
   /promoted/i,
   /paid\s+content/i,
+  /gaming/i,
+  /gamer/i,
+  /console\s+review/i,
+  /pc\s+build/i,
+  /tktk/i,
+  /tom's\s+hardware/i,
 ];
 
 // ── ELECTRONICS KEYWORD WHITELIST ──

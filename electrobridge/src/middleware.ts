@@ -15,13 +15,6 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isGated = GATED_PATHS.some(p => path === p || path.startsWith(p + '/'));
 
-  if (isGated && !FEATURES.LINKEDIN_ENABLED) {
-    return NextResponse.json(
-      { error: 'Feature not yet available' },
-      { status: 503 }
-    );
-  }
-
   let supabaseResponse = NextResponse.next({ request });
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -39,7 +32,17 @@ export async function middleware(request: NextRequest) {
       },
     }
   );
-  await supabase.auth.getUser();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Redirect unauthenticated users away from gated Tier 2 paths
+  if (isGated && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    url.searchParams.set('redirectTo', request.nextUrl.pathname);
+    return NextResponse.redirect(url);
+  }
+
   return supabaseResponse;
 }
 

@@ -13,11 +13,16 @@ import { createClient } from "@/lib/supabase/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { FEATURES } from "@/lib/feature-flags";
 
-const NAV_ITEMS = [
+const PUBLIC_NAV_ITEMS = [
   { href: "/opportunities", label: "Opportunities", icon: Briefcase },
+  { href: "/news", label: "News", icon: Sparkles },
+  { href: "/organizations", label: "Organizations", icon: Users },
+  { href: "/resources", label: "Resources", icon: FileText },
+];
+
+const LOGGED_IN_NAV_ITEMS = [
   { href: "/feed", label: "Feed", icon: Users },
-  { href: "/academy", label: "Academy", icon: GraduationCap },
-  { href: "/chat", label: "Ask AI", icon: CircuitBoard },
+  { href: "/network", label: "Network", icon: Users },
 ];
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -166,7 +171,7 @@ export default function Navbar() {
               </Link>
 
               <div className="hidden lg:flex items-center gap-0.5 xl:gap-1.5">
-                {NAV_ITEMS.map((item) => {
+                {[...PUBLIC_NAV_ITEMS, ...(user ? LOGGED_IN_NAV_ITEMS : [])].map((item) => {
                   const active = isActive(item.href);
                   const Icon = item.icon;
 
@@ -350,7 +355,7 @@ export default function Navbar() {
             </div>
 
             <div className="px-3 py-2 space-y-0.5">
-              {NAV_ITEMS.map((item) => {
+              {[...PUBLIC_NAV_ITEMS, ...(user ? LOGGED_IN_NAV_ITEMS : [])].map((item) => {
                 const active = isActive(item.href);
                 const Icon = item.icon;
 

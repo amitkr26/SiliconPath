@@ -1,0 +1,2 @@
+[Opportunities API] Category filter returned no results.
+[DB Organizations] Found 20 opportunities with person names as orgs.

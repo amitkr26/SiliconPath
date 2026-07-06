@@ -35,7 +35,7 @@ Description: ${opportunity.description || "N/A"}
 Eligibility: ${opportunity.eligibility || "N/A"}
 Category: ${opportunity.category}
 
-Provide a helpful, concise analysis in this JSON format:
+Provide a helpful, concise analysis strictly in the following JSON format. DO NOT use markdown formatting (like \`\`\`json), DO NOT include any text outside the JSON object. Return ONLY the raw JSON object:
 {
   "what_you_will_do": "2-3 sentences about the actual research/work",
   "why_apply": "2-3 sentences on career value and growth",
@@ -52,9 +52,13 @@ Provide a helpful, concise analysis in this JSON format:
 
     let summary;
     try {
-      summary = JSON.parse(
-        response.text.replace(/```json|```/g, "").trim()
-      );
+      let rawText = response.text.replace(/```json|```/gi, "").trim();
+      const startIndex = rawText.indexOf("{");
+      const endIndex = rawText.lastIndexOf("}");
+      if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+        rawText = rawText.substring(startIndex, endIndex + 1);
+      }
+      summary = JSON.parse(rawText);
     } catch (parseError) {
       console.error("AI returned malformed JSON:", response.text);
       summary = {

@@ -56,11 +56,13 @@ export default function AcademyDashboard() {
         setCompletedDays(completedList);
         setPassedTracks(passedList);
 
-        // Fetch day structures for progress calculation
+        // Fetch day structures for progress calculation concurrently
         const daysMap: Record<string, string[]> = {};
-        for (const t of tracksData) {
-          const days = await getDaysForTrack(t.id);
-          daysMap[t.id] = days.map(d => d.id);
+        const daysResults = await Promise.all(
+          tracksData.map(t => getDaysForTrack(t.id).then(days => ({ id: t.id, days: days.map(d => d.id) })))
+        );
+        for (const res of daysResults) {
+          daysMap[res.id] = res.days;
         }
         setTrackDaysMap(daysMap);
       } catch (err) {

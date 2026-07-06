@@ -20,7 +20,24 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Extract text from the PDF buffer
+    // Try Document AI first as per GCP Credits Utilization Plan
+    try {
+      const { parseWithDocumentAI } = await import("@/lib/resume/document-ai-parser");
+      const docAiProfile = await parseWithDocumentAI(buffer);
+      console.log("[Resume Parser] Document AI parsing succeeded.");
+      // If we got a basic profile, return it!
+      // But if it's completely empty, we might want to throw to trigger fallback
+      if (docAiProfile.full_name || docAiProfile.email || docAiProfile.skills.length > 0) {
+        return NextResponse.json({ success: true, profile: docAiProfile });
+      } else {
+        throw new Error("Document AI returned an empty profile mapping.");
+      }
+    } catch (docAiError: any) {
+      console.warn("[Resume Parser] Document AI fallback triggered. Reason:", docAiError.message);
+      // Fallback to existing Gemini text extraction parsing
+    }
+
+    // Extract text from the PDF buffer for Gemini fallback
     let pdfText = "";
     try {
       const parser = new PDFParse({ data: buffer, verbosity: 0 });
@@ -95,8 +112,8 @@ Return ONLY a valid JSON object matching the following structure. Do not output 
     let jsonText = aiRes.text.trim();
     
     // Clean potential markdown blocks
-    if (jsonText.startsWith("```")) {
-      jsonText = jsonText.replace(/^```json\s*/i, "").replace(/```$/, "").trim();
+    if (jsonText.startsWith("\`\`\`")) {
+      jsonText = jsonText.replace(/^\`\`\`json\s*/i, "").replace(/\`\`\`$/, "").trim();
     }
 
     let parsedProfile = {};
@@ -108,7 +125,18 @@ Return ONLY a valid JSON object matching the following structure. Do not output 
       return NextResponse.json({ error: "Failed to structure the extracted text. Please try again." }, { status: 422 });
     }
 
-    return NextResponse.json({ success: true, profile: parsedProfile });
+    let resumeUrl = "";
+    try {
+      const { uploadToCloudStorage } = await import("@/lib/storage/gcp-storage");
+      const filename = `resumes/${user.id}-${Date.now()}.pdf`;
+      resumeUrl = await uploadToCloudStorage(buffer, filename, "application/pdf");
+      console.log(`[Resume Parser] Uploaded to GCP Storage: ${resumeUrl}`);
+    } catch (uploadError: any) {
+      console.warn("[Resume Parser] GCP Storage upload failed or not configured:", uploadError.message);
+      // We continue even if upload fails, as parsing is the primary goal
+    }
+
+    return NextResponse.json({ success: true, profile: parsedProfile, resume_url: resumeUrl });
   } catch (err: any) {
     console.error("Error in parse-resume route:", err);
     return NextResponse.json({ error: err.message || "Failed to process resume" }, { status: 500 });
