@@ -1,4 +1,4 @@
-﻿import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
+import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
 
 interface GreenhouseJobResponse {
   id: number;
@@ -28,16 +28,24 @@ export const greenhouseAdapter: ATSAdapter = {
   sourceType: "ats",
   async fetchJobs(config: ATSConfig): Promise<any[]> {
     const baseUrl = config.baseUrl.replace(/\/+$/, "");
-    const boardToken = config.boardToken;
+    let boardToken = config.boardToken || config.customFields?.boardToken;
+
     if (!boardToken) {
-      throw new Error("Greenhouse requires boardToken in config");
+      try {
+        const urlObj = new URL(baseUrl);
+        boardToken = urlObj.pathname.split('/').filter(Boolean).pop();
+      } catch (e) {}
     }
 
-    const url = `${baseUrl}/v1/boards/${boardToken}/jobs?content=true&render_as=html`;
+    if (!boardToken) {
+      throw new Error("Greenhouse requires boardToken in config or URL");
+    }
+
+    const url = `https://boards-api.greenhouse.io/v1/boards/${boardToken}/jobs?content=true&render_as=html`;
     const response = await fetch(url, {
       headers: {
         "Accept": "application/json",
-        "User-Agent": "SiliconPath-Scraper/1.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       },
     });
 

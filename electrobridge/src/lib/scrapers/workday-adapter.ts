@@ -1,4 +1,4 @@
-﻿import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
+import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
 
 interface WorkdayJobResponse {
   jobRequisitionId: string;
@@ -23,25 +23,47 @@ export const workdayAdapter: ATSAdapter = {
   name: "workday",
   sourceType: "ats",
   async fetchJobs(config: ATSConfig): Promise<any[]> {
-    const baseUrl = config.baseUrl.replace(/\/+$/, "");
-    const tenant = config.customFields?.tenant || "yourtenant";
-    const site = config.customFields?.site || "External";
+    let baseUrl = config.baseUrl.replace(/\/+$/, "");
+    let tenant = config.customFields?.tenant;
+    let site = config.customFields?.site;
+
+    // Extract tenant and site from baseUrl if possible
+    try {
+      const urlObj = new URL(baseUrl);
+      if (!tenant) {
+        tenant = urlObj.hostname.split('.')[0];
+      }
+      if (!site) {
+        site = urlObj.pathname.split('/').pop() || "External";
+      }
+      // reset baseUrl to just the origin
+      baseUrl = urlObj.origin;
+    } catch (e) {
+      if (!tenant) tenant = "yourtenant";
+      if (!site) site = "External";
+    }
 
     const url = `${baseUrl}/wday/cxs/${tenant}/${site}/jobs`;
 
-    const body = {
-      appliedFacets: {},
-      limit: 100,
+    const searchText = config.filters?.keywords?.join(" ") || "";
+    const body: any = {
+      limit: 20,
       offset: 0,
-      searchText: config.filters?.keywords?.join(" ") || "",
     };
+    
+    if (searchText) {
+      body.searchText = searchText;
+    }
+
+    console.log(`Workday scraping URL: ${url}`);
+    console.log(`Workday payload: ${JSON.stringify(body)}`);
 
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "User-Agent": "SiliconPath-Scraper/1.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       },
       body: JSON.stringify(body),
     });
@@ -56,8 +78,6 @@ export const workdayAdapter: ATSAdapter = {
   validateConfig(config: ATSConfig): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
     if (!config.baseUrl) errors.push("baseUrl is required");
-    if (!config.customFields?.tenant) errors.push("customFields.tenant is required for Workday");
-    if (!config.customFields?.site) errors.push("customFields.site is required for Workday");
     return { valid: errors.length === 0, errors };
   },
 };

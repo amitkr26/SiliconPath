@@ -168,61 +168,7 @@ export async function scrapeAllOpportunities(): Promise<{
   }
 
   // Use Promise.allSettled to scrape all traditional/built-in sources concurrently
-  const scrapePromises = traditionalSources.map(async (source) => {
-    const startTime = new Date().toISOString();
-    const runId = crypto.randomUUID();
-    runIds.push(runId);
-
-    try {
-      const data = await source.scraper();
-      console.log(`${source.name}: ${data.length} opportunities scraped`);
-
-      // Log success run details to supabase
-      if (supabaseAdmin) {
-        await supabaseAdmin.from("scrape_runs").insert([{
-          source_id: runId,
-          source_name: source.name,
-          source_type: "traditional",
-          start_time: startTime,
-          end_time: new Date().toISOString(),
-          success: true,
-          opportunities_scraped: data.length,
-          created_at: new Date().toISOString(),
-        }]);
-      }
-
-      return { source: source.name, success: true, count: data.length, data };
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      console.error(`${source.name} scraper failed:`, msg);
-
-      if (supabaseAdmin) {
-        await supabaseAdmin.from("scrape_runs").insert([{
-          source_id: runId,
-          source_name: source.name,
-          source_type: "traditional",
-          start_time: startTime,
-          end_time: new Date().toISOString(),
-          success: false,
-          opportunities_scraped: 0,
-          error_message: msg,
-          created_at: new Date().toISOString(),
-        }]);
-      }
-
-      return { source: source.name, success: false, count: 0, error: msg, data: [] };
-    }
-  });
-
-  const settles = await Promise.allSettled(scrapePromises);
-
-  for (const settle of settles) {
-    if (settle.status === 'fulfilled') {
-      const val = settle.value;
-      allResults.push({ source: val.source, success: val.success, count: val.count, error: val.error });
-      allOpportunities.push(...val.data);
-    }
-  }
+  // Disabled temporarily
 
   return {
     opportunities: allOpportunities,

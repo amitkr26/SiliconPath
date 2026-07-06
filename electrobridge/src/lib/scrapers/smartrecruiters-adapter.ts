@@ -1,4 +1,4 @@
-﻿import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
+import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
 
 interface SmartRecruitersJobResponse {
   jobId: string;
@@ -29,19 +29,24 @@ export const smartRecruitersAdapter: ATSAdapter = {
   name: "smartrecruiters",
   sourceType: "ats",
   async fetchJobs(config: ATSConfig): Promise<any[]> {
-    const baseUrl = config.baseUrl.replace(/\/+$/, "");
-    const apiKey = config.apiKey || config.customFields?.apiKey;
-
-    if (!apiKey) {
-      throw new Error("SmartRecruiters requires apiKey in config");
+    let baseUrl = config.baseUrl.replace(/\/+$/, "");
+    
+    // Extract company name from the url (e.g. https://careers.smartrecruiters.com/NordicSemiconductor)
+    let companyName = "";
+    try {
+      const urlObj = new URL(baseUrl);
+      companyName = urlObj.pathname.split('/').pop() || "";
+    } catch(e) {}
+    
+    if (!companyName) {
+      throw new Error("SmartRecruiters requires companyName in URL path");
     }
 
-    const url = `${baseUrl}/api/v2/jobs?limit=100&offset=0&state=PUBLISHED"`;
+    const url = `https://api.smartrecruiters.com/v1/companies/${companyName}/postings`;
     const response = await fetch(url, {
       headers: {
         "Accept": "application/json",
-        "apikey": apiKey,
-        "User-Agent": "SiliconPath-Scraper/1.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       },
     });
 
@@ -49,15 +54,32 @@ export const smartRecruitersAdapter: ATSAdapter = {
       throw new Error(`SmartRecruiters API error: ${response.status} ${response.statusText}`);
     }
 
-    const data: SmartRecruitersJobsResponse = await response.json();
-    return data.jobs
-      .filter((job) => job.broadcastType === "EXTERNAL")
-      .map((job) => mapSmartRecruitersJob(job, baseUrl, config));
+    const data = await response.json();
+    const jobs = data.content || [];
+    return jobs.map((job: any) => {
+      // Map to SmartRecruitersJobResponse format expected by mapSmartRecruitersJob
+      return mapSmartRecruitersJob({
+        jobId: job.id,
+        title: job.name,
+        department: job.department?.label || "",
+        city: job.location?.city || "",
+        countryCode: job.location?.country || "",
+        employmentType: job.typeOfEmployment?.label || "",
+        datePosted: job.releasedDate,
+        url: baseUrl,
+        externalUrl: `https://jobs.smartrecruiters.com/${companyName}/${job.id}`,
+        companyName: job.company?.name || companyName,
+        description: "", // Public postings list might not include full description
+        education: "",
+        skills: [],
+        broadcastType: "EXTERNAL",
+        applicationDeadline: ""
+      }, baseUrl, config);
+    });
   },
   validateConfig(config: ATSConfig): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
     if (!config.baseUrl) errors.push("baseUrl is required");
-    if (!config.apiKey && !config.customFields?.apiKey) errors.push("apiKey is required for SmartRecruiters");
     return { valid: errors.length === 0, errors };
   },
 };

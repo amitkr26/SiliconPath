@@ -1,4 +1,4 @@
-﻿import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
+import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
 
 interface LeverJobResponse {
   id: string;
@@ -33,16 +33,25 @@ export const leverAdapter: ATSAdapter = {
   sourceType: "ats",
   async fetchJobs(config: ATSConfig): Promise<any[]> {
     const baseUrl = config.baseUrl.replace(/\/+$/, "");
-    let url = `${baseUrl}/postings?mode=json`;
+    let companyId = config.boardToken || config.customFields?.boardToken;
 
-    if (config.boardToken) {
-      url = `${baseUrl}/${config.boardToken}?mode=json`;
+    if (!companyId) {
+      try {
+        const urlObj = new URL(baseUrl);
+        companyId = urlObj.pathname.split('/').filter(Boolean).pop();
+      } catch(e) {}
     }
+
+    if (!companyId) {
+      throw new Error("Lever requires companyId in config or URL");
+    }
+
+    const url = `https://api.lever.co/v0/postings/${companyId}?mode=json`;
 
     const response = await fetch(url, {
       headers: {
         "Accept": "application/json",
-        "User-Agent": "SiliconPath-Scraper/1.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       },
     });
 
