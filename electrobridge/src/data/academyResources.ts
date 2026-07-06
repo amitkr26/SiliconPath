@@ -1,0 +1,147 @@
+export const TRACK_1_RESOURCES = [
+  {
+    name: "NPTEL - Digital Circuits (IIT Kharagpur, Prof. Santanu Chattopadhyay)",
+    url: "https://onlinecourses.nptel.ac.in/",
+    type: "course",
+    topic_tags: ["digital-logic", "boolean-algebra", "combinational", "sequential"],
+    difficulty: "beginner"
+  },
+  {
+    name: "NPTEL - Hardware Modeling using Verilog (IIT Kharagpur, Prof. Indranil Sengupta)",
+    url: "https://onlinecourses.nptel.ac.in/",
+    type: "course",
+    topic_tags: ["verilog", "hdl", "rtl"],
+    difficulty: "beginner"
+  },
+  {
+    name: "NPTEL - Digital Design with Verilog (IIT Guwahati, Prof. Chandan Karfa)",
+    url: "https://onlinecourses.nptel.ac.in/noc24_cs61/preview",
+    type: "course",
+    topic_tags: ["verilog", "fsm", "rtl", "digital-design"],
+    difficulty: "beginner"
+  },
+  {
+    name: "ChipVerify - Verilog & Digital Design",
+    url: "https://chipverify.com/",
+    type: "tutorial+lab",
+    topic_tags: ["verilog", "digital-design", "rtl-synthesis"],
+    difficulty: "beginner-intermediate"
+  },
+  {
+    name: "ASIC World - Verilog Reference",
+    url: "http://www.asic-world.com/verilog/",
+    type": "reference",
+    topic_tags: ["verilog", "syntax-reference"],
+    difficulty: "beginner-intermediate"
+  }
+];
+
+export const TRACK_2_RESOURCES = [
+  {
+    name: "ChipVerify - SystemVerilog & UVM",
+    url: "https://chipverify.com/systemverilog",
+    type: "tutorial+lab",
+    topic_tags: ["systemverilog", "oop", "coverage", "assertions"],
+    difficulty: "intermediate"
+  },
+  {
+    name: "ChipVerify - UVM Tutorial",
+    url: "https://chipverify.com/uvm/",
+    type: "tutorial",
+    topic_tags: ["uvm", "testbench", "verification"],
+    difficulty: "intermediate-advanced"
+  },
+  {
+    name: "Verification Guide - UVM Tutorial",
+    url: "https://verificationguide.com/uvm/uvm-tutorial/",
+    type: "tutorial",
+    topic_tags: ["uvm", "sequences", "config-db"],
+    difficulty: "intermediate-advanced"
+  },
+  {
+    name: "VLSIVerify - SystemVerilog",
+    url: "https://vlsiverify.com/systemverilog/",
+    type: "tutorial",
+    topic_tags: ["systemverilog", "verification"],
+    difficulty: "intermediate"
+  },
+  {
+    name: "Doulos Knowhow - UVM Verification Primer",
+    url: "https://www.doulos.com/knowhow/systemverilog/uvm/uvm-verification-primer/",
+    type: "article",
+    topic_tags: ["uvm", "methodology", "coverage", "constrained-random"],
+    difficulty: "advanced"
+  }
+];
+
+export const TRACK_3_RESOURCES = [
+  {
+    name: "NPTEL - VLSI Design Flow: RTL to GDS (IIIT Delhi, Prof. Sneh Saurabh)",
+    url: "https://nptel.ac.in/courses/108106191",
+    type: "course",
+    topic_tags: ["physical-design", "rtl-to-gds", "sta"],
+    difficulty: "advanced"
+  },
+  {
+    name: "VSD - Advanced Physical Design using OpenLANE/Sky130 (workshop material)",
+    url: "https://www.vlsisystemdesign.com/advanced-physical-design-using-openlane-sky130/",
+    type: "workshop",
+    topic_tags: ["openlane", "sky130", "place-and-route", "physical-design"],
+    difficulty: "advanced"
+  },
+  {
+    name: "OpenLane (open-source RTL-to-GDSII flow)",
+    url: "https://github.com/The-OpenROAD-Project/OpenLane",
+    type: "tool+docs",
+    topic_tags: ["openlane", "openroad", "yosys", "sky130"],
+    difficulty: "advanced"
+  }
+];
+
+export const VERIFIED_CHANNELS = [
+  {
+    name: "VLSI System Design (Kunal Ghosh)",
+    url: "https://www.youtube.com/c/VLSISystemDesign",
+    region: "India",
+    topic_tags: ["physical-design", "openlane", "sky130", "risc-v", "backend-flow"],
+    difficulty: "intermediate-advanced",
+    notes: "Founder of VSD, creator of the OpenLANE/Sky130 open-source workshop series. High credibility, thousands of students placed."
+  },
+  {
+    name: "Nandland (Russell Merrick)",
+    url: "https://www.youtube.com/c/Nandland",
+    region: "USA",
+    topic_tags: ["fpga", "verilog", "vhdl", "beginner-hdl"],
+    difficulty: "beginner",
+    notes: "US-based, published FPGA book (No Starch Press), well-reviewed beginner Verilog/VHDL tutorials. Good for international perspective."
+  },
+  {
+    name: "Neso Academy",
+    url: "https://www.youtube.com/c/nesoacademy",
+    region: "India",
+    topic_tags: ["digital-logic", "digital-electronics", "foundations"],
+    difficulty: "beginner",
+    notes: "Widely recognized general digital electronics/CS channel, strong for foundational concepts."
+  }
+];
+
+export const FREE_TOOLS = [
+  {
+    name: "EDA Playground",
+    url: "https://www.edaplayground.com/",
+    type: "browser-simulator",
+    notes: "Free browser-based Verilog/SystemVerilog simulation, no install needed"
+  },
+  {
+    name: "Icarus Verilog + GTKWave",
+    url: "http://iverilog.icarus.com/",
+    type: "local-tool",
+    notes: "Free open-source simulator + waveform viewer"
+  },
+  {
+    name: "ChipVerify in-browser Lab",
+    url: "https://chipverify.com/",
+    type: "browser-simulator",
+    notes: "Synthesize with Yosys + Sky130 PDK directly in browser"
+  }
+];

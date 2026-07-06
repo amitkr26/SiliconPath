@@ -61,7 +61,7 @@ Digital logic uses Binary (Base 2), Octal (Base 8), Decimal (Base 10), and Hexad
 - **Binary to Decimal**: Sum the powers of 2 for each '1' bit.
 - **Decimal to Binary**: Perform successive division by 2, tracking reminders.
 - **Hexadecimal**: Uses 0-9 and A-F. Groups 4 binary bits into a single hex character.`,
-      video_ref: "qHkoikF1lHw",
+      video_ref: "FLAGGED_NEEDS_MANUAL_SELECTION",
       video_start_ts: 0,
       video_end_ts: 300,
       practice_ref: "https://hdlbits.01xz.net/wiki/Step_one",
@@ -94,7 +94,7 @@ Logic operations define relationships between inputs.
 Two fundamental mathematical equations in boolean algebra:
 - **Rule 1**: NOT (A AND B) = (NOT A) OR (NOT B)
 - **Rule 2**: NOT (A OR B) = (NOT A) AND (NOT B)`,
-      video_ref: "IVhZhs2rwok",
+      video_ref: "FLAGGED_NEEDS_MANUAL_SELECTION",
       video_start_ts: 60,
       video_end_ts: 420,
       practice_ref: "https://hdlbits.01xz.net/wiki/Gates",
@@ -124,7 +124,7 @@ Boolean expressions are represented in two standard ways:
 A visual tool to simplify boolean algebraic expressions without using equations.
 - Grid cells correspond to minterm binary combinations in Gray Code order.
 - Adjacent cells differing by only 1 bit are grouped in sizes of powers of 2 (1, 2, 4, 8, 16) to eliminate variables.`,
-      video_ref: "qHkoikF1lHw",
+      video_ref: "FLAGGED_NEEDS_MANUAL_SELECTION",
       video_start_ts: 300,
       video_end_ts: 600,
       practice_ref: "https://hdlbits.01xz.net/wiki/Kmap1",

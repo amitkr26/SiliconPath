@@ -11,6 +11,10 @@ import { createClient } from "@/lib/supabase/client";
 import { getTracks, getCompletedDays, getPassedTracks, getDaysForTrack } from "@/lib/academy/queries";
 import { LearningTrack, TrackSlug } from "@/lib/academy/types";
 import { Toaster, toast } from "sonner";
+import { 
+  TRACK_1_RESOURCES, TRACK_2_RESOURCES, TRACK_3_RESOURCES, 
+  VERIFIED_CHANNELS, FREE_TOOLS 
+} from "@/data/academyResources";
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
   Cpu,
@@ -29,6 +33,8 @@ export default function AcademyDashboard() {
   const [trackDaysMap, setTrackDaysMap] = useState<Record<string, string[]>>({}); // trackId -> dayIds
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [activeResourceTab, setActiveResourceTab] = useState<'courses' | 'channels' | 'tools'>('courses');
+  const [activeTrackTab, setActiveTrackTab] = useState<number>(1);
 
   useEffect(() => {
     async function loadData() {
@@ -239,6 +245,118 @@ export default function AcademyDashboard() {
             );
           })}
         </div>
+
+        {/* Resources Section */}
+        <div className="mt-24 mb-16 relative">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Verified Resources & Tools</h2>
+            <p className="text-gray-400 mt-2">Curated high-quality materials to supplement your learning.</p>
+          </div>
+
+          {/* Main Resource Tabs */}
+          <div className="flex justify-center gap-4 mb-8">
+            {(['courses', 'channels', 'tools'] as const).map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveResourceTab(tab)}
+                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-300 ${
+                  activeResourceTab === tab 
+                  ? 'bg-cyan text-[#030712] shadow-[0_0_15px_rgba(34,211,238,0.5)]' 
+                  : 'bg-surface border border-border text-gray-400 hover:text-white hover:border-cyan/50'
+                }`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          <div className="bg-surface-elevated/50 border border-border rounded-2xl p-6 md:p-8 backdrop-blur-xl">
+            {activeResourceTab === 'courses' && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex justify-center gap-3">
+                  {[1, 2, 3].map(num => (
+                    <button
+                      key={num}
+                      onClick={() => setActiveTrackTab(num)}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                        activeTrackTab === num ? 'bg-cyan/20 text-cyan border border-cyan/50' : 'bg-surface border border-border text-gray-400 hover:text-gray-200'
+                      }`}
+                    >
+                      Track {num}
+                    </button>
+                  ))}
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-4">
+                  {(activeTrackTab === 1 ? TRACK_1_RESOURCES : activeTrackTab === 2 ? TRACK_2_RESOURCES : TRACK_3_RESOURCES).map((res, i) => (
+                    <a key={i} href={res.url} target="_blank" rel="noopener noreferrer" className="block group">
+                      <div className="h-full bg-surface border border-border rounded-xl p-5 hover:border-cyan/50 hover:bg-surface-elevated transition-all duration-300">
+                        <div className="flex justify-between items-start mb-3">
+                          <h4 className="font-bold text-gray-100 group-hover:text-cyan transition-colors">{res.name}</h4>
+                          <span className={`text-xs px-2 py-1 rounded font-medium whitespace-nowrap ${
+                            res.difficulty.includes('advanced') ? 'bg-purple-500/20 text-purple-400' :
+                            res.difficulty.includes('intermediate') ? 'bg-yellow-500/20 text-yellow-400' :
+                            'bg-green-500/20 text-green-400'
+                          }`}>
+                            {res.difficulty}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          {res.topic_tags.map(tag => (
+                            <span key={tag} className="text-xs bg-gray-800 text-gray-300 px-2.5 py-1 rounded-md border border-gray-700">#{tag}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeResourceTab === 'channels' && (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {VERIFIED_CHANNELS.map((channel, i) => (
+                  <a key={i} href={channel.url} target="_blank" rel="noopener noreferrer" className="block group">
+                    <div className="h-full bg-surface border border-border rounded-xl p-5 hover:border-purple-500/50 hover:bg-surface-elevated transition-all duration-300">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan flex items-center justify-center text-white font-bold text-lg">
+                          {channel.name.charAt(0)}
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-100 group-hover:text-purple-400 transition-colors">{channel.name}</h4>
+                          <span className="text-xs text-gray-400">{channel.region}</span>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-400 mb-4 line-clamp-3">{channel.notes}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {channel.topic_tags.slice(0,3).map(tag => (
+                          <span key={tag} className="text-[10px] uppercase tracking-wider bg-gray-800 text-gray-300 px-2 py-0.5 rounded border border-gray-700">{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {activeResourceTab === 'tools' && (
+              <div className="grid md:grid-cols-3 gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {FREE_TOOLS.map((tool, i) => (
+                  <a key={i} href={tool.url} target="_blank" rel="noopener noreferrer" className="block group">
+                    <div className="h-full bg-surface border border-border rounded-xl p-5 hover:border-cyan/50 hover:bg-surface-elevated transition-all duration-300 flex flex-col items-center text-center">
+                      <div className="w-12 h-12 rounded-lg bg-cyan/10 flex items-center justify-center text-cyan mb-4 group-hover:scale-110 transition-transform">
+                        <TestTube className="w-6 h-6" />
+                      </div>
+                      <h4 className="font-bold text-gray-100 mb-2">{tool.name}</h4>
+                      <p className="text-sm text-gray-400">{tool.notes}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
       </div>
       <Toaster position="bottom-right" theme="dark" />
     </div>
