@@ -41,12 +41,20 @@ The automated scraping pipeline is scheduled via Vercel Cron. The configuration 
 {
   "crons": [
     {
-      "path": "/api/cron/scrape-global",
-      "schedule": "0 */4 * * *"
+      "path": "/api/cron/scrape-india",
+      "schedule": "0 6 * * *"
     },
     {
-      "path": "/api/cron/scrape-india",
-      "schedule": "0 */6 * * *"
+      "path": "/api/cron/scrape-global",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/check-links",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/digest",
+      "schedule": "0 12 * * 0"
     }
   ]
 }
