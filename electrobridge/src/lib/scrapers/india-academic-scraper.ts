@@ -45,11 +45,16 @@ async function scrapeSingleAcademic(source: any): Promise<ScrapedOpportunity[]> 
     const html = await res.text();
     const $ = cheerio.load(html);
 
+    // Remove headers, footers, sidebars, and navigation areas to prevent false positives
+    $("header, footer, nav, .header, .footer, #header, #footer, .nav, #nav, .sidebar, #sidebar, .menu, #menu").remove();
+
     $("a").each((_, el) => {
       const text = $(el).text().trim();
       const href = $(el).attr("href") || "";
 
-      if (text.length > 10) {
+      // Skip empty, short, or obvious navigation texts
+      const skipPatterns = /home|contact|sitemap|about|privacy|terms|login|sign in|register|apply now|download|click here|read more|view all/i;
+      if (text.length <= 12 || skipPatterns.test(text)) return;
         const category = detectCategory(text);
         if (category) {
           let fullLink = href;
@@ -76,7 +81,6 @@ async function scrapeSingleAcademic(source: any): Promise<ScrapedOpportunity[]> 
             tags: [source.org, category, "Research"]
           });
         }
-      }
     });
   } catch (error) {
     console.error(`Error scraping academic portal ${source.name}:`, error);

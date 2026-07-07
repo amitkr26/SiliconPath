@@ -94,6 +94,9 @@ async function getTrendingTags() {
     .map(([tag, count]) => ({ tag, count }));
 }
 
+// Revalidate homepage every 5 minutes (ISR) to pick up new opportunities
+export const revalidate = 300;
+
 export default async function Home() {
   const [stats, opportunities, news, trendingTags] = await Promise.all([
     getStats(),

@@ -109,11 +109,18 @@ async function scrapeSinglePSU(source: typeof PSU_SOURCES[0]): Promise<ScrapedOp
     const html = await res.text();
     const $ = cheerio.load(html);
 
+    // Remove headers, footers, sidebars, and navigation areas to prevent false positives
+    $("header, footer, nav, .header, .footer, #header, #footer, .nav, #nav, .sidebar, #sidebar, .menu, #menu").remove();
+
     $("a").each((_, el) => {
       const text = $(el).text().trim();
       const href = $(el).attr("href") || "";
 
-      if (text.length > 15 && isRelevant(text)) {
+      // Skip obvious navigation or layout helper texts
+      const skipPatterns = /home|contact|sitemap|about|privacy|terms|login|sign in|register|apply now|download|click here|read more|view all/i;
+      if (text.length <= 15 || skipPatterns.test(text)) return;
+
+      if (isRelevant(text)) {
         let fullLink = href;
         if (href && !href.startsWith("http")) {
           try {

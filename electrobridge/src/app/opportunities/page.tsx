@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   },
 };
 
+// Revalidate every 5 minutes
+export const revalidate = 300;
+
 export default async function OpportunitiesPage() {
   let initialData: any[] = [];
   

@@ -115,12 +115,18 @@ async function scrapeHtmlCompany(company: any): Promise<ScrapedOpportunity[]> {
     const html = await res.text();
     const $ = cheerio.load(html);
 
-    // Look for matching elements containing career keywords
+    // Remove headers, footers, sidebars, and navigation areas to prevent false positives
+    $("header, footer, nav, .header, .footer, #header, #footer, .nav, #nav, .sidebar, #sidebar, .menu, #menu").remove();
+
     $("a").each((_, el) => {
       const text = $(el).text().trim();
       const href = $(el).attr("href") || "";
 
-      if (text.length > 15 && (
+      // Skip obvious navigation or layout helper texts
+      const skipPatterns = /home|contact|sitemap|about|privacy|terms|login|sign in|register|apply now|download|click here|read more|view all/i;
+      if (text.length <= 15 || skipPatterns.test(text)) return;
+
+      if (
         text.toLowerCase().includes("design") ||
         text.toLowerCase().includes("hardware") ||
         text.toLowerCase().includes("engineer") ||
@@ -130,7 +136,7 @@ async function scrapeHtmlCompany(company: any): Promise<ScrapedOpportunity[]> {
         text.toLowerCase().includes("analog") ||
         text.toLowerCase().includes("rtl") ||
         text.toLowerCase().includes("verification")
-      )) {
+      ) {
         let fullLink = href;
         if (href && !href.startsWith("http")) {
           try {
