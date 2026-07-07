@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
-import { scrapeAllOpportunities } from '../lib/scrapers/opportunity-scraper';
+import { scrapeAllOpportunities } from '../src/lib/scrapers/opportunity-scraper-impl';
 
 async function main() {
   console.log("Starting scrape pipeline...");
@@ -12,7 +12,7 @@ async function main() {
     console.log(`- ${r.source}: Success=${r.success}, Count=${r.count}, Error=${r.error || 'none'}`);
   });
 
-  const { supabaseAdmin } = await import('../lib/supabase');
+  const { supabaseAdmin } = await import('../src/lib/supabase');
   if (!supabaseAdmin) {
     console.error("Supabase Admin not configured, skipping insertion.");
     return;

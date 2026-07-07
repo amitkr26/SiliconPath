@@ -8,18 +8,17 @@
 - [x] AI Fallback Chain (AWS Bedrock, Nvidia, Cloudflare).
 - [x] Core resource guides (JRF vs SRF, PhD Abroad, DRDO).
 
-## Next Steps (Phase 2)
-**Focus:** Expanding scraping capabilities and fixing dormant keys.
-- [ ] Rotate and fix invalid keys for Groq, Gemini, and OpenRouter in the AI fallback chain.
-- [ ] Add more scraping targets (e.g., TSMC, Intel, Texas Instruments global career pages).
-- [ ] Ensure Vercel Cron is actively executing the scrape jobs in production and inserting rows into DB1.
-- [ ] Implement actual email dispatch via Resend in the `/api/cron/digest` endpoint.
+## Current Status (Phase 2)
+**Focus:** Expanding scraping capabilities and configuring automation.
+- [x] Add and configure target companies (Intel, Micron, NVIDIA, NXP, Broadcom, ISRO, DRDO, CSIR, etc.).
+- [x] Ensure Vercel Cron is actively executing scrape jobs in production (`vercel.json` configured).
+- [x] Implement actual email dispatch via Resend in the `/api/cron/digest` endpoint.
+- [x] Setup dead link checking via `/api/cron/check-links`.
 
 ## Future Exploration (Phase 3)
-**Focus:** The Social Graph.
-*The following features are currently fully built in the API and UI layers, but are dormant/hidden from the primary user flow. Re-enabling them requires shifting to a logged-in user strategy.*
-- [ ] Re-activate `/feed` and `/network` pages in the main header.
-- [ ] Enable the messaging system via WebSocket/Real-time DB2 subscription.
+**Focus:** Social Graph & Interactivity.
+- [x] Re-activate `/feed` and `/network` pages in the main header.
+- [x] Enable the messaging system via WebSocket/Real-time DB2 subscription.
 - [ ] Allow users to "Apply" directly through their profile rather than just clicking out to the institution's page.
+- [ ] Add further advanced scraper targets (requiring Playwright/browser-impersonation to bypass WAF blocks).
 
-*Note: The pivot to these Phase 3 features depends on product validation of the Phase 1 aggregator.*
