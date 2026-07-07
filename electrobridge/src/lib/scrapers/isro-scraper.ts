@@ -1,4 +1,4 @@
-﻿import * as cheerio from "cheerio";
+import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
 
 const ISRO_URL = "https://www.isro.gov.in/Careers.html";
@@ -73,10 +73,17 @@ export async function scrapeISRO(): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
 
   try {
-    const res = await fetch(ISRO_URL, {
-      signal: AbortSignal.timeout(15000),
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; SiliconPath/1.0)" },
-    });
+    const origTls = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+    let res;
+    try {
+      res = await fetch(ISRO_URL, {
+        signal: AbortSignal.timeout(15000),
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; SiliconPath/1.0)" },
+      });
+    } finally {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = origTls;
+    }
     if (!res.ok) {
       console.error(`ISRO scraper: HTTP ${res.status}`);
       return [];

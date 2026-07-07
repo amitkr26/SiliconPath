@@ -91,12 +91,19 @@ function cleanTitle(title: string): string {
 async function scrapeSinglePSU(source: typeof PSU_SOURCES[0]): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
   try {
-    const res = await fetch(source.url, {
-      signal: AbortSignal.timeout(10000),
-      headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; SiliconPathBot/1.0; +https://siliconpath.vercel.app/bot)"
-      }
-    });
+    const origTls = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+    let res;
+    try {
+      res = await fetch(source.url, {
+        signal: AbortSignal.timeout(10000),
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
+      });
+    } finally {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = origTls;
+    }
 
     if (!res.ok) return [];
     const html = await res.text();

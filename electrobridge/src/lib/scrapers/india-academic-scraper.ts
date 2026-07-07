@@ -14,8 +14,10 @@ function detectCategory(title: string): string | null {
   if (t.includes("SRF") || t.includes("SENIOR RESEARCH")) return "SRF";
   if (t.includes("PHD") || t.includes("DOCTORAL")) return "PhD";
   if (t.includes("POSTDOC") || t.includes("POST-DOCTORAL") || t.includes("POST DOCTORAL")) return "Postdoc";
-  if (t.includes("PROJECT") || t.includes("ASSOCIATE")) return "Research Associate";
-  return "JRF"; // Default fallback
+  if (t.includes("PROJECT") || t.includes("ASSOCIATE") || t.includes("SCIENTIST")) return "Research Associate";
+  
+  // No fallback to prevent false positives for every link on the page
+  return null;
 }
 
 function cleanTitle(title: string): string {
@@ -25,12 +27,19 @@ function cleanTitle(title: string): string {
 async function scrapeSingleAcademic(source: any): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
   try {
-    const res = await fetch(source.url, {
-      signal: AbortSignal.timeout(10000),
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-      }
-    });
+    const origTls = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+    let res;
+    try {
+      res = await fetch(source.url, {
+        signal: AbortSignal.timeout(10000),
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+      });
+    } finally {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = origTls;
+    }
 
     if (!res.ok) return [];
     const html = await res.text();

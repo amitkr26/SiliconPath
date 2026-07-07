@@ -1,4 +1,4 @@
-﻿import * as cheerio from "cheerio";
+import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
 
 const DRDO_VACANCIES_URL = "https://drdo.gov.in/drdo/en/offerings/vacancies";
@@ -78,10 +78,17 @@ export async function scrapeDRDO(): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
 
   try {
-    const res = await fetch(DRDO_VACANCIES_URL, {
-      signal: AbortSignal.timeout(15000),
-      headers: { "User-Agent": "Mozilla/5.0 (SiliconPath/1.0)" },
-    });
+    const origTls = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+    let res;
+    try {
+      res = await fetch(DRDO_VACANCIES_URL, {
+        signal: AbortSignal.timeout(15000),
+        headers: { "User-Agent": "Mozilla/5.0 (SiliconPath/1.0)" },
+      });
+    } finally {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = origTls;
+    }
     if (!res.ok) {
       console.error(`DRDO scraper: HTTP ${res.status}`);
       return [];

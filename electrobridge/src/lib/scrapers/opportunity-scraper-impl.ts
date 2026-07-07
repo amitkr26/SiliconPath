@@ -168,7 +168,27 @@ export async function scrapeAllOpportunities(): Promise<{
   }
 
   // Use Promise.allSettled to scrape all traditional/built-in sources concurrently
-  // Disabled temporarily
+  const scrapePromises = traditionalSources.map(async (source) => {
+    try {
+      const opps = await source.scraper();
+      return { source: source.name, success: true, count: opps.length, opportunities: opps };
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      return { source: source.name, success: false, count: 0, opportunities: [], error: msg };
+    }
+  });
+
+  const resolvedScrapes = await Promise.allSettled(scrapePromises);
+
+  resolvedScrapes.forEach((result) => {
+    if (result.status === "fulfilled") {
+      const value = result.value;
+      allResults.push({ source: value.source, success: value.success, count: value.count, error: value.error });
+      if (value.success && value.opportunities.length > 0) {
+        allOpportunities.push(...value.opportunities);
+      }
+    }
+  });
 
   return {
     opportunities: allOpportunities,
