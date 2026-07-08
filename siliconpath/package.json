@@ -1,0 +1,31 @@
+{
+  "name": "siliconpath",
+  "version": "0.1.0",
+  "private": true,
+  "description": "No-login aggregator for semiconductor/VLSI/electronics jobs, PhDs, fellowships + curated news. Fresh rebuild.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "db:health": "tsx scripts/db-health.ts"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "@supabase/supabase-js": "^2.45.4",
+    "next": "^14.2.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.11",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}
