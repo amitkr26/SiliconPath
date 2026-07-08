@@ -1,10 +1,13 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 /**
  * Server-side Supabase client bound to the request's cookies. Uses the ANON key
  * (not the service role) so RLS applies — a signed-in user only ever reaches their
  * own rows. Service-role access stays in getDB('core') for trusted server jobs.
+ *
+ * Uses the @supabase/ssr getAll/setAll cookie interface (the get/set/remove form
+ * was removed from the CookieMethodsServer type in 0.5.x).
  */
 export function createSupabaseServer() {
   const cookieStore = cookies();
@@ -15,19 +18,12 @@ export function createSupabaseServer() {
   }
   return createServerClient(url, anon, {
     cookies: {
-      get: (name: string) => cookieStore.get(name)?.value,
-      set: (name: string, value: string, options: CookieOptions) => {
+      getAll: () => cookieStore.getAll(),
+      setAll: (cookiesToSet) => {
         try {
-          cookieStore.set({ name, value, ...options });
+          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
         } catch {
-          // set() from a Server Component — safe to ignore; middleware refreshes.
-        }
-      },
-      remove: (name: string, options: CookieOptions) => {
-        try {
-          cookieStore.set({ name, value: "", ...options });
-        } catch {
-          /* ignore */
+          // Called from a Server Component — safe to ignore; middleware refreshes the session.
         }
       },
     },
