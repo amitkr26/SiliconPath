@@ -107,7 +107,7 @@ Request format differs from OpenAI — uses `contents[{parts[{text}]}]` instead 
 | Property | Value |
 |----------|-------|
 | **Role** | Fourth fallback — access to open models |
-| **Model** | `meta-llama/llama-3.1-8b-instruct:free` |
+| **Model** | `meta-llama/llama-3.1-8b-instruct:free` ⚠️ **Deprecated** |
 | **Endpoint** | `https://openrouter.ai/api/v1/chat/completions` |
 | **Auth** | API key via `OPENROUTER_API_KEY` |
 | **API Format** | OpenAI-compatible |
@@ -116,6 +116,8 @@ Request format differs from OpenAI — uses `contents[{parts[{text}]}]` instead 
 | **Rate Limit Detection** | Non-2xx status codes |
 
 Additional headers: `HTTP-Referer`, `X-Title` for API tracking.
+
+⚠️ **Known Issue:** The model `meta-llama/llama-3.1-8b-instruct:free` has been deprecated by OpenRouter. Requests to this model now return HTTP 404, causing the fallback chain to skip OpenRouter entirely on every request, adding unnecessary latency.
 
 ### 6. Cloudflare Workers AI
 
@@ -198,12 +200,15 @@ All errors are caught in the `catch` block of `callAI()`, logged via `logAIUsage
 
 ### Cooldown Mechanism
 
-Currently, the system does not implement per-provider cooldowns in the primary chain. Each failure immediately tries the next provider. A `cooldownUntil` timestamp map is available for future implementation:
+Currently, the system does not implement per-provider cooldowns. Each failure immediately tries the next provider. If Groq or Gemini keys are invalid (returning 401), subsequent calls still attempt them on every request, incurring ~2-3s of unnecessary HTTP timeout delay on every API call.
+
+A `providerCooldowns` map is declared in code but unused:
 
 ```typescript
-// Planned implementation pattern
-const providerCooldowns = new Map<AIProvider, number>();
+const providerCooldowns: Record<string, number> = {};
 ```
+
+This map also has a memory leak — entries are added on failure but never removed. In long-running instances, it accumulates entries indefinitely.
 
 Target cooldown durations by error type:
 - 429 (rate limit): 60s cooldown
@@ -308,6 +313,20 @@ OpenAI-compatible providers (Bedrock, Groq, NVIDIA, OpenRouter) share a common f
 ### Timeout Handling
 
 There is currently no explicit request timeout per provider. The default Vercel serverless function timeout (10s on Hobby, 60s on Pro) acts as the upper bound. A future improvement would add per-provider timeouts (e.g., 5s for Groq, 10s for HuggingFace).
+
+### ⚠️ Known Issue: Unsafe JSON.parse on AI Output
+
+AI features that require structured output (matcher, summarizer, search parser) use `JSON.parse()` on raw LLM output without try/catch. If the model returns malformed JSON (which happens frequently), the endpoint crashes with a 500 error. Affected files:
+- `src/lib/ai/matcher.ts:51-53`
+- `src/lib/ai/summarizer.ts:37`
+- `src/lib/ai/search-parser.ts:30`
+
+### ⚠️ Known Issue: Empty Catch Blocks
+
+Several AI features have empty `catch {}` blocks that silently swallow errors:
+- `src/lib/ai/providers.ts:30-32` — AI logging failures suppressed
+- `src/lib/ai/expiry-checker.ts:19-20` — expiry check failures suppressed (returns `false` by default, meaning expired content stays active)
+- `src/lib/ai/news-filter-ai.ts:58-59` — news relevance check failures suppressed (returns `false`, filtering out potentially relevant news)
 
 ### Error Fallback Flow
 

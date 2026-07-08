@@ -103,6 +103,8 @@ create table public.scrape_sources (
 );
 ```
 
+**Note:** There are two competing `scrape_sources` tables defined in migration files — one in `20260704000001_db1_core_schema.sql` (named `scraper_sources` with slightly different columns) and another in `20260703000004_scrape_sources_and_verification.sql` (named `scrape_sources`). This duplication should be resolved.
+
 ### How It Enables No-Code Changes
 
 Adding a new source does not require a deployment or code change. An admin simply inserts a row into `scrape_sources`:

@@ -1,48 +1,19 @@
 services:
   - type: web
     name: siliconpath-backend
-    runtime: node
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: npm ci && npx tsc
+    startCommand: node dist/index.js
     envVars:
-      - key: NODE_ENV
-        value: production
+      - key: NODE_VERSION
+        value: 22
       - key: PORT
         value: "3001"
-      - key: LOG_LEVEL
-        value: INFO
-      # Database — set these in Render dashboard
-      - key: NEXT_PUBLIC_SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-      - key: SUPABASE_2_URL
-        sync: false
-      - key: SUPABASE_2_SERVICE_ROLE_KEY
-        sync: false
-      - key: NEON_1_DATABASE_URL
-        sync: false
-      - key: NEON_2_DATABASE_URL
-        sync: false
-      # AI Providers
-      - key: AWS_BEARER_TOKEN_BEDROCK
-        sync: false
-      - key: GROQ_API_KEY
-        sync: false
-      - key: NVIDIA_NIM_API_KEY
-        sync: false
-      - key: GEMINI_API_KEY
-        sync: false
-      - key: OPENROUTER_API_KEY
-        sync: false
-      - key: CLOUDFLARE_AI_TOKEN
-        sync: false
-      - key: CLOUDFLARE_ACCOUNT_ID
-        sync: false
-      - key: HUGGINGFACE_API_KEY
-        sync: false
-      # Scraper auth shared secret
       - key: SCRAPER_SECRET
         sync: false
-      - key: CRON_SECRET
-        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://siliconpath.vercel.app
+      - key: RATE_LIMIT_MAX
+        value: "120"

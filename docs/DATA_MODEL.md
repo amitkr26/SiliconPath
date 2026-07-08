@@ -1,6 +1,6 @@
 # Data Model — SiliconPath
 
-> **Last Updated:** July 3, 2026
+> **Last Updated:** July 4, 2026
 
 ---
 
@@ -42,41 +42,169 @@ The DB router (`src/lib/db/index.ts`) maps logical purposes to the correct datab
 
 **Project:** `aqauempuwmbizqoaolop.supabase.co` (`ap-southeast-1`)
 
-**31 tables** across 5 domains: core opportunities, users, community, automation, LinkedIn.
+**31+ tables** across 5 domains: core opportunities, users, community, automation, LinkedIn.
 
-### 2.1 Core Opportunity Tables
+#### `companies`
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | `uuid` | PK |
+| `slug` | `text` | UNIQUE NOT NULL |
+| `name` | `text` | NOT NULL |
+| `short_name` | `text` | |
+| `tagline` | `text` | |
+| `description` | `text` | |
+| `logo_url` | `text` | |
+| `banner_url` | `text` | |
+| `website` | `text` | |
+| `careers_page_url` | `text` | |
+| `linkedin_url` | `text` | |
+| `company_type` | `text` | CHECK: Government PSU, Research Lab, IIT/NIT, etc. |
+| `country` | `text` | default 'India' |
+| `is_active` | `boolean` | default true |
+| `is_verified` | `boolean` | default false |
+| `is_auto_scraped` | `boolean` | default true |
+| `follower_count` | `integer` | default 0 |
+| `opportunity_count` | `integer` | default 0 |
 
-#### `opportunities`
+#### `news_articles`
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | `uuid` | PK |
+| `title` | `text` | NOT NULL |
+| `slug` | `text` | UNIQUE |
+| `summary` | `text` | |
+| `content` | `text` | |
+| `source` | `text` | |
+| `source_url` | `text` | UNIQUE |
+| `author` | `text` | |
+| `image_url` | `text` | |
+| `category` | `text` | CHECK: industry, research, policy, etc. |
+| `tags` | `text[]` | |
+| `companies_mentioned` | `text[]` | |
+| `published_at` | `timestamptz` | |
+| `views` | `integer` | default 0 |
+| `is_featured` | `boolean` | default false |
+| `created_at` | `timestamptz` | default now() |
+
+#### `scraper_sources` (note: also spelled `scrape_sources` in another migration — duplicate)
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | `uuid` | PK |
+| `name` | `text` | NOT NULL |
+| `url` | `text` | NOT NULL |
+| `type` | `text` | CHECK: rss_news, rss_opportunities, html_careers, api |
+| `company_id` | `uuid` | FK → companies.id |
+| `country` | `text` | default 'India' |
+| `is_active` | `boolean` | default true |
+| `scrape_frequency` | `text` | default 'daily' |
+| `last_scraped_at` | `timestamptz` | |
+| `last_error` | `text` | |
+| `items_found_last_run` | `integer` | |
+| `items_inserted_last_run` | `integer` | |
+| `total_items_scraped` | `integer` | |
+| `config` | `jsonb` | |
+
+#### `subscribers`
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | `uuid` | PK |
+| `email` | `text` | UNIQUE NOT NULL |
+| `keywords` | `text[]` | |
+| `categories` | `text[]` | |
+| `locations` | `text[]` | |
+| `created_at` | `timestamptz` | default now() |
+| `is_active` | `boolean` | default true |
+| `last_email_sent_at` | `timestamptz` | |
+| `email_count` | `integer` | |
+
+#### `link_check_results`
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | `uuid` | PK |
+| `opportunity_id` | `uuid` | FK → opportunities.id ON DELETE CASCADE |
+| `checked_at` | `timestamptz` | default now() |
+| `http_status` | `integer` | |
+| `is_reachable` | `boolean` | |
+| `response_time_ms` | `integer` | |
+| `error_message` | `text` | |
+
+#### `opportunity_reports`
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | `uuid` | PK |
+| `opportunity_id` | `uuid` | FK → opportunities.id ON DELETE CASCADE |
+| `report_type` | `text` | CHECK: broken_link, wrong_info, expired, duplicate, other |
+| `description` | `text` | |
+| `reporter_email` | `text` | |
+| `reported_at` | `timestamptz` | default now() |
+| `is_resolved` | `boolean` | default false |
+
+#### `suggestions`
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | `uuid` | PK |
+| `type` | `text` | |
+| `name` | `text` | |
+| `email` | `text` | |
+| `url` | `text` | |
+| `notes` | `text` | |
+| `submitted_at` | `timestamptz` | default now() |
+| `is_reviewed` | `boolean` | default false |
+
+### 2.2 Core Opportunity Tables (Legacy Schema — for reference)
+
+#### `opportunities` (Legacy columns — actual schema has additional fields from migrations)
 | Column | Type | Constraints |
 |--------|------|-------------|
 | `id` | `uuid` | PK, default `gen_random_uuid()` |
 | `title` | `text` | NOT NULL |
 | `organization` | `text` | NOT NULL |
-| `category` | `text` | NOT NULL — one of: `JRF`, `SRF`, `PhD`, `Govt Job`, `Private Job`, `Fellowship` |
+| `company_id` | `uuid` | FK → `companies.id` ON DELETE SET NULL |
+| `category` | `text` | NOT NULL — one of: `JRF`, `SRF`, `PhD`, `Postdoc`, `Research Associate`, `Internship`, `Trainee`, `Govt Job`, `Private Job`, `Fellowship`, `Scholarship`, `Faculty` |
 | `location` | `text` | |
+| `city` | `text` | |
+| `state` | `text` | |
+| `country` | `text` | default `'India'` |
+| `is_remote` | `boolean` | default `false` |
 | `stipend` | `text` | |
-| `deadline` | `timestamptz` | |
+| `stipend_min` | `integer` | For range filtering |
+| `stipend_max` | `integer` | |
+| `stipend_currency` | `text` | default `'INR'` |
+| `deadline` | `date` | |
+| `posted_date` | `date` | |
+| `duration` | `text` | e.g., "6 months", "2 years" |
 | `eligibility` | `text` | |
+| `min_qualification` | `text` | CHECK: BTech/BE, MTech/ME, MSc, PhD, etc. |
+| `experience_required` | `text` | |
+| `skills_required` | `text[]` | |
 | `description` | `text` | |
+| `short_description` | `text` | AI-generated summary |
+| `responsibilities` | `text[]` | AI-extracted |
+| `requirements` | `text[]` | AI-extracted |
 | `apply_link` | `text` | |
-| `source_url` | `text` | |
+| `official_page_url` | `text` | |
+| `source_url` | `text` | UNIQUE |
+| `apply_link_type` | `text` | default `'homepage'` — one of: `direct`, `homepage`, `pdf`, `email`, `portal` |
 | `is_active` | `boolean` | default `true` |
-| `created_at` | `timestamptz` | default `now()` |
-| `posted_at` | `timestamptz` | |
-| `apply_clicks` | `integer` | default `0` |
+| `verification_status` | `text` | default `'unverified'` — one of: `pending`, `verified`, `unverified`, `link_unavailable`, `expired` |
+| `verified_at` | `timestamptz` | |
 | `tags` | `text[]` | |
 | `slug` | `text` | UNIQUE |
 | `org_slug` | `text` | |
-| `verification_status` | `text` | default `'unverified'` — one of: `verified`, `unverified`, `link_unavailable`, `expired` |
-| `verified_at` | `timestamptz` | |
-| `official_page_url` | `text` | |
-| `apply_link_type` | `text` | default `'direct'` — one of: `direct`, `homepage`, `pdf`, `email`, `portal` |
+| `apply_clicks` | `integer` | default `0` |
+| `views` | `integer` | default `0` |
+| `saves_count` | `integer` | default `0` |
+| `posted_at` | `timestamptz` | default `now()` |
 | `last_link_checked` | `timestamptz` | |
-| `link_check_status` | `text` | |
+| `link_check_status` | `integer` | |
 | `admin_notes` | `text` | |
+| `scrape_source` | `text` | Source identifier |
 | `company_page_id` | `uuid` | FK → `company_pages.id` |
+| `created_at` | `timestamptz` | default `now()` |
+| `updated_at` | `timestamptz` | default `now()` |
+- **⚠️ Known Bug:** The trigger function `generate_opp_slug()` has no body — slug auto-generation on INSERT will fail.
 - **RLS:** Public SELECT where `is_active = true`; Admin all (service-role bypass).
-- **Indexes:** `slug`, `category`, `organization`, `is_active`, `deadline`, `posted_at`.
+- **Indexes:** FTS on title+org+description, slug, category, company, source_url, is_active+deadline.
 
 #### `news_articles`
 | Column | Type | Constraints |
@@ -655,12 +783,24 @@ CREATE TRIGGER sync_resume_ats
 
 | # | File | Database | Purpose |
 |---|------|----------|---------|
-| 1 | `20260630000001_base_schema.sql` | Supabase Primary | Core tables: `opportunities`, `news_articles`, `subscribers`, `user_profiles`, `saved_opportunities`, `applications`, `user_alerts`, `ai_usage_log`, `link_check_logs`, `opportunity_reports`, `telegram_subscribers`, `calendar_exports`, `suggestions`, `scrape_sources` |
-| 2 | `20260630000002_extensions.sql` | Supabase Primary | Database extensions: `pgcrypto`, `uuid-ossp`, `pg_trgm` |
-| 3 | `20260630000003_rls_policies.sql` | Supabase Primary | 19 RLS policies across all core tables |
-| 4 | `20260702000001_resume_builder.sql` | Supabase Primary | `user_resumes` table + `sync_ats_score` trigger function |
-| 5 | `20260702000002_community.sql` | Supabase Primary | `community_posts`, `community_comments`, `community_votes` + `toggle_upvote` RPC |
-| 6 | `20260703000003_linkedin_features.sql` | Supabase Primary | 12 LinkedIn tables + 17 new `user_profiles` columns + 10 seed company pages |
-| — | *(Neon db3/db4 schemas)* | Neon Primary / Secondary | Tables exist at project level; migration files not version-controlled in this repository |
+| 1 | `20260501000001_fix_duplicates_and_cleanup.sql` | Supabase Primary | Duplicate cleanup, data fixes |
+| 2 | `20260501000002_verification_and_slugs.sql` | Supabase Primary | Verification status + slug improvements |
+| 3 | `20260501000003_cleanup_irrelevant_news.sql` | Supabase Primary | Remove non-electronics news |
+| 4 | `20260501000004_ai_usage_log.sql` | Supabase Primary | AI usage logging table |
+| 5 | `20260501000005_news_slug_suggestions.sql` | Supabase Primary | News slug suggestions |
+| 6 | `20260630000001_user_profiles.sql` | Supabase Primary | User profiles table |
+| 7 | `20260703000001_neon_schema.sql` | Neon | Neon analytics schema |
+| 8 | `20260703000002_supabase2_schema.sql` | Supabase Secondary | DB2 archive schema |
+| 9 | `20260703000003_linkedin_features.sql` | Supabase Primary | 12 LinkedIn tables + 17 profile columns + 10 seed companies |
+| 10 | `20260703000004_scrape_sources_and_verification.sql` | Supabase Primary | `scrape_sources` table + verification status update |
+| 11 | `20260704000001_db1_core_schema.sql` | Supabase Primary | Core schema: opportunities, companies, news, subscribers, RLS |
+| 12 | `20260704000001_linkedin_tables.sql` | Supabase Primary | LinkedIn tables (alternative/overlapping) |
+| 13 | `20260704000002_db2_user_social.sql` | Supabase Secondary | User social features, feed, messaging |
+| 14 | `20260704000003_neon1_analytics.sql` | Neon | Analytics tables |
 
-**Migration directory:** `electrobridge/supabase/migrations/` (for db1). Neon migrations are managed via Neon Console / SQL scripts outside the repo.
+**⚠️ Migration Conflicts:**
+- `20260703000003_linkedin_features.sql` and `20260704000002_db2_user_social.sql` create overlapping tables (`user_follows`, `connection_requests`, `feed_posts`, `skill_endorsements`, `recommendations`, `conversations`, `messages`, `notifications`). Execution order is ambiguous.
+- `20260704000001_db1_core_schema.sql` creates `scraper_sources` while `20260703000004_scrape_sources_and_verification.sql` creates `scrape_sources` (different name, similar purpose).
+- The function `generate_opp_slug()` in `20260704000001_db1_core_schema.sql:120-127` has no body — it declares variables but never returns a value.
+
+**Migration directory:** `electrobridge/supabase/migrations/` (14 files total).

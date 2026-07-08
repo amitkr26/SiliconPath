@@ -30,7 +30,7 @@ Example: `feat: add new scraper for IISc Bangalore`
 1. **Prerequisites**: You must have Node.js 20+ and `pnpm` installed.
 2. **Clone the repo**: `git clone https://github.com/amitkr26/SiliconPath.git`
 3. **Install dependencies**: Navigate to the `electrobridge` directory and run `pnpm install`.
-4. **Environment Variables**: Copy `.env.local.example` to `.env.local` and add the required database URLs and AI API keys. 
+4. **Environment Variables**: Copy `.env.local.example` to `.env.local` and add the required database URLs and AI API keys. *(Note: `.env.local.example` does not currently exist in the repo — you may need to create it manually or obtain it from a maintainer.)*
 5. **Run the server**: `pnpm dev`
 
 ## Running Tests

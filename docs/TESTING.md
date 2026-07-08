@@ -4,18 +4,20 @@ SiliconPath uses **Jest** and **React Testing Library** for its testing suite.
 
 ## Current Coverage
 
-Currently, there are **31 passing tests** across 4 test suites. 
+There are currently **4 test suites** with **31 passing tests**.
 
 **What is covered:**
 - Unit tests for core utilities (`src/lib/utils.ts`).
-- Logic tests for the news and opportunity filtering functions.
+- Logic tests for the news filter function (`news-filter.test.ts`).
 - API route logic for `opportunities.test.ts`.
-- Component tests for isolated UI components (e.g., `DeadlineCountdown.tsx`).
+- Component tests for isolated UI components (`DeadlineCountdown.tsx`).
 
 **What is NOT covered:**
-- End-to-End (E2E) testing (e.g., Playwright/Cypress). There is no automated browser testing yet.
-- Full integration tests for the AI scraping fallback chain (this relies on external API responses and is currently tested via manual scripts).
-- Social features (Feed, Messaging, Network graph) are currently untested, as they are dormant.
+- End-to-End (E2E) testing (Playwright/Cypress) — none configured.
+- Full integration tests for the AI scraping fallback chain.
+- Social features (Feed, Messaging, Network, Community) — untested.
+- Authentication flows.
+- Database integration tests.
 
 ## Running Tests Locally
 
@@ -34,18 +36,10 @@ pnpm run test:coverage
 
 ## Continuous Integration (CI)
 
-Tests are not currently enforcing build failure in Vercel. However, they can be wired into a GitHub Action before allowing merges to `main`. 
+A CI pipeline exists at `.github/workflows/ci.yml` that runs lint, test, and build on pushes/PRs to `main`. The pipeline uses `npm ci` (not `pnpm`, despite the README recommending `pnpm`). Both `package-lock.json` and `pnpm-lock.yaml` exist in the repo, creating ambiguity.
 
-Example minimal GitHub Action for Jest:
-```yaml
-name: Node.js CI
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: pnpm/action-setup@v3
-    - run: pnpm install
-    - run: pnpm test
-```
+**Issues with current CI:**
+1. Uses `npm ci` but README says to use `pnpm` — inconsistent
+2. Secrets fallback to empty strings in CI (`secrets.* || ''`), which may cause build failures for routes that check env vars at build time
+3. `NEXT_PUBLIC_ADMIN_PASSWORD` has a weak hardcoded fallback: `'electrobridge2026'`
+4. No E2E tests, no database integration tests
