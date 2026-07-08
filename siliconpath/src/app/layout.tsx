@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import "./globals.css";
 import { Brand } from "@/components/Brand";
 import { tokens } from "@/lib/design/tokens";
 
@@ -40,8 +41,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/opportunities" style={{ color: tokens.color.textMuted, textDecoration: "none" }}>
               Opportunities
             </Link>
+            <Link href="/search" style={{ color: tokens.color.textMuted, textDecoration: "none" }}>
+              AI Search
+            </Link>
             <Link href="/news" style={{ color: tokens.color.textMuted, textDecoration: "none" }}>
               News
+            </Link>
+            <Link href="/academy" style={{ color: tokens.color.textMuted, textDecoration: "none" }}>
+              Academy
             </Link>
           </nav>
         </header>
