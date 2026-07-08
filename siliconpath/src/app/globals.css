@@ -1,0 +1,31 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+/* Print styles for the resume builder — hide app chrome so Print → Save as PDF
+   yields a clean document (the resume is a generated output, not a stored file). */
+@media print {
+  header,
+  footer,
+  nav {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+}
