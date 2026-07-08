@@ -28,6 +28,14 @@ SiliconPath aims to be the single source of truth and global aggregator for hard
 - **Dynamic Location Pages**: Auto-generated landing pages for specific tech hubs (e.g., `/opportunities/location/bangalore`) to capture high-intent search traffic.
 - **LLM Visibility**: Dedicated `/llms.txt` file to ensure the platform is easily ingested by AI search engines like Perplexity, ChatGPT, and Gemini.
 
+## 6. Known Limitations (from July 2026 Audit)
+
+- **Security gaps:** Admin API endpoints (create/update/delete opportunities, recheck links, manage scrape sources) have zero authentication. `NEXT_PUBLIC_ADMIN_PASSWORD` is exposed in client-side JS bundles.
+- **Broken DB function:** `generate_opp_slug()` has no body — slug auto-generation on INSERT fails.
+- **Ineffective rate limiter:** In-memory rate limiter resets on every Vercel serverless invocation.
+- **PostgREST injection risk:** User input interpolated into `.or()` filter strings.
+- **Conflicting migrations:** Two migration files create overlapping tables with ambiguous execution order.
+
 ## 4. Dormant Features (Built but Hidden)
 
 During initial development, a full suite of "LinkedIn-style" social features were built. However, product strategy pivoted to a friction-free, no-login aggregator. These features are fully functional in the codebase but are currently relegated to the footer navigation and are not actively maintained:

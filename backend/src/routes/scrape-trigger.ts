@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { logger } from "../lib/logger.js";
-import { runOrchestrator } from "../scrapers/orchestrator.js";
+import { runOrchestrator, runSingleSource, getSourceById, getActiveRuns, SOURCES } from "../scrapers/orchestrator.js";
 import { recordRun } from "./health.js";
 
 const router = Router();
@@ -19,6 +19,7 @@ function auth(req: Request, res: Response): boolean {
   return true;
 }
 
+// POST /scrape/run — run all or a specific batch
 router.post("/scrape/run", async (req, res) => {
   if (!auth(req, res)) return;
 
@@ -44,9 +45,10 @@ router.post("/scrape/run", async (req, res) => {
   }
 });
 
+// POST /scrape/batch/:batchId — run a specific batch number
 router.post("/scrape/batch/:batchId", async (req, res) => {
   if (!auth(req, res)) return;
-  const batchId = req.params.batchId;
+  const batchId = parseInt(req.params.batchId, 10) || req.params.batchId;
 
   try {
     logger.info(`[Scrape] Triggered batch=${batchId}`);
@@ -61,6 +63,73 @@ router.post("/scrape/batch/:batchId", async (req, res) => {
     logger.error(`[Scrape] Batch ${batchId} error:`, e);
     res.status(500).json({ success: false, error: String(e) });
   }
+});
+
+// GET /scrape/test/:sourceId — test-run a single source (no auth needed)
+router.get("/scrape/test/:sourceId", async (req, res) => {
+  const { sourceId } = req.params;
+  const source = getSourceById(sourceId);
+  if (!source) {
+    res.status(404).json({ error: `Source '${sourceId}' not found` });
+    return;
+  }
+
+  const start = Date.now();
+  try {
+    const items = await runSingleSource(source);
+    res.json({
+      source: sourceId,
+      source_name: source.name,
+      adapter_used: source.type,
+      url: source.url,
+      results_count: items.length,
+      results: items.slice(0, 50), // cap at 50 for test view
+      took_ms: Date.now() - start,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (e) {
+    res.status(500).json({
+      source: sourceId,
+      error: e instanceof Error ? e.message : String(e),
+      took_ms: Date.now() - start,
+    });
+  }
+});
+
+// GET /scrape/status — show active runs and source overview
+router.get("/scrape/status", (_req, res) => {
+  const runs = getActiveRuns();
+  const recentRuns = Array.from(runs.values()).slice(-20).reverse();
+
+  const totalSources = SOURCES.length;
+  const activeSources = SOURCES.filter((s) => s.active).length;
+  const byBatch = new Map<number, number>();
+  const byCategory = new Map<string, number>();
+  const byType = new Map<string, number>();
+
+  for (const s of SOURCES) {
+    if (!s.active) continue;
+    byBatch.set(s.batch, (byBatch.get(s.batch) || 0) + 1);
+    byCategory.set(s.category, (byCategory.get(s.category) || 0) + 1);
+    byType.set(s.type, (byType.get(s.type) || 0) + 1);
+  }
+
+  res.json({
+    total_sources: totalSources,
+    active_sources: activeSources,
+    batches: Object.fromEntries(byBatch),
+    categories: Object.fromEntries(byCategory),
+    types: Object.fromEntries(byType),
+    recent_runs: recentRuns.map((r) => ({
+      source: r.sourceId,
+      name: r.sourceName,
+      status: r.status,
+      results: r.results,
+      started: r.startedAt,
+      completed: r.completedAt,
+      error: r.error ?? null,
+    })),
+  });
 });
 
 export default router;

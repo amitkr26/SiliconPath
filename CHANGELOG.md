@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-04
+### Added
+- Full security audit across 37+ issues (9 critical, 10 high, 10 medium, 8 low).
+- Documentation updates reflecting audit findings and project reality.
+- Bug tracking for broken `generate_opp_slug()` function.
+
+### Fixed
+- Documentation: All references updated from "ElectroBridge" → "SiliconPath".
+- Documentation: URLs updated from `electrobridge.vercel.app` → `siliconpath.vercel.app`.
+- Documentation: API reference updated with actual auth status (including missing auth gaps).
+
+### Known Issues (from audit)
+- `generate_opp_slug()` function has no body — all trigger-based inserts fail.
+- Admin API endpoints lack authentication — full DB CRUD exposed.
+- `NEXT_PUBLIC_ADMIN_PASSWORD` exposed in client-side JS bundles.
+- Cross-database foreign keys not enforceable in Supabase.
+- Conflicting migration files produce ambiguous schema state.
+
 ## [0.1.0] - 2026-07-04
 ### Added
 - Complete UI overhaul with Tailwind CSS and Next.js App Router.

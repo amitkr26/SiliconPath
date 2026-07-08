@@ -39,7 +39,12 @@ SiliconPath strictly enforces a 4-database split to maximize performance, isolat
 
 ## Migration Process
 
-Currently, database schemas are managed directly via Supabase SQL editor or Neon SQL console. There is no automated Prisma or Drizzle migration pipeline implemented in the repository.
+Database schemas are managed via migration files in `electrobridge/supabase/migrations/` (14 files). These are manually applied via Supabase SQL editor or Neon SQL console. There is no automated Prisma or Drizzle migration pipeline.
+
+**Known Issues:**
+- Migration `20260704000001_db1_core_schema.sql:120-127` contains a broken `generate_opp_slug()` function that declares variables but has no body — the slug auto-generation trigger will fail on INSERT.
+- Migrations `20260703000003_linkedin_features.sql` and `20260704000002_db2_user_social.sql` create overlapping tables, with ambiguous execution order.
+- Cross-database foreign keys between DB1 and DB2 are not enforceable in Supabase.
 
 ## Backup & Restore
 

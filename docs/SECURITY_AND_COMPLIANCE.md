@@ -100,7 +100,32 @@ Admin access is controlled by a single plain-text password check:
 if (password !== process.env.NEXT_PUBLIC_ADMIN_PASSWORD) { /* deny */ }
 ```
 
-**Known limitation**: This is not role-based access. The admin password is stored in a public env var (`NEXT_PUBLIC_ADMIN_PASSWORD`), making it visible to client-side code. Any user who knows the password has full admin access. Future improvement should implement proper role-based access control using a Supabase `roles` table or custom claims.
+**⚠️ CRITICAL ISSUE:** This is a known vulnerability:
+1. `NEXT_PUBLIC_ADMIN_PASSWORD` is prefixed with `NEXT_PUBLIC_`, meaning it is baked into client-side JavaScript bundles at build time — anyone can extract it from browser DevTools
+2. The password uses a weak fallback (`electrobridge2026`) in CI configuration
+3. Several API endpoints that should be "Admin"-protected have **no auth check at all** (see below)
+
+### 🔴 Missing Authentication on Admin API Endpoints
+
+The following API routes use `supabaseAdmin` (service_role key) with **zero authentication**:
+- `POST /api/opportunities` — create opportunities
+- `PATCH /api/opportunities/[id]` — update opportunities
+- `DELETE /api/opportunities/[id]` — delete opportunities
+- `POST /api/admin/recheck-link` — recheck links (SSRF vector)
+- `POST/PUT/DELETE /api/scrape-sources` — scrape source CRUD
+
+**Impact:** Anyone who discovers these routes can create/update/delete any database record, add malicious scrape sources, or trigger internal network requests.
+
+### 🟠 Missing Field Whitelist on Profile/Feed Updates
+
+- `PATCH /api/profile/[userId]` — spreads entire request body into DB update with no field whitelist
+- `PATCH /api/feed/posts/[id]` — same pattern
+
+**Impact:** Attackers can set arbitrary database columns including `is_profile_public`, `role`, `email`, `visibility`, or `user_id`.
+
+### 🟠 In-Memory Rate Limiter Ineffective in Serverless
+
+The rate limiter (`src/lib/rate-limiter.ts`) uses an in-memory Map. On Vercel (serverless), each invocation runs in an isolated container, so rate limit state is never shared. The subscribe endpoint's 3 req/hr limit is a no-op.
 
 ### Service Role
 
@@ -126,8 +151,11 @@ Supabase Primary has **30 RLS policies** across 11 tables. Policies are grouped 
 
 ### Key Stored Procedures
 
+- **`generate_opp_slug()`**: ⚠️ **BROKEN** — declares variables but has no body and no RETURN statement. The trigger `auto_opp_slug()` that calls this function will fail on every INSERT into `opportunities`.
 - **`toggle_upvote(p_post_id, p_user_id)`**: Toggles community post upvote. Uses `SECURITY DEFINER` to bypass RLS.
 - **`sync_ats_score()`**: Trigger function that copies `user_resumes.ats_score` → `user_profiles.resume_ats_score`.
+- **`handle_follow()`**: Updates follower/following counts on INSERT/DELETE to `user_follows`. Uses `RETURN COALESCE(NEW, OLD)` pattern (valid in PG 15+).
+- **`handle_connection_accepted()`**: On status update to 'accepted', inserts into `connections` and increments connection counts.
 
 ---
 

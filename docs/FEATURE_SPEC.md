@@ -1,8 +1,8 @@
 # Full Feature Specification — SiliconPath
 
-> **Version:** 1.0  
-> **Last Updated:** July 3, 2026  
-> **Status:** In Production
+> **Version:** 1.1  
+> **Last Updated:** July 4, 2026  
+> **Status:** In Production (with known issues)
 
 ---
 
@@ -728,8 +728,9 @@ These features were added in Session 10 and are fully implemented with working U
 **Known Issues:**
 - No web UI for subscribe/unsubscribe — users must use the Telegram bot directly
 - No UI to configure keyword filters for Telegram vs. email alerts
+- `telegram_subscribers` table is not created in any migration — feature may be non-functional
 
-**Build Status:** **Partial** (bot works, no subscription UI)
+**Build Status:** **Partial** (bot code exists, no subscription UI, missing DB table)
 
 ### 2.7 Dashboard
 
@@ -752,7 +753,7 @@ These features were added in Session 10 and are fully implemented with working U
 
 ## 3. Admin Features
 
-Accessible via admin password (`NEXT_PUBLIC_ADMIN_PASSWORD`). The admin panel link is in the site footer.
+Accessible via admin password (`NEXT_PUBLIC_ADMIN_PASSWORD` — ⚠️ see Security doc about this being exposed in client JS). The admin panel link is in the site footer.
 
 ### 3.1 Admin Dashboard
 

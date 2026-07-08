@@ -61,3 +61,26 @@ The secrets management approach used in Session 13 was correct:
 
 - If CI/CD pipelines need access to secrets, use GitHub Encrypted Secrets (Settings → Secrets and variables → Actions) rather than environment files.
 - For local development, `.env.local` will be available in the workspace as long as it persists — consider a `.env.local.setup.sh` script (gitignored) that loads keys from a secure source if the workspace is frequently reset.
+
+---
+
+## Subsequent Audit (July 4, 2026) — New Security Findings
+
+A full codebase audit on July 4, 2026 identified **9 critical and 7 high-severity security issues** beyond the original secrets exposure scope:
+
+### New Critical Findings
+
+1. **Missing Authentication on Admin Write Endpoints:** `POST/PATCH/DELETE /api/opportunities`, `POST /api/admin/recheck-link`, `POST/PUT/DELETE /api/scrape-sources` have zero authentication but use `supabaseAdmin` (service_role key) — full database CRUD exposed.
+
+2. **NEXT_PUBLIC_ADMIN_PASSWORD in Client Bundle:** The admin password env var is prefixed with `NEXT_PUBLIC_`, baking it into client-side JavaScript. Anyone can extract it from browser DevTools.
+
+3. **Unauthenticated SSRF Vector:** `POST /api/admin/recheck-link` has no auth guard and fetches arbitrary URLs from DB content. Combined with finding #1, an attacker can insert a malicious `apply_link` pointing to internal services and trigger SSRF.
+
+4. **No Input Validation on Profile/Feed Updates:** `PATCH /api/profile/[userId]` and feed update endpoints spread the entire request body into DB updates with no field whitelist.
+
+### Action Items
+
+1. Add authentication checks to all admin write endpoints immediately
+2. Rename `NEXT_PUBLIC_ADMIN_PASSWORD` to `ADMIN_PASSWORD` or implement proper role-based access
+3. Replace in-memory rate limiter with a persistent store
+4. Add input validation/field whitelisting for all DB write operations

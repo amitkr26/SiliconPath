@@ -15,6 +15,18 @@
 | Admin | `NEXT_PUBLIC_ADMIN_PASSWORD` header match required |
 | Cron | `CRON_SECRET` header match required |
 
+## ⚠️ Security Notice
+**Multiple critical security gaps exist in API route authentication** (identified in July 2026 audit):
+- `POST /api/opportunities` — labeled "Admin" but has **no authentication** in code
+- `PATCH /api/opportunities/[id]` — labeled "Admin" but has **no authentication** in code
+- `DELETE /api/opportunities/[id]` — labeled "Admin" but has **no authentication** in code
+- `POST /api/admin/recheck-link` — labeled "Admin" but has **no authentication** in code
+- `POST/PUT/DELETE /api/scrape-sources` — labeled "Admin" but has **no authentication** in code
+- `NEXT_PUBLIC_ADMIN_PASSWORD` is visible in client-side JS bundles (NEXT_PUBLIC_ prefix)
+- In-memory rate limiter is ineffective in serverless environments
+
+Refer to `docs/SECURITY_AND_COMPLIANCE.md` for full details.
+
 ---
 
 ## Table of Contents
@@ -43,7 +55,7 @@
 - **DB:** db1 — `opportunities` (public read, active only)
 
 ### `POST /api/opportunities`
-- **Auth:** Admin
+- **Auth:** ⚠️ **None (should be Admin)** — see security notice above
 - **Purpose:** Create a new opportunity.
 - **Body:** `{ title, organization, category, location, stipend, deadline, eligibility, description, apply_link, tags, slug, org_slug, apply_link_type, official_page_url }`
 - **Response:** `{ opportunity: Opportunity }`
@@ -56,14 +68,14 @@
 - **DB:** db1 — `opportunities`
 
 ### `PATCH /api/opportunities/[id]`
-- **Auth:** Admin
+- **Auth:** ⚠️ **None (should be Admin)**
 - **Purpose:** Update opportunity fields.
 - **Body:** Partial `Opportunity` fields.
 - **Response:** `{ opportunity: Opportunity }`
 - **DB:** db1 — `opportunities`
 
 ### `DELETE /api/opportunities/[id]`
-- **Auth:** Admin
+- **Auth:** ⚠️ **None (should be Admin)**
 - **Purpose:** Delete an opportunity.
 - **Response:** `{ success: true }`
 - **DB:** db1 — `opportunities`
@@ -214,11 +226,12 @@
 ## 6. Admin / Analytics
 
 ### `POST /api/admin/recheck-link`
-- **Auth:** Admin
+- **Auth:** ⚠️ **None (should be Admin)** — also a potential SSRF vector
 - **Purpose:** Recheck a single opportunity's apply link for validity.
 - **Body:** `{ opportunity_id }`
 - **Response:** `{ status: number, reachable: boolean }`
 - **DB:** db1 — `opportunities`, db3 — `link_check_logs`
+- **Security Note:** This endpoint fetches arbitrary URLs from the database without authentication. An attacker who can insert a malicious `apply_link` (via the unauthenticated POST /api/opportunities) can trigger internal network requests (SSRF).
 
 ### `GET /api/analytics/ai-usage`
 - **Auth:** Admin

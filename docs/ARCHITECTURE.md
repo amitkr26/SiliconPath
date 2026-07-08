@@ -36,7 +36,9 @@ To ensure maximum resilience and clean separation of concerns, SiliconPath uses 
 | **DB3** | Neon (Serverless Postgres) | **Analytics & Fast Search**: Click tracking, search caching. | Active |
 | **DB4** | Neon (Serverless Postgres) | **Failover**: Backup for analytics and search. | Active |
 
-By separating the core, login-free aggregator (DB1) from the heavily-relational social graph (DB2), we achieve maximum performance for unauthenticated visitors. 
+By separating the core, login-free aggregator (DB1) from the heavily-relational social graph (DB2), we achieve maximum performance for unauthenticated visitors.
+
+**Known Issue:** Cross-database foreign key references exist between DB1 and DB2 (e.g., `feed_posts.opportunity_id` → `opportunities(id)`) but are not enforceable in Supabase, which does not support cross-project FK constraints. These are handled at the application layer.
 
 ## 3. AI Fallback Chain
 
@@ -47,7 +49,7 @@ Current active chain:
 2. **Nvidia NIM**
 3. **Cloudflare Workers AI**
 
-*(Note: Groq, Gemini, and OpenRouter implementations exist in the codebase but are currently inactive or awaiting key rotation).*
+*(Note: Groq, Gemini, and OpenRouter implementations exist in the codebase but are currently inactive or awaiting key rotation. OpenRouter model `meta-llama/llama-3.1-8b-instruct:free` has been deprecated — now returns 404.)*
 
 ## 4. Frontend Architecture
 
