@@ -1,0 +1,46 @@
+name: CI (siliconpath)
+
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "siliconpath/**"
+      - ".github/workflows/ci-siliconpath.yml"
+  pull_request:
+    paths:
+      - "siliconpath/**"
+      - ".github/workflows/ci-siliconpath.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: siliconpath
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # No package-lock.json is committed yet, so use install (not ci).
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+        env:
+          # Placeholders only. All pages are force-dynamic, so the build does not
+          # execute DB/auth calls; these just satisfy any module-load references.
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"
+          NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
