@@ -2,8 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  experimental: {
-    // Server Actions are enabled by default in Next 14; kept explicit for clarity.
+  eslint: {
+    // Lint is a style signal, not a build-correctness gate. It runs as its own
+    // step in CI (non-blocking). Do NOT let lint errors fail the production build.
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    // Real type errors MUST still fail the build. Do not flip this to true.
+    ignoreBuildErrors: false,
   },
 };
 

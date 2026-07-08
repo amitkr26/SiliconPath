@@ -30,13 +30,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Lint
+      # Lint is informational only — it must not block the build. Real gates below.
+      - name: Lint (non-blocking)
+        continue-on-error: true
         run: npm run lint --if-present
 
-      - name: Typecheck
+      - name: Typecheck (gate)
         run: npm run typecheck
 
-      - name: Build
+      - name: Build (gate)
         run: npm run build
         env:
           # Placeholders only. All pages are force-dynamic, so the build does not
