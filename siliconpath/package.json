@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "No-login aggregator for semiconductor/VLSI/electronics jobs, PhDs, fellowships + curated news. Fresh rebuild.",
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -30,6 +31,6 @@
     "typescript": "^5.6.3"
   },
   "engines": {
-    "node": ">=18.17.0"
+    "node": "20.x"
   }
 }
