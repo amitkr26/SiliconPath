@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { logger } from "../lib/logger.js";
 import { runOrchestrator, runSingleSource, getSourceById, getActiveRuns, SOURCES } from "../scrapers/orchestrator.js";
 import { recordRun } from "./health.js";
+import { getAllSources, getSourceById as getSourceInfo, getAPIInfo, getActiveSourcesByCategory, getBatchesByCategory } from "../lib/api-docs.js";
 
 const router = Router();
 
@@ -106,12 +107,20 @@ router.get("/scrape/status", (_req, res) => {
   const byBatch = new Map<number, number>();
   const byCategory = new Map<string, number>();
   const byType = new Map<string, number>();
+  const sourceStats: Record<string, { id: string; name: string; url: string; active: boolean }> = {};
 
   for (const s of SOURCES) {
     if (!s.active) continue;
     byBatch.set(s.batch, (byBatch.get(s.batch) || 0) + 1);
     byCategory.set(s.category, (byCategory.get(s.category) || 0) + 1);
     byType.set(s.type, (byType.get(s.type) || 0) + 1);
+
+    sourceStats[s.id] = {
+      id: s.id,
+      name: s.name,
+      url: s.url,
+      active: s.active,
+    };
   }
 
   res.json({
@@ -120,6 +129,7 @@ router.get("/scrape/status", (_req, res) => {
     batches: Object.fromEntries(byBatch),
     categories: Object.fromEntries(byCategory),
     types: Object.fromEntries(byType),
+    source_stats: sourceStats,
     recent_runs: recentRuns.map((r) => ({
       source: r.sourceId,
       name: r.sourceName,
@@ -128,6 +138,23 @@ router.get("/scrape/status", (_req, res) => {
       started: r.startedAt,
       completed: r.completedAt,
       error: r.error ?? null,
+    })),
+  });
+});
+
+// GET /scrape/explore — return API documentation and source metadata (canonical endpoint)
+router.get("/scrape/explore", (_req, res) => {
+  res.json({
+    ...getAPIInfo(),
+    categories: getActiveSourcesByCategory(),
+    batches: getBatchesByCategory(),
+    sample_sources: SOURCES.filter((s, i) => i < 5).map((s) => ({
+      id: s.id,
+      name: s.name,
+      url: s.url,
+      category: s.category,
+      type: s.type,
+      batch: s.batch,
     })),
   });
 });
