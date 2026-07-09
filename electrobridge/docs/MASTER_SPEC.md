@@ -184,7 +184,7 @@ Order: AWS Bedrock (primary) → Groq → NVIDIA NIM → Google Gemini → OpenR
 ### 3.6 Security & access
 
 - Auth via Supabase Auth (email/password + Google OAuth). RLS policies enforce public-read-only-when-verified-and-active on opportunities/news, and owner-only-manage on all personal data (profiles, saved items, applications, resumes, messages).
-- Admin panel: password-protected (existing `NEXT_PUBLIC_ADMIN_PASSWORD` pattern) — acceptable as a known simplification for now, not a security blocker at current scale.
+- Admin panel: password-protected via server-side `ADMIN_PASSWORD` env var — login is validated server-side via `/api/admin/auth`, password no longer in client bundle.
 - Tier 2 access: standard `auth.uid()` checks (any logged-in user), no owner-only restriction anywhere in the codebase — remove any such gating if it was added in error during a prior session.
 - No secrets ever committed to git. Verify via `git log --all --full-history` for any historically-committed credential files before trusting `.gitignore` alone.
 

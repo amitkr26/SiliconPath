@@ -11,6 +11,8 @@ import { Loader2, Trash2, Plus, RefreshCw, Check, List, History, ShieldCheck, Sh
 import AIAnalyticsPanel from "@/components/AIAnalyticsPanel";
 import { isConfigured } from "@/lib/supabase";
 
+const ADMIN_TOKEN_KEY = "admin_token";
+
 interface ScrapeLog {
   id: number;
   timestamp: string;
@@ -71,18 +73,24 @@ export default function AdminPage() {
     setScrapeLogs((prev) => [{ id: logIdCounter, timestamp: new Date().toLocaleString(), ...log }, ...prev]);
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
-    if (!adminPassword) {
-      setError("Admin password not configured");
-      return;
-    }
-    if (password === adminPassword) {
-      setAuthenticated(true);
-      setError("");
-    } else {
-      setError("Invalid password");
+    setError("");
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (data.authenticated) {
+        localStorage.setItem(ADMIN_TOKEN_KEY, data.token);
+        setAuthenticated(true);
+      } else {
+        setError(data.error || "Invalid password");
+      }
+    } catch {
+      setError("Authentication request failed");
     }
   };
 
@@ -182,8 +190,9 @@ export default function AdminPage() {
     setScrapeStatus("Scraping...");
     addLog({ status: "success", message: "Scraping started..." });
     try {
+      const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
       const res = await fetch("/api/scrape", {
-        headers: { "Authorization": `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PASSWORD}` },
+        headers: { "Authorization": `Bearer ${token}` },
       });
       const data = await res.json();
       const msg = `Done: ${data.inserted} new, ${data.skipped} duplicates`;

@@ -35,8 +35,9 @@ export default function AIAnalyticsPanel() {
   const fetchStats = async () => {
     setLoading(true);
     try {
+      const password = sessionStorage.getItem("admin_password") || "";
       const res = await fetch("/api/analytics/ai-usage", {
-        headers: { "x-admin-password": process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "" },
+        headers: { "x-admin-password": password },
       });
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();

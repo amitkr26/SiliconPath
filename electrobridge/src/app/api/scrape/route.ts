@@ -5,6 +5,7 @@ import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper";
 import { cleanTitle, slugify, normalizeUrl } from "@/lib/scrapers/utils";
 import { isElectronicsNews, autoTagArticle } from "@/lib/scrapers/news-filter";
 import { enrichOpportunity } from "@/lib/scrapers/deep-scraper";
+import { verifyAdmin } from "@/lib/admin-auth";
 
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -19,17 +20,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Admin access not configured." }, { status: 503 });
     }
 
-    const authHeader = request.headers.get("authorization") || "";
     const cronSecret = process.env.CRON_SECRET;
-    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+    const adminPassword = process.env.ADMIN_PASSWORD;
 
     if (process.env.NODE_ENV === "production" && !cronSecret && !adminPassword) {
       return NextResponse.json({ error: "Fail-Secure: Server keys are missing." }, { status: 500 });
     }
 
     const isValidAuth =
-      (cronSecret && authHeader === `Bearer ${cronSecret}`) ||
-      (adminPassword && authHeader === `Bearer ${adminPassword}`);
+      (cronSecret && request.headers.get("authorization") === `Bearer ${cronSecret}`) ||
+      verifyAdmin(request);
 
     if (!isValidAuth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

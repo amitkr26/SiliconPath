@@ -34,18 +34,24 @@ export default function EditOpportunityPage() {
     tags: "",
   });
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
-    if (!adminPassword) {
-      setAuthError("Admin password not configured");
-      return;
-    }
-    if (password === adminPassword) {
-      setAuthenticated(true);
-      setAuthError("");
-    } else {
-      setAuthError("Invalid password");
+    setAuthError("");
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (data.authenticated) {
+        sessionStorage.setItem("admin_password", password);
+        setAuthenticated(true);
+      } else {
+        setAuthError(data.error || "Invalid password");
+      }
+    } catch {
+      setAuthError("Authentication request failed");
     }
   };
 

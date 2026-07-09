@@ -80,7 +80,7 @@ Add these in Vercel Project Settings → Environment Variables (Production):
 
 **Optional:**
 - `CRON_SECRET` — Auth for cron endpoints
-- `NEXT_PUBLIC_ADMIN_PASSWORD` — Admin panel
+- `ADMIN_PASSWORD` — Admin panel (server-side only)
 - `RESEND_API_KEY` + `FROM_EMAIL` — Email digests
 - `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHANNEL_ID` — Notifications
 - `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` — Google OAuth

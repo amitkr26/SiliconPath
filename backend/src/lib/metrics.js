@@ -1,1 +1,0 @@
-export { recordScrape, recordActiveRun, getMetricsPrometheusFormat } from "./lib/metrics.js";

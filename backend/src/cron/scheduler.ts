@@ -3,6 +3,7 @@ import { logger } from "../lib/logger.js";
 import { runOrchestrator } from "../scrapers/orchestrator.js";
 import { recordRun } from "../routes/health.js";
 import { SOURCES } from "../scrapers/orchestrator.js";
+import { archiveOldNews, syncOpportunityReplica } from "../lib/maintenance.js";
 
 interface ScheduledTask {
   name: string;
@@ -65,4 +66,28 @@ export function startScheduler() {
     });
     logger.info(`[Scheduler] ${s.name}: ${s.cron} (batch=${s.batch})`);
   }
+
+  // Archive old news daily at 2am
+  cron.schedule("0 2 * * *", async () => {
+    logger.info("[Scheduler] archive-news: starting");
+    try {
+      const result = await archiveOldNews();
+      logger.info(`[Scheduler] archive-news: ${result.archived} archived, ${result.errors.length} errors`);
+    } catch (e) {
+      logger.error("[Scheduler] archive-news failed:", e);
+    }
+  });
+
+  // Sync opportunity replica every 6 hours
+  cron.schedule("0 */6 * * *", async () => {
+    logger.info("[Scheduler] sync-replica: starting");
+    try {
+      const result = await syncOpportunityReplica();
+      logger.info(`[Scheduler] sync-replica: ${result.synced} synced, ${result.errors.length} errors`);
+    } catch (e) {
+      logger.error("[Scheduler] sync-replica failed:", e);
+    }
+  });
+
+  logger.info("[Scheduler] Maintenance tasks registered: archive-news (0 2 * * *), sync-replica (0 */6 * * *)");
 }

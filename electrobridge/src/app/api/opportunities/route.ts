@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { createClient } from "@/lib/supabase/server";
 import { postToTelegram } from "@/lib/telegram-bot";
+import { verifyAdmin } from "@/lib/admin-auth";
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
     return NextResponse.json(
@@ -104,8 +105,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const authHeader = request.headers.get("x-admin-password") || request.headers.get("Authorization")?.replace("Bearer ", "");
-    const isAdmin = authHeader === process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+    const isAdmin = verifyAdmin(request);
 
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

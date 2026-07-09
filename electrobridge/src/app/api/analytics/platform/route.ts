@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { neonPrimary, db1 } from "@/lib/db";
+import { verifyAdmin } from "@/lib/admin-auth";
 
 export async function GET(request: Request) {
-  const authHeader = request.headers.get("x-admin-password");
-  if (authHeader !== process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+  if (!verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
