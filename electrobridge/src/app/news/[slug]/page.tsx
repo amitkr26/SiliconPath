@@ -13,8 +13,10 @@ export async function generateStaticParams() {
     .from("news_articles")
     .select("slug")
     .not("slug", "is", null)
-    .limit(200);
-  return (data || []).map((article: { slug: string }) => ({ slug: article.slug }));
+    .limit(100);
+  return (data || [])
+    .filter((a: { slug: string }) => a.slug.length <= 80)
+    .map((article: { slug: string }) => ({ slug: article.slug }));
 }
 
 interface Props {

@@ -23,8 +23,11 @@ export async function generateStaticParams() {
     .from("opportunities")
     .select("slug")
     .eq("is_active", true)
-    .not("slug", "is", null);
-  return (data || []).map((opp: { slug: string }) => ({ slug: opp.slug }));
+    .not("slug", "is", null)
+    .limit(100);
+  return (data || [])
+    .filter((opp: { slug: string }) => opp.slug.length <= 80)
+    .map((opp: { slug: string }) => ({ slug: opp.slug }));
 }
 
 interface Props {
