@@ -1,6 +1,6 @@
 // src/lib/academy/types.ts
 
-export type TrackSlug = 'digital-logic' | 'systemverilog' | 'physical-design';
+export type TrackSlug = 'digital-logic' | 'verilog' | 'systemverilog' | 'uvm' | 'rtl-design' | 'physical-design' | 'interview-prep';
 
 export interface LearningTrack {
   id: string;

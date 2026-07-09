@@ -28,6 +28,11 @@ const SCHEDULES: ScheduledTask[] = [
   { name: "batch-11", cron: "0 8 * * 1", batch: 11 },   // Mon 8:00am
   { name: "batch-12", cron: "0 8 * * 2", batch: 12 },   // Tue 8:00am
   { name: "batch-13", cron: "0 8 * * 3", batch: 13 },   // Wed 8:00am
+  // New expanded batches
+  { name: "batch-14", cron: "0 9 * * 4", batch: 14 },   // Thu 9:00am
+  { name: "batch-15", cron: "0 9 * * 5", batch: 15 },   // Fri 9:00am
+  { name: "batch-16", cron: "0 10 * * 1", batch: 16 },  // Mon 10:00am
+  { name: "batch-17", cron: "0 10 * * 2", batch: 17 },  // Tue 10:00am
 ];
 
 let started = false;

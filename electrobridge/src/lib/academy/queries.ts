@@ -3,74 +3,162 @@ import { supabase, isConfigured } from "../supabase";
 import { LearningTrack, LearningDay, TrackCheckpoint, UserProgressItem, TrackSlug } from "./types";
 
 const TRACK_METADATA: Record<string, { slug: TrackSlug; color: string; icon: string; estimated_days: number; estimated_hours: number; prerequisites: TrackSlug[] }> = {
-  'Digital Design (RTL)': {
+  'Digital Logic Fundamentals': {
     slug: 'digital-logic',
     color: '#00E5FF',
     icon: 'Cpu',
-    estimated_days: 15,
-    estimated_hours: 25,
+    estimated_days: 30,
+    estimated_hours: 45,
     prerequisites: []
   },
-  'Verification (SystemVerilog + UVM)': {
+  'Verilog HDL': {
+    slug: 'verilog',
+    color: '#10B981',
+    icon: 'Code2',
+    estimated_days: 30,
+    estimated_hours: 45,
+    prerequisites: ['digital-logic']
+  },
+  'SystemVerilog for Verification': {
     slug: 'systemverilog',
     color: '#A855F7',
     icon: 'Shield',
-    estimated_days: 20,
-    estimated_hours: 35,
-    prerequisites: ['digital-logic']
+    estimated_days: 30,
+    estimated_hours: 45,
+    prerequisites: ['verilog']
   },
-  'Physical Design (Backend) + Interview Prep': {
-    slug: 'physical-design',
+  'Universal Verification Methodology (UVM)': {
+    slug: 'uvm',
+    color: '#F59E0B',
+    icon: 'TestTube',
+    estimated_days: 30,
+    estimated_hours: 45,
+    prerequisites: ['systemverilog']
+  },
+  'RTL Design & Synthesis': {
+    slug: 'rtl-design',
     color: '#EC4899',
     icon: 'Layers',
-    estimated_days: 20,
+    estimated_days: 25,
     estimated_hours: 40,
-    prerequisites: ['systemverilog']
+    prerequisites: ['verilog']
+  },
+  'Physical Design & Backend': {
+    slug: 'physical-design',
+    color: '#8B5CF6',
+    icon: 'Layers3',
+    estimated_days: 35,
+    estimated_hours: 55,
+    prerequisites: ['rtl-design']
+  },
+  'VLSI Interview Preparation': {
+    slug: 'interview-prep',
+    color: '#EF4444',
+    icon: 'Trophy',
+    estimated_days: 20,
+    estimated_hours: 30,
+    prerequisites: ['physical-design']
   }
 };
 
 export const FALLBACK_TRACKS: LearningTrack[] = [
   {
-    id: "digital-design-id",
-    name: "Digital Design (RTL)",
-    title: "Digital Design (RTL)",
+    id: "digital-logic-fallback",
+    name: "Digital Logic Fundamentals",
+    title: "Digital Logic Fundamentals",
     slug: "digital-logic",
     order_index: 1,
     unlock_condition: null,
-    description: "Master Digital Logic Fundamentals, combinational/sequential circuit design, finite state machines, and RTL hardware modeling using Verilog.",
-    estimated_days: 15,
-    estimated_hours: 25,
+    description: "Master number systems, Boolean algebra, K-maps, combinational and sequential circuit design, finite state machines, and timing analysis — the foundation of all VLSI design.",
+    estimated_days: 30,
+    estimated_hours: 45,
     color: "#00E5FF",
     icon: "Cpu",
     prerequisites: []
   },
   {
-    id: "verification-id",
-    name: "Verification (SystemVerilog + UVM)",
-    title: "Verification (SystemVerilog + UVM)",
-    slug: "systemverilog",
+    id: "verilog-fallback",
+    name: "Verilog HDL",
+    title: "Verilog HDL",
+    slug: "verilog",
     order_index: 2,
-    unlock_condition: "Pass Track 1 Digital Design (RTL) Checkpoint & Capstone Project",
-    description: "Deep dive into modern hardware verification methodologies. Master SystemVerilog OOP, testbench architecture, functional coverage, and the Universal Verification Methodology (UVM) standard.",
-    estimated_days: 20,
-    estimated_hours: 35,
-    color: "#A855F7",
-    icon: "Shield",
+    unlock_condition: "Pass Track 1 (Digital Logic) assessment with >= 70%",
+    description: "Learn hardware description and RTL design using Verilog. Covers module structure, dataflow/behavioral modeling, FSM design, testbenches, and industry coding guidelines.",
+    estimated_days: 30,
+    estimated_hours: 45,
+    color: "#10B981",
+    icon: "Code2",
     prerequisites: ["digital-logic"]
   },
   {
-    id: "physical-design-id",
-    name: "Physical Design (Backend) + Interview Prep",
-    title: "Physical Design (Backend) + Interview Prep",
-    slug: "physical-design",
+    id: "sv-fallback",
+    name: "SystemVerilog for Verification",
+    title: "SystemVerilog for Verification",
+    slug: "systemverilog",
     order_index: 3,
-    unlock_condition: "Pass Track 2 Verification Checkpoint & Capstone Project",
-    description: "Learn physical implementation steps: synthesis, floorplanning, placement, clock tree synthesis (CTS), routing, static timing analysis (STA), and prepare for standard core VLSI engineering interviews.",
-    estimated_days: 20,
+    unlock_condition: "Pass Track 2 (Verilog) assessment with >= 70%",
+    description: "Deep dive into SystemVerilog: OOP, constrained-random verification, functional coverage, assertions (SVA), and interface-based testbench architecture.",
+    estimated_days: 30,
+    estimated_hours: 45,
+    color: "#A855F7",
+    icon: "Shield",
+    prerequisites: ["verilog"]
+  },
+  {
+    id: "uvm-fallback",
+    name: "Universal Verification Methodology (UVM)",
+    title: "Universal Verification Methodology (UVM)",
+    slug: "uvm",
+    order_index: 4,
+    unlock_condition: "Pass Track 3 (SystemVerilog) assessment with >= 70%",
+    description: "Master the industry-standard UVM library: component hierarchy, phasing, factory pattern, sequences, TLM, register abstraction layer (RAL), and complete testbench architecture.",
+    estimated_days: 30,
+    estimated_hours: 45,
+    color: "#F59E0B",
+    icon: "TestTube",
+    prerequisites: ["systemverilog"]
+  },
+  {
+    id: "rtl-design-fallback",
+    name: "RTL Design & Synthesis",
+    title: "RTL Design & Synthesis",
+    slug: "rtl-design",
+    order_index: 5,
+    unlock_condition: "Pass Track 2 or 4 (Verilog/UVM) assessment with >= 70%",
+    description: "Practical RTL design: synchronous design principles, clock domain crossing (CDC), SDC constraints, Yosys open-source synthesis flow, DFT, and low-power design techniques.",
+    estimated_days: 25,
     estimated_hours: 40,
     color: "#EC4899",
     icon: "Layers",
-    prerequisites: ["systemverilog"]
+    prerequisites: ["verilog"]
+  },
+  {
+    id: "pd-fallback",
+    name: "Physical Design & Backend",
+    title: "Physical Design & Backend",
+    slug: "physical-design",
+    order_index: 6,
+    unlock_condition: "Pass Track 5 (RTL Design) assessment with >= 70%",
+    description: "Full OpenLane/Sky130 physical design flow: synthesis, floorplanning, placement, CTS, routing, signoff DRC/LVS, STA, and IR drop analysis. Tape-out a complete design.",
+    estimated_days: 35,
+    estimated_hours: 55,
+    color: "#8B5CF6",
+    icon: "Layers3",
+    prerequisites: ["rtl-design"]
+  },
+  {
+    id: "interview-fallback",
+    name: "VLSI Interview Preparation",
+    title: "VLSI Interview Preparation",
+    slug: "interview-prep",
+    order_index: 7,
+    unlock_condition: "Pass Track 6 (Physical Design) assessment with >= 70%",
+    description: "Technical and behavioral interview prep for top semiconductor companies. Covering RTL design, verification, physical design, STA, DFT, and company-specific patterns.",
+    estimated_days: 20,
+    estimated_hours: 30,
+    color: "#EF4444",
+    icon: "Trophy",
+    prerequisites: ["physical-design"]
   }
 ];
 
