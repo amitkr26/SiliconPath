@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ articles: data || [], count: data?.length || 0 });
   } catch (error) {
+    if (typeof error === "object" && error !== null && "digest" in error && (error as any).digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("Error fetching news:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to fetch news" },

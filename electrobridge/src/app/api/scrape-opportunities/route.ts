@@ -76,6 +76,7 @@ export async function GET(request: NextRequest) {
       skipped,
     });
   } catch (error) {
+    if (typeof error === "object" && error !== null && "digest" in error && (error as any).digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("Error scraping opportunities:", error);
     return NextResponse.json(
       { error: "Failed to scrape opportunities" },
