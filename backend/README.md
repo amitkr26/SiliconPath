@@ -9,12 +9,12 @@ backend/
 ├── src/
 │   ├── index.ts                  # Express entry point (port 3001)
 │   ├── lib/
-│   │   ├── db.ts                 # Same 4-database architecture as main app
+│   │   ├── db.ts                 # 4-database architecture
 │   │   ├── ai-providers.ts       # 7-provider AI fallback chain
 │   │   └── logger.ts
 │   ├── scrapers/
 │   │   ├── types.ts               # ScrapedOpportunity, SourceConfig interfaces
-│   │   ├── adapters/              # Per-platform scrapers
+│   │   ├── adapters/
 │   │   │   ├── workday-adapter.ts
 │   │   │   ├── greenhouse-adapter.ts
 │   │   │   ├── lever-adapter.ts
@@ -22,18 +22,43 @@ backend/
 │   │   │   ├── schema-jobposting-adapter.ts
 │   │   │   ├── html-generic-adapter.ts
 │   │   │   └── rss-adapter.ts
-│   │   ├── source-config.ts       # All scraper sources
-│   │   └── orchestrator.ts        # Run sources in configured batches
+│   │   ├── source-config.ts       # 473 sources across 17 batches
+│   │   └── orchestrator.ts        # Batch execution engine
 │   ├── cron/
 │   │   └── scheduler.ts           # node-cron schedules
 │   └── routes/
 │       ├── health.ts              # GET /health
-│       └── scrape-trigger.ts      # POST /scrape/run, POST /scrape/batch/:id
-├── package.json
-├── tsconfig.json
+│       └── scrape-trigger.ts      # POST /scrape/run, /scrape/batch/:id, etc.
+├── Dockerfile
 ├── render.yaml
-└── README.md
+└── package.json
 ```
+
+## Scraper Sources
+
+**473 sources** across **17 batches** — all `active: true`.
+
+| Batch | Sources | Description |
+|-------|---------|-------------|
+| 1 | 30 | India Government/PSU + Top 10 Global Semiconductor |
+| 2 | 31 | Remaining IDMs + Fabless |
+| 3 | 30 | Fabless & EDA |
+| 4 | 30 | Equipment & Research |
+| 5 | 30 | National Lab - India |
+| 6 | 30 | Additional sources |
+| 7 | 30 | Additional sources |
+| 8 | 36 | Additional sources |
+| 9 | 40 | Additional sources |
+| 10 | 35 | Additional sources |
+| 11 | 39 | Additional sources |
+| 12 | 10 | Additional sources |
+| 13 | 10 | Additional sources |
+| 14 | 30 | Expanded coverage |
+| 15 | 28 | Expanded coverage |
+| 16 | 32 | Expanded coverage |
+| 17 | 32 | Expanded coverage |
+
+7 adapter types: **Workday**, **Greenhouse**, **Lever**, **SmartRecruiters**, **Schema.org**, **HTML**, **RSS**.
 
 ## Required Environment Variables
 
@@ -43,45 +68,46 @@ backend/
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase Primary service role key |
 | `SUPABASE_2_URL` | Supabase Secondary project URL |
 | `SUPABASE_2_SERVICE_ROLE_KEY` | Supabase Secondary service role key |
-| `NEON_1_DATABASE_URL` | Neon Primary connection string (analytics) |
-| `NEON_2_DATABASE_URL` | Neon Secondary connection string (read replica) |
-| `AWS_BEARER_TOKEN_BEDROCK` | AI provider #1 |
-| `GROQ_API_KEY` | AI provider #2 |
-| `NVIDIA_NIM_API_KEY` | AI provider #3 |
+| `NEON_1_DATABASE_URL` | Neon Primary connection string |
+| `NEON_2_DATABASE_URL` | Neon Secondary connection string |
+| `GROQ_API_KEY` | AI provider #1 |
+| `OPENROUTER_API_KEY` | AI provider #2 |
+| `CLOUDFLARE_AI_TOKEN` | AI provider #3 |
+| `CLOUDFLARE_ACCOUNT_ID` | AI provider #3 |
 | `GEMINI_API_KEY` | AI provider #4 |
-| `OPENROUTER_API_KEY` | AI provider #5 |
-| `CLOUDFLARE_AI_TOKEN` | AI provider #6 |
-| `CLOUDFLARE_ACCOUNT_ID` | AI provider #6 |
-| `HUGGINGFACE_API_KEY` | AI provider #7 |
+| `AWS_BEARER_TOKEN_BEDROCK` | AI provider #5 |
+| `HUGGINGFACE_API_KEY` | AI provider #6 |
+| `NVIDIA_NIM_API_KEY` | AI provider #7 |
 | `SCRAPER_SECRET` | Shared secret for HTTP scrape triggers |
-
-These are the **same database and AI credentials** used by the main `electrobridge/` Next.js app. Set them in the Render dashboard.
+| `ALLOWED_ORIGINS` | CORS origins (comma-separated) |
+| `RATE_LIMIT_MAX` | Requests per minute per IP |
+| `PORT` | Server port (default 3001) |
 
 ## Deployment to Render
 
-1. Push this repo to GitHub.
-2. In Render Dashboard → New Web Service → Connect repo.
-3. Render auto-detects `render.yaml` as the Blueprint.
-4. Set all env vars (listed above) in Render dashboard.
-5. Service starts at `https://siliconpath-backend.onrender.com`.
+### Option A: Blueprint (auto-detect render.yaml)
 
-## Integration with Main App
+1. Push this repo to GitHub
+2. Render Dashboard → Blueprint → Connect repo
+3. Set **Root Directory** to `backend`
+4. Add env vars that have `sync: false` in Render dashboard (especially `SCRAPER_SECRET`)
+5. Deploy
 
-In the main `electrobridge/` Next.js app, set:
+### Option B: Manual Docker
 
-```
-RENDER_BACKEND_URL=https://siliconpath-backend.onrender.com
-SCRAPER_SECRET=<same shared secret>
-```
+1. Render Dashboard → New Web Service → Connect repo
+2. Set **Root Directory** to `backend`
+3. Runtime: Docker
+4. Add all env vars in Render dashboard
+5. Deploy
 
-The existing Vercel cron routes (`/api/scrape`, `/api/scrape-opportunities`) can forward to this backend:
+### Free Tier Notes
 
-```typescript
-await fetch(`${process.env.RENDER_BACKEND_URL}/scrape/run`, {
-  method: "POST",
-  headers: { Authorization: `Bearer ${process.env.SCRAPER_SECRET}` },
-});
-```
+- Render free web services sleep after **15 minutes of inactivity**
+- Service wakes on HTTP request (first request may take 30-60s)
+- **Recommendation:** Use UptimeRobot (free) pinging `/health` every 14 minutes to keep it awake
+- 512 MB RAM — sufficient for sequential batch processing (30 sources/batch)
+- 15-second request timeout — each batch stays within this limit
 
 ## API Endpoints
 
@@ -89,15 +115,47 @@ await fetch(`${process.env.RENDER_BACKEND_URL}/scrape/run`, {
 |--------|------|------|-------------|
 | GET | `/` | — | Service info |
 | GET | `/health` | — | DB health, last runs, uptime |
-| POST | `/scrape/run` | Bearer token | Run all active sources (or specific batch) |
-| POST | `/scrape/batch/:batchId` | Bearer token | Run specific batch number |
+| GET | `/scrape/explore` | — | Source overview (batches, counts, adapters) |
+| GET | `/scrape/status` | — | Current run status |
+| POST | `/scrape/run` | Bearer token | Run all active sources |
+| POST | `/scrape/run`?batch=1 | Bearer token | Run specific batch |
+| POST | `/scrape/batch/:batchId` | Bearer token | Run specific batch by ID |
+| POST | `/scrape/test/:sourceId` | — | Test a single source |
 
-## Free Tier Fit
+## Integration with Frontend
 
-This backend is designed for Render's free web service tier:
-- **Sleep after inactivity** — wakes on HTTP request; the main app's cron will wake it before triggering scrapes (or use a free uptime monitor like UptimeRobot pinging `/health` every 14 min).
-- **512 MB RAM** — sufficient for sequential batch scraping (30 sources/batch, each adapter runs sequentially within the orchestrator).
-- **Node.js runtime** — fits all dependencies.
-- **No build/deploy limits** on free tier.
+In `electrobridge/`, set:
 
-**Risk:** A very large batch (100+ sources) could exceed the 512 MB limit or the 15-second request timeout if not paced. Current batch size of 30 keeps within limits. The scheduler runs daily, not continuously.
+```
+RENDER_BACKEND_URL=https://siliconpath-backend.onrender.com
+SCRAPER_SECRET=<same shared secret>
+```
+
+The Vercel cron routes forward to this backend:
+
+```
+POST /api/cron/scrape-india  →  POST /scrape/run (with batch param)
+POST /api/cron/scrape-global →  POST /scrape/run (with batch param)
+```
+
+## Local Development
+
+```bash
+cp .env.example .env.local   # fill in real keys
+npm install
+npm run dev                   # → http://localhost:3001
+```
+
+## Verification
+
+```bash
+# Health check
+curl http://localhost:3001/health
+
+# Source overview
+curl http://localhost:3001/scrape/explore
+
+# Trigger full scrape
+curl -X POST http://localhost:3001/scrape/run \
+  -H "Authorization: Bearer $SCRAPER_SECRET"
+```

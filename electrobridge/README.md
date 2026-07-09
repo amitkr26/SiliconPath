@@ -1,36 +1,24 @@
-# SiliconPath — Semiconductor, VLSI & Electronics Opportunities Platform
+# SiliconPath — Frontend
 
-AI-powered platform aggregating verified R&D, JRF, PhD, and engineering opportunities from ISRO, DRDO, CSIR, IITs, IISc, TIFR, and industry. Built for the global semiconductor, VLSI, and electronics research community.
+Next.js 14 frontend for the SiliconPath semiconductor opportunities platform. Deployed on Vercel.
 
-| Component | Live URL | Stack |
-|-----------|----------|-------|
-| **Production** | [siliconpath.vercel.app](https://siliconpath.vercel.app) | Next.js 14.2.21, App Router, 7 AI providers, 4 databases |
+| Environment | URL | Branch |
+|-------------|-----|--------|
+| **Production** | [siliconpath.vercel.app](https://siliconpath.vercel.app) | `main` |
 
-## Codebase: `electrobridge/`
+## Tech Stack
 
-**~20,000 lines** of TypeScript/TSX/CSS — 35+ pages, 40+ API routes, 30+ components, 4 databases, 7 AI providers.
+| Category | Technology |
+|----------|-----------|
+| **Framework** | Next.js 14.2.21 (App Router) |
+| **UI** | React 18, Tailwind CSS 3.4, lucide-react |
+| **Database** | Supabase (Primary + Secondary), Neon (Primary + Secondary) |
+| **AI** | 7-provider fallback: Groq → OpenRouter → Cloudflare → Gemini → Bedrock → HuggingFace → NVIDIA |
+| **Auth** | Supabase SSR (email/password + Google OAuth) |
+| **Scraping** | cheerio + rss-parser (lightweight); heavy lifting delegated to backend/ |
+| **Deployment** | Vercel (auto-deploy from `main`) |
 
-```
-electrobridge/
-├── src/
-│   ├── app/                   35+ pages + auth callback + sitemap + robots
-│   │   ├── academy/           VLSI Academy Dashboard, tracks, assessments
-│   │   └── api/               40+ API endpoints
-│   ├── components/            30+ React components
-│   │   └── academy/           PracticeQuiz, YoutubeEmbed components
-│   ├── lib/                   25+ modules (db, ai, scrapers, utils, notifications)
-│   │   ├── db/                Multi-database router (4 DBs)
-│   │   ├── ai/                7-provider AI fallback chain
-│   │   ├── academy/           Learning path queries and type specs
-│   │   └── scrapers/          ISRO, DRDO, CSIR scrapers + 16 RSS feeds
-│   ├── types/                 TypeScript interfaces
-│   └── middleware.ts          Supabase SSR auth
-├── supabase/migrations/       11 migration files (31 total tables + Academy tables)
-├── .vercel/                   Vercel project config
-└── docs/                      Deployment checklist
-```
-
-### Quick Start
+## Quick Start
 
 ```bash
 cd electrobridge
@@ -39,51 +27,103 @@ pnpm install
 pnpm dev                           # → http://localhost:3000
 ```
 
-### Tech Stack
+## Key Features
 
-| Category | Technology |
-|----------|-----------|
-| **Framework** | Next.js 14.2.21 (App Router) |
-| **UI** | React 18, Tailwind CSS 3.4 |
-| **Styling** | Dark theme, Space Grotesk + Inter fonts |
-| **Database** | Supabase (Primary + Secondary), Neon (Primary + Secondary) — 43 tables across 4 DBs |
-| **AI** | 7-provider fallback: Bedrock → Groq → NVIDIA → Gemini → OpenRouter → Cloudflare → HuggingFace |
-| **Auth** | Supabase SSR (email/password + Google OAuth) |
-| **Email** | Resend (weekly digests) |
-| **Messaging** | Telegram Bot API (opportunity notifications) |
-| **Icons** | lucide-react |
-| **Scraping** | cheerio (ISRO, DRDO, CSIR), rss-parser (16 RSS sources) |
-| **Hosting** | Vercel (auto-deploy from `main`) |
-
-### Key Features
-
-- **Verified Opportunities** — R&D roles from top research orgs with link verification and expiry detection
-- **VLSI Academy** — Sequential 7-stage day-wise gated curriculum with attributed video embeds and quizzes
-- **Semiconductor News** — Aggregated from RSS sources with AI relevance filtering
-- **AI Chat** — Career assistant specialized in semiconductor, VLSI, and electronics opportunities
-- **AI Match** — Profile-to-opportunity matching with scoring
-- **AI Search** — Natural language query parsing
+- **Opportunity Aggregator** — JRF/SRF, PhD, PSU, private sector VLSI roles
+- **VLSI Academy** — 7-stage gated curriculum with video embeds and quizzes
+- **Semiconductor News** — Aggregated RSS with AI relevance filtering
+- **AI Chat** — Career assistant for semiconductor/VLSI opportunities
+- **AI Match** — Profile-to-opportunity scoring
 - **AI Resume Builder** — 6-step wizard with ATS scoring
 - **Community Forum** — Posts, comments, upvotes
 - **Weekly Digest** — AI-generated email newsletter
-- **Multi-Database** — 4 databases: Supabase for core data + archive, Neon for analytics + read replica
-- **Admin Panel** — Add/edit opportunities/news, view AI usage analytics
 
-### Database Architecture
+## Database Architecture
 
-| DB | Type | Purpose | Tables |
-|----|------|---------|--------|
-| Supabase Primary | PostgreSQL | Core data (opportunities, news, auth, community, academy) | 38 |
-| Supabase Secondary | PostgreSQL | News archive, subscriber overflow, LinkedIn features | 13 |
-| Neon Primary | PostgreSQL | Analytics (AI usage, platform analytics) | 4 |
-| Neon Secondary | PostgreSQL | Read replica (opportunities mirror, news mirror) | 2 |
+| DB | Provider | Purpose | Tables |
+|----|----------|---------|--------|
+| Supabase Primary | PostgreSQL | Core data (opportunities, news, auth, academy) | 38 |
+| Supabase Secondary | PostgreSQL | Social data (profiles, connections, messages) | 13 |
+| Neon Primary | PostgreSQL | Analytics (AI usage, platform metrics) | 4 |
+| Neon Secondary | PostgreSQL | Read replica / cache | 2 |
 
-### Environment Variables
+## Deployment to Vercel
 
-23 variables required — all set in Vercel (Production + Development). See `.env.local.example` for the full list.
+### Initial Setup
 
----
+1. Push `electrobridge/` to GitHub
+2. Vercel Dashboard → Add New Project → Import repository
+3. Set **Root Directory** to `electrobridge`
+4. **Framework Preset:** Next.js (auto-detected)
+5. Add all environment variables (see below)
+6. Deploy
 
-## License
+### Environment Variables in Vercel
 
-Built for the semiconductor & electronics research community. 100% free tier.
+Add these in Vercel Project Settings → Environment Variables (Production):
+
+**Required:**
+- `NEXT_PUBLIC_SUPABASE_URL` — Supabase Primary URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase Primary anon key
+- `SUPABASE_SERVICE_ROLE_KEY` — Supabase Primary service role key
+- `SUPABASE_2_URL` — Supabase Secondary URL
+- `SUPABASE_2_ANON_KEY` — Supabase Secondary anon key
+- `SUPABASE_2_SERVICE_ROLE_KEY` — Supabase Secondary service role key
+- `NEON_1_DATABASE_URL` — Neon Primary connection string
+- `NEON_2_DATABASE_URL` — Neon Secondary connection string
+- `NEXT_PUBLIC_SITE_URL` — `https://siliconpath.vercel.app`
+- `SCRAPER_SECRET` — Shared secret (must match backend)
+- `RENDER_BACKEND_URL` — `https://siliconpath-backend.onrender.com`
+
+**AI Providers (at least 1):**
+- `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `CLOUDFLARE_AI_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`, `GEMINI_API_KEY`, `AWS_BEARER_TOKEN_BEDROCK`, `HUGGINGFACE_API_KEY`, `NVIDIA_NIM_API_KEY`
+
+**Optional:**
+- `CRON_SECRET` — Auth for cron endpoints
+- `NEXT_PUBLIC_ADMIN_PASSWORD` — Admin panel
+- `RESEND_API_KEY` + `FROM_EMAIL` — Email digests
+- `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHANNEL_ID` — Notifications
+- `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` — Google OAuth
+- `NEXT_PUBLIC_SENTRY_DSN` — Error tracking
+
+### Cron Jobs
+
+Defined in `vercel.json` — Vercel **Pro** plan required for multiple crons:
+
+| Cron | Schedule | Action |
+|------|----------|--------|
+| `scrape-india` | Daily 06:00 UTC | Scrape India-specific sources |
+| `scrape-global` | Daily 08:00 UTC | Scrape global sources |
+| `check-links` | Daily 09:00 UTC | Verify opportunity links |
+| `digest` | Weekly Sun 12:00 UTC | Generate email digest |
+
+### Supabase Auth Configuration
+
+In Supabase Dashboard → Authentication → Settings:
+- **Site URL:** `https://siliconpath.vercel.app`
+- **Redirect URLs:** `https://siliconpath.vercel.app/auth/callback`, `http://localhost:3000/auth/callback`
+
+For Google OAuth: Enable Google provider and configure OAuth 2.0 Web Client in Google Cloud Console.
+
+## Integration with Backend
+
+This frontend delegates **heavy scraping** to the backend (`backend/`) running on Render:
+
+```
+Frontend API Route → fetch(RENDER_BACKEND_URL/scrape/run, { headers: { Authorization: Bearer SCRAPER_SECRET }})
+```
+
+The `RENDER_BACKEND_URL` and `SCRAPER_SECRET` env vars connect the two tiers.
+
+## Verification
+
+```bash
+# Local
+pnpm dev                   # → http://localhost:3000
+pnpm test                  # Run tests
+pnpm run lint              # Lint check
+pnpm run build             # Production build
+
+# Backend integration (if backend is running)
+curl http://localhost:3001/health
+```

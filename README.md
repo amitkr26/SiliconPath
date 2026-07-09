@@ -1,309 +1,296 @@
 # SiliconPath
 
-**The open career aggregator & self-guided learning platform for the Indian semiconductor, VLSI, and hardware engineering industry.**
+**Open career aggregator & self-guided learning platform for the Indian semiconductor, VLSI, and hardware engineering industry.**
 
 No friction. No login required. Aggregating academic research and industry opportunities in one place.
 
-</p>
 <p align="center">
-  <a href="https://siliconpath.vercel.app">Live Application</a> •
   <a href="#key-features">Key Features</a> •
   <a href="#system-architecture">System Architecture</a> •
   <a href="#quick-start">Quick Start</a> •
-  <a href="./docs/">Documentation</a> •
-  <a href="/backend/">Backend Documentation</a>
+  <a href="#deployment">Deployment</a> •
+  <a href="#environment-variables">Environment Variables</a>
 </p>
 
 ---
 
-## 🚀 Overview
-
-**SiliconPath** is a high-performance web platform built to aggregate career pathways and structured learning curricula for the Indian electronics and semiconductor sector. It serves as a consolidated portal for students, researchers, and core engineers to bypass fragmented institutional portals and access JRFs, PhDs, private sector roles, and self-taught technical tracks.
-
-### The Problem We Solve:
-- **Opportunity Fragmentation:** JRFs, fellowships, and core jobs are scattered across dozens of PSU, institutional (DRDO, ISRO, CSIR, IITs), and private websites.
-- **Curriculum & Guidance Deficit:** Students looking to break into VLSI face expensive training institutes or chaotic YouTube structures with no clear path or verified content.
-
-This problem is solved through a **two-tier architecture**:
-
-1. **Frontend (electrobridge/)** - User interface with VLSI Academy learning path
-2. **Automated Backend (backend/)** - Professional scraping infrastructure with 381+ sources
-
----
-
-## ✨ Key Features
+## Key Features
 
 ### 1. Unified Opportunity Aggregator
-Surfaces curated postings across 7 distinct categories:
 
-* **Junior & Senior Research Fellowships (JRF/SRF)** in electronics, VLSI, and hardware systems.
-* **Fully Funded PhDs** both in premier Indian institutions (IITs, IISc) and global options.
-* **Government & PSU Scientist Positions** (DRDO, ISRO, CSIR, etc.).
-* **Private Sector VLSI Roles** (RTL, Physical Design, Verification, DFT).
-* **International Fellowships & Internships**.
+**473 sources** across **17 batches**, covering:
+- **Junior & Senior Research Fellowships (JRF/SRF)** in electronics, VLSI, and hardware
+- **Fully Funded PhDs** at IITs, IISc, and global institutions
+- **Government & PSU Scientist Positions** (DRDO, ISRO, CSIR, BARC)
+- **Private Sector VLSI Roles** (RTL, Physical Design, Verification, DFT)
+- **International Fellowships & Internships**
 
 ### 2. VLSI Academy Learning Path
-A structured, sequential, 7-stage curriculum built using verified, free YouTube content with strict creator attributions and interactive gating:
 
-1. **Digital Logic Fundamentals** (Number systems, combinational/sequential logic, FSMs)
-2. **Verilog HDL** (Gate-level, behavioral, testbenches)
-3. **SystemVerilog for Verification** (OOP, randomization, SVA, functional coverage)
-4. **Universal Verification Methodology (UVM)** (UVM hierarchy, sequences, factory, TLM)
-5. **RTL Design & Synthesis** (Synthesizable RTL, CDC, SDC constraints, Yosys synthesis)
-6. **Physical Design & Backend** (OpenLane flow, floorplanning, placement, CTS, routing, signoff)
-7. **VLSI Interview Preparation** (Technical MCQs, coding rounds, company patterns)
+7-stage sequential curriculum with gated assessments:
+1. Digital Logic Fundamentals
+2. Verilog HDL
+3. SystemVerilog for Verification
+4. Universal Verification Methodology (UVM)
+5. RTL Design & Synthesis
+6. Physical Design & Backend
+7. VLSI Interview Preparation
 
-*Gating Mechanism:* A track unlocks only after the user passes the preceding track's comprehensive assessment (≥ 70% score). If a user is not logged in, progress is saved in `LocalStorage`.
+Each track unlocks only after passing the previous track (≥70%). Progress saved in LocalStorage for anonymous users or Synced to Supabase for logged-in users.
 
-### 3. AI-Powered Fallback Matcher & Parsers
-* **Structured Parsing:** Robust extraction from unstructured PDF/HTML listings (e.g., DRDO advertisements) converting text to strict JSON.
-* **Dynamic Fallback Chain:** Resolves queries sequentially across providers (Groq, OpenRouter, Cloudflare, Gemini, Bedrock, HuggingFace) to ensure maximum uptime.
-* **Match Scoring:** Intelligently matches opportunities against user qualifications, GATE/NET status, and preferred locations.
+### 3. AI-Powered Fallback Chain
+
+7-provider resilient fallback chain: Groq → OpenRouter → Cloudflare → Gemini → Bedrock → HuggingFace → NVIDIA. Used for parsing unstructured job descriptions, PDFs, and HTML listings.
 
 ---
 
-## 🗄️ System Architecture
+## System Architecture
 
-SiliconPath uses a **two-tier architecture** for optimal performance:
-
-```mermaid
-graph TD
-    User([Browser Client]) --> App[Next.js App Router]
-    
-    subgraph Frontend
-        App --> API[REST API Gateway]
-        App --> Auth[Authentication Layer]
-        App --> Cache[CDN + Edge Cache]
-    end
-    
-    subgraph Automated Backend
-        API --> Scraper[Node.js Scraper]
-        API --> Scheduler[Node-cron Scheduler]
-        API --> Metrics[Metrics Collector]
-    end
-    
-    subgraph Data Storage
-        Scraper --> DB1[(Supabase Primary)]
-        Scraper --> DB2[(Supabase Secondary)]
-        Scraper --> DB3[(Neon Primary)]
-        Scraper --> DB4[(Neon Secondary)]
-    end
-    
-    DB1 --- |Core Platform| T1[Opportunities / News / Scrapers / Subscribers]
-    DB2 --- |User Layer| T2[Profiles / Connections / Messages / Academy Progress]
-    DB3 --- |Logs & Audits| T3[Scrape Logs / AI Usage logs / Error metrics]
-    DB4 --- |Cache| T4[Search Index / Trending Cache / Response Cache]
+```
+┌─────────────────────────────────────────────────────────┐
+│                    electrobridge/                        │
+│  Next.js 14 App Router + Tailwind CSS + Supabase SSR    │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │   Pages: 35+   │   API Routes: 40+   │ Components │   │
+│  └──────────────────────────────────────────────────┘   │
+│               │                                          │
+│               ▼                                          │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │   Supabase Primary (core data, auth, academy)    │   │
+│  │   Supabase Secondary (social, archive)           │   │
+│  │   Neon Primary (analytics)                       │   │
+│  │   Neon Secondary (read replica / cache)          │   │
+│  └──────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+                         │
+                         │ API Proxy (via RENDER_BACKEND_URL)
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│                      backend/                            │
+│  Express + TypeScript + node-cron                        │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │   473 sources · 17 batches · 7 adapters         │   │
+│  │   Workday · Greenhouse · Lever · SmartRecruiters │   │
+│  │   Schema.org · HTML · RSS                        │   │
+│  └──────────────────────────────────────────────────┘   │
+│  Deployed on Render (Docker)                             │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### Architecture Components:
-
-**Frontend (electrobridge/):**
-- **Next.js App Router** with Tailwind CSS and interactive gated learning path
-- **VLSI Academy** with 7 sequentially gated tracks
-- **Opportunity aggregator** with AI-powered matching
-
-**Automated Backend (backend/) - Production-Grade Scraping Infrastructure:**
-- **4 Adapters**: Workday, Greenhouse, Lever, SmartRecruiters
-- **16 Scrapers**: 381 sources across 13 batches (all `active: true`)
-- **Rate limiting**, **CORS**, **retry logic**, **metrics**, **tests**
-- **Dockerfile** ready for Render deployment
-- **Integration APIs**: `/scrape/run`, `/scrape/batch/:id`, `/scrape/test/:sourceId`, `/scrape/status`, `/scrape/explore`
-
-### Cronjob Integration:
-The backend runs on a **14-cron schedule**:
-
-| Cron Expression | Batch | Sources | Description |
-|----------------|-------|---------|-------------|
-| `0 6 * * *` | all | 381 | Daily full scrape |
-| `30 6 * * 1` | 1 | 30 | Batch 1 (India Government/PSU + Top 10 Global Semiconductor) |
-| `30 6 * * 2` | 2 | 31 | Batch 2 (Remaining IDMs + Fabless) |
-| `30 6 * * 3` | 3 | 30 | Batch 3 (Fabless & EDA) |
-| `30 6 * * 4` | 4 | 30 | Batch 4 (Equipment & Research) |
-| `30 6 * * 5` | 5 | 30 | Batch 5 (National Lab - India) |
-| `0 7 * * 1` | 6 | 30 | Batch 6 (Additional sources) |
-| `0 7 * * 2` | 7 | 30 | Batch 7 (Additional sources) |
-| `0 7 * * 3` | 8 | 36 | Batch 8 (Additional sources) |
-| `0 7 * * 4` | 9 | 40 | Batch 9 (Additional sources) |
-| `0 7 * * 5` | 10 | 35 | Batch 10 (Additional sources) |
-| `0 8 * * 1` | 11 | 39 | Batch 11 (Additional sources) |
-| `0 8 * * 2` | 12 | 10 | Batch 12 (Additional sources) |
-| `0 8 * * 3` | 13 | 10 | Batch 13 (Additional sources) |
-
 ---
 
-## 🛠️ Quick Start (Local Development)
+## Quick Start
 
-### Prerequisites:
-- Node.js (v18+)
-- **pnpm** (preferred package manager)
+### Prerequisites
+- Node.js v20+
+- npm / pnpm
+- Supabase account (2 projects recommended)
+- Neon account (2 projects recommended)
+- AI provider API keys (at least 1 of the 7)
 
-### 1. Clone & Setup
+### 1. Clone & Install
+
 ```bash
 git clone https://github.com/amitkr26/SiliconPath.git
-cd SiliconPath/electrobridge
-```
+cd SiliconPath
 
-### 2. Install Dependencies
-```bash
-pnpm install
-```
-
-### 3. Environment Configuration
-Copy the example environment template:
-```bash
+# Frontend
+cd electrobridge
 cp .env.local.example .env.local
-```
-Update `.env.local` with your database connection strings, Supabase keys, AI provider tokens, and backend connection details.
+pnpm install
+pnpm dev            # → http://localhost:3000
 
-### 4. Apply Database Migrations
-Run schema and content seed migrations on your Supabase instance:
+# Backend (separate terminal)
+cd ../backend
+cp .env.example .env.local
+npm install
+npm run dev          # → http://localhost:3001
+```
+
+### 2. Set Up Databases
+
+Apply migrations to your Supabase projects:
 ```bash
+cd electrobridge
 npx supabase db push
 ```
 
-### 5. Start Development Server
-```bash
-pnpm dev
-```
-Open [http://localhost:3000](http://localhost:3000) to view the application locally.
+### 3. Verify
 
-The backend (`/api/scrape/*` endpoints) will be running at `[PORT=3001]` in a separate process.
-
-If running backend locally:
 ```bash
-cd backend
-npm run dev
-```
-
-### 6. Backend API Testing
-```bash
-# Test backend health
+# Backend health
 curl http://localhost:3001/health
 
-# Test backend source overview
+# Backend source overview
 curl http://localhost:3001/scrape/explore
 
-# Test scraper test endpoint (no auth)
-curl "http://localhost:3001/scrape/test/semi-engineering-rss"
+# Trigger a scrape (requires SCRAPER_SECRET)
+curl -X POST http://localhost:3001/scrape/run \
+  -H "Authorization: Bearer $SCRAPER_SECRET"
 ```
 
 ---
 
-## 📚 Documentation Directory
+## Deployment
 
-### Main Application Documentation (electrobridge/)
-Detailed technical implementation documents are available in the [`docs/`](./docs/) directory:
+### Frontend → Vercel
 
-- 🏗️ [**Architecture Guide**](./docs/ARCHITECTURE.md) - Deep dive into database split and caching for the main Next.js application.
-- 🗄️ [**Data Models**](./docs/DATA_MODEL.md) - Full database schema tables and relationships.
-- 🔌 [**API Reference**](./docs/API_REFERENCE.md) - Internal REST routes and scraper scripts for the frontend.
-- 🚀 [**Deployment & Cron**](./docs/DEPLOYMENT.md) - Vercel cron configurations and pipeline.
-- 🔐 [**Security Specs**](./docs/SECURITY.md) - PostgREST, RLS policies, and sanitization models.
-- 🤝 [**Contributing**](./docs/CONTRIBUTING.md) - Coding style, linting rules, and contributions for the main app.
+1. Push `electrobridge/` to GitHub
+2. In Vercel Dashboard → Import repository
+3. Set **Root Directory** to `electrobridge`
+4. Add all environment variables (see table below)
+5. Deploy — auto-deploys on every `main` push
 
-### Automated Backend Documentation (backend/)
-Comprehensive scraping backend documentation:
+**Cron Jobs:** Configured in `electrobridge/vercel.json`. Vercel Pro required for multiple cron jobs.
 
-- 📋 [**Backend README**](backend/README.md) - Complete integration guide, deployment, and usage.
-- 📊 [**Architecture**](./docs/ARCHITECTURE.md) - Backend system architecture and database setup.
-- 🔧 [**Deployment**](./docs/DEPLOYMENT.md) - Dockerfile and Render deployment instructions.
-- 🧪 [**Testing**](./docs/TESTING.md) - Test suite and integration guidelines.
-- 🔐 [**Security**](./docs/SECURITY.md) - API security and authentication practices.
+### Backend → Render (Docker)
 
----
+1. In Render Dashboard → New Web Service → Connect repo
+2. Set **Root Directory** to `backend`
+3. Render auto-detects `render.yaml` or `Dockerfile`
+4. Add all environment variables (see table below)
+5. Service starts at `https://siliconpath-backend.onrender.com`
 
-## 📄 License
-This project is licensed under the [MIT License](./LICENSE).
+**Free tier note:** Render free web services sleep after inactivity. Use UptimeRobot (free) pinging `/health` every 14 minutes to keep it awake.
 
----
+### Integration
 
-## 🚀 Production Deployment
-
-### Two-Tier Architecture Deployment:
-
-**Frontend:**
-```bash
-# Via Vercel (recommended)
-git push origin main
-# Automatically builds and deploys at siliconpath.vercel.app
-```
-
-**Backend:**
-```bash
-# Via GitHub + Render
-1. Push backend/ to GitHub
-2. Connect backend repository to Render Dashboard
-3. Set environment variables (Render dashboard)
-4. Service starts at https://siliconpath-backend.onrender.com
-```
-
-### Integration Between Frontend and Backend:
-
-The frontend automatically integrates with the backend:
-
-1. **Frontend API Routes** (`src/app/api/scrape/`) proxy to backend
-2. **Authorization** - Bearer token validation using shared `SCRAPER_SECRET`
-3. **Error Handling** - Graceful fallback when backend is unavailable
-
-### Backend Environment Variables Required:
-
-```
-NEXT_PUBLIC_SUPABASE_URL
-SUPABASE_SERVICE_ROLE_KEY
-SUPABASE_2_URL
-SUPABASE_2_SERVICE_ROLE_KEY
-NEON_1_DATABASE_URL
-NEON_2_DATABASE_URL
-AWS_BEARER_TOKEN_BEDROCK
-GROQ_API_KEY
-NVIDIA_NIM_API_KEY
-GEMINI_API_KEY
-OPENROUTER_API_KEY
-CLOUDFLAALL_CONFIG
-CLOUDFLA_COUNT
-HUGGINGFACE_API_KEY
-SCRAPER_SECRET
-```
-
-### Frontend Environment Variables Required:
-
+Set this env var in Vercel:
 ```
 RENDER_BACKEND_URL=https://siliconpath-backend.onrender.com
-SCRAPER_SECRET=<same shared secret>
+SCRAPER_SECRET=<same value in both Vercel and Render>
+```
+
+The frontend's cron endpoints (`/api/cron/*`) proxy scrape requests to the backend.
+
+---
+
+## Environment Variables
+
+### Required (Both Frontend & Backend)
+
+| Variable | Source | Used In |
+|----------|--------|---------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase Primary project URL | Both |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Primary anon key | Frontend |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Primary service role key | Both |
+| `SUPABASE_2_URL` | Supabase Secondary project URL | Both |
+| `SUPABASE_2_ANON_KEY` | Supabase Secondary anon key | Frontend |
+| `SUPABASE_2_SERVICE_ROLE_KEY` | Supabase Secondary service role key | Both |
+| `NEON_1_DATABASE_URL` | Neon Primary connection string | Both |
+| `NEON_2_DATABASE_URL` | Neon Secondary connection string | Both |
+
+### AI Providers (at least 1 required)
+
+| Variable | Provider | Priority |
+|----------|----------|----------|
+| `GROQ_API_KEY` | Groq | 1st |
+| `OPENROUTER_API_KEY` | OpenRouter | 2nd |
+| `CLOUDFLARE_AI_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Workers AI | 3rd |
+| `GEMINI_API_KEY` | Google Gemini | 4th |
+| `AWS_BEARER_TOKEN_BEDROCK` | AWS Bedrock | 5th |
+| `HUGGINGFACE_API_KEY` | HuggingFace Inference | 6th |
+| `NVIDIA_NIM_API_KEY` | NVIDIA NIM | 7th |
+
+### Frontend-Only
+
+| Variable | Purpose |
+|----------|---------|
+| `CRON_SECRET` | Auth for Vercel cron endpoints |
+| `NEXT_PUBLIC_ADMIN_PASSWORD` | Admin panel password |
+| `RESEND_API_KEY` | Email sending (Resend) |
+| `FROM_EMAIL` | Sender email address |
+| `TELEGRAM_BOT_TOKEN` | Telegram notifications |
+| `TELEGRAM_CHANNEL_ID` | Telegram channel |
+| `NEXT_PUBLIC_SENTRY_DSN` | Error tracking (Sentry) |
+| `GOOGLE_CLIENT_ID` | Google OAuth |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth |
+| `NEXT_PUBLIC_SITE_URL` | Canonical site URL |
+
+### Backend-Only
+
+| Variable | Purpose |
+|----------|---------|
+| `PORT` | Server port (default 3001) |
+| `ALLOWED_ORIGINS` | CORS origins (comma-separated) |
+| `RATE_LIMIT_MAX` | Max requests/minute/IP |
+| `SCRAPER_SECRET` | Shared secret for scrape API auth |
+
+---
+
+## Project Structure
+
+```
+SiliconPath/
+├── backend/                    # Standalone scraping backend (Render/Docker)
+│   ├── src/
+│   │   ├── index.ts            # Express entry point (port 3001)
+│   │   ├── scrapers/
+│   │   │   ├── adapters/       # 7 platform adapters
+│   │   │   ├── source-config.ts # 473 sources across 17 batches
+│   │   │   └── orchestrator.ts # Batch execution engine
+│   │   ├── cron/scheduler.ts   # node-cron schedules
+│   │   └── routes/             # Health + scrape trigger endpoints
+│   ├── Dockerfile
+│   ├── render.yaml
+│   └── package.json
+├── electrobridge/              # Next.js frontend (Vercel)
+│   ├── src/
+│   │   ├── app/                # 35+ pages + 40+ API routes
+│   │   ├── components/         # 30+ React components
+│   │   ├── lib/                # DB, AI, scrapers, utils
+│   │   └── middleware.ts       # Supabase SSR auth
+│   ├── supabase/migrations/    # Database migrations
+│   └── vercel.json             # Cron config
+├── docs/                       # Documentation
+├── scripts/
+│   └── session-setup.sh        # Env var loader (placeholders)
+└── Makefile                    # Common commands
 ```
 
 ---
 
-## 📊 Project Statistics
+## Scripts Reference
 
-### Main Application (electrobridge/):
-- **Lines of code:** ~10,000+
-- **Dependencies:** 25+
-- **Test coverage:** 80%+
+```bash
+# Setup environment (loads placeholders — override with real values in shell)
+source scripts/session-setup.sh
 
-### Automated Backend (backend/):
-- **381 sources** across **13 batches**
-- **8 adapter types** (workday, greenhouse, lever, smartrecruiters, schema, html, rss)
-- **46 commits** (46 files, 8969 insertions, 2171 deletions)
-- **Production-ready** with rate limiting, retries, metrics
-- **Zero errors** in type checking and tests
+# Validate env vars are set
+make env-check
 
-### Combined:
-- **Two-coordinated repos** for optimal separation of concerns
-- **One unified platform** for end-users
-- **Maximum maintainability** with clear micro-service boundaries
-- **Zero friction** for users (no login required, no technical barriers)
+# Install all dependencies
+make install
 
----
+# Run both frontend and backend in dev mode
+make dev
 
-## 🎯 Mission
+# Typecheck both projects
+make typecheck
 
-**SiliconPath** - Aggregating every opportunity and learning path for the Indian semiconductor ecosystem. Making high-quality VLSI education and career pathways accessible to all aspirants, regardless of economic background or technical starting point.
+# Test both projects
+make test
+```
 
 ---
 
-## 🌍 About
+## Documentation
 
-Built for the **Indian semiconductor revolution** - powering the next generation of hardware engineers, researchers, and innovators in VLSI and electronics.
+| Doc | Contents |
+|-----|----------|
+| `docs/ARCHITECTURE.md` | Deep architecture overview |
+| `docs/DEPLOYMENT.md` | Vercel deployment details |
+| `docs/DATA_MODEL.md` | Database schema |
+| `docs/API_REFERENCE.md` | API endpoint reference |
+| `docs/SECURITY.md` | Security & RLS policies |
+| `docs/CONTRIBUTING.md` | Contributing guidelines |
+| `backend/README.md` | Backend-specific deployment and API docs |
+| `electrobridge/README.md` | Frontend-specific docs |
 
-*Version: 1.0.0* - *Two-tier architecture for production-ready automation*
+---
+
+## Mission
+
+Aggregating every opportunity and learning path for the Indian semiconductor ecosystem. Making high-quality VLSI education and career pathways accessible to all aspirants, regardless of economic background or technical starting point.
+
+**Version 1.0.0** — Built for the Indian semiconductor revolution.
