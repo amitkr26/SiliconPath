@@ -77,8 +77,17 @@ function detectAdapter(source: SourceConfig): string {
   if (url.includes("lever.co")) return "lever";
   if (url.includes("smartrecruiters")) return "smartrecruiters";
   if (url.includes("myworkdayjobs") || url.includes("wd1.myworkday") || url.includes("wd3.myworkday") || url.includes("wd5.myworkday")) return "workday";
+  
+  // Fallback to source.type if URL-based detection fails
+  if (source.type === "greenhouse") return "greenhouse";
+  if (source.type === "lever") return "lever";
+  if (source.type === "smartrecruiters") return "smartrecruiters";
+  if (source.type === "workday") return "workday";
+  if (source.type === "schema") return "schema";
+  if (source.type === "rss") return "rss";
+  
   if (/\.xml$|rss|feed|atom/i.test(url)) return "rss";
-  return source.type === "schema" ? "schema" : "html";
+  return "html";
 }
 
 export async function runSingleSource(source: SourceConfig): Promise<ScrapedOpportunity[]> {

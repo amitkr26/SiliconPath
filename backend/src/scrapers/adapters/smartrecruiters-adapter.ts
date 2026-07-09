@@ -20,7 +20,7 @@ interface SRResponse {
   size?: number;
 }
 
-const SR_COMPANY_MAP: Record<string, string> = {
+export const SR_COMPANY_MAP: Record<string, string> = {
   "nordic-semi": "NordicSemiconductor",
 };
 

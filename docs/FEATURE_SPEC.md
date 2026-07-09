@@ -984,7 +984,7 @@ Accessible via admin password (`NEXT_PUBLIC_ADMIN_PASSWORD` — ⚠️ see Secur
 
 **Pages/Routes:**
 - `/api/scrape` can also be triggered from Render
-- Render token: `rnd_GCEmbLzqTpnOKy202LGW9tiGrOla`
+- Render token: `YOUR_RENDER_API_KEY`
 
 **Key User Flow:**
 1. Vercel cron → HTTP request to Render worker

@@ -18,10 +18,27 @@ interface GreenhouseJob {
 
 interface GreenhouseResponse { jobs: GreenhouseJob[]; meta: { total: number } }
 
-const BOARD_ALIASES: Record<string, string> = {
+export const BOARD_ALIASES: Record<string, string> = {
   "jobs.intel.com": "intl",
   "jobs.intel.com/": "intl",
   "intel": "intel",
+  "intel-india": "intl",
+  // Batch 3 & 5 & 14 additions
+  "graphcore": "graphcore",
+  "cerebras": "cerebras",
+  "sifive": "sifive",
+  "rivos": "rivos",
+  "axelera-ai": "axelera-ai",
+  "untether-ai": "untether-ai",
+  "hailo": "hailo",
+  "alphawave-semi": "alphawavesemi",
+  "astera-labs": "asteralabs",
+  "navitas": "navitas",
+  "dmatrix": "d-matrix",
+  "blaize": "blaize",
+  "lightmatter": "lightmatter",
+  "furiosa-ai": "furiosa",
+  "positron-ai": "positron",
 };
 
 function extractBoardToken(source: SourceConfig): string | null {

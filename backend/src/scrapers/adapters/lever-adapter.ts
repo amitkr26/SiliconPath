@@ -18,7 +18,7 @@ interface LeverJob {
 
 interface LeverResponse { data: LeverJob[] }
 
-const LEVER_COMPANY_MAP: Record<string, string> = {
+export const LEVER_COMPANY_MAP: Record<string, string> = {
   "graphcore": "graphcore",
   "cerebras": "cerebras",
   "sifive": "sifive",
