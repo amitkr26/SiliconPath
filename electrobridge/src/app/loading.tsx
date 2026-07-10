@@ -1,9 +1,11 @@
-import { Loader2 } from "lucide-react";
-
-export default function RootLoading() {
+export default function Loading() {
   return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <Loader2 className="w-8 h-8 text-cyan animate-spin" />
+    <div className="mx-auto flex min-h-[60vh] max-w-content items-center justify-center px-4">
+      <div
+        className="h-10 w-10 animate-spin rounded-full border-4 border-border border-t-primary"
+        role="status"
+        aria-label="Loading"
+      />
     </div>
   );
 }
