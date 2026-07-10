@@ -1,13 +1,26 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 
+interface OrgRow {
+  id: string;
+  name: string;
+  slug: string;
+  type: string;
+  logo_url: string | null;
+  location: string | null;
+  country: string | null;
+  website: string | null;
+  is_verified: boolean;
+}
+
+interface OrgWithCount extends OrgRow {
+  count: number;
+}
+
 /**
  * Public organizations directory.
- *
- * v2 schema alignment: reads the `organizations` table and counts active,
- * verified opportunities via `organization_id`. (The previous version queried
- * the legacy `company_pages` table and `opportunities.organization`, neither of
- * which exists in the v2 schema, causing a 42703 column error at build time.)
+ * v2 schema: reads `organizations` and counts active/verified opportunities
+ * via `organization_id`.
  */
 export async function GET() {
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -36,8 +49,8 @@ export async function GET() {
       if (o.organization_id) counts[o.organization_id] = (counts[o.organization_id] || 0) + 1;
     });
 
-    const organizations = (orgs || [])
-      .map((c: Record<string, unknown>) => ({
+    const organizations: OrgWithCount[] = (orgs || [])
+      .map((c: OrgRow): OrgWithCount => ({
         id: c.id,
         name: c.name,
         slug: c.slug,
@@ -47,9 +60,9 @@ export async function GET() {
         country: c.country,
         website: c.website,
         is_verified: c.is_verified,
-        count: counts[c.id as string] || 0,
+        count: counts[c.id] || 0,
       }))
-      .sort((a, b) => b.count - a.count);
+      .sort((a: OrgWithCount, b: OrgWithCount) => b.count - a.count);
 
     return NextResponse.json({ organizations });
   } catch (error) {
