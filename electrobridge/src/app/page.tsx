@@ -1,338 +1,157 @@
 import Link from "next/link";
-import { ArrowRight, TrendingUp, Newspaper, Zap, Bell, CheckCircle2, Cpu, CircuitBoard, HardDrive, Wifi, GraduationCap, Activity, Sparkles, Award } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
-import type { Opportunity, NewsArticle } from "@/types";
-import OpportunityCard from "@/components/OpportunityCard";
-import NewsCard from "@/components/NewsCard";
-import SubscribeSection from "@/components/SubscribeSection";
-import HeroSearch from "@/components/HeroSearch";
+import { MapPin, ArrowRight } from "lucide-react";
 
-async function getStats() {
-  if (!supabaseAdmin?.from) {
-    return { total: 0, jrf: 0, phd: 0, govt: 0, addedThisWeek: 0, newsToday: 0, verified: 0 };
-  }
-
-  const now = new Date().toISOString();
-  const today = now.split("T")[0];
-  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-
-  const [
-    { count: totalActive },
-    { count: jrfCount },
-    { count: phdCount },
-    { count: govtCount },
-    { count: addedThisWeekCount },
-    { count: newsTodayCount },
-    { count: verifiedCount },
-  ] = await Promise.all([
-    supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("is_active", true).or(`deadline.gte.${now},deadline.is.null`),
-    supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("is_active", true).eq("category", "JRF").or(`deadline.gte.${now},deadline.is.null`),
-    supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("is_active", true).eq("category", "PhD").or(`deadline.gte.${now},deadline.is.null`),
-    supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("is_active", true).eq("category", "Govt Job").or(`deadline.gte.${now},deadline.is.null`),
-    supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("is_active", true).gte("posted_at", weekAgo).or(`deadline.gte.${now},deadline.is.null`),
-    supabaseAdmin.from("news_articles").select("*", { count: "exact", head: true }).gte("published_at", yesterday),
-    supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("is_active", true).eq("verification_status", "verified").or(`deadline.gte.${now},deadline.is.null`),
-  ]);
-
-  return {
-    total: totalActive || 0,
-    jrf: jrfCount || 0,
-    phd: phdCount || 0,
-    govt: govtCount || 0,
-    addedThisWeek: addedThisWeekCount || 0,
-    newsToday: newsTodayCount || 0,
-    verified: verifiedCount || 0,
-  };
-}
-
-async function getLatestOpportunities(): Promise<Opportunity[]> {
-  if (!supabaseAdmin?.from) return [];
-  const today = new Date().toISOString().split("T")[0];
-  const { data } = await supabaseAdmin
-    .from("opportunities")
-    .select("*")
-    .eq("is_active", true)
-    .eq("verification_status", "verified")
-    .or(`deadline.gte.${today},deadline.is.null`)
-    .order("created_at", { ascending: false })
-    .limit(6);
-
-  return (data as Opportunity[]) || [];
-}
-
-async function getLatestNews(): Promise<NewsArticle[]> {
-  if (!supabaseAdmin?.from) return [];
-  const { data } = await supabaseAdmin
-    .from("news_articles")
-    .select("*")
-    .order("published_at", { ascending: false })
-    .limit(10);
-
-  return (data as NewsArticle[]) || [];
-}
-
-async function getTrendingTags() {
-  if (!supabaseAdmin?.from) return [];
-  const { data } = await supabaseAdmin
-    .from("opportunities")
-    .select("tags")
-    .eq("is_active", true);
-
-  if (!data) return [];
-
-  const tagCount: Record<string, number> = {};
-  data.forEach((item: { tags: string[] }) => {
-    item.tags?.forEach((tag: string) => {
-      tagCount[tag] = (tagCount[tag] || 0) + 1;
-    });
-  });
-
-  return Object.entries(tagCount)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 15)
-    .map(([tag, count]) => ({ tag, count }));
-}
-
-// Revalidate homepage every 5 minutes (ISR) to pick up new opportunities
 export const revalidate = 300;
 
-export default async function Home() {
-  const [stats, opportunities, news, trendingTags] = await Promise.all([
-    getStats(),
-    getLatestOpportunities(),
-    getLatestNews(),
-    getTrendingTags(),
-  ]);
+const CATEGORY_STYLES: Record<string, string> = {
+  jrf: "bg-[var(--tag-jrf-bg)] text-[var(--tag-jrf)]",
+  srf: "bg-[var(--tag-jrf-bg)] text-[var(--tag-jrf)]",
+  phd: "bg-[var(--tag-phd-bg)] text-[var(--tag-phd)]",
+  industry: "bg-[var(--tag-industry-bg)] text-[var(--tag-industry)]",
+  government: "bg-[var(--tag-govt-bg)] text-[var(--tag-govt)]",
+  fellowship: "bg-[var(--tag-fellowship-bg)] text-[var(--tag-fellowship)]",
+  internship: "bg-[var(--tag-industry-bg)] text-[var(--tag-industry)]",
+};
 
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      { "@type": "Question", name: "What is JRF in electronics?", acceptedAnswer: { "@type": "Answer", text: "Junior Research Fellowship (JRF) in electronics is a funded research position offered by government organizations like DRDO, CSIR, ISRO and IITs. Eligibility typically requires MSc Electronics or Physics with NET/GATE qualification. Stipend ranges from ₹31,000 to ₹37,000 per month." } },
-      { "@type": "Question", name: "How to find JRF positions in electronics in India?", acceptedAnswer: { "@type": "Answer", text: "JRF positions in electronics are posted on official websites of DRDO, CSIR labs, ISRO centers, IITs, and NITs. SiliconPath aggregates all these opportunities in one place, updated daily — no need to visit 100+ websites separately." } },
-      { "@type": "Question", name: "What is the stipend for JRF in DRDO/ISRO/CSIR?", acceptedAnswer: { "@type": "Answer", text: "JRF stipend at DRDO, ISRO, and CSIR is typically ₹37,000 per month plus HRA. SRF (Senior Research Fellow) receives ₹42,000 per month. These are as per DST/SERB norms." } },
-      { "@type": "Question", name: "Do I need NET or GATE for JRF positions?", acceptedAnswer: { "@type": "Answer", text: "Most government JRF positions require either UGC-NET (Electronics Science) or GATE (Electronics & Communication) qualification. Some CSIR labs have walk-in positions that may accept MSc without NET/GATE." } },
-      { "@type": "Question", name: "What VLSI jobs are available in India?", acceptedAnswer: { "@type": "Answer", text: "VLSI design jobs in India are available at companies like Intel, Qualcomm, Texas Instruments, ARM, and Indian startups. Roles include ASIC design, RTL design, verification engineer, and physical design. SiliconPath aggregates openings from all major company career portals." } },
-    ],
-  };
+async function getFeatured() {
+  try {
+    if (!supabaseAdmin) return [];
+    const today = new Date().toISOString().split("T")[0];
+    const { data } = await supabaseAdmin
+      .from("opportunities")
+      .select("id, title, slug, category, location, created_at, organizations(name)")
+      .eq("is_active", true)
+      .eq("verification_status", "verified")
+      .or(`deadline.gte.${today},deadline.is.null`)
+      .order("created_at", { ascending: false })
+      .limit(6);
+    return data || [];
+  } catch {
+    return [];
+  }
+}
 
-  const websiteJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "SiliconPath",
-    url: "https://siliconpath.vercel.app",
-    description: "Semiconductor, VLSI and electronics opportunity aggregator for Indian and global researchers",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: "https://siliconpath.vercel.app/opportunities?search={search_term_string}",
-      "query-input": "required name=search_term_string",
-    },
-  };
-
-  const categories = [
-    { name: "VLSI & ASIC", icon: Cpu, count: Math.floor(stats.total * 0.25) },
-    { name: "Semiconductor Process", icon: CircuitBoard, count: Math.floor(stats.total * 0.2) },
-    { name: "Embedded Systems", icon: HardDrive, count: Math.floor(stats.total * 0.15) },
-    { name: "RF & Microwave", icon: Wifi, count: Math.floor(stats.total * 0.1) },
-    { name: "Research & PhD", icon: GraduationCap, count: stats.phd },
-    { name: "Signal Processing", icon: Activity, count: Math.floor(stats.total * 0.1) },
-    { name: "AI Hardware", icon: Sparkles, count: Math.floor(stats.total * 0.15) },
-    { name: "Fellowships & JRF", icon: Award, count: stats.jrf + stats.govt },
-  ];
+export default async function HomePage() {
+  const featured = await getFeatured();
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      {/* BACKGROUND DECORATIONS (GLOWING CYBER BLOBS) */}
-      <div className="absolute top-10 left-[-10%] w-[40vw] h-[40vw] rounded-full bg-accent/10 cyber-blob animate-blob-slow" />
-      <div className="absolute top-[40vh] right-[-10%] w-[35vw] h-[35vw] rounded-full bg-blue-500/10 cyber-blob animate-blob-slower" />
-      <div className="absolute bottom-20 left-[20%] w-[30vw] h-[30vw] rounded-full bg-purple-500/5 cyber-blob animate-blob-slowest" />
-
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
-
-      {/* HERO SECTION */}
-      <section className="relative overflow-hidden py-24 sm:py-32 bg-grid-cyber border-b border-border/20">
-        <div className="absolute inset-0 bg-gradient-radial-cyan opacity-40" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 border border-accent/20 text-accent text-xs font-semibold px-4 py-1.5 rounded-full mb-8 bg-accent/5 backdrop-blur-md animate-pulse">
-              <Sparkles className="w-3.5 h-3.5" />
-              AI-Powered Career Intelligence for Semiconductors & VLSI
-            </div>
-            <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-text-primary leading-[1.1] mb-6">
-              Your Gateway to{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-hero neon-glow-cyan">
-                Semiconductors & VLSI Careers
-              </span>
-            </h1>
-            <p className="mt-8 text-lg sm:text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
-              The premier aggregator for semiconductor engineers, VLSI researchers, and embedded systems professionals. Browse JRF, PhD, fellowships, and industry opportunities from 100+ organizations — no login required.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/opportunities" className="inline-flex items-center gap-2 bg-accent text-bg-primary font-semibold rounded-lg px-8 py-3.5 hover:bg-accent-hover hover:scale-[1.02] active:scale-[0.98] transition-all shadow-glow-btn">
-                Explore Opportunities <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link href="/chat" className="inline-flex items-center gap-2 border border-border bg-surface-elevated/40 backdrop-blur-md text-text-primary font-medium rounded-lg px-8 py-3.5 hover:border-accent/40 hover:bg-surface-elevated/70 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                Ask AI Assistant <Sparkles className="w-4 h-4 text-accent" />
-              </Link>
-            </div>
-            <HeroSearch />
-            {trendingTags.length > 0 && (
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5 text-xs text-text-muted">
-                <span className="font-medium">Trending Tags:</span>
-                {trendingTags.slice(0, 6).map(({ tag }) => (
-                  <Link key={tag} href={`/opportunities?search=${tag}`} className="px-2.5 py-1 bg-surface-elevated/30 border border-border/40 rounded-md hover:text-accent hover:border-accent/30 transition-all">{tag}</Link>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* STATS STRIP */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="glass-premium rounded-xl p-6 text-center hover:-translate-y-1 transition-all duration-300 group">
-            <p className="text-3xl sm:text-4xl font-bold text-accent font-display tracking-tight group-hover:scale-105 transition-transform">{stats.total}</p>
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wider mt-2">Active Opportunities</p>
-          </div>
-          <div className="glass-premium rounded-xl p-6 text-center hover:-translate-y-1 transition-all duration-300 group">
-            <p className="text-3xl sm:text-4xl font-bold text-accent font-display tracking-tight group-hover:scale-105 transition-transform">{stats.verified}</p>
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wider mt-2">Verified Openings</p>
-          </div>
-          <div className="glass-premium rounded-xl p-6 text-center hover:-translate-y-1 transition-all duration-300 group">
-            <p className="text-3xl sm:text-4xl font-bold text-accent font-display tracking-tight group-hover:scale-105 transition-transform">{stats.jrf}</p>
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wider mt-2">JRF Positions</p>
-          </div>
-          <div className="glass-premium rounded-xl p-6 text-center hover:-translate-y-1 transition-all duration-300 group">
-            <p className="text-3xl sm:text-4xl font-bold text-accent font-display tracking-tight group-hover:scale-105 transition-transform">{stats.phd}</p>
-            <p className="text-text-secondary text-xs font-medium uppercase tracking-wider mt-2">PhD Programs</p>
-          </div>
-        </div>
-      </section>
-
-      {/* BROWSE BY CATEGORY */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">
-        <div className="flex flex-col mb-8">
-          <h2 className="font-display text-2xl sm:text-3xl font-bold text-text-primary tracking-tight">Browse by Specialization</h2>
-          <p className="text-text-secondary text-sm mt-1">Explore targeted openings across specific microelectronics sectors</p>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {categories.map(({ name, icon: Icon, count }) => (
-            <Link
-              key={name}
-              href={`/opportunities?search=${encodeURIComponent(name)}`}
-              className="glass-premium rounded-xl p-6 hover:-translate-y-1 transition-all duration-300 group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 group-hover:scale-110 transition-all">
-                <Icon className="w-6 h-6 text-accent" />
-              </div>
-              <h3 className="font-display font-semibold text-text-primary text-base group-hover:text-accent transition-colors">{name}</h3>
-              <p className="text-text-muted text-xs mt-1.5 font-medium">{count} active listings</p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* FEATURED OPPORTUNITIES */}
-      {opportunities.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <h2 className="font-display text-2xl font-bold text-text-primary">Featured Opportunities</h2>
-              <p className="text-text-secondary text-sm mt-1">Handpicked, verified, and expiring soon</p>
-            </div>
-            <Link href="/opportunities" className="text-accent text-sm font-medium hover:underline flex items-center gap-1 flex-shrink-0">
-              View all <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {opportunities.slice(0, 3).map((opp) => (
-              <OpportunityCard key={opp.id} opportunity={opp} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* LATEST NEWS */}
-      {news.length > 0 && (
-        <section className="mt-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-display text-2xl font-bold text-text-primary">Latest Semiconductor News</h2>
-              <Link href="/news" className="text-accent text-sm font-medium hover:underline flex items-center gap-1">
-                All news <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-            <div className="space-y-3">
-              {news.slice(0, 5).map((article) => (
-                <div key={article.id} className="w-full">
-                  <NewsCard article={article} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* AI CTA BANNER */}
-      <section className="bg-surface mt-16 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <Zap className="w-6 h-6 text-accent" />
-          </div>
-          <h2 className="font-display text-2xl sm:text-3xl font-bold text-text-primary mb-2">
-            AI-Powered Career Guidance
-          </h2>
-          <p className="text-text-secondary text-sm max-w-md mx-auto mb-6">
-            Get personalized opportunity recommendations and career advice powered by AI.
-          </p>
-          <Link
-            href="/chat"
-            className="inline-flex items-center gap-2 bg-accent text-bg-primary font-semibold rounded-lg px-6 py-3 hover:bg-accent-hover transition-all shadow-glow-btn"
-          >
-            Try AI Assistant <Sparkles className="w-4 h-4" />
+    <>
+      {/* HERO */}
+      <section className="mx-auto max-w-content px-4 pb-14 pt-16 text-center sm:px-6 sm:pt-20">
+        <span className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary-light px-4 py-1.5 text-xs font-semibold text-primary">
+          Free. No login required. Worldwide.
+        </span>
+        <h1 className="mx-auto max-w-3xl text-4xl font-black leading-tight sm:text-5xl">
+          The world&apos;s semiconductor &amp; VLSI opportunities, <span className="text-primary">in one place</span>
+        </h1>
+        <p className="mx-auto mt-4 max-w-xl text-base text-text-secondary sm:text-lg">
+          Research fellowships, PhDs, government roles, and industry jobs from DRDO, ISRO, IITs, and top chip companies globally. Plus a free self-paced VLSI academy.
+        </p>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Link href="/opportunities" className="w-full rounded-xl bg-primary px-7 py-3 text-sm font-semibold text-white transition-all ease-out-quart hover:-translate-y-0.5 hover:bg-primary-hover sm:w-auto">
+            Browse Opportunities
+          </Link>
+          <Link href="/academy" className="w-full rounded-xl border border-border bg-surface px-7 py-3 text-sm font-semibold text-text hover:bg-surface-raised sm:w-auto">
+            Start Learning Free
           </Link>
         </div>
       </section>
 
-      {/* TRENDING TOPICS */}
-      {trendingTags.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
-          <div className="flex items-center gap-2 mb-6">
-            <TrendingUp className="w-5 h-5 text-accent" />
-            <h2 className="font-display text-2xl font-bold text-text-primary">Trending Topics</h2>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {trendingTags.map(({ tag, count }) => (
-              <Link
-                key={tag}
-                href={`/opportunities?search=${tag}`}
-                className="px-3 py-1.5 bg-surface border border-border rounded-full text-text-secondary text-xs hover:border-accent/50 hover:text-accent transition-colors"
-              >
-                {tag} ({count})
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* SUBSCRIBE SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 mb-16">
-        <div className="bg-gradient-to-r from-cyan/10 to-purple/10 border border-cyan/20 rounded-xl p-8 sm:p-12 text-center">
-          <div className="w-12 h-12 bg-gradient-to-br from-cyan/20 to-purple/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <Zap className="w-6 h-6 text-accent" />
-          </div>
-          <h2 className="font-display text-2xl sm:text-3xl font-bold text-text-primary mb-2">
-            Never Miss an Opportunity
-          </h2>
-          <p className="text-text-secondary text-sm max-w-md mx-auto mb-6">
-            Get email alerts when new JRF, PhD, or job opportunities matching your interests are posted.
-          </p>
-          <SubscribeSection />
+      {/* STATS */}
+      <section className="mx-auto max-w-content px-4 pb-14 sm:px-6">
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-border md:grid-cols-4">
+          {[
+            ["Global", "Coverage"],
+            ["110+", "Organizations"],
+            ["7", "Learning Tracks"],
+            ["Daily", "Fresh Updates"],
+          ].map(([num, label]) => (
+            <div key={label} className="bg-surface p-6 text-center">
+              <div className="tnum text-xl font-extrabold sm:text-2xl">{num}</div>
+              <div className="mt-1 text-xs font-medium text-text-tertiary">{label}</div>
+            </div>
+          ))}
         </div>
       </section>
-    </div>
+
+      {/* FEATURED */}
+      <section className="mx-auto max-w-content px-4 pb-14 sm:px-6">
+        <div className="mb-6 flex items-baseline justify-between">
+          <h2 className="text-xl font-bold sm:text-2xl">Latest Opportunities</h2>
+          <Link href="/opportunities" className="flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+            View all <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        {featured.length === 0 ? (
+          <div className="rounded-xl border border-border bg-surface p-10 text-center text-sm text-text-secondary">
+            New opportunities are being verified. Check back shortly.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {featured.map((opp: any) => {
+              const org = Array.isArray(opp.organizations) ? opp.organizations[0] : opp.organizations;
+              return (
+                <Link
+                  key={opp.id}
+                  href={`/opportunities/${opp.slug}`}
+                  className="group rounded-xl border border-border bg-surface p-5 transition-all ease-out-quart hover:-translate-y-0.5 hover:shadow-md"
+                >
+                  <div className="mb-3 text-xs font-medium text-text-tertiary">{org?.name ?? ""}</div>
+                  <h3 className="mb-3 line-clamp-2 font-semibold leading-snug group-hover:text-primary">
+                    {opp.title}
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`rounded px-2 py-0.5 text-xs font-semibold uppercase ${CATEGORY_STYLES[opp.category] ?? ""}`}>
+                      {opp.category}
+                    </span>
+                    {opp.location && (
+                      <span className="flex items-center gap-1 text-xs text-text-tertiary">
+                        <MapPin className="h-3 w-3" /> {opp.location}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* ACADEMY PREVIEW */}
+      <section className="mx-auto max-w-content px-4 pb-14 sm:px-6">
+        <div className="rounded-2xl border border-border bg-surface p-6 sm:p-10">
+          <h2 className="text-xl font-bold sm:text-2xl">Learn VLSI from zero. Free forever.</h2>
+          <p className="mt-2 max-w-2xl text-sm text-text-secondary">
+            7 sequential tracks from digital logic to interview prep. Curated free lectures, daily plans, and gated assessments.
+          </p>
+          <Link href="/academy" className="mt-6 inline-flex items-center gap-1 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover">
+            Explore the Academy <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* NEWSLETTER */}
+      <section className="mx-auto max-w-content px-4 pb-20 sm:px-6">
+        <div className="rounded-2xl bg-primary p-8 text-center text-white sm:p-12">
+          <h2 className="text-xl font-bold sm:text-2xl">Never miss an opportunity</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm opacity-90">
+            Weekly email alerts for new JRF, PhD, and industry roles matching your interests.
+          </p>
+          <form className="mx-auto mt-6 flex max-w-md flex-col gap-2 sm:flex-row">
+            <input
+              type="email"
+              required
+              placeholder="your@email.com"
+              className="flex-1 rounded-lg border-0 bg-white/15 px-4 py-2.5 text-sm text-white placeholder:text-white/60 focus:bg-white/20 focus:outline-none"
+            />
+            <button type="submit" className="rounded-lg bg-white px-6 py-2.5 text-sm font-semibold text-primary hover:bg-white/90">
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </section>
+    </>
   );
 }
