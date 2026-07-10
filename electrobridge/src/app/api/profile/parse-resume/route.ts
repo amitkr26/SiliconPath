@@ -3,11 +3,27 @@ import { createClient } from "@/lib/supabase/server";
 import { callAI } from "@/lib/ai/providers";
 import { PDFParse } from "pdf-parse";
 
+function hasAIProviderConfigured(): boolean {
+  const keys = [
+    "GROQ_API_KEY", "OPENROUTER_API_KEY", "GEMINI_API_KEY",
+    "NVIDIA_NIM_API_KEY", "AWS_BEARER_TOKEN_BEDROCK",
+    "CLOUDFLARE_AI_TOKEN", "HUGGINGFACE_API_KEY",
+  ];
+  return keys.some((k) => !!process.env[k]);
+}
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!hasAIProviderConfigured()) {
+    return NextResponse.json(
+      { error: "Resume parsing is not available. No AI provider is configured." },
+      { status: 503 }
+    );
   }
 
   try {
@@ -25,8 +41,6 @@ export async function POST(request: NextRequest) {
       const { parseWithDocumentAI } = await import("@/lib/resume/document-ai-parser");
       const docAiProfile = await parseWithDocumentAI(buffer);
       console.log("[Resume Parser] Document AI parsing succeeded.");
-      // If we got a basic profile, return it!
-      // But if it's completely empty, we might want to throw to trigger fallback
       if (docAiProfile.full_name || docAiProfile.email || docAiProfile.skills.length > 0) {
         return NextResponse.json({ success: true, profile: docAiProfile });
       } else {
@@ -34,10 +48,8 @@ export async function POST(request: NextRequest) {
       }
     } catch (docAiError: any) {
       console.warn("[Resume Parser] Document AI fallback triggered. Reason:", docAiError.message);
-      // Fallback to existing Gemini text extraction parsing
     }
 
-    // Extract text from the PDF buffer for Gemini fallback
     let pdfText = "";
     try {
       const parser = new PDFParse({ data: buffer, verbosity: 0 });
@@ -52,7 +64,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No text content could be extracted from the PDF." }, { status: 422 });
     }
 
-    // Call AI to parse text into structured user profile JSON
     const parsePrompt = `
 You are an expert resume parsing system for semiconductor and electronics engineering resumes. 
 Extract information from the raw resume text and return it as a structured JSON object matching the schema below.
@@ -111,9 +122,8 @@ Return ONLY a valid JSON object matching the following structure. Do not output 
     const aiRes = await callAI(parsePrompt, undefined, { feature: "resume_parse" });
     let jsonText = aiRes.text.trim();
     
-    // Clean potential markdown blocks
-    if (jsonText.startsWith("\`\`\`")) {
-      jsonText = jsonText.replace(/^\`\`\`json\s*/i, "").replace(/\`\`\`$/, "").trim();
+    if (jsonText.startsWith("```")) {
+      jsonText = jsonText.replace(/^```json\s*/i, "").replace(/```$/, "").trim();
     }
 
     let parsedProfile = {};
@@ -121,7 +131,6 @@ Return ONLY a valid JSON object matching the following structure. Do not output 
       parsedProfile = JSON.parse(jsonText);
     } catch (jsonErr) {
       console.error("JSON parsing error of AI output:", jsonText, jsonErr);
-      // Fallback: try parsing using regex or standard defaults
       return NextResponse.json({ error: "Failed to structure the extracted text. Please try again." }, { status: 422 });
     }
 
@@ -133,7 +142,6 @@ Return ONLY a valid JSON object matching the following structure. Do not output 
       console.log(`[Resume Parser] Uploaded to GCP Storage: ${resumeUrl}`);
     } catch (uploadError: any) {
       console.warn("[Resume Parser] GCP Storage upload failed or not configured:", uploadError.message);
-      // We continue even if upload fails, as parsing is the primary goal
     }
 
     return NextResponse.json({ success: true, profile: parsedProfile, resume_url: resumeUrl });
