@@ -2,6 +2,9 @@
 -- SiliconPath v2 :: Supabase Project 2 (SOCIAL / USER DATA) :: FULL RESET
 -- WARNING: This DROPS all user data. There is no undo.
 -- Run in the Supabase SQL Editor for your SECONDARY project.
+--
+-- NOTE: `current_role` is a PostgreSQL reserved word, so the professional
+-- title column is named `job_title` (not current_role).
 -- ============================================================================
 
 DROP TABLE IF EXISTS messages CASCADE;
@@ -17,7 +20,7 @@ DROP TABLE IF EXISTS academy_assessment_results CASCADE;
 DROP TABLE IF EXISTS user_profiles CASCADE;
 
 -- ---------------------------------------------------------------------------
--- User profiles (LinkedIn-style)
+-- User profiles (LinkedIn-style). account_type splits seekers vs providers.
 -- ---------------------------------------------------------------------------
 CREATE TABLE user_profiles (
   id                 UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -29,8 +32,8 @@ CREATE TABLE user_profiles (
   location           TEXT,
   country            TEXT,
 
-  account_type       TEXT DEFAULT 'job_seeker' CHECK (account_type IN ('job_seeker','employer','recruiter')),
-  current_role       TEXT,
+  account_type       TEXT DEFAULT 'seeker' CHECK (account_type IN ('seeker','provider')),
+  job_title          TEXT,
   current_company    TEXT,
   experience_years   INTEGER,
   skills             TEXT[] DEFAULT '{}',
@@ -51,13 +54,14 @@ CREATE TABLE user_profiles (
 );
 
 -- ---------------------------------------------------------------------------
--- Employer / company profiles
+-- Provider (company / institution / university / org) profiles
 -- ---------------------------------------------------------------------------
 CREATE TABLE company_profiles (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   owner_id      UUID REFERENCES user_profiles(id) ON DELETE CASCADE,
   name          TEXT NOT NULL,
   slug          TEXT UNIQUE,
+  kind          TEXT DEFAULT 'company' CHECK (kind IN ('company','institution','university','government','research_lab','startup')),
   logo_url      TEXT,
   website       TEXT,
   industry      TEXT,
@@ -203,7 +207,6 @@ ALTER TABLE job_applications           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE academy_user_progress      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE academy_assessment_results ENABLE ROW LEVEL SECURITY;
 
--- Profiles: public ones readable by all; users manage their own
 CREATE POLICY "read public profiles" ON user_profiles
   FOR SELECT USING (is_profile_public = true OR auth.uid() = id);
 CREATE POLICY "insert own profile" ON user_profiles
@@ -211,13 +214,11 @@ CREATE POLICY "insert own profile" ON user_profiles
 CREATE POLICY "update own profile" ON user_profiles
   FOR UPDATE USING (auth.uid() = id);
 
--- Companies: owner manages, public read
 CREATE POLICY "read companies" ON company_profiles
   FOR SELECT USING (true);
 CREATE POLICY "manage own company" ON company_profiles
   FOR ALL USING (auth.uid() = owner_id);
 
--- Connections: only the two parties can see/manage
 CREATE POLICY "see own connections" ON connections
   FOR SELECT USING (auth.uid() = requester_id OR auth.uid() = addressee_id);
 CREATE POLICY "create connection" ON connections
@@ -225,7 +226,6 @@ CREATE POLICY "create connection" ON connections
 CREATE POLICY "update own connection" ON connections
   FOR UPDATE USING (auth.uid() = requester_id OR auth.uid() = addressee_id);
 
--- Feed: public read, authors manage their own
 CREATE POLICY "read feed" ON feed_posts
   FOR SELECT USING (true);
 CREATE POLICY "manage own posts" ON feed_posts
@@ -233,7 +233,6 @@ CREATE POLICY "manage own posts" ON feed_posts
 CREATE POLICY "manage own reactions" ON post_reactions
   FOR ALL USING (auth.uid() = user_id);
 
--- Messages: only participants
 CREATE POLICY "see own conversations" ON conversations
   FOR SELECT USING (auth.uid() = participant_a OR auth.uid() = participant_b);
 CREATE POLICY "see own messages" ON messages
@@ -244,7 +243,6 @@ CREATE POLICY "see own messages" ON messages
 CREATE POLICY "send messages" ON messages
   FOR INSERT WITH CHECK (auth.uid() = sender_id);
 
--- Saved / applications / academy progress: user-scoped
 CREATE POLICY "manage saved" ON saved_opportunities
   FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "manage applications" ON job_applications

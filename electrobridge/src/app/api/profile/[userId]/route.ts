@@ -3,15 +3,19 @@ import { createClient } from "@/lib/supabase/server";
 
 /**
  * Fields a user is allowed to update on their own profile.
- * Anything not in this list (role, email, is_profile_public flags set by the
- * system, etc.) is ignored to prevent privilege escalation / mass assignment.
+ * Anything not in this list (account_type, email, system flags, etc.) is
+ * ignored to prevent privilege escalation / mass assignment.
+ *
+ * NOTE: professional title column is `job_title` (current_role is a reserved
+ * PostgreSQL keyword).
  */
 const UPDATABLE_FIELDS = [
   "display_name",
   "headline",
   "bio",
   "location",
-  "current_role",
+  "country",
+  "job_title",
   "current_company",
   "experience_years",
   "skills",
@@ -21,6 +25,7 @@ const UPDATABLE_FIELDS = [
   "website_url",
   "avatar_url",
   "is_profile_public",
+  "is_open_to_work",
   "email_notifications",
 ] as const;
 
@@ -44,7 +49,6 @@ export async function GET(
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!data) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
 
-  // Increment view count when someone else views the profile
   if (user.id !== userId) {
     try {
       await supabase.rpc("increment_profile_views", { profile_id: userId });
@@ -72,7 +76,6 @@ export async function PATCH(
 
   const body = await request.json();
 
-  // Strict whitelist: only allowed fields pass through.
   const sanitized: Record<string, unknown> = {};
   for (const key of UPDATABLE_FIELDS) {
     if (key in body) sanitized[key] = body[key];
