@@ -1,66 +1,66 @@
-# Architecture Overview
+# Architecture
 
-SiliconPath is built using a modern, serverless architecture centered around the **Next.js App Router** (v14), with edge caching, multiple specialized databases, and a multi-provider AI fallback chain.
+SiliconPath is a Next.js 14 (App Router) application backed by Supabase and Neon, with a separate Express scraper service. This document reflects the **v2 rebuild**.
 
-## 1. High-Level Architecture
+---
 
-```mermaid
-graph TD
-    Client[Web Client / User] -->|HTTPS| CDN[Vercel Edge Network]
-    CDN -->|Cache Hit| Client
-    CDN -->|Cache Miss / Server Action| Next[Next.js App Server]
+## 1. Three layers, one app
 
-    subgraph Data Layer
-        Next -->|Primary Read/Write| S1[(Supabase 1: Core)]
-        Next -->|Social/Auth Read/Write| S2[(Supabase 2: Social)]
-        Next -->|Analytics/Search Write| N1[(Neon 1: Primary Cache)]
-        Next -->|Analytics/Search Fallback| N2[(Neon 2: Secondary Cache)]
-    end
+1. **Aggregator (public).** Server-rendered pages read verified opportunities directly from Supabase Project 1. No auth required.
+2. **Academy (public).** Static curriculum in Project 1; per-user progress in Project 2 (or LocalStorage for anonymous users).
+3. **Professional network (authenticated).** Profiles, connections, feed, messaging, applications in Project 2, gated by Supabase SSR auth middleware.
 
-    subgraph Scraper / Data Ingestion
-        Cron[Vercel Cron] -->|Trigger| API[API Routes /api/cron/*]
-        API --> Scraper[Scraping Engine]
-        Scraper --> AI[AI Fallback Chain]
-        AI --> S1
-    end
+---
+
+## 2. The 3-database strategy (down from 4)
+
+| DB | Provider | Contents | Why separate |
+|---|---|---|---|
+| Project 1 | Supabase | Opportunities, orgs, scrape sources, academy content, news | Hot read path for anonymous visitors; kept lean |
+| Project 2 | Supabase | Users, connections, feed, messages, saved, applications | Relational social graph, auth-scoped RLS |
+| Analytics | Neon | Page views, searches, clicks | High-write, disposable, cheap serverless Postgres |
+
+We removed the 4th database (a second Neon read-replica) as premature optimization. A single Neon instance is more than enough at current scale, and Neon offers built-in read scaling if needed later.
+
+### Cross-DB references
+Project 2 rows reference `opportunities.id` in Project 1. Supabase does not support cross-project FKs, so these are validated in the application layer, never assumed by the database.
+
+---
+
+## 3. Security model
+
+- **RLS everywhere.** Public content (verified opportunities, orgs, academy, news) is read-only for anon. All writes go through the service role (admin/cron) or are user-scoped.
+- **Admin auth is server-only.** `ADMIN_PASSWORD` and `CRON_SECRET` are never exposed with `NEXT_PUBLIC_`. Every admin/write API route calls `verifyAdmin()`.
+- **Field whitelisting.** Profile and source updates only accept an explicit allowlist of columns (no mass assignment / privilege escalation).
+- **Input sanitization.** User search input is stripped of PostgREST filter metacharacters before being interpolated into `.or()`/`.ilike()`.
+- **SSRF prevention.** New scrape source URLs are rejected if they resolve to localhost, link-local (`169.254.169.254`), or private IP ranges.
+- **Durable rate limiting.** Uses Upstash Redis in production (in-memory limiting is a no-op on serverless).
+
+---
+
+## 4. Scraper pipeline
+
+```
+Vercel Cron → /api/cron/* → (proxy via SCRAPER_SECRET) → backend /scrape/run
+   → orchestrator (concurrency-limited) → adapters (Greenhouse/Lever/Workday/HTML/RSS/…)
+   → AI parse (safe JSON, multi-provider fallback) → normalize → insert into Project 1 (pending)
+   → admin review → verified → public
 ```
 
-## 2. The 4-Database Strategy
+Scraped opportunities start as `pending`. Only `verified` rows appear on the site. This keeps garbage data (bad titles, wrong categories) off the public surface.
 
-To ensure maximum resilience and clean separation of concerns, SiliconPath uses 4 distinct databases:
+---
 
-| Database | Provider | Purpose | Status |
-|---|---|---|---|
-| **DB1** | Supabase | **Core Data**: Opportunities, Organizations, News, Resources. | Active |
-| **DB2** | Supabase | **Social Data**: Users, Connections, Messages, Feed. | Active (UI Dormant) |
-| **DB3** | Neon (Serverless Postgres) | **Analytics & Fast Search**: Click tracking, search caching. | Active |
-| **DB4** | Neon (Serverless Postgres) | **Failover**: Backup for analytics and search. | Active |
+## 5. AI fallback chain
 
-By separating the core, login-free aggregator (DB1) from the heavily-relational social graph (DB2), we achieve maximum performance for unauthenticated visitors.
+Unstructured job descriptions (PDFs, HTML, DRDO/ISRO notices) are parsed through a resilient multi-provider chain. If a provider fails (rate limit, downtime, expired key), the next takes over. All AI output is parsed with a tolerant JSON parser (`lib/ai/safe-parse.ts`) so malformed model output degrades gracefully instead of returning a 500.
 
-**Known Issue:** Cross-database foreign key references exist between DB1 and DB2 (e.g., `feed_posts.opportunity_id` → `opportunities(id)`) but are not enforceable in Supabase, which does not support cross-project FK constraints. These are handled at the application layer.
+Keep at least one working provider key (Groq or Gemini) configured. Remove deprecated models promptly.
 
-## 3. AI Fallback Chain
+---
 
-For parsing unstructured job descriptions (e.g., from DRDO or ISRO PDFs/websites), SiliconPath relies on a resilient AI fallback chain. If one provider fails (due to rate limits, downtime, or key rotation), the system instantly falls back to the next.
+## 6. Frontend
 
-Current active chain:
-1. **AWS Bedrock**
-2. **Nvidia NIM**
-3. **Cloudflare Workers AI**
-
-*(Note: Groq, Gemini, and OpenRouter implementations exist in the codebase but are currently inactive or awaiting key rotation. OpenRouter model `meta-llama/llama-3.1-8b-instruct:free` has been deprecated — now returns 404.)*
-
-## 4. Frontend Architecture
-
-- **Next.js App Router**: Utilizes React Server Components (RSC) to fetch data directly from the databases during render, drastically reducing client-side bundle size.
-- **Server Actions**: Form submissions (like subscribing to newsletters or reporting an issue) use Server Actions instead of traditional API endpoints.
-- **Tailwind CSS & Lucide**: Minimal CSS payload, utilizing utility classes and SVG icons.
-
-## 5. Background Jobs (Cron)
-
-Data freshness is maintained via Vercel Cron jobs. These jobs hit protected API routes (e.g., `/api/cron/scrape-global`) that:
-1. Fetch remote RSS feeds or HTML pages.
-2. Filter content based on VLSI/Semiconductor keywords.
-3. Pass complex unstructured text through the AI chain for JSON extraction.
-4. Insert normalized records into **DB1**.
+- **RSC-first.** Public pages (home, opportunities, academy tracks) render on the server for SEO and speed. Only user-specific state (progress, auth) is client-fetched.
+- **Responsive design system.** `globals.css` defines fluid type (`clamp()`), a 4pt spacing scale, OKLCH tinted neutrals, and mobile-first breakpoints (640 / 768 / 1024 / 1280). Touch targets are ≥ 44px on coarse pointers; layouts are redesigned per breakpoint, not merely shrunk.
+- **Error boundaries.** Every data-driven page has explicit loading, error, and empty states so nothing hangs on an infinite spinner.

@@ -1,86 +1,125 @@
 # Deployment Guide
 
-SiliconPath is optimized for deployment on **Vercel**, utilizing Edge caching and Serverless functions. 
+This guide covers deploying SiliconPath from scratch: frontend to Vercel, backend to Render, and wiring up all environment variables.
 
-## Vercel Deployment
+---
 
-Pushing to the `main` branch automatically triggers a production deployment on Vercel. 
-The project directory for Vercel is `electrobridge`.
+## Overview
 
-### Required Environment Variables
+| Component | Platform | Root directory |
+|---|---|---|
+| Frontend (`electrobridge`) | Vercel | `electrobridge` |
+| Backend (`backend`) | Render (Docker) | `backend` |
+| Core + user DBs | Supabase (2 projects) | — |
+| Analytics DB | Neon | — |
 
-The following environment variables must be configured in the Vercel project settings (26 total):
+---
 
-**Databases:**
-- `NEXT_PUBLIC_SUPABASE_URL`: Supabase Primary URL (DB1)
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase Primary Anon Key
-- `SUPABASE_SERVICE_ROLE_KEY`: Supabase Primary Service Role Key
-- `SUPABASE_2_URL`: Supabase Secondary URL (DB2 - Social)
-- `SUPABASE_2_ANON_KEY`: Supabase Secondary Anon Key
-- `SUPABASE_2_SERVICE_ROLE_KEY`: Supabase Secondary Service Role Key
-- `NEON_1_DATABASE_URL`: Neon Primary Postgres Connection String (DB3)
-- `NEON_2_DATABASE_URL`: Neon Secondary Postgres Connection String (DB4)
+## 1. Databases first
 
-**AI Providers (Fallback Chain):**
-- `AWS_BEARER_TOKEN_BEDROCK`: Bedrock Bearer token (primary AI provider)
-- `GROQ_API_KEY`: Groq API key (first fallback)
-- `NVIDIA_NIM_API_KEY`: NVIDIA NIM API key (second fallback)
-- `GEMINI_API_KEY`: Google Gemini API key (third fallback)
-- `OPENROUTER_API_KEY`: OpenRouter API key (fourth fallback)
-- `CLOUDFLARE_AI_TOKEN`: Cloudflare Workers AI token (fifth fallback)
-- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare account ID
-- `HUGGINGFACE_API_KEY`: HuggingFace Inference API key (last resort)
+Before deploying any app, set up the databases. Follow **[DATABASE_SETUP.md](DATABASE_SETUP.md)** end to end. You need:
 
-**Cron & Auth:**
-- `CRON_SECRET`: Secret used to authenticate Vercel Cron requests to `/api/*` routes
-- `NEXT_PUBLIC_ADMIN_PASSWORD`: Admin panel password (⚠️ prefixed with NEXT_PUBLIC — visible in client JS)
+- Supabase **Project 1** (core data) → run `20260710_000_reset_core.sql` + both seed files
+- Supabase **Project 2** (user/social data) → run `20260710_001_reset_social.sql`
+- Neon project → run `neon/schema.sql`
 
-**Email & Notifications:**
-- `RESEND_API_KEY`: Resend API key for email digest
-- `FROM_EMAIL`: Email sender address
-- `TELEGRAM_BOT_TOKEN`: Telegram bot token
-- `TELEGRAM_CHANNEL_ID`: Telegram channel ID
+Collect these credentials as you go (you'll paste them into Vercel/Render):
 
-**Other:**
-- `NEXT_PUBLIC_SITE_URL`: Canonical site URL (default: https://siliconpath.vercel.app)
-- `NEXT_PUBLIC_APP_URL`: Fallback app URL for redirects
-- `NEXT_PUBLIC_SENTRY_DSN`: Sentry DSN ❌ (not yet set)
-- `GOOGLE_CLIENT_ID`: Google OAuth client ID ❌ (not yet set)
-- `GOOGLE_CLIENT_SECRET`: Google OAuth client secret ❌ (not yet set)
+- Each Supabase project's URL, anon key, and service role key
+- Neon connection string
 
-## Cron Configuration
+---
 
-The automated scraping pipeline is scheduled via Vercel Cron. The configuration is defined in `electrobridge/vercel.json`:
+## 2. Frontend → Vercel
 
-```json
-{
-  "crons": [
-    {
-      "path": "/api/cron/scrape-india",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron/scrape-global",
-      "schedule": "0 8 * * *"
-    },
-    {
-      "path": "/api/cron/check-links",
-      "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron/digest",
-      "schedule": "0 12 * * 0"
-    }
-  ]
-}
+1. In the Vercel dashboard, **Import** the GitHub repo.
+2. Set **Root Directory** to `electrobridge`.
+3. Framework preset: **Next.js** (auto-detected).
+4. Add all environment variables from the table below.
+5. **Deploy.** Every push to `main` auto-deploys.
+
+### Cron jobs
+Cron schedules live in `electrobridge/vercel.json`. Multiple crons require a Vercel **Pro** plan. Current jobs:
+
+| Path | Schedule (UTC) |
+|---|---|
+| `/api/cron/scrape-india` | `0 6 * * *` |
+| `/api/cron/scrape-global` | `0 8 * * *` |
+| `/api/cron/check-links` | `0 9 * * *` |
+| `/api/cron/digest` | `0 12 * * 0` (weekly) |
+
+Cron endpoints must be protected by `CRON_SECRET` (Vercel automatically sends it as a Bearer token to cron routes).
+
+---
+
+## 3. Backend → Render
+
+1. In Render, **New → Web Service**, connect the repo.
+2. Set **Root Directory** to `backend`.
+3. Render auto-detects `render.yaml` / `Dockerfile`.
+4. Add the backend environment variables (below).
+5. Deploy. The service starts at e.g. `https://siliconpath-backend.onrender.com`.
+
+**Free-tier note:** Render free web services sleep after inactivity. Use UptimeRobot to ping `/health` every ~14 minutes to keep it warm.
+
+---
+
+## 4. Wire frontend ↔ backend
+
+Set in Vercel:
 ```
+RENDER_BACKEND_URL=https://siliconpath-backend.onrender.com
+SCRAPER_SECRET=<same value in Vercel and Render>
+```
+The frontend cron routes (`/api/cron/*`) proxy scrape requests to the backend, authenticated with `SCRAPER_SECRET`.
 
-Note: Vercel Hobby plan only supports one cron job. For production with both crons, a Pro plan is required.
+---
 
-## Rollback Process
+## 5. Environment variable reference
 
-If a critical bug is deployed to production:
-1. Navigate to the **Deployments** tab in the Vercel Dashboard.
-2. Select the previous stable deployment.
-3. Click the three dots (...) and select **Promote to Production** (or **Instant Rollback**).
-4. Vercel will instantly map the domain to the older, stable deployment.
+### Shared (frontend + backend)
+| Variable | Notes |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase Project 1 URL (public) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Project 1 anon key (public) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Project 1 service role key (**secret**) |
+| `SUPABASE_2_URL` | Supabase Project 2 URL |
+| `SUPABASE_2_ANON_KEY` | Project 2 anon key |
+| `SUPABASE_2_SERVICE_ROLE_KEY` | Project 2 service role key (**secret**) |
+| `NEON_DATABASE_URL` | Neon connection string (**secret**) |
+
+### Frontend only
+| Variable | Purpose |
+|---|---|
+| `ADMIN_PASSWORD` | Admin auth. **Server-only. Never `NEXT_PUBLIC_`.** |
+| `CRON_SECRET` | Auth for Vercel cron endpoints |
+| `SCRAPER_SECRET` | Shared secret to call the backend |
+| `RENDER_BACKEND_URL` | Backend base URL |
+| `UPSTASH_REDIS_REST_URL` | Durable rate limiting (required in prod) |
+| `UPSTASH_REDIS_REST_TOKEN` | Durable rate limiting token |
+| `RESEND_API_KEY` | Email sending |
+| `FROM_EMAIL` | Sender address |
+| `GROQ_API_KEY` | AI provider (1st priority) |
+| `GEMINI_API_KEY` | AI provider (fallback) |
+| `NEXT_PUBLIC_SITE_URL` | Canonical site URL (public) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Error tracking (public DSN) |
+
+### Backend only
+| Variable | Purpose |
+|---|---|
+| `PORT` | Server port (default 3001) |
+| `ALLOWED_ORIGINS` | Comma-separated CORS origins |
+| `RATE_LIMIT_MAX` | Max requests/min/IP |
+| `SCRAPER_SECRET` | Must match the frontend value |
+
+---
+
+## 6. Post-deploy checklist
+
+- [ ] `GET /health` on the backend returns 200
+- [ ] Homepage loads and shows verified opportunities
+- [ ] `/academy` loads tracks (no infinite spinner)
+- [ ] Sign up / log in works (Supabase auth)
+- [ ] Admin endpoints return 401 without credentials
+- [ ] No `NEXT_PUBLIC_ADMIN_*` variable exists anywhere
+- [ ] A manual scrape (`POST /scrape/run` with `SCRAPER_SECRET`) succeeds
