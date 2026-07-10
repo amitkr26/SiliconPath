@@ -1,63 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createNotification } from "@/lib/notifications";
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+// Toggle a like using v2 post_reactions + feed_posts.like_count.
+export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: postId } = await params;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { reaction } = await request.json();
-
-  // Check if already liked
   const { data: existing } = await supabase
-    .from("feed_post_likes")
+    .from("post_reactions")
     .select("id")
-    .eq("post_id", id)
+    .eq("post_id", postId)
     .eq("user_id", user.id)
     .maybeSingle();
 
+  const { data: postRow } = await supabase
+    .from("feed_posts")
+    .select("like_count")
+    .eq("id", postId)
+    .maybeSingle();
+  const current = (postRow?.like_count as number | null) || 0;
+
   if (existing) {
-    // Unlike
-    await supabase.from("feed_post_likes").delete().eq("id", existing.id);
+    await supabase.from("post_reactions").delete().eq("id", existing.id);
+    await supabase.from("feed_posts").update({ like_count: Math.max(0, current - 1) }).eq("id", postId);
     return NextResponse.json({ liked: false });
-  } else {
-    // Like
-    await supabase.from("feed_post_likes").insert({
-      post_id: id,
-      user_id: user.id,
-      reaction: reaction || "like",
-    });
-
-    // Notify post author
-    const { data: post } = await supabase
-      .from("feed_posts")
-      .select("user_id")
-      .eq("id", id)
-      .single();
-
-    if (post && post.user_id !== user.id) {
-      await createNotification({
-        userId: post.user_id,
-        type: "post_like",
-        actorId: user.id,
-        entityType: "feed_post",
-        entityId: id,
-        message: `reacted ${reaction || "like"} to your post`,
-      });
-    }
-
-    return NextResponse.json({ liked: true, reaction: reaction || "like" }, { status: 201 });
   }
-}
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  await supabase.from("feed_post_likes").delete().eq("post_id", id).eq("user_id", user.id);
-  return NextResponse.json({ liked: false });
+  await supabase.from("post_reactions").insert({ post_id: postId, user_id: user.id, kind: "like" });
+  await supabase.from("feed_posts").update({ like_count: current + 1 }).eq("id", postId);
+  return NextResponse.json({ liked: true });
 }

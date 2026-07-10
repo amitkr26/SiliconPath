@@ -2,36 +2,66 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { messageSchema, validateOrThrow } from "@/lib/validation";
 
-export async function GET(request: NextRequest) {
+interface ConvRow {
+  id: string;
+  participant_a: string;
+  participant_b: string;
+  last_message_at: string | null;
+}
+
+interface OtherProfile {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  headline: string | null;
+}
+
+// GET: conversations for the current user (v2: participant_a/b, messages.body).
+export async function GET() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: conversations, error } = await supabase
+  const { data: convs, error } = await supabase
     .from("conversations")
-    .select("*")
-    .or(`participant_1.eq.${user.id},participant_2.eq.${user.id}`)
+    .select("id, participant_a, participant_b, last_message_at")
+    .or(`participant_a.eq.${user.id},participant_b.eq.${user.id}`)
     .order("last_message_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   const enriched = await Promise.all(
-    (conversations || []).map(async (c) => {
-      const otherId = c.participant_1 === user.id ? c.participant_2 : c.participant_1;
+    ((convs || []) as ConvRow[]).map(async (c) => {
+      const otherId = c.participant_a === user.id ? c.participant_b : c.participant_a;
       const { data: profile } = await supabase
         .from("user_profiles")
-        .select("id, full_name, username, avatar_url, headline")
+        .select("id, display_name, avatar_url, headline")
         .eq("id", otherId)
-        .single();
+        .maybeSingle();
 
-      const unread = c.participant_1 === user.id ? c.unread_count_1 : c.unread_count_2;
+      const { data: last } = await supabase
+        .from("messages")
+        .select("body, created_at")
+        .eq("conversation_id", c.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const { count: unread } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .eq("conversation_id", c.id)
+        .eq("is_read", false)
+        .neq("sender_id", user.id);
 
       return {
-        ...c,
-        other_user: profile,
-        unread_count: unread,
+        id: c.id,
         last_message_at: c.last_message_at,
-        last_message_preview: c.last_message_preview,
+        other_user: (profile || null) as OtherProfile | null,
+        last_message_preview: last?.body || "No messages yet",
+        unread_count: unread || 0,
       };
     })
   );
@@ -39,50 +69,58 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ conversations: enriched });
 }
 
+// POST: start a conversation + send first message (v2 schema).
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const raw = await request.json();
-  const { participantId, content } = validateOrThrow(messageSchema, raw);
+  const { participantId, content } = validateOrThrow<{ participantId: string; content: string }>(
+    messageSchema,
+    raw
+  );
   if (participantId === user.id) {
     return NextResponse.json({ error: "Cannot message yourself" }, { status: 400 });
   }
 
-  // Find or create conversation
-  const p1 = user.id < participantId ? user.id : participantId;
-  const p2 = user.id < participantId ? participantId : user.id;
+  const a = user.id < participantId ? user.id : participantId;
+  const b = user.id < participantId ? participantId : user.id;
 
-  let { data: existing } = await supabase
+  const { data: existing } = await supabase
     .from("conversations")
     .select("id")
-    .eq("participant_1", p1)
-    .eq("participant_2", p2)
-    .single();
+    .eq("participant_a", a)
+    .eq("participant_b", b)
+    .maybeSingle();
 
   let conversationId: string;
-
   if (existing) {
     conversationId = existing.id;
   } else {
-    const { data: newConv, error: createError } = await supabase
+    const { data: created, error: createErr } = await supabase
       .from("conversations")
-      .insert({ participant_1: p1, participant_2: p2 })
+      .insert({ participant_a: a, participant_b: b })
       .select("id")
       .single();
-
-    if (createError) return NextResponse.json({ error: createError.message }, { status: 500 });
-    conversationId = newConv!.id;
+    if (createErr) return NextResponse.json({ error: createErr.message }, { status: 500 });
+    conversationId = created.id;
   }
 
-  const { data: message, error: msgError } = await supabase
+  const { data: message, error: msgErr } = await supabase
     .from("messages")
-    .insert({ conversation_id: conversationId, sender_id: user.id, content })
+    .insert({ conversation_id: conversationId, sender_id: user.id, body: content })
     .select()
     .single();
 
-  if (msgError) return NextResponse.json({ error: msgError.message }, { status: 500 });
+  if (msgErr) return NextResponse.json({ error: msgErr.message }, { status: 500 });
+
+  await supabase
+    .from("conversations")
+    .update({ last_message_at: new Date().toISOString() })
+    .eq("id", conversationId);
 
   return NextResponse.json({ conversation_id: conversationId, message }, { status: 201 });
 }
