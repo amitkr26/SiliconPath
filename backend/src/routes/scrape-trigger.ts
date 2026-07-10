@@ -66,8 +66,9 @@ router.post("/scrape/batch/:batchId", async (req, res) => {
   }
 });
 
-// GET /scrape/test/:sourceId — test-run a single source (no auth needed)
+// GET /scrape/test/:sourceId — test-run a single source
 router.get("/scrape/test/:sourceId", async (req, res) => {
+  if (!auth(req, res)) return;
   const { sourceId } = req.params;
   const source = getSourceById(sourceId);
   if (!source) {

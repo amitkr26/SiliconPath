@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { createClient } from "@/lib/supabase/client";
+import { verifyAdmin } from "@/lib/admin-auth";
 
-export async function GET(request: NextRequest) {
+function requireAdmin(request: NextRequest): NextResponse | null {
   if (!isAdminConfigured) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
+  if (!verifyAdmin(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return null;
+}
+
+export async function GET(request: NextRequest) {
+  const authError = requireAdmin(request);
+  if (authError) return authError;
 
   try {
     const { searchParams } = new URL(request.url);
@@ -38,9 +48,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!isAdminConfigured) {
-    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
-  }
+  const authError = requireAdmin(request);
+  if (authError) return authError;
 
   try {
     const body = await request.json();
@@ -83,9 +92,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  if (!isAdminConfigured) {
-    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
-  }
+  const authError = requireAdmin(request);
+  if (authError) return authError;
 
   try {
     const body = await request.json();
@@ -118,9 +126,8 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  if (!isAdminConfigured) {
-    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
-  }
+  const authError = requireAdmin(request);
+  if (authError) return authError;
 
   try {
     const { searchParams } = new URL(request.url);

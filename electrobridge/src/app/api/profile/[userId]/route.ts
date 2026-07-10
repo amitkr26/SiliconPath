@@ -23,6 +23,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   return NextResponse.json(data);
 }
 
+const ALLOWED_PROFILE_FIELDS = [
+  "display_name", "bio", "headline", "location", "skills", "interests",
+  "linkedin_url", "github_url", "website_url", "avatar_url",
+  "experience_years", "current_role", "current_company",
+];
+
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params;
   const supabase = await createClient();
@@ -32,9 +38,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   }
 
   const body = await request.json();
+  const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  for (const field of ALLOWED_PROFILE_FIELDS) {
+    if (field in body) {
+      updates[field] = body[field];
+    }
+  }
+
   const { error } = await supabase
     .from("user_profiles")
-    .update({ ...body, updated_at: new Date().toISOString() })
+    .update(updates)
     .eq("id", userId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

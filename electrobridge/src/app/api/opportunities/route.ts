@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      const cleanSearch = search.replace(/"/g, '\\"');
+      const cleanSearch = search.replace(/[{}()"\\,.]/g, "").slice(0, 100);
       query = query.or(
         `title.ilike.%${cleanSearch}%,organization.ilike.%${cleanSearch}%,tags.cs.{"${cleanSearch}"}`
       );
