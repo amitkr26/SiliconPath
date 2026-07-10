@@ -1,83 +1,90 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { callAI } from "@/lib/ai/providers";
+
+// Deterministic, local ATS heuristic (no AI call). Scores completeness +
+// semiconductor keyword coverage. 0-100.
+function scoreResume(body: {
+  summary?: string;
+  skills?: string[];
+  education?: unknown[];
+  experience?: unknown[];
+  projects?: unknown[];
+}): { score: number; feedback: string[] } {
+  const feedback: string[] = [];
+  let score = 0;
+
+  if ((body.summary || "").trim().length >= 60) score += 15;
+  else feedback.push("Add a 2-3 line professional summary.");
+
+  const skills = body.skills || [];
+  if (skills.length >= 5) score += 20;
+  else feedback.push("List at least 5 relevant skills.");
+
+  if ((body.education || []).length >= 1) score += 15;
+  else feedback.push("Add your education.");
+
+  if ((body.experience || []).length >= 1) score += 25;
+  else feedback.push("Add at least one experience or research entry.");
+
+  if ((body.projects || []).length >= 1) score += 10;
+  else feedback.push("Add a project to strengthen your profile.");
+
+  const kw = [
+    "vlsi", "rtl", "verilog", "systemverilog", "uvm", "cmos", "asic", "fpga",
+    "physical design", "verification", "synthesis", "semiconductor", "soc", "dft",
+  ];
+  const hay = (skills.join(" ") + " " + (body.summary || "")).toLowerCase();
+  const hits = kw.filter((k) => hay.includes(k)).length;
+  score += Math.min(15, hits * 3);
+  if (hits < 3) feedback.push("Include more semiconductor keywords (VLSI, RTL, UVM, CMOS, etc.).");
+
+  return { score: Math.min(100, score), feedback };
+}
 
 export async function GET() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data } = await supabase.from("user_profiles").select("*").eq("id", user.id).maybeSingle();
+  const { data } = await supabase.from("resumes").select("*").eq("user_id", user.id).maybeSingle();
   return NextResponse.json(data || null);
 }
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
+  const { score, feedback } = scoreResume(body);
 
-  const atsPrompt = `
-You are an ATS (Applicant Tracking System) expert for electronics and semiconductor jobs.
-
-Analyze this resume for ATS optimization:
-Name: ${body.full_name || ""}
-Skills: ${(body.skills || []).join(", ")}
-Education: ${JSON.stringify(body.education || [])}
-Experience: ${JSON.stringify(body.experience || [])}
-
-Score this resume from 0-100 for ATS compatibility for electronics/semiconductor JRF, PhD, and industry roles.
-Return ONLY valid JSON (no markdown):
-{
-  "score": 74,
-  "feedback": [
-    "Add more semiconductor-specific keywords like VLSI, CMOS, semiconductor",
-    "Quantify research achievements with metrics",
-    "Include relevant publications or projects"
-  ]
-}`;
-
-  let atsScore = 0;
-  let atsFeedback: string[] = [];
-
-  try {
-    const aiResponse = await callAI(atsPrompt, undefined, { feature: "resume_ats" });
-    let jsonText = aiResponse.text.trim();
-    if (jsonText.startsWith("\`\`\`")) {
-      jsonText = jsonText.replace(/^\`\`\`json\s*/i, "").replace(/\`\`\`$/, "").trim();
-    }
-    const atsData = JSON.parse(jsonText);
-    atsScore = atsData.score || 0;
-    atsFeedback = atsData.feedback || [];
-  } catch {
-    atsScore = 50;
-    atsFeedback = ["ATS scoring temporarily unavailable. Resume saved without score."];
-  }
-
-  const profileData = {
+  const row = {
+    user_id: user.id,
     full_name: body.full_name || "",
     headline: body.headline || "",
-    about: body.summary || body.about || "",
-    city: body.location?.split(',')[0]?.trim() || "",
-    country: body.location?.split(',')[1]?.trim() || "",
+    summary: body.summary || "",
+    location: body.location || "",
+    email: body.email || "",
+    phone: body.phone || "",
     education: body.education || [],
-    skills: body.skills || [],
     experience: body.experience || [],
     projects: body.projects || [],
-    publications: body.publications || [],
-    resume_ats_score: atsScore,
+    skills: body.skills || [],
+    ats_score: score,
     updated_at: new Date().toISOString(),
   };
 
-  // We are assuming the user_profiles row already exists (created on signup)
-  const { error } = await supabase.from("user_profiles").update(profileData).eq("id", user.id);
-
+  const { error } = await supabase.from("resumes").upsert(row, { onConflict: "user_id" });
   if (error) {
-    // If the columns don't exist yet, we catch it
-    console.error("Error updating user_profiles:", error);
-    return NextResponse.json({ error: "Database schema must be updated with canonical fields. Run the SQL migration." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Could not save resume. Ensure the resumes migration has been run." },
+      { status: 500 }
+    );
   }
 
-  return NextResponse.json({ success: true, ats_score: atsScore, ats_feedback: atsFeedback });
+  return NextResponse.json({ success: true, ats_score: score, ats_feedback: feedback });
 }
