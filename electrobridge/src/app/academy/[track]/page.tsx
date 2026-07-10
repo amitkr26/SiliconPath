@@ -23,9 +23,15 @@ export default function TrackOverview() {
   const [completedDays, setCompletedDays] = useState<string[]>([]);
   const [passedTracks, setPassedTracks] = useState<TrackSlug[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+      setError("Loading timed out. Please check your connection and refresh.");
+    }, 15000);
+
     async function loadTrackData() {
       try {
         const t = await getTrackBySlug(trackSlug);
@@ -40,11 +46,9 @@ export default function TrackOverview() {
         const { data: { user } } = await supabaseClient.auth.getUser();
         setUser(user);
 
-        // Fetch days
         const daysList = await getDaysForTrack(t.id);
         setDays(daysList);
 
-        // Fetch user progress
         const userId = user?.id || null;
         const [completedList, passedList] = await Promise.all([
           getCompletedDays(userId),
@@ -54,13 +58,14 @@ export default function TrackOverview() {
         setPassedTracks(passedList);
       } catch (err) {
         console.error("Failed to load track details:", err);
+        setError("Something went wrong loading this track. Please refresh.");
       } finally {
         setLoading(false);
+        clearTimeout(timeoutId);
       }
     }
-    if (trackSlug) {
-      loadTrackData();
-    }
+    loadTrackData();
+    return () => clearTimeout(timeoutId);
   }, [trackSlug, router]);
 
   if (loading) {
@@ -68,6 +73,26 @@ export default function TrackOverview() {
       <div className="min-h-screen bg-[#030712] text-gray-100 flex flex-col items-center justify-center">
         <div className="w-10 h-10 border-4 border-cyan/20 border-t-cyan rounded-full animate-spin"></div>
         <p className="mt-4 text-gray-400 text-sm">Loading curriculum tracks...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#030712] text-gray-100 flex flex-col items-center justify-center px-4">
+        <div className="max-w-md text-center space-y-4">
+          <div className="w-16 h-16 mx-auto rounded-full bg-red-500/10 flex items-center justify-center">
+            <AlertCircle className="w-8 h-8 text-red-400" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-100">Failed to Load Track</h2>
+          <p className="text-gray-400 text-sm">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan text-navy font-semibold rounded-lg text-sm hover:bg-cyan/90 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }

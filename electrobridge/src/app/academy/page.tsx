@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { 
   Cpu, Code2, Shield, TestTube, Layers, Trophy, 
-  Lock, CheckCircle2, ChevronRight, Zap, Play, Check 
+  Lock, CheckCircle2, ChevronRight, Zap, Play, Check, AlertCircle 
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getTracks, getCompletedDays, getPassedTracks, getDaysForTrack } from "@/lib/academy/queries";
@@ -32,11 +32,17 @@ export default function AcademyDashboard() {
   const [passedTracks, setPassedTracks] = useState<TrackSlug[]>([]);
   const [trackDaysMap, setTrackDaysMap] = useState<Record<string, string[]>>({}); // trackId -> dayIds
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [activeResourceTab, setActiveResourceTab] = useState<'courses' | 'channels' | 'tools'>('courses');
   const [activeTrackTab, setActiveTrackTab] = useState<number>(1);
 
   useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+      setError("Loading timed out. Please check your connection and refresh.");
+    }, 15000);
+
     async function loadData() {
       try {
         const supabaseClient = createClient();
@@ -67,11 +73,14 @@ export default function AcademyDashboard() {
         setTrackDaysMap(daysMap);
       } catch (err) {
         console.error("Failed to load academy data:", err);
+        setError("Something went wrong loading the academy. Please refresh.");
       } finally {
         setLoading(false);
+        clearTimeout(timeoutId);
       }
     }
     loadData();
+    return () => clearTimeout(timeoutId);
   }, []);
 
   if (loading) {
@@ -82,6 +91,26 @@ export default function AcademyDashboard() {
           <Zap className="w-6 h-6 text-cyan absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
         </div>
         <p className="mt-4 text-gray-400 font-medium animate-pulse">Designing your custom VLSI strategy...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#030712] text-gray-100 flex flex-col items-center justify-center px-4">
+        <div className="max-w-md text-center space-y-4">
+          <div className="w-16 h-16 mx-auto rounded-full bg-red-500/10 flex items-center justify-center">
+            <AlertCircle className="w-8 h-8 text-red-400" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-100">Failed to Load Academy</h2>
+          <p className="text-gray-400 text-sm">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan text-navy font-semibold rounded-lg text-sm hover:bg-cyan/90 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }

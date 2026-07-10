@@ -47,7 +47,7 @@ const PROVIDER_MODELS: Record<AIProvider, string> = {
   groq: "llama-3.1-8b-instant",
   nvidia: "meta/llama-3.1-8b-instruct",
   gemini: "gemini-1.5-flash",
-  openrouter: "google/gemma-2-9b-it:free",
+  openrouter: "meta-llama/llama-3.1-8b-instruct:free",
   cloudflare: "@cf/meta/llama-3.1-8b-instruct",
   huggingface: "mistralai/Mistral-7B-Instruct-v0.3",
 };

@@ -34,5 +34,24 @@ Return ONLY a JSON object (no markdown, no explanation):
     preferredProvider: "gemini",
     feature: "summarizer",
   });
-  return JSON.parse(response.text.replace(/```json|```/g, "").trim());
+
+  const raw = response.text.replace(/```json|```/gi, "").trim();
+  const braceStart = raw.indexOf("{");
+  const braceEnd = raw.lastIndexOf("}");
+  const jsonText = braceStart !== -1 && braceEnd > braceStart
+    ? raw.slice(braceStart, braceEnd + 1)
+    : raw;
+
+  try {
+    return JSON.parse(jsonText) as AISummary;
+  } catch {
+    return {
+      clean_title: title,
+      summary: "",
+      eligibility_points: [],
+      suggested_tags: [],
+      stipend_extracted: null,
+      deadline_extracted: null,
+    } as AISummary;
+  }
 }

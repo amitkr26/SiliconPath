@@ -32,9 +32,15 @@ export default function DayDetailsPage() {
   const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+      setError("Loading timed out. Please check your connection and refresh.");
+    }, 15000);
+
     async function loadDayData() {
       if (isNaN(dayNumber)) return;
       try {
@@ -51,7 +57,6 @@ export default function DayDetailsPage() {
         setResources(data.resources);
         setQuestions(data.questions);
 
-        // Fetch User and completed days
         const supabaseClient = createClient();
         const { data: { user } } = await supabaseClient.auth.getUser();
         setUser(user);
@@ -59,19 +64,21 @@ export default function DayDetailsPage() {
         const completedList = await getCompletedDays(user?.id || null);
         setCompletedDays(completedList);
 
-        // If no questions exist, default quiz completed to true
         if (data.questions.length === 0) {
           setQuizCompleted(true);
         }
       } catch (err) {
         console.error("Failed to load day details:", err);
+        setError("Something went wrong loading this lesson. Please refresh.");
       } finally {
         setLoading(false);
+        clearTimeout(timeoutId);
       }
     }
     if (trackSlug && dayNumberStr) {
       loadDayData();
     }
+    return () => clearTimeout(timeoutId);
   }, [trackSlug, dayNumberStr, dayNumber, router]);
 
   if (loading) {
@@ -79,6 +86,26 @@ export default function DayDetailsPage() {
       <div className="min-h-screen bg-[#030712] text-gray-100 flex flex-col items-center justify-center">
         <div className="w-10 h-10 border-4 border-cyan/20 border-t-cyan rounded-full animate-spin"></div>
         <p className="mt-4 text-gray-400 text-sm">Opening today&apos;s lessons...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#030712] text-gray-100 flex flex-col items-center justify-center px-4">
+        <div className="max-w-md text-center space-y-4">
+          <div className="w-16 h-16 mx-auto rounded-full bg-red-500/10 flex items-center justify-center">
+            <HelpCircle className="w-8 h-8 text-red-400" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-100">Failed to Load Lesson</h2>
+          <p className="text-gray-400 text-sm">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan text-navy font-semibold rounded-lg text-sm hover:bg-cyan/90 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
