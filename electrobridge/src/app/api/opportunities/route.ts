@@ -3,6 +3,7 @@ import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { createClient } from "@/lib/supabase/server";
 import { postToTelegram } from "@/lib/telegram-bot";
 import { verifyAdmin } from "@/lib/admin-auth";
+import { opportunitySchema, validateOrThrow } from "@/lib/validation";
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
     return NextResponse.json(
@@ -114,8 +115,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    
+    const raw = await request.json();
+    const body = validateOrThrow(opportunitySchema, raw);
+
     let sourceType = body.source_type;
     if (!isAdmin) {
       sourceType = "employer_posted";

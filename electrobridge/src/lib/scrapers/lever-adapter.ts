@@ -1,3 +1,4 @@
+import type { ScrapedOpportunity } from "./types";
 import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
 
 interface LeverJobResponse {
@@ -31,7 +32,7 @@ interface LeverJobsResponse {
 export const leverAdapter: ATSAdapter = {
   name: "lever",
   sourceType: "ats",
-  async fetchJobs(config: ATSConfig): Promise<any[]> {
+  async fetchJobs(config: ATSConfig): Promise<ScrapedOpportunity[]> {
     const baseUrl = config.baseUrl.replace(/\/+$/, "");
     let companyId = config.boardToken || config.customFields?.boardToken;
 

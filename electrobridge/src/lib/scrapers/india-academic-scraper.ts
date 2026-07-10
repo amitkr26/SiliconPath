@@ -53,7 +53,7 @@ async function scrapeSingleAcademic(source: any): Promise<ScrapedOpportunity[]> 
       const href = $(el).attr("href") || "";
 
       // Skip empty, short, or obvious navigation texts
-      const skipPatterns = /home|contact|sitemap|about|privacy|terms|login|sign in|register|apply now|download|click here|read more|view all/i;
+      const skipPatterns = /home|contact|sitemap|about|privacy|terms|login|sign in|register|apply now|download|click here|read more|view all|payment gateway|at a glance|departments|reference designs|quick links|useful links|important links|all rights reserved|copyright|disclaimer|help|faq|search|skip to main content|breadcrumb|you are here|news & events|photo gallery|tender|archive|annual report|right to information/i;
       if (text.length <= 12 || skipPatterns.test(text)) return;
         const category = detectCategory(text);
         if (category) {

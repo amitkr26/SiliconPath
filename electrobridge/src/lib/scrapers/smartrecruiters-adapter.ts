@@ -1,4 +1,15 @@
+import type { ScrapedOpportunity } from "./types";
 import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
+
+interface SmartRecruitersRawPosting {
+  id: string;
+  name: string;
+  department?: { label: string };
+  location?: { city: string; country: string };
+  typeOfEmployment?: { label: string };
+  releasedDate?: string;
+  company?: { name: string };
+}
 
 interface SmartRecruitersJobResponse {
   jobId: string;
@@ -18,17 +29,10 @@ interface SmartRecruitersJobResponse {
   applicationDeadline: string;
 }
 
-interface SmartRecruitersJobsResponse {
-  jobs: SmartRecruitersJobResponse[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
 export const smartRecruitersAdapter: ATSAdapter = {
   name: "smartrecruiters",
   sourceType: "ats",
-  async fetchJobs(config: ATSConfig): Promise<any[]> {
+  async fetchJobs(config: ATSConfig): Promise<ScrapedOpportunity[]> {
     let baseUrl = config.baseUrl.replace(/\/+$/, "");
     
     // Extract company name from the url (e.g. https://careers.smartrecruiters.com/NordicSemiconductor)
@@ -55,8 +59,8 @@ export const smartRecruitersAdapter: ATSAdapter = {
     }
 
     const data = await response.json();
-    const jobs = data.content || [];
-    return jobs.map((job: any) => {
+    const jobs: SmartRecruitersRawPosting[] = data.content || [];
+    return jobs.map((job) => {
       // Map to SmartRecruitersJobResponse format expected by mapSmartRecruitersJob
       return mapSmartRecruitersJob({
         jobId: job.id,
@@ -65,7 +69,7 @@ export const smartRecruitersAdapter: ATSAdapter = {
         city: job.location?.city || "",
         countryCode: job.location?.country || "",
         employmentType: job.typeOfEmployment?.label || "",
-        datePosted: job.releasedDate,
+        datePosted: job.releasedDate || "",
         url: baseUrl,
         externalUrl: `https://jobs.smartrecruiters.com/${companyName}/${job.id}`,
         companyName: job.company?.name || companyName,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { callAI } from "@/lib/ai/providers";
 import { PDFParse } from "pdf-parse";
+import { apiError } from "@/lib/api-utils";
 
 function hasAIProviderConfigured(): boolean {
   const keys = [
@@ -146,7 +147,6 @@ Return ONLY a valid JSON object matching the following structure. Do not output 
 
     return NextResponse.json({ success: true, profile: parsedProfile, resume_url: resumeUrl });
   } catch (err: any) {
-    console.error("Error in parse-resume route:", err);
-    return NextResponse.json({ error: err.message || "Failed to process resume" }, { status: 500 });
+    return apiError(err, "parse-resume");
   }
 }

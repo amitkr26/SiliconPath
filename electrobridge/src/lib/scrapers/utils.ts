@@ -1,3 +1,7 @@
+export const GARBAGE_TITLE_PATTERNS = /home|contact|sitemap|about|privacy|terms|login|sign in|register|apply now|download|click here|read more|view all|payment gateway|at a glance|departments|reference designs|quick links|useful links|important links|all rights reserved|copyright|disclaimer|help|faq|search|skip to main content|breadcrumb|you are here|news & events|photo gallery|tender|archive|annual report|right to information/i;
+
+export const SCRAPED_TITLE_MIN_LENGTH = 15;
+
 export function cleanTitle(title: string, organization: string): string {
   let t = title.trim();
 

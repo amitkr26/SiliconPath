@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { communityCommentSchema, validateOrThrow } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await request.json();
-  if (!body.post_id || !body.content) {
-    return NextResponse.json({ error: "post_id and content required" }, { status: 400 });
-  }
+  const raw = await request.json();
+  const body = validateOrThrow(communityCommentSchema, raw);
 
   const { data, error } = await supabase.from("community_comments").insert({
     post_id: body.post_id,

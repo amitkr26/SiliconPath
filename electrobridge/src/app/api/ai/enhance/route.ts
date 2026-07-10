@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { callAI } from "@/lib/ai/providers";
+import { apiError } from "@/lib/api-utils";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -45,7 +46,6 @@ Instructions:
 
     return NextResponse.json({ success: true, enhancedText });
   } catch (err: any) {
-    console.error("AI Enhance error:", err);
-    return NextResponse.json({ error: err.message || "AI processing failed" }, { status: 500 });
+    return apiError(err, "ai-enhance");
   }
 }

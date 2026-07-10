@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase, isConfigured } from "@/lib/supabase";
 import { checkRateLimit } from "@/lib/rate-limiter";
+import { subscribeSchema, validateOrThrow } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   if (!isConfigured) {
@@ -20,31 +21,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
-    let { email, keywords, categories } = body;
-
-    if (!email) {
-      return NextResponse.json(
-        { error: "Email is required" },
-        { status: 400 }
-      );
-    }
-
-    email = email.trim().toLowerCase();
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: "Invalid email address" },
-        { status: 400 }
-      );
-    }
+    const raw = await request.json();
+    const { email, keywords, categories } = validateOrThrow(subscribeSchema, raw);
+    const normalizedEmail = email.trim().toLowerCase();
 
     const { error } = await supabase
       .from("subscribers")
       .insert([
         {
-          email,
+          email: normalizedEmail,
           keywords: keywords || [],
           categories: categories || [],
           is_active: true,

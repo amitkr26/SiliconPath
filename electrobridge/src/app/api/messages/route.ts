@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { messageSchema, validateOrThrow } from "@/lib/validation";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -43,10 +44,8 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { participantId, content } = await request.json();
-  if (!participantId || !content) {
-    return NextResponse.json({ error: "participantId and content required" }, { status: 400 });
-  }
+  const raw = await request.json();
+  const { participantId, content } = validateOrThrow(messageSchema, raw);
   if (participantId === user.id) {
     return NextResponse.json({ error: "Cannot message yourself" }, { status: 400 });
   }

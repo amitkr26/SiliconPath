@@ -49,7 +49,7 @@ Current active chain:
 2. **Nvidia NIM**
 3. **Cloudflare Workers AI**
 
-*(Note: Groq, Gemini, and OpenRouter implementations exist in the codebase but are currently inactive or awaiting key rotation. OpenRouter model `meta-llama/llama-3.1-8b-instruct:free` has been deprecated — now returns 404.)*
+*(Note: Groq, Gemini, and OpenRouter implementations exist in the codebase but are currently inactive or awaiting key rotation. OpenRouter model updated from deprecated `google/gemma-2-9b-it:free` to `meta-llama/llama-3.1-8b-instruct:free`.)*
 
 ## 4. Frontend Architecture
 
@@ -57,7 +57,27 @@ Current active chain:
 - **Server Actions**: Form submissions (like subscribing to newsletters or reporting an issue) use Server Actions instead of traditional API endpoints.
 - **Tailwind CSS & Lucide**: Minimal CSS payload, utilizing utility classes and SVG icons.
 
-## 5. Background Jobs (Cron)
+## 6. Shared Utilities
+
+### API Error Handler (`src/lib/api-utils.ts`)
+
+Centralized error formatting for API routes:
+- In production: returns `"An unexpected error occurred"` (no internal details leaked)
+- In development: returns the actual error message for debugging
+- Always logs the full error server-side via structured logger
+
+### Structured Logger (`src/lib/logger.ts`)
+
+JSON-formatted logger with levels (`info`, `warn`, `error`, `debug`) and ISO timestamps:
+```json
+{"level":"error","msg":"api_error:fetch-news","ts":"2026-07-10T12:00:00.000Z","error":"connection refused"}
+```
+
+### Request Validation (`src/lib/validation.ts`)
+
+Zod schemas for 9 POST/PATCH routes. See [Security & Compliance → Input Validation](./SECURITY_AND_COMPLIANCE.md#6-input-validation) for the full schema table.
+
+## 7. Background Jobs (Cron)
 
 Data freshness is maintained via Vercel Cron jobs. These jobs hit protected API routes (e.g., `/api/cron/scrape-global`) that:
 1. Fetch remote RSS feeds or HTML pages.

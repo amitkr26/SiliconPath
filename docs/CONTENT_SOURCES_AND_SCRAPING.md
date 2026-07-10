@@ -32,6 +32,14 @@ RSS feeds and scraped HTML pages. These require parsing, are prone to break on l
 
 **Rationale:** RSS/HTML fills the long tail of niche sources (news, government announcements). All Tier-3 entries go through the verification pipeline before being shown to users.
 
+### Garbage Title Filtering
+
+To prevent navigation elements and layout text from appearing as "opportunities," all HTML scrapers share a common skip-pattern regex (`GARBAGE_TITLE_PATTERNS` in `utils.ts`). Matches 26 common nav/menu terms:
+
+`home | contact | sitemap | about | privacy | terms | login | sign in | register | apply now | download | click here | read more | view all | payment gateway | at a glance | departments | reference designs | quick links | useful links | important links | all rights reserved | copyright | disclaimer | help | faq | search | skip to main content | breadcrumb | you are here | news & events | photo gallery | tender | archive | annual report | right to information`
+
+Titles shorter than 15 characters are also rejected.
+
 ---
 
 ## 2. The Do-Not-Scrape List
@@ -49,6 +57,22 @@ These platforms are valuable for job seekers but cannot be legally or reliably s
 ---
 
 ## 3. Current Target Sources
+
+### ATS Category Inference
+
+ATS adapter jobs (Greenhouse, Lever, Workday, SmartRecruiters) previously hardcoded `category: "JRF"` for all roles. Now uses title-based inference:
+
+| Title Contains | Category |
+|---|---|
+| JRF / JUNIOR RESEARCH | JRF |
+| SRF / SENIOR RESEARCH | SRF |
+| PHD / DOCTORAL / FELLOWSHIP | Fellowship |
+| INTERN | Internship |
+| SOFTWARE / DEVELOPER / PROGRAMMER | Tech Job |
+| SCIENTIST/ENGINEER + SEMICONDUCTOR/VLSI/CHIP | Electronics |
+| *(anything else)* | Engineering |
+
+This ensures NVIDIA DevOps, Broadcom R&D Software, and Micron Process Engineer roles are correctly tagged instead of being lumped under "JRF."
 
 ### Tier 1 — ATS / Official APIs (Companies)
 

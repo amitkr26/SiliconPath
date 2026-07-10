@@ -68,20 +68,31 @@ async function executeScrape(source: ScrapedSource): Promise<{ opportunities: Sc
       smartrecruiters: () => import("./smartrecruiters-adapter").then(m => m.smartRecruitersAdapter),
     };
 
-    const adapterLoader = adapterMap[source.adapter.toLowerCase()];
+      const adapterLoader = adapterMap[source.adapter.toLowerCase()];
     if (adapterLoader) {
       const adapterModule = await adapterLoader();
-      const adapter = (adapterModule as any).default || adapterModule;
+      const adapter = adapterModule.default || adapterModule;
       const jobs = await adapter.fetchJobs(config);
 
       const sourceResult: ScrapeResult = { source: source.name, success: true, count: jobs.length };
       allResults.push(sourceResult);
 
-      const opportunities = jobs.map((job: any) => ({
-        title: job.title || `Job from ${source.name}`,
+      const opportunities = jobs.map((job: any) => {
+        const title = job.title || `Job from ${source.name}`;
+        const t = title.toUpperCase();
+        let category = "Engineering";
+        if (t.includes("JRF") || t.includes("JUNIOR RESEARCH")) category = "JRF";
+        else if (t.includes("SRF") || t.includes("SENIOR RESEARCH")) category = "SRF";
+        else if (t.includes("PHD") || t.includes("DOCTORAL") || t.includes("FELLOWSHIP")) category = "Fellowship";
+        else if (t.includes("INTERN")) category = "Internship";
+        else if (t.includes("SOFTWARE") || t.includes("DEVELOPER") || t.includes("PROGRAMMER")) category = "Tech Job";
+        else if ((t.includes("SCIENTIST") || t.includes("ENGINEER")) && (t.includes("SEMICONDUCTOR") || t.includes("VLSI") || t.includes("CHIP"))) category = "Electronics";
+
+        return {
+        title,
         organization: source.name.replace(" Source", ""),
         location: null,
-        category: "JRF",
+        category,
         stipend: null,
         deadline: null,
         eligibility: null,
@@ -89,7 +100,8 @@ async function executeScrape(source: ScrapedSource): Promise<{ opportunities: Sc
         apply_link: null,
         source_url: source.url,
         tags: ["ATS"],
-      } as ScrapedOpportunity));
+      } as ScrapedOpportunity;
+    });
 
       allOpportunities.push(...opportunities);
       console.log(`${source.name}: ${opportunities.length} opportunities scraped`);

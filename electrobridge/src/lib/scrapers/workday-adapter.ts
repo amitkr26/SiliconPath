@@ -1,3 +1,4 @@
+import type { ScrapedOpportunity } from "./types";
 import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
 
 interface WorkdayJobResponse {
@@ -22,7 +23,7 @@ interface WorkdayJobsResponse {
 export const workdayAdapter: ATSAdapter = {
   name: "workday",
   sourceType: "ats",
-  async fetchJobs(config: ATSConfig): Promise<any[]> {
+  async fetchJobs(config: ATSConfig): Promise<ScrapedOpportunity[]> {
     let baseUrl = config.baseUrl.replace(/\/+$/, "");
     let tenant = config.customFields?.tenant;
     let site = config.customFields?.site;
@@ -46,7 +47,7 @@ export const workdayAdapter: ATSAdapter = {
     const url = `${baseUrl}/wday/cxs/${tenant}/${site}/jobs`;
 
     const searchText = config.filters?.keywords?.join(" ") || "";
-    const body: any = {
+    const body: { limit: number; offset: number; searchText?: string } = {
       limit: 20,
       offset: 0,
     };

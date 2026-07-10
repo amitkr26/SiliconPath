@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { matchOpportunities } from "@/lib/ai/matcher";
 import type { UserProfile } from "@/lib/ai/matcher";
+import { apiError } from "@/lib/api-utils";
 
 export async function POST(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -28,10 +29,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ matches, count: matches.length });
   } catch (error) {
-    console.error("Error in AI match:", error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Match failed" },
-      { status: 500 }
-    );
+    return apiError(error, "ai-match");
   }
 }

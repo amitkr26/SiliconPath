@@ -2,7 +2,18 @@ import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
 import companies from "@/config/scrapers/companies.json";
 
-async function scrapeWorkdayJobs(company: any): Promise<ScrapedOpportunity[]> {
+interface CompanyConfig {
+  name: string;
+  url: string;
+  method: "workday_api" | "greenhouse_api" | "html";
+  org_slug?: string;
+  company_type?: string;
+  country?: string;
+  workdayConfig?: { baseUrl: string; tenant: string; site: string };
+  greenhouseConfig?: { boardToken: string };
+}
+
+async function scrapeWorkdayJobs(company: CompanyConfig): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
   const cfg = company.workdayConfig;
   if (!cfg) return [];
@@ -48,7 +59,7 @@ async function scrapeWorkdayJobs(company: any): Promise<ScrapedOpportunity[]> {
   return opportunities;
 }
 
-async function scrapeGreenhouseJobs(company: any): Promise<ScrapedOpportunity[]> {
+async function scrapeGreenhouseJobs(company: CompanyConfig): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
   const cfg = company.greenhouseConfig;
   if (!cfg) return [];
@@ -101,7 +112,7 @@ async function scrapeGreenhouseJobs(company: any): Promise<ScrapedOpportunity[]>
   return opportunities;
 }
 
-async function scrapeHtmlCompany(company: any): Promise<ScrapedOpportunity[]> {
+async function scrapeHtmlCompany(company: CompanyConfig): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
   try {
     const res = await fetch(company.url, {
@@ -123,7 +134,7 @@ async function scrapeHtmlCompany(company: any): Promise<ScrapedOpportunity[]> {
       const href = $(el).attr("href") || "";
 
       // Skip obvious navigation or layout helper texts
-      const skipPatterns = /home|contact|sitemap|about|privacy|terms|login|sign in|register|apply now|download|click here|read more|view all/i;
+      const skipPatterns = /home|contact|sitemap|about|privacy|terms|login|sign in|register|apply now|download|click here|read more|view all|payment gateway|at a glance|departments|reference designs|quick links|useful links|important links|all rights reserved|copyright|disclaimer|help|faq|search|skip to main content|breadcrumb|you are here|news & events|photo gallery|tender|archive|annual report|right to information/i;
       if (text.length <= 15 || skipPatterns.test(text)) return;
 
       if (
@@ -173,7 +184,7 @@ export async function scrapeGlobalSemiconductor(): Promise<ScrapedOpportunity[]>
   
   // We only run a subset of active/prominent companies in a single run to prevent server timeout
   // but allow full coverage across multiple cron sweeps
-  const activeCompanies = companies.filter(c => c.method === 'workday_api' || c.method === 'greenhouse_api' || Math.random() < 0.2);
+  const activeCompanies = (companies as CompanyConfig[]).filter(c => c.method === 'workday_api' || c.method === 'greenhouse_api' || Math.random() < 0.2);
   
   for (const company of activeCompanies) {
     let results: ScrapedOpportunity[] = [];

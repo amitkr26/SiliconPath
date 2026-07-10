@@ -191,7 +191,10 @@ export default function SearchPage() {
                 </Link>
               ))}
               {results.length === 0 && query && (
-                <div className="text-center py-12 text-text-secondary">No opportunities found</div>
+                <div className="text-center py-12">
+                  <p className="text-text-secondary">No opportunities found</p>
+                  <p className="text-text-muted text-sm mt-1">Try different keywords or browse by category.</p>
+                </div>
               )}
             </div>
           )}
@@ -230,7 +233,10 @@ export default function SearchPage() {
                 </div>
               ))}
               {results.length === 0 && query && (
-                <div className="col-span-full text-center py-12 text-text-secondary">No people found</div>
+                <div className="col-span-full text-center py-12">
+                  <p className="text-text-secondary">No people found</p>
+                  <p className="text-text-muted text-sm mt-1">Try a different name or skill.</p>
+                </div>
               )}
             </div>
           )}

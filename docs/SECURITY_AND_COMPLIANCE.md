@@ -93,35 +93,39 @@ The middleware does **not** enforce route protection — that is handled client-
 
 ### Admin Authorization
 
-Admin access is controlled by a single plain-text password check:
+Admin access is verified server-side via `verifyAdmin()`:
 
 ```typescript
-// Admin pages check:
-if (password !== process.env.NEXT_PUBLIC_ADMIN_PASSWORD) { /* deny */ }
+// src/lib/admin-auth.ts
+export function verifyAdmin(request: Request): boolean {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) return false;
+  const token = authHeader.slice(7);
+  return token === process.env.ADMIN_PASSWORD;
+}
 ```
 
-**⚠️ CRITICAL ISSUE:** This is a known vulnerability:
-1. `NEXT_PUBLIC_ADMIN_PASSWORD` is prefixed with `NEXT_PUBLIC_`, meaning it is baked into client-side JavaScript bundles at build time — anyone can extract it from browser DevTools
-2. The password uses a weak fallback (`electrobridge2026`) in CI configuration
-3. Several API endpoints that should be "Admin"-protected have **no auth check at all** (see below)
+The admin password (`ADMIN_PASSWORD`) is **server-only** — never exposed to client bundles. Authentication flows through `/api/admin/auth` which returns a Bearer token for use in subsequent admin API calls.
 
-### 🔴 Missing Authentication on Admin API Endpoints
+**✅ RESOLVED (Phase 1):**
+- Removed `NEXT_PUBLIC_ADMIN_PASSWORD` entirely — no client exposure
+- Removed weak CI fallback (`electrobridge2026`)
+- All admin pages use server-side password verification returning a token
 
-The following API routes use `supabaseAdmin` (service_role key) with **zero authentication**:
-- `POST /api/opportunities` — create opportunities
-- `PATCH /api/opportunities/[id]` — update opportunities
-- `DELETE /api/opportunities/[id]` — delete opportunities
-- `POST /api/admin/recheck-link` — recheck links (SSRF vector)
-- `POST/PUT/DELETE /api/scrape-sources` — scrape source CRUD
+### ✅ Authentication on Admin API Endpoints (Fixed)
 
-**Impact:** Anyone who discovers these routes can create/update/delete any database record, add malicious scrape sources, or trigger internal network requests.
+The following routes now require `verifyAdmin()` via the shared `requireAdmin()` pattern:
 
-### 🟠 Missing Field Whitelist on Profile/Feed Updates
+| Route | Method | Fix |
+|-------|--------|-----|
+| `/api/scrape-sources` | GET/POST/PUT/DELETE | Added `requireAdmin()` with verifyAdmin check |
+| `/api/opportunities` | POST | Admin check via `verifyAdmin(request)` |
+| Backend `/scrape/test/:sourceId` | POST | Now calls `auth(req, res)` same as other routes |
 
-- `PATCH /api/profile/[userId]` — spreads entire request body into DB update with no field whitelist
-- `PATCH /api/feed/posts/[id]` — same pattern
+### ✅ Field Whitelist (Fixed)
 
-**Impact:** Attackers can set arbitrary database columns including `is_profile_public`, `role`, `email`, `visibility`, or `user_id`.
+- `PATCH /api/profile/[userId]` — Body spread replaced with **13-field allowlist** (`ALLOWED_PROFILE_FIELDS`), further validated via Zod `profileUpdateSchema`
+- `PATCH /api/feed/posts/[id]` — Same allowlist pattern applied
 
 ### 🟠 In-Memory Rate Limiter Ineffective in Serverless
 
@@ -194,6 +198,27 @@ export function checkRateLimit(
 ### Future Improvement
 
 Consider migrating to Redis (Upstash or Vercel KV) for distributed, persistent rate limiting.
+
+---
+
+## 6. Input Validation
+
+### Current Implementation (Phase 5)
+
+**Zod** schemas validate request bodies on 9 POST/PATCH routes:
+
+| Route | Schema | Fields Validated |
+|-------|--------|-----------------|
+| `POST /api/opportunities` | `opportunitySchema` | title (3-300), organization, category, location, deadline, eligibility, description, tags (max 20) |
+| `PATCH /api/profile/[userId]` | `profileUpdateSchema` | 13 fields: display_name, bio, headline, skills, location, links, experience_years, current_role/company |
+| `POST /api/community/posts` | `communityPostSchema` | title (1-300), content (1-10000), tags (max 10) |
+| `POST /api/community/comments` | `communityCommentSchema` | post_id (uuid), content (1-5000) |
+| `POST /api/messages` | `messageSchema` | participantId (uuid), content (1-5000) |
+| `POST /api/feed/posts` | `feedPostSchema` | content (1-10000), type (post/article/announcement), tags |
+| `POST /api/subscribe` | `subscribeSchema` | email (valid email), keywords, categories |
+| `POST /api/report-issue` | `reportOpportunitySchema` | opportunity_id (uuid), report_type, description |
+
+All schemas use `safeParse` with a `validateOrThrow()` helper that surfaces the first validation error.
 
 ---
 

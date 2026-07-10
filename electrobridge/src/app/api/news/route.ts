@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -41,10 +42,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ articles: data || [], count: data?.length || 0 });
   } catch (error) {
     if (typeof error === "object" && error !== null && "digest" in error && (error as any).digest === "DYNAMIC_SERVER_USAGE") throw error;
-    console.error("Error fetching news:", error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to fetch news" },
-      { status: 500 }
-    );
+    return apiError(error, "fetch-news");
   }
 }

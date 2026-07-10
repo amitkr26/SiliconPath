@@ -40,7 +40,7 @@ Each track unlocks only after passing the previous track (≥70%). Progress save
 
 ### 3. AI-Powered Fallback Chain
 
-7-provider resilient fallback chain: Groq → OpenRouter → Cloudflare → Gemini → Bedrock → HuggingFace → NVIDIA. Used for parsing unstructured job descriptions, PDFs, and HTML listings.
+7-provider resilient fallback chain: Groq → OpenRouter → Cloudflare → Gemini → Bedrock → HuggingFace → NVIDIA. OpenRouter model updated from deprecated `google/gemma-2-9b-it:free` to `meta-llama/llama-3.1-8b-instruct:free`. Used for parsing unstructured job descriptions, PDFs, and HTML listings.
 
 ---
 

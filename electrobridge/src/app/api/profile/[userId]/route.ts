@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { profileUpdateSchema, validateOrThrow } from "@/lib/validation";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params;
@@ -37,11 +38,12 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await request.json();
+  const raw = await request.json();
+  const body = validateOrThrow(profileUpdateSchema, raw);
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
   for (const field of ALLOWED_PROFILE_FIELDS) {
     if (field in body) {
-      updates[field] = body[field];
+      updates[field] = (body as Record<string, unknown>)[field];
     }
   }
 

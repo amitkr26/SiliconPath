@@ -9,7 +9,7 @@ SiliconPath uses a **7-provider fallback architecture** where AI calls cascade t
 - **Cost optimization**: Lower-cost providers handle high-volume, low-complexity tasks (search, classification) while higher-quality providers handle user-facing features (chat, matching)
 - **Geographic distribution**: Providers span AWS (US-East), Google Cloud, Cloudflare edge, and independent API services
 
-The system achieves ~99% AI call success rate (Bedrock handles ~60% of traffic, fallbacks catch the remainder).
+The system achieves ~99% AI call success rate (Bedrock handles ~60% of traffic, fallbacks catch the remainder). OpenRouter model was updated from the deprecated `google/gemma-2-9b-it:free` to `meta-llama/llama-3.1-8b-instruct:free`.
 
 ### Architecture
 

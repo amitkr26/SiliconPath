@@ -38,11 +38,6 @@ export default function AcademyError({
             Reload page
           </Link>
         </div>
-        {error.message && (
-          <pre className="bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-xs text-gray-500 mt-4 overflow-x-auto">
-            {error.message}
-          </pre>
-        )}
       </div>
     </div>
   );

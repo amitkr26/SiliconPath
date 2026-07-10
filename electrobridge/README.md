@@ -13,7 +13,7 @@ Next.js 14 frontend for the SiliconPath semiconductor opportunities platform. De
 | **Framework** | Next.js 14.2.21 (App Router) |
 | **UI** | React 18, Tailwind CSS 3.4, lucide-react |
 | **Database** | Supabase (Primary + Secondary), Neon (Primary + Secondary) |
-| **AI** | 7-provider fallback: Groq → OpenRouter → Cloudflare → Gemini → Bedrock → HuggingFace → NVIDIA |
+| **AI** | 7-provider fallback: Groq → OpenRouter (`meta-llama/llama-3.1-8b-instruct:free`) → Cloudflare → Gemini → Bedrock → HuggingFace → NVIDIA |
 | **Auth** | Supabase SSR (email/password + Google OAuth) |
 | **Scraping** | cheerio + rss-parser (lightweight); heavy lifting delegated to backend/ |
 | **Deployment** | Vercel (auto-deploy from `main`) |
