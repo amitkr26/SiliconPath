@@ -1,8 +1,18 @@
 import { Router, Request, Response } from "express";
 import { logger } from "../lib/logger.js";
-import { runOrchestrator, runSingleSource, getSourceById, getActiveRuns, SOURCES } from "../scrapers/orchestrator.js";
+import {
+  runOrchestrator,
+  runSingleSource,
+  getSourceById,
+  getActiveRuns,
+  SOURCES,
+} from "../scrapers/orchestrator.js";
 import { recordRun } from "./health.js";
-import { getAllSources, getSourceById as getSourceInfo, getAPIInfo, getActiveSourcesByCategory, getBatchesByCategory } from "../lib/api-docs.js";
+import {
+  getAPIInfo,
+  getActiveSourcesByCategory,
+  getBatchesByCategory,
+} from "../lib/api-docs.js";
 
 const router = Router();
 
@@ -29,17 +39,10 @@ router.post("/scrape/run", async (req, res) => {
   try {
     logger.info(`[Scrape] Triggered batch=${batch}`);
     const results = await runOrchestrator(batch);
-
     for (const r of results) {
       recordRun(r.source, r.success ? "ok" : "error", r.count);
     }
-
-    res.json({
-      success: true,
-      batch,
-      results,
-      timestamp: new Date().toISOString(),
-    });
+    res.json({ success: true, batch, results, timestamp: new Date().toISOString() });
   } catch (e) {
     logger.error("[Scrape] Orchestrator error:", e);
     res.status(500).json({ success: false, error: String(e) });
@@ -54,11 +57,9 @@ router.post("/scrape/batch/:batchId", async (req, res) => {
   try {
     logger.info(`[Scrape] Triggered batch=${batchId}`);
     const results = await runOrchestrator(batchId as number | "all");
-
     for (const r of results) {
       recordRun(r.source, r.success ? "ok" : "error", r.count);
     }
-
     res.json({ success: true, batch: batchId, results, timestamp: new Date().toISOString() });
   } catch (e) {
     logger.error(`[Scrape] Batch ${batchId} error:`, e);
@@ -66,9 +67,10 @@ router.post("/scrape/batch/:batchId", async (req, res) => {
   }
 });
 
-// GET /scrape/test/:sourceId — test-run a single source
+// GET /scrape/test/:sourceId — test-run a single source (NOW REQUIRES AUTH)
 router.get("/scrape/test/:sourceId", async (req, res) => {
-  if (!auth(req, res)) return;
+  if (!auth(req, res)) return; // fixed: previously unauthenticated (SSRF risk)
+
   const { sourceId } = req.params;
   const source = getSourceById(sourceId);
   if (!source) {
@@ -85,7 +87,7 @@ router.get("/scrape/test/:sourceId", async (req, res) => {
       adapter_used: source.type,
       url: source.url,
       results_count: items.length,
-      results: items.slice(0, 50), // cap at 50 for test view
+      results: items.slice(0, 20),
       took_ms: Date.now() - start,
       timestamp: new Date().toISOString(),
     });
@@ -98,39 +100,28 @@ router.get("/scrape/test/:sourceId", async (req, res) => {
   }
 });
 
-// GET /scrape/status — show active runs and source overview
+// GET /scrape/status — show recent runs and source overview
 router.get("/scrape/status", (_req, res) => {
   const runs = getActiveRuns();
   const recentRuns = Array.from(runs.values()).slice(-20).reverse();
 
-  const totalSources = SOURCES.length;
-  const activeSources = SOURCES.filter((s) => s.active).length;
   const byBatch = new Map<number, number>();
   const byCategory = new Map<string, number>();
   const byType = new Map<string, number>();
-  const sourceStats: Record<string, { id: string; name: string; url: string; active: boolean }> = {};
 
   for (const s of SOURCES) {
     if (!s.active) continue;
     byBatch.set(s.batch, (byBatch.get(s.batch) || 0) + 1);
     byCategory.set(s.category, (byCategory.get(s.category) || 0) + 1);
     byType.set(s.type, (byType.get(s.type) || 0) + 1);
-
-    sourceStats[s.id] = {
-      id: s.id,
-      name: s.name,
-      url: s.url,
-      active: s.active,
-    };
   }
 
   res.json({
-    total_sources: totalSources,
-    active_sources: activeSources,
+    total_sources: SOURCES.length,
+    active_sources: SOURCES.filter((s) => s.active).length,
     batches: Object.fromEntries(byBatch),
     categories: Object.fromEntries(byCategory),
     types: Object.fromEntries(byType),
-    source_stats: sourceStats,
     recent_runs: recentRuns.map((r) => ({
       source: r.sourceId,
       name: r.sourceName,
@@ -143,13 +134,13 @@ router.get("/scrape/status", (_req, res) => {
   });
 });
 
-// GET /scrape/explore — return API documentation and source metadata (canonical endpoint)
+// GET /scrape/explore — API documentation and source metadata
 router.get("/scrape/explore", (_req, res) => {
   res.json({
     ...getAPIInfo(),
     categories: getActiveSourcesByCategory(),
     batches: getBatchesByCategory(),
-    sample_sources: SOURCES.filter((s, i) => i < 5).map((s) => ({
+    sample_sources: SOURCES.filter((_s, i) => i < 5).map((s) => ({
       id: s.id,
       name: s.name,
       url: s.url,
