@@ -36,8 +36,13 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || '' }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || '' }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || '' }}
-          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || '' }}
-          CRON_SECRET: ${{ secrets.CRON_SECRET || '' }}
+          # Placeholders only. These pages are client components fetching data at
+          # request time; the build just needs non-empty values so @supabase/ssr
+          # does not throw "URL and API key are required" during prerender.
+          # Real credentials live in Vercel env vars for the actual deployment.
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-role-key' }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000' }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'placeholder-admin' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET || 'placeholder-cron' }}
