@@ -4,7 +4,16 @@ import { createClient } from "@/lib/supabase/server";
 import { postToTelegram } from "@/lib/telegram-bot";
 import { verifyAdmin } from "@/lib/admin-auth";
 import { opportunitySchema, validateOrThrow } from "@/lib/validation";
-import { mapDbOpportunityToClient, isDisplayableOpportunity } from "@/lib/utils";
+import { mapDbOpportunityToClient } from "@/lib/utils";
+import { GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
+
+// A row is displayable only if it has a real title that is not a nav/menu heading.
+function isDisplayableOpportunity(o: { title?: string | null } | null): boolean {
+  if (!o || !o.title) return false;
+  const t = o.title.trim();
+  if (t.length < 6) return false;
+  return !GARBAGE_TITLE_PATTERNS.test(t);
+}
 
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -86,7 +95,7 @@ export async function GET(request: NextRequest) {
         .select("id")
         .ilike("name", `%${cleanSearch}%`);
       if (orgs && orgs.length > 0) {
-        matchingOrgIds = orgs.map((o: any) => o.id);
+        matchingOrgIds = orgs.map((o: { id: string }) => o.id);
       }
 
       if (matchingOrgIds.length > 0) {
@@ -104,7 +113,7 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error;
 
-    // Map to client shape, then drop legacy garbage-title rows so they never render.
+    // Map to client shape, then drop legacy garbage-title rows on the read path.
     const mappedData = (data ? data.map(mapDbOpportunityToClient) : []).filter(
       isDisplayableOpportunity
     );

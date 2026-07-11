@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { supabaseAdmin } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
-import { GARBAGE_TITLE_PATTERNS, SCRAPED_TITLE_MIN_LENGTH } from "@/lib/scrapers/utils";
+import { GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
 import OpportunitiesClient from "./OpportunitiesClient";
 
 export const metadata: Metadata = {
@@ -15,22 +15,16 @@ export const metadata: Metadata = {
 // Revalidate every 5 minutes
 export const revalidate = 300;
 
-/**
- * Guard the display path against stale garbage rows that were inserted before
- * the scraper's title filter existed (e.g. nav headings like "Payment Gateway",
- * "At a Glance", "Departments"). Uses the same GARBAGE_TITLE_PATTERNS the
- * scraper uses to skip them at ingest time.
- */
-function isDisplayableOpportunity(opp: { title?: string | null }): boolean {
-  const title = (opp?.title || "").trim();
-  if (!title) return false;
-  if (title.length < SCRAPED_TITLE_MIN_LENGTH) return false;
-  if (GARBAGE_TITLE_PATTERNS.test(title)) return false;
-  return true;
+// Drop legacy nav-heading rows ("Payment Gateway", "At a Glance", ...) on read.
+function isDisplayableOpportunity(o: { title?: string | null }): boolean {
+  if (!o || !o.title) return false;
+  const t = o.title.trim();
+  if (t.length < 6) return false;
+  return !GARBAGE_TITLE_PATTERNS.test(t);
 }
 
 export default async function OpportunitiesPage() {
-  let initialData: any[] = [];
+  let initialData: ReturnType<typeof mapDbOpportunityToClient>[] = [];
 
   if (supabaseAdmin?.from) {
     const today = new Date().toISOString().split("T")[0];
@@ -41,10 +35,10 @@ export default async function OpportunitiesPage() {
       .eq("verification_status", "verified")
       .or(`deadline.gte.${today},deadline.is.null`)
       .order("created_at", { ascending: false })
-      .limit(60);
+      .limit(30);
 
     if (data) {
-      initialData = data.map(mapDbOpportunityToClient).filter(isDisplayableOpportunity).slice(0, 30);
+      initialData = data.map(mapDbOpportunityToClient).filter(isDisplayableOpportunity);
     }
   }
 
@@ -54,8 +48,8 @@ export default async function OpportunitiesPage() {
     "itemListElement": initialData.map((opp, index) => ({
       "@type": "ListItem",
       "position": index + 1,
-      "url": `https://siliconpath.vercel.app/opportunities/${opp.slug}`
-    }))
+      "url": `https://siliconpath.vercel.app/opportunities/${opp.slug}`,
+    })),
   };
 
   return (
