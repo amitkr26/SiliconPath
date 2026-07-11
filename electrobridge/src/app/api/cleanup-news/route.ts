@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { slugify, normalizeUrl } from "@/lib/scrapers/utils";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   if (!isAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured" }, { status: 503 });

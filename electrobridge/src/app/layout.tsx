@@ -4,6 +4,7 @@ import Script from "next/script";
 import { Toaster } from "sonner";
 import "./globals.css";
 import AppLayout from "@/components/AppLayout";
+import { AuthSync } from "@/components/AuthSync";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const spaceGrotesk = Space_Grotesk({
@@ -52,6 +53,7 @@ export const metadata: Metadata = {
       follow: true,
       "max-snippet": -1,
       "max-image-preview": "large",
+      "noarchive": true
     },
   },
   alternates: { canonical: "https://siliconpath.vercel.app" },
@@ -70,6 +72,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} font-body bg-navy text-text-primary min-h-screen`}
       >
+        <AuthSync />
         <AppLayout>{children}</AppLayout>
         <Toaster position="bottom-right" toastOptions={{ style: { background: '#111827', border: '1px solid #374151', color: '#F9FAFB' } }} />
         <Script defer data-domain="siliconpath.vercel.app" src="https://plausible.io/js/script.js" strategy="afterInteractive" />

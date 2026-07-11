@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { apiError } from "@/lib/api-utils";
 
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
     return NextResponse.json(

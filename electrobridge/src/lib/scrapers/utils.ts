@@ -53,12 +53,12 @@ export function getInitials(name: string): string {
     .toUpperCase();
 }
 
-export function slugify(name: string): string {
+export function slugify(name: string, maxLen = 80): string {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
-    .slice(0, 80)
+    .substring(0, maxLen)
     .replace(/-+$/, "");
 }
 

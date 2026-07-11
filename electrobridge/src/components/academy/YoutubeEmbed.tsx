@@ -11,6 +11,15 @@ interface YoutubeEmbedProps {
   watchFromSeconds?: number | null;
 }
 
+function extractYoutubeId(input: string): string {
+  if (!input) return "";
+  if (/^[a-zA-Z0-9_-]{11}$/.test(input)) {
+    return input;
+  }
+  const match = input.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : input;
+}
+
 export const YoutubeEmbed: React.FC<YoutubeEmbedProps> = ({
   videoId,
   title,
@@ -19,8 +28,9 @@ export const YoutubeEmbed: React.FC<YoutubeEmbedProps> = ({
   notes,
   watchFromSeconds
 }) => {
+  const cleanVideoId = extractYoutubeId(videoId);
   // Build embed URL, append start time parameter if specified
-  let embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
+  let embedUrl = `https://www.youtube.com/embed/${cleanVideoId}?rel=0`;
   if (watchFromSeconds) {
     embedUrl += `&start=${watchFromSeconds}`;
   }

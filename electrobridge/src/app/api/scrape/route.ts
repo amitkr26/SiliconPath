@@ -7,6 +7,8 @@ import { isElectronicsNews, autoTagArticle } from "@/lib/scrapers/news-filter";
 import { enrichOpportunity } from "@/lib/scrapers/deep-scraper";
 import { verifyAdmin } from "@/lib/admin-auth";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
     return NextResponse.json(

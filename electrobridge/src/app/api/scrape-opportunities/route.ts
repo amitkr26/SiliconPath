@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase";
 import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   if (!isConfigured) {
     return NextResponse.json(

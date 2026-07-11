@@ -13,7 +13,9 @@ function slugify(title: string): string {
     .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
-    .trim();
+    .trim()
+    .substring(0, 80)
+    .replace(/-+$/, "");
 }
 
 export default function AddNewsPage() {
