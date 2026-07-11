@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { supabaseAdmin } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
+import { GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
 import OpportunitiesClient from "./OpportunitiesClient";
 
 export const metadata: Metadata = {
@@ -14,9 +15,17 @@ export const metadata: Metadata = {
 // Revalidate every 5 minutes
 export const revalidate = 300;
 
+// Drop legacy nav-heading rows ("Payment Gateway", "At a Glance", ...) on read.
+function isDisplayableOpportunity(o: { title?: string | null }): boolean {
+  if (!o || !o.title) return false;
+  const t = o.title.trim();
+  if (t.length < 6) return false;
+  return !GARBAGE_TITLE_PATTERNS.test(t);
+}
+
 export default async function OpportunitiesPage() {
-  let initialData: any[] = [];
-  
+  let initialData: ReturnType<typeof mapDbOpportunityToClient>[] = [];
+
   if (supabaseAdmin?.from) {
     const today = new Date().toISOString().split("T")[0];
     const { data } = await supabaseAdmin
@@ -27,9 +36,9 @@ export default async function OpportunitiesPage() {
       .or(`deadline.gte.${today},deadline.is.null`)
       .order("created_at", { ascending: false })
       .limit(30);
-      
+
     if (data) {
-      initialData = data.map(mapDbOpportunityToClient);
+      initialData = data.map(mapDbOpportunityToClient).filter(isDisplayableOpportunity);
     }
   }
 
@@ -39,8 +48,8 @@ export default async function OpportunitiesPage() {
     "itemListElement": initialData.map((opp, index) => ({
       "@type": "ListItem",
       "position": index + 1,
-      "url": `https://siliconpath.vercel.app/opportunities/${opp.slug}`
-    }))
+      "url": `https://siliconpath.vercel.app/opportunities/${opp.slug}`,
+    })),
   };
 
   return (
