@@ -4,21 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { postToTelegram } from "@/lib/telegram-bot";
 import { verifyAdmin } from "@/lib/admin-auth";
 import { opportunitySchema, validateOrThrow } from "@/lib/validation";
-import { mapDbOpportunityToClient } from "@/lib/utils";
-import { GARBAGE_TITLE_PATTERNS, SCRAPED_TITLE_MIN_LENGTH } from "@/lib/scrapers/utils";
-
-/**
- * Guard the display path against stale garbage rows inserted before the
- * scraper's title filter existed (nav headings like "Payment Gateway",
- * "At a Glance", "Departments"). Mirrors the scraper's ingest-time filter.
- */
-function isDisplayableOpportunity(opp: { title?: string | null }): boolean {
-  const title = (opp?.title || "").trim();
-  if (!title) return false;
-  if (title.length < SCRAPED_TITLE_MIN_LENGTH) return false;
-  if (GARBAGE_TITLE_PATTERNS.test(title)) return false;
-  return true;
-}
+import { mapDbOpportunityToClient, isDisplayableOpportunity } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -118,9 +104,10 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error;
 
-    const mappedData = data
-      ? data.map(mapDbOpportunityToClient).filter(isDisplayableOpportunity)
-      : [];
+    // Map to client shape, then drop legacy garbage-title rows so they never render.
+    const mappedData = (data ? data.map(mapDbOpportunityToClient) : []).filter(
+      isDisplayableOpportunity
+    );
 
     return NextResponse.json({ opportunities: mappedData, count: mappedData.length });
   } catch (error) {
