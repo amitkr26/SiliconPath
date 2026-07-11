@@ -1,27 +1,32 @@
-# 04 — User Stories
+# 04 - User Stories
+
+Format: _As a [role], I want [goal], so that [benefit]._
 
 ## Guest
-- Browse/search all verified opportunities without an account.
-- Open a detail page and click through to apply at source.
-- Use the full VLSI Academy and resume builder.
-- Subscribe to email alerts by keyword/category.
+- Browse all opportunities without logging in, so I can evaluate the platform instantly.
+- Search/filter by category, location, specialization, deadline, so I find relevant roles fast.
+- Click through to apply on the source site, so I trust the listing is real.
+- Use the VLSI Academy free, so I can learn without an account.
+- Subscribe to email alerts, so I never miss a matching opportunity.
 
 ## Seeker (registered)
-- Everything a guest can, plus: save opportunities, track applications.
-- Build a profile (headline, skills, links, open-to-work).
-- Connect with people, post to feed, message connections, get notifications.
-- Sync academy progress across devices; take gated assessments.
+- Save opportunities and track application status, so I stay organized.
+- Build a profile and resume, so providers can find me.
+- Sync Academy progress across devices.
+- Connect with people and message connections, so I can network.
+- Get notified about new matching opportunities and network activity.
 
-## Provider (registered: company/institution/university/lab)
-- Create an organization profile (company_profiles.kind).
-- Post opportunities that enter the aggregator (source_type=employer_posted).
-- View applicants / talent, manage postings from a dashboard.
+## Provider (company / institution / university / lab)
+- Register an org account with a separate onboarding, so my org is represented correctly.
+- Post opportunities that flow into the aggregator (`source_type = employer_posted`).
+- Manage an org page and see followers.
+- Search the talent pool of open-to-work seekers.
 
-## Admin
-- Review scraped rows; promote clean ones to verified; reject garbage.
-- Add/edit opportunities and news manually.
-- Monitor scrape health and data quality.
-- Manage sources.
+## Admin / Moderator
+- Add/verify/reject opportunities, so only clean data goes public.
+- Manage scrape sources and see scraper health + last inserted rows, so I catch bad data early.
+- Post/curate news.
 
-## Moderator (future)
-- Review reported content and flagged listings.
+## Researcher (a seeker sub-persona)
+- Filter specifically for JRF/SRF/PhD/postdoc/fellowship, so I skip industry roles.
+- Filter India vs International.

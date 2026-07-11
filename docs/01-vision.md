@@ -1,56 +1,44 @@
-# 01 — Vision
+# 01 - Vision
 
 ## Problem
 
-Someone pursuing a semiconductor / VLSI / hardware career today must manually check
-dozens of disconnected sources: DRDO, ISRO, BARC, CSIR labs, every IIT/IISc/NIT
-department page, foreign university portals, and 50+ company career sites. Openings
-(JRF, SRF, PhD, postdoc, fellowships, PSU scientist roles, industry RTL/PD/DV/DFT jobs)
-are scattered, inconsistently formatted, and easy to miss. There is no single, trusted,
-worldwide feed for this niche.
+A student, researcher, or engineer chasing semiconductor / VLSI / hardware opportunities today has to manually check dozens of disconnected websites: DRDO, ISRO, BARC, CSIR, individual IIT/IISc department pages, and the careers portals of Intel, NVIDIA, TSMC, and hundreds more. Openings are scattered, inconsistently formatted, and easy to miss. There is no single place that aggregates them.
+
+Separately, people entering the field have no free, structured path to learn the actual skills VLSI jobs require (Verilog, SystemVerilog, UVM, RTL, physical design).
 
 ## Vision
 
-SiliconPath is the single platform where students, researchers, job seekers, companies,
-universities, and government organizations never have to visit hundreds of career
-websites. Every opportunity is aggregated into one searchable place. Users find what
-fits and click through to apply at the source.
+> SiliconPath is the single platform where students, researchers, job seekers, companies, universities, and government labs never have to visit hundreds of career websites again. Every opportunity, aggregated into one place. Worldwide.
 
 ## Mission
 
-Make high-quality semiconductor career discovery and VLSI education accessible to
-everyone, worldwide, regardless of economic background or starting point.
+1. **Aggregate** every semiconductor/VLSI/hardware opportunity (JRF, SRF, PhD, postdoc, fellowships, govt/PSU roles, industry jobs) from around the world into one searchable feed.
+2. **Teach** the skills those opportunities require, free, via a self-paced VLSI Academy.
+3. **Connect** the ecosystem with an optional LinkedIn-style professional layer for those who register.
 
-## Three layers (in priority order)
+## Priority order (important)
 
-1. **Aggregator (primary, no login).** Worldwide opportunity feed. This is the core.
-2. **VLSI Academy (no login).** Free 7-track self-paced curriculum + resume builder.
-3. **Professional network (secondary, login).** LinkedIn-style profiles, connections,
-   feed, messaging. Opt-in. It supports the mission but never gates the aggregator.
+**Opportunity discovery is PRIMARY. Networking is SECONDARY. Academy is a strong third.**
+
+If a feature decision ever trades off aggregator quality for social features, aggregator wins.
 
 ## Users
 
-- **Seekers:** students, researchers, early-career and experienced engineers.
-- **Providers:** companies, startups, universities, institutions, government labs.
-- **Guests:** anyone browsing without an account (must get full aggregator + academy).
+- **Guests** (no login): browse and search all opportunities, read news, use the Academy. This is the majority and the core.
+- **Seekers** (registered): students, researchers, candidates. Save opportunities, track applications, build a profile, network, sync Academy progress.
+- **Providers** (registered): companies, institutions, universities, labs. Post opportunities, manage an org page, find talent.
+- **Admin / moderators**: manage sources, verify opportunities, moderate.
 
 ## Target market
 
-Global. Strong initial density in India (DRDO/ISRO/IITs) because that data is
-underserved, but the platform is explicitly worldwide, not India-only.
+Worldwide, not India-only. India (DRDO/ISRO/IITs) is the strongest initial cluster because the founder knows it best, but the schema, content, and copy are global from day one.
 
-## Long-term roadmap (summary)
+## Long-term philosophy
 
-See [22-roadmap.md](22-roadmap.md). Phase 1 aggregator quality → Phase 2 academy →
-Phase 3 social/provider portal → Phase 4 scale + monetization-free growth.
+- Trust is the product. One garbage listing (a nav heading shown as a job, a person's name shown as an organization) costs more than ten missing ones. Quality over quantity, always.
+- The aggregator must be usable with zero friction: no login, no paywall, no ads.
+- The social layer is a bonus, never a gate.
 
-## When to add a feature
+## When to add features
 
-Add it only if it makes opportunity discovery faster, broader, or more trustworthy.
-
-## When NOT to add a feature
-
-- If it gates the aggregator behind login.
-- If it adds ads, dark patterns, or paywalls.
-- If it prioritizes the social layer over discovery.
-- If it can't be maintained with the locked 3-DB / multi-provider-AI infra.
+Add when it improves opportunity discovery, learning, or trust. **Do NOT add** anything that adds friction to guests, hides opportunities behind login, monetizes via ads/dark patterns, or ships before data quality is solid.

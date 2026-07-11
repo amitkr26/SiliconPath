@@ -1,30 +1,24 @@
-# 11 — Authentication
+# 11 - Authentication
 
 ## Provider
-Supabase Auth on **DB1** (`NEXT_PUBLIC_SUPABASE_URL`). Email/password + Google OAuth.
-SSR via `@supabase/ssr` in `middleware.ts` and `lib/supabase/server.ts`.
+Supabase Auth (on DB1). Email/password + Google OAuth. Sessions via SSR cookies handled by `@supabase/ssr` in `src/lib/supabase/server.ts` and `middleware.ts`.
 
 ## Roles
-- **Guest** — no session. Full aggregator + academy.
-- **Seeker** — `user_profiles.account_type='seeker'`.
-- **Provider** — `account_type='provider'` + a `company_profiles` row.
-- **Admin** — not a Supabase role; gated by server-only `ADMIN_PASSWORD` via `verifyAdmin()`.
+- **Guest** — no session. Full access to aggregator + academy.
+- **Seeker** — `user_profiles.account_type = 'seeker'`. Networking, saves, applications, progress sync.
+- **Provider** — `account_type = 'provider'`. Post opportunities, company page, talent pool.
+- **Admin** — not a Supabase role; gated by server-only `ADMIN_PASSWORD` via `verifyAdmin()`. Admin ops use the service-role client and bypass RLS by design.
 
-## Sign-up flow
-1. `/signup` step 1: choose seeker/provider (stored in `auth.signUp` metadata `account_type`).
-2. Email confirm → `/auth/callback?next=/onboarding`.
-3. `/onboarding` upserts `user_profiles`; provider also inserts `company_profiles`.
-4. Redirect: provider → `/dashboard`, seeker → `/feed`.
+## Signup / onboarding flow
+1. `/signup` — choose role (seeker/provider). Role + name (+ org name for provider) stored in auth metadata.
+2. Email confirm -> `/auth/callback?next=/onboarding`.
+3. `/onboarding` — seeker builds `user_profiles`; provider also creates a `company_profiles` row.
+4. Redirect: provider -> `/dashboard`, seeker -> `/feed`.
 
-## Trigger
-`handle_new_user()` on `auth.users` inserts a `user_profiles` row (id, display_name, email,
-username). Keep it in sync with the v2 column set when altering the table.
-
-## Gated paths
-`middleware.ts` redirects unauthenticated users away from: `/api/feed`, `/api/network`,
-`/api/companies`, `/api/messages`, `/api/notifications`, `/api/people`, and the matching pages.
+## Middleware gating
+`middleware.ts` redirects unauthenticated users away from gated paths (feed, network, messages, notifications, profile, dashboard, companies management) to `/login?redirectTo=...`. Public paths (opportunities, academy, news, organizations, resources, home) are never gated.
 
 ## Rules
-- Never expose secrets with `NEXT_PUBLIC_`. `ADMIN_PASSWORD`, `CRON_SECRET`, service keys are
-  server-only.
-- Never gate the aggregator or academy behind auth.
+- Never gate the aggregator or academy behind login.
+- Admin secrets are server-only. Never `NEXT_PUBLIC_`.
+- Always resolve the current user server-side for write operations; never trust a client-supplied user id.
