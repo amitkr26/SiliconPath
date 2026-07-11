@@ -154,27 +154,21 @@ export async function scrapeAllOpportunities(): Promise<{
 
       await supabaseAdmin.from("scrape_runs").insert([{
         source_id: source.id,
-        source_name: source.name,
-        source_type: source.source_type,
-        start_time: startTime,
-        end_time: new Date().toISOString(),
-        success: true,
-        opportunities_scraped: opportunities.length,
-        created_at: new Date().toISOString(),
+        status: "success",                       // live col: status ('running'/'success'/'failed')
+        started_at: startTime,                    // live col: started_at (not start_time)
+        completed_at: new Date().toISOString(),   // live col: completed_at (not end_time)
+        results_count: opportunities.length,      // live col: results_count (not opportunities_scraped)
       }]);
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       allResults.push({ source: source.name, success: false, count: 0, error: msg });
       await supabaseAdmin.from("scrape_runs").insert([{
-        source_id: runId,
-        source_name: source.name,
-        source_type: source.source_type,
-        start_time: startTime,
-        end_time: new Date().toISOString(),
-        success: false,
-        opportunities_scraped: 0,
-        error_message: msg,
-        created_at: new Date().toISOString(),
+        source_id: source.id,
+        status: "failed",                         // live col: status
+        started_at: startTime,                    // live col: started_at
+        completed_at: new Date().toISOString(),   // live col: completed_at
+        results_count: 0,                         // live col: results_count
+        error: msg,                               // live col: error (not error_message)
       }]);
     }
   }

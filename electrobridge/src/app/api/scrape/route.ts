@@ -58,10 +58,11 @@ export async function GET(request: NextRequest) {
         }
 
         const normalizedUrl = normalizeUrl(article.source_url);
+        // Check for existing by URL (live schema: column is `url`, not `source_url`)
         const { data: existingUrl } = await supabaseAdmin
           .from("news_articles")
           .select("id")
-          .or(`source_url.eq."${article.source_url.replace(/"/g, '""')}",source_url.eq."${normalizedUrl.replace(/"/g, '""')}"`)
+          .or(`url.eq.${JSON.stringify(article.source_url)},url.eq.${JSON.stringify(normalizedUrl)}`)
           .maybeSingle();
 
         const { data: existingTitle } = await supabaseAdmin
@@ -79,24 +80,21 @@ export async function GET(request: NextRequest) {
           ? article.tags
           : autoTagArticle(article.title, article.summary || "");
 
-        let slug = slugify(article.title);
-        if (!slug) slug = `news-${Date.now()}`;
-
-        const { error } = await supabaseAdmin
+        // Live schema: news_articles has url, source_name — NO slug, NO source, NO source_url
+        const { error: newsError } = await supabaseAdmin
           .from("news_articles")
           .insert([{
             title: article.title,
-            slug,
+            url: normalizedUrl,            // live column: url (UNIQUE, NOT NULL)
+            source_name: article.source,   // live column: source_name (NOT NULL)
             summary: article.summary,
-            source: article.source,
-            source_url: normalizedUrl,
             published_at: article.published_at,
             image_url: article.image_url,
             tags,
           }]);
 
-        if (!error) newsInserted++;
-        else newsSkipped++;
+        if (!newsError) newsInserted++;
+        else { console.error("news_articles insert error:", newsError.message); newsSkipped++; }
       }
 
       result.news = {
@@ -139,32 +137,96 @@ export async function GET(request: NextRequest) {
           continue;
         }
 
-            const { data, error } = await supabaseAdmin
-              .from("opportunities")
-              .insert([
-                {
-                  title: cleanedTitle,
-                  organization: opp.organization,
-                  category: opp.category,
-                  location: opp.location,
-                  stipend: opp.stipend,
-                  deadline: opp.deadline,
-                  eligibility: opp.eligibility,
-                  description: opp.description,
-                  apply_link: opp.apply_link,
-                  source_url: normalizedUrl,
-                  tags: opp.tags,
-                  verification_status: "verified",
-                  is_active: true,
-                },
-              ])
-              .select("id, source_url, title, organization")
+        // Resolve or create organization record (live schema: opportunities uses organization_id uuid FK)
+        let orgId: string | null = null;
+        if (opp.organization) {
+          const orgSlug = opp.organization.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").substring(0, 80);
+          const { data: existingOrg } = await supabaseAdmin
+            .from("organizations")
+            .select("id")
+            .eq("name", opp.organization)
+            .maybeSingle();
+          if (existingOrg) {
+            orgId = existingOrg.id;
+          } else {
+            const orgType = opp.tags?.includes("government") || ["ISRO","DRDO","CSIR"].includes(opp.organization)
+              ? "government"
+              : opp.tags?.includes("academic") || opp.organization.includes("IIT") || opp.organization.includes("NIT")
+              ? "academic"
+              : "private";
+            const { data: newOrg } = await supabaseAdmin
+              .from("organizations")
+              .insert([{ name: opp.organization, slug: orgSlug, type: orgType }])
+              .select("id")
               .single();
+            orgId = newOrg?.id ?? null;
+          }
+        }
 
-        if (!error && data) {
+        // Normalize category to live CHECK constraint values (all lowercase)
+        const CAT_MAP: Record<string, string> = {
+          "jrf": "jrf", "JRF": "jrf",
+          "srf": "srf", "SRF": "srf",
+          "phd": "phd", "PhD": "phd", "PHD": "phd",
+          "postdoc": "postdoc", "PostDoc": "postdoc",
+          "fellowship": "fellowship", "Fellowship": "fellowship",
+          "internship": "internship", "Internship": "internship",
+          "government": "government", "Govt Job": "government",
+          "industry": "industry", "Tech Job": "industry", "Electronics": "industry",
+          "Engineering": "industry",
+        };
+        const normalizedCategory = CAT_MAP[opp.category] ?? "government";
+
+        // Generate slug from title (required NOT NULL UNIQUE in live schema)
+        let oppSlug = slugify(cleanedTitle);
+        if (!oppSlug) oppSlug = `opportunity-${Date.now()}`;
+        // Ensure uniqueness by appending timestamp if slug already exists
+        const { data: existingSlug } = await supabaseAdmin
+          .from("opportunities")
+          .select("id")
+          .eq("slug", oppSlug)
+          .maybeSingle();
+        if (existingSlug) oppSlug = `${oppSlug}-${Date.now()}`;
+
+        // Build deadline: live schema expects date type (YYYY-MM-DD) or null
+        let deadlineDate: string | null = null;
+        if (opp.deadline) {
+          // Try to parse common formats: DD.MM.YYYY, DD/MM/YYYY, YYYY-MM-DD
+          const dd = opp.deadline.match(/(\d{2})[.\/](\d{2})[.\/](\d{4})/);
+          if (dd) deadlineDate = `${dd[3]}-${dd[2]}-${dd[1]}`;
+          else if (/^\d{4}-\d{2}-\d{2}$/.test(opp.deadline)) deadlineDate = opp.deadline;
+        }
+
+        // Live schema: apply_url (NOT NULL), salary_range, organization_id — NO apply_link, NO stipend, NO organization (text)
+        const { data: oppData, error: oppError } = await supabaseAdmin
+          .from("opportunities")
+          .insert([
+            {
+              title: cleanedTitle,
+              slug: oppSlug,
+              organization_id: orgId,
+              category: normalizedCategory,
+              location: opp.location,
+              salary_range: opp.stipend,     // renamed: stipend → salary_range
+              deadline: deadlineDate,
+              eligibility: opp.eligibility,
+              description: opp.description,
+              apply_url: opp.apply_link || normalizedUrl,  // renamed: apply_link → apply_url
+              source_url: normalizedUrl,
+              tags: opp.tags,
+              verification_status: "verified",
+              is_active: true,
+              source_type: "scraped",
+            },
+          ])
+          .select("id, source_url, title")
+          .single();
+
+        if (!oppError && oppData) {
           oppInserted++;
-          newOppIds.push({ id: data.id, source_url: data.source_url, title: data.title, organization: data.organization });
+          newOppIds.push({ id: oppData.id, source_url: oppData.source_url, title: oppData.title, organization: opp.organization });
         } else {
+          if (oppError) console.error("opportunities insert error:", oppError.message);
           oppSkipped++;
         }
       }
@@ -179,18 +241,17 @@ export async function GET(request: NextRequest) {
 
           try {
             const enriched = await enrichOpportunity(original, item.id);
-            if (enriched.description || enriched.eligibility || enriched.stipend || enriched.apply_link_type) {
+            // Only update columns that exist in live schema; removed apply_link_type and official_page_url (don't exist)
+            if (enriched.description || enriched.eligibility || enriched.stipend) {
               await supabaseAdmin
                 .from("opportunities")
                 .update({
                   description: enriched.description,
                   eligibility: enriched.eligibility,
-                  stipend: enriched.stipend,
+                  salary_range: enriched.stipend,    // stipend → salary_range
                   deadline: enriched.deadline,
                   location: enriched.location,
                   tags: enriched.tags,
-                  apply_link_type: enriched.apply_link_type,
-                  official_page_url: enriched.official_page_url,
                 })
                 .eq("id", item.id);
               enrichedCount++;
