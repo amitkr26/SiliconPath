@@ -128,3 +128,31 @@ export function mapDbOpportunityToClient(dbRow: any): any {
     posted_at: dbRow.created_at || dbRow.posted_at || null,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Read-side data-quality guard.
+//
+// The live database still holds legacy scraped rows whose "title" is actually
+// a nav heading ("Payment Gateway", "At a Glance", "Departments", ...) that
+// were inserted before the scraper's title filter existed. This guard hides
+// such rows at render time so they never reach the UI, independent of any DB
+// cleanup. Kept self-contained (no scraper-lib import) so it is safe to use in
+// client bundles.
+// ---------------------------------------------------------------------------
+const DISPLAY_GARBAGE_TITLE =
+  /^(home|contact|sitemap|about|privacy|terms|login|sign in|register|apply now|download|click here|read more|view all|payment gateway|at a glance|departments|reference designs|quick links|useful links|important links|all rights reserved|copyright|disclaimer|help|faq|search|breadcrumb|news & events|photo gallery|tender|archive|annual report|right to information|overview|scholarships & funding|academic positions|position paper archive)$/i;
+
+export function isDisplayableOpportunity(opp: {
+  title?: string | null;
+  apply_link?: string | null;
+  apply_url?: string | null;
+} | null | undefined): boolean {
+  if (!opp) return false;
+  const title = (opp.title || "").trim();
+  if (title.length < 6) return false;
+  if (DISPLAY_GARBAGE_TITLE.test(title)) return false;
+  // Must have somewhere to apply, otherwise the card is useless.
+  const link = opp.apply_link || opp.apply_url || "";
+  if (!link) return false;
+  return true;
+}

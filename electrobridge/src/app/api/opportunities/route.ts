@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { postToTelegram } from "@/lib/telegram-bot";
 import { verifyAdmin } from "@/lib/admin-auth";
 import { opportunitySchema, validateOrThrow } from "@/lib/validation";
-import { mapDbOpportunityToClient } from "@/lib/utils";
+import { mapDbOpportunityToClient, isDisplayableOpportunity } from "@/lib/utils";
+
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
     return NextResponse.json(
@@ -103,7 +104,10 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error;
 
-    const mappedData = data ? data.map(mapDbOpportunityToClient) : [];
+    // Map to client shape, then drop legacy garbage-title rows so they never render.
+    const mappedData = (data ? data.map(mapDbOpportunityToClient) : []).filter(
+      isDisplayableOpportunity
+    );
 
     return NextResponse.json({ opportunities: mappedData, count: mappedData.length });
   } catch (error) {
