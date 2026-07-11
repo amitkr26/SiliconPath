@@ -1,5 +1,7 @@
 # SiliconPath Backend
 
+**Part of SiliconPath v0.3.0**
+
 Standalone Node.js scraping backend for SiliconPath — handles long-running ATS API scraping and batch processing that Vercel serverless functions cannot accommodate due to 10s execution time limits.
 
 ## Architecture

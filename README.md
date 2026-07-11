@@ -40,7 +40,18 @@ Each track unlocks only after passing the previous track (≥70%). Progress save
 
 ### 3. AI-Powered Fallback Chain
 
-7-provider resilient fallback chain: Groq → OpenRouter → Cloudflare → Gemini → Bedrock → HuggingFace → NVIDIA. OpenRouter model updated from deprecated `google/gemma-2-9b-it:free` to `meta-llama/llama-3.1-8b-instruct:free`. Used for parsing unstructured job descriptions, PDFs, and HTML listings.
+7-provider resilient fallback chain: Groq → OpenRouter → Cloudflare → Gemini → Bedrock → HuggingFace → NVIDIA. OpenRouter model: `meta-llama/llama-3.1-8b-instruct:free`. Used for parsing unstructured job descriptions, PDFs, and HTML listings.
+
+### 4. Validation & Security Layer (v0.3.0)
+
+- **Zod schema validation** on 9 POST/PATCH routes (opportunities, profiles, community, messages, feed, subscribe, reports)
+- **Structured JSON logging** with levels (info/warn/error/debug) and timestamps
+- **Loading skeletons** for organizations, categories, and location-based pages
+- **Data quality**: 26 garbage-title skip patterns across all 5 HTML scrapers; shared `GARBAGE_TITLE_PATTERNS` regex
+- **ATS category inference**: Title-based category inference replacing hardcoded defaults
+- **Admin auth**: Server-only `ADMIN_PASSWORD` via `/api/admin/auth` endpoint (no longer client-exposed)
+- **Profile PATCH**: 13-field allowlist prevents body-spread attacks
+- **Search sanitization**: Special chars stripped, capped at 100 chars
 
 ---
 
@@ -197,7 +208,7 @@ The frontend's cron endpoints (`/api/cron/*`) proxy scrape requests to the backe
 | Variable | Purpose |
 |----------|---------|
 | `CRON_SECRET` | Auth for Vercel cron endpoints |
-| `NEXT_PUBLIC_ADMIN_PASSWORD` | Admin panel password |
+| `ADMIN_PASSWORD` | Admin panel password (server-only, never `NEXT_PUBLIC_`) |
 | `RESEND_API_KEY` | Email sending (Resend) |
 | `FROM_EMAIL` | Sender email address |
 | `TELEGRAM_BOT_TOKEN` | Telegram notifications |
@@ -206,6 +217,8 @@ The frontend's cron endpoints (`/api/cron/*`) proxy scrape requests to the backe
 | `GOOGLE_CLIENT_ID` | Google OAuth |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth |
 | `NEXT_PUBLIC_SITE_URL` | Canonical site URL |
+| `UPSTASH_REDIS_REST_URL` | Durable rate limiting (Upstash) |
+| `UPSTASH_REDIS_REST_TOKEN` | Durable rate limiting (Upstash) |
 
 ### Backend-Only
 
@@ -278,12 +291,30 @@ make test
 
 | Doc | Contents |
 |-----|----------|
+| `docs/01-vision.md` | Vision, mission, users, philosophy |
+| `docs/02-product-principles.md` | Non-negotiable product rules |
+| `docs/03-prd.md` | Full product requirements |
+| `docs/04-user-stories.md` | Stories per role |
+| `docs/05-ux-specification.md` | Per-page UX: layout, states, responsive, a11y |
+| `docs/06-design-system.md` | Colors, type, components, tokens |
+| `docs/07-architecture.md` | System design, data flow, deployment topology |
+| `docs/08-folder-structure.md` | Exact repo layout |
+| `docs/09-database.md` | Every table, column, index, RLS policy |
+| `docs/10-api-spec.md` | API endpoint specification |
+| `docs/11-authentication.md` | Auth model, roles, sessions |
+| `docs/12-security.md` | Threats, mitigations, RLS, secrets |
+| `docs/13-environment-variables.md` | Environment variable reference |
+| `docs/22-roadmap.md` | Development roadmap (Phases 0-4) |
+| `docs/26-feature-matrix.md` | What each role can access |
 | `docs/ARCHITECTURE.md` | Deep architecture overview |
-| `docs/DEPLOYMENT.md` | Vercel deployment details |
+| `docs/DEPLOYMENT.md` | Vercel/Render deployment details |
 | `docs/DATA_MODEL.md` | Database schema |
 | `docs/API_REFERENCE.md` | API endpoint reference |
 | `docs/SECURITY.md` | Security & RLS policies |
 | `docs/CONTRIBUTING.md` | Contributing guidelines |
+| `docs/TESTING.md` | Testing strategy |
+| `docs/GLOSSARY.md` | Terminology |
+| `docs/SEO_AEO_GEO_STRATEGY.md` | Search optimization strategy |
 | `backend/README.md` | Backend-specific deployment and API docs |
 | `electrobridge/README.md` | Frontend-specific docs |
 
@@ -293,4 +324,4 @@ make test
 
 Aggregating every opportunity and learning path for the Indian semiconductor ecosystem. Making high-quality VLSI education and career pathways accessible to all aspirants, regardless of economic background or technical starting point.
 
-**Version 1.0.0** — Built for the Indian semiconductor revolution.
+**Version 0.3.0** — Built for the Indian semiconductor revolution.

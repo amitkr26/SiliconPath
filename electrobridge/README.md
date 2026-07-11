@@ -1,5 +1,7 @@
 # SiliconPath — Frontend
 
+**Part of SiliconPath v0.3.0**
+
 Next.js 14 frontend for the SiliconPath semiconductor opportunities platform. Deployed on Vercel.
 
 | Environment | URL | Branch |
