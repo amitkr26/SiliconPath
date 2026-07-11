@@ -107,6 +107,9 @@ export async function scrapeDRDO(): Promise<ScrapedOpportunity[]> {
       if (isResultOrNotice(title)) return;
 
       const descText = $(el).siblings(".vacanciess-desc").first().text().trim() || title;
+      const linkEl = $(el).find("a").first().length ? $(el).find("a").first() : $(el).closest("a");
+      const href = linkEl.attr("href") || DRDO_VACANCIES_URL;
+      const fullUrl = href.startsWith("http") ? href : `https://drdo.gov.in${href}`;
 
       opportunities.push({
         title,
@@ -117,8 +120,8 @@ export async function scrapeDRDO(): Promise<ScrapedOpportunity[]> {
         deadline: extractDeadline(title + " " + descText),
         eligibility: null,
         description: descText.substring(0, 300),
-        apply_link: DRDO_VACANCIES_URL,
-        source_url: DRDO_VACANCIES_URL,
+        apply_link: fullUrl,
+        source_url: fullUrl,  // per-listing URL for dedup
         tags: inferTags(title, descText),
       });
     });

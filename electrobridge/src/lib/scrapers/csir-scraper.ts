@@ -3,6 +3,11 @@ import type { ScrapedOpportunity } from "./types";
 
 const CSIR_URL = "https://www.csir.res.in/en/career-opportunities/recruitment";
 
+const RESULT_PATTERNS = [
+  /result of interview/i, /list of selected/i, /list of provisionally/i,
+  /provisional selected/i, /answer key/i, /corrigendum/i, /revised.*list/i,
+];
+
 function inferCategory(title: string): string {
   const t = title.toUpperCase();
   if (t.includes("JRF") || t.includes("JUNIOR RESEARCH FELLOW")) return "JRF";
@@ -84,10 +89,18 @@ export async function scrapeCSIR(): Promise<ScrapedOpportunity[]> {
       const linkEl = titleEl.find("a").first();
       const href = linkEl.attr("href") || "";
 
+      if (RESULT_PATTERNS.some((p) => p.test(title))) return;  // skip result notices
+
       let deadline: string | null = null;
       if (cells.length >= 3) {
         deadline = $(cells[2]).text().trim() || null;
       }
+
+      const fullUrl = href
+        ? href.startsWith("http")
+          ? href
+          : `https://www.csir.res.in${href.startsWith("/") ? "" : "/"}${href}`
+        : CSIR_URL;
 
       opportunities.push({
         title,
@@ -98,12 +111,8 @@ export async function scrapeCSIR(): Promise<ScrapedOpportunity[]> {
         deadline,
         eligibility: null,
         description: null,
-        apply_link: href
-          ? href.startsWith("http")
-            ? href
-            : `https://www.csir.res.in${href.startsWith("/") ? "" : "/"}${href}`
-          : CSIR_URL,
-        source_url: CSIR_URL,
+        apply_link: fullUrl,
+        source_url: fullUrl,  // per-listing URL for dedup
         tags: inferTags(title),
       });
     });
