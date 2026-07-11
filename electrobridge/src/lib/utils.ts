@@ -116,3 +116,15 @@ export function formatDate(dateStr: string): string {
     year: "numeric",
   });
 }
+
+export function mapDbOpportunityToClient(dbRow: any): any {
+  if (!dbRow) return null;
+  return {
+    ...dbRow,
+    organization: dbRow.organizations?.name || dbRow.organization || "Unknown Organization",
+    org_slug: dbRow.organizations?.slug || dbRow.org_slug || "",
+    stipend: dbRow.salary_range || dbRow.stipend || null,
+    apply_link: dbRow.apply_url || dbRow.apply_link || null,
+    posted_at: dbRow.created_at || dbRow.posted_at || null,
+  };
+}

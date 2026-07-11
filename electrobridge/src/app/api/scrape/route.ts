@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { fetchAllNews, fetchOpportunitiesFromRSS } from "@/lib/scrapers/rss-parser";
 import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper";
-import { cleanTitle, slugify, normalizeUrl } from "@/lib/scrapers/utils";
+import { cleanTitle, slugify, normalizeUrl, GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
 import { isElectronicsNews, autoTagArticle } from "@/lib/scrapers/news-filter";
 import { enrichOpportunity } from "@/lib/scrapers/deep-scraper";
 import { verifyAdmin } from "@/lib/admin-auth";
@@ -120,6 +120,16 @@ export async function GET(request: NextRequest) {
         const cleanedTitle = cleanTitle(opp.title, opp.organization);
         const normalizedUrl = normalizeUrl(opp.source_url);
 
+        // Filter out obvious navigation or non-job garbage titles
+        if (
+          cleanedTitle.length < 10 ||
+          GARBAGE_TITLE_PATTERNS.test(cleanedTitle) ||
+          GARBAGE_TITLE_PATTERNS.test(opp.title)
+        ) {
+          oppSkipped++;
+          continue;
+        }
+
         const { data: existingUrl } = await supabaseAdmin
           .from("opportunities")
           .select("id")
@@ -168,12 +178,12 @@ export async function GET(request: NextRequest) {
           "jrf": "jrf", "JRF": "jrf",
           "srf": "srf", "SRF": "srf",
           "phd": "phd", "PhD": "phd", "PHD": "phd",
-          "postdoc": "postdoc", "PostDoc": "postdoc",
-          "fellowship": "fellowship", "Fellowship": "fellowship",
+          "postdoc": "postdoc", "PostDoc": "postdoc", "Research Associate": "postdoc",
+          "fellowship": "fellowship", "Fellowship": "fellowship", "Research Fellow": "fellowship",
           "internship": "internship", "Internship": "internship",
           "government": "government", "Govt Job": "government",
           "industry": "industry", "Tech Job": "industry", "Electronics": "industry",
-          "Engineering": "industry",
+          "Engineering": "industry", "Private Job": "industry"
         };
         const normalizedCategory = CAT_MAP[opp.category] ?? "government";
 

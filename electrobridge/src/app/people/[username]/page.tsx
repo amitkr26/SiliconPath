@@ -57,21 +57,23 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
   }, [username, router]);
 
   const loadRelationship = async (supabase: any, myId: string, theirId: string) => {
-    const { data: conn } = await supabase.from("connections").select("*")
-      .or(`user_id_1.eq.${myId},user_id_2.eq.${myId}`)
-      .or(`user_id_1.eq.${theirId},user_id_2.eq.${theirId}`)
-      .single().maybeSingle();
-    if (conn) setIsConnected(true);
+    // v2 schema: connections has requester_id, addressee_id, status
+    // Chain .or().or() = AND between the two filters → finds the row between exactly these two users
+    const { data: conn } = await supabase
+      .from("connections")
+      .select("id, requester_id, addressee_id, status")
+      .or(`requester_id.eq.${myId},addressee_id.eq.${myId}`)
+      .or(`requester_id.eq.${theirId},addressee_id.eq.${theirId}`)
+      .maybeSingle();
+
+    if (conn) {
+      setConnectionStatus(conn.status);
+      if (conn.status === "accepted") setIsConnected(true);
+    }
 
     const { data: follow } = await supabase.from("user_follows").select("*")
       .eq("follower_id", myId).eq("following_id", theirId).maybeSingle();
     if (follow) setIsFollowing(true);
-
-    const { data: req } = await supabase.from("connection_requests").select("status")
-      .or(`sender_id.eq.${myId},receiver_id.eq.${myId}`)
-      .or(`sender_id.eq.${theirId},receiver_id.eq.${theirId}`)
-      .maybeSingle();
-    if (req) setConnectionStatus(req.status);
   };
 
   const loadEndorsements = async (userId: string) => {

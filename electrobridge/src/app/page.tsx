@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, TrendingUp, Newspaper, Zap, Bell, CheckCircle2, Cpu, CircuitBoard, HardDrive, Wifi, GraduationCap, Activity, Sparkles, Award } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
+import { mapDbOpportunityToClient } from "@/lib/utils";
 import type { Opportunity, NewsArticle } from "@/types";
 import OpportunityCard from "@/components/OpportunityCard";
 import NewsCard from "@/components/NewsCard";
@@ -51,14 +52,14 @@ async function getLatestOpportunities(): Promise<Opportunity[]> {
   const today = new Date().toISOString().split("T")[0];
   const { data } = await supabaseAdmin
     .from("opportunities")
-    .select("*")
+    .select("*, organizations(*)")
     .eq("is_active", true)
     .eq("verification_status", "verified")
     .or(`deadline.gte.${today},deadline.is.null`)
     .order("created_at", { ascending: false })
     .limit(6);
 
-  return (data as Opportunity[]) || [];
+  return data ? data.map(mapDbOpportunityToClient) : [];
 }
 
 async function getLatestNews(): Promise<NewsArticle[]> {

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Currency, Calendar, ExternalLink, Clock, Briefcase, GraduationCap, CalendarDays, User, Bookmark, Share2, BookmarkCheck } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
-import { formatDate, isExpired } from "@/lib/utils";
+import { formatDate, isExpired, mapDbOpportunityToClient } from "@/lib/utils";
 import CategoryBadge from "@/components/CategoryBadge";
 import DeadlineCountdown from "@/components/DeadlineCountdown";
 import ApplyButton from "@/components/ApplyButton";
@@ -37,13 +37,14 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   if (!supabaseAdmin?.from) return { title: "Opportunity | SiliconPath" };
 
-  const { data: opportunity } = await supabaseAdmin
+  const { data: rawOpportunity } = await supabaseAdmin
     .from("opportunities")
-    .select("*")
+    .select("*, organizations(*)")
     .eq("slug", params.slug)
     .single();
 
-  if (!opportunity) return { title: "Opportunity Not Found" };
+  if (!rawOpportunity) return { title: "Opportunity Not Found" };
+  const opportunity = mapDbOpportunityToClient(rawOpportunity);
 
   const deadlineStr = opportunity.deadline
     ? new Date(opportunity.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
@@ -80,13 +81,14 @@ function getInitials(name: string): string {
 export default async function OpportunityDetailPage({ params }: Props) {
   if (!supabaseAdmin?.from) notFound();
 
-  const { data: opportunity, error } = await supabaseAdmin
+  const { data: rawOpportunity, error } = await supabaseAdmin
     .from("opportunities")
-    .select("*")
+    .select("*, organizations(*)")
     .eq("slug", params.slug)
     .single();
 
-  if (error || !opportunity) notFound();
+  if (error || !rawOpportunity) notFound();
+  const opportunity = mapDbOpportunityToClient(rawOpportunity);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -104,7 +106,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
           address: {
             "@type": "PostalAddress",
             addressLocality: opportunity.location,
-            addressCountry: opportunity.location.match(/India|Delhi|Bangalore|Mumbai/i) ? "IN" : opportunity.location === "Germany" ? "DE" : "SG",
+            addressCountry: opportunity.location && opportunity.location.match(/India|Delhi|Bangalore|Mumbai/i) ? "IN" : opportunity.location === "Germany" ? "DE" : "SG",
           },
         }
       : undefined,
@@ -131,9 +133,9 @@ export default async function OpportunityDetailPage({ params }: Props) {
     ],
   };
 
-  const orgType = opportunity.organization.match(/ISRO|DRDO|CSIR|IIT|NIT|Govt/i)
+  const orgType = (opportunity.organization || "").match(/ISRO|DRDO|CSIR|IIT|NIT|Govt/i)
     ? "Government"
-    : opportunity.organization.match(/TI|Texas|Intel|Qualcomm|Samsung|IBM/i)
+    : (opportunity.organization || "").match(/TI|Texas|Intel|Qualcomm|Samsung|IBM/i)
     ? "Private"
     : "Research";
 

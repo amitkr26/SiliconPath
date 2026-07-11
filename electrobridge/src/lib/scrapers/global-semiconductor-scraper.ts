@@ -101,7 +101,7 @@ async function scrapeGreenhouseJobs(company: CompanyConfig): Promise<ScrapedOppo
           eligibility: null,
           description: job.content || `Position available at ${company.name} Greenhouse board.`,
           apply_link: job.absolute_url || company.url,
-          source_url: company.url,
+          source_url: job.absolute_url || company.url,
           tags: [company.name, 'Semiconductor', 'Private Job']
         });
       }
@@ -168,7 +168,7 @@ async function scrapeHtmlCompany(company: CompanyConfig): Promise<ScrapedOpportu
           eligibility: null,
           description: `Career opportunity at ${company.name}.`,
           apply_link: fullLink || company.url,
-          source_url: company.url,
+          source_url: fullLink || company.url,
           tags: [company.name, 'Private Job', 'Semiconductor']
         });
       }

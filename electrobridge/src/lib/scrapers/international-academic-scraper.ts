@@ -119,7 +119,7 @@ async function scrapeHtmlAcademic(source: typeof INTERNATIONAL_SOURCES[0]): Prom
           eligibility: null,
           description: `Research position available at ${source.org} careers portal.`,
           apply_link: fullLink || source.url,
-          source_url: source.url,
+          source_url: fullLink || source.url,
           tags: ["International", "Academic", source.category, source.org]
         });
       }

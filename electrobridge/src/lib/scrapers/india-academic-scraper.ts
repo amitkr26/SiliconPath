@@ -77,7 +77,7 @@ async function scrapeSingleAcademic(source: any): Promise<ScrapedOpportunity[]> 
             eligibility: null,
             description: `Academic position listed at official ${source.org} jobs portal.`,
             apply_link: fullLink || source.url,
-            source_url: source.url,
+            source_url: fullLink || source.url,
             tags: [source.org, category, "Research"]
           });
         }

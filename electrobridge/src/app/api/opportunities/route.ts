@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { postToTelegram } from "@/lib/telegram-bot";
 import { verifyAdmin } from "@/lib/admin-auth";
 import { opportunitySchema, validateOrThrow } from "@/lib/validation";
+import { mapDbOpportunityToClient } from "@/lib/utils";
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
     return NextResponse.json(
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabaseAdmin
       .from("opportunities")
-      .select("*")
+      .select("*, organizations(*)")
       .eq("is_active", true)
       .neq("verification_status", "pending")
       .or(`deadline.gte.${today},deadline.is.null`)
@@ -78,16 +79,33 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       const cleanSearch = search.replace(/[{}()"\\,.]/g, "").slice(0, 100);
-      query = query.or(
-        `title.ilike.%${cleanSearch}%,organization.ilike.%${cleanSearch}%,tags.cs.{"${cleanSearch}"}`
-      );
+      let matchingOrgIds: string[] = [];
+      const { data: orgs } = await supabaseAdmin
+        .from("organizations")
+        .select("id")
+        .ilike("name", `%${cleanSearch}%`);
+      if (orgs && orgs.length > 0) {
+        matchingOrgIds = orgs.map((o: any) => o.id);
+      }
+
+      if (matchingOrgIds.length > 0) {
+        query = query.or(
+          `title.ilike.%${cleanSearch}%,organization_id.in.(${matchingOrgIds.join(",")}),tags.cs.{"${cleanSearch}"}`
+        );
+      } else {
+        query = query.or(
+          `title.ilike.%${cleanSearch}%,tags.cs.{"${cleanSearch}"}`
+        );
+      }
     }
 
     const { data, error } = await query;
 
     if (error) throw error;
 
-    return NextResponse.json({ opportunities: data, count: data?.length || 0 });
+    const mappedData = data ? data.map(mapDbOpportunityToClient) : [];
+
+    return NextResponse.json({ opportunities: mappedData, count: mappedData.length });
   } catch (error) {
     console.error("Error fetching opportunities:", error);
     return NextResponse.json(

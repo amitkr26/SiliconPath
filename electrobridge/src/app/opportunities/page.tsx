@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { supabaseAdmin } from "@/lib/supabase";
+import { mapDbOpportunityToClient } from "@/lib/utils";
 import OpportunitiesClient from "./OpportunitiesClient";
 
 export const metadata: Metadata = {
@@ -20,7 +21,7 @@ export default async function OpportunitiesPage() {
     const today = new Date().toISOString().split("T")[0];
     const { data } = await supabaseAdmin
       .from("opportunities")
-      .select("*")
+      .select("*, organizations(*)")
       .eq("is_active", true)
       .eq("verification_status", "verified")
       .or(`deadline.gte.${today},deadline.is.null`)
@@ -28,7 +29,7 @@ export default async function OpportunitiesPage() {
       .limit(30);
       
     if (data) {
-      initialData = data;
+      initialData = data.map(mapDbOpportunityToClient);
     }
   }
 

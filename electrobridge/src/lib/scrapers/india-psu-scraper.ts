@@ -146,7 +146,7 @@ async function scrapeSinglePSU(source: typeof PSU_SOURCES[0]): Promise<ScrapedOp
           eligibility: null,
           description: `Opportunity listed at official ${source.org} portal.`,
           apply_link: fullLink || source.url,
-          source_url: source.url,
+          source_url: fullLink || source.url,
           tags
         });
       }

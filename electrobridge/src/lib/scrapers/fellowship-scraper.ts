@@ -105,7 +105,7 @@ async function scrapeSingleFellowship(source: typeof FELLOWSHIP_SOURCES[0]): Pro
           eligibility: null,
           description: `Research fellowship scheme details listed on the official portal.`,
           apply_link: fullLink || source.url,
-          source_url: source.url,
+          source_url: fullLink || source.url,
           tags: [source.org, source.category, source.location_type, "Funding"]
         });
       }

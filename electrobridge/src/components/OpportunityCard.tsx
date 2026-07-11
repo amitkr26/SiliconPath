@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -24,7 +24,8 @@ const ORG_COLORS: Record<string, string> = {
   drdo: "bg-org-drdo",
 };
 
-function getOrgColor(org: string): string {
+function getOrgColor(org?: string): string {
+  if (!org) return "bg-accent/20";
   const key = org.toLowerCase().replace(/[^a-z]/g, "");
   for (const [k, v] of Object.entries(ORG_COLORS)) {
     if (key.includes(k)) return v;
@@ -32,14 +33,16 @@ function getOrgColor(org: string): string {
   return "bg-accent/20";
 }
 
-function orgSlug(name: string): string {
+function orgSlug(name?: string): string {
+  if (!name) return "";
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 }
 
-function getInitials(name: string): string {
+function getInitials(name?: string): string {
+  if (!name) return "?";
   return name
     .split(" ")
     .map((w) => w[0])
