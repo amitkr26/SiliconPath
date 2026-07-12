@@ -1,33 +1,18 @@
-.vercel
-.env*
-!.env.example
-!.env.local.example
-!electrobridge/.env.local.example
-SECRETS.md
-api.txt
-api_key.txt
-*.secret.md
-env_temp.txt
-*.log
-
-# Local database temp files
-.temp/
-.temp
-supabase/.temp/
-
-# Local Netlify folder
-.netlify
-
-# Build artifacts
+# Dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build outputs
 .next/
+out/
 dist/
 build/
-out/
-
-# OS files
-.DS_Store
-Thumbs.db
 
 # IDE
 .vscode/
@@ -35,4 +20,25 @@ Thumbs.db
 *.swp
 *.swo
 
+# OS files
+.DS_Store
+Thumbs.db
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test artifacts (do not commit)
+*_test_results.*
+*_results.json
+audit_report.*
+live_test_results.*
+batch*_results.*
+coverage/
+
+# Vercel
 .vercel
+
+# TypeScript
+*.tsbuildinfo
