@@ -1,50 +1,87 @@
 # SiliconPath Documentation
 
-This folder is the **single source of truth** for SiliconPath. It is written so that an AI agent (or a new engineer) can build the entire platform from these documents alone, with no external input required.
+Single source of truth for all project documentation.
 
-## Numbered docs (read in order)
+## Platform Overview
 
-| # | Doc | Purpose |
-|---|-----|---------|
-| 00 | [00-README.md](00-README.md) | Master overview. Start here. |
-| 01 | [01-vision.md](01-vision.md) | Why this exists. Problem, vision, mission, users. |
-| 02 | [02-product-principles.md](02-product-principles.md) | Non-negotiable product rules. |
-| 03 | [03-prd.md](03-prd.md) | Full product requirements: every page, feature, flow. |
-| 04 | [04-user-stories.md](04-user-stories.md) | Stories per role. |
-| 05 | [05-ux-specification.md](05-ux-specification.md) | Per-page UX: layout, states, responsive, a11y. |
-| 06 | [06-design-system.md](06-design-system.md) | Colors, type, components, tokens. |
-| 07 | [07-architecture.md](07-architecture.md) | System design, data flow, deployment topology. |
-| 08 | [08-folder-structure.md](08-folder-structure.md) | Exact repo layout. |
-| 09 | [09-database.md](09-database.md) | Every table, column, index, RLS policy. |
-| 10 | [10-api-spec.md](10-api-spec.md) | Every endpoint: method, input, output, errors. |
-| 11 | [11-authentication.md](11-authentication.md) | Auth model, roles, sessions. |
-| 12 | [12-security.md](12-security.md) | Threats, mitigations, RLS, secrets. |
-| 13 | [13-environment-variables.md](13-environment-variables.md) | Every env var. |
-| 22 | [22-roadmap.md](22-roadmap.md) | Phases 0-4 + future. |
-| 26 | [26-feature-matrix.md](26-feature-matrix.md) | What each role can access. |
+SiliconPath is a **two-tier career platform** for the semiconductor, VLSI, and research ecosystem:
 
-## Reference docs (supplemental)
+1. **Public Tier (No Login):** Aggregates opportunities from DRDO, ISRO, BARC, IITs, NITs, semiconductor companies, and research labs into one searchable interface. Users browse and apply directly.
+2. **Registered Tier (LinkedIn Features):** Full professional networking with profiles, connections, messaging, feed, company pages, resume builder, application tracking, and community.
 
+---
+
+## Documentation Map
+
+### Vision & Strategy
 | Doc | Purpose |
-|-----|---------|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Deep architecture overview |
-| [API_REFERENCE.md](API_REFERENCE.md) | API endpoint reference |
-| [API_SPEC.md](API_SPEC.md) | API specification |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Contributing guidelines |
-| [DATABASE.md](DATABASE.md) | Database schema reference |
-| [DATA_MODEL.md](DATA_MODEL.md) | Data model overview |
-| [DEPLOYMENT.md](DEPLOYMENT.md) | Vercel/Render deployment details |
-| [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | Design system reference |
-| [FEATURE_SPEC.md](FEATURE_SPEC.md) | Feature specification |
-| [GLOSSARY.md](GLOSSARY.md) | Terminology |
-| [PRD.md](PRD.md) | Product requirements document |
-| [ROADMAP.md](ROADMAP.md) | Development roadmap |
-| [SECURITY.md](SECURITY.md) | Security & RLS policies |
-| [SECURITY_AND_COMPLIANCE.md](SECURITY_AND_COMPLIANCE.md) | Security & compliance |
-| [SECURITY_INCIDENT_REPORT.md](SECURITY_INCIDENT_REPORT.md) | Security incident report |
-| [SEO_AEO_GEO_STRATEGY.md](SEO_AEO_GEO_STRATEGY.md) | Search optimization strategy |
-| [TESTING.md](TESTING.md) | Testing strategy |
-| [AI_INTEGRATION.md](AI_INTEGRATION.md) | AI integration details |
-| [CONTENT_SOURCES_AND_SCRAPING.md](CONTENT_SOURCES_AND_SCRAPING.md) | Content sources & scraping |
+|-----|--------|
+| [01-vision.md](./01-vision.md) | Product vision and mission |
+| [03-prd.md](./03-prd.md) | Product Requirements Document |
+| [04-user-stories.md](./04-user-stories.md) | User stories and personas |
+| [02-product-principles.md](./02-product-principles.md) | Core product principles |
+| [22-roadmap.md](./22-roadmap.md) | Development roadmap |
+| [26-feature-matrix.md](./26-feature-matrix.md) | Feature matrix by tier |
 
-> **Note:** Docs numbered 14-21 and docs 23-27 are not yet written. Their content is distributed across the reference docs and `CHANGELOG.md` at the repo root. Duplicates exist: `10-api-spec.md` / `10-api-specification.md` and `13-environment.md` / `13-environment-variables.md` — the hyphenated versions are canonical.
+### Design & UX
+| Doc | Purpose |
+|-----|--------|
+| [05-ux-specification.md](./05-ux-specification.md) | UX flows and wireframes |
+| [06-design-system.md](./06-design-system.md) | Design system overview |
+| [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) | Detailed design tokens and components |
+
+### Architecture & Technical
+| Doc | Purpose |
+|-----|--------|
+| [07-architecture.md](./07-architecture.md) | System architecture |
+| [08-folder-structure.md](./08-folder-structure.md) | Monorepo folder structure |
+| [09-database.md](./09-database.md) | Database architecture (4 DBs) |
+| [DATA_MODEL.md](./DATA_MODEL.md) | Complete data model reference |
+| [10-api-spec.md](./10-api-spec.md) | API specification |
+| [API_SPEC.md](./API_SPEC.md) | Detailed API endpoints |
+
+### Features & Integration
+| Doc | Purpose |
+|-----|--------|
+| [FEATURE_SPEC.md](./FEATURE_SPEC.md) | Detailed feature specifications |
+| [AI_INTEGRATION.md](./AI_INTEGRATION.md) | AI/ML integration details |
+| [CONTENT_SOURCES_AND_SCRAPING.md](./CONTENT_SOURCES_AND_SCRAPING.md) | Scraping sources and strategy |
+| [SEO_AEO_GEO_STRATEGY.md](./SEO_AEO_GEO_STRATEGY.md) | SEO/AEO/GEO strategy |
+
+### Security & Auth
+| Doc | Purpose |
+|-----|--------|
+| [11-authentication.md](./11-authentication.md) | Authentication flows |
+| [12-security.md](./12-security.md) | Security overview |
+| [SECURITY_AND_COMPLIANCE.md](./SECURITY_AND_COMPLIANCE.md) | Full security & compliance |
+| [SECURITY_INCIDENT_REPORT.md](./SECURITY_INCIDENT_REPORT.md) | Incident response |
+
+### Operations
+| Doc | Purpose |
+|-----|--------|
+| [13-environment-variables.md](./13-environment-variables.md) | Environment configuration |
+| [DEPLOYMENT.md](./DEPLOYMENT.md) | Deployment guide |
+| [TESTING.md](./TESTING.md) | Testing strategy |
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | Contribution guidelines |
+| [GLOSSARY.md](./GLOSSARY.md) | Domain glossary |
+
+---
+
+## Database Architecture (4 Databases)
+
+| Database | Provider | Purpose |
+|----------|----------|--------|
+| DB1 | Supabase | Core: opportunities, news, companies, categories, scrape sources |
+| DB2 | Supabase | Social: user profiles, connections, messages, posts, applications |
+| Neon DB1 | Neon | Analytics: page views, click tracking, search metrics, AI usage |
+| Neon DB2 | Neon | Backend: scraper state, job queues, cron logs |
+
+---
+
+## Tech Stack
+
+- **Frontend:** Next.js 14 (App Router), TypeScript, Tailwind CSS, Vercel
+- **Backend:** Express.js, TypeScript, Render
+- **Auth:** Supabase Auth (Google, GitHub, Email)
+- **AI:** OpenAI GPT-4, Google Gemini (opportunity matching, resume analysis, content curation)
+- **Scraping:** Playwright, Cheerio, RSS feeds
