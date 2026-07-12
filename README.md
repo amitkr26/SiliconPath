@@ -74,8 +74,8 @@ Each track unlocks only after passing the previous track (≥70%). Progress save
 │  └──────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────┘
                          │
-                         │ API Proxy (via RENDER_BACKEND_URL)
-                         ▼
+                          │ API Proxy (via https://electrobridge-api.onrender.com)
+                          ▼
 ┌─────────────────────────────────────────────────────────┐
 │                      backend/                            │
 │  Express + TypeScript + node-cron                        │

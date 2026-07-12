@@ -129,7 +129,7 @@ backend/
 In `electrobridge/`, set:
 
 ```
-RENDER_BACKEND_URL=https://siliconpath-backend.onrender.com
+RENDER_BACKEND_URL=https://electrobridge-api.onrender.com
 SCRAPER_SECRET=<same shared secret>
 ```
 

@@ -6,7 +6,8 @@ Next.js 14 frontend for the SiliconPath semiconductor opportunities platform. De
 
 | Environment | URL | Branch |
 |-------------|-----|--------|
-| **Production** | [siliconpath.vercel.app](https://siliconpath.vercel.app) | `main` |
+| **Frontend (Vercel)** | [siliconpath.vercel.app](https://siliconpath.vercel.app) | `main` |
+| **Backend (Render)** | [electrobridge-api.onrender.com](https://electrobridge-api.onrender.com) | `main` |
 
 ## Tech Stack
 
@@ -75,7 +76,7 @@ Add these in Vercel Project Settings → Environment Variables (Production):
 - `NEON_2_DATABASE_URL` — Neon Secondary connection string
 - `NEXT_PUBLIC_SITE_URL` — `https://siliconpath.vercel.app`
 - `SCRAPER_SECRET` — Shared secret (must match backend)
-- `RENDER_BACKEND_URL` — `https://siliconpath-backend.onrender.com`
+- `RENDER_BACKEND_URL` — `https://electrobridge-api.onrender.com`
 
 **AI Providers (at least 1):**
 - `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `CLOUDFLARE_AI_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`, `GEMINI_API_KEY`, `AWS_BEARER_TOKEN_BEDROCK`, `HUGGINGFACE_API_KEY`, `NVIDIA_NIM_API_KEY`
@@ -112,7 +113,7 @@ For Google OAuth: Enable Google provider and configure OAuth 2.0 Web Client in G
 This frontend delegates **heavy scraping** to the backend (`backend/`) running on Render:
 
 ```
-Frontend API Route → fetch(RENDER_BACKEND_URL/scrape/run, { headers: { Authorization: Bearer SCRAPER_SECRET }})
+Frontend API Route → fetch(https://electrobridge-api.onrender.com/scrape/run, { headers: { Authorization: Bearer SCRAPER_SECRET }})
 ```
 
 The `RENDER_BACKEND_URL` and `SCRAPER_SECRET` env vars connect the two tiers.
