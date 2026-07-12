@@ -27,7 +27,7 @@ export const profileUpdateSchema = z.object({
   website_url: z.string().url().max(500).optional(),
   avatar_url: z.string().url().max(500).optional(),
   experience_years: z.number().int().min(0).max(70).optional(),
-  current_role: z.string().max(200).optional(),
+  job_title: z.string().max(200).optional(),
   current_company: z.string().max(200).optional(),
 });
 

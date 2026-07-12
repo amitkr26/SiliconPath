@@ -65,10 +65,20 @@ export async function GET(request: NextRequest) {
         continue;
       }
 
+      let oppSlug = slugify(cTitle);
+      if (!oppSlug) oppSlug = `opportunity-${Date.now()}`;
+      const { data: existingSlug } = await supabaseAdmin
+        .from("opportunities")
+        .select("id")
+        .eq("slug", oppSlug)
+        .maybeSingle();
+      if (existingSlug) oppSlug = `${oppSlug}-${Date.now()}`;
+
       const { error } = await supabaseAdmin
         .from("opportunities")
         .insert([{
           title: cTitle,
+          slug: oppSlug,
           organization: opp.organization,
           category: opp.category,
           location: opp.location,

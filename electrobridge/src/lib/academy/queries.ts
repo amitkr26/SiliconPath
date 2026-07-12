@@ -106,21 +106,61 @@ export async function getDaysForTrack(trackId: string): Promise<LearningDay[]> {
 export async function getCompletedDays(userId: string | null): Promise<string[]> {
   if (!isConfigured || !supabase || !userId) return [];
   try {
-    const { data, error } = await supabase
+    const { data: progress } = await supabase
       .from("user_learning_progress")
-      .select("day_number, track_id")
+      .select("track_id, day_number")
       .eq("user_id", userId)
       .eq("status", "completed");
-    if (error || !data) return [];
-    return [];
+    if (!progress || progress.length === 0) return [];
+
+    // Group by track_id to batch day UUID lookups
+    const trackDayMap: Record<string, number[]> = {};
+    for (const p of progress) {
+      if (!trackDayMap[p.track_id]) trackDayMap[p.track_id] = [];
+      trackDayMap[p.track_id].push(p.day_number);
+    }
+
+    const dayIds: string[] = [];
+    for (const [trackId, dayNumbers] of Object.entries(trackDayMap)) {
+      const { data: days } = await supabase
+        .from("academy_days")
+        .select("id")
+        .eq("track_id", trackId)
+        .in("day_number", dayNumbers);
+      if (days) dayIds.push(...days.map((d: any) => d.id));
+    }
+
+    return dayIds;
   } catch {
     return [];
   }
 }
 
 export async function getPassedTracks(userId: string | null): Promise<TrackSlug[]> {
-  if (!userId) return [];
+  if (!isConfigured || !supabase || !userId) return [];
   try {
+    const { data: passedAssessments } = await supabase
+      .from("user_learning_progress")
+      .select("track_id")
+      .eq("user_id", userId)
+      .eq("day_number", 999)
+      .eq("status", "completed");
+    if (!passedAssessments || passedAssessments.length === 0) return [];
+    const trackIds = passedAssessments.map((p: any) => p.track_id);
+    const res1 = await supabase
+      .from("academy_tracks")
+      .select("slug")
+      .in("id", trackIds);
+    if (!res1.error && res1.data && res1.data.length > 0) {
+      return res1.data.map((t: any) => t.slug as TrackSlug);
+    }
+    const res2 = await supabase
+      .from("learning_tracks")
+      .select("slug")
+      .in("id", trackIds);
+    if (!res2.error && res2.data) {
+      return res2.data.map((t: any) => t.slug as TrackSlug);
+    }
     return [];
   } catch {
     return [];
@@ -161,7 +201,21 @@ export async function getTrackCheckpoint(trackId: string): Promise<TrackCheckpoi
 export async function getTrackAssessment(trackId: string): Promise<any> {
   const cp = await getTrackCheckpoint(trackId);
   if (!cp) return null;
-  return { id: cp.id, track_id: cp.track_id, title: "Track Assessment", passing_score_percent: 80, time_limit_minutes: 30, questions: [] };
+  const rawQuestions = cp.assessment_questions_ref || [];
+  return {
+    id: cp.id,
+    track_id: cp.track_id,
+    title: "Track Assessment",
+    passing_score_percent: 80,
+    time_limit_minutes: 30,
+    questions: rawQuestions.map((q: any) => ({
+      q: q.question,
+      type: "mcq" as const,
+      options: q.options || [],
+      correct: q.correct_answer,
+      exp: "",
+    })),
+  };
 }
 
 export async function getUserProgress(userId: string): Promise<UserProgressItem[]> {

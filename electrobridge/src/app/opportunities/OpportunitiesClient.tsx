@@ -2,14 +2,14 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import type { Opportunity } from "@/types";
-import OpportunityCard from "@/components/OpportunityCard";
+import OpportunityRow from "@/components/OpportunityRow";
 import FilterBar from "@/components/FilterBar";
 import SearchBar from "@/components/SearchBar";
-import { Loader2, ShieldCheck, Eye, EyeOff, Sparkles, X, Filter } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff, Sparkles, X, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function OpportunitiesClient({ initialData }: { initialData: Opportunity[] }) {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(initialData);
-  const [loading, setLoading] = useState(false); // Default false since we have initial data
+  const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState("All");
   const [eligibility, setEligibility] = useState("All");
   const [location, setLocation] = useState("All");
@@ -19,9 +19,12 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   const [aiChips, setAiChips] = useState<Record<string, string>>({});
   const [aiSearching, setAiSearching] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(initialData.length);
   const lastAISearch = useRef("");
 
-  const fetchOpportunities = useCallback(async () => {
+  const fetchOpportunities = useCallback(async (pageNum = 1) => {
     setLoading(true);
 
     try {
@@ -31,19 +34,29 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
       if (location && location !== "All") params.set("location", location);
       if (deadline && deadline !== "All") params.set("deadline", deadline);
       if (search) params.set("search", search);
-      if (!showUnverified) params.set("verified", "true");
+      if (showUnverified) {
+        params.set("verified", "all");
+      }
+      if (pageNum > 1) params.set("page", String(pageNum));
 
       const res = await fetch(`/api/opportunities?${params}`);
       const data = await res.json();
 
       if (data.opportunities) {
         setOpportunities(data.opportunities);
+        setTotalPages(data.total_pages || 1);
+        setTotalCount(data.total_count || data.opportunities.length);
+        setPage(data.page || pageNum);
       } else {
         setOpportunities([]);
+        setTotalPages(1);
+        setTotalCount(0);
       }
     } catch (error) {
       console.error("Error fetching opportunities:", error);
       setOpportunities([]);
+      setTotalPages(1);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }
@@ -79,11 +92,12 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   }, []);
 
   useEffect(() => {
-    // Only fetch if filters are applied
-    if (category !== "All" || eligibility !== "All" || location !== "All" || deadline !== "All" || search || !showUnverified) {
-      fetchOpportunities();
-    }
-  }, [fetchOpportunities, category, eligibility, location, deadline, search, showUnverified]);
+    fetchOpportunities(1);
+  }, [category, eligibility, location, deadline, search, showUnverified, fetchOpportunities]);
+
+  useEffect(() => {
+    if (page > 1) fetchOpportunities(page);
+  }, [page, fetchOpportunities]);
 
   return (
     <div className="relative min-h-screen overflow-hidden py-10">
@@ -193,14 +207,14 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
             </div>
           )}
 
-          {/* Results count + sort */}
+          {/* Results count */}
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-text-secondary">
-              {loading ? "Searching..." : `${opportunities.length} opportunities found`}
+              {loading ? "Searching..." : `${totalCount} opportunities found`}
             </p>
           </div>
 
-          {/* Loading / Empty / Grid */}
+          {/* Loading / Empty / List */}
           {loading ? (
             <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 text-accent animate-spin" /></div>
           ) : opportunities.length === 0 ? (
@@ -210,17 +224,64 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
               </div>
               <p className="text-text-secondary text-lg mb-2">No opportunities found.</p>
               <p className="text-text-secondary text-sm">Try adjusting your filters or check back later.</p>
-              <button onClick={() => { setCategory("All"); setEligibility("All"); setLocation("All"); setDeadline("All"); setSearch(""); setShowUnverified(true); }}
+              <button onClick={() => { setCategory("All"); setEligibility("All"); setLocation("All"); setDeadline("All"); setSearch(""); setShowUnverified(true); setPage(1); }}
                 className="mt-4 inline-flex items-center gap-2 bg-accent text-bg-primary font-semibold rounded-lg px-4 py-2 text-sm hover:bg-accent-hover transition-colors"
               >
                 Reset & Show All
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-2">
               {opportunities.map((opp) => (
-                <OpportunityCard key={opp.id} opportunity={opp} />
+                <OpportunityRow key={opp.id} opportunity={opp} />
               ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8 pb-8">
+              <button
+                onClick={() => setPage(Math.max(1, page - 1))}
+                disabled={page <= 1}
+                className="inline-flex items-center gap-1 px-3 py-2 text-sm rounded-lg border border-border bg-surface/50 text-text-secondary hover:text-text-primary hover:bg-surface disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Previous
+              </button>
+              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                let pageNum: number;
+                if (totalPages <= 7) {
+                  pageNum = i + 1;
+                } else if (page <= 4) {
+                  pageNum = i + 1;
+                } else if (page >= totalPages - 3) {
+                  pageNum = totalPages - 6 + i;
+                } else {
+                  pageNum = page - 3 + i;
+                }
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setPage(pageNum)}
+                    className={`w-9 h-9 text-sm rounded-lg border transition-colors ${
+                      pageNum === page
+                        ? "bg-accent text-bg-primary border-accent font-semibold"
+                        : "border-border bg-surface/50 text-text-secondary hover:text-text-primary hover:bg-surface"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
+                disabled={page >= totalPages}
+                className="inline-flex items-center gap-1 px-3 py-2 text-sm rounded-lg border border-border bg-surface/50 text-text-secondary hover:text-text-primary hover:bg-surface disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           )}
         </div>

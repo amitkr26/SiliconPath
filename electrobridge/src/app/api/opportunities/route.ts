@@ -5,7 +5,7 @@ import { postToTelegram } from "@/lib/telegram-bot";
 import { verifyAdmin } from "@/lib/admin-auth";
 import { opportunitySchema, validateOrThrow } from "@/lib/validation";
 import { mapDbOpportunityToClient } from "@/lib/utils";
-import { GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
+import { GARBAGE_TITLE_PATTERNS, slugify } from "@/lib/scrapers/utils";
 
 // A row is displayable only if it has a real title that is not a nav/menu heading.
 function isDisplayableOpportunity(o: { title?: string | null } | null): boolean {
@@ -31,18 +31,23 @@ export async function GET(request: NextRequest) {
     const deadline = searchParams.get("deadline");
     const search = searchParams.get("search");
     const verified = searchParams.get("verified");
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const start = (page - 1) * limit;
+    const end = start + limit - 1;
 
     const today = new Date().toISOString().split("T")[0];
 
     let query = supabaseAdmin
       .from("opportunities")
-      .select("*, organizations(*)")
+      .select("*, organizations(*)", { count: "exact" })
       .eq("is_active", true)
-      .neq("verification_status", "pending")
       .or(`deadline.gte.${today},deadline.is.null`)
       .order("created_at", { ascending: false });
 
-    if (verified === "true") {
+    if (verified === "all") {
+      query = query.neq("verification_status", "pending");
+    } else {
       query = query.eq("verification_status", "verified");
     }
 
@@ -109,7 +114,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const { data, error } = await query;
+    const { data, count, error } = await query.range(start, end);
 
     if (error) throw error;
 
@@ -118,7 +123,16 @@ export async function GET(request: NextRequest) {
       isDisplayableOpportunity
     );
 
-    return NextResponse.json({ opportunities: mappedData, count: mappedData.length });
+    const totalPages = Math.ceil((count || 0) / limit);
+
+    return NextResponse.json({
+      opportunities: mappedData,
+      count: mappedData.length,
+      total_count: count || 0,
+      page,
+      limit,
+      total_pages: totalPages,
+    });
   } catch (error) {
     console.error("Error fetching opportunities:", error);
     return NextResponse.json(
@@ -154,10 +168,20 @@ export async function POST(request: NextRequest) {
       sourceType = "employer_posted";
     }
 
+    let oppSlug = slugify(body.title);
+    if (!oppSlug) oppSlug = `opportunity-${Date.now()}`;
+    const { data: existingSlug } = await supabaseAdmin
+      .from("opportunities")
+      .select("id")
+      .eq("slug", oppSlug)
+      .maybeSingle();
+    if (existingSlug) oppSlug = `${oppSlug}-${Date.now()}`;
+
     const { data, error } = await supabaseAdmin
       .from("opportunities")
       .insert([{
         ...body,
+        slug: oppSlug,
         source_type: sourceType,
         verification_status: "pending",
         is_active: true,

@@ -123,6 +123,22 @@ DECLARE
   base text;
   final_slug text;
   n integer := 0;
+BEGIN
+  base := lower(category) || '-' ||
+    regexp_replace(lower(coalesce(organization, '')), '[^a-z0-9]+', '-', 'g') || '-' ||
+    regexp_replace(lower(coalesce(title, '')), '[^a-z0-9]+', '-', 'g');
+  base := regexp_replace(base, '-+', '-', 'g');
+  base := trim(both '-' from base);
+  base := left(base, 80);
+  IF base = '' THEN
+    base := 'opportunity';
+  END IF;
+  final_slug := base;
+  WHILE EXISTS (SELECT 1 FROM opportunities WHERE slug = final_slug) LOOP
+    n := n + 1;
+    final_slug := base || '-' || n;
+  END LOOP;
+  RETURN final_slug;
 END;
 $$ LANGUAGE plpgsql;
 

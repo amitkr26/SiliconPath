@@ -9,7 +9,7 @@ import {
   HelpCircle, RefreshCw, ChevronRight, Check, X, AlertTriangle 
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { getTrackBySlug, getTrackAssessment, saveAssessmentResult } from "@/lib/academy/queries";
+import { getTrackBySlug, getTrackAssessment, saveAssessmentResult, getCompletedDays, getDaysForTrack } from "@/lib/academy/queries";
 import { LearningTrack, TrackAssessment, AssessmentQuestion } from "@/lib/academy/types";
 import { Toaster, toast } from "sonner";
 
@@ -52,6 +52,22 @@ export default function TrackAssessmentPage() {
         const supabaseClient = createClient();
         const { data: { user } } = await supabaseClient.auth.getUser();
         setUser(user);
+
+        // Gate: require all days completed before showing assessment
+        if (user) {
+          const [completedDayIds, trackDays] = await Promise.all([
+            getCompletedDays(user.id).catch(() => [] as string[]),
+            getDaysForTrack(t.id).catch(() => [] as any[]),
+          ]);
+          const allDayIds = trackDays.map((d: any) => d.id);
+          const completedCount = allDayIds.filter((id: string) => completedDayIds.includes(id)).length;
+          const allDone = completedCount === allDayIds.length && allDayIds.length > 0;
+          if (!allDone) {
+            toast.warning("Complete all days before taking the assessment.");
+            router.push(`/academy/${trackSlug}`);
+            return;
+          }
+        }
       } catch (err) {
         console.error("Failed to load assessment:", err);
       } finally {
