@@ -1,3 +1,7 @@
+// ===========================================================================
+// Phase 4 backward-compatible exports
+// ===========================================================================
+
 export type AIProviderName =
   | "bedrock"
   | "groq"
@@ -151,3 +155,86 @@ export async function parseWithRetry<T>(
 
   return fallback;
 }
+
+// ===========================================================================
+// Phase 5 — AI Gateway exports
+// ===========================================================================
+
+// Types
+export type {
+  ProviderName,
+  ProviderStatus,
+  ProviderHealth,
+  ProviderMetrics,
+  ProviderConfig,
+  ChatMessage,
+  ChatChoice,
+  ChatUsage,
+  ToolDefinition,
+  ToolCall,
+  EmbeddingVector,
+  EmbeddingResult,
+  ImageGenerationOptions,
+  ImageGenerationResult,
+  VisionOptions,
+  SpeechOptions,
+  SpeechResult,
+  EmbeddingOptions,
+} from "./types/provider";
+
+export type { ContentPart } from "./types";
+
+
+
+export type {
+  GatewayMode,
+  GatewayRequest,
+  GatewayResponse,
+  GatewayError,
+} from "./types/gateway";
+
+export type {
+  AIGatewayConfig,
+} from "./types/config";
+
+export type {
+  TelemetryEvent,
+  HealthReport,
+  CostBreakdown,
+} from "./types/telemetry";
+
+// Core singletons
+export { gateway, AIGateway } from "./gateway";
+export { providerRegistry, ProviderRegistry } from "./registry";
+export type { BaseProvider } from "./registry";
+export { responseCache, ResponseCache } from "./cache";
+export { templates, TemplateEngine } from "./prompts";
+export type { PromptTemplate } from "./prompts";
+export { telemetry, TelemetryCollector } from "./telemetry";
+export { healthCheckService, HealthCheckService } from "./health";
+export { healthMonitor, HealthMonitor } from "./telemetry/health";
+export { costTracker, CostTracker } from "./telemetry/cost";
+export { usageTracker, UsageTracker } from "./telemetry/usage";
+
+// Middleware
+export type {
+  Middleware,
+  MiddlewareContext,
+  MiddlewareNext,
+  TelemetryEntry,
+} from "./middleware";
+
+export type { TelemetryCollector as MiddlewareTelemetryCollector } from "./middleware";
+export { InMemoryTelemetryCollector, setMiddlewareChain, applyMiddleware, getMiddlewareChain } from "./middleware";
+export { createRetryMiddleware } from "./middleware/retry";
+export { createFailoverMiddleware } from "./middleware/failover";
+export { createCircuitBreakerMiddleware } from "./middleware/circuit-breaker";
+export { createRateLimiterMiddleware } from "./middleware/rate-limiter";
+export { createQueueMiddleware } from "./middleware/queue";
+export { createTimeoutMiddleware } from "./middleware/timeout";
+
+// Utilities
+export { hashPrompt, sanitizePrompt, validateResponse, calculateCost, truncate, now, generateId, sleep } from "./utils";
+
+// Provider base class
+export { BaseProvider as ProviderBase, ProviderError } from "./providers/base";
