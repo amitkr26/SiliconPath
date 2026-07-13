@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin, isConfigured } from '@/lib/supabase';
+import { serverError } from "@siliconpath/api";
 
 export async function GET() {
   if (!isConfigured) {
@@ -49,8 +50,8 @@ export async function GET() {
 
     return NextResponse.json({ success: true, message, healthy: true });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Cron health check error:", error);
-    return NextResponse.json({ error: error.message || "Unknown error", healthy: false }, { status: 500 });
+    return serverError(error instanceof Error ? error.message : "Unknown error");
   }
 }

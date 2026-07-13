@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { parseSearchQuery } from "@/lib/ai/search-parser";
+import { serverError } from "@siliconpath/api";
 
 export async function POST(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -62,9 +63,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error in AI search:", error);
-    return NextResponse.json(
-      { error: "Search failed" },
-      { status: 500 }
-    );
+    return serverError("Search failed");
   }
 }

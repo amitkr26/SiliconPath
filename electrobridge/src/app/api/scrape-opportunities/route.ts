@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase";
 import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper";
+import { serverError } from "@siliconpath/api";
 
 export const dynamic = 'force-dynamic';
 
@@ -80,9 +81,6 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     if (typeof error === "object" && error !== null && "digest" in error && (error as any).digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("Error scraping opportunities:", error);
-    return NextResponse.json(
-      { error: "Failed to scrape opportunities" },
-      { status: 500 }
-    );
+    return serverError("Failed to scrape opportunities");
   }
 }

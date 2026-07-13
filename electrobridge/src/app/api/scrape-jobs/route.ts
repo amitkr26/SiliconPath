@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase";
 import { scrapeGovtJobs } from "@/lib/scrapers/govt-scraper";
+import { serverError } from "@siliconpath/api";
 
 export const dynamic = 'force-dynamic';
 
@@ -78,9 +79,6 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     if (typeof error === "object" && error !== null && "digest" in error && (error as any).digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("Error in scrape-jobs endpoint:", error);
-    return NextResponse.json(
-      { error: "Failed to scrape govt jobs" },
-      { status: 500 }
-    );
+    return serverError("Failed to scrape govt jobs");
   }
 }

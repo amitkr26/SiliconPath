@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { verifyAdmin } from "@/lib/admin-auth";
+import { serverError } from "@siliconpath/api";
 
 export async function GET(request: NextRequest) {
   if (!verifyAdmin(request)) {
@@ -22,6 +23,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ sources: data || [] });
   } catch (error) {
     console.error("Admin scrape status error:", error);
-    return NextResponse.json({ error: "Failed to fetch status" }, { status: 500 });
+    return serverError("Failed to fetch status");
   }
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { serverError } from "@siliconpath/api";
 
 export async function GET() {
   if (!isAdminConfigured) {
@@ -60,9 +61,6 @@ ${urls.map(u => `  <url>
     });
   } catch (error) {
     console.error("Error generating sitemap:", error);
-    return NextResponse.json(
-      { error: "Failed to generate sitemap" },
-      { status: 500 }
-    );
+    return serverError("Failed to generate sitemap");
   }
 }

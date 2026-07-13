@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase, supabaseAdmin, isConfigured } from "@/lib/supabase";
+import { serverError } from "@siliconpath/api";
 
 export async function GET(
   request: NextRequest,
@@ -30,10 +31,7 @@ export async function GET(
     return NextResponse.json({ opportunity: data });
   } catch (error) {
     console.error("Error fetching opportunity:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch opportunity" },
-      { status: 500 }
-    );
+    return serverError("Failed to fetch opportunity");
   }
 }
 
@@ -64,10 +62,7 @@ export async function PATCH(
     return NextResponse.json({ opportunity: data?.[0] });
   } catch (error) {
     console.error("Error updating opportunity:", error);
-    return NextResponse.json(
-      { error: "Failed to update opportunity" },
-      { status: 500 }
-    );
+    return serverError("Failed to update opportunity");
   }
 }
 
@@ -96,9 +91,6 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting opportunity:", error);
-    return NextResponse.json(
-      { error: "Failed to delete opportunity" },
-      { status: 500 }
-    );
+    return serverError("Failed to delete opportunity");
   }
 }

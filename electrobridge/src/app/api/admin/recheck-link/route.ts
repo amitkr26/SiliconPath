@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { serverError } from "@siliconpath/api";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -71,6 +72,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Recheck error:", error);
-    return NextResponse.json({ error: "Recheck failed" }, { status: 500 });
+    return serverError("Recheck failed");
   }
 }

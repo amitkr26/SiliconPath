@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { serverError } from "@siliconpath/api";
 
 export async function GET(request: NextRequest) {
   const secret = request.nextUrl.searchParams.get("secret");
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ revalidated: true, path });
   } catch (error) {
     console.error("Revalidation error:", error);
-    return NextResponse.json({ error: "Revalidation failed" }, { status: 500 });
+    return serverError("Revalidation failed");
   }
 }
 
@@ -42,6 +43,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ revalidated: true, path });
   } catch (error) {
     console.error("Revalidation error:", error);
-    return NextResponse.json({ error: "Revalidation failed" }, { status: 500 });
+    return serverError("Revalidation failed");
   }
 }

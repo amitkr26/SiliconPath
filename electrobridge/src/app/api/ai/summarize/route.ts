@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { summarizeOpportunity } from "@/lib/ai/summarizer";
+import { serverError } from "@siliconpath/api";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,9 +17,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(summary);
   } catch (error) {
     console.error("Error in AI summarize:", error);
-    return NextResponse.json(
-      { error: "Summarization failed" },
-      { status: 500 }
-    );
+    return serverError("Summarization failed");
   }
 }

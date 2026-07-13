@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
+import { serverError } from "@siliconpath/api";
 
 export async function GET(
   request: NextRequest,
@@ -33,9 +34,6 @@ export async function GET(
     return NextResponse.json({ opportunity: mapped });
   } catch (error) {
     console.error("Error fetching opportunity:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch opportunity" },
-      { status: 500 }
-    );
+    return serverError("Failed to fetch opportunity");
   }
 }

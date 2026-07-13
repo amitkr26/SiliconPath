@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase, isConfigured } from "@/lib/supabase";
 import { checkRateLimit } from "@/lib/rate-limiter";
 import { subscribeSchema, validateOrThrow } from "@/lib/validation";
+import { serverError } from "@siliconpath/api";
 
 export async function POST(request: NextRequest) {
   if (!isConfigured) {
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Successfully subscribed!" }, { status: 201 });
   } catch (error) {
     console.error("Error subscribing:", error);
-    return NextResponse.json({ error: "Failed to subscribe" }, { status: 500 });
+    return serverError("Failed to subscribe");
   }
 }
 
@@ -70,6 +71,6 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ message: "Unsubscribed successfully" });
   } catch (error) {
     console.error("Error unsubscribing:", error);
-    return NextResponse.json({ error: "Failed to unsubscribe" }, { status: 500 });
+    return serverError("Failed to unsubscribe");
   }
 }

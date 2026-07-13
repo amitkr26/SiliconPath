@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { serverError } from "@siliconpath/api";
 
 async function checkUrl(url: string): Promise<{ status: number; reachable: boolean }> {
   try {
@@ -114,6 +115,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Link check error:", error);
-    return NextResponse.json({ error: "Link check failed" }, { status: 500 });
+    return serverError("Link check failed");
   }
 }

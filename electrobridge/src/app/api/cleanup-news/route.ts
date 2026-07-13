@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { slugify, normalizeUrl } from "@/lib/scrapers/utils";
+import { serverError } from "@siliconpath/api";
 
 export const dynamic = 'force-dynamic';
 
@@ -100,9 +101,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Cleanup error:", error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Cleanup failed" },
-      { status: 500 }
-    );
+    return serverError(error instanceof Error ? error.message : "Cleanup failed");
   }
 }
