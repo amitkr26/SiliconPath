@@ -21,7 +21,7 @@ jobs:
       - name: Typecheck shared packages
         run: npm run typecheck --workspace=packages/types --workspace=packages/utils --workspace=packages/config --workspace=packages/database --workspace=packages/ai-gateway
       - name: Test shared packages
-        run: npm test --workspace=packages/utils --workspace=packages/config --workspace=packages/ai-gateway
+        run: npm test --workspace=packages/types --workspace=packages/utils --workspace=packages/config --workspace=packages/database --workspace=packages/ai-gateway
 
   frontend:
     runs-on: ubuntu-latest

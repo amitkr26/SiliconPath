@@ -2,7 +2,7 @@
 const config = {
   testEnvironment: "node",
   transform: {
-    "^.+\\.(ts|tsx)$": ["ts-jest", { tsconfig: "tsconfig.json" }],
+    "^.+\\.(ts|tsx)$": "@swc/jest",
   },
   testMatch: ["**/__tests__/**/*.test.(ts|tsx)"],
 };
