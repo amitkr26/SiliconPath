@@ -82,6 +82,55 @@ export const reportOpportunitySchema = z.object({
   description: z.string().max(500).optional(),
 });
 
+export const adminOpportunityUpdateSchema = z.object({
+  title: z.string().min(3).max(300).optional(),
+  organization: z.string().min(1).max(200).optional(),
+  category: z.string().min(1).max(100).optional(),
+  location: z.string().max(200).optional(),
+  stipend: z.string().max(100).optional(),
+  deadline: z.string().max(50).nullable().optional(),
+  eligibility: z.string().max(500).nullable().optional(),
+  description: z.string().max(5000).nullable().optional(),
+  apply_link: z.string().url().max(1000).nullable().optional(),
+  source_url: z.string().url().max(1000).nullable().optional(),
+  apply_link_type: z.enum(["direct", "homepage", "pdf", "email", "portal"]).optional(),
+  verification_status: z.enum(["verified", "pending", "rejected", "expired", "link_unavailable"]).optional(),
+  is_active: z.boolean().optional(),
+  tags: z.array(z.string().max(50)).max(20).optional(),
+  admin_notes: z.string().max(2000).optional(),
+});
+
+export const adminOrganizationSchema = z.object({
+  name: z.string().min(1).max(200),
+  slug: z.string().min(1).max(100),
+  type: z.enum(["Government PSU", "Research Lab", "Central University", "IIT/NIT", "Private MNC", "Private Indian", "Startup", "International University", "International Research Lab", "International Company"]),
+  country: z.string().max(100).default("India"),
+  headquarters: z.string().max(200).optional(),
+  state: z.string().max(100).optional(),
+  city: z.string().max(100).optional(),
+  founded_year: z.number().int().min(1800).max(2100).optional(),
+  employee_count_range: z.string().max(50).optional(),
+  specialties: z.array(z.string().max(100)).max(20).optional(),
+  industry: z.string().max(100).optional(),
+  is_active: z.boolean().default(true),
+  is_verified: z.boolean().default(false),
+  is_auto_scraped: z.boolean().default(true),
+  scrape_frequency: z.enum(["hourly", "daily", "weekly"]).default("daily"),
+});
+
+export const resumeSchema = z.object({
+  full_name: z.string().max(200).optional(),
+  headline: z.string().max(300).optional(),
+  summary: z.string().max(5000).optional(),
+  location: z.string().max(200).optional(),
+  email: z.string().email().optional(),
+  phone: z.string().max(50).optional(),
+  education: z.array(z.any()).max(20).optional(),
+  experience: z.array(z.any()).max(20).optional(),
+  projects: z.array(z.any()).max(20).optional(),
+  skills: z.array(z.string().max(100)).max(50).optional(),
+});
+
 export function validateOrThrow<T>(schema: z.ZodSchema<T>, data: unknown): T {
   const result = schema.safeParse(data);
   if (!result.success) {
