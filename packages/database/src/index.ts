@@ -41,6 +41,7 @@ export const DB_TABLES = {
     "company_profiles",
     "resumes",
     "community_posts",
+    "academy_assessment_results",
   ] as const,
   DB2: ["news_archive", "subscribers_overflow"] as const,
   NEON1: ["page_views", "search_queries", "click_events", "ai_usage_log"] as const,
