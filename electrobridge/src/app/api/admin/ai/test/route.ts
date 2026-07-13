@@ -1,14 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
-import { verifyAdmin } from "@/lib/admin-auth";
+import { requireAdmin, serverError } from "@siliconpath/api";
 
 export async function POST(request: NextRequest) {
-  if (!verifyAdmin(request)) {
-    return NextResponse.json({ error: "Admin access required" }, { status: 401 });
-  }
+  try { await requireAdmin(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
 
   if (!isAdminConfigured || !supabaseAdmin) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return new Response(JSON.stringify({ error: "Database not configured" }), { status: 503, headers: { "Content-Type": "application/json" } });
   }
 
   try {
@@ -16,10 +15,9 @@ export async function POST(request: NextRequest) {
     const { prompt, model } = body;
 
     if (!prompt) {
-      return NextResponse.json({ error: "Prompt required" }, { status: 400 });
+      return new Response(JSON.stringify({ error: "Prompt required" }), { status: 400, headers: { "Content-Type": "application/json" } });
     }
 
-    // Use the AI gateway from the packages
     const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/ai/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -28,9 +26,9 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
 
-    return NextResponse.json({ response: data.data || data });
+    return new Response(JSON.stringify({ response: data.data || data }), { headers: { "Content-Type": "application/json" } });
   } catch (error) {
     console.error("Admin AI test error:", error);
-    return NextResponse.json({ error: "Failed to test AI" }, { status: 500 });
+    return new Response(JSON.stringify({ error: "Failed to test AI" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }

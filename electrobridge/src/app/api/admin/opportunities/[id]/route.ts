@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
-import { verifyAdmin } from "@/lib/admin-auth";
+import { requireAdmin, serverError } from "@siliconpath/api";
 import { adminOpportunityUpdateSchema } from "@/lib/validation";
 import { validateOrThrow } from "@/lib/validation";
 
@@ -8,12 +8,11 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!verifyAdmin(request)) {
-    return NextResponse.json({ error: "Admin access required" }, { status: 401 });
-  }
+  try { await requireAdmin(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
 
   if (!isAdminConfigured) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return new Response(JSON.stringify({ error: "Database not configured" }), { status: 503, headers: { "Content-Type": "application/json" } });
   }
 
   try {
@@ -26,13 +25,13 @@ export async function GET(
       .single();
 
     if (error || !data) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
     }
 
-    return NextResponse.json({ opportunity: data });
+    return new Response(JSON.stringify({ opportunity: data }), { headers: { "Content-Type": "application/json" } });
   } catch (error) {
     console.error("Admin fetch opportunity error:", error);
-    return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+    return new Response(JSON.stringify({ error: "Failed to fetch" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
 
@@ -40,12 +39,11 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!verifyAdmin(request)) {
-    return NextResponse.json({ error: "Admin access required" }, { status: 401 });
-  }
+  try { await requireAdmin(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
 
   if (!isAdminConfigured || !supabaseAdmin) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return new Response(JSON.stringify({ error: "Database not configured" }), { status: 503, headers: { "Content-Type": "application/json" } });
   }
 
   try {
@@ -62,10 +60,10 @@ export async function PATCH(
 
     if (error) throw error;
 
-    return NextResponse.json({ opportunity: data });
+    return new Response(JSON.stringify({ opportunity: data }), { headers: { "Content-Type": "application/json" } });
   } catch (error) {
     console.error("Admin update opportunity error:", error);
-    return NextResponse.json({ error: "Failed to update" }, { status: 500 });
+    return new Response(JSON.stringify({ error: "Failed to update" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
 
@@ -73,12 +71,11 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!verifyAdmin(request)) {
-    return NextResponse.json({ error: "Admin access required" }, { status: 401 });
-  }
+  try { await requireAdmin(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
 
   if (!isAdminConfigured || !supabaseAdmin) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return new Response(JSON.stringify({ error: "Database not configured" }), { status: 503, headers: { "Content-Type": "application/json" } });
   }
 
   try {
@@ -91,9 +88,9 @@ export async function DELETE(
 
     if (error) throw error;
 
-    return NextResponse.json({ success: true });
+    return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
   } catch (error) {
     console.error("Admin delete opportunity error:", error);
-    return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
+    return new Response(JSON.stringify({ error: "Failed to delete" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }

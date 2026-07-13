@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-
 export function cacheHeaders(maxAge: number, staleWhileRevalidate = 0): Record<string, string> {
   const parts = [`max-age=${maxAge}`];
   if (staleWhileRevalidate > 0) parts.push(`stale-while-revalidate=${staleWhileRevalidate}`);
@@ -33,11 +31,14 @@ export function conditionalResponse<T>(
   data: T,
   entityTag: string,
   maxAge = 0
-): NextResponse<T> | null {
+): Response {
   if (checkETag(request, entityTag)) {
-    return new NextResponse(null, { status: 304, headers: { ETag: entityTag } });
+    return new Response(null, { status: 304, headers: { ETag: entityTag } });
   }
-  const headers: Record<string, string> = { ETag: entityTag };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ETag: entityTag,
+  };
   if (maxAge > 0) headers["Cache-Control"] = `max-age=${maxAge}`;
-  return NextResponse.json(data, { headers });
+  return new Response(JSON.stringify(data), { headers });
 }

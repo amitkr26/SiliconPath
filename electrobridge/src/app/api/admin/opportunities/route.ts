@@ -1,17 +1,33 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
-import { verifyAdmin } from "@/lib/admin-auth";
+import { requireAdmin, serverError, forbidden } from "@siliconpath/api";
 import { adminOpportunityUpdateSchema } from "@/lib/validation";
 import { validateOrThrow } from "@/lib/validation";
 
+async function guard(request: NextRequest) {
+  try {
+    await requireAdmin(request);
+  } catch (e) {
+    if (e instanceof Response) throw e;
+    throw serverError();
+  }
+}
+
+function dbUnavailable() {
+  return new Response(JSON.stringify({ error: "Database not configured" }), {
+    status: 503,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 export async function GET(request: NextRequest) {
-  if (!verifyAdmin(request)) {
-    return NextResponse.json({ error: "Admin access required" }, { status: 401 });
+  try {
+    await guard(request);
+  } catch (e) {
+    return e instanceof Response ? e : serverError();
   }
 
-  if (!isAdminConfigured) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
-  }
+  if (!isAdminConfigured) return dbUnavailable();
 
   try {
     const { searchParams } = new URL(request.url);
@@ -33,27 +49,27 @@ export async function GET(request: NextRequest) {
     const { data, count, error } = await query;
     if (error) throw error;
 
-    return NextResponse.json({
-      opportunities: data || [],
-      count: count || 0,
-      page,
-      limit,
-      totalPages: Math.ceil((count || 0) / limit),
-    });
+    return new Response(
+      JSON.stringify({ opportunities: data || [], count: count || 0, page, limit, totalPages: Math.ceil((count || 0) / limit) }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
     console.error("Admin fetch opportunities error:", error);
-    return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+    return new Response(
+      JSON.stringify({ error: "Failed to fetch" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
-  if (!verifyAdmin(request)) {
-    return NextResponse.json({ error: "Admin access required" }, { status: 401 });
+  try {
+    await guard(request);
+  } catch (e) {
+    return e instanceof Response ? e : serverError();
   }
 
-  if (!isAdminConfigured || !supabaseAdmin) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
-  }
+  if (!isAdminConfigured || !supabaseAdmin) return dbUnavailable();
 
   try {
     const body = await request.json();
@@ -67,9 +83,15 @@ export async function POST(request: NextRequest) {
 
     if (error) throw error;
 
-    return NextResponse.json({ opportunity }, { status: 201 });
+    return new Response(
+      JSON.stringify({ opportunity }),
+      { status: 201, headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
     console.error("Admin create opportunity error:", error);
-    return NextResponse.json({ error: "Failed to create" }, { status: 500 });
+    return new Response(
+      JSON.stringify({ error: "Failed to create" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 }

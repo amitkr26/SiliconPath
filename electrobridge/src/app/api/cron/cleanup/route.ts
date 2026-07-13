@@ -1,14 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
-import { verifyCron } from "@/lib/admin-auth";
+import { requireCron, serverError } from "@siliconpath/api";
 
 export async function GET(request: NextRequest) {
-  if (!verifyCron(request)) {
-    return NextResponse.json({ error: "Admin access required" }, { status: 401 });
-  }
+  try { await requireCron(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
 
   if (!isAdminConfigured || !supabaseAdmin) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return new Response(JSON.stringify({ error: "Database not configured" }), { status: 503, headers: { "Content-Type": "application/json" } });
   }
 
   try {
@@ -22,9 +21,9 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error;
 
-    return NextResponse.json({ message: "Cleanup complete", expired: count || 0 });
+    return new Response(JSON.stringify({ message: "Cleanup complete", expired: count || 0 }), { headers: { "Content-Type": "application/json" } });
   } catch (error) {
     console.error("Admin cleanup error:", error);
-    return NextResponse.json({ error: "Cleanup failed" }, { status: 500 });
+    return new Response(JSON.stringify({ error: "Cleanup failed" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }

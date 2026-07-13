@@ -1,14 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
-import { verifyAdmin } from "@/lib/admin-auth";
+import { requireAdmin, serverError } from "@siliconpath/api";
 
 export async function GET(request: NextRequest) {
-  if (!verifyAdmin(request)) {
-    return NextResponse.json({ error: "Admin access required" }, { status: 401 });
-  }
+  try { await requireAdmin(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
 
   if (!isAdminConfigured || !supabaseAdmin) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return new Response(JSON.stringify({ error: "Database not configured" }), { status: 503, headers: { "Content-Type": "application/json" } });
   }
 
   try {
@@ -25,26 +24,25 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error;
 
-    return NextResponse.json({
+    return new Response(JSON.stringify({
       organizations: data || [],
       count: count || 0,
       page,
       limit,
       totalPages: Math.ceil((count || 0) / limit),
-    });
+    }), { headers: { "Content-Type": "application/json" } });
   } catch (error) {
     console.error("Admin list organizations error:", error);
-    return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+    return new Response(JSON.stringify({ error: "Failed to fetch" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
 
 export async function POST(request: NextRequest) {
-  if (!verifyAdmin(request)) {
-    return NextResponse.json({ error: "Admin access required" }, { status: 401 });
-  }
+  try { await requireAdmin(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
 
   if (!isAdminConfigured || !supabaseAdmin) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return new Response(JSON.stringify({ error: "Database not configured" }), { status: 503, headers: { "Content-Type": "application/json" } });
   }
 
   try {
@@ -58,9 +56,9 @@ export async function POST(request: NextRequest) {
 
     if (error) throw error;
 
-    return NextResponse.json({ organization: data }, { status: 201 });
+    return new Response(JSON.stringify({ organization: data }), { status: 201, headers: { "Content-Type": "application/json" } });
   } catch (error) {
     console.error("Admin create organization error:", error);
-    return NextResponse.json({ error: "Failed to create" }, { status: 500 });
+    return new Response(JSON.stringify({ error: "Failed to create" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }

@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase";
+import { requireCron, serverError } from "@siliconpath/api";
 
 async function checkUrl(url: string): Promise<{ status: number; reachable: boolean }> {
   try {
@@ -18,17 +19,11 @@ async function checkUrl(url: string): Promise<{ status: number; reachable: boole
 }
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  const expectedSecret = process.env.CRON_SECRET;
-  if (!expectedSecret) {
-    return NextResponse.json({ error: "CRON_SECRET not configured" }, { status: 500 });
-  }
-  if (authHeader !== `Bearer ${expectedSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  try { await requireCron(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
 
   if (!isConfigured || !supabaseAdmin?.from) {
-    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+    return new Response(JSON.stringify({ error: "Database not configured." }), { status: 503, headers: { "Content-Type": "application/json" } });
   }
 
   try {
@@ -48,7 +43,7 @@ export async function GET(request: NextRequest) {
     const opportunities = [...(verifiedOpps || []), ...(pendingOpps || [])];
 
     if (!opportunities || opportunities.length === 0) {
-      return NextResponse.json({ checked: 0, ok: 0, broken: 0, pending_verified: 0, broken_urls: [] });
+      return new Response(JSON.stringify({ checked: 0, ok: 0, broken: 0, pending_verified: 0, broken_urls: [] }), { headers: { "Content-Type": "application/json" } });
     }
 
     const results = await Promise.all(
@@ -105,15 +100,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    return new Response(JSON.stringify({
       checked: results.length,
       ok: results.filter((r) => r.reachable).length,
       broken: brokenUrls.length,
       pending_verified: pendingVerified,
       broken_urls: brokenUrls,
-    });
+    }), { headers: { "Content-Type": "application/json" } });
   } catch (error) {
     console.error("Link check error:", error);
-    return NextResponse.json({ error: "Link check failed" }, { status: 500 });
+    return new Response(JSON.stringify({ error: "Link check failed" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }

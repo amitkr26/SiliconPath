@@ -1,21 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase";
 import { scrapeGlobalSemiconductor } from "@/lib/scrapers/global-semiconductor-scraper";
 import { scrapeInternationalAcademic } from "@/lib/scrapers/international-academic-scraper";
 import { scrapeFellowships } from "@/lib/scrapers/fellowship-scraper";
 import { cleanTitle, normalizeUrl, slugify } from "@/lib/scrapers/utils";
+import { requireCron, serverError } from "@siliconpath/api";
 
 export async function GET(request: NextRequest) {
   if (!isConfigured) {
-    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+    return new Response(JSON.stringify({ error: "Database not configured." }), { status: 503, headers: { "Content-Type": "application/json" } });
   }
 
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  try { await requireCron(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
 
   try {
     const results = await Promise.allSettled([
@@ -93,15 +90,15 @@ export async function GET(request: NextRequest) {
       else skipped++;
     }
 
-    return NextResponse.json({
+    return new Response(JSON.stringify({
       message: "Global opportunities scrape complete",
       stats: sourceStats,
       total_fetched: allOpportunities.length,
       inserted,
       skipped
-    });
+    }), { headers: { "Content-Type": "application/json" } });
   } catch (error: any) {
     console.error("Global scrape error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
