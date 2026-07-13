@@ -1,3 +1,4 @@
 {
-  "rootDirectory": "electrobridge"
+  "rootDirectory": "electrobridge",
+  "installCommand": "npm install"
 }
