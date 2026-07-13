@@ -15,6 +15,7 @@
     "test:coverage": "npm run test:coverage --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present"
   },
+  "packageManager": "npm@10.5.0",
   "engines": {
     "node": ">=18"
   },
