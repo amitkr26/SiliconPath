@@ -1,7 +1,6 @@
 {
-  "buildCommand": "pnpm run build",
-  "outputDirectory": ".next",
-  "installCommand": "pnpm install",
-  "framework": "nextjs",
-  "rootDirectory": "electrobridge"
+  "buildCommand": "cd electrobridge && npm run build",
+  "outputDirectory": "electrobridge/.next",
+  "installCommand": "npm install && cd electrobridge && npm install",
+  "framework": "nextjs"
 }

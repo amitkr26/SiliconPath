@@ -2,29 +2,29 @@
   "name": "siliconpath",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
-    "dev": "npm run dev --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
-    "test:watch": "npm run test:watch --workspaces --if-present",
-    "test:coverage": "npm run test:coverage --workspaces --if-present",
-    "clean": "npm run clean --workspaces --if-present"
+    "dev": "cd electrobridge && npm run dev",
+    "build": "cd electrobridge && npm run build",
+    "lint": "cd electrobridge && npm run lint",
+    "typecheck": "cd electrobridge && npm run typecheck",
+    "test": "cd electrobridge && npm run test",
+    "test:watch": "cd electrobridge && npm run test:watch",
+    "test:coverage": "cd electrobridge && npm run test:coverage",
+    "clean": "cd electrobridge && npm run clean"
   },
   "packageManager": "npm@10.5.0",
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^26.1.1",
     "jest": "^30.4.2",
     "@swc/core": "^1.11.21",
-    "@swc/jest": "^0.2.37",
-    "zod": "^4.4.3"
+    "@swc/jest": "^0.2.37"
   }
 }
