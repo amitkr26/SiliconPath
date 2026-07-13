@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
+import { serverError } from "@siliconpath/api";
 
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -25,9 +26,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data: opportunities });
   } catch (error) {
     console.error("Error fetching featured opportunities:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch featured opportunities" },
-      { status: 500 }
-    );
+    return serverError("Failed to fetch featured opportunities");
   }
 }

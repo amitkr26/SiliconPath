@@ -1,5 +1,6 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai/providers";
+import { serverError } from "@siliconpath/api";
 
 const SYSTEM_PROMPT = `You are SiliconPath Assistant, a helpful AI for electronics and semiconductor researchers in India.
 You help users:
@@ -38,9 +39,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error in AI chat:", error);
-    return NextResponse.json(
-      { error: "Chat failed" },
-      { status: 500 }
-    );
+    return serverError("Chat failed");
   }
 }

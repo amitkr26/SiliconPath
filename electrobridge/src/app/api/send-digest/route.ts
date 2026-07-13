@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendDigest } from "@/lib/email-digest";
+import { serverError } from "@siliconpath/api";
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
@@ -14,9 +15,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     console.error("Error sending digest:", error);
-    return NextResponse.json(
-      { error: "Failed to send digest" },
-      { status: 500 }
-    );
+    return serverError("Failed to send digest");
   }
 }

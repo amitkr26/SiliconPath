@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { callAI } from "@/lib/ai/providers";
+import { serverError } from "@siliconpath/api";
 
 export async function GET(
   _request: NextRequest,
@@ -74,9 +75,6 @@ Provide a helpful, concise analysis strictly in the following JSON format. DO NO
     return NextResponse.json(summary);
   } catch (error) {
     console.error("Error in AI opportunity summary:", error);
-    return NextResponse.json(
-      { error: "Failed to generate summary" },
-      { status: 500 }
-    );
+    return serverError("Failed to generate summary");
   }
 }

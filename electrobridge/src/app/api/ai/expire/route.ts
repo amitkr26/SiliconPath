@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { checkIfExpired } from "@/lib/ai/expiry-checker";
+import { serverError } from "@siliconpath/api";
 
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -50,9 +51,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error in expiry checker:", error);
-    return NextResponse.json(
-      { error: "Expiry check failed" },
-      { status: 500 }
-    );
+    return serverError("Expiry check failed");
   }
 }

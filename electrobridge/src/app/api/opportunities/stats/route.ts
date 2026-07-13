@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { serverError } from "@siliconpath/api";
 
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -35,9 +36,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching opportunity stats:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch stats" },
-      { status: 500 }
-    );
+    return serverError("Failed to fetch stats");
   }
 }

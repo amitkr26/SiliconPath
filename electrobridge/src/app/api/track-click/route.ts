@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { serverError } from "@siliconpath/api";
 
 export async function POST(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -37,9 +38,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error tracking click:", error);
-    return NextResponse.json(
-      { error: "Failed to track click" },
-      { status: 500 }
-    );
+    return serverError("Failed to track click");
   }
 }

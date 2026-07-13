@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { serverError } from "@siliconpath/api";
 
 interface OrgRow {
   id: string;
@@ -67,6 +68,6 @@ export async function GET() {
     return NextResponse.json({ organizations });
   } catch (error) {
     console.error("Error fetching organizations:", error);
-    return NextResponse.json({ error: "Failed to fetch organizations" }, { status: 500 });
+    return serverError("Failed to fetch organizations");
   }
 }

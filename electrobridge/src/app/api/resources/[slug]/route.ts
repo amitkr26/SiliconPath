@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { serverError } from "@siliconpath/api";
 
 export async function GET(
   request: NextRequest,
@@ -31,9 +32,6 @@ export async function GET(
     return NextResponse.json({ resource: data });
   } catch (error) {
     console.error("Error fetching resource:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch resource" },
-      { status: 500 }
-    );
+    return serverError("Failed to fetch resource");
   }
 }

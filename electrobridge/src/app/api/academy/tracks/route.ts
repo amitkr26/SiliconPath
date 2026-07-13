@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { serverError } from "@siliconpath/api";
 
 export async function GET() {
   if (!isAdminConfigured) {
@@ -18,6 +19,6 @@ export async function GET() {
     return NextResponse.json({ tracks: data || [] });
   } catch (error) {
     console.error("Error fetching tracks:", error);
-    return NextResponse.json({ error: "Failed to fetch tracks" }, { status: 500 });
+    return serverError("Failed to fetch tracks");
   }
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { serverError } from "@siliconpath/api";
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +38,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching resources:", error);
-    return NextResponse.json({ error: "Failed to fetch resources" }, { status: 500 });
+    return serverError("Failed to fetch resources");
   }
 }

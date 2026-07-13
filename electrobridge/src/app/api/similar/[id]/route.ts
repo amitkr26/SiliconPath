@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { serverError } from "@siliconpath/api";
 
 export async function GET(
   _request: NextRequest,
@@ -38,9 +39,6 @@ export async function GET(
     return NextResponse.json({ opportunities: similar || [] });
   } catch (error) {
     console.error("Error fetching similar opportunities:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch similar opportunities" },
-      { status: 500 }
-    );
+    return serverError("Failed to fetch similar opportunities");
   }
 }
