@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export interface RateLimitConfig {
   windowMs: number;
@@ -9,7 +9,7 @@ export interface RateLimitConfig {
 const memoryStore = new Map<string, { count: number; resetAt: number }>();
 
 export function createRateLimiter(config: RateLimitConfig) {
-  return async function rateLimit(request: NextRequest): Promise<NextResponse | null> {
+  return async function rateLimit(request: Request): Promise<NextResponse | null> {
     const key = `${config.keyPrefix}:${getClientKey(request)}`;
     const now = Date.now();
 
@@ -45,7 +45,7 @@ export function createRateLimiter(config: RateLimitConfig) {
   };
 }
 
-function getClientKey(request: NextRequest): string {
+function getClientKey(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
   const ip = forwarded?.split(",")[0]?.trim() || "unknown";
   return ip;
@@ -59,9 +59,14 @@ export const rateLimiters = {
   ai: createRateLimiter({ windowMs: 60_000, maxRequests: 20, keyPrefix: "ai" }),
 };
 
-export async function applyRateLimit(
-  request: NextRequest,
-  limiter: keyof typeof rateLimiters
-): Promise<NextResponse | null> {
+export async function applyRateLimit(request: Request, limiter: keyof typeof rateLimiters): Promise<NextResponse | null> {
   return rateLimiters[limiter](request);
+}
+
+export function rateLimitHeaders(config: RateLimitConfig, current: number): Record<string, string> {
+  return {
+    "X-RateLimit-Limit": String(config.maxRequests),
+    "X-RateLimit-Remaining": String(Math.max(0, config.maxRequests - current)),
+    "X-RateLimit-Reset": String(Math.ceil((Date.now() + config.windowMs) / 1000)),
+  };
 }
