@@ -47,7 +47,7 @@ SiliconPath/
 │       ├── lib/            # DB, AI providers, metrics
 │       └── routes/         # API endpoints
 ├── neon/                   # Neon DB schema
-├── docs/                   # Project documentation
+├── docs/                   # All project documentation
 └── scripts/                # Setup and utility scripts
 ```
 
@@ -104,23 +104,23 @@ psql $NEON_DATABASE_URL < neon/schema.sql
 
 | Feature | Status | Tier |
 |---------|--------|------|
-| Opportunity Aggregator | Live | Public |
-| Industry News Feed | Live | Public |
-| Company Directory | Live | Public |
-| Search + Filters | Live | Public |
-| User Auth (Google/GitHub/Email) | Live | Registered |
-| User Profiles | Live | Registered |
-| Connections/Network | Live | Registered |
-| Messaging | Live | Registered |
-| Application Tracking | Live | Registered |
-| AI Opportunity Matching | Live | Registered |
-| Resume Builder | Live | Registered |
-| Community Feed | Live | Registered |
-| Academy (Learning Paths) | Live | Registered |
-| Email Digests | Live | Registered |
-| Admin Dashboard | Live | Admin |
-| Company Pages (Employers) | WIP | Registered |
-| Job Posting (Recruiters) | WIP | Registered |
+| Opportunity Aggregator | ✅ Live | Public |
+| Industry News Feed | ✅ Live | Public |
+| Company Directory | ✅ Live | Public |
+| Search + Filters | ✅ Live | Public |
+| User Auth (Google/GitHub/Email) | ✅ Live | Registered |
+| User Profiles | ✅ Live | Registered |
+| Connections/Network | ✅ Live | Registered |
+| Messaging | ✅ Live | Registered |
+| Application Tracking | ✅ Live | Registered |
+| AI Opportunity Matching | ✅ Live | Registered |
+| Resume Builder | ✅ Live | Registered |
+| Community Feed | ✅ Live | Registered |
+| Academy (Learning Paths) | ✅ Live | Registered |
+| Email Digests | ✅ Live | Registered |
+| Admin Dashboard | ✅ Live | Admin |
+| Company Pages (Employers) | 🚧 WIP | Registered |
+| Job Posting (Recruiters) | 🚧 WIP | Registered |
 
 ---
 
@@ -132,7 +132,7 @@ See [docs/README.md](./docs/README.md) for the complete documentation index.
 
 ## Contributing
 
-Pull requests welcome. Please open an issue first to discuss changes.
+See [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md) for guidelines.
 
 ---
 
