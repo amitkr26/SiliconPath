@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd electrobridge && npm run build",
+  "outputDirectory": "electrobridge/.next",
+  "installCommand": "npm install",
+  "framework": "nextjs"
+}
