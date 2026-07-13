@@ -3,13 +3,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import type { Opportunity, Subscriber } from "@/types";
 import { CATEGORIES } from "@/lib/utils";
 import { NEWS_SOURCES } from "@/lib/scrapers/rss-parser";
 import { Loader2, Trash2, Plus, RefreshCw, Check, List, History, ShieldCheck, ShieldAlert, ShieldQuestion, ExternalLink, Edit3, RotateCcw, Sparkles, Users, TrendingUp, Briefcase } from "lucide-react";
 import AIAnalyticsPanel from "@/components/AIAnalyticsPanel";
-import { isConfigured } from "@/lib/supabase";
 
 const ADMIN_TOKEN_KEY = "admin_token";
 
@@ -27,6 +27,7 @@ let logIdCounter = 0;
 
 export default function AdminPage() {
   const router = useRouter();
+  const { user } = useUser();
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -96,17 +97,23 @@ export default function AdminPage() {
 
   const fetchOpportunities = async () => {
     setLoading(true);
-    if (!isConfigured) { setOpportunities([]); setLoading(false); return; }
-    const { data } = await supabase.from("opportunities").select("*").order("created_at", { ascending: false });
-    setOpportunities(data || []);
+    try {
+      const data = await api.get<Opportunity[]>("/api/admin/opportunities");
+      setOpportunities(data || []);
+    } catch {
+      setOpportunities([]);
+    }
     setLoading(false);
   };
 
   const fetchSubscribers = async () => {
     setLoading(true);
-    if (!isConfigured) { setSubscribers([]); setLoading(false); return; }
-    const { data } = await supabase.from("subscribers").select("*").order("created_at", { ascending: false });
-    setSubscribers(data || []);
+    try {
+      const data = await api.get<Subscriber[]>("/api/admin/subscribers");
+      setSubscribers(data || []);
+    } catch {
+      setSubscribers([]);
+    }
     setLoading(false);
   };
 
@@ -143,23 +150,31 @@ export default function AdminPage() {
 
   const handleDeleteOpportunity = async (id: string) => {
     if (!confirm("Delete this opportunity?")) return;
-    const { error } = await supabase.from("opportunities").delete().eq("id", id);
-    if (!error) { fetchOpportunities(); }
+    try {
+      await api.delete(`/api/admin/opportunities/${id}`);
+      fetchOpportunities();
+    } catch {}
   };
 
   const handleMarkExpired = async (id: string) => {
-    const { error } = await supabase.from("opportunities").update({ is_active: false }).eq("id", id);
-    if (!error) { fetchOpportunities(); }
+    try {
+      await api.patch(`/api/admin/opportunities/${id}`, { is_active: false });
+      fetchOpportunities();
+    } catch {}
   };
 
   const handleVerify = async (id: string) => {
-    await supabase.from("opportunities").update({ verification_status: "verified", verified_at: new Date().toISOString() }).eq("id", id);
-    fetchOpportunities();
+    try {
+      await api.patch(`/api/admin/opportunities/${id}`, { verification_status: "verified", verified_at: new Date().toISOString() });
+      fetchOpportunities();
+    } catch {}
   };
 
   const handleMarkUnavailable = async (id: string) => {
-    await supabase.from("opportunities").update({ verification_status: "link_unavailable" }).eq("id", id);
-    fetchOpportunities();
+    try {
+      await api.patch(`/api/admin/opportunities/${id}`, { verification_status: "link_unavailable" });
+      fetchOpportunities();
+    } catch {}
   };
 
   const handleRecheck = async (id: string) => {
@@ -181,9 +196,11 @@ export default function AdminPage() {
   };
 
   const saveEditLink = async (id: string) => {
-    await supabase.from("opportunities").update({ apply_link: editForm.apply_link, official_page_url: editForm.official_page_url }).eq("id", id);
-    setEditingLink(null);
-    fetchOpportunities();
+    try {
+      await api.patch(`/api/admin/opportunities/${id}`, { apply_link: editForm.apply_link, official_page_url: editForm.official_page_url });
+      setEditingLink(null);
+      fetchOpportunities();
+    } catch {}
   };
 
   const handleScrape = async () => {

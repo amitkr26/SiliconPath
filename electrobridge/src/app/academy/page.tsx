@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Cpu, Code2, Shield, TestTube, Layers, Trophy, Lock, Zap, Play, Check, AlertCircle, RefreshCw } from "lucide-react";
 import { Toaster, toast } from "sonner";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 
-// Import types only; actual queries are wrapped in a safe loader below.
 import type { LearningTrack, TrackSlug } from "@/lib/academy/types";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -13,6 +14,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export default function AcademyDashboard() {
+  const { user } = useUser();
   const [tracks, setTracks] = useState<LearningTrack[]>([]);
   const [completedDays, setCompletedDays] = useState<string[]>([]);
   const [passedTracks, setPassedTracks] = useState<TrackSlug[]>([]);
@@ -24,39 +26,29 @@ export default function AcademyDashboard() {
     setLoading(true);
     setError(null);
     try {
-      // Dynamic import so that if the module itself throws at import time
-      // (e.g. supabase client construction fails), we still catch it.
-      const queries = await import("@/lib/academy/queries");
-      const { getTracks, getCompletedDays, getPassedTracks, getDaysForTrack, FALLBACK_TRACKS } = queries;
-
       let tracksData: LearningTrack[];
       try {
         tracksData = await Promise.race([
-          getTracks(),
+          api.get<LearningTrack[]>("/api/academy/tracks"),
           new Promise<LearningTrack[]>((_, rej) => setTimeout(() => rej(new Error("timeout")), 8000)),
         ]);
       } catch {
-        // If getTracks fails for ANY reason, use fallback
-        tracksData = FALLBACK_TRACKS;
+        tracksData = (await import("@/lib/academy/queries")).FALLBACK_TRACKS;
       }
       setTracks(tracksData);
 
-      // User progress is best-effort; failures must not blank the page
       try {
-        const { createClient } = await import("@/lib/supabase/client");
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
         const userId = user?.id || null;
         const [cd, pt] = await Promise.all([
-          getCompletedDays(userId).catch(() => [] as string[]),
-          getPassedTracks(userId).catch(() => [] as TrackSlug[]),
+          api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: userId || "" } }).catch(() => [] as string[]),
+          api.get<TrackSlug[]>("/api/academy/progress/passed-tracks", { params: { userId: userId || "" } }).catch(() => [] as TrackSlug[]),
         ]);
         setCompletedDays(cd);
         setPassedTracks(pt);
 
         const daysResults = await Promise.all(
           tracksData.map((t) =>
-            getDaysForTrack(t.id).then((days) => ({ id: t.id, days: days.map((d: any) => d.id) })).catch(() => ({ id: t.id, days: [] as string[] }))
+            api.get<{ id: string }[]>(`/api/academy/tracks/${t.id}/days`).then((days) => ({ id: t.id, days: days.map((d: any) => d.id) })).catch(() => ({ id: t.id, days: [] as string[] }))
           )
         );
         const daysMap: Record<string, string[]> = {};
@@ -67,14 +59,13 @@ export default function AcademyDashboard() {
       }
     } catch (err) {
       console.error("Academy load failed:", err);
-      // Even the dynamic import failed; use inline fallback
       setError("Could not load the academy. Please refresh.");
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [user?.id]);
 
   if (loading) {
     return (

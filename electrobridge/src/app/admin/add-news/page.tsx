@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase, isConfigured } from "@/lib/supabase";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +21,7 @@ function slugify(title: string): string {
 
 export default function AddNewsPage() {
   const router = useRouter();
+  const { user } = useUser();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     title: "",
@@ -43,13 +45,9 @@ export default function AddNewsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isConfigured) {
-      toast.error("Database not configured");
-      return;
-    }
     setSaving(true);
     try {
-      const { error } = await supabase.from("news_articles").insert({
+      await api.post("/api/admin/news", {
         title: form.title,
         slug: form.slug || slugify(form.title),
         description: form.description,
@@ -60,7 +58,6 @@ export default function AddNewsPage() {
         image_url: form.image_url || null,
         published_at: new Date(form.published_at).toISOString(),
       });
-      if (error) throw error;
       toast.success("News article added!");
       setForm({
         title: "",

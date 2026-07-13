@@ -8,8 +8,8 @@ import {
   ArrowLeft, ArrowRight, CheckCircle2, ChevronLeft, ChevronRight, 
   Cpu, FileText, Play, Check, HelpCircle, GraduationCap, ExternalLink 
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { getDayDetails, getCompletedDays, markDayComplete } from "@/lib/academy/queries";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { LearningTrack, LearningDay, LearningResource, LearningQuestion } from "@/lib/academy/types";
 import { YoutubeEmbed } from "@/components/academy/YoutubeEmbed";
 import { PracticeQuiz } from "@/components/academy/PracticeQuiz";
@@ -18,6 +18,7 @@ import { Toaster, toast } from "sonner";
 export default function DayDetailsPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useUser();
   
   const trackSlug = params.track as string;
   const dayNumberStr = params.day as string;
@@ -33,7 +34,6 @@ export default function DayDetailsPage() {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -45,7 +45,7 @@ export default function DayDetailsPage() {
       if (isNaN(dayNumber)) return;
       try {
         setLoading(true);
-        const data = await getDayDetails(trackSlug, dayNumber);
+        const data = await api.get<{ track: LearningTrack; day: LearningDay; resources: LearningResource[]; questions: LearningQuestion[] }>(`/api/academy/tracks/${trackSlug}/days/${dayNumber}`);
         if (!data) {
           toast.error("Day details not found");
           router.push(`/academy/${trackSlug}`);
@@ -57,11 +57,7 @@ export default function DayDetailsPage() {
         setResources(data.resources);
         setQuestions(data.questions);
 
-        const supabaseClient = createClient();
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        setUser(user);
-
-        const completedList = await getCompletedDays(user?.id || null);
+        const completedList = await api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: user?.id || "" } });
         setCompletedDays(completedList);
 
         if (data.questions.length === 0) {
@@ -79,7 +75,7 @@ export default function DayDetailsPage() {
       loadDayData();
     }
     return () => clearTimeout(timeoutId);
-  }, [trackSlug, dayNumberStr, dayNumber, router]);
+  }, [trackSlug, dayNumberStr, dayNumber, router, user?.id]);
 
   if (loading) {
     return (
@@ -125,7 +121,12 @@ export default function DayDetailsPage() {
     try {
       setSubmitting(true);
       const userId = user?.id || null;
-      const success = await markDayComplete(userId, track.id, day.id, true);
+      const success = await api.post<boolean>("/api/academy/progress", {
+        userId,
+        trackId: track.id,
+        dayId: day.id,
+        completed: true,
+      });
       
       if (success) {
         setCompletedDays((prev) => [...prev, day.id]);

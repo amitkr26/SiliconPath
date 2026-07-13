@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Search, Building2, Users, MapPin, Globe } from "lucide-react";
 import { Loader2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 import { FEATURES } from "@/lib/feature-flags";
 import { ComingSoon } from "@/components/shared/ComingSoon";
@@ -17,20 +18,14 @@ export default function CompaniesPage() {
   const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
-  const supabase = createClient();
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data?.user) setCurrentUserId(data.user.id);
-    });
-  }, [supabase]);
+  const { user } = useUser();
 
   const loadCompanies = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/companies${search ? `?q=${search}` : ""}`);
-    const data = await res.json();
+    const data = await api.get<{ companies: any[] }>(
+      "/api/companies",
+      search ? { params: { q: search } } : undefined
+    );
     setCompanies(data.companies || []);
     setLoading(false);
   }, [search]);
@@ -38,12 +33,12 @@ export default function CompaniesPage() {
   useEffect(() => { loadCompanies(); }, [loadCompanies]);
 
   const handleFollow = async (companyId: string, isFollowing: boolean) => {
-    if (!currentUserId) { toast.error("Login required"); return; }
+    if (!user) { toast.error("Login required"); return; }
     if (isFollowing) {
-      await fetch(`/api/companies/${companyId}/follow`, { method: "DELETE" });
+      await api.delete(`/api/companies/${companyId}/follow`);
       toast.success("Unfollowed");
     } else {
-      await fetch(`/api/companies/${companyId}/follow`, { method: "POST" });
+      await api.post(`/api/companies/${companyId}/follow`);
       toast.success("Following company!");
     }
     loadCompanies();

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Search as SearchIcon, Users, Briefcase, MapPin, Loader2, ExternalLink, Clock, Calendar } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { useUser } from "@/hooks/useUser";
+import { useSearch } from "@/hooks/useSearch";
 
 function getInitials(name: string): string {
   return name.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase();
@@ -28,50 +29,22 @@ const CATEGORIES = ["JRF", "SRF", "PhD", "Govt Job", "Private Job", "Fellowship"
 export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createClient();
+  const { user: currentUser } = useUser();
 
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "opportunities");
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [categoryFilter, setCategoryFilter] = useState(searchParams.get("category") || "");
   const [locationFilter, setLocationFilter] = useState("");
-  const [results, setResults] = useState<any[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data?.user) setCurrentUserId(data.user.id);
-    });
-  }, [router, supabase]);
+  const { data, isLoading: loading } = useSearch(query, 1);
 
-  const doSearch = useCallback(async () => {
-    setLoading(true);
-    const params = new URLSearchParams();
-    if (query) params.set("q", query);
-    if (categoryFilter && activeTab === "opportunities") params.set("category", categoryFilter);
-    if (locationFilter && activeTab === "opportunities") params.set("location", locationFilter);
-    params.set("limit", "50");
+  const results = activeTab === "opportunities"
+    ? (data?.opportunities || [])
+    : (data?.people || []);
+  const totalCount = data?.total_count ?? 0;
 
-    const endpoint = activeTab === "opportunities" ? "/api/search/opportunities" : "/api/people/search";
-    const res = await fetch(`${endpoint}?${params}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (activeTab === "opportunities") {
-        setResults(data.opportunities || []);
-        setTotalCount(data.count || 0);
-      } else {
-        setResults(data.people || []);
-        setTotalCount(data.count || 0);
-      }
-    }
-    setLoading(false);
-  }, [activeTab, query, categoryFilter, locationFilter]);
-
-  useEffect(() => {
-    doSearch();
-  }, [activeTab, doSearch]);
+  const currentUserId = currentUser?.id ?? null;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +52,6 @@ export default function SearchPage() {
     if (query) params.set("q", query);
     if (activeTab) params.set("tab", activeTab);
     router.replace(`/search?${params}`);
-    doSearch();
   };
 
   const handleConnect = async (userId: string) => {

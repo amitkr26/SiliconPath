@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import {
   Loader2, ArrowLeft, ArrowUp, MessageCircle, Send, ArrowUp as ArrowUpIcon
 } from "lucide-react";
@@ -49,21 +50,15 @@ const formatTimeAgo = (date: string) => {
 export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useUser();
   const [post, setPost] = useState<PostDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
   const [commentText, setCommentText] = useState("");
   const [commenting, setCommenting] = useState(false);
   const [userVoted, setUserVoted] = useState(false);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => setUser(data?.user || null));
-  }, []);
-
-  useEffect(() => {
-    fetch(`/api/community/posts/${params.id}`)
-      .then(r => r.json())
+    api.get<PostDetail>(`/api/community/posts/${params.id}`)
       .then(data => { setPost(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, [params.id]);
@@ -71,11 +66,7 @@ export default function PostDetailPage() {
   const handleVote = async () => {
     if (!user) { toast.error("Login to vote"); return; }
     try {
-      await fetch("/api/community/vote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ post_id: params.id }),
-      });
+      await api.post("/api/community/vote", { post_id: params.id });
       setPost(prev => prev ? { ...prev, upvotes: userVoted ? prev.upvotes - 1 : prev.upvotes + 1 } : prev);
       setUserVoted(!userVoted);
     } catch {}
@@ -86,25 +77,21 @@ export default function PostDetailPage() {
     if (!user) { toast.error("Login to comment"); return; }
     setCommenting(true);
     try {
-      const res = await fetch("/api/community/comments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ post_id: params.id, content: commentText }),
+      const newComment = await api.post<Comment>("/api/community/comments", {
+        post_id: params.id,
+        content: commentText,
       });
-      if (res.ok) {
-        const newComment = await res.json();
-        setPost(prev => prev ? {
-          ...prev,
-          comments: [...prev.comments, { ...newComment, user_profiles: user?.user_metadata?.full_name ? { full_name: user.user_metadata.full_name } : null }],
-          comment_count: prev.comment_count + 1,
-        } : prev);
-        setCommentText("");
-        toast.success("Comment added!");
-      } else {
-        const data = await res.json();
-        toast.error(data.error || "Failed to comment");
-      }
-    } catch { toast.error("Something went wrong"); }
+      setPost(prev => prev ? {
+        ...prev,
+        comments: [...prev.comments, { ...newComment, user_profiles: user?.user_metadata?.full_name ? { full_name: user.user_metadata.full_name } : null }],
+        comment_count: prev.comment_count + 1,
+      } : prev);
+      setCommentText("");
+      toast.success("Comment added!");
+    } catch (err: any) {
+      const message = err?.body?.error || "Something went wrong";
+      toast.error(message);
+    }
     setCommenting(false);
   };
 

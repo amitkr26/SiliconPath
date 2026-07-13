@@ -7,7 +7,8 @@ import {
   Loader2, Building2, MapPin, Globe, Users, Calendar,
   ArrowLeft, ExternalLink
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 import { FEATURES } from "@/lib/feature-flags";
 import { ComingSoon } from "@/components/shared/ComingSoon";
@@ -19,18 +20,11 @@ function getInitials(name: string): string {
 export default function CompanyDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const supabase = createClient();
+  const { user } = useUser();
 
   const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data?.user) setCurrentUserId(data.user.id);
-    });
-  }, [supabase]);
 
   const injectJsonLd = useCallback((data: any) => {
     const existing = document.getElementById("company-jsonld");
@@ -74,27 +68,26 @@ export default function CompanyDetailPage() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const res = await fetch(`/api/companies/${slug}`);
-      if (res.ok) {
-        const data = await res.json();
+      try {
+        const data = await api.get<any>(`/api/companies/${slug}`);
         setCompany(data);
         setIsFollowing(data.is_following || false);
         injectJsonLd(data);
-      }
+      } catch { setCompany(null); }
       setLoading(false);
     };
     load();
   }, [slug, injectJsonLd]);
 
   const handleFollow = async () => {
-    if (!currentUserId) { toast.error("Login required"); return; }
+    if (!user) { toast.error("Login required"); return; }
     if (isFollowing) {
-      await fetch(`/api/companies/${slug}/follow`, { method: "DELETE" });
+      await api.delete(`/api/companies/${slug}/follow`);
       setIsFollowing(false);
       setCompany((prev: any) => ({ ...prev, follower_count: Math.max(0, (prev.follower_count || 0) - 1) }));
       toast.success("Unfollowed");
     } else {
-      await fetch(`/api/companies/${slug}/follow`, { method: "POST" });
+      await api.post(`/api/companies/${slug}/follow`);
       setIsFollowing(true);
       setCompany((prev: any) => ({ ...prev, follower_count: (prev.follower_count || 0) + 1 }));
       toast.success("Following company!");

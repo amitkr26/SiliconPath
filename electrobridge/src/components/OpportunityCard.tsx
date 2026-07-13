@@ -9,11 +9,16 @@ import DeadlineCountdown from "./DeadlineCountdown";
 import { cn, getDaysAgo, isNew } from "@/lib/utils";
 import ShareButtons from "./ShareButtons";
 import VerificationBadge from "./VerificationBadge";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
+}
+
+interface BookmarkResponse {
+  id: string;
 }
 
 const ORG_COLORS: Record<string, string> = {
@@ -67,39 +72,46 @@ function setLocalBookmarks(ids: string[]) {
 
 export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
   const oppId = opportunity.id!;
+  const { user, loading: userLoading } = useUser();
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [bookmarkId, setBookmarkId] = useState<string | null>(null);
   const linkUnavailable = opportunity.verification_status === "link_unavailable" || opportunity.verification_status === "expired";
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (data?.user) {
-        setUserId(data.user.id);
-        const { data: saved } = await supabase
-          .from("saved_opportunities")
-          .select("id")
-          .eq("user_id", data.user.id)
-          .eq("opportunity_id", oppId)
-          .maybeSingle();
-        setIsBookmarked(!!saved);
-      } else {
-        setIsBookmarked(getLocalBookmarks().includes(oppId));
-      }
-    });
-  }, [oppId]);
+    if (userLoading) return;
+    if (user) {
+      api
+        .get<BookmarkResponse[]>("/api/bookmarks", { params: { opportunityId: oppId } })
+        .then((bookmarks) => {
+          if (bookmarks.length > 0) {
+            setIsBookmarked(true);
+            setBookmarkId(bookmarks[0].id);
+          } else {
+            setIsBookmarked(false);
+            setBookmarkId(null);
+          }
+        })
+        .catch(() => {
+          setIsBookmarked(false);
+          setBookmarkId(null);
+        });
+    } else {
+      setIsBookmarked(getLocalBookmarks().includes(oppId));
+    }
+  }, [oppId, user, userLoading]);
 
   const handleBookmark = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const supabase = createClient();
-    if (userId) {
-      if (isBookmarked) {
-        await supabase.from("saved_opportunities").delete().eq("user_id", userId).eq("opportunity_id", oppId);
+    if (user) {
+      if (isBookmarked && bookmarkId) {
+        await api.delete(`/api/bookmarks/${bookmarkId}`);
         setIsBookmarked(false);
+        setBookmarkId(null);
       } else {
-        await supabase.from("saved_opportunities").insert({ user_id: userId, opportunity_id: oppId });
+        const res = await api.post<BookmarkResponse>("/api/bookmarks", { opportunityId: oppId });
         setIsBookmarked(true);
+        setBookmarkId(res.id);
       }
     } else {
       const bookmarks = getLocalBookmarks();

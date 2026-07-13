@@ -9,8 +9,8 @@ import {
   Sparkles, FileText, ArrowRight, Bell,
   Users, Send, CircuitBoard
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { useUser } from "@/hooks/useUser";
+import { useNotificationCount } from "@/hooks/useNotifications";
 import { FEATURES } from "@/lib/feature-flags";
 
 const PUBLIC_NAV_ITEMS = [
@@ -37,38 +37,16 @@ function useDebounce<T>(value: T, delay: number): T {
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
+  const { user, signOut: signOutUser } = useUser();
+  const { data: notifData } = useNotificationCount();
+  const notifCount = notifData?.count ?? 0;
   const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [notifCount, setNotifCount] = useState(0);
   const userRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const debouncedSearch = useDebounce(searchQuery, 300);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      if (data?.user) setUser(data.user);
-    });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => {
-      listener?.subscription.unsubscribe();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!user) { setNotifCount(0); return; }
-    const fetchCount = () => fetch("/api/notifications/count")
-      .then(async (r) => { if (r.ok) { const d = await r.json(); setNotifCount(d.count || 0); } })
-      .catch(() => {});
-    fetchCount();
-    const interval = setInterval(fetchCount, 30000);
-    return () => clearInterval(interval);
-  }, [user]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -118,12 +96,8 @@ export default function Navbar() {
   };
 
   const signOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    setUser(null);
+    await signOutUser();
     setUserDropdownOpen(false);
-    router.push("/");
-    router.refresh();
   };
 
   const initials = (name?: string | null, email?: string) => {

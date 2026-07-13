@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Send, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { api } from "@/lib/api-client";
 
 const SUGGESTION_TYPES = [
   { value: "missing_opportunity", label: "Missing Opportunity" },
@@ -27,14 +27,13 @@ export default function ContactPage() {
     setLoading(true);
 
     try {
-      const { error: insertError } = await supabase.from("suggestions").insert({
+      await api.post("/api/contact", {
         type: type || null,
         url: url || null,
         notes: notes || null,
         contact_email: email || null,
       });
 
-      if (insertError) throw insertError;
       setSubmitted(true);
       toast.success("Message sent! We'll get back to you.");
     } catch (err) {
