@@ -57,6 +57,12 @@ describe("getClientForPurpose", () => {
     expect(result.client).not.toBeNull();
   });
 
+  it("routes 'archive' to DB2 (supabase)", () => {
+    const result = getClientForPurpose("archive");
+    expect(result.type).toBe("supabase");
+    expect(result.client).not.toBeNull();
+  });
+
   it("returns null client when env vars are missing", () => {
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     delete process.env.SUPABASE_SERVICE_ROLE_KEY;

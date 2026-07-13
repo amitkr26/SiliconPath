@@ -62,7 +62,7 @@ export function resetClients(): void {
   _clients = null;
 }
 
-export type DbPurpose = "opportunities" | "news" | "social" | "analytics" | "cache";
+export type DbPurpose = "opportunities" | "news" | "social" | "analytics" | "cache" | "archive";
 
 export function getClientForPurpose(
   purpose: DbPurpose
@@ -78,6 +78,8 @@ export function getClientForPurpose(
       return { type: "neon", client: clients.neon1 };
     case "cache":
       return { type: "neon", client: clients.neon2 };
+    case "archive":
+      return { type: "supabase", client: clients.db2 };
   }
 }
 

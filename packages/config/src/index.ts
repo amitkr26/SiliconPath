@@ -88,24 +88,30 @@ export const FEATURES = {
   COMMUNITY_ENABLED: true,
   AI_CHAT_ENABLED: !!(
     process.env.GROQ_API_KEY ||
+    process.env.OPENROUTER_API_KEY ||
+    process.env.CLOUDFLARE_AI_TOKEN ||
     process.env.GEMINI_API_KEY ||
     process.env.NVIDIA_NIM_API_KEY ||
     process.env.AWS_BEARER_TOKEN_BEDROCK ||
-    process.env.CLOUDFLARE_AI_TOKEN
+    process.env.HUGGINGFACE_API_KEY
   ),
   AI_MATCH_ENABLED: !!(
     process.env.GROQ_API_KEY ||
+    process.env.OPENROUTER_API_KEY ||
+    process.env.CLOUDFLARE_AI_TOKEN ||
     process.env.GEMINI_API_KEY ||
     process.env.NVIDIA_NIM_API_KEY ||
     process.env.AWS_BEARER_TOKEN_BEDROCK ||
-    process.env.CLOUDFLARE_AI_TOKEN
+    process.env.HUGGINGFACE_API_KEY
   ),
   AI_SEARCH_ENABLED: !!(
     process.env.GROQ_API_KEY ||
+    process.env.OPENROUTER_API_KEY ||
+    process.env.CLOUDFLARE_AI_TOKEN ||
     process.env.GEMINI_API_KEY ||
     process.env.NVIDIA_NIM_API_KEY ||
     process.env.AWS_BEARER_TOKEN_BEDROCK ||
-    process.env.CLOUDFLARE_AI_TOKEN
+    process.env.HUGGINGFACE_API_KEY
   ),
   RESUME_ENABLED: true,
   TELEGRAM_ENABLED: !!(
