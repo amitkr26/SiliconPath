@@ -7,42 +7,67 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  shared-packages:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck shared packages
+        run: npm run typecheck --workspace=packages/types --workspace=packages/utils --workspace=packages/config --workspace=packages/database --workspace=packages/ai-gateway
+      - name: Test shared packages
+        run: npm test --workspace=packages/utils --workspace=packages/config --workspace=packages/ai-gateway
 
+  frontend:
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: electrobridge
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: electrobridge/package-lock.json
-
       - name: Install dependencies
         run: npm ci
-
       - name: Lint
         run: npm run lint
-
       - name: Test
         run: npm test
-
       - name: Build
         run: npm run build
         env:
-          # Placeholders only. These pages are client components fetching data at
-          # request time; the build just needs non-empty values so @supabase/ssr
-          # does not throw "URL and API key are required" during prerender.
-          # Real credentials live in Vercel env vars for the actual deployment.
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-role-key' }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000' }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'placeholder-admin' }}
           CRON_SECRET: ${{ secrets.CRON_SECRET || 'placeholder-cron' }}
+
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Test
+        run: npm test

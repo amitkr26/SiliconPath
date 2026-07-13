@@ -1,9 +1,50 @@
-.PHONY: session-setup env-check install-backend install-frontend dev-backend dev-frontend deploy-vercel deploy-render
+.PHONY: install dev build lint typecheck test clean session-setup env-check
+
+# ── Monorepo Workspace Commands ──────────────────────────────────────────
+install:
+	npm install
+
+dev:
+	npm run dev --workspaces --if-present
+
+build:
+	npm run build --workspaces --if-present
+
+lint:
+	npm run lint --workspaces --if-present
+
+typecheck:
+	npm run typecheck --workspaces --if-present
+
+test:
+	npm test --workspaces --if-present
+
+test:watch:
+	npm run test:watch --workspaces --if-present
+
+test:coverage:
+	npm run test:coverage --workspaces --if-present
+
+clean:
+	npm run clean --workspaces --if-present
+
+# ── Legacy App Commands ──────────────────────────────────────────────────
+install-frontend:
+	cd electrobridge && npm install
+
+install-backend:
+	cd backend && npm install
+
+dev-frontend:
+	cd electrobridge && npm run dev
+
+dev-backend:
+	cd backend && source .env.local 2>/dev/null && npm run dev
 
 # ── Session Setup ─────────────────────────────────────────────────────────
 session-setup:
 	@echo "=== SiliconPath Session Setup ==="
-	@bash scripts/session-setup.sh
+	@bash scripts/session-setup.sh 2>/dev/null || echo "scripts/session-setup.sh not found"
 	@echo ""
 	@echo "To verify keys are loaded:"
 	@echo "  env | grep -E '^(GROQ|GEMINI|NVIDIA|CLOUDFLARE|SUPABASE|NEON)' | sort"
@@ -21,39 +62,7 @@ env-check:
 	  }\
 	"
 
-# ── Install ────────────────────────────────────────────────────────────────
-install-backend:
-	cd backend && npm install
-
-install-frontend:
-	cd electrobridge && npm install
-
-install-all: install-backend install-frontend
-
-# ── Development ────────────────────────────────────────────────────────────
-dev-backend:
-	cd backend && source .env.local && npm run dev
-
-dev-frontend:
-	cd electrobridge && npm run dev
-
-# ── Build / Typecheck ─────────────────────────────────────────────────────
-typecheck-backend:
-	cd backend && npx tsc --noEmit
-
-typecheck-frontend:
-	cd electrobridge && npx tsc --noEmit
-
-typecheck: typecheck-backend typecheck-frontend
-
-# ── Test ───────────────────────────────────────────────────────────────────
-test-backend:
-	cd backend && npm test
-
-test-frontend:
-	cd electrobridge && npm test
-
-# ── Deploy ─────────────────────────────────────────────────────────────────
+# ── Deploy ────────────────────────────────────────────────────────────────
 deploy-vercel:
 	cd electrobridge && npx vercel --prod --token $(VERCEL_TOKEN)
 
