@@ -1,0 +1,31 @@
+{
+  "totalSources": 332,
+  "batches": [
+    { "id": 1, "name": "Semiconductor IDM", "count": 20, "examples": ["Intel", "TSMC", "Samsung", "Micron", "SK Hynix", "IBM"] },
+    { "id": 2, "name": "Fabless", "count": 20, "examples": ["NVIDIA", "AMD", "Qualcomm", "Broadcom", "MediaTek", "AMD Xilinx"] },
+    { "id": 3, "name": "Equipment", "count": 15, "examples": ["ASML", "Applied Materials", "Lam Research", "KLA", "Tokyo Electron"] },
+    { "id": 4, "name": "Materials", "count": 10, "examples": ["Dow", "ShinEtsu", "Sumco", "GlobalWafers", "SK Siltron"] },
+    { "id": 5, "name": "OSAT", "count": 10, "examples": ["ASE", "Amkor", "JCET", "Powertech", "SPIL"] },
+    { "id": 6, "name": "Power/Auto", "count": 15, "examples": ["Infineon", "NXP", "STMicro", "Renesas", "ON Semi", "ROHM"] },
+    { "id": 7, "name": "Memory/Storage", "count": 10, "examples": ["Samsung", "SK Hynix", "Western Digital", "Micron", "Kioxia"] },
+    { "id": 8, "name": "Test/Measurement", "count": 10, "examples": ["Keysight", "Teradyne", "Advantest", "Cohu", "National Instruments"] },
+    { "id": 9, "name": "EDA", "count": 10, "examples": ["Synopsys", "Cadence", "Siemens EDA", "Ansys", "Keysight EDA"] },
+    { "id": 10, "name": "Networking/Chip", "count": 15, "examples": ["Marvell", "MediaTek", "Realtek", "Broadcom", "Intel PSG"] },
+    { "id": 11, "name": "National Labs (India)", "count": 15, "examples": ["DRDO", "ISRO", "BARC", "CSIR", "SAMEER", "CDAC"] },
+    { "id": 12, "name": "National Labs (International)", "count": 20, "examples": ["IMEC", "Fraunhofer", "MIT Lincoln Lab", "SRI", "RIKEN"] },
+    { "id": 13, "name": "Universities (India)", "count": 30, "examples": ["IITs", "NITs", "IIITs", "IISc", "BITS", "VIT"] },
+    { "id": 14, "name": "Universities (North America)", "count": 30, "examples": ["Stanford", "MIT", "Berkeley", "CMU", "UCLA", "Georgia Tech", "UIUC"] },
+    { "id": 15, "name": "Universities (Europe)", "count": 30, "examples": ["ETH", "Cambridge", "TU Delft", "KU Leuven", "RWTH", "EPFL"] },
+    { "id": 16, "name": "News RSS", "count": 20, "examples": ["Semiconductor industry news", "EE Times", "AnandTech"] },
+    { "id": 17, "name": "Opportunity RSS", "count": 20, "examples": ["Research funding", "Fellowship databases"] }
+  ],
+  "adapterTypes": {
+    "greenhouse": { "count": 30, "urlPattern": "boards-api.greenhouse.io" },
+    "lever": { "count": 25, "urlPattern": "api.lever.co" },
+    "smartrecruiters": { "count": 20, "urlPattern": "api.smartrecruiters.com" },
+    "workday": { "count": 25, "urlPattern": "*.myworkdayjobs.com" },
+    "html": { "count": 150, "fallback": "tls" },
+    "rss": { "count": 50, "description": "RSS/Atom feed parsing" },
+    "schema": { "count": 32, "description": "JSON-LD extraction" }
+  }
+}
