@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { MapPin, IndianRupee, Heart, Calendar, ExternalLink } from "lucide-react";
 import type { Opportunity } from "@/types";
 import CategoryBadge from "./CategoryBadge";
 import DeadlineCountdown from "./DeadlineCountdown";
 import { cn, getDaysAgo, isNew } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { useBookmarks, useAddBookmark, useRemoveBookmark } from "@/hooks/useBookmarks";
 import { toast } from "sonner";
 
 interface OpportunityRowProps {
@@ -48,41 +49,31 @@ function orgSlug(name?: string): string {
 
 export default function OpportunityRow({ opportunity }: OpportunityRowProps) {
   const oppId = opportunity.id!;
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user, loading: userLoading } = useUser();
+  const { data: bookmarksData } = useBookmarks(100, 0);
+  const addBookmark = useAddBookmark();
+  const removeBookmark = useRemoveBookmark();
+
+  const bookmarkEntry = bookmarksData?.bookmarks.find(
+    (b) => b.opportunity_id === oppId,
+  );
+
+  const isBookmarked = user
+    ? !!bookmarkEntry
+    : getLocalBookmarks().includes(oppId);
+
   const isDeadlineSoon = opportunity.deadline
     ? new Date(opportunity.deadline).getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000
     : false;
 
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (data?.user) {
-        setUserId(data.user.id);
-        const { data: saved } = await supabase
-          .from("saved_opportunities")
-          .select("id")
-          .eq("user_id", data.user.id)
-          .eq("opportunity_id", oppId)
-          .maybeSingle();
-        setIsBookmarked(!!saved);
-      } else {
-        setIsBookmarked(getLocalBookmarks().includes(oppId));
-      }
-    });
-  }, [oppId]);
-
   const handleBookmark = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const supabase = createClient();
-    if (userId) {
-      if (isBookmarked) {
-        await supabase.from("saved_opportunities").delete().eq("user_id", userId).eq("opportunity_id", oppId);
-        setIsBookmarked(false);
+    if (user) {
+      if (isBookmarked && bookmarkEntry) {
+        await removeBookmark.mutateAsync(bookmarkEntry.id);
       } else {
-        await supabase.from("saved_opportunities").insert({ user_id: userId, opportunity_id: oppId });
-        setIsBookmarked(true);
+        await addBookmark.mutateAsync(oppId);
       }
     } else {
       const bookmarks = getLocalBookmarks();
@@ -90,11 +81,9 @@ export default function OpportunityRow({ opportunity }: OpportunityRowProps) {
       if (idx === -1) {
         bookmarks.push(oppId);
         setLocalBookmarks(bookmarks);
-        setIsBookmarked(true);
       } else {
         bookmarks.splice(idx, 1);
         setLocalBookmarks(bookmarks);
-        setIsBookmarked(false);
       }
       toast.info("Sign in to sync your saved opportunities across devices");
     }

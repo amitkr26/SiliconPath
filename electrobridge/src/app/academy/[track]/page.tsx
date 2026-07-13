@@ -8,8 +8,8 @@ import {
   ArrowLeft, Cpu, Play, CheckCircle2, Lock, 
   Sparkles, Award, BookOpen, AlertCircle, HelpCircle, Trophy 
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { getTrackBySlug, getDaysForTrack, getCompletedDays, getPassedTracks } from "@/lib/academy/queries";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { LearningTrack, LearningDay, TrackSlug } from "@/lib/academy/types";
 import { Toaster, toast } from "sonner";
 
@@ -17,6 +17,7 @@ export default function TrackOverview() {
   const params = useParams();
   const router = useRouter();
   const trackSlug = params.track as string;
+  const { user } = useUser();
 
   const [track, setTrack] = useState<LearningTrack | null>(null);
   const [days, setDays] = useState<LearningDay[]>([]);
@@ -24,7 +25,6 @@ export default function TrackOverview() {
   const [passedTracks, setPassedTracks] = useState<TrackSlug[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -34,7 +34,7 @@ export default function TrackOverview() {
 
     async function loadTrackData() {
       try {
-        const t = await getTrackBySlug(trackSlug);
+        const t = await api.get<LearningTrack>(`/api/academy/tracks/${trackSlug}`);
         if (!t) {
           toast.error("Track not found");
           router.push("/academy");
@@ -42,17 +42,13 @@ export default function TrackOverview() {
         }
         setTrack(t);
 
-        const supabaseClient = createClient();
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        setUser(user);
-
-        const daysList = await getDaysForTrack(t.id);
+        const daysList = await api.get<LearningDay[]>(`/api/academy/tracks/${t.id}/days`);
         setDays(daysList);
 
         const userId = user?.id || null;
         const [completedList, passedList] = await Promise.all([
-          getCompletedDays(userId),
-          getPassedTracks(userId)
+          api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: userId || "" } }),
+          api.get<TrackSlug[]>("/api/academy/progress/passed-tracks", { params: { userId: userId || "" } })
         ]);
         setCompletedDays(completedList);
         setPassedTracks(passedList);
@@ -66,7 +62,7 @@ export default function TrackOverview() {
     }
     loadTrackData();
     return () => clearTimeout(timeoutId);
-  }, [trackSlug, router]);
+  }, [trackSlug, router, user?.id]);
 
   if (loading) {
     return (

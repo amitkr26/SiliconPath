@@ -8,8 +8,8 @@ import {
   ArrowLeft, Award, CheckCircle2, XCircle, Trophy, 
   HelpCircle, RefreshCw, ChevronRight, Check, X, AlertTriangle 
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { getTrackBySlug, getTrackAssessment, saveAssessmentResult, getCompletedDays, getDaysForTrack } from "@/lib/academy/queries";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { LearningTrack, TrackAssessment, AssessmentQuestion } from "@/lib/academy/types";
 import { Toaster, toast } from "sonner";
 
@@ -17,10 +17,10 @@ export default function TrackAssessmentPage() {
   const params = useParams();
   const router = useRouter();
   const trackSlug = params.track as string;
+  const { user } = useUser();
 
   const [track, setTrack] = useState<LearningTrack | null>(null);
   const [assessment, setAssessment] = useState<TrackAssessment | null>(null);
-  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   // Quiz state
@@ -33,7 +33,7 @@ export default function TrackAssessmentPage() {
   useEffect(() => {
     async function loadAssessment() {
       try {
-        const t = await getTrackBySlug(trackSlug);
+        const t = await api.get<LearningTrack>(`/api/academy/tracks/${trackSlug}`);
         if (!t) {
           toast.error("Track not found");
           router.push("/academy");
@@ -41,7 +41,7 @@ export default function TrackAssessmentPage() {
         }
         setTrack(t);
 
-        const ass = await getTrackAssessment(t.id);
+        const ass = await api.get<TrackAssessment>(`/api/academy/tracks/${t.id}/assessment`);
         if (!ass) {
           toast.error("Assessment not configured for this track yet.");
           router.push(`/academy/${trackSlug}`);
@@ -49,15 +49,11 @@ export default function TrackAssessmentPage() {
         }
         setAssessment(ass);
 
-        const supabaseClient = createClient();
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        setUser(user);
-
         // Gate: require all days completed before showing assessment
         if (user) {
           const [completedDayIds, trackDays] = await Promise.all([
-            getCompletedDays(user.id).catch(() => [] as string[]),
-            getDaysForTrack(t.id).catch(() => [] as any[]),
+            api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: user.id } }).catch(() => [] as string[]),
+            api.get<{ id: string }[]>(`/api/academy/tracks/${t.id}/days`).catch(() => [] as { id: string }[]),
           ]);
           const allDayIds = trackDays.map((d: any) => d.id);
           const completedCount = allDayIds.filter((id: string) => completedDayIds.includes(id)).length;
@@ -77,7 +73,7 @@ export default function TrackAssessmentPage() {
     if (trackSlug) {
       loadAssessment();
     }
-  }, [trackSlug, router]);
+  }, [trackSlug, router, user?.id]);
 
   if (loading) {
     return (
@@ -128,7 +124,14 @@ export default function TrackAssessmentPage() {
 
     try {
       const userId = user?.id || null;
-      await saveAssessmentResult(userId, track.id, track.slug, finalScore, hasPassed, answers);
+      await api.post<boolean>("/api/academy/progress", {
+        userId,
+        trackId: track.id,
+        trackSlug: track.slug,
+        dayNumber: 999,
+        status: hasPassed ? "completed" : "in_progress",
+        score: finalScore,
+      });
       
       if (hasPassed) {
         toast.success(`Congratulations! You passed the ${track.title} assessment!`);

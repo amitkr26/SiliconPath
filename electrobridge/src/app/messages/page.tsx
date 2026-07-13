@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Send, MessageCircle, ArrowLeft, Search } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { useUser } from "@/hooks/useUser";
+import { useConversations, useConversationMessages, useSendMessage } from "@/hooks/useMessages";
 
 interface OtherUser {
   id: string;
@@ -42,86 +43,56 @@ function fmtTime(dateStr?: string | null): string {
 export default function MessagesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [userId, setUserId] = useState<string | null>(null);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { user, loading: userLoading } = useUser();
   const [activeConv, setActiveConv] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [text, setText] = useState("");
   const [search, setSearch] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data?.user) router.push("/login?redirectTo=/messages");
-      else setUserId(data.user.id);
-    });
-  }, [router]);
+    if (!userLoading && !user) router.push("/login?redirectTo=/messages");
+  }, [user, userLoading, router]);
 
-  const loadConversations = useCallback(async () => {
-    const res = await fetch("/api/messages");
-    if (res.ok) {
-      const data = await res.json();
-      setConversations(data.conversations || []);
-    }
-    setLoading(false);
-  }, []);
+  const { data: convData, isLoading: convLoading } = useConversations();
+  const conversations = (convData?.conversations || []) as unknown as Conversation[];
 
-  useEffect(() => {
-    if (userId) loadConversations();
-  }, [userId, loadConversations]);
+  const { data: msgData } = useConversationMessages(activeConv ?? "");
+  const messages = (msgData?.messages || []) as unknown as Message[];
 
-  const loadMessages = useCallback(
-    async (convId: string) => {
-      setActiveConv(convId);
-      const res = await fetch(`/api/messages/${convId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setMessages(data.messages || []);
-      }
-    },
-    []
-  );
+  const sendMessage = useSendMessage();
 
   useEffect(() => {
     const conv = searchParams.get("conv");
-    if (conv && userId) loadMessages(conv);
-  }, [userId, searchParams, loadMessages]);
+    if (conv) setActiveConv(conv);
+  }, [searchParams]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const send = async () => {
-    if (!text.trim() || !activeConv) return;
-    const res = await fetch(`/api/messages/${activeConv}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: text.trim() }),
-    });
-    if (res.ok) {
-      const msg = await res.json();
-      setMessages((prev) => [...prev, msg]);
-      setText("");
-      loadConversations();
-    } else {
-      toast.error("Failed to send");
-    }
+  const active = conversations.find((c) => c.id === activeConv);
+  const filtered = conversations.filter(
+    (c) => !search || (c.other_user?.display_name || "").toLowerCase().includes(search.toLowerCase())
+  );
+
+  const send = () => {
+    if (!text.trim() || !activeConv || !active?.other_user) return;
+    sendMessage.mutate(
+      { participantId: active.other_user.id, content: text.trim() },
+      {
+        onSuccess: () => setText(""),
+        onError: () => toast.error("Failed to send"),
+      }
+    );
   };
 
-  if (loading) {
+  if (userLoading || convLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-primary">
         <Loader2 className="w-8 h-8 animate-spin text-accent" />
       </div>
     );
   }
-
-  const active = conversations.find((c) => c.id === activeConv);
-  const filtered = conversations.filter(
-    (c) => !search || (c.other_user?.display_name || "").toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
     <div className="min-h-screen bg-bg-primary py-6 px-4">
@@ -149,7 +120,7 @@ export default function MessagesPage() {
               {filtered.map((c) => (
                 <button
                   key={c.id}
-                  onClick={() => loadMessages(c.id)}
+                  onClick={() => setActiveConv(c.id)}
                   className={`w-full flex items-start gap-3 p-2.5 rounded-lg text-left transition-colors ${
                     activeConv === c.id ? "bg-accent/10" : "hover:bg-bg-primary"
                   }`}
@@ -199,7 +170,7 @@ export default function MessagesPage() {
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-2">
                   {messages.map((m) => {
-                    const mine = m.sender_id === userId;
+                    const mine = m.sender_id === user?.id;
                     return (
                       <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                         <div

@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { CATEGORIES } from "@/lib/utils";
 import { toast } from "sonner";
 import { Loader2, Plus, ArrowLeft } from "lucide-react";
 
 export default function AddOpportunityPage() {
   const router = useRouter();
+  const { user } = useUser();
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
@@ -52,13 +54,9 @@ export default function AddOpportunityPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAdminConfigured || !supabaseAdmin) {
-      toast.error("Database not configured");
-      return;
-    }
     setSaving(true);
     try {
-      const { error } = await supabaseAdmin.from("opportunities").insert({
+      await api.post("/api/admin/opportunities", {
         title: form.title,
         organization: form.organization,
         category: form.category,
@@ -73,7 +71,6 @@ export default function AddOpportunityPage() {
         is_active: true,
         posted_at: new Date().toISOString(),
       });
-      if (error) throw error;
       toast.success("Opportunity added!");
       setForm({ title: "", organization: "", category: "JRF", location: "", stipend: "", deadline: "", description: "", apply_link: "", official_page_url: "", tags: "", verification_status: "pending" });
     } catch (err) {

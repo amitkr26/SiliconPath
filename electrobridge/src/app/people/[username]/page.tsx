@@ -7,7 +7,8 @@ import {
   Loader2, MapPin, Briefcase, Check, MessageCircle, UserPlus,
   UserCheck, ExternalLink, GraduationCap, ThumbsUp, Star, Send
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 import type { UserProfile, SkillEndorsement, Recommendation } from "@/types";
 import { FEATURES } from "@/lib/feature-flags";
@@ -20,11 +21,11 @@ function getInitials(name: string): string {
 export default function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params);
   const router = useRouter();
+  const { user: currentUser, loading: userLoading } = useUser();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [endorsements, setEndorsements] = useState<SkillEndorsement[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<string | null>(null);
@@ -34,100 +35,84 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (data?.user) setCurrentUserId(data.user.id);
+    if (userLoading) return;
 
-      const { data: profileData } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("username", username)
-        .single();
+    const loadData = async () => {
+      try {
+        const profileData = await api.get<UserProfile>(`/api/profile/${username}`);
+        if (!profileData) { setLoading(false); return; }
+        setProfile(profileData);
 
-      if (!profileData) { setLoading(false); return; }
-      setProfile(profileData);
-
-      if (data?.user && data.user.id !== profileData.id) {
-        loadRelationship(supabase, data.user.id, profileData.id);
+        if (currentUser && currentUser.id !== profileData.id) {
+          loadRelationship(currentUser.id, profileData.id);
+        }
+        loadEndorsements(profileData.id);
+        loadRecommendations(profileData.id);
+      } catch {
+        // profile not found or error
       }
-      loadEndorsements(profileData.id);
-      loadRecommendations(profileData.id);
       setLoading(false);
-    });
-  }, [username, router]);
+    };
 
-  const loadRelationship = async (supabase: any, myId: string, theirId: string) => {
-    // v2 schema: connections has requester_id, addressee_id, status
-    // Chain .or().or() = AND between the two filters → finds the row between exactly these two users
-    const { data: conn } = await supabase
-      .from("connections")
-      .select("id, requester_id, addressee_id, status")
-      .or(`requester_id.eq.${myId},addressee_id.eq.${myId}`)
-      .or(`requester_id.eq.${theirId},addressee_id.eq.${theirId}`)
-      .maybeSingle();
+    loadData();
+  }, [username, router, currentUser, userLoading]);
+
+  const loadRelationship = async (myId: string, theirId: string) => {
+    const conn = await api.get<any>("/api/network/connections", {
+      params: { myId, theirId },
+    });
 
     if (conn) {
       setConnectionStatus(conn.status);
       if (conn.status === "accepted") setIsConnected(true);
     }
 
-    const { data: follow } = await supabase.from("user_follows").select("*")
-      .eq("follower_id", myId).eq("following_id", theirId).maybeSingle();
+    const follow = await api.get<any>(`/api/network/follow/${theirId}`, {
+      params: { followerId: myId },
+    });
     if (follow) setIsFollowing(true);
   };
 
   const loadEndorsements = async (userId: string) => {
-    const res = await fetch(`/api/profile/${userId}/endorse`);
-    const data = await res.json();
+    const data = await api.get<{ endorsements: SkillEndorsement[] }>(`/api/profile/${userId}/endorse`);
     setEndorsements(data.endorsements || []);
   };
 
   const loadRecommendations = async (userId: string) => {
-    const res = await fetch(`/api/profile/${userId}/recommendations`);
-    const data = await res.json();
+    const data = await api.get<{ recommendations: Recommendation[] }>(`/api/profile/${userId}/recommendations`);
     setRecommendations(data.recommendations || []);
   };
 
   const handleEndorse = async (skill: string) => {
-    if (!profile || !currentUserId) return;
-    const res = await fetch(`/api/profile/${profile.id}/endorse`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ skill }),
-    });
-    if (res.ok) {
+    if (!profile || !currentUser) return;
+    try {
+      await api.post(`/api/profile/${profile.id}/endorse`, { skill });
       toast.success(`Endorsed ${skill}!`);
       loadEndorsements(profile.id);
-    } else {
-      const err = await res.json();
-      toast.error(err.error || "Failed to endorse");
+    } catch (err: any) {
+      toast.error(err?.body?.error || "Failed to endorse");
     }
   };
 
   const handleConnect = async () => {
-    if (!profile || !currentUserId) return;
-    const res = await fetch("/api/network/connect", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ receiverId: profile.id }),
-    });
-    if (res.ok) {
+    if (!profile || !currentUser) return;
+    try {
+      await api.post("/api/network/connect", { receiverId: profile.id });
       toast.success("Connection request sent!");
       setConnectionStatus("pending");
-    } else {
-      const err = await res.json();
-      toast.error(err.error || "Failed to send request");
+    } catch (err: any) {
+      toast.error(err?.body?.error || "Failed to send request");
     }
   };
 
   const handleFollow = async () => {
-    if (!profile || !currentUserId) return;
+    if (!profile || !currentUser) return;
     if (isFollowing) {
-      await fetch(`/api/network/follow/${profile.id}`, { method: "DELETE" });
+      await api.delete(`/api/network/follow/${profile.id}`);
       setIsFollowing(false);
       toast.success("Unfollowed");
     } else {
-      await fetch(`/api/network/follow/${profile.id}`, { method: "POST" });
+      await api.post(`/api/network/follow/${profile.id}`);
       setIsFollowing(true);
       toast.success("Following!");
     }
@@ -136,18 +121,17 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
   const handleSubmitRecommendation = async () => {
     if (!profile || !recContent) return;
     setSubmitting(true);
-    const res = await fetch(`/api/profile/${profile.id}/recommendations`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: recContent, relationship: recRelationship }),
-    });
-    if (res.ok) {
+    try {
+      await api.post(`/api/profile/${profile.id}/recommendations`, {
+        content: recContent,
+        relationship: recRelationship,
+      });
       toast.success("Recommendation sent!");
       setShowRecommendModal(false);
       setRecContent("");
       setRecRelationship("");
       loadRecommendations(profile.id);
-    } else {
+    } catch {
       toast.error("Failed to send recommendation");
     }
     setSubmitting(false);
@@ -162,7 +146,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     );
   }
 
-  if (loading) {
+  if (loading || userLoading) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-accent animate-spin" />
@@ -180,7 +164,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     );
   }
 
-  const isOwnProfile = currentUserId === profile.id;
+  const isOwnProfile = currentUser?.id === profile.id;
   const endorsedSkills = new Map<string, number>();
   endorsements.forEach((e) => {
     endorsedSkills.set(e.skill, (endorsedSkills.get(e.skill) || 0) + 1);

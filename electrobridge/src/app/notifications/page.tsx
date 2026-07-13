@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -8,10 +7,13 @@ import {
   Repeat2, Award, Star, MessageSquare, CheckCheck,
   Briefcase, Eye, Building2
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useMutation } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { FEATURES } from "@/lib/feature-flags";
 import { ComingSoon } from "@/components/shared/ComingSoon";
+import { api } from "@/lib/api-client";
+import { useUser } from "@/hooks/useUser";
+import { useNotifications, useMarkNotificationsRead } from "@/hooks/useNotifications";
 
 function getInitials(name: string): string {
   return name.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase();
@@ -56,37 +58,23 @@ const TYPE_LINKS: Record<string, string> = {
 
 export default function NotificationsPage() {
   const router = useRouter();
+  const { user, loading: userLoading } = useUser();
+  const { data, isLoading: notificationsLoading } = useNotifications();
+  const markAllRead = useMarkNotificationsRead();
+  const markOneRead = useMutation({
+    mutationFn: (id: string) => api.patch(`/api/notifications/${id}`),
+  });
 
-  const supabase = createClient();
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  if (userLoading || notificationsLoading) {
+    return <div className="flex items-center justify-center min-h-[80vh]"><Loader2 className="w-8 h-8 text-accent animate-spin" /></div>;
+  }
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data?.user) router.push("/login");
-      else setCurrentUserId(data.user.id);
-    });
-  }, [router, supabase]);
+  if (!user) {
+    router.push("/login");
+    return null;
+  }
 
-  const loadNotifications = useCallback(async () => {
-    const res = await fetch("/api/notifications?limit=50");
-    const data = await res.json();
-    setNotifications(data.notifications || []);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => { if (currentUserId) loadNotifications(); }, [currentUserId, loadNotifications]);
-
-  const handleMarkAllRead = async () => {
-    await fetch("/api/notifications", { method: "PATCH" });
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-  };
-
-  const handleMarkRead = async (id: string) => {
-    await fetch(`/api/notifications/${id}`, { method: "PATCH" });
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
-  };
+  const notifications = data?.notifications || [];
 
   const getEntityLink = (notif: any): string => {
     if (TYPE_LINKS[notif.type]) return TYPE_LINKS[notif.type];
@@ -106,11 +94,7 @@ export default function NotificationsPage() {
     );
   }
 
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-[80vh]"><Loader2 className="w-8 h-8 text-accent animate-spin" /></div>;
-  }
-
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const unreadCount = notifications.filter((n: any) => !n.is_read).length;
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -126,7 +110,7 @@ export default function NotificationsPage() {
         </div>
         {unreadCount > 0 && (
           <button
-            onClick={handleMarkAllRead}
+            onClick={() => markAllRead.mutate()}
             className="flex items-center gap-1 text-accent text-sm font-medium hover:underline"
           >
             <CheckCheck className="w-4 h-4" /> Mark all read
@@ -135,13 +119,13 @@ export default function NotificationsPage() {
       </div>
 
       <div className="space-y-1">
-        {notifications.map((n) => {
+        {notifications.map((n: any) => {
           const Icon = TYPE_ICONS[n.type] || Bell;
           return (
             <Link
               key={n.id}
               href={getEntityLink(n)}
-              onClick={() => !n.is_read && handleMarkRead(n.id)}
+              onClick={() => !n.is_read && markOneRead.mutate(n.id)}
               className={`flex items-start gap-3 p-4 rounded-xl transition-colors ${
                 n.is_read ? "opacity-60" : "bg-accent/5 border border-accent/10"
               } hover:bg-surface`}

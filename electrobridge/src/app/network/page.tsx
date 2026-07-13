@@ -3,7 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Users, UserPlus, UserCheck, Check, X, Search } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { useConnections, useConnectionSuggestions } from "@/hooks/useNetwork";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 interface Person {
@@ -37,51 +39,52 @@ function initials(name?: string | null): string {
 
 export default function NetworkPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { user, loading: userLoading } = useUser();
   const [tab, setTab] = useState<TabKey>("connections");
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [connections, setConnections] = useState<Person[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
-  const [suggestions, setSuggestions] = useState<Person[]>([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const { data: connectionsData, isLoading: connectionsLoading } = useConnections(
+    tab === "connections" ? search : undefined
+  );
+  const { data: suggestionsData, isLoading: suggestionsLoading } = useConnectionSuggestions();
+
+  const connections = connectionsData?.connections || [];
+  const suggestions = suggestionsData?.suggestions || [];
+
+  const loadRequests = useCallback(async () => {
+    setRequestsLoading(true);
     try {
-      if (tab === "connections") {
-        const res = await fetch(`/api/network/connections${search ? `?q=${encodeURIComponent(search)}` : ""}`);
-        if (res.ok) {
-          const data = await res.json();
-          setConnections(data.connections || []);
-        }
-      } else if (tab === "received") {
-        const res = await fetch("/api/network/connect");
-        if (res.ok) {
-          const data = await res.json();
-          setRequests(data.requests || []);
-        }
-      } else if (tab === "suggestions") {
-        const res = await fetch("/api/network/suggestions?limit=20");
-        if (res.ok) {
-          const data = await res.json();
-          setSuggestions(data.suggestions || []);
-        }
+      const res = await fetch("/api/network/connect");
+      if (res.ok) {
+        const data = await res.json();
+        setRequests(data.requests || []);
       }
     } catch {
       /* ignore */
     }
-    setLoading(false);
-  }, [tab, search]);
+    setRequestsLoading(false);
+  }, []);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data?.user) router.push("/login?redirectTo=/network");
-    });
-  }, [router]);
+    if (!userLoading && !user) {
+      router.push("/login?redirectTo=/network");
+    }
+  }, [user, userLoading, router]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    if (tab === "received") {
+      loadRequests();
+    }
+  }, [tab, loadRequests]);
+
+  const loading =
+    userLoading ||
+    (tab === "connections" && connectionsLoading) ||
+    (tab === "suggestions" && suggestionsLoading) ||
+    (tab === "received" && requestsLoading);
 
   const connect = async (addresseeId: string) => {
     try {
@@ -92,7 +95,7 @@ export default function NetworkPage() {
       });
       if (res.ok) {
         toast.success("Request sent!");
-        load();
+        queryClient.invalidateQueries({ queryKey: ["network", "suggestions"] });
       } else {
         toast.error("Failed");
       }
@@ -110,7 +113,8 @@ export default function NetworkPage() {
       });
       if (res.ok) {
         toast.success(status === "accepted" ? "Connected!" : "Declined");
-        load();
+        queryClient.invalidateQueries({ queryKey: ["connections"] });
+        loadRequests();
       }
     } catch {
       /* ignore */

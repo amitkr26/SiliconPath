@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Save, Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 
 interface EduItem { school: string; degree: string; year: string }
@@ -14,6 +15,7 @@ const STEPS = ["Personal", "Education", "Experience", "Skills", "Projects"];
 
 export default function ResumeBuilderPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useUser();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [step, setStep] = useState(0);
@@ -33,54 +35,46 @@ export default function ResumeBuilderPage() {
   const [skillInput, setSkillInput] = useState("");
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data?.user) {
-        router.push("/login?redirectTo=/resume");
-        return;
-      }
-      const res = await fetch("/api/resume");
-      if (res.ok) {
-        const r = await res.json();
-        if (r) {
-          setFullName(r.full_name || "");
-          setHeadline(r.headline || "");
-          setEmail(r.email || "");
-          setPhone(r.phone || "");
-          setLocation(r.location || "");
-          setSummary(r.summary || "");
-          setEducation(r.education || []);
-          setExperience(r.experience || []);
-          setProjects(r.projects || []);
-          setSkills(r.skills || []);
-          setAtsScore(typeof r.ats_score === "number" ? r.ats_score : null);
-        }
-      }
-      setLoading(false);
-    });
-  }, [router]);
+    if (authLoading) return;
+    if (!user) {
+      router.push("/login?redirectTo=/resume");
+      return;
+    }
+    api.get<{ full_name?: string; headline?: string; email?: string; phone?: string; location?: string; summary?: string; education?: EduItem[]; experience?: ExpItem[]; projects?: ProjItem[]; skills?: string[]; ats_score?: number }>("/api/resume")
+      .then((r) => {
+        setFullName(r.full_name || "");
+        setHeadline(r.headline || "");
+        setEmail(r.email || "");
+        setPhone(r.phone || "");
+        setLocation(r.location || "");
+        setSummary(r.summary || "");
+        setEducation(r.education || []);
+        setExperience(r.experience || []);
+        setProjects(r.projects || []);
+        setSkills(r.skills || []);
+        setAtsScore(typeof r.ats_score === "number" ? r.ats_score : null);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [user, authLoading, router]);
 
   const save = async () => {
     setSaving(true);
     try {
-      const res = await fetch("/api/resume", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          full_name: fullName, headline, email, phone, location, summary,
-          education, experience, projects, skills,
-        }),
+      const data = await api.post<{ ats_score?: number; ats_feedback?: string[]; error?: string }>("/api/resume", {
+        full_name: fullName, headline, email, phone, location, summary,
+        education, experience, projects, skills,
       });
-      const data = await res.json();
-      if (res.ok) {
+      if (data.ats_score !== undefined) {
         setAtsScore(data.ats_score);
         setFeedback(data.ats_feedback || []);
         toast.success(`Saved! ATS score: ${data.ats_score}/100`);
       } else {
         toast.error(data.error || "Failed to save");
       }
-    } catch {
-      toast.error("Failed to save");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to save";
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -89,7 +83,7 @@ export default function ResumeBuilderPage() {
   const inputCls =
     "w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent placeholder:text-text-muted";
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-primary">
         <Loader2 className="w-8 h-8 animate-spin text-accent" />

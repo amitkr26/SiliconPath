@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Save, X, Plus, MapPin, Briefcase, FileText } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 
 interface Profile {
@@ -31,35 +32,41 @@ function initials(name?: string): string {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useUser();
   const [saving, setSaving] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [profile, setProfile] = useState<Profile>({});
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data?.user) {
-        router.push("/login?redirectTo=/profile");
-        return;
-      }
-      setUserId(data.user.id);
-      const { data: existing } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("id", data.user.id)
-        .maybeSingle();
-      if (existing) {
-        setProfile(existing as Profile);
-        setSkills((existing as Profile).skills || []);
-      } else {
-        setProfile({ display_name: data.user.user_metadata?.full_name || "" });
-      }
-      setLoading(false);
-    });
-  }, [router]);
+    if (authLoading) return;
+    if (!user) {
+      router.push("/login?redirectTo=/profile");
+      return;
+    }
+
+    let cancelled = false;
+
+    api
+      .get<Profile>("/api/profile/" + user.id)
+      .then((existing) => {
+        if (cancelled) return;
+        setProfile(existing);
+        setSkills(existing.skills || []);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setProfile({ display_name: user.user_metadata?.full_name || "" });
+      })
+      .finally(() => {
+        if (!cancelled) setProfileLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, authLoading, router]);
 
   const update = (patch: Partial<Profile>) => setProfile((prev) => ({ ...prev, ...patch }));
 
@@ -73,10 +80,10 @@ export default function ProfilePage() {
 
   const save = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!userId) return;
+    if (!user) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/profile/${userId}`, {
+      const res = await fetch(`/api/profile/${user.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -104,7 +111,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) {
+  if (authLoading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-primary">
         <Loader2 className="w-8 h-8 animate-spin text-accent" />

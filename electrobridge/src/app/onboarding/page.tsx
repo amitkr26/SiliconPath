@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Briefcase, Building2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 
 type AccountType = "seeker" | "provider";
@@ -14,11 +15,10 @@ function slugify(s: string): string {
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useUser();
   const [ready, setReady] = useState(false);
   const [saving, setSaving] = useState(false);
   const [accountType, setAccountType] = useState<AccountType>("seeker");
-  const [userId, setUserId] = useState<string | null>(null);
-  const [email, setEmail] = useState<string>("");
 
   // shared
   const [displayName, setDisplayName] = useState("");
@@ -36,34 +36,27 @@ export default function OnboardingPage() {
   const [website, setWebsite] = useState("");
 
   useEffect(() => {
-    (async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.replace("/login");
-        return;
-      }
-      const meta = user.user_metadata || {};
-      const type: AccountType = meta.account_type === "provider" ? "provider" : "seeker";
-      setAccountType(type);
-      setUserId(user.id);
-      setEmail(user.email || "");
-      setDisplayName(meta.full_name || "");
-      setOrgName(meta.org_name || "");
-      setReady(true);
-    })();
-  }, [router]);
+    if (authLoading) return;
+    if (!user) {
+      router.replace("/login");
+      return;
+    }
+    const meta = user.user_metadata || {};
+    const type: AccountType = meta.account_type === "provider" ? "provider" : "seeker";
+    setAccountType(type);
+    setDisplayName(meta.full_name || "");
+    setOrgName(meta.org_name || "");
+    setReady(true);
+  }, [user, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userId) return;
+    if (!user) return;
     setSaving(true);
     try {
-      const supabase = createClient();
-
-      const { error: profErr } = await supabase.from("user_profiles").upsert({
-        id: userId,
-        email,
+      await api.post("/api/profile", {
+        id: user.id,
+        email: user.email,
         account_type: accountType,
         display_name: displayName,
         location: location || null,
@@ -75,11 +68,10 @@ export default function OnboardingPage() {
             ? skills.split(",").map((s) => s.trim()).filter(Boolean)
             : [],
       });
-      if (profErr) throw profErr;
 
       if (accountType === "provider") {
-        const { error: coErr } = await supabase.from("company_profiles").insert({
-          owner_id: userId,
+        await api.post("/api/organizations", {
+          owner_id: user.id,
           name: orgName,
           slug: slugify(orgName) + "-" + Date.now().toString(36),
           kind: orgKind,
@@ -87,7 +79,6 @@ export default function OnboardingPage() {
           location: location || null,
           country: country || null,
         });
-        if (coErr) throw coErr;
       }
 
       toast.success("Profile set up!");
@@ -99,7 +90,7 @@ export default function OnboardingPage() {
     }
   };
 
-  if (!ready) {
+  if (authLoading || !ready) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-primary">
         <Loader2 className="w-8 h-8 animate-spin text-accent" />

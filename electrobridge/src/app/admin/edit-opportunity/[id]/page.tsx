@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { supabase, supabaseAdmin, isConfigured, isAdminConfigured } from "@/lib/supabase";
+import { useUser } from "@/hooks/useUser";
+import { api } from "@/lib/api-client";
 import { CATEGORIES } from "@/lib/utils";
 import { toast } from "sonner";
 import { Loader2, Save, Trash2, ArrowLeft } from "lucide-react";
@@ -12,6 +13,7 @@ import Link from "next/link";
 export default function EditOpportunityPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useUser();
   const id = params.id as string;
 
   const [authenticated, setAuthenticated] = useState(false);
@@ -59,34 +61,25 @@ export default function EditOpportunityPage() {
     if (!authenticated || !id) return;
     (async () => {
       setLoading(true);
-      if (!isConfigured || !isAdminConfigured) {
-        toast.error("Database not configured");
-        setLoading(false);
-        return;
-      }
-      const { data, error } = await supabaseAdmin!
-        .from("opportunities")
-        .select("*")
-        .eq("id", id)
-        .single();
-      if (error || !data) {
+      try {
+        const opp = await api.get<Opportunity>(`/api/admin/opportunities/${id}`);
+        setForm({
+          title: opp.title || "",
+          organization: opp.organization || "",
+          category: opp.category || "JRF",
+          location: opp.location || "",
+          stipend: opp.stipend || "",
+          deadline: opp.deadline ? opp.deadline.slice(0, 10) : "",
+          description: opp.description || "",
+          apply_link: opp.apply_link || "",
+          official_page_url: opp.official_page_url || "",
+          tags: (opp.tags || []).join(", "),
+        });
+      } catch {
         toast.error("Opportunity not found");
         router.push("/admin");
         return;
       }
-      const opp = data as Opportunity;
-      setForm({
-        title: opp.title || "",
-        organization: opp.organization || "",
-        category: opp.category || "JRF",
-        location: opp.location || "",
-        stipend: opp.stipend || "",
-        deadline: opp.deadline ? opp.deadline.slice(0, 10) : "",
-        description: opp.description || "",
-        apply_link: opp.apply_link || "",
-        official_page_url: opp.official_page_url || "",
-        tags: (opp.tags || []).join(", "),
-      });
       setLoading(false);
     })();
   }, [authenticated, id, router]);
@@ -95,21 +88,12 @@ export default function EditOpportunityPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch(`/api/opportunities/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
-          deadline: form.deadline ? new Date(form.deadline).toISOString() : null,
-        }),
+      await api.patch(`/api/admin/opportunities/${id}`, {
+        ...form,
+        tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
+        deadline: form.deadline ? new Date(form.deadline).toISOString() : null,
       });
-      if (res.ok) {
-        toast.success("Opportunity updated!");
-      } else {
-        const data = await res.json();
-        toast.error(data.error || "Failed to update");
-      }
+      toast.success("Opportunity updated!");
     } catch {
       toast.error("Something went wrong");
     }
@@ -120,12 +104,7 @@ export default function EditOpportunityPage() {
     if (!confirm("Are you sure? This cannot be undone.")) return;
     setDeleting(true);
     try {
-      if (!isAdminConfigured) { toast.error("Admin access not configured"); return; }
-      const { error } = await supabaseAdmin!
-        .from("opportunities")
-        .update({ is_active: false })
-        .eq("id", id);
-      if (error) throw error;
+      await api.patch(`/api/admin/opportunities/${id}`, { is_active: false });
       toast.success("Opportunity deactivated");
       router.push("/admin");
     } catch {

@@ -6,26 +6,11 @@ import Link from "next/link";
 import {
   Loader2, Send, ThumbsUp, MessageCircle, Repeat2, Trash2, Users, Briefcase,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { useFeed, useCreatePost, useLikePost } from "@/hooks/useFeed";
+import { api } from "@/lib/api-client";
 import { toast } from "sonner";
-
-interface Author {
-  id?: string;
-  display_name?: string | null;
-  headline?: string | null;
-  avatar_url?: string | null;
-}
-
-interface Post {
-  id: string;
-  author_id: string;
-  content: string;
-  created_at: string;
-  like_count?: number;
-  comment_count?: number;
-  user_reaction?: string | null;
-  author?: Author | null;
-}
+import type { FeedPost } from "@/types";
 
 interface Opp {
   id: string;
@@ -53,25 +38,19 @@ function timeAgo(date: string): string {
 
 export default function FeedPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState("");
-  const [posts, setPosts] = useState<Post[]>([]);
+  const { user, loading: userLoading } = useUser();
+  const { data: feedData, isLoading: feedLoading } = useFeed(20);
+  const createPost = useCreatePost();
+  const likePost = useLikePost();
   const [content, setContent] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const [opps, setOpps] = useState<Opp[]>([]);
 
-  const loadFeed = useCallback(async () => {
-    try {
-      const res = await fetch("/api/feed?limit=20");
-      if (res.ok) {
-        const data = await res.json();
-        setPosts(data.posts || []);
-      }
-    } catch {
-      /* ignore */
-    }
-  }, []);
+  const posts = feedData?.pages.flatMap((p) => p.posts) ?? [];
+
+  const displayName =
+    (user as any)?.user_metadata?.display_name ||
+    user?.email ||
+    "You";
 
   const loadOpps = useCallback(async () => {
     try {
@@ -86,82 +65,43 @@ export default function FeedPage() {
   }, []);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data?.user) {
-        router.push("/login?redirectTo=/feed");
-        return;
-      }
-      setUserId(data.user.id);
-      const { data: prof } = await supabase
-        .from("user_profiles")
-        .select("display_name, avatar_url")
-        .eq("id", data.user.id)
-        .maybeSingle();
-      setDisplayName(prof?.display_name || data.user.email || "You");
-      setLoading(false);
-    });
-    loadFeed();
-    loadOpps();
-  }, [router, loadFeed, loadOpps]);
+    if (!userLoading && !user) {
+      router.push("/login?redirectTo=/feed");
+      return;
+    }
+  }, [user, userLoading, router]);
 
-  const createPost = async () => {
+  useEffect(() => {
+    loadOpps();
+  }, [loadOpps]);
+
+  const handleSubmit = async () => {
     if (!content.trim()) return;
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/feed", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
-      });
-      if (res.ok) {
+    createPost.mutate(content, {
+      onSuccess: () => {
         setContent("");
         toast.success("Posted!");
-        loadFeed();
-      } else {
+      },
+      onError: () => {
         toast.error("Failed to post");
-      }
-    } catch {
-      toast.error("Failed to post");
-    } finally {
-      setSubmitting(false);
-    }
+      },
+    });
   };
 
-  const like = async (postId: string) => {
-    try {
-      const res = await fetch(`/api/feed/posts/${postId}/like`, { method: "POST" });
-      if (res.ok) {
-        setPosts((prev) =>
-          prev.map((p) => {
-            if (p.id !== postId) return p;
-            const liked = !!p.user_reaction;
-            return {
-              ...p,
-              like_count: liked ? (p.like_count || 1) - 1 : (p.like_count || 0) + 1,
-              user_reaction: liked ? null : "like",
-            };
-          })
-        );
-      }
-    } catch {
-      /* ignore */
-    }
+  const like = (postId: string) => {
+    likePost.mutate(postId);
   };
 
   const remove = async (postId: string) => {
     try {
-      const res = await fetch(`/api/feed/posts/${postId}`, { method: "DELETE" });
-      if (res.ok) {
-        setPosts((prev) => prev.filter((p) => p.id !== postId));
-        toast.success("Deleted");
-      }
+      const res = await api.delete(`/api/feed/posts/${postId}`);
+      toast.success("Deleted");
     } catch {
       /* ignore */
     }
   };
 
-  if (loading) {
+  if (userLoading || feedLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-primary">
         <Loader2 className="w-8 h-8 animate-spin text-accent" />
@@ -190,11 +130,11 @@ export default function FeedPage() {
                 />
                 <div className="flex justify-end mt-2">
                   <button
-                    onClick={createPost}
-                    disabled={submitting || !content.trim()}
+                    onClick={handleSubmit}
+                    disabled={createPost.isPending || !content.trim()}
                     className="inline-flex items-center gap-1.5 bg-accent text-white text-sm font-semibold rounded-lg px-4 py-2 disabled:opacity-50"
                   >
-                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    {createPost.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                     Post
                   </button>
                 </div>
@@ -216,21 +156,21 @@ export default function FeedPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {posts.map((post) => (
+              {posts.map((post: FeedPost) => (
                 <div key={post.id} className="bg-bg-secondary border border-border rounded-xl p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-10 h-10 rounded-full bg-accent/15 text-accent flex items-center justify-center text-sm font-bold flex-shrink-0">
-                        {initials(post.author?.display_name)}
+                        {initials(post.user_profile?.full_name)}
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-text-primary truncate">
-                          {post.author?.display_name || "Member"}
+                          {post.user_profile?.full_name || "Member"}
                         </p>
                         <p className="text-xs text-text-muted">{timeAgo(post.created_at)}</p>
                       </div>
                     </div>
-                    {post.author_id === userId && (
+                    {post.user_id === user?.id && (
                       <button
                         onClick={() => remove(post.id)}
                         className="text-text-muted hover:text-danger transition-colors"
@@ -254,10 +194,10 @@ export default function FeedPage() {
                           : "text-text-secondary hover:bg-bg-primary hover:text-text-primary"
                       }`}
                     >
-                      <ThumbsUp className="w-4 h-4" /> {post.like_count || 0}
+                      <ThumbsUp className="w-4 h-4" /> {post.likes_count || 0}
                     </button>
                     <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-text-secondary">
-                      <MessageCircle className="w-4 h-4" /> {post.comment_count || 0}
+                      <MessageCircle className="w-4 h-4" /> {post.comments_count || 0}
                     </span>
                     <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-text-secondary">
                       <Repeat2 className="w-4 h-4" />

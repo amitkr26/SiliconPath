@@ -8,9 +8,11 @@ import {
   Loader2, ExternalLink, Clock,
   MapPin
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
+import { useApplications, useUpdateApplicationStatus } from "@/hooks/useApplications";
+import { useProfile } from "@/hooks/useProfile";
+import { api } from "@/lib/api-client";
 import DeadlineCountdown from "@/components/DeadlineCountdown";
-import type { User } from "@supabase/supabase-js";
 
 interface ApplicationWithOpportunity {
   id: string;
@@ -23,6 +25,14 @@ interface ApplicationWithOpportunity {
     deadline: string | null;
     location: string | null;
   };
+}
+
+interface BookmarksResponse {
+  count: number;
+}
+
+interface AlertsResponse {
+  count: number;
 }
 
 function getInitials(str: string): string {
@@ -51,56 +61,33 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useUser();
+  const { data: appsData, isLoading: appsLoading } = useApplications();
+  const { data: profile, isLoading: profileLoading } = useProfile();
+  const updateStatus = useUpdateApplicationStatus();
+
   const [savedCount, setSavedCount] = useState(0);
-  const [appCount, setAppCount] = useState(0);
-  const [resumeScore, setResumeScore] = useState(0);
   const [alertCount, setAlertCount] = useState(0);
-  const [applications, setApplications] = useState<ApplicationWithOpportunity[]>([]);
-  const [profileLoaded, setProfileLoaded] = useState(false);
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data?.user) {
-        router.push("/login");
-        return;
-      }
-      setUser(data.user);
-      await loadDashboardData(supabase, data.user.id);
-      setLoading(false);
-    });
-  }, [router]);
-
-  const loadDashboardData = async (supabase: ReturnType<typeof createClient>, userId: string) => {
-    const [savedRes, appRes, profileRes, alertsRes] = await Promise.all([
-      supabase.from("saved_opportunities").select("*", { count: "exact", head: true }).eq("user_id", userId),
-      supabase.from("applications").select("id, status, applied_at, opportunity:opportunities(title, organization, slug, deadline, location)", { count: "exact", head: false }).eq("user_id", userId).order("applied_at", { ascending: false }),
-      supabase.from("user_profiles").select("resume_ats_score").eq("id", userId).single(),
-      supabase.from("user_alerts").select("*", { count: "exact", head: true }).eq("user_id", userId).eq("is_active", true),
-    ]);
-
-    setSavedCount(savedRes.count ?? 0);
-    setAppCount(appRes.count ?? 0);
-    setResumeScore(profileRes.data?.resume_ats_score ?? 0);
-    setAlertCount(alertsRes.count ?? 0);
-    setProfileLoaded(true);
-
-    if (appRes.data) {
-      setApplications(
-        (appRes.data as any[]).map((a) => ({
-          id: a.id,
-          status: a.status,
-          applied_at: a.applied_at,
-          opportunity: Array.isArray(a.opportunity) ? a.opportunity[0] : a.opportunity,
-        }))
-      );
+    if (!authLoading && !user) {
+      router.push("/login");
     }
-  };
+  }, [user, authLoading, router]);
 
-  if (loading) {
+  useEffect(() => {
+    if (!user) return;
+
+    Promise.all([
+      api.get<BookmarksResponse>("/api/bookmarks", { params: { limit: 1, offset: 0 } }),
+      api.get<AlertsResponse>("/api/alerts"),
+    ]).then(([bookmarksRes, alertsRes]) => {
+      setSavedCount(bookmarksRes.count ?? 0);
+      setAlertCount(alertsRes.count ?? 0);
+    });
+  }, [user]);
+
+  if (authLoading || appsLoading || profileLoading) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-accent animate-spin" />
@@ -108,22 +95,23 @@ export default function DashboardPage() {
     );
   }
 
+  const applications: ApplicationWithOpportunity[] = (appsData?.applications ?? []).map((a: any) => ({
+    id: a.id,
+    status: a.status,
+    applied_at: a.applied_at,
+    opportunity: Array.isArray(a.opportunity) ? a.opportunity[0] : a.opportunity,
+  }));
+
+  const appCount = appsData?.count ?? applications.length;
+  const resumeScore = (profile as any)?.resume_ats_score ?? 0;
+
   const upcomingDeadlines = applications
     .filter((a) => a.opportunity?.deadline)
     .sort((a, b) => new Date(a.opportunity.deadline!).getTime() - new Date(b.opportunity.deadline!).getTime())
     .slice(0, 5);
 
   const handleStatusChange = async (appId: string, newStatus: string) => {
-    setUpdatingStatus(appId);
-    try {
-      await fetch("/api/applications", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: appId, status: newStatus }),
-      });
-      setApplications(prev => prev.map(a => a.id === appId ? { ...a, status: newStatus } : a));
-    } catch {}
-    setUpdatingStatus(null);
+    updateStatus.mutate({ id: appId, status: newStatus });
   };
 
   const resumeCircularProgress = resumeScore;
@@ -178,7 +166,7 @@ export default function DashboardPage() {
             <span className="text-3xl font-bold text-text-primary font-display">{resumeScore}</span>
           </div>
           <p className="text-text-secondary text-sm font-medium">Resume ATS Score</p>
-          {resumeScore === 0 && profileLoaded && (
+          {resumeScore === 0 && !profileLoading && (
             <p className="text-text-muted text-xs mt-1">Build your resume to get scored</p>
           )}
         </div>
@@ -242,7 +230,7 @@ export default function DashboardPage() {
                     <select
                       value={app.status}
                       onChange={(e) => handleStatusChange(app.id, e.target.value)}
-                      disabled={updatingStatus === app.id}
+                      disabled={updateStatus.isPending}
                       className={`px-2 py-0.5 rounded-lg text-xs font-medium border outline-none cursor-pointer ${STATUS_STYLES[app.status] || STATUS_STYLES.applied}`}
                     >
                       {Object.entries(STATUS_LABELS).map(([key, label]) => (
