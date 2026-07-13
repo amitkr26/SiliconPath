@@ -73,7 +73,7 @@ export function getClientForPurpose(
     case "news":
       return { type: "supabase", client: clients.db1 };
     case "social":
-      return { type: "supabase", client: clients.db2 };
+      return { type: "supabase", client: clients.db1 };
     case "analytics":
       return { type: "neon", client: clients.neon1 };
     case "cache":

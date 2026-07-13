@@ -18,6 +18,7 @@ export interface AIOptions {
   systemPrompt?: string;
   maxTokens?: number;
   temperature?: number;
+  model?: string;
   signal?: AbortSignal;
 }
 
