@@ -1,17 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
-import { verifyAdmin } from "@/lib/admin-auth";
+import { requireAdmin, serverError } from "@siliconpath/api";
 
-// Scrape health monitor data (admin-only).
-// Reads v2 tables: scrape_runs, scrape_sources, and a sample of recent opportunities
-// (with joined organization name) so data quality can be eyeballed for the
-// person-name-as-organization bug class.
 export async function GET(request: NextRequest) {
-  if (!verifyAdmin(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  try { await requireAdmin(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
+
   if (!isAdminConfigured || !supabaseAdmin) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return new Response(JSON.stringify({ error: "Database not configured" }), { status: 503, headers: { "Content-Type": "application/json" } });
   }
 
   const { data: runs } = await supabaseAdmin
@@ -37,7 +33,7 @@ export async function GET(request: NextRequest) {
     (s: { consecutive_failures: number | null }) => (s.consecutive_failures || 0) > 0
   ).length;
 
-  return NextResponse.json({
+  return new Response(JSON.stringify({
     summary: {
       total_sources: (sources || []).length,
       active_sources: activeSources,
@@ -47,5 +43,5 @@ export async function GET(request: NextRequest) {
     runs: runs || [],
     sources: sources || [],
     recent_opportunities: recentOpps || [],
-  });
+  }), { headers: { "Content-Type": "application/json" } });
 }

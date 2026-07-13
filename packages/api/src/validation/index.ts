@@ -23,9 +23,9 @@ export function validatePartial<T extends z.ZodRawShape>(
 export function parseQueryParams(request: Request, schema: z.ZodSchema): Record<string, unknown> {
   const url = new URL(request.url);
   const params: Record<string, string> = {};
-  for (const [key, value] of url.searchParams.entries()) {
+  url.searchParams.forEach((value, key) => {
     params[key] = value;
-  }
+  });
   return validate(schema, params) as Record<string, unknown>;
 }
 
@@ -119,3 +119,31 @@ export function applyFilters(query: any, filters: FilterParams) {
   }
   return query;
 }
+
+export const opportunitySchema = z.object({
+  title: z.string().min(3).max(300),
+  organization: z.string().min(1).max(200),
+  category: z.string().min(1).max(100),
+  location: z.string().max(200).nullable().default(null),
+  stipend: z.string().max(100).nullable().default(null),
+  deadline: z.string().max(50).nullable().default(null),
+  eligibility: z.string().max(500).nullable().default(null),
+  description: z.string().max(5000).nullable().default(null),
+  apply_link: z.string().url().max(1000).nullable().default(null),
+  source_url: z.string().url().max(1000).nullable().default(null),
+  source_type: z.string().max(50).optional(),
+  tags: z.array(z.string().max(50)).max(20).default([]),
+});
+
+export const opportunityListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  category: z.string().optional(),
+  eligibility: z.string().optional(),
+  location: z.string().optional(),
+  deadline: z.string().optional(),
+  verified: z.enum(["all", "true", "false"]).optional(),
+  search: z.string().max(100).optional(),
+});
+
+export type OpportunityListQuery = z.infer<typeof opportunityListQuerySchema>;

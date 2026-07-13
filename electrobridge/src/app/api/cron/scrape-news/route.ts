@@ -1,20 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase";
 import { fetchAllNews } from "@/lib/scrapers/rss-parser";
 import { isElectronicsNews, autoTagArticle } from "@/lib/scrapers/news-filter";
 import { normalizeUrl, slugify } from "@/lib/scrapers/utils";
+import { requireCron, serverError } from "@siliconpath/api";
 
 export async function GET(request: NextRequest) {
   if (!isConfigured) {
-    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+    return new Response(JSON.stringify({ error: "Database not configured." }), { status: 503, headers: { "Content-Type": "application/json" } });
   }
 
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  try { await requireCron(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
 
   try {
     const articles = await fetchAllNews();
@@ -74,14 +71,14 @@ export async function GET(request: NextRequest) {
       else newsSkipped++;
     }
 
-    return NextResponse.json({
+    return new Response(JSON.stringify({
       message: "News scrape complete",
       total_fetched: articles.length,
       inserted: newsInserted,
       skipped: newsSkipped,
-    });
+    }), { headers: { "Content-Type": "application/json" } });
   } catch (error: any) {
     console.error("News scrape error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }

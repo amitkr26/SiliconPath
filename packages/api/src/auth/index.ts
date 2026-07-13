@@ -1,9 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { unauthorized, forbidden, serverError } from "../response";
+import { unauthorized, forbidden } from "../response";
 import type { AuthUser } from "../types";
+export type { AuthUser };
 
-export async function getUser(request: NextRequest): Promise<AuthUser | null> {
+interface RequestLike {
+  headers: { get(name: string): string | null };
+}
+
+export async function getUser(request: RequestLike): Promise<AuthUser | null> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -19,72 +23,51 @@ export async function getUser(request: NextRequest): Promise<AuthUser | null> {
   return { id: user.id, email: user.email || "", role: user.role };
 }
 
-export async function requireAuth(request: NextRequest): Promise<AuthUser> {
+export async function requireAuth(request: RequestLike): Promise<AuthUser> {
   const user = await getUser(request);
   if (!user) throw unauthorized();
   return user;
 }
 
-export async function requireAdmin(request: NextRequest): Promise<AuthUser> {
-  const user = await requireAuth(request);
+export async function requireAdmin(request: RequestLike): Promise<AuthUser> {
   const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!adminPassword) throw forbidden("Admin not configured");
+  const cronSecret = process.env.CRON_SECRET;
 
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) throw forbidden("Admin token required");
+  if (!adminPassword && !cronSecret) throw forbidden("Server keys are missing");
 
-  const token = authHeader.slice(7);
-  if (token !== adminPassword) throw forbidden("Invalid admin token");
+  const directPassword = request.headers.get("x-admin-password");
+  if (adminPassword && directPassword && directPassword === adminPassword) {
+    return { id: "admin", email: "admin", role: "admin" };
+  }
 
-  return { ...user, role: "admin" };
+  const authHeader = request.headers.get("authorization") || "";
+  const match = authHeader.match(/^Bearer\s+(.+)$/);
+  if (match) {
+    const token = match[1];
+    if (adminPassword && token === adminPassword) {
+      return { id: "admin", email: "admin", role: "admin" };
+    }
+    if (cronSecret && token === cronSecret) {
+      return { id: "cron", email: "cron", role: "cron" };
+    }
+  }
+
+  throw forbidden("Invalid admin credentials");
 }
 
-export async function requireCron(request: NextRequest): Promise<void> {
+export async function requireCron(request: RequestLike): Promise<void> {
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) throw forbidden("Cron not configured");
 
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${cronSecret}`) throw forbidden("Invalid cron secret");
+  const authHeader = request.headers.get("authorization") || "";
+  const match = authHeader.match(/^Bearer\s+(.+)$/);
+  if (!match || match[1] !== cronSecret) throw forbidden("Invalid cron secret");
 }
 
-export function withAuth<T extends unknown[]>(
-  handler: (request: NextRequest, user: AuthUser, ...args: T) => Promise<NextResponse>
-) {
-  return async (request: NextRequest, ...args: T) => {
-    try {
-      const user = await requireAuth(request);
-      return handler(request, user, ...args);
-    } catch (e) {
-      if (e instanceof NextResponse) return e;
-      throw e;
-    }
-  };
-}
-
-export function withAdmin<T extends unknown[]>(
-  handler: (request: NextRequest, user: AuthUser, ...args: T) => Promise<NextResponse>
-) {
-  return async (request: NextRequest, ...args: T) => {
-    try {
-      const user = await requireAdmin(request);
-      return handler(request, user, ...args);
-    } catch (e) {
-      if (e instanceof NextResponse) return e;
-      throw e;
-    }
-  };
-}
-
-export function withCron<T extends unknown[]>(
-  handler: (request: NextRequest, ...args: T) => Promise<NextResponse>
-) {
-  return async (request: NextRequest, ...args: T) => {
-    try {
-      await requireCron(request);
-      return handler(request, ...args);
-    } catch (e) {
-      if (e instanceof NextResponse) return e;
-      throw e;
-    }
-  };
+export async function requireCronOrAdmin(request: RequestLike): Promise<AuthUser> {
+  try {
+    return await requireAdmin(request);
+  } catch {
+    throw forbidden("Unauthorized");
+  }
 }

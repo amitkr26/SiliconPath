@@ -1,17 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
-import { verifyAdmin } from "@/lib/admin-auth";
+import { requireAdmin, serverError } from "@siliconpath/api";
 
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!verifyAdmin(request)) {
-    return NextResponse.json({ error: "Admin access required" }, { status: 401 });
-  }
+  try { await requireAdmin(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
 
   if (!isAdminConfigured || !supabaseAdmin) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return new Response(JSON.stringify({ error: "Database not configured" }), { status: 503, headers: { "Content-Type": "application/json" } });
   }
 
   try {
@@ -24,9 +23,9 @@ export async function DELETE(
 
     if (error) throw error;
 
-    return NextResponse.json({ success: true });
+    return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
   } catch (error) {
     console.error("Admin delete subscriber error:", error);
-    return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
+    return new Response(JSON.stringify({ error: "Failed to delete" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }

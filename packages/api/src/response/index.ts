@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import type {
   ApiSuccessResponse,
   ApiListResponse,
@@ -7,16 +6,23 @@ import type {
   HttpStatusCode,
 } from "../types";
 
-export function success<T>(data: T, status: HttpStatusCode = 200): NextResponse<ApiSuccessResponse<T>> {
-  return NextResponse.json({ data }, { status });
+function json<T>(data: T, init?: ResponseInit): Response {
+  return new Response(JSON.stringify(data), {
+    ...init,
+    headers: { "Content-Type": "application/json", ...init?.headers },
+  });
 }
 
-export function created<T>(data: T): NextResponse<ApiSuccessResponse<T>> {
-  return NextResponse.json({ data }, { status: 201 });
+export function success<T>(data: T, status: HttpStatusCode = 200): Response {
+  return json({ data } satisfies ApiSuccessResponse<T>, { status });
 }
 
-export function noContent(): NextResponse<null> {
-  return new NextResponse(null, { status: 204 });
+export function created<T>(data: T): Response {
+  return json({ data } satisfies ApiSuccessResponse<T>, { status: 201 });
+}
+
+export function noContent(): Response {
+  return new Response(null, { status: 204 });
 }
 
 export function list<T>(
@@ -24,22 +30,22 @@ export function list<T>(
   count: number,
   page: number,
   pageSize: number
-): NextResponse<ApiListResponse<T>> {
-  return NextResponse.json({
+): Response {
+  return json({
     data,
     count,
     page,
     pageSize,
     totalPages: Math.ceil(count / pageSize),
-  });
+  } satisfies ApiListResponse<T>);
 }
 
 export function cursor<T>(
   data: T[],
   nextCursor: string | null,
   hasMore: boolean
-): NextResponse<ApiCursorResponse<T>> {
-  return NextResponse.json({ data, nextCursor, hasMore });
+): Response {
+  return json({ data, nextCursor, hasMore } satisfies ApiCursorResponse<T>);
 }
 
 export function error(
@@ -47,43 +53,43 @@ export function error(
   status: HttpStatusCode = 500,
   code?: string,
   details?: unknown
-): NextResponse<ApiErrorResponse> {
-  return NextResponse.json({ error: message, code, details }, { status });
+): Response {
+  return json({ error: message, code, details } satisfies ApiErrorResponse, { status });
 }
 
-export function badRequest(message = "Bad request", details?: unknown): NextResponse<ApiErrorResponse> {
+export function badRequest(message = "Bad request", details?: unknown): Response {
   return error(message, 400, "BAD_REQUEST", details);
 }
 
-export function unauthorized(message = "Unauthorized"): NextResponse<ApiErrorResponse> {
+export function unauthorized(message = "Unauthorized"): Response {
   return error(message, 401, "UNAUTHORIZED");
 }
 
-export function forbidden(message = "Forbidden"): NextResponse<ApiErrorResponse> {
+export function forbidden(message = "Forbidden"): Response {
   return error(message, 403, "FORBIDDEN");
 }
 
-export function notFound(message = "Not found"): NextResponse<ApiErrorResponse> {
+export function notFound(message = "Not found"): Response {
   return error(message, 404, "NOT_FOUND");
 }
 
-export function conflict(message = "Conflict", details?: unknown): NextResponse<ApiErrorResponse> {
+export function conflict(message = "Conflict", details?: unknown): Response {
   return error(message, 409, "CONFLICT", details);
 }
 
-export function rateLimited(message = "Too many requests", retryAfter?: number): NextResponse<ApiErrorResponse> {
-  const headers: Record<string, string> = {};
+export function rateLimited(message = "Too many requests", retryAfter?: number): Response {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (retryAfter) headers["Retry-After"] = String(retryAfter);
-  return new NextResponse(
-    JSON.stringify({ error: message, code: "RATE_LIMITED" }),
+  return new Response(
+    JSON.stringify({ error: message, code: "RATE_LIMITED" } satisfies ApiErrorResponse),
     { status: 429, headers }
   );
 }
 
-export function serverError(message = "Internal server error", details?: unknown): NextResponse<ApiErrorResponse> {
+export function serverError(message = "Internal server error", details?: unknown): Response {
   return error(message, 500, "INTERNAL_ERROR", details);
 }
 
-export function validationError(message: string, details?: unknown): NextResponse<ApiErrorResponse> {
+export function validationError(message: string, details?: unknown): Response {
   return error(message, 400, "VALIDATION_ERROR", details);
 }

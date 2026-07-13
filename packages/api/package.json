@@ -9,11 +9,11 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "clean": "rm -rf .tsbuildinfo"
+    "clean": "rm -rf .tsbuildinfo",
+    "openapi": "tsx scripts/generate-openapi.ts"
   },
   "dependencies": {
-    "zod": "^4.4.3",
-    "next": "^14.2.21"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "typescript": "^5",

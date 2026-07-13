@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-
 export interface RateLimitConfig {
   windowMs: number;
   maxRequests: number;
@@ -9,7 +7,7 @@ export interface RateLimitConfig {
 const memoryStore = new Map<string, { count: number; resetAt: number }>();
 
 export function createRateLimiter(config: RateLimitConfig) {
-  return async function rateLimit(request: Request): Promise<NextResponse | null> {
+  return async function rateLimit(request: Request): Promise<Response | null> {
     const key = `${config.keyPrefix}:${getClientKey(request)}`;
     const now = Date.now();
 
@@ -23,11 +21,12 @@ export function createRateLimiter(config: RateLimitConfig) {
 
     if (record.count > config.maxRequests) {
       const retryAfter = Math.ceil((record.resetAt - now) / 1000);
-      return NextResponse.json(
-        { error: "Too many requests", code: "RATE_LIMITED", retryAfter },
+      return new Response(
+        JSON.stringify({ error: "Too many requests", code: "RATE_LIMITED", retryAfter }),
         {
           status: 429,
           headers: {
+            "Content-Type": "application/json",
             "Retry-After": String(retryAfter),
             "X-RateLimit-Limit": String(config.maxRequests),
             "X-RateLimit-Remaining": "0",
@@ -37,10 +36,6 @@ export function createRateLimiter(config: RateLimitConfig) {
       );
     }
 
-    const response = NextResponse.next();
-    response.headers.set("X-RateLimit-Limit", String(config.maxRequests));
-    response.headers.set("X-RateLimit-Remaining", String(config.maxRequests - record.count));
-    response.headers.set("X-RateLimit-Reset", String(Math.ceil(record.resetAt / 1000)));
     return null;
   };
 }
@@ -59,7 +54,7 @@ export const rateLimiters = {
   ai: createRateLimiter({ windowMs: 60_000, maxRequests: 20, keyPrefix: "ai" }),
 };
 
-export async function applyRateLimit(request: Request, limiter: keyof typeof rateLimiters): Promise<NextResponse | null> {
+export async function applyRateLimit(request: Request, limiter: keyof typeof rateLimiters): Promise<Response | null> {
   return rateLimiters[limiter](request);
 }
 

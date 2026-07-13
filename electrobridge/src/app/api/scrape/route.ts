@@ -1,41 +1,29 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { fetchAllNews, fetchOpportunitiesFromRSS } from "@/lib/scrapers/rss-parser";
 import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper";
 import { cleanTitle, slugify, normalizeUrl, GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
 import { isElectronicsNews, autoTagArticle } from "@/lib/scrapers/news-filter";
 import { enrichOpportunity } from "@/lib/scrapers/deep-scraper";
-import { verifyAdmin } from "@/lib/admin-auth";
+import { requireAdmin, serverError } from "@siliconpath/api";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
-    return NextResponse.json(
-      { error: "Database not configured." },
-      { status: 503 }
+    return new Response(
+      JSON.stringify({ error: "Database not configured." }),
+      { status: 503, headers: { "Content-Type": "application/json" } }
     );
   }
 
   try {
     if (!supabaseAdmin) {
-      return NextResponse.json({ error: "Admin access not configured." }, { status: 503 });
+      return new Response(JSON.stringify({ error: "Admin access not configured." }), { status: 503, headers: { "Content-Type": "application/json" } });
     }
 
-    const cronSecret = process.env.CRON_SECRET;
-    const adminPassword = process.env.ADMIN_PASSWORD;
-
-    if (process.env.NODE_ENV === "production" && !cronSecret && !adminPassword) {
-      return NextResponse.json({ error: "Fail-Secure: Server keys are missing." }, { status: 500 });
-    }
-
-    const isValidAuth =
-      (cronSecret && request.headers.get("authorization") === `Bearer ${cronSecret}`) ||
-      verifyAdmin(request);
-
-    if (!isValidAuth) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    try { await requireAdmin(request); }
+    catch (e) { return e instanceof Response ? e : serverError(); }
 
     const mode = request.nextUrl.searchParams.get("mode") || "all";
 
@@ -283,15 +271,15 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    return NextResponse.json({
+    return new Response(JSON.stringify({
       message: `Scrape complete (${mode})`,
       ...result,
-    });
+    }), { headers: { "Content-Type": "application/json" } });
   } catch (error) {
     console.error("Error in scrape endpoint:", error);
-    return NextResponse.json(
-      { error: "Failed to scrape" },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ error: "Failed to scrape" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
