@@ -7,6 +7,7 @@ import OpportunityCard from "@/components/OpportunityCard";
 import NewsCard from "@/components/NewsCard";
 import SubscribeSection from "@/components/SubscribeSection";
 import HeroSearch from "@/components/HeroSearch";
+import RecommendationsSection from "@/components/RecommendationsSection";
 
 async function getStats() {
   if (!supabaseAdmin?.from) {
@@ -297,6 +298,8 @@ export default async function Home() {
           </Link>
         </div>
       </section>
+
+      <RecommendationsSection />
 
       {/* TRENDING TOPICS */}
       {trendingTags.length > 0 && (
