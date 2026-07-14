@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Send, MessageCircle, ArrowLeft, Search } from "lucide-react";
 import { toast } from "sonner";
@@ -57,7 +57,7 @@ export default function MessagesPage() {
   const conversations = (convData?.conversations || []) as unknown as Conversation[];
 
   const { data: msgData } = useConversationMessages(activeConv ?? "");
-  const messages = (msgData?.messages || []) as unknown as Message[];
+  const messages = useMemo(() => (msgData?.messages || []) as unknown as Message[], [msgData?.messages]);
 
   const sendMessage = useSendMessage();
 
