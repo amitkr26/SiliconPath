@@ -5,6 +5,8 @@ import { Loader2, FileText, ExternalLink, Check, X, Clock } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
+const STATUS_FLOW = ["submitted", "reviewed", "shortlisted", "accepted", "rejected"];
+
 const STATUS_COLORS: Record<string, string> = {
   submitted: "text-yellow-400 bg-yellow-400/10 border-yellow-400/30",
   reviewed: "text-blue-400 bg-blue-400/10 border-blue-400/30",
@@ -29,6 +31,17 @@ export default function AdminApplicationsPage() {
   };
 
   useEffect(() => { load(); }, [filter]);
+
+  const updateStatus = async (id: string, status: string) => {
+    const res = await fetch(`/api/admin/applications/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) { toast.error("Failed to update status"); return; }
+    setApplications(prev => prev.map(a => a.id === id ? { ...a, status } : a));
+    toast.success("Status updated");
+  };
 
   const grouped = applications.reduce((acc: Record<string, any>, app: any) => {
     const key = app.opportunity?.id || "unknown";
@@ -76,9 +89,12 @@ export default function AdminApplicationsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`text-xs px-2 py-0.5 rounded-full border ${STATUS_COLORS[app.status] || "text-text-muted bg-surface border-border"}`}>
-                        {app.status}
-                      </span>
+                      <select value={app.status} onChange={e => updateStatus(app.id, e.target.value)}
+                        className={`text-xs px-2 py-1 rounded border bg-navy ${STATUS_COLORS[app.status] || "text-text-muted"}`}>
+                        {STATUS_FLOW.map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
                       {app.resume_url && (
                         <a href={app.resume_url} target="_blank" className="text-accent text-xs hover:underline">Resume</a>
                       )}

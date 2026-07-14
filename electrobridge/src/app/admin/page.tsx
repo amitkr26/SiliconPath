@@ -8,7 +8,7 @@ import { api } from "@/lib/api-client";
 import type { Opportunity, Subscriber } from "@/types";
 import { CATEGORIES } from "@/lib/utils";
 import { NEWS_SOURCES } from "@/lib/scrapers/rss-parser";
-import { Loader2, Trash2, Plus, RefreshCw, Check, List, History, ShieldCheck, ShieldAlert, ShieldQuestion, ExternalLink, Edit3, RotateCcw, Sparkles, Users, TrendingUp, Briefcase, Building2, FileText, Megaphone } from "lucide-react";
+import { Loader2, Trash2, Plus, RefreshCw, Check, List, History, ShieldCheck, ShieldAlert, ShieldQuestion, ExternalLink, Edit3, RotateCcw, Sparkles, Users, TrendingUp, Briefcase, Building2, FileText, Megaphone, Activity, BarChart3 } from "lucide-react";
 import AIAnalyticsPanel from "@/components/AIAnalyticsPanel";
 
 const ADMIN_TOKEN_KEY = "admin_token";
@@ -262,6 +262,12 @@ export default function AdminPage() {
           </Link>
           <Link href="/admin/announcements" className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-accent/20 text-accent border border-accent/30 rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium hover:bg-accent/30 transition-colors">
             <Megaphone className="w-4 h-4" /> Announce
+          </Link>
+          <Link href="/admin/performance" className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-accent/20 text-accent border border-accent/30 rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium hover:bg-accent/30 transition-colors">
+            <Activity className="w-4 h-4" /> Performance
+          </Link>
+          <Link href="/admin/analytics" className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-accent/20 text-accent border border-accent/30 rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium hover:bg-accent/30 transition-colors">
+            <BarChart3 className="w-4 h-4" /> Analytics
           </Link>
         </div>
       </div>

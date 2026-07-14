@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@siliconpath/api";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: Request) {
+  requireAdmin(request);
   const { searchParams } = new URL(request.url);
   const opportunityId = searchParams.get("opportunity_id");
 
