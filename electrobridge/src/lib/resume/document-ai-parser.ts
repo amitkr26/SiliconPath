@@ -1,4 +1,5 @@
 import { DocumentProcessorServiceClient } from '@google-cloud/documentai';
+import { logger } from "@/lib/logger";
 
 // Initialize the client.
 let client: DocumentProcessorServiceClient;
@@ -41,7 +42,7 @@ export async function parseWithDocumentAI(pdfBuffer: Buffer) {
 
   // Cost calculation log (estimate)
   const pageCount = document.pages?.length || 1;
-  console.log(`[Document AI] Processed resume with ${pageCount} pages. Estimated cost: $${(pageCount * 0.05).toFixed(2)}`);
+  logger.info("[Document AI] Processed resume", { pageCount, estimatedCost: (pageCount * 0.05).toFixed(2) });
 
   // Simple mapping of entities if a Resume Processor is used.
   // We map what we can find into the profile JSON format.

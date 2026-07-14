@@ -1,6 +1,7 @@
 ﻿import { supabaseAdmin, isAdminConfigured } from "./supabase";
 import type { Opportunity, Subscriber } from "@/types";
 import { generateWeeklyDigest } from "@/lib/ai/newsletter";
+import { logger } from "@/lib/logger";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const FROM_EMAIL = process.env.FROM_EMAIL || "digest@siliconpath.vercel.app";
@@ -133,7 +134,7 @@ function buildDigestHTML(data: DigestData): string {
 
 export async function sendDigest() {
   if (!RESEND_API_KEY) {
-    console.log("Resend not configured, skipping digest");
+    logger.warn("Resend not configured, skipping digest");
     return { sent: 0, error: "RESEND_API_KEY not set" };
   }
 
@@ -182,7 +183,7 @@ export async function sendDigest() {
       });
       sent++;
     } catch (error) {
-      console.error(`Failed to send digest to ${subscriber.email}:`, error);
+      logger.error("Failed to send digest", { email: subscriber.email, error: error instanceof Error ? error.message : String(error) });
       failed++;
     }
 

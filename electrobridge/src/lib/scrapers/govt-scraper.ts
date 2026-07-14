@@ -1,5 +1,6 @@
 ﻿import Parser from "rss-parser";
 import type { ScrapedOpportunity, ScrapeResult } from "./types";
+import { logger } from "@/lib/logger";
 
 function inferCategory(title: string): string {
   const t = title.toUpperCase();
@@ -94,7 +95,7 @@ async function scrapeCSIR_RSS(): Promise<ScrapedOpportunity[]> {
       });
     }
   } catch (error) {
-    console.error("CSIR RSS scraper failed:", error);
+    logger.error("CSIR RSS scraper failed", { error: error instanceof Error ? error.message : String(error) });
   }
   return results;
 }
@@ -120,10 +121,10 @@ export async function scrapeGovtJobs(): Promise<{
         success: true,
         count: data.length,
       });
-      console.log(`${source.name}: ${data.length} opportunities scraped`);
+      logger.info("Source scrape complete", { source: source.name, count: data.length });
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
-      console.error(`${source.name} scraper failed:`, msg);
+      logger.error("Source scraper failed", { source: source.name, error: msg });
       allResults.push({
         source: source.name,
         success: false,

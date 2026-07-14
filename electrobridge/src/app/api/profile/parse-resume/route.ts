@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { callAI } from "@/lib/ai/providers";
 import { PDFParse } from "pdf-parse";
 import { apiError } from "@/lib/api-utils";
+import { logger } from "@/lib/logger";
 
 function hasAIProviderConfigured(): boolean {
   const keys = [
@@ -41,14 +42,14 @@ export async function POST(request: NextRequest) {
     try {
       const { parseWithDocumentAI } = await import("@/lib/resume/document-ai-parser");
       const docAiProfile = await parseWithDocumentAI(buffer);
-      console.log("[Resume Parser] Document AI parsing succeeded.");
+      logger.info("[Resume Parser] Document AI parsing succeeded.");
       if (docAiProfile.full_name || docAiProfile.email || docAiProfile.skills.length > 0) {
         return NextResponse.json({ success: true, profile: docAiProfile });
       } else {
         throw new Error("Document AI returned an empty profile mapping.");
       }
     } catch (docAiError: any) {
-      console.warn("[Resume Parser] Document AI fallback triggered. Reason:", docAiError.message);
+      logger.warn("[Resume Parser] Document AI fallback triggered.", { reason: docAiError.message });
     }
 
     let pdfText = "";
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
       const textResult = await parser.getText();
       pdfText = textResult.text;
     } catch (parseError: any) {
-      console.error("PDF Parsing error:", parseError);
+      logger.error("PDF Parsing error", { error: parseError instanceof Error ? parseError.message : String(parseError) });
       return NextResponse.json({ error: "Could not read the PDF contents. Make sure it is not encrypted or corrupted." }, { status: 422 });
     }
 
@@ -131,7 +132,7 @@ Return ONLY a valid JSON object matching the following structure. Do not output 
     try {
       parsedProfile = JSON.parse(jsonText);
     } catch (jsonErr) {
-      console.error("JSON parsing error of AI output:", jsonText, jsonErr);
+      logger.error("JSON parsing error of AI output", { jsonText, error: jsonErr instanceof Error ? jsonErr.message : String(jsonErr) });
       return NextResponse.json({ error: "Failed to structure the extracted text. Please try again." }, { status: 422 });
     }
 
@@ -140,9 +141,9 @@ Return ONLY a valid JSON object matching the following structure. Do not output 
       const { uploadToCloudStorage } = await import("@/lib/storage/gcp-storage");
       const filename = `resumes/${user.id}-${Date.now()}.pdf`;
       resumeUrl = await uploadToCloudStorage(buffer, filename, "application/pdf");
-      console.log(`[Resume Parser] Uploaded to GCP Storage: ${resumeUrl}`);
+      logger.info("[Resume Parser] Uploaded to GCP Storage", { resumeUrl });
     } catch (uploadError: any) {
-      console.warn("[Resume Parser] GCP Storage upload failed or not configured:", uploadError.message);
+      logger.warn("[Resume Parser] GCP Storage upload failed or not configured", { error: uploadError.message });
     }
 
     return NextResponse.json({ success: true, profile: parsedProfile, resume_url: resumeUrl });

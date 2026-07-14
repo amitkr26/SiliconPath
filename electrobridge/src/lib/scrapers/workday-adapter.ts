@@ -1,5 +1,6 @@
 import type { ScrapedOpportunity } from "./types";
 import { ATSAdapter, ATSConfig, ATSJobResponse, registerATSAdapter, mapATSJobToOpportunity } from "./ats-adapters";
+import { logger } from "@/lib/logger";
 
 interface WorkdayJobResponse {
   jobRequisitionId: string;
@@ -56,8 +57,7 @@ export const workdayAdapter: ATSAdapter = {
       body.searchText = searchText;
     }
 
-    console.log(`Workday scraping URL: ${url}`);
-    console.log(`Workday payload: ${JSON.stringify(body)}`);
+    logger.debug("Workday scraping", { url, body });
 
     const response = await fetch(url, {
       method: "POST",
