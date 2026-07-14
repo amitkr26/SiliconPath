@@ -1,68 +1,18 @@
-import type {
-  ChatMessage,
-  ChatChoice,
-  ChatUsage,
-  ProviderName,
-  ToolDefinition,
-  EmbeddingOptions,
-  EmbeddingResult,
-  ImageGenerationOptions,
-  ImageGenerationResult,
-  VisionOptions,
-  SpeechOptions,
-  SpeechResult,
-} from "./provider";
+import type { ChatMessage } from "./provider";
 
-export type GatewayMode =
-  | "generate"
-  | "chat"
-  | "stream"
-  | "embed"
-  | "vision"
-  | "image"
-  | "speech";
+export type GatewayMode = "generate" | "chat" | "embed";
 
 export interface GatewayRequest {
-  mode: GatewayMode;
+  mode?: GatewayMode;
   messages?: ChatMessage[];
-  prompt?: string;
-  systemPrompt?: string;
   model?: string;
-  maxTokens?: number;
-  temperature?: number;
-  tools?: ToolDefinition[];
-  stream?: boolean;
-  feature?: string;
-  userId?: string;
-  cacheTtl?: number;
   signal?: AbortSignal;
-  embedding?: EmbeddingOptions;
-  vision?: VisionOptions;
-  image?: ImageGenerationOptions;
-  speech?: SpeechOptions;
-  responseFormat?: "json" | "text";
 }
 
 export interface GatewayResponse {
-  text?: string;
-  message?: ChatMessage;
-  choices?: ChatChoice[];
-  usage?: ChatUsage;
-  provider: ProviderName;
-  model: string;
-  latencyMs: number;
-  cached: boolean;
-  streaming?: boolean;
-  embedding?: EmbeddingResult;
-  image?: ImageGenerationResult;
-  speech?: SpeechResult;
-}
-
-export interface GatewayError {
-  code: string;
-  message: string;
-  provider: ProviderName;
-  model: string;
-  retryable: boolean;
-  recoverable: boolean;
+  choices: { index: number; message: ChatMessage; finishReason: string }[];
+  usage: { inputTokens: number; outputTokens: number; totalTokens: number };
+  latency: number;
+  provider: string;
+  error?: string;
 }

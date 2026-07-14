@@ -17,6 +17,7 @@
     "@hookform/resolvers": "^5.4.0",
     "@neondatabase/serverless": "^1.1.0",
     "@sentry/nextjs": "^10.63.0",
+    "@siliconpath/ai-gateway": "file:../packages/ai-gateway",
     "@siliconpath/api": "file:../packages/api",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
