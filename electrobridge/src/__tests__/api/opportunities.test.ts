@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 jest.mock('next/server', () => {
   class MockNextRequest {
     url: string;
@@ -7,7 +10,13 @@ jest.mock('next/server', () => {
     constructor(url: string, init?: any) {
       this.url = url;
       this.method = init?.method || 'GET';
-      this.headers = { get: () => null };
+      const headerMap: Record<string, string> = {};
+      if (init?.headers) {
+        for (const [k, v] of Object.entries(init.headers)) {
+          headerMap[k.toLowerCase()] = String(v ?? '');
+        }
+      }
+      this.headers = { get: (name: string) => headerMap[name.toLowerCase()] ?? null };
       this._body = init?.body ? JSON.parse(init.body) : null;
     }
     async json() { return this._body; }
@@ -39,6 +48,8 @@ function makeChain(finalResult: typeof SELECT_RESULT) {
   chain.lte = () => chain;
   chain.gt = () => chain;
   chain.not = () => chain;
+  chain.maybeSingle = () => chain;
+  chain.range = () => chain;
   chain.select = () => chain;
   chain.insert = () => chain;
   return chain;
@@ -94,14 +105,17 @@ describe('POST /api/opportunities', () => {
   beforeEach(() => { jest.clearAllMocks(); });
 
   it('creates an opportunity and returns 201', async () => {
+    process.env.ADMIN_PASSWORD = 'test-admin-password';
     const { NextRequest } = require('next/server');
     const response = await POST(new NextRequest('http://localhost:3000/api/opportunities', {
       method: 'POST',
+      headers: { 'x-admin-password': 'test-admin-password' },
       body: JSON.stringify({ title: 'New JRF', organization: 'IIT', category: 'jrf' }),
     }));
     const body = await response.json();
     expect(response.status).toBe(201);
     expect(body.opportunity.title).toBe('Test');
+    delete process.env.ADMIN_PASSWORD;
   });
 
   it('returns 503 when admin is not configured', async () => {

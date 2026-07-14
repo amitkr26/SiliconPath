@@ -348,26 +348,65 @@ export interface ClassificationResult {
 // Search
 // ===========================================================================
 
+export type SortField = "relevance" | "date" | "deadline" | "title" | "organization" | "salary" | "popularity" | "verified";
+export type SortOrder = "asc" | "desc";
+
+export interface BooleanClause {
+  field?: string;
+  term: string;
+  operator: "AND" | "OR" | "NOT";
+}
+
+export interface ParsedQuery {
+  text: string;
+  booleanClauses: BooleanClause[];
+  phrases: string[];
+  fieldQueries: { field: string; term: string }[];
+  hasBoolean: boolean;
+  hasPhrases: boolean;
+  hasFields: boolean;
+}
+
 export interface SearchQuery {
   q: string;
   types?: OpportunityType[];
   categories?: ClassificationLabel[];
   countries?: string[];
+  cities?: string[];
+  states?: string[];
+  organizations?: string[];
+  universities?: string[];
+  companies?: string[];
+  researchLabs?: string[];
   skills?: string[];
+  tags?: string[];
   educationLevel?: EducationLevel;
   experienceLevel?: ExperienceLevel;
   workMode?: WorkMode;
   isRemote?: boolean;
   isGovernment?: boolean;
+  isIndustry?: boolean;
+  isResearch?: boolean;
+  employmentTypes?: string[];
   salaryMin?: number;
   salaryMax?: number;
   deadlineBefore?: string;
   deadlineAfter?: string;
   postedAfter?: string;
-  sortBy?: "relevance" | "date" | "deadline" | "salary";
-  sortOrder?: "asc" | "desc";
+  postedBefore?: string;
+  sortBy?: SortField;
+  sortOrder?: SortOrder;
   page: number;
   pageSize: number;
+  useBooleanSearch?: boolean;
+  usePhraseSearch?: boolean;
+  useFieldSearch?: boolean;
+  searchField?: string;
+  expandSynonyms?: boolean;
+  suggestCorrections?: boolean;
+  trackSearch?: boolean;
+  userId?: string;
+  sessionId?: string;
 }
 
 export interface SearchResult {
@@ -377,20 +416,76 @@ export interface SearchResult {
   pageSize: number;
   facets: SearchFacets;
   suggestions: string[];
+  didYouMean?: string | null;
+  correctedQuery?: string | null;
+  parsedQuery?: ParsedQuery;
+  searchTimeMs: number;
+  totalResults: number;
 }
 
 export interface SearchFacets {
   types: FacetCount[];
   categories: FacetCount[];
   countries: FacetCount[];
+  cities: FacetCount[];
+  states: FacetCount[];
+  organizations: FacetCount[];
   workModes: FacetCount[];
   educationLevels: FacetCount[];
   experienceLevels: FacetCount[];
+  skills: FacetCount[];
+  tags: FacetCount[];
+  employmentTypes: FacetCount[];
+  salaryRanges: SalaryRangeFacet[];
 }
 
 export interface FacetCount {
   value: string;
   count: number;
+}
+
+export interface SalaryRangeFacet {
+  label: string;
+  min: number;
+  max: number;
+  count: number;
+}
+
+export interface RecommendationContext {
+  userId?: string;
+  opportunityId?: string;
+  skills?: string[];
+  categories?: ClassificationLabel[];
+  countries?: string[];
+  searchHistory?: string[];
+  viewedIds?: string[];
+  savedIds?: string[];
+  appliedIds?: string[];
+  resumeSkills?: string[];
+  interests?: ClassificationLabel[];
+  limit?: number;
+}
+
+export interface SearchAnalytics {
+  totalSearches: number;
+  uniqueQueries: number;
+  failedSearches: number;
+  averageSearchTimeMs: number;
+  popularQueries: { query: string; count: number }[];
+  zeroResultQueries: { query: string; count: number }[];
+  topFilters: { filter: string; value: string; count: number }[];
+  topClicks: { opportunityId: string; organization: string; title: string; count: number }[];
+}
+
+export interface IndexHealth {
+  totalDocuments: number;
+  totalTerms: number;
+  uniqueTerms: number;
+  averageDocumentLength: number;
+  lastIndexedAt: string | null;
+  indexedFields: string[];
+  indexSizeBytes: number;
+  healthScore: number;
 }
 
 // ===========================================================================
