@@ -46,3 +46,4 @@ coverage/
 # Secrets
 SECRETS.md
 credentials.txt
+siliconpath-credentials.txt
