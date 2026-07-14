@@ -1,5 +1,6 @@
 import type { ScrapedOpportunity, ScrapeResult } from "./types";
 import { supabaseAdmin } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
 import { scrapeISRO } from "./isro-scraper";
 import { scrapeDRDO } from "./drdo-scraper";
 import { scrapeCSIR } from "./csir-scraper";
@@ -22,7 +23,7 @@ export interface ScrapedSource {
 
 async function getTraditionalScrapeSources(): Promise<ScrapedSource[]> {
   if (!supabaseAdmin?.from) {
-    console.error("Supabase admin not configured");
+    logger.error("Supabase admin not configured");
     return [];
   }
 
@@ -34,7 +35,7 @@ async function getTraditionalScrapeSources(): Promise<ScrapedSource[]> {
     .order("priority", { ascending: true });
 
   if (error) {
-    console.error("Failed to fetch traditional scrape sources:", error);
+    logger.error("Failed to fetch traditional scrape sources", { error: error instanceof Error ? error.message : String(error) });
     return [];
   }
 
@@ -104,13 +105,13 @@ async function executeScrape(source: ScrapedSource): Promise<{ opportunities: Sc
     });
 
       allOpportunities.push(...opportunities);
-      console.log(`${source.name}: ${opportunities.length} opportunities scraped`);
+      logger.info("Source scrape complete", { source: source.name, count: opportunities.length });
     } else {
       throw new Error(`Adapter not found: ${source.adapter}`);
     }
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.error(`${source.name} scraper failed:`, msg);
+    logger.error("Source scraper failed", { source: source.name, error: msg });
     allResults.push({ source: source.name, success: false, count: 0, error: msg });
   }
 

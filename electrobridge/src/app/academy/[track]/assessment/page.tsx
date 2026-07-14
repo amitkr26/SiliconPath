@@ -73,7 +73,7 @@ export default function TrackAssessmentPage() {
     if (trackSlug) {
       loadAssessment();
     }
-  }, [trackSlug, router, user?.id]);
+  }, [trackSlug, router, user]);
 
   if (loading) {
     return (

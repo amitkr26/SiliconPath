@@ -1,4 +1,5 @@
 import { callAI, AIProvider } from "./providers";
+import { logger } from "@/lib/logger";
 
 export interface UserProfile {
   qualification: string;
@@ -87,13 +88,13 @@ Return ONLY a JSON array of the top 10 most relevant opportunity numbers with ma
 
   for (const provider of PROVIDER_ORDER) {
     try {
-      console.log(`[AI Matcher] Trying provider: ${provider}`);
+      logger.debug("[AI Matcher] Trying provider", { provider });
       const response = await callAI(prompt, "You are a helpful assistant that returns ONLY strict JSON format data in response to prompt requests.", {
         preferredProvider: provider,
         feature: "matcher",
       });
 
-      console.log(`[AI Matcher] Raw response from ${provider}:`, response.text);
+      logger.debug("[AI Matcher] Raw response from provider", { provider, text: response.text });
       const matches = extractJSON(response.text);
 
       // Validate matches array structure
@@ -116,7 +117,7 @@ Return ONLY a JSON array of the top 10 most relevant opportunity numbers with ma
         matchReason: m.reason,
       }));
     } catch (err: any) {
-      console.warn(`[AI Matcher] Provider ${provider} failed parsing or execution:`, err);
+      logger.warn("[AI Matcher] Provider failed parsing or execution", { provider, error: err instanceof Error ? err.message : String(err) });
       lastError = err;
       continue;
     }

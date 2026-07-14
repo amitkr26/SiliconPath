@@ -1,11 +1,12 @@
 ﻿import type { Opportunity } from "@/types";
+import { logger } from "@/lib/logger";
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID;
 
 export async function postToTelegram(opportunity: Opportunity) {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHANNEL_ID) {
-    console.log("Telegram not configured, skipping post");
+    logger.warn("Telegram not configured, skipping post");
     return;
   }
 
@@ -47,9 +48,9 @@ _SiliconPath — Electronics & Semiconductor Opportunities_
 
     if (!res.ok) {
       const errorText = await res.text();
-      console.error("Telegram API error:", errorText);
+      logger.error("Telegram API error", { error: errorText });
     }
   } catch (error) {
-    console.error("Failed to post to Telegram:", error);
+    logger.error("Failed to post to Telegram", { error: error instanceof Error ? error.message : String(error) });
   }
 }

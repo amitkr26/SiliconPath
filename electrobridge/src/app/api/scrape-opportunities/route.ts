@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase";
 import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper";
+import { normalizeUrl } from "@/lib/scrapers/utils";
 import { serverError } from "@siliconpath/api";
 
 export const dynamic = 'force-dynamic';
@@ -35,12 +36,16 @@ export async function GET(request: NextRequest) {
     let skipped = 0;
 
     for (const opp of opportunities) {
-      const dedupKey = `${opp.organization}|${opp.title}`.substring(0, 200);
+      const normUrl = opp.source_url ? normalizeUrl(opp.source_url) : null;
+      if (!normUrl) {
+        skipped++;
+        continue;
+      }
 
       const { data: existing } = await supabaseAdmin
         .from("opportunities")
         .select("id")
-        .eq("source_url", opp.source_url)
+        .eq("source_url", normUrl)
         .maybeSingle();
 
       if (existing) {
@@ -61,7 +66,7 @@ export async function GET(request: NextRequest) {
             eligibility: opp.eligibility,
             description: opp.description,
             apply_link: opp.apply_link,
-            source_url: opp.source_url,
+            source_url: normUrl,
             tags: opp.tags,
             verification_status: "verified",
             is_active: true,
