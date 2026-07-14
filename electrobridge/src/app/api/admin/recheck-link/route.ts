@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { serverError } from "@siliconpath/api";
+import { requireAdmin, serverError } from "@siliconpath/api";
 
 export async function POST(request: NextRequest) {
+  requireAdmin(request);
   const body = await request.json();
   const { opportunity_id } = body;
 
