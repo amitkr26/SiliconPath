@@ -3,6 +3,18 @@ import { createClient } from "@/lib/supabase/server";
 import { resumeSchema } from "@/lib/validation";
 import { validateOrThrow } from "@/lib/validation";
 
+export async function GET() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { data } = await supabase.from("resumes").select("*").eq("user_id", user.id).single();
+  return NextResponse.json({ resume: data || null });
+}
+
+export async function POST(request: NextRequest) {
+  return PATCH(request);
+}
+
 export async function PATCH(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

@@ -30,7 +30,7 @@ export default function AdminApplicationsPage() {
 
   useEffect(() => { load(); }, [filter]);
 
-  const grouped = applications.reduce((acc: Record<string, any[]>, app: any) => {
+  const grouped = applications.reduce((acc: Record<string, any>, app: any) => {
     const key = app.opportunity?.id || "unknown";
     if (!acc[key]) acc[key] = { opportunity: app.opportunity, apps: [] };
     acc[key].apps.push(app);

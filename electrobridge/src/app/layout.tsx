@@ -61,6 +61,17 @@ export const metadata: Metadata = {
   verification: {
     google: "QnEIBEpKxP_ZiQxtneegX-6WWKxO_FZ8Yzzxp4kOqxA",
   },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
+  manifest: "/manifest.json",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0f172a",
 };
 
 export default function RootLayout({
