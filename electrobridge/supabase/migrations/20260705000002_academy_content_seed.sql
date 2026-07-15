@@ -1,3 +1,4 @@
+-- target: supabase_db1
 -- ============================================================
 -- SiliconPath VLSI Academy — Content Seed
 -- Migration: 20260705000002_academy_content_seed.sql

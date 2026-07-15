@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import { useUser } from "./useUser";
 
@@ -33,18 +33,5 @@ export function useProfile(userId?: string) {
     queryFn: () => api.get<Profile>(`/api/profile/${id}`),
     enabled: !!id,
     staleTime: 30_000,
-  });
-}
-
-export function useUpdateProfile() {
-  const queryClient = useQueryClient();
-  const { user } = useUser();
-
-  return useMutation({
-    mutationFn: (data: Partial<Profile>) =>
-      api.patch<{ success: boolean }>(`/api/profile/${user?.id}`, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
-    },
   });
 }

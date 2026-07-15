@@ -1,3 +1,4 @@
+-- target: supabase_db2
 -- ═══════════════════════════════════
 -- SUPABASE SECONDARY — News Archive
 -- Run this on Supabase Secondary (Netlify account)

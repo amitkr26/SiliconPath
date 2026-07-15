@@ -1,3 +1,4 @@
+-- target: supabase_db1
 -- ═══════════════════════════════════════════════════════════════
 -- ElectroBridge Session 14: scrape_sources table + verification update
 -- Run on Supabase Primary (db1)

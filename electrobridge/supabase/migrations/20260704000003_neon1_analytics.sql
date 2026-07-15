@@ -1,3 +1,4 @@
+-- target: neon_db1
 -- ═══════════════════════════════════
 -- SILICONPATH — NEON DATABASE 1 (db3) & 2 (db4)
 -- db3 (Neon Primary): Analytics, monitoring, operational logs

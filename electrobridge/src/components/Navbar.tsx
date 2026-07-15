@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { useNotificationCount } from "@/hooks/useNotifications";
-import { FEATURES } from "@/lib/feature-flags";
 
 const PUBLIC_NAV_ITEMS = [
   { href: "/opportunities", label: "Opportunities", icon: Briefcase },

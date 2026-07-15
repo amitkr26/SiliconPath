@@ -1,3 +1,4 @@
+-- target: supabase_db1
 -- User profiles table (extends Supabase auth.users)
 CREATE TABLE IF NOT EXISTS user_profiles (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,

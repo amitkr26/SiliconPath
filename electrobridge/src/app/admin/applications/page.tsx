@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Loader2, FileText, ExternalLink, Check, X, Clock } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Loader2, FileText, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -20,7 +20,7 @@ export default function AdminApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("");
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/applications${filter ? `?opportunity_id=${filter}` : ""}`);
@@ -28,9 +28,9 @@ export default function AdminApplicationsPage() {
       setApplications(data.applications || []);
     } catch { setApplications([]); }
     setLoading(false);
-  };
+  }, [filter]);
 
-  useEffect(() => { load(); }, [filter]);
+  useEffect(() => { load(); }, [load]);
 
   const updateStatus = async (id: string, status: string) => {
     const res = await fetch(`/api/admin/applications/${id}`, {

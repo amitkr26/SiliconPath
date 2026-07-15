@@ -1,3 +1,4 @@
+-- target: supabase_db2
 -- ════════════════════════════════════════
 -- SILICONPATH — SUPABASE SECONDARY (DB2)
 -- PURPOSE: User profiles, resumes, networking, direct messages

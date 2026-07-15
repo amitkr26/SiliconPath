@@ -1,3 +1,4 @@
+-- target: supabase_db1
 CREATE TABLE IF NOT EXISTS ai_usage_log (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   feature text NOT NULL,

@@ -9,7 +9,7 @@ import type { Opportunity, Subscriber } from "@/types";
 import { CATEGORIES } from "@/lib/utils";
 import { NEWS_SOURCES } from "@/lib/scrapers/rss-parser";
 import { Loader2, Trash2, Plus, RefreshCw, Check, List, History, ShieldCheck, ShieldAlert, ShieldQuestion, ExternalLink, Edit3, RotateCcw, Sparkles, Users, TrendingUp, Briefcase, Building2, FileText, Megaphone, Activity, BarChart3 } from "lucide-react";
-import AIAnalyticsPanel from "@/components/AIAnalyticsPanel";
+import AIAnalyticsPanel from "@/app/admin/_components/AIAnalyticsPanel";
 
 const ADMIN_TOKEN_KEY = "admin_token";
 
@@ -31,7 +31,7 @@ export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"opportunities" | "verification" | "add" | "subscribers" | "talent" | "sources" | "logs" | "popular" | "ai">(
+  const [activeTab, setActiveTab] = useState<"opportunities" | "verification" | "subscribers" | "talent" | "sources" | "logs" | "popular" | "ai">(
     "opportunities"
   );
 
@@ -39,24 +39,6 @@ export default function AdminPage() {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const [form, setForm] = useState({
-    title: "",
-    organization: "",
-    category: "JRF",
-    location: "",
-    stipend: "",
-    deadline: "",
-    eligibility: "",
-    description: "",
-    apply_link: "",
-    official_page_url: "",
-    apply_link_type: "homepage",
-    admin_notes: "",
-    tags: "",
-  });
-
-  const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [formMessage, setFormMessage] = useState("");
   const [aiFilling, setAiFilling] = useState(false);
   const [scrapeStatus, setScrapeStatus] = useState("");
   const [scrapeLogs, setScrapeLogs] = useState<ScrapeLog[]>([]);
@@ -120,33 +102,6 @@ export default function AdminPage() {
   useEffect(() => {
     if (authenticated) { fetchOpportunities(); fetchSubscribers(); }
   }, [authenticated]);
-
-  const handleAddOpportunity = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormStatus("loading");
-    try {
-      const res = await fetch("/api/opportunities", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
-          is_active: true,
-          verification_status: form.apply_link ? "verified" : "unverified",
-        }),
-      });
-      if (res.ok) {
-        setFormStatus("success");
-        setFormMessage("Opportunity added successfully!");
-        setForm({ title: "", organization: "", category: "JRF", location: "", stipend: "", deadline: "", eligibility: "", description: "", apply_link: "", official_page_url: "", apply_link_type: "homepage", admin_notes: "", tags: "" });
-        fetchOpportunities();
-      } else {
-        const data = await res.json();
-        setFormStatus("error");
-        setFormMessage(data.error || "Failed to add opportunity");
-      }
-    } catch { setFormStatus("error"); setFormMessage("Something went wrong"); }
-  };
 
   const handleDeleteOpportunity = async (id: string) => {
     if (!confirm("Delete this opportunity?")) return;
@@ -277,7 +232,7 @@ export default function AdminPage() {
         {/* Left sidebar nav (240px) */}
         <aside className="hidden lg:block w-[240px] flex-shrink-0">
           <nav className="space-y-1">
-            {(["opportunities", "verification", "add", "subscribers", "talent", "sources", "logs", "popular", "ai"] as const).map((tab) => (
+            {(["opportunities", "verification", "subscribers", "talent", "sources", "logs", "popular", "ai"] as const).map((tab) => (
               <button key={tab} onClick={() => setActiveTab(tab)}
                 className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${
                   activeTab === tab
@@ -285,8 +240,8 @@ export default function AdminPage() {
                     : "text-text-secondary hover:text-text-primary hover:bg-surface-elevated/50"
                 }`}
               >
-                {tab === "opportunities" ? <List className="w-4 h-4" /> : tab === "verification" ? <ShieldCheck className="w-4 h-4" /> : tab === "add" ? <Plus className="w-4 h-4" /> : tab === "subscribers" ? <Users className="w-4 h-4" /> : tab === "talent" ? <Briefcase className="w-4 h-4" /> : tab === "sources" ? <List className="w-4 h-4" /> : tab === "popular" ? <TrendingUp className="w-4 h-4" /> : tab === "ai" ? <Sparkles className="w-4 h-4" /> : <History className="w-4 h-4" />}
-                {tab === "opportunities" ? "Opportunities" : tab === "verification" ? "Verification Queue" : tab === "add" ? "Add New" : tab === "subscribers" ? "Subscribers" : tab === "talent" ? "Talent Pool" : tab === "sources" ? "News Sources" : tab === "popular" ? "Most Popular" : tab === "ai" ? "AI Usage" : "Scrape Logs"}
+                {tab === "opportunities" ? <List className="w-4 h-4" /> : tab === "verification" ? <ShieldCheck className="w-4 h-4" /> : tab === "subscribers" ? <Users className="w-4 h-4" /> : tab === "talent" ? <Briefcase className="w-4 h-4" /> : tab === "sources" ? <List className="w-4 h-4" /> : tab === "popular" ? <TrendingUp className="w-4 h-4" /> : tab === "ai" ? <Sparkles className="w-4 h-4" /> : <History className="w-4 h-4" />}
+                {tab === "opportunities" ? "Opportunities" : tab === "verification" ? "Verification Queue" : tab === "subscribers" ? "Subscribers" : tab === "talent" ? "Talent Pool" : tab === "sources" ? "News Sources" : tab === "popular" ? "Most Popular" : tab === "ai" ? "AI Usage" : "Scrape Logs"}
               </button>
             ))}
           </nav>
@@ -318,7 +273,7 @@ export default function AdminPage() {
 
           {/* Mobile tab buttons */}
           <div className="flex lg:hidden gap-2 mb-6 overflow-x-auto pb-2">
-            {(["opportunities", "verification", "add", "subscribers", "sources", "logs", "popular", "ai"] as const).map((tab) => (
+            {(["opportunities", "verification", "subscribers", "sources", "logs", "popular", "ai"] as const).map((tab) => (
               <button key={tab} onClick={() => setActiveTab(tab)}
                 className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                   activeTab === tab ? "bg-accent text-bg-primary" : "bg-surface text-text-secondary border border-border"
@@ -438,123 +393,6 @@ export default function AdminPage() {
                   ))}
                 </div>
               )}
-            </div>
-          )}
-
-          {activeTab === "add" && (
-            <div className="max-w-2xl">
-              <h2 className="font-display text-xl font-bold text-text-primary mb-4">Add New Opportunity</h2>
-              <form onSubmit={handleAddOpportunity} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1">Title</label>
-                    <input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1">Organization</label>
-                    <input required value={form.organization} onChange={(e) => setForm({ ...form, organization: e.target.value })} className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1">Category</label>
-                    <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none">
-                      {CATEGORIES.filter((c) => c !== "All").map((cat) => (<option key={cat} value={cat}>{cat}</option>))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1">Location</label>
-                    <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1">Stipend</label>
-                    <input value={form.stipend} onChange={(e) => setForm({ ...form, stipend: e.target.value })} placeholder="₹37,000/month" className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1">Deadline</label>
-                    <input type="date" value={form.deadline} onChange={(e) => setForm({ ...form, deadline: e.target.value })} className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-text-secondary text-xs font-medium mb-1">Eligibility</label>
-                  <input value={form.eligibility} onChange={(e) => setForm({ ...form, eligibility: e.target.value })} placeholder="NET/GATE, MSc Electronics" className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none" />
-                </div>
-                <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1">Description</label>
-                    <div className="flex gap-2">
-                      <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none" />
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          if (!form.description || !form.title) return;
-                          setAiFilling(true);
-                          try {
-                            const res = await fetch("/api/ai/summarize", {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ rawDescription: form.description, title: form.title, org: form.organization }),
-                            });
-                            if (res.ok) {
-                              const data = await res.json();
-                              setForm((prev) => ({
-                                ...prev,
-                                title: data.clean_title || prev.title,
-                                eligibility: data.eligibility_points?.join("; ") || prev.eligibility,
-                                tags: data.suggested_tags?.join(", ") || prev.tags,
-                                stipend: data.stipend_extracted || prev.stipend,
-                                deadline: data.deadline_extracted || prev.deadline,
-                              }));
-                            }
-                          } catch {}
-                          setAiFilling(false);
-                        }}
-                        disabled={aiFilling || !form.description || !form.title}
-                        className="flex items-center gap-1 bg-accent/20 text-accent border border-accent/30 rounded-lg px-3 py-2 text-xs font-medium hover:bg-accent/30 transition-colors disabled:opacity-50 flex-shrink-0"
-                        title="AI Auto-Fill: extracts tags, eligibility, stipend, deadline from description"
-                      >
-                        {aiFilling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                        AI
-                      </button>
-                    </div>
-                  </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1">Apply Link</label>
-                    <input value={form.apply_link} onChange={(e) => setForm({ ...form, apply_link: e.target.value })} className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1">Official Page URL</label>
-                    <input value={form.official_page_url} onChange={(e) => setForm({ ...form, official_page_url: e.target.value })} className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1">Apply Link Type</label>
-                    <select value={form.apply_link_type} onChange={(e) => setForm({ ...form, apply_link_type: e.target.value })} className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none">
-                      <option value="homepage">Homepage</option>
-                      <option value="direct">Direct</option>
-                      <option value="pdf">PDF</option>
-                      <option value="email">Email</option>
-                      <option value="portal">Portal</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-text-secondary text-xs font-medium mb-1">Tags (comma-separated)</label>
-                    <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="VLSI, thin film, JRF" className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-text-secondary text-xs font-medium mb-1">Admin Notes</label>
-                  <textarea value={form.admin_notes} onChange={(e) => setForm({ ...form, admin_notes: e.target.value })} rows={2} className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none" />
-                </div>
-                {formStatus === "success" && <p className="flex items-center gap-2 text-success text-sm"><Check className="w-4 h-4" />{formMessage}</p>}
-                {formStatus === "error" && <p className="text-danger text-sm">{formMessage}</p>}
-                <button type="submit" disabled={formStatus === "loading"} className="flex items-center gap-2 bg-accent text-bg-primary font-semibold rounded-lg px-6 py-2.5 text-sm hover:bg-accent-hover transition-colors disabled:opacity-50">
-                  {formStatus === "loading" ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Plus className="w-4 h-4" /> Add Opportunity</>}
-                </button>
-              </form>
             </div>
           )}
 

@@ -1,3 +1,4 @@
+-- target: supabase_db1
 -- Add slug column to news_articles
 ALTER TABLE news_articles ADD COLUMN IF NOT EXISTS slug text;
 UPDATE news_articles SET slug = lower(regexp_replace(title, '[^a-zA-Z0-9]+', '-', 'g'));

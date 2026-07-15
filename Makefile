@@ -28,19 +28,6 @@ test:coverage:
 clean:
 	npm run clean --workspaces --if-present
 
-# ── Legacy App Commands ──────────────────────────────────────────────────
-install-frontend:
-	cd electrobridge && npm install
-
-install-backend:
-	cd backend && npm install
-
-dev-frontend:
-	cd electrobridge && npm run dev
-
-dev-backend:
-	cd backend && source .env.local 2>/dev/null && npm run dev
-
 # ── Session Setup ─────────────────────────────────────────────────────────
 session-setup:
 	@echo "=== SiliconPath Session Setup ==="
@@ -63,11 +50,4 @@ env-check:
 	"
 
 # ── Deploy ────────────────────────────────────────────────────────────────
-deploy-vercel:
-	cd electrobridge && npx vercel --prod --token $(VERCEL_TOKEN)
-
-deploy-render:
-	@echo "Triggering Render deploy..."
-	@curl -X POST "https://api.render.com/v1/services/$(RENDER_SERVICE_ID)/deploys" \
-	  -H "Authorization: Bearer $(RENDER_API_KEY)" \
-	  -H "Content-Type: application/json"
+# ponytail: deploy is done via CI/CD; remove these if not needed

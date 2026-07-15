@@ -1,3 +1,4 @@
+-- target: supabase_db1
 -- ============================================================
 -- SiliconPath VLSI Academy — Learning Path Schema
 -- Migration: 20260705000001_academy_learning_path.sql

@@ -4,9 +4,10 @@ export type GatewayMode = "generate" | "chat" | "embed";
 
 export interface GatewayRequest {
   mode?: GatewayMode;
-  messages?: ChatMessage[];
+  messages: ChatMessage[];
   model?: string;
   signal?: AbortSignal;
+  systemPrompt?: string;
 }
 
 export interface GatewayResponse {

@@ -1,3 +1,4 @@
+-- target: supabase_db1
 -- ════════════════════════════════════════
 -- SILICONPATH — SUPABASE PRIMARY (DB1)
 -- PURPOSE: Core public platform data

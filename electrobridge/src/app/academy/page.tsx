@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Cpu, Code2, Shield, TestTube, Layers, Trophy, Lock, Zap, Play, Check, AlertCircle, RefreshCw } from "lucide-react";
 import { Toaster, toast } from "sonner";
@@ -22,7 +22,7 @@ export default function AcademyDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -63,9 +63,9 @@ export default function AcademyDashboard() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [user?.id]);
 
-  useEffect(() => { loadData(); }, [user?.id]);
+  useEffect(() => { loadData(); }, [loadData]);
 
   if (loading) {
     return (

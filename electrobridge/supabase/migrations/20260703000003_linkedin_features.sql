@@ -1,3 +1,4 @@
+-- target: supabase_db1
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- ElectroBridge LinkedIn-Style Professional Networking Features
 -- Run on Supabase Primary (db1)

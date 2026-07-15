@@ -1,3 +1,4 @@
+-- target: supabase_db1
 -- LinkedIn-style features (dormant — will activate when companies join)
 
 CREATE TABLE IF NOT EXISTS company_profiles (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 
 interface ConnectionsResponse {
@@ -43,13 +43,4 @@ export function useConnectionSuggestions() {
   });
 }
 
-export function useFollowUser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (userId: string) =>
-      api.post(`/api/network/follow/${userId}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["connections"] });
-    },
-  });
-}
+

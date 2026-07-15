@@ -1,3 +1,4 @@
+-- target: supabase_db1
 -- FIX 1: Deduplicate opportunities - remove dupes, then add unique constraint
 DELETE FROM opportunities a USING opportunities b
 WHERE a.created_at > b.created_at AND a.source_url = b.source_url

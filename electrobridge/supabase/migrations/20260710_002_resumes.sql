@@ -1,3 +1,4 @@
+-- target: supabase_db1
 -- ============================================================================
 -- SiliconPath v2 :: resumes table (Supabase Project 2, social/user DB)
 -- Run in the SECONDARY project SQL editor. Powers the resume builder.
