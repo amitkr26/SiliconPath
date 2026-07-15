@@ -18,37 +18,42 @@ function slugToOrgName(slug: string): string {
 
 async function getOrganizationOpportunities(
   slug: string
-): Promise<{ name: string; opportunities: Opportunity[] }> {
+): Promise<{ name: string; opportunities: any[] }> {
   if (!supabaseAdmin?.from) return { name: slugToOrgName(slug), opportunities: [] };
 
   const today = new Date().toISOString().split("T")[0];
 
-  // Try org_slug first, then fallback to ilike
-  let { data } = await supabaseAdmin
+  // 1. Fetch organization by slug
+  const { data: orgData } = await supabaseAdmin
+    .from("organizations")
+    .select("id, name")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (!orgData) {
+    return { name: slugToOrgName(slug), opportunities: [] };
+  }
+
+  // 2. Fetch opportunities by organization_id
+  const { data } = await supabaseAdmin
     .from("opportunities")
-    .select("*")
+    .select("*, organizations(*)")
     .eq("is_active", true)
-    .eq("org_slug", slug)
+    .eq("organization_id", orgData.id)
     .or(`deadline.gte.${today},deadline.is.null`)
     .order("created_at", { ascending: false });
 
   if (!data || data.length === 0) {
-    const orgName = slugToOrgName(slug);
-    const { data: data2 } = await supabaseAdmin
-      .from("opportunities")
-      .select("*")
-      .eq("is_active", true)
-      .ilike("organization", `%${orgName}%`)
-      .or(`deadline.gte.${today},deadline.is.null`)
-      .order("created_at", { ascending: false });
-    data = data2;
+    return { name: orgData.name, opportunities: [] };
   }
 
-  if (!data || data.length === 0) {
-    return { name: slugToOrgName(slug), opportunities: [] };
-  }
+  const mappedOpportunities = data.map((opp: any) => ({
+    ...opp,
+    organization: opp.organizations?.name || orgData.name,
+    org_slug: opp.organizations?.slug || slug,
+  }));
 
-  return { name: data[0].organization, opportunities: data };
+  return { name: orgData.name, opportunities: mappedOpportunities };
 }
 
 export async function generateMetadata({ params }: Props) {

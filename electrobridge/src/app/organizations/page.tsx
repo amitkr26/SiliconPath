@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Building2 } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -20,28 +20,32 @@ async function getOrganizations(): Promise<OrgItem[]> {
   const today = new Date().toISOString().split("T")[0];
   const { data } = await supabaseAdmin
     .from("opportunities")
-    .select("organization")
+    .select("organization_id, organizations(name, slug)")
     .eq("is_active", true)
     .or(`deadline.gte.${today},deadline.is.null`);
 
   if (!data) return [];
 
-  const orgCount: Record<string, number> = {};
-  data.forEach((item: { organization: string }) => {
-    const org = item.organization?.trim();
-    if (org) {
-      orgCount[org] = (orgCount[org] || 0) + 1;
+  const orgMap: Record<string, { name: string; count: number }> = {};
+  data.forEach((item: any) => {
+    const org = item.organizations;
+    if (org && org.name) {
+      const slug = org.slug || org.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      if (!orgMap[slug]) {
+        orgMap[slug] = { name: org.name, count: 0 };
+      }
+      orgMap[slug].count++;
     }
   });
 
-  return Object.entries(orgCount)
-    .map(([name, count]) => ({
-      name,
-      slug: name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, ""),
-      count,
+  return Object.entries(orgMap)
+    .map(([slug, info]) => ({
+      name: info.name,
+      slug: slug,
+      count: info.count,
     }))
     .sort((a, b) => b.count - a.count);
 }
