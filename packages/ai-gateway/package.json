@@ -6,6 +6,7 @@
   "types": "./src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "jest --passWithNoTests",
     "clean": "rm -rf .tsbuildinfo dist"
   },
   "dependencies": {},

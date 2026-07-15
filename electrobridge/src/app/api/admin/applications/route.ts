@@ -3,7 +3,7 @@ import { requireAdmin } from "@siliconpath/api";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: Request) {
-  requireAdmin(request);
+  try { await requireAdmin(request); } catch (e) { return e instanceof Response ? e : NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const { searchParams } = new URL(request.url);
   const opportunityId = searchParams.get("opportunity_id");
 

@@ -2,6 +2,17 @@ import { createClient } from "@supabase/supabase-js";
 import { unauthorized, forbidden } from "../response";
 import type { AuthUser } from "../types";
 export type { AuthUser };
+import { createHmac } from "crypto";
+
+function verifyAdminToken(token: string, adminPassword: string): boolean {
+  const HMAC_KEY = process.env.ADMIN_HMAC_SECRET || adminPassword;
+  const parts = token.split(".");
+  if (parts.length !== 3) return false;
+  const [sessionId, expiry, sig] = parts;
+  if (Date.now() > parseInt(expiry, 10)) return false;
+  const expected = createHmac("sha256", HMAC_KEY).update(`${sessionId}.${expiry}`).digest("hex");
+  return sig === expected;
+}
 
 interface RequestLike {
   headers: { get(name: string): string | null };
@@ -45,6 +56,9 @@ export async function requireAdmin(request: RequestLike): Promise<AuthUser> {
   if (match) {
     const token = match[1];
     if (adminPassword && token === adminPassword) {
+      return { id: "admin", email: "admin", role: "admin" };
+    }
+    if (adminPassword && verifyAdminToken(token, adminPassword)) {
       return { id: "admin", email: "admin", role: "admin" };
     }
     if (cronSecret && token === cronSecret) {

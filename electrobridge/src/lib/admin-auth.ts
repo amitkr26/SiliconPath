@@ -1,18 +1,19 @@
 import { NextRequest } from "next/server";
+import { createHmac } from "crypto";
 
-/**
- * Verify admin access.
- *
- * Accepts EITHER:
- *  1. x-admin-password header matching ADMIN_PASSWORD (server-only env var)
- *  2. Authorization: Bearer <token> where token === ADMIN_PASSWORD
- *  3. Authorization: Bearer <token> where token === CRON_SECRET (for cron jobs)
- *
- * SECURITY: never expose these via NEXT_PUBLIC_* env vars.
- */
+function verifyAdminToken(token: string, secret: string): boolean {
+  const parts = token.split(".");
+  if (parts.length !== 3) return false;
+  const [sessionId, expiry, sig] = parts;
+  if (Date.now() > parseInt(expiry, 10)) return false;
+  const expected = createHmac("sha256", secret).update(`${sessionId}.${expiry}`).digest("hex");
+  return sig === expected;
+}
+
 export function verifyAdmin(request: NextRequest | Request): boolean {
   const adminPassword = process.env.ADMIN_PASSWORD;
   const cronSecret = process.env.CRON_SECRET;
+  const hmacKey = process.env.ADMIN_HMAC_SECRET || adminPassword;
 
   const directPassword = request.headers.get("x-admin-password");
   if (adminPassword && directPassword && directPassword === adminPassword) {
@@ -24,6 +25,7 @@ export function verifyAdmin(request: NextRequest | Request): boolean {
   if (match) {
     const token = match[1];
     if (adminPassword && token === adminPassword) return true;
+    if (adminPassword && verifyAdminToken(token, hmacKey!)) return true;
     if (cronSecret && token === cronSecret) return true;
   }
 

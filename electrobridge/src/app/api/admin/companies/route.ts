@@ -13,7 +13,8 @@ const createSchema = z.object({
   size: z.string().max(50).optional(),
 });
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  try { await requireAdmin(request); } catch (e) { return e instanceof Response ? e : NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const { data, error } = await supabaseAdmin!
     .from("company_pages")
     .select("*")
@@ -23,7 +24,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  requireAdmin(request);
+  try { await requireAdmin(request); } catch (e) { return e instanceof Response ? e : NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const body = await request.json();
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid input" }, { status: 400 });

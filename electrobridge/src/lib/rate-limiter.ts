@@ -66,8 +66,8 @@ export async function rateLimit(
     try {
       return await upstashLimit(key, max, windowSeconds);
     } catch (e) {
-      console.error("Upstash rate limit failed, allowing request:", e);
-      return { success: true, remaining: max, resetAt: Date.now() + windowSeconds * 1000 };
+      console.error("Upstash rate limit failed, falling back to local limit:", e);
+      return localLimit(key, max, windowSeconds);
     }
   }
   return localLimit(key, max, windowSeconds);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase, supabaseAdmin, isConfigured } from "@/lib/supabase";
-import { serverError } from "@siliconpath/api";
+import { requireAdmin, serverError } from "@siliconpath/api";
 
 export async function GET(
   request: NextRequest,
@@ -50,6 +50,7 @@ export async function PATCH(
     if (!supabaseAdmin) {
       return NextResponse.json({ error: "Admin access not configured." }, { status: 503 });
     }
+    try { await requireAdmin(request); } catch (e) { return e instanceof Response ? e : serverError("Unauthorized"); }
     const body = await request.json();
     const { data, error } = await supabaseAdmin
       .from("opportunities")
@@ -81,6 +82,7 @@ export async function DELETE(
     if (!supabaseAdmin) {
       return NextResponse.json({ error: "Admin access not configured." }, { status: 503 });
     }
+    try { await requireAdmin(request); } catch (e) { return e instanceof Response ? e : serverError("Unauthorized"); }
     const { error } = await supabaseAdmin
       .from("opportunities")
       .delete()

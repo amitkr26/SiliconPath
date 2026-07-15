@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { requireAdmin, serverError } from "@siliconpath/api";
 
 export async function POST(request: NextRequest) {
-  requireAdmin(request);
+  try { await requireAdmin(request); } catch (e) { return e instanceof Response ? e : NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const body = await request.json();
   const { opportunity_id } = body;
 

@@ -14,7 +14,7 @@ const updateSchema = z.object({
 });
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  requireAdmin(request);
+  try { await requireAdmin(request); } catch (e) { return e instanceof Response ? e : NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const { id } = await params;
   const body = await request.json();
   const parsed = updateSchema.safeParse(body);
@@ -29,7 +29,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  requireAdmin(request);
+  try { await requireAdmin(request); } catch (e) { return e instanceof Response ? e : NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const { id } = await params;
   const { error } = await supabaseAdmin!
     .from("company_pages")

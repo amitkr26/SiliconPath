@@ -44,7 +44,7 @@ const mockedCallAI = callAI as jest.MockedFunction<typeof callAI>;
 
 beforeEach(() => {
   mockedCallAI.mockReset();
-  mockedCallAI.mockResolvedValue({ text: "JRF", provider: "openai", model: "gpt-4" });
+  mockedCallAI.mockResolvedValue({ text: "JRF", provider: "groq", model: "mixtral-8x7b" });
 });
 
 describe("POST /api/ai/classify", () => {
@@ -72,7 +72,7 @@ describe("POST /api/ai/classify", () => {
   });
 
   it("returns Unclassified for unknown category", async () => {
-    mockedCallAI.mockResolvedValue({ text: "SomethingRandom", provider: "openai", model: "gpt-4" });
+    mockedCallAI.mockResolvedValue({ text: "SomethingRandom", provider: "groq", model: "mixtral-8x7b" });
     const req = new (require("next/server").NextRequest)("http://localhost/api/ai/classify", {
       method: "POST",
       body: JSON.stringify({ title: "Some weird title" }),

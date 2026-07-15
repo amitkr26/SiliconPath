@@ -1,7 +1,7 @@
 -- SiliconPath v2 :: Academy tracks seed (7-stage VLSI curriculum).
 -- Run AFTER 20260710_000_reset_core.sql on Supabase Project 1.
 
-INSERT INTO academy_tracks
+INSERT INTO learning_tracks
   (slug, title, description, icon, color, order_index, estimated_days, estimated_hours, prerequisites)
 VALUES
   ('digital-logic',   'Digital Logic Fundamentals',         'Boolean algebra, combinational circuits, sequential logic, state machines, timing analysis.',     'Cpu',      '#6366f1', 1, 14, 28, '{}'),
