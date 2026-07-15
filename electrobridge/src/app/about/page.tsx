@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Zap, ShieldCheck, Globe, BookOpen, Newspaper, MessageSquare,
@@ -24,22 +24,15 @@ async function getStats() {
 
   const now = new Date().toISOString();
 
-  const [{ count: oppCount }, { count: newsCount }] = await Promise.all([
+  const [{ count: oppCount }, { count: newsCount }, { count: orgCount }] = await Promise.all([
     supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("is_active", true).or(`deadline.gte.${now},deadline.is.null`),
     supabaseAdmin.from("news_articles").select("*", { count: "exact", head: true }),
+    supabaseAdmin.from("organizations").select("*", { count: "exact", head: true }).eq("is_active", true),
   ]);
-
-  const { data: orgs } = await supabaseAdmin
-    .from("opportunities")
-    .select("organization")
-    .eq("is_active", true)
-    .or(`deadline.gte.${now},deadline.is.null`);
-
-  const uniqueOrgs = orgs ? new Set(orgs.map((o: { organization: string }) => o.organization)).size : 0;
 
   return {
     opportunities: oppCount || 0,
-    organizations: uniqueOrgs,
+    organizations: orgCount || 0,
     news: newsCount || 0,
   };
 }
