@@ -17,7 +17,6 @@ This directory is the single source of truth for all engineering knowledge about
 | Path | Content |
 |------|---------|
 | `electrobridge/` | Next.js 14 frontend + API (Vercel) |
-| `backend/` | Express.js scraping service (Render) |
 | `neon/` | Neon analytics database schema |
 | `project-bible/` | **You are here** — complete engineering documentation |
 | `scripts/` | Utility and setup scripts |

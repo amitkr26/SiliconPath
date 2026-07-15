@@ -1,5 +1,8 @@
 # Backend Architecture
 
+> [!IMPORTANT]
+> **Consolidation Note (July 2026)**: The Express.js backend scraper service formerly deployed on Render has been **fully consolidated** into Next.js Serverless API endpoints inside the `electrobridge/` subproject. The directory structure and concurrency models documented below are legacy reference details only.
+
 ## Overview
 
 The SiliconPath backend is a lightweight Express.js application deployed on Render that handles all scraping, orchestration, and scheduled maintenance tasks. It runs as a Docker container with health checks and Prometheus metrics.

@@ -5,7 +5,6 @@
 | Service | Provider | Purpose | Plan |
 |---------|----------|---------|------|
 | Frontend | Vercel | Next.js 14 application | Free (Hobby) |
-| Backend | Render | Express.js scraping service | Free (Starter) |
 | DB1 | Supabase | Core platform data | Free |
 | DB2 | Supabase | Social + user data | Free |
 | Analytics | Neon | Page views, clicks, search | Free |
@@ -19,7 +18,6 @@
 
 All infrastructure must operate within free tier limits:
 - **Vercel**: 100 GB bandwidth, 6000 build minutes/month, 10 serverless function executions (concurrent)
-- **Render**: 512 MB RAM, 0.1 CPU, 750 hours/month (single instance, spins down after inactivity)
 - **Supabase**: 500 MB database, 2 GB bandwidth, 50,000 monthly active users (free tier)
 - **Neon**: 0.5 GB compute, 5 GB storage, shared compute (always-on, but cold starts)
 - **Upstash**: 10,000 commands/day, 1 MB data (free tier)

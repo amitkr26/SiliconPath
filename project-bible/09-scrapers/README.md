@@ -1,8 +1,11 @@
 # Scraper Architecture
 
+> [!IMPORTANT]
+> **Consolidation Note (July 2026)**: The scraping engine is now fully consolidated inside the `electrobridge` Next.js application. All ATS adapters, custom HTML adapters (including ISRO, DRDO, CSIR), and RSS adapters are imported dynamically and executed via Serverless API endpoints on Vercel (triggered by Vercel Cron). The Render Express-based scraping tiers documented below are legacy references only.
+
 ## Overview
 
-SiliconPath operates a two-tier scraping system: a lightweight Express backend on Render (for 332+ configured ATS/HTML/RSS sources) and frontend-side scrapers in the Next.js app (for ISRO, DRDO, CSIR, and other Indian government/academic sources).
+SiliconPath operates a consolidated scraping system integrated within the Next.js app under `src/lib/scrapers/` to fetch opportunities across ATS/HTML/RSS sources.
 
 ## Architecture
 
