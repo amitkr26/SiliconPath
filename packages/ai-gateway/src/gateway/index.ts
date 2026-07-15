@@ -6,21 +6,29 @@ const providerCooldowns: Record<string, number> = {};
 
 export type AIProvider = "bedrock" | "groq" | "nvidia" | "gemini" | "openrouter" | "cloudflare" | "huggingface";
 
-export const PROVIDER_CONFIG: Record<AIProvider, { model: string; envKey: string; extraEnv?: string }> = {
-  bedrock:     { model: "openai.gpt-oss-120b",              envKey: "AWS_BEARER_TOKEN_BEDROCK" },
-  groq:        { model: "llama-3.1-8b-instant",             envKey: "GROQ_API_KEY" },
-  nvidia:      { model: "meta/llama-3.1-8b-instruct",       envKey: "NVIDIA_NIM_API_KEY" },
-  gemini:      { model: "gemini-1.5-flash",                 envKey: "GEMINI_API_KEY" },
-  openrouter:  { model: "meta-llama/llama-3.1-8b-instruct:free", envKey: "OPENROUTER_API_KEY" },
-  cloudflare:  { model: "@cf/meta/llama-3.1-8b-instruct",   envKey: "CLOUDFLARE_AI_TOKEN", extraEnv: "CLOUDFLARE_ACCOUNT_ID" },
-  huggingface: { model: "mistralai/Mistral-7B-Instruct-v0.3", envKey: "HUGGINGFACE_API_KEY" },
+export const PROVIDER_CONFIG: Record<AIProvider, { model: string; envKey: string; extraEnv?: string; costPer1kTokens?: number }> = {
+  bedrock:     { model: "openai.gpt-oss-120b",              envKey: "AWS_BEARER_TOKEN_BEDROCK", costPer1kTokens: 0.003 },
+  groq:        { model: "llama-3.1-8b-instant",             envKey: "GROQ_API_KEY",              costPer1kTokens: 0 },
+  nvidia:      { model: "meta/llama-3.1-8b-instruct",       envKey: "NVIDIA_NIM_API_KEY",        costPer1kTokens: 0 },
+  gemini:      { model: "gemini-1.5-flash",                 envKey: "GEMINI_API_KEY",            costPer1kTokens: 0.000075 },
+  openrouter:  { model: "meta-llama/llama-3.1-8b-instruct:free", envKey: "OPENROUTER_API_KEY",  costPer1kTokens: 0 },
+  cloudflare:  { model: "@cf/meta/llama-3.1-8b-instruct",   envKey: "CLOUDFLARE_AI_TOKEN",       extraEnv: "CLOUDFLARE_ACCOUNT_ID", costPer1kTokens: 0 },
+  huggingface: { model: "mistralai/Mistral-7B-Instruct-v0.3", envKey: "HUGGINGFACE_API_KEY",    costPer1kTokens: 0 },
 };
 
 export type AILogEntry = {
   feature: string; provider: AIProvider; model: string;
   prompt_length: number; response_length: number; success: boolean; error_message: string | null;
+  cost_estimate?: number;
 };
 type LogFn = (entry: AILogEntry) => Promise<void> | void;
+
+function estimateCost(provider: AIProvider, promptLen: number, responseLen: number): number {
+  const cfg = PROVIDER_CONFIG[provider];
+  if (!cfg?.costPer1kTokens) return 0;
+  const totalTokens = Math.ceil(promptLen / 4) + Math.ceil(responseLen / 4);
+  return parseFloat(((totalTokens / 1000) * cfg.costPer1kTokens).toFixed(6));
+}
 
 export class AIGateway {
   private logFn: LogFn = () => {};
@@ -46,18 +54,19 @@ export class AIGateway {
 
       try {
         const text = await this.callProvider(provider, promptText, systemPrompt);
-        this.logFn({ feature, provider, model: cfg.model, prompt_length: promptText.length, response_length: text.length, success: true, error_message: null });
+        const cost = estimateCost(provider, promptText.length, text.length);
+        this.logFn({ feature, provider, model: cfg.model, prompt_length: promptText.length, response_length: text.length, success: true, error_message: null, cost_estimate: cost });
         return { text, provider, model: cfg.model };
       } catch (error) {
         providerCooldowns[provider] = Date.now();
-        this.logFn({ feature, provider, model: cfg.model, prompt_length: promptText.length, response_length: 0, success: false, error_message: error instanceof Error ? error.message : String(error) });
+        this.logFn({ feature, provider, model: cfg.model, prompt_length: promptText.length, response_length: 0, success: false, error_message: error instanceof Error ? error.message : String(error), cost_estimate: 0 });
       }
     }
     throw new Error("All AI providers failed. Please try again later.");
   }
 
   async generateAdvanced(prompt: string, systemPrompt?: string, feature = "advanced"): Promise<{ text: string; provider: AIProvider; model: string }> {
-    const order: AIProvider[] = ["nvidia", "gemini", "groq", "bedrock", "cloudflare"];
+    const order: AIProvider[] = ["nvidia", "gemini", "groq", "openrouter", "cloudflare", "bedrock", "huggingface"];
     for (const provider of order) {
       const now = Date.now();
       if (providerCooldowns[provider] && now - providerCooldowns[provider] < COOLDOWN_MS) continue;
@@ -65,19 +74,13 @@ export class AIGateway {
       if (!cfg) continue;
       if (!process.env[cfg.envKey] || (cfg.extraEnv && !process.env[cfg.extraEnv])) continue;
       try {
-        let text: string;
-        if (provider === "nvidia") {
-          text = await this.callNvidiaAdvanced(prompt, systemPrompt);
-        } else if (provider === "gemini") {
-          text = await this.callGemini(prompt, systemPrompt);
-        } else {
-          text = await this.callGroq(prompt, systemPrompt);
-        }
-        this.logFn({ feature, provider, model: cfg.model, prompt_length: prompt.length, response_length: text.length, success: true, error_message: null });
+        const text = await this.callProvider(provider, prompt, systemPrompt);
+        const cost = estimateCost(provider, prompt.length, text.length);
+        this.logFn({ feature, provider, model: cfg.model, prompt_length: prompt.length, response_length: text.length, success: true, error_message: null, cost_estimate: cost });
         return { text, provider, model: cfg.model };
       } catch (error) {
         providerCooldowns[provider] = Date.now();
-        this.logFn({ feature, provider, model: cfg.model, prompt_length: prompt.length, response_length: 0, success: false, error_message: error instanceof Error ? error.message : String(error) });
+        this.logFn({ feature, provider, model: cfg.model, prompt_length: prompt.length, response_length: 0, success: false, error_message: error instanceof Error ? error.message : String(error), cost_estimate: 0 });
       }
     }
     throw new Error("All advanced AI providers failed");
@@ -141,18 +144,6 @@ export class AIGateway {
     const data = await res.json();
     if (!data.choices?.[0]?.message?.content) throw new Error("NVIDIA NIM: empty response");
     return data.choices[0].message.content;
-  }
-
-  private async callNvidiaAdvanced(prompt: string, systemPrompt?: string): Promise<string> {
-    const res = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${process.env.NVIDIA_NIM_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: "mistralai/mistral-7b-instruct-v0.3", messages: [...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []), { role: "user", content: prompt }], temperature: 0.5, top_p: 0.9, max_tokens: 2048, stream: false }),
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!res.ok) throw new Error(`NVIDIA Advanced error: ${res.status}`);
-    const data = await res.json();
-    return data.choices?.[0]?.message?.content || "";
   }
 
   private async callOpenRouter(prompt: string, systemPrompt?: string): Promise<string> {

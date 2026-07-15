@@ -13,16 +13,17 @@ export interface AILogEntry {
   response_length: number;
   success: boolean;
   error_message: string | null;
+  cost_estimate?: number;
 }
 
 async function logAIUsage(entry: AILogEntry) {
   if (!neonPrimary) return;
   try {
     await neonPrimary`
-      INSERT INTO ai_usage_log (feature, provider, model, prompt_length, response_length, success, error_message)
+      INSERT INTO ai_usage_log (feature, provider, model, prompt_length, response_length, success, error_message, cost_estimate)
       VALUES (${entry.feature}, ${entry.provider}, ${entry.model},
               ${entry.prompt_length}, ${entry.response_length},
-              ${entry.success}, ${entry.error_message})
+              ${entry.success}, ${entry.error_message}, ${entry.cost_estimate ?? 0})
     `;
   } catch {
     // silently fail — logging should never block the AI call

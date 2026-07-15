@@ -37,6 +37,16 @@ live_test_results.*
 batch*_results.*
 coverage/
 
+# opencode MCP servers (contain API keys)
+.opencode/
+
+# session scripts (contain API keys)
+scripts/
+
+# Supabase temp & config (secrets)
+.temp/
+electrobridge/supabase/config.toml
+
 # Vercel
 .vercel
 
@@ -47,3 +57,5 @@ coverage/
 SECRETS.md
 credentials.txt
 siliconpath-credentials.txt
+Credentials.md
+.env*

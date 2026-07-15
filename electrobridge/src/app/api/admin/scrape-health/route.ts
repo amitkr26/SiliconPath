@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
   const { data: recentOpps } = await supabaseAdmin
     .from("opportunities")
-    .select("id, title, category, created_at, verification_status, organizations(name)")
+    .select("id, title, organization, category, created_at, verification_status")
     .order("created_at", { ascending: false })
     .limit(20);
 

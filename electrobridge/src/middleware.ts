@@ -2,13 +2,27 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { applyRateLimit } from '@siliconpath/api';
 
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'https://siliconpath.vercel.app',
+  'https://www.siliconpath.vercel.app',
+  'https://ponytail.dev',
+  'https://www.ponytail.dev',
+  'https://omniroute.online',
+  'https://www.omniroute.online',
+];
+
+const MUTATION_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
+
 const GATED_PATHS = [
   '/api/feed',
   '/api/network',
   '/api/companies',
   '/api/messages',
   '/api/notifications',
-  '/api/people'
+  '/api/people',
+  '/api/resume',
+  '/api/applications',
 ];
 
 function addSecurityHeaders(response: NextResponse): void {
@@ -23,6 +37,7 @@ function addSecurityHeaders(response: NextResponse): void {
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
+    "report-uri /api/csp-report",
   ].join('; ');
 
   response.headers.set('Content-Security-Policy', csp);
@@ -44,18 +59,40 @@ function rateLimiterKey(path: string): 'api' | 'auth' | 'search' | 'scrape' | 'a
   return null;
 }
 
+function csrfGuard(request: NextRequest): Response | null {
+  if (!MUTATION_METHODS.includes(request.method)) return null;
+  if (request.method === 'POST' && (
+    request.nextUrl.pathname.startsWith('/api/auth') ||
+    request.nextUrl.pathname.startsWith('/api/subscribe') ||
+    request.nextUrl.pathname.startsWith('/api/report-issue')
+  )) return null;
+
+  const origin = request.headers.get('origin');
+  const referer = request.headers.get('referer');
+  const source = origin || (referer ? new URL(referer).origin : null);
+  if (!source) return null;
+  if (ALLOWED_ORIGINS.includes(source)) return null;
+
+  return new Response(JSON.stringify({ error: 'CSRF validation failed' }), {
+    status: 403,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  // Rate limit API routes (except cron — those auth via CRON_SECRET)
+  const csrfResponse = csrfGuard(request);
+  if (csrfResponse) return csrfResponse;
+
   const limiter = rateLimiterKey(path);
   if (limiter) {
     const rateLimitResponse = await applyRateLimit(request, limiter);
     if (rateLimitResponse) return rateLimitResponse;
   }
 
-  // Auth gate for Tier 2 paths
   const isGated = GATED_PATHS.some(p => path === p || path.startsWith(p + '/'));
+  const isAdminPage = path.startsWith('/admin');
   let supabaseResponse = NextResponse.next({ request });
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -77,6 +114,13 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (isGated && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    url.searchParams.set('redirectTo', request.nextUrl.pathname);
+    return NextResponse.redirect(url);
+  }
+
+  if (isAdminPage && !user) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     url.searchParams.set('redirectTo', request.nextUrl.pathname);
