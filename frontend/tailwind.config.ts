@@ -52,8 +52,8 @@ const config: Config = {
         cyan: "#06B6D4",
       },
       fontFamily: {
-        display: ["Space Grotesk", "sans-serif"],
-        body: ["Inter", "sans-serif"],
+        display: ["var(--font-space-grotesk)", "sans-serif"],
+        body: ["var(--font-inter)", "sans-serif"],
         mono: ["Geist Mono", "monospace"],
       },
       fontSize: {

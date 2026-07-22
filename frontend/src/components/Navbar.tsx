@@ -12,6 +12,7 @@ import { useUser } from "@/hooks/useUser";
 const PUBLIC_NAV_ITEMS = [
   { href: "/opportunities", label: "Opportunities", icon: Briefcase },
   { href: "/academy", label: "VLSI Academy", icon: GraduationCap },
+  { href: "/network", label: "Network", icon: Users },
   { href: "/news", label: "News", icon: Sparkles },
   { href: "/organizations", label: "Organizations", icon: Users },
   { href: "/resources", label: "Resources", icon: FileText },
