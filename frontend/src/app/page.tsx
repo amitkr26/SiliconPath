@@ -106,28 +106,28 @@ export default async function Home() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-slate-50 text-slate-900 pb-20">
+    <div className="relative min-h-screen bg-slate-950 text-slate-100 pb-20">
       
       {/* HERO SECTION */}
-      <section className="relative pt-16 pb-20 overflow-hidden bg-gradient-to-b from-blue-50/80 via-white to-slate-50 border-b border-slate-200/60">
+      <section className="relative pt-16 pb-20 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-cyan-950/40 border-b border-cyan-900/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           
-          {/* LIVE AGGREGATION BADGE */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full badge-live text-xs font-semibold mb-6 shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-            <span>Live Aggregator: {stats.verified}+ Official Verified Opportunities Ingested</span>
+          {/* ACADEMY & NETWORK BADGE */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-400 text-xs font-semibold mb-6 shadow-md shadow-cyan-500/10">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+            <span>SiliconPath Platform: 7 VLSI Academy Tracks & Hardware Engineers Network</span>
           </div>
 
           {/* MAIN HERO HEADLINE */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 max-w-5xl mx-auto leading-[1.15]">
-            India’s Premier Hub for <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600">
-              Semiconductor & VLSI Careers
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-5xl mx-auto leading-[1.15]">
+            Master VLSI Design & <br />
+            <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
+              Hardware Network
             </span>
           </h1>
 
-          <p className="mt-6 text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed font-normal">
-            Aggregating verified JRF, PhD, DRDO, ISRO, CSIR, IIT Bombay, IIT Madras, IISc research positions, and premier enterprise opportunities from Intel, Qualcomm, AMD, TSMC, and Arm.
+          <p className="mt-6 text-base sm:text-lg text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
+            The premier platform for Verilog, SystemVerilog, UVM, Physical Design, and RTL verification. Learn structured VLSI tracks, connect with hardware engineers, and showcase your tapeouts.
           </p>
 
           {/* HERO CALL TO ACTIONS */}
