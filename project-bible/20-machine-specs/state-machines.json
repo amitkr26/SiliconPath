@@ -1,0 +1,41 @@
+{
+  "opportunity_verification": {
+    "initial": "pending",
+    "states": {
+      "pending": { "on": { "VERIFY": "verified", "REJECT": "rejected" }, "description": "Awaiting admin review" },
+      "verified": { "on": { "REJECT": "rejected", "EXPIRE": "expired", "MARK_UNAVAILABLE": "link_unavailable" }, "description": "Public and visible" },
+      "rejected": { "on": { "REVIEW": "pending" }, "description": "Rejected by admin" },
+      "expired": { "on": {}, "description": "Past deadline or closed" },
+      "link_unavailable": { "on": { "FIX_LINK": "pending" }, "description": "Apply link is broken" }
+    }
+  },
+  "connection_request": {
+    "initial": "pending",
+    "states": {
+      "pending": { "on": { "ACCEPT": "accepted", "REJECT": "rejected", "WITHDRAW": "cancelled" }, "description": "Awaiting response" },
+      "accepted": { "on": { "DISCONNECT": "cancelled" }, "description": "Connected" },
+      "rejected": { "on": {}, "description": "Declined" },
+      "cancelled": { "on": {}, "description": "Withdrawn or disconnected" }
+    }
+  },
+  "application": {
+    "initial": "submitted",
+    "states": {
+      "submitted": { "on": { "REVIEW": "reviewed", "WITHDRAW": "withdrawn" }, "description": "Application submitted" },
+      "reviewed": { "on": { "SHORTLIST": "shortlisted", "REJECT": "rejected" }, "description": "Under review" },
+      "shortlisted": { "on": { "ACCEPT": "accepted", "REJECT": "rejected" }, "description": "Shortlisted for next round" },
+      "accepted": { "on": {}, "description": "Application accepted" },
+      "rejected": { "on": {}, "description": "Application rejected" },
+      "withdrawn": { "on": {}, "description": "Withdrawn by applicant" }
+    }
+  },
+  "scrape_run": {
+    "initial": "queued",
+    "states": {
+      "queued": { "on": { "START": "running" }, "description": "Waiting to start" },
+      "running": { "on": { "COMPLETE": "completed", "FAIL": "failed", "TIMEOUT": "failed" }, "description": "Scraping in progress" },
+      "completed": { "on": {}, "description": "Finished successfully" },
+      "failed": { "on": { "RETRY": "queued" }, "description": "Finished with errors" }
+    }
+  }
+}

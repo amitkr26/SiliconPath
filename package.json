@@ -1,0 +1,32 @@
+{
+  "name": "berojgardegreewala",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend/api",
+    "backend/ai-gateway",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:watch": "npm run test:watch --workspaces --if-present",
+    "test:coverage": "npm run test:coverage --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present"
+  },
+  "packageManager": "npm@10.5.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^26.1.1",
+    "jest": "^30.4.2",
+    "@swc/core": "^1.11.21",
+    "@swc/jest": "^0.2.37",
+    "zod": "^4.4.3"
+  }
+}

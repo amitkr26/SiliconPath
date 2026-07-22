@@ -1,0 +1,587 @@
+[
+  {
+    "name": "Intel",
+    "url": "https://intel.wd1.myworkdayjobs.com/External",
+    "org_slug": "intel",
+    "method": "workday_api",
+    "company_type": "Private MNC",
+    "country": "Global",
+    "workdayConfig": {
+      "baseUrl": "https://intel.wd1.myworkdayjobs.com",
+      "tenant": "intel",
+      "site": "External"
+    }
+  },
+  {
+    "name": "Micron Technology",
+    "url": "https://micron.wd1.myworkdayjobs.com/External",
+    "org_slug": "micron",
+    "method": "workday_api",
+    "company_type": "Private MNC",
+    "country": "Global",
+    "workdayConfig": {
+      "baseUrl": "https://micron.wd1.myworkdayjobs.com",
+      "tenant": "micron",
+      "site": "External"
+    }
+  },
+  {
+    "name": "Broadcom",
+    "url": "https://broadcom.wd1.myworkdayjobs.com/External_Career",
+    "org_slug": "broadcom",
+    "method": "workday_api",
+    "company_type": "Private MNC",
+    "country": "Global",
+    "workdayConfig": {
+      "baseUrl": "https://broadcom.wd1.myworkdayjobs.com",
+      "tenant": "broadcom",
+      "site": "External_Career"
+    }
+  },
+  {
+    "name": "Marvell Technology",
+    "url": "https://marvell.wd1.myworkdayjobs.com/MarvellCareers",
+    "org_slug": "marvell",
+    "method": "workday_api",
+    "company_type": "Private MNC",
+    "country": "Global",
+    "workdayConfig": {
+      "baseUrl": "https://marvell.wd1.myworkdayjobs.com",
+      "tenant": "marvell",
+      "site": "MarvellCareers"
+    }
+  },
+  {
+    "name": "Analog Devices",
+    "url": "https://analogdevices.wd1.myworkdayjobs.com/External",
+    "org_slug": "analog-devices",
+    "method": "workday_api",
+    "company_type": "Private MNC",
+    "country": "Global",
+    "workdayConfig": {
+      "baseUrl": "https://analogdevices.wd1.myworkdayjobs.com",
+      "tenant": "analogdevices",
+      "site": "External"
+    }
+  },
+  {
+    "name": "NXP Semiconductors",
+    "url": "https://nxp.wd3.myworkdayjobs.com/careers?locationCountry=India",
+    "org_slug": "nxp",
+    "method": "workday_api",
+    "company_type": "Private MNC",
+    "country": "Global",
+    "workdayConfig": {
+      "baseUrl": "https://nxp.wd3.myworkdayjobs.com",
+      "tenant": "nxp",
+      "site": "careers"
+    }
+  },
+  {
+    "name": "Cadence Design Systems",
+    "url": "https://cadence.wd1.myworkdayjobs.com/External_Careers?locationCountry=India",
+    "org_slug": "cadence",
+    "method": "workday_api",
+    "company_type": "Private MNC",
+    "country": "Global",
+    "workdayConfig": {
+      "baseUrl": "https://cadence.wd1.myworkdayjobs.com",
+      "tenant": "cadence",
+      "site": "External_Careers"
+    }
+  },
+  {
+    "name": "Tenstorrent",
+    "url": "https://boards-api.greenhouse.io",
+    "org_slug": "tenstorrent",
+    "method": "greenhouse_api",
+    "company_type": "Startup",
+    "country": "Global",
+    "greenhouseConfig": {
+      "boardToken": "tenstorrent"
+    }
+  },
+  {
+    "name": "Graphcore",
+    "url": "https://boards-api.greenhouse.io",
+    "org_slug": "graphcore",
+    "method": "greenhouse_api",
+    "company_type": "Startup",
+    "country": "Global",
+    "greenhouseConfig": {
+      "boardToken": "graphcore"
+    }
+  },
+  {
+    "name": "Texas Instruments",
+    "url": "https://careers.ti.com/search-jobs/?country=India",
+    "org_slug": "texas-instruments",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "India"
+  },
+  {
+    "name": "Qualcomm",
+    "url": "https://www.qualcomm.com/company/careers/students?country=India",
+    "org_slug": "qualcomm",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "India"
+  },
+  {
+    "name": "STMicroelectronics",
+    "url": "https://www.st.com/content/st_com/en/about/careers/st-jobs.html",
+    "org_slug": "stmicro",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Synopsys",
+    "url": "https://careers.synopsys.com/search?q=&location=India",
+    "org_slug": "synopsys",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "India"
+  },
+  {
+    "name": "Renesas Electronics",
+    "url": "https://jobs.renesas.com/en/search-results?location=India",
+    "org_slug": "renesas",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "India"
+  },
+  {
+    "name": "onsemi",
+    "url": "https://www.onsemi.com/company/careers?country=India",
+    "org_slug": "onsemi",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "India"
+  },
+  {
+    "name": "Microchip Technology",
+    "url": "https://careers.microchip.com/us/en/search-results?keywords=&location=India",
+    "org_slug": "microchip",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "India"
+  },
+  {
+    "name": "TSMC",
+    "url": "https://careers.tsmc.com/",
+    "org_slug": "tsmc",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Samsung Semiconductor",
+    "url": "https://semiconductor.samsung.com/careers/",
+    "org_slug": "samsung-semiconductor",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "SK Hynix",
+    "url": "https://recruit.skhynix.com/",
+    "org_slug": "sk-hynix",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Infineon Technologies",
+    "url": "https://www.infineon.com/cms/en/careers/",
+    "org_slug": "infineon",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "ROHM Semiconductor",
+    "url": "https://www.rohm.com/about-us/careers",
+    "org_slug": "rohm",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Skyworks Solutions",
+    "url": "https://www.skyworksinc.com/en/Careers",
+    "org_slug": "skyworks",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Qorvo",
+    "url": "https://www.qorvo.com/careers",
+    "org_slug": "qorvo",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Wolfspeed",
+    "url": "https://www.wolfspeed.com/careers",
+    "org_slug": "wolfspeed",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "GlobalFoundries",
+    "url": "https://gf.com/careers",
+    "org_slug": "globalfoundries",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "UMC",
+    "url": "https://www.umc.com/en/Html/careers",
+    "org_slug": "umc",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "SMIC",
+    "url": "http://www.smics.com/en/site/careers",
+    "org_slug": "smic",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Powerchip Semiconductor",
+    "url": "https://www.powerchip.com/careers",
+    "org_slug": "powerchip",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Vanguard International Semiconductor",
+    "url": "https://www.vis.com.tw/en/careers",
+    "org_slug": "vis",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Tower Semiconductor",
+    "url": "https://towersemi.com/careers/",
+    "org_slug": "towersemi",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "X-FAB",
+    "url": "https://www.xfab.com/careers",
+    "org_slug": "xfab",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "DB HiTek",
+    "url": "https://www.dbhitek.com/careers",
+    "org_slug": "dbhitek",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Nexperia",
+    "url": "https://www.nexperia.com/about/careers.html",
+    "org_slug": "nexperia",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Vishay Intertechnology",
+    "url": "https://www.vishay.com/careers/",
+    "org_slug": "vishay",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Diodes Incorporated",
+    "url": "https://www.diodes.com/careers/",
+    "org_slug": "diodes",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Toshiba Electronic Devices",
+    "url": "https://www.toshiba.co.jp/about/careers/",
+    "org_slug": "toshiba",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Sony Semiconductor Solutions",
+    "url": "https://www.sony-semicon.co.jp/e/recruit/",
+    "org_slug": "sony-semicon",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Panasonic Semiconductor",
+    "url": "https://industrial.panasonic.com/ww/careers",
+    "org_slug": "panasonic-semiconductor",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Kioxia",
+    "url": "https://www.kioxia.com/en-jp/about/careers.html",
+    "org_slug": "kioxia",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Western Digital",
+    "url": "https://careers.smartrecruiters.com/WesternDigital",
+    "org_slug": "western-digital",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "SanDisk",
+    "url": "https://careers.smartrecruiters.com/WesternDigital",
+    "org_slug": "sandisk",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Winbond Electronics",
+    "url": "https://www.winbond.com.tw/html/en/about-winbond/careers/index.html",
+    "org_slug": "winbond",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Nordic Semiconductor",
+    "url": "https://www.nordicsemi.com/About-us/Careers",
+    "org_slug": "nordic",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "NVIDIA",
+    "url": "https://www.nvidia.com/en-us/about-nvidia/careers/",
+    "org_slug": "nvidia",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "AMD",
+    "url": "https://www.amd.com/en/corporate/careers",
+    "org_slug": "amd",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "MediaTek",
+    "url": "https://careers.mediatek.com/",
+    "org_slug": "mediatek",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Apple",
+    "url": "https://www.apple.com/careers/",
+    "org_slug": "apple",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "ARM Holdings",
+    "url": "https://careers.arm.com/",
+    "org_slug": "arm",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Cirrus Logic",
+    "url": "https://www.cirrus.com/careers/",
+    "org_slug": "cirrus",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Synaptics",
+    "url": "https://www.synaptics.com/careers",
+    "org_slug": "synaptics",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Lattice Semiconductor",
+    "url": "https://www.latticesemi.com/about/careers",
+    "org_slug": "lattice",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Ambiq Micro",
+    "url": "https://ambiq.com/careers",
+    "org_slug": "ambiqmicro",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Cerebras Systems",
+    "url": "https://www.cerebras.net/careers",
+    "org_slug": "cerebras",
+    "method": "html",
+    "company_type": "Startup",
+    "country": "Global"
+  },
+  {
+    "name": "Groq",
+    "url": "https://groq.com/careers/",
+    "org_slug": "groq",
+    "method": "html",
+    "company_type": "Startup",
+    "country": "Global"
+  },
+  {
+    "name": "SiFive",
+    "url": "https://www.sifive.com/careers",
+    "org_slug": "sifive",
+    "method": "html",
+    "company_type": "Startup",
+    "country": "Global"
+  },
+  {
+    "name": "Rivos",
+    "url": "https://www.rivosinc.com/careers/",
+    "org_slug": "rivos",
+    "method": "html",
+    "company_type": "Startup",
+    "country": "Global"
+  },
+  {
+    "name": "Axelera AI",
+    "url": "https://www.axelera.ai/careers",
+    "org_slug": "axelera",
+    "method": "html",
+    "company_type": "Startup",
+    "country": "Global"
+  },
+  {
+    "name": "Untether AI",
+    "url": "https://www.untether.ai/careers/",
+    "org_slug": "untether",
+    "method": "html",
+    "company_type": "Startup",
+    "country": "Global"
+  },
+  {
+    "name": "Mythic",
+    "url": "https://www.mythic-ai.com/careers/",
+    "org_slug": "mythic",
+    "method": "html",
+    "company_type": "Startup",
+    "country": "Global"
+  },
+  {
+    "name": "d-Matrix",
+    "url": "https://www.d-matrix.ai/careers/",
+    "org_slug": "dmatrix",
+    "method": "html",
+    "company_type": "Startup",
+    "country": "Global"
+  },
+  {
+    "name": "Blaize",
+    "url": "https://blaize.com/careers/",
+    "org_slug": "blaize",
+    "method": "html",
+    "company_type": "Startup",
+    "country": "Global"
+  },
+  {
+    "name": "Hailo",
+    "url": "https://hailo.ai/careers/",
+    "org_slug": "hailo",
+    "method": "html",
+    "company_type": "Startup",
+    "country": "Global"
+  },
+  {
+    "name": "EdgeCortix",
+    "url": "https://www.edgecortix.com/en/careers",
+    "org_slug": "edgecortix",
+    "method": "html",
+    "company_type": "Startup",
+    "country": "Global"
+  },
+  {
+    "name": "CEVA",
+    "url": "https://www.ceva-dsp.com/careers/",
+    "org_slug": "ceva",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Andes Technology",
+    "url": "http://www.andestech.com/en/about-us/careers/",
+    "org_slug": "andestech",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Innosilicon",
+    "url": "http://www.innosilicon.com/html/careers/",
+    "org_slug": "innosilicon",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "VeriSilicon",
+    "url": "https://www.verisilicon.com/en/Careers",
+    "org_slug": "verisilicon",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  },
+  {
+    "name": "Alphawave Semi",
+    "url": "https://awavesemi.com/careers/",
+    "org_slug": "alphawave",
+    "method": "html",
+    "company_type": "Private MNC",
+    "country": "Global"
+  }
+]
