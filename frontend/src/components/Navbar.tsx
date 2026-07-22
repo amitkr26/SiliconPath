@@ -118,21 +118,21 @@ export default function Navbar() {
             <div className="relative" ref={userRef}>
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 transition-colors"
+                className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-800 transition-colors"
               >
-                <div className="w-8 h-8 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-700 font-bold text-xs">
+                <div className="w-8 h-8 rounded-full bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold text-xs">
                   {user.email?.[0].toUpperCase() || "U"}
                 </div>
               </button>
               {userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50">
-                  <div className="px-4 py-2 border-b border-slate-100">
-                    <p className="text-xs font-semibold text-slate-900 truncate">{user.email}</p>
+                <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl py-2 z-50">
+                  <div className="px-4 py-2 border-b border-slate-800">
+                    <p className="text-xs font-semibold text-slate-200 truncate">{user.email}</p>
                   </div>
-                  <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900">
+                  <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-xs text-slate-300 hover:bg-slate-800 hover:text-white">
                     <User className="w-3.5 h-3.5" /> Profile
                   </Link>
-                  <button onClick={() => signOutUser()} className="w-full flex items-center gap-2 px-4 py-2 text-xs text-red-600 hover:bg-slate-50">
+                  <button onClick={() => signOutUser()} className="w-full flex items-center gap-2 px-4 py-2 text-xs text-red-400 hover:bg-slate-800">
                     <LogOut className="w-3.5 h-3.5" /> Sign Out
                   </button>
                 </div>
@@ -141,7 +141,7 @@ export default function Navbar() {
           ) : (
             <Link
               href="/auth/signin"
-              className="text-xs text-slate-700 hover:text-slate-900 font-medium px-3.5 py-1.5 rounded-full hover:bg-slate-100 transition-colors"
+              className="text-xs text-cyan-400 hover:text-cyan-300 font-medium px-3.5 py-1.5 rounded-full border border-cyan-500/30 hover:bg-cyan-950/50 transition-colors"
             >
               Sign In
             </Link>
@@ -150,7 +150,7 @@ export default function Navbar() {
           {/* MOBILE MENU TRIGGER */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="lg:hidden p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            className="lg:hidden p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800"
           >
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -159,15 +159,15 @@ export default function Navbar() {
 
       {/* MOBILE DRAWER */}
       {menuOpen && (
-        <div className="lg:hidden bg-white border-b border-slate-200 px-4 py-4 space-y-2">
+        <div className="lg:hidden bg-slate-900 border-b border-cyan-900/30 px-4 py-4 space-y-2">
           {PUBLIC_NAV_ITEMS.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
               onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-100"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-cyan-400 hover:bg-slate-800 transition-colors"
             >
-              <Icon className="w-4 h-4 text-blue-600" />
+              <Icon className="w-4 h-4 text-cyan-400" />
               {label}
             </Link>
           ))}

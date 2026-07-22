@@ -14,36 +14,34 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://berojgardegreewala.vercel.app"),
+  metadataBase: new URL("https://siliconpath.vercel.app"),
   title: {
-    default: "BerojgarDegreeWala — Semiconductor, VLSI & Electronics Opportunities India",
-    template: "%s | BerojgarDegreeWala",
+    default: "SiliconPath — VLSI Academy & Hardware Network",
+    template: "%s | SiliconPath",
   },
   description:
-    "Find JRF, PhD positions, government research jobs, fellowships, and private sector opportunities in semiconductor, VLSI, and electronics industry. DRDO, ISRO, CSIR, IIT opportunities aggregated in one place.",
+    "The premier platform for Verilog, SystemVerilog, UVM, Physical Design, and RTL verification. Master VLSI tracks and connect with hardware engineers worldwide.",
   keywords: [
-    "JRF", "Junior Research Fellow", "electronics jobs India", "semiconductor jobs",
-    "DRDO recruitment", "ISRO JRF", "CSIR fellowship", "PhD electronics India",
-    "VLSI jobs", "ASIC design jobs", "embedded systems jobs", "research fellowship India",
-    "NET electronics jobs", "GATE electronics jobs", "BerojgarDegreeWala", "semiconductor India",
+    "VLSI Academy", "Verilog HDL", "SystemVerilog UVM", "Physical Design",
+    "RTL Verification", "Hardware Engineers Network", "ASIC Design", "SiliconPath",
   ],
-  authors: [{ name: "BerojgarDegreeWala" }],
-  creator: "BerojgarDegreeWala",
+  authors: [{ name: "SiliconPath" }],
+  creator: "SiliconPath",
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://berojgardegreewala.vercel.app",
-    siteName: "BerojgarDegreeWala",
-    title: "BerojgarDegreeWala — Semiconductor & VLSI Opportunities Aggregator",
+    url: "https://siliconpath.vercel.app",
+    siteName: "SiliconPath",
+    title: "SiliconPath — VLSI Academy & Hardware Network",
     description:
-      "One-stop platform for JRF, PhD, government and private sector opportunities in semiconductor, VLSI, and electronics industry.",
-    images: [{ url: "/api/og", width: 1200, height: 630, alt: "BerojgarDegreeWala" }],
+      "Structured VLSI learning paths & professional network for semiconductor hardware engineers.",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "SiliconPath" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "BerojgarDegreeWala — Semiconductor & Electronics Opportunities",
+    title: "SiliconPath — VLSI Academy & Hardware Network",
     description:
-      "Find JRF, PhD, DRDO, ISRO, CSIR opportunities in VLSI & semiconductor. Updated daily.",
+      "Master VLSI design, SystemVerilog, UVM, and connect with hardware engineers.",
     images: ["/api/og"],
   },
   robots: {
