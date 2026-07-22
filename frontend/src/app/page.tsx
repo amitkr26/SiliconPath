@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   ArrowRight, Sparkles, Cpu, CircuitBoard, HardDrive, Wifi,
-  GraduationCap, Award, ShieldCheck
+  GraduationCap, Award, ShieldCheck, Users
 } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
@@ -133,27 +133,27 @@ export default async function Home() {
           {/* HERO CALL TO ACTIONS */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/opportunities"
-              className="px-8 py-3.5 rounded-full font-semibold text-sm btn-glow inline-flex items-center gap-2"
+              href="/academy"
+              className="px-8 py-3.5 rounded-full font-semibold text-sm bg-gradient-to-r from-cyan-500 to-indigo-500 text-slate-950 hover:from-cyan-400 hover:to-indigo-400 shadow-lg shadow-cyan-500/20 transition-all inline-flex items-center gap-2"
             >
-              Explore All Openings <ArrowRight className="w-4 h-4" />
+              Explore VLSI Academy Tracks <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/chat"
-              className="px-8 py-3.5 rounded-full font-semibold text-sm bg-white border border-slate-200 text-slate-800 hover:border-blue-500 hover:bg-slate-50 transition-all inline-flex items-center gap-2 shadow-xs"
+              href="/feed"
+              className="px-8 py-3.5 rounded-full font-semibold text-sm bg-slate-900 border border-slate-800 text-cyan-400 hover:bg-slate-800 transition-all inline-flex items-center gap-2"
             >
-              <Sparkles className="w-4 h-4 text-blue-600" /> Ask AI Career Assistant
+              <Users className="w-4 h-4 text-cyan-400" /> Join Hardware Network
             </Link>
           </div>
 
           {/* QUICK TARGET TAGS */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-600">
-            <span className="font-semibold text-slate-500">Popular Searches:</span>
-            {["DRDO JRF", "ISRO Scientist", "IIT Bombay PhD", "VLSI Verification", "RTL Design", "Qualcomm", "Arm Ltd"].map((tag) => (
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-400">
+            <span className="font-semibold text-slate-500">Popular Academy Tracks & Topics:</span>
+            {["Verilog HDL", "SystemVerilog UVM", "Physical Design", "STA & Synthesis", "RTL Verification", "DFT & Scan", "FPGA Prototyping"].map((tag) => (
               <Link
                 key={tag}
-                href={`/opportunities?search=${encodeURIComponent(tag)}`}
-                className="px-3.5 py-1 bg-white border border-slate-200 rounded-full text-slate-700 hover:border-blue-500 hover:text-blue-600 transition-all shadow-2xs"
+                href="/academy"
+                className="px-3.5 py-1 bg-slate-900 border border-slate-800 rounded-full text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 transition-all"
               >
                 {tag}
               </Link>
