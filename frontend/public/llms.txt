@@ -1,0 +1,18 @@
+# BerojgarDegreeWala (formerly BerojgarDegreeWala)
+
+BerojgarDegreeWala is the premier global aggregator for semiconductor and VLSI career opportunities, fellowships, and research positions.
+
+## Core Features
+- Complete aggregation of semiconductor and VLSI career opportunities without requiring login.
+- Real-time updates on JRF, SRF, RA, and PhD positions from top Indian institutions (IITs, IISc, NITs, DRDO, ISRO, CSIR).
+- International fellowships (DAAD, SINGA, MEXT) and PhD opportunities for electronics researchers.
+- Private sector roles (VLSI Design, Physical Design, Verification, DFT, Embedded Systems).
+
+## Main Sections
+- [Opportunities](https://berojgardegreewala.vercel.app/opportunities): Browse all active opportunities.
+- [Resources](https://berojgardegreewala.vercel.app/resources): Comprehensive guides on career paths, exams (GATE, NET), and interview preparation for ISRO/DRDO.
+- [Organizations](https://berojgardegreewala.vercel.app/organizations): Directory of top universities, labs, and semiconductor companies.
+- [News](https://berojgardegreewala.vercel.app/news): Latest updates in the global semiconductor industry.
+
+## Target Audience
+Electronics Engineers, VLSI Researchers, Embedded Systems Professionals, and Students seeking higher education (MTech/PhD) or research roles globally.
