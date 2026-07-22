@@ -22,3 +22,5 @@ SECRETS.md
 # OS metadata
 .DS_Store
 Thumbs.db
+
+.vercel
