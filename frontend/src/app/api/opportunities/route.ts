@@ -3,16 +3,15 @@ import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { createClient } from "@/lib/supabase/server";
 import { postToTelegram } from "@/lib/telegram-bot";
 import { mapDbOpportunityToClient } from "@/lib/utils";
-import { GARBAGE_TITLE_PATTERNS, slugify } from "@/lib/scrapers/utils";
-import { opportunitySchema, opportunityListQuerySchema } from "@berojgardegreewala/api";
-import { success, list, validationError, serverError, requireAdmin } from "@berojgardegreewala/api";
+import { opportunitySchema, opportunityListQuerySchema, requireAdmin } from "@berojgardegreewala/api";
 
-// A row is displayable only if it has a real title that is not a nav/menu heading.
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
 function isDisplayableOpportunity(o: { title?: string | null } | null): boolean {
   if (!o || !o.title) return false;
-  const t = o.title.trim();
-  if (t.length < 6) return false;
-  return !GARBAGE_TITLE_PATTERNS.test(t);
+  return o.title.trim().length >= 5;
 }
 
 export async function GET(request: NextRequest) {

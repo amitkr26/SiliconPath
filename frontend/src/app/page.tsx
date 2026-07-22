@@ -44,11 +44,34 @@ async function getLatestOpportunities(): Promise<Opportunity[]> {
     .from("opportunities")
     .select("*, organizations(*)")
     .eq("is_active", true)
-    .eq("verification_status", "verified")
     .order("created_at", { ascending: false })
-    .limit(6);
+    .limit(40);
 
-  return data ? data.map(mapDbOpportunityToClient) : [];
+  if (!data || data.length === 0) return [];
+
+  const mapped = data.map(mapDbOpportunityToClient);
+  const result: Opportunity[] = [];
+  const seenOrgs = new Set<string>();
+
+  for (const item of mapped) {
+    const orgName = (item.organization || "Enterprise").trim().toLowerCase();
+    if (!seenOrgs.has(orgName)) {
+      seenOrgs.add(orgName);
+      result.push(item);
+    }
+    if (result.length >= 6) break;
+  }
+
+  if (result.length < 6) {
+    for (const item of mapped) {
+      if (!result.some((r) => r.id === item.id)) {
+        result.push(item);
+      }
+      if (result.length >= 6) break;
+    }
+  }
+
+  return result;
 }
 
 async function getLatestNews(): Promise<NewsArticle[]> {

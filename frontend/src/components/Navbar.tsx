@@ -10,11 +10,11 @@ import {
 import { useUser } from "@/hooks/useUser";
 
 const PUBLIC_NAV_ITEMS = [
-  { href: "/opportunities", label: "Opportunities", icon: Briefcase },
   { href: "/academy", label: "VLSI Academy", icon: GraduationCap },
-  { href: "/news", label: "News", icon: Sparkles },
-  { href: "/organizations", label: "Organizations", icon: Users },
-  { href: "/resources", label: "Resources", icon: FileText },
+  { href: "/feed", label: "Feed", icon: Sparkles },
+  { href: "/network", label: "Network", icon: Users },
+  { href: "/messages", label: "Messages", icon: Briefcase },
+  { href: "/resume", label: "Resume Builder", icon: FileText },
 ];
 
 export default function Navbar() {
@@ -51,7 +51,7 @@ export default function Navbar() {
   const doSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/opportunities?search=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/network?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery("");
       searchRef.current?.blur();
     }
@@ -68,10 +68,10 @@ export default function Navbar() {
           </div>
           <div className="flex flex-col">
             <span className="font-bold text-lg tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
-              Berojgar<span className="text-blue-600">DegreeWala</span>
+              Silicon<span className="text-blue-600">Path</span>
             </span>
             <span className="text-[10px] text-slate-500 -mt-1 font-medium tracking-wide">
-              Semiconductor & VLSI Aggregator
+              VLSI Academy & Hardware Network
             </span>
           </div>
         </Link>

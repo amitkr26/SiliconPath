@@ -235,7 +235,7 @@ export function mapDbOpportunityToClient(dbRow: any): any {
     eligibility: cleanedElig !== "Detailed position responsibilities and eligibility criteria are provided on the official organization portal." ? cleanedElig : null,
     org_slug: dbRow.organizations?.slug || dbRow.org_slug || org.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
     stipend: dbRow.salary_range || dbRow.stipend || "As per Industry Pay Standard",
-    apply_link: dbRow.apply_url || dbRow.apply_link || "https://drdo.gov.in/drdo/careers",
+    apply_link: dbRow.apply_url || dbRow.apply_link || dbRow.source_url || "#",
     posted_at: dbRow.created_at || dbRow.posted_at || new Date().toISOString(),
     verification_status: "verified",
   };
