@@ -14,7 +14,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-text-secondary text-sm leading-relaxed mb-4">
-              AI-powered opportunity aggregator for the semiconductor, VLSI, and electronics engineering community. Updated daily.
+              The ultimate platform for semiconductor & hardware engineers: verified opportunities, VLSI academy, professional network, and AI career tools.
             </p>
           </div>
           <div>
