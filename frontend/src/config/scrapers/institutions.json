@@ -1,0 +1,234 @@
+[
+  {
+    "name": "IIT Delhi Jobs",
+    "url": "https://home.iitd.ac.in/jobs-iitd.php",
+    "org": "IIT Delhi",
+    "org_slug": "iit-delhi",
+    "country": "India",
+    "type": "IIT/NIT"
+  },
+  {
+    "name": "IIT Bombay Jobs",
+    "url": "https://www.ircc.iitb.ac.in/IRCC-Webpage/rnd/HRMSLoginPage.jsp",
+    "org": "IIT Bombay",
+    "org_slug": "iit-bombay",
+    "country": "India",
+    "type": "IIT/NIT"
+  },
+  {
+    "name": "IIT Madras Jobs",
+    "url": "https://icsr.iitm.ac.in/jobs.html",
+    "org": "IIT Madras",
+    "org_slug": "iit-madras",
+    "country": "India",
+    "type": "IIT/NIT"
+  },
+  {
+    "name": "IISc Jobs",
+    "url": "https://iisc.ac.in/jobs/",
+    "org": "IISc",
+    "org_slug": "iisc",
+    "country": "India",
+    "type": "IISc/IISER"
+  },
+  {
+    "name": "TIFR Jobs",
+    "url": "https://www.tifr.res.in/TSN/article/Jobs-at-TIFR",
+    "org": "TIFR",
+    "org_slug": "tifr",
+    "country": "India",
+    "type": "Research Lab"
+  },
+  {
+    "name": "IIT Kharagpur Jobs",
+    "url": "http://www.iitkgp.ac.in/fac-emp",
+    "org": "IIT Kharagpur",
+    "org_slug": "iit-kharagpur",
+    "country": "India",
+    "type": "IIT/NIT"
+  },
+  {
+    "name": "IIT Kanpur Jobs",
+    "url": "https://www.iitk.ac.in/new/jobs",
+    "org": "IIT Kanpur",
+    "org_slug": "iit-kanpur",
+    "country": "India",
+    "type": "IIT/NIT"
+  },
+  {
+    "name": "IIT Roorkee Jobs",
+    "url": "https://www.iitr.ac.in/campus/pages/jobs-at-iit-roorkee.html",
+    "org": "IIT Roorkee",
+    "org_slug": "iit-roorkee",
+    "country": "India",
+    "type": "IIT/NIT"
+  },
+  {
+    "name": "IISER Pune Jobs",
+    "url": "https://www.iiserpune.ac.in/opportunities/1/Jobs",
+    "org": "IISER Pune",
+    "org_slug": "iiser-pune",
+    "country": "India",
+    "type": "IISc/IISER"
+  },
+  {
+    "name": "NIT Warangal Jobs",
+    "url": "https://www.nitw.ac.in/page/?url=/main/Recruitments/",
+    "org": "NIT Warangal",
+    "org_slug": "nit-warangal",
+    "country": "India",
+    "type": "IIT/NIT"
+  },
+  {
+    "name": "IIT Hyderabad",
+    "url": "https://www.iith.ac.in/careers/",
+    "org": "IIT Hyderabad",
+    "org_slug": "iit-hyderabad",
+    "country": "India",
+    "type": "IIT/NIT"
+  },
+  {
+    "name": "IIT Guwahati",
+    "url": "https://www.iitg.ac.in/recruitment/",
+    "org": "IIT Guwahati",
+    "org_slug": "iit-guwahati",
+    "country": "India",
+    "type": "IIT/NIT"
+  },
+  {
+    "name": "IIIT Hyderabad",
+    "url": "https://www.iiit.ac.in/careers/",
+    "org": "IIIT Hyderabad",
+    "org_slug": "iiit-hyderabad",
+    "country": "India",
+    "type": "Central University"
+  },
+  {
+    "name": "BITS Pilani",
+    "url": "https://www.bits-pilani.ac.in/careers",
+    "org": "BITS Pilani",
+    "org_slug": "bits-pilani",
+    "country": "India",
+    "type": "Central University"
+  },
+  {
+    "name": "DRDO",
+    "url": "https://drdo.gov.in/drdo/en/offerings/vacancies",
+    "org": "DRDO",
+    "org_slug": "drdo",
+    "country": "India",
+    "type": "Research Lab"
+  },
+  {
+    "name": "ISRO",
+    "url": "https://www.isro.gov.in/Careers.html",
+    "org": "ISRO",
+    "org_slug": "isro",
+    "country": "India",
+    "type": "Research Lab"
+  },
+  {
+    "name": "CSIR",
+    "url": "https://www.csir.res.in/en/career-opportunities/recruitment",
+    "org": "CSIR",
+    "org_slug": "csir",
+    "country": "India",
+    "type": "Research Lab"
+  },
+  {
+    "name": "Semiconductor Laboratory (SCL)",
+    "url": "https://www.scl.gov.in/careers.html",
+    "org": "SCL Chandigarh",
+    "org_slug": "scl-chandigarh",
+    "country": "India",
+    "type": "Research Lab"
+  },
+  {
+    "name": "imec",
+    "url": "https://www.imec-int.com/en/work-at-imec/jobs",
+    "org": "imec",
+    "org_slug": "imec",
+    "country": "Belgium",
+    "type": "International Research Lab"
+  },
+  {
+    "name": "CEA-Leti",
+    "url": "https://www.leti-cea.com/cea-tech/leti/english/Pages/Careers/Careers.aspx",
+    "org": "CEA-Leti",
+    "org_slug": "cea-leti",
+    "country": "France",
+    "type": "International Research Lab"
+  },
+  {
+    "name": "Fraunhofer",
+    "url": "https://www.fraunhofer.de/en/jobs-and-career.html",
+    "org": "Fraunhofer",
+    "org_slug": "fraunhofer",
+    "country": "Germany",
+    "type": "International Research Lab"
+  },
+  {
+    "name": "A*STAR IME",
+    "url": "https://www.a-star.edu.sg/ime/Careers",
+    "org": "A*STAR IME",
+    "org_slug": "a-star-ime",
+    "country": "Singapore",
+    "type": "International Research Lab"
+  },
+  {
+    "name": "NIST",
+    "url": "https://www.nist.gov/careers",
+    "org": "NIST",
+    "org_slug": "nist",
+    "country": "USA",
+    "type": "International Research Lab"
+  },
+  {
+    "name": "ITRI",
+    "url": "https://www.itri.org.tw/english/Content/Careers/index.aspx",
+    "org": "ITRI",
+    "org_slug": "itri",
+    "country": "Taiwan",
+    "type": "International Research Lab"
+  },
+  {
+    "name": "ETRI",
+    "url": "https://www.etri.re.kr/eng/sub3/sub3_01.etri",
+    "org": "ETRI",
+    "org_slug": "etri",
+    "country": "South Korea",
+    "type": "International Research Lab"
+  },
+  {
+    "name": "TU Delft",
+    "url": "https://www.tudelft.nl/en/about-tu-delft/working-at-tu-delft/vacancies",
+    "org": "TU Delft",
+    "org_slug": "tu-delft",
+    "country": "Netherlands",
+    "type": "International University"
+  },
+  {
+    "name": "TU Munich",
+    "url": "https://www.tum.de/en/about-tum/jobs-at-tum/",
+    "org": "TU Munich",
+    "org_slug": "tu-munich",
+    "country": "Germany",
+    "type": "International University"
+  },
+  {
+    "name": "ETH Zurich",
+    "url": "https://jobs.ethz.ch/",
+    "org": "ETH Zurich",
+    "org_slug": "eth-zurich",
+    "country": "Switzerland",
+    "type": "International University"
+  },
+  {
+    "name": "NUS Singapore",
+    "url": "https://careers.nus.edu.sg/NUS/search/?q=semiconductor+VLSI",
+    "org": "NUS Singapore",
+    "org_slug": "nus",
+    "country": "Singapore",
+    "type": "International University"
+  }
+]

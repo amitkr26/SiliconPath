@@ -1,0 +1,127 @@
+{
+  "totalRoutes": 74,
+  "routes": {
+    "opportunities": [
+      { "method": "GET", "path": "/api/opportunities", "auth": "none", "query": ["page", "pageSize", "category", "type", "search", "location", "orgSlug"] },
+      { "method": "GET", "path": "/api/opportunities/[slug]", "auth": "none", "params": ["slug"] },
+      { "method": "GET", "path": "/api/opportunities/featured", "auth": "none" },
+      { "method": "GET", "path": "/api/opportunities/stats", "auth": "none" }
+    ],
+    "organizations": [
+      { "method": "GET", "path": "/api/organizations", "auth": "none" },
+      { "method": "GET", "path": "/api/organizations/[slug]", "auth": "none" }
+    ],
+    "academy": [
+      { "method": "GET", "path": "/api/academy/tracks", "auth": "none" },
+      { "method": "GET", "path": "/api/academy/tracks/[id]", "auth": "none" },
+      { "method": "GET", "path": "/api/academy/days/[trackId]/[dayNumber]", "auth": "none" },
+      { "method": "GET", "path": "/api/academy/checkpoints/[trackId]", "auth": "none" }
+    ],
+    "news": [
+      { "method": "GET", "path": "/api/news", "auth": "none" },
+      { "method": "GET", "path": "/api/news/[slug]", "auth": "none" }
+    ],
+    "resources": [
+      { "method": "GET", "path": "/api/resources", "auth": "none" },
+      { "method": "GET", "path": "/api/resources/[slug]", "auth": "none" }
+    ],
+    "search": [
+      { "method": "GET", "path": "/api/search", "auth": "none", "query": ["q", "type", "page"] }
+    ],
+    "subscribe": [
+      { "method": "POST", "path": "/api/subscribe", "auth": "none" }
+    ],
+    "sitemap": [
+      { "method": "GET", "path": "/sitemap.xml", "auth": "none" }
+    ],
+    "bookmarks": [
+      { "method": "GET", "path": "/api/bookmarks", "auth": "user" },
+      { "method": "POST", "path": "/api/bookmarks", "auth": "user" },
+      { "method": "DELETE", "path": "/api/bookmarks/[id]", "auth": "user" }
+    ],
+    "feed": [
+      { "method": "GET", "path": "/api/feed", "auth": "user" },
+      { "method": "POST", "path": "/api/feed", "auth": "user" }
+    ],
+    "network": [
+      { "method": "GET", "path": "/api/network/connections", "auth": "user" },
+      { "method": "POST", "path": "/api/network/request", "auth": "user" },
+      { "method": "PATCH", "path": "/api/network/respond", "auth": "user" }
+    ],
+    "messages": [
+      { "method": "GET", "path": "/api/messages/conversations", "auth": "user" },
+      { "method": "GET", "path": "/api/messages/[conversationId]", "auth": "user" },
+      { "method": "POST", "path": "/api/messages/send", "auth": "user" }
+    ],
+    "notifications": [
+      { "method": "GET", "path": "/api/notifications", "auth": "user" },
+      { "method": "PATCH", "path": "/api/notifications/read", "auth": "user" }
+    ],
+    "profile": [
+      { "method": "GET", "path": "/api/profile", "auth": "user" },
+      { "method": "PATCH", "path": "/api/profile", "auth": "user" }
+    ],
+    "companies": [
+      { "method": "GET", "path": "/api/companies", "auth": "user" },
+      { "method": "GET", "path": "/api/companies/[id]", "auth": "user" }
+    ],
+    "resume": [
+      { "method": "GET", "path": "/api/resume", "auth": "user" },
+      { "method": "POST", "path": "/api/resume/upload", "auth": "user" },
+      { "method": "PATCH", "path": "/api/resume", "auth": "user" },
+      { "method": "DELETE", "path": "/api/resume", "auth": "user" }
+    ],
+    "admin": {
+      "opportunities": [
+        { "method": "GET", "path": "/api/admin/opportunities", "auth": "admin" },
+        { "method": "POST", "path": "/api/admin/opportunities", "auth": "admin" },
+        { "method": "PATCH", "path": "/api/admin/opportunities/[id]", "auth": "admin" },
+        { "method": "DELETE", "path": "/api/admin/opportunities/[id]", "auth": "admin" },
+        { "method": "POST", "path": "/api/admin/opportunities/[id]/verify", "auth": "admin" },
+        { "method": "POST", "path": "/api/admin/opportunities/[id]/reject", "auth": "admin" }
+      ],
+      "organizations": [
+        { "method": "GET", "path": "/api/admin/organizations", "auth": "admin" },
+        { "method": "POST", "path": "/api/admin/organizations", "auth": "admin" },
+        { "method": "PATCH", "path": "/api/admin/organizations/[id]", "auth": "admin" },
+        { "method": "DELETE", "path": "/api/admin/organizations/[id]", "auth": "admin" }
+      ],
+      "scrapers": [
+        { "method": "POST", "path": "/api/admin/scrapers/trigger", "auth": "admin" },
+        { "method": "GET", "path": "/api/admin/scrapers/status", "auth": "admin" },
+        { "method": "POST", "path": "/api/admin/scrapers/sources", "auth": "admin" }
+      ],
+      "subscribers": [
+        { "method": "GET", "path": "/api/admin/subscribers", "auth": "admin" },
+        { "method": "DELETE", "path": "/api/admin/subscribers/[id]", "auth": "admin" }
+      ],
+      "analytics": [
+        { "method": "GET", "path": "/api/admin/analytics", "auth": "admin" }
+      ],
+      "ai": [
+        { "method": "POST", "path": "/api/admin/ai/test", "auth": "admin" }
+      ]
+    },
+    "cron": [
+      { "method": "POST", "path": "/api/cron/scrape-india", "auth": "cron", "schedule": "Daily 6:00 AM IST" },
+      { "method": "POST", "path": "/api/cron/scrape-global", "auth": "cron", "schedule": "Daily 8:00 AM IST" },
+      { "method": "POST", "path": "/api/cron/check-links", "auth": "cron", "schedule": "Daily 9:00 AM IST" },
+      { "method": "POST", "path": "/api/cron/digest", "auth": "cron", "schedule": "Weekly Sunday 12:00 PM" },
+      { "method": "POST", "path": "/api/cron/newsletter", "auth": "cron", "schedule": "Monthly" },
+      { "method": "POST", "path": "/api/cron/cleanup", "auth": "cron", "schedule": "Daily 3:00 AM IST" }
+    ],
+    "ai": [
+      { "method": "POST", "path": "/api/ai/chat", "auth": "user" },
+      { "method": "POST", "path": "/api/ai/enhance", "auth": "user" },
+      { "method": "POST", "path": "/api/ai/classify", "auth": "admin" },
+      { "method": "POST", "path": "/api/ai/summarize", "auth": "admin" },
+      { "method": "POST", "path": "/api/ai/match", "auth": "user" }
+    ],
+    "internal": [
+      { "method": "GET", "path": "/api/auth/callback", "auth": "none" },
+      { "method": "GET", "path": "/api/og", "auth": "none" },
+      { "method": "POST", "path": "/api/revalidate", "auth": "cron" },
+      { "method": "GET", "path": "/api/health", "auth": "none" }
+    ]
+  }
+}

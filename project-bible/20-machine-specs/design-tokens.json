@@ -1,0 +1,35 @@
+{
+  "colors": {
+    "bg": { "primary": "#0A0E1A", "secondary": "#0B0F1C", "tertiary": "#0D1225" },
+    "surface": { "default": "#111827", "elevated": "#141B2D", "card": "#111827" },
+    "border": { "default": "#1E2A3F", "muted": "#1A2538", "hover": "#2A3F5F" },
+    "accent": { "default": "#22D3EE", "hover": "#06B6D4", "muted": "rgba(34,211,238,0.15)" },
+    "status": { "success": "#10B981", "warning": "#F59E0B", "danger": "#EF4444", "info": "#3B82F6" },
+    "text": { "primary": "#F8FAFC", "secondary": "#94A3B8", "muted": "#64748B", "inverse": "#0A0E1A" },
+    "categories": {
+      "JRF": "#A855F7", "SRF": "#3B82F6", "PhD": "#10B981",
+      "Government": "#F59E0B", "Fellowship": "#EC4899", "Private": "#22D3EE",
+      "Internship": "#8B5CF6", "Postdoc": "#F43F5E", "International": "#6366F1"
+    }
+  },
+  "typography": {
+    "fontFamilies": { "display": "'Space Grotesk', sans-serif", "body": "'Inter', sans-serif", "mono": "'Geist Mono', monospace" },
+    "scale": [
+      { "name": "xs", "size": "0.75rem", "lineHeight": 1, "weight": 400 },
+      { "name": "sm", "size": "0.875rem", "lineHeight": 1.25, "weight": 400 },
+      { "name": "base", "size": "1rem", "lineHeight": 1.5, "weight": 400 },
+      { "name": "lg", "size": "1.125rem", "lineHeight": 1.5, "weight": 500 },
+      { "name": "xl", "size": "clamp(1.25rem, 3vw, 1.5rem)", "lineHeight": 1.2, "weight": 600 },
+      { "name": "2xl", "size": "clamp(1.5rem, 4vw, 2rem)", "lineHeight": 1.1, "weight": 700 },
+      { "name": "3xl", "size": "clamp(2rem, 5vw, 3.4rem)", "lineHeight": 1.05, "weight": 700 }
+    ]
+  },
+  "spacing": { "base": 4, "scale": [4, 8, 12, 16, 24, 32, 48, 64, 96] },
+  "borderRadius": { "sm": 6, "base": 10, "lg": 16, "xl": 24, "full": 9999 },
+  "shadows": {
+    "card": "0 4px 6px -1px rgba(0,0,0,0.3)",
+    "cardHover": "0 0 20px rgba(34,211,238,0.15)",
+    "glowCyan": "0 0 30px rgba(34,211,238,0.3)"
+  },
+  "breakpoints": { "mobile": 640, "tablet": 1024, "desktop": 1280 }
+}
