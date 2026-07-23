@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import type { NewsArticle } from "@/types";
 import NewsCard from "@/components/NewsCard";
 import SearchBar from "@/components/SearchBar";
-import { Loader2, RefreshCw, Newspaper, Sparkles } from "lucide-react";
+import { Loader2, RefreshCw, Newspaper } from "lucide-react";
 
 const TABS = [
   { label: "All News", value: "" },
@@ -57,6 +57,56 @@ const FALLBACK_ARTICLES: NewsArticle[] = [
     summary: "New AI-assisted electronic design automation software slashes Place & Route execution time by 40% and automates DRC/LVS error fixing.",
     tags: ["VLSI", "AI Chips", "Industry"],
   },
+  {
+    id: "fb-5",
+    title: "Intel Foundry Secures $8.5B CHIPS Act Funding for High-NA EUV Mass Production in Oregon",
+    slug: "intel-foundry-secures-chips-act-funding-high-na-euv",
+    source: "EE Times",
+    source_url: "https://www.eetimes.com",
+    published_at: new Date(Date.now() - 345600000).toISOString(),
+    summary: "Intel commercializes ASML High-NA EUV lithography tools to power 14A and 18A nodes for next-generation AI accelerators.",
+    tags: ["Semiconductor", "Industry", "AI Chips"],
+  },
+  {
+    id: "fb-6",
+    title: "AMD Announces Instinct MI350X Accelerator Challenge to NVIDIA B200 in Edge AI",
+    slug: "amd-instinct-mi350x-edge-ai-challenge",
+    source: "IEEE Spectrum",
+    source_url: "https://spectrum.ieee.org",
+    published_at: new Date(Date.now() - 432000000).toISOString(),
+    summary: "AMD reveals CDNA4 architecture featuring 288GB HBM3e memory to drive large language model inference at scale.",
+    tags: ["AI Chips", "Semiconductor", "Industry"],
+  },
+  {
+    id: "fb-7",
+    title: "IIT Bombay Microelectronics Lab Fabricates Ultra-Low-Power GaN Power Semiconductor Devices",
+    slug: "iit-bombay-gan-power-semiconductor-breakthrough",
+    source: "Academic Research",
+    source_url: "https://www.ee.iitb.ac.in",
+    published_at: new Date(Date.now() - 518400000).toISOString(),
+    summary: "Researchers at IIT Bombay demonstrate Gallium Nitride (GaN) high-electron-mobility transistors (HEMTs) with 95% efficiency for EV power electronics.",
+    tags: ["Research", "India", "Semiconductor"],
+  },
+  {
+    id: "fb-8",
+    title: "Qualcomm Unveils Snapdragon X Elite Gen 2 Arm-Based Processor for Windows PCs",
+    slug: "qualcomm-snapdragon-x-elite-gen2-arm",
+    source: "Semiconductor Engineering",
+    source_url: "https://semiengineering.com",
+    published_at: new Date(Date.now() - 604800000).toISOString(),
+    summary: "Qualcomm Oryon CPU cores hit 4.5GHz clock speeds with NPU performance exceeding 50 TOPS for AI workloads.",
+    tags: ["AI Chips", "Industry", "VLSI"],
+  },
+  {
+    id: "fb-9",
+    title: "DRDO Solid State Physics Laboratory (SSPL) Achieves 6-inch SiC Wafer Breakthrough",
+    slug: "drdo-sspl-sic-wafer-breakthrough-2026",
+    source: "DRDO Research Portal",
+    source_url: "https://drdo.gov.in",
+    published_at: new Date(Date.now() - 691200000).toISOString(),
+    summary: "SSPL Delhi successfully synthesizes single-crystal Silicon Carbide (SiC) boules, marking a major milestone for defense radar & electric vehicle power chips.",
+    tags: ["India", "Research", "Semiconductor"],
+  },
 ];
 
 export default function NewsPage() {
@@ -64,6 +114,27 @@ export default function NewsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [activeTag, setActiveTag] = useState("");
+
+  const filterArticles = useCallback((raw: NewsArticle[], query: string, tag: string) => {
+    let result = raw;
+    if (tag) {
+      const lowerTag = tag.toLowerCase();
+      result = result.filter(a =>
+        a.tags?.some(t => t.toLowerCase() === lowerTag) ||
+        a.title.toLowerCase().includes(lowerTag) ||
+        a.summary?.toLowerCase().includes(lowerTag)
+      );
+    }
+    if (query) {
+      const lowerQ = query.toLowerCase();
+      result = result.filter(a =>
+        a.title.toLowerCase().includes(lowerQ) ||
+        a.summary?.toLowerCase().includes(lowerQ) ||
+        a.source?.toLowerCase().includes(lowerQ)
+      );
+    }
+    return result;
+  }, []);
 
   const fetchNews = useCallback(async () => {
     setLoading(true);
@@ -80,19 +151,23 @@ export default function NewsPage() {
       if (data && Array.isArray(data.articles) && data.articles.length > 0) {
         setArticles(data.articles);
       } else {
-        setArticles(FALLBACK_ARTICLES);
+        setArticles(filterArticles(FALLBACK_ARTICLES, search, activeTag));
       }
     } catch (error) {
       console.error("Error fetching news:", error);
-      setArticles(FALLBACK_ARTICLES);
+      setArticles(filterArticles(FALLBACK_ARTICLES, search, activeTag));
     } finally {
       setLoading(false);
     }
-  }, [search, activeTag]);
+  }, [search, activeTag, filterArticles]);
 
   useEffect(() => {
     fetchNews();
   }, [fetchNews]);
+
+  const displayedArticles = articles.length > 0
+    ? articles
+    : filterArticles(FALLBACK_ARTICLES, search, activeTag);
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
@@ -155,7 +230,7 @@ export default function NewsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {(articles.length > 0 ? articles : FALLBACK_ARTICLES).map((article) => (
+            {displayedArticles.map((article) => (
               <NewsCard key={article.id || article.slug} article={article} />
             ))}
           </div>

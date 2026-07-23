@@ -1,37 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
-import { serverError } from "@berojgardegreewala/api";
+import { FALLBACK_TRACKS } from "@/lib/academy/queries";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!isAdminConfigured) {
-    return NextResponse.json(
-      { error: "Database not configured." },
-      { status: 503 }
-    );
-  }
+  const { id } = await params;
 
-  try {
-    const { id } = await params;
+  const fallbackTrack = FALLBACK_TRACKS.find(t => t.slug === id || t.id === id);
 
-    const { data, error } = await supabaseAdmin
-      .from("learning_tracks")
-      .select("*")
-      .eq("id", id)
-      .single();
+  if (isAdminConfigured && supabaseAdmin) {
+    try {
+      let { data } = await supabaseAdmin
+        .from("academy_tracks")
+        .select("*")
+        .or(`id.eq.${id},slug.eq.${id}`)
+        .maybeSingle();
 
-    if (error || !data) {
-      return NextResponse.json(
-        { error: "Track not found" },
-        { status: 404 }
-      );
+      if (!data) {
+        const res2 = await supabaseAdmin
+          .from("learning_tracks")
+          .select("*")
+          .or(`id.eq.${id},slug.eq.${id}`)
+          .maybeSingle();
+        data = res2.data;
+      }
+
+      if (data) {
+        return NextResponse.json(data);
+      }
+    } catch (err) {
+      console.error("Error querying track DB:", err);
     }
-
-    return NextResponse.json({ track: data });
-  } catch (error) {
-    console.error("Error fetching track:", error);
-    return serverError("Failed to fetch track");
   }
+
+  if (fallbackTrack) {
+    return NextResponse.json(fallbackTrack);
+  }
+
+  return NextResponse.json({ error: "Track not found" }, { status: 404 });
 }

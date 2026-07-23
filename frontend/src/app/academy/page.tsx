@@ -35,6 +35,9 @@ export default function AcademyDashboard() {
       } catch {
         tracksData = (await import("@/lib/academy/queries")).FALLBACK_TRACKS;
       }
+      if (!tracksData || tracksData.length === 0) {
+        tracksData = (await import("@/lib/academy/queries")).FALLBACK_TRACKS;
+      }
       setTracks(tracksData);
 
       try {
