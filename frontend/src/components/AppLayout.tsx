@@ -30,9 +30,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <button
         onClick={() => setAiModalOpen(true)}
         aria-label="Ask AI Assistant"
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-4 py-3 rounded-full shadow-2xl font-semibold text-sm transition-all hover:scale-105 group"
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-600 hover:to-indigo-700 text-white px-4 py-2.5 rounded-full shadow-lg shadow-cyan-500/20 font-semibold text-xs tracking-wide transition-all hover:scale-105 group border border-cyan-400/30"
       >
-        <Sparkles size={18} className="animate-pulse" />
+        <Sparkles size={16} className="animate-pulse text-cyan-200" />
         <span>Ask AI</span>
       </button>
 

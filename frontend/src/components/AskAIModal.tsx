@@ -25,7 +25,7 @@ export default function AskAIModal({ isOpen, onClose }: AskAIModalProps) {
     {
       role: "assistant",
       content:
-        "Namaste! I am BerojgarDegreeWala AI Assistant. Ask me anything about semiconductor jobs, JRF/PhD research, ISRO/DRDO exams, or career advice!",
+        "Namaste! I am SiliconPath AI Assistant. Ask me anything about VLSI design, SystemVerilog, UVM, Physical Design, or semiconductor hardware careers!",
     },
   ]);
   const [input, setInput] = useState("");
@@ -82,13 +82,13 @@ export default function AskAIModal({ isOpen, onClose }: AskAIModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)] bg-[var(--surface-raised)]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white shadow-md">
               <Sparkles size={20} />
             </div>
             <div>
               <h2 className="font-semibold text-base text-[var(--text)] flex items-center gap-2">
-                BerojgarDegreeWala AI Assistant
-                <span className="text-[10px] bg-[var(--primary-light)] text-[var(--primary)] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                SiliconPath AI Assistant
+                <span className="text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                   Live AI
                 </span>
               </h2>

@@ -7,13 +7,13 @@ import {
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "About — BerojgarDegreeWala | Electronics & Semiconductor Opportunities",
-  description: "Learn about BerojgarDegreeWala — a free platform aggregating JRF, PhD, government, and private sector opportunities in electronics and semiconductor research across India and internationally.",
-  alternates: { canonical: "https://berojgardegreewala.vercel.app/about" },
+  title: "About — SiliconPath | VLSI Academy & Hardware Network",
+  description: "Learn about SiliconPath — the premier platform for Verilog, UVM, Physical Design education, and hardware engineering networking.",
+  alternates: { canonical: "https://siliconpath.vercel.app/about" },
   openGraph: {
-    title: "About BerojgarDegreeWala",
-    description: "Free platform for JRF, PhD, DRDO, ISRO, CSIR opportunities in electronics & semiconductor.",
-    url: "https://berojgardegreewala.vercel.app/about",
+    title: "About SiliconPath",
+    description: "Premier VLSI Academy and professional network for semiconductor & hardware engineers.",
+    url: "https://siliconpath.vercel.app/about",
   },
 };
 

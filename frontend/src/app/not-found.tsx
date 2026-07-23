@@ -38,7 +38,7 @@ export default function NotFound() {
         href="/"
         className="inline-flex items-center gap-2 bg-accent text-bg-primary font-semibold rounded-xl px-6 py-2.5 text-sm hover:bg-accent-hover transition-colors"
       >
-        &larr; Return to BerojgarDegreeWala
+        &larr; Return to SiliconPath
       </Link>
     </div>
   );

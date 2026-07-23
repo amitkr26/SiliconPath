@@ -98,13 +98,13 @@ export default function SignupPage() {
           <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center">
             <Zap className="w-5 h-5 text-accent" />
           </div>
-          <span className="text-lg font-bold text-text-primary">BerojgarDegreeWala</span>
+          <span className="text-lg font-bold text-text-primary">SiliconPath</span>
         </div>
 
         {step === "role" ? (
           <div className="space-y-5">
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-text-primary">Join BerojgarDegreeWala</h1>
+              <h1 className="text-2xl font-bold text-text-primary">Join SiliconPath</h1>
               <p className="text-text-secondary mt-1">How do you want to use the platform?</p>
             </div>
 

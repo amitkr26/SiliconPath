@@ -1,66 +1,66 @@
 import Link from "next/link";
-import { Zap, CircuitBoard } from "lucide-react";
+import { CircuitBoard } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-surface/50 border-t border-border mt-16">
+    <footer className="bg-slate-950 border-t border-cyan-900/30 text-slate-300 mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          
+          {/* BRAND COLUMN */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-3">
-              <CircuitBoard className="w-5 h-5 text-accent" />
-              <span className="font-display text-lg font-bold text-text-primary">
-                Berojgar<span className="text-accent">DegreeWala</span>
+            <Link href="/" className="flex items-center gap-2 mb-3 group">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center shadow-md shadow-cyan-500/20">
+                <CircuitBoard className="w-4 h-4 text-slate-950" />
+              </div>
+              <span className="font-bold text-lg tracking-tight text-white group-hover:text-cyan-400 transition-colors">
+                Silicon<span className="text-cyan-400">Path</span>
               </span>
             </Link>
-            <p className="text-text-secondary text-sm leading-relaxed mb-4">
-              AI-powered opportunity aggregator for the semiconductor, VLSI, and electronics engineering community. Updated daily.
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">
+              Premium VLSI Academy and professional network for semiconductor engineers. Master your craft and connect with the hardware industry.
             </p>
           </div>
+
+          {/* PLATFORM COLUMN */}
           <div>
-            <h4 className="font-display text-sm font-semibold text-text-primary mb-4">Platform</h4>
+            <h4 className="text-sm font-semibold text-white tracking-wide uppercase mb-4">Platform</h4>
             <div className="flex flex-col gap-2.5">
-              <Link href="/opportunities" className="text-text-secondary hover:text-accent transition-colors text-sm">Opportunities</Link>
-              <Link href="/academy" className="text-text-secondary hover:text-accent transition-colors text-sm font-semibold text-accent">VLSI Academy</Link>
-              <Link href="/news" className="text-text-secondary hover:text-accent transition-colors text-sm">News Feed</Link>
-              <Link href="/chat" className="text-text-secondary hover:text-accent transition-colors text-sm">Ask AI</Link>
-              <Link href="/match" className="text-text-secondary hover:text-accent transition-colors text-sm">Find My Match</Link>
-              <Link href="/community" className="text-text-secondary hover:text-accent transition-colors text-sm">Community Forum</Link>
-              <Link href="/network" className="text-text-secondary hover:text-accent transition-colors text-sm">Network</Link>
-              <Link href="/feed" className="text-text-secondary hover:text-accent transition-colors text-sm">Social Feed</Link>
+              <Link href="/academy" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm font-medium">VLSI Academy</Link>
+              <Link href="/feed" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Social Feed</Link>
+              <Link href="/network" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Hardware Network</Link>
+              <Link href="/community" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Community Forum</Link>
+              <Link href="/messages" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Messages</Link>
+              <Link href="/chat" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Ask AI</Link>
             </div>
           </div>
+
+          {/* ACADEMY TRACKS */}
           <div>
-            <h4 className="font-display text-sm font-semibold text-text-primary mb-4">Opportunities</h4>
+            <h4 className="text-sm font-semibold text-white tracking-wide uppercase mb-4">Academy Tracks</h4>
             <div className="flex flex-col gap-2.5">
-              <Link href="/category/jrf" className="text-text-secondary hover:text-accent transition-colors text-sm">JRF Positions</Link>
-              <Link href="/category/srf" className="text-text-secondary hover:text-accent transition-colors text-sm">SRF Positions</Link>
-              <Link href="/category/phd" className="text-text-secondary hover:text-accent transition-colors text-sm">PhD Admissions</Link>
-              <Link href="/category/govt-job" className="text-text-secondary hover:text-accent transition-colors text-sm">Government Jobs</Link>
-              <Link href="/category/fellowship" className="text-text-secondary hover:text-accent transition-colors text-sm">Fellowships</Link>
-              <Link href="/category/private" className="text-text-secondary hover:text-accent transition-colors text-sm">Private Sector</Link>
-              <Link href="/category/international" className="text-text-secondary hover:text-accent transition-colors text-sm">International</Link>
+              <Link href="/academy" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Digital Design & RTL</Link>
+              <Link href="/academy" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Verification (UVM)</Link>
+              <Link href="/academy" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Physical Design & STA</Link>
+              <Link href="/academy" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Analog & Mixed-Signal</Link>
             </div>
           </div>
+
+          {/* RESOURCES COLUMN */}
           <div>
-            <h4 className="font-display text-sm font-semibold text-text-primary mb-4">Company & Resources</h4>
+            <h4 className="text-sm font-semibold text-white tracking-wide uppercase mb-4">Company & Resources</h4>
             <div className="flex flex-col gap-2.5">
-              <Link href="/about" className="text-text-secondary hover:text-accent transition-colors text-sm">About Us</Link>
-              <Link href="/organizations" className="text-text-secondary hover:text-accent transition-colors text-sm">Organizations Directory</Link>
-              <Link href="/resources/jrf-guide" className="text-text-secondary hover:text-accent transition-colors text-sm">JRF Complete Guide</Link>
-              <Link href="/resources/phd-guide" className="text-text-secondary hover:text-accent transition-colors text-sm">PhD Admission Guide</Link>
-              <Link href="/resources/vlsi-careers" className="text-text-secondary hover:text-accent transition-colors text-sm">VLSI Career Guide</Link>
-              <Link href="/contact" className="text-text-secondary hover:text-accent transition-colors text-sm">Contact Support</Link>
+              <Link href="/about" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">About SiliconPath</Link>
+              <Link href="/resources/vlsi-careers" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">VLSI Career Guide</Link>
+              <Link href="/contact" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Contact Support</Link>
             </div>
           </div>
         </div>
-        <div className="border-t border-border/50 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-text-muted text-xs">
-            &copy; {new Date().getFullYear()} BerojgarDegreeWala. Built for India&apos;s semiconductor revolution.
-          </p>
-          <p className="text-text-muted text-xs">
-            Data aggregated from DRDO, ISRO, CSIR, IITs & 100+ organizations
-          </p>
+
+        {/* BOTTOM BAR */}
+        <div className="border-t border-slate-800/80 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p>&copy; {new Date().getFullYear()} SiliconPath. Elevating VLSI education & hardware engineering.</p>
+          <p>Built for semiconductor professionals worldwide</p>
         </div>
       </div>
     </footer>

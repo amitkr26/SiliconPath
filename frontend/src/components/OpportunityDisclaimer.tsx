@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Info, ExternalLink, Flag } from "lucide-react";
@@ -23,7 +23,7 @@ export default function OpportunityDisclaimer({ opportunityId, officialPageUrl }
               <li>• Always verify details on the official website</li>
               <li>• Check for any updates or changes to the advertisement</li>
               <li>• Deadlines and eligibility criteria may have changed</li>
-              <li>• BerojgarDegreeWala aggregates publicly available information</li>
+              <li>• SiliconPath aggregates publicly available information</li>
             </ul>
             <div className="flex items-center gap-3 mt-4 flex-wrap">
               {officialPageUrl && (

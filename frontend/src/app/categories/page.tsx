@@ -1,12 +1,12 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
 import { GraduationCap, FlaskConical, BookOpen, Building2, Award, Briefcase } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Browse Opportunities by Category — JRF, PhD, Govt Jobs | BerojgarDegreeWala",
+  title: "Browse Opportunities by Category — JRF, PhD, Govt Jobs | SiliconPath",
   description: "Browse electronics and semiconductor opportunities by category: JRF, SRF, PhD, Government Jobs, Fellowships, and Private Sector positions. Updated daily.",
-  alternates: { canonical: "https://berojgardegreewala.vercel.app/categories" },
+  alternates: { canonical: "https://siliconpath.vercel.app/categories" },
 };
 
 const CATEGORIES_CONFIG = [

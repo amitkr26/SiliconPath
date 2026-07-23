@@ -40,7 +40,7 @@ export default function ChatPage() {
           id: "m-1",
           role: "assistant",
           content:
-            "Hello! I am BerojgarDegreeWala AI Career Assistant. Ask me anything about VLSI design, JRF research positions, ISRO/DRDO exams, semiconductor careers, or technical concepts!",
+            "Hello! I am SiliconPath AI Career & VLSI Assistant. Ask me anything about VLSI design, Verilog, SystemVerilog, UVM, Physical Design, or hardware engineering careers!",
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         },
       ],
