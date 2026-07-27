@@ -1,0 +1,4 @@
+{
+  "summary": "Update api/news/route.ts to return live/fallback news when DB is empty or unconfigured",
+  "updatedAt": "2026-07-27T13:37:06.844709900Z"
+}
