@@ -4,10 +4,11 @@ import { useEffect, useState, useCallback } from "react";
 import type { NewsArticle } from "@/types";
 import NewsCard from "@/components/NewsCard";
 import SearchBar from "@/components/SearchBar";
-import { Loader2, RefreshCw, Newspaper } from "lucide-react";
+import { Loader2, RefreshCw, Newspaper, Sparkles, Zap, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 
 const TABS = [
-  { label: "All News", value: "" },
+  { label: "All July 2026 News", value: "" },
   { label: "Semiconductor Fabs", value: "Semiconductor" },
   { label: "VLSI Design", value: "VLSI" },
   { label: "AI Chips", value: "AI Chips" },
@@ -16,125 +17,13 @@ const TABS = [
   { label: "Industry Updates", value: "Industry" },
 ];
 
-const FALLBACK_ARTICLES: NewsArticle[] = [
-  {
-    id: "fb-1",
-    title: "India Semiconductor Mission Approves $15B Chip Fab Projects in Gujarat and Assam",
-    slug: "india-semiconductor-mission-approves-15b-chip-fab-projects-2026",
-    source: "India Semiconductor Mission",
-    source_url: "https://ism.gov.in/news",
-    published_at: new Date().toISOString(),
-    summary: "The Cabinet approves major semiconductor fabrication and packaging plants led by Tata Electronics, CG Power, and Micron to accelerate India silicon self-reliance.",
-    tags: ["India", "Semiconductor", "Industry", "Jobs"],
-  },
-  {
-    id: "fb-2",
-    title: "TSMC Begins Risk Production for 2nm N2 Node featuring Nanosheet GAA Transistors",
-    slug: "tsmc-begins-risk-production-2nm-n2-node-gaa-2026",
-    source: "Semiconductor Engineering",
-    source_url: "https://semiengineering.com/2nm-nanosheet-gaa-manufacturing-challenges/",
-    published_at: new Date(Date.now() - 86400000).toISOString(),
-    summary: "TSMC confirms N2 process node yield milestones, delivering 15% speed performance improvement and 30% power reduction over 3nm FinFET.",
-    tags: ["Semiconductor", "VLSI", "AI Chips", "Research"],
-  },
-  {
-    id: "fb-3",
-    title: "ISRO and IIT Madras Release Open-Source RISC-V Microprocessor for Space Payloads",
-    slug: "isro-iit-madras-release-open-source-risc-v-microprocessor-space",
-    source: "IEEE Spectrum",
-    source_url: "https://spectrum.ieee.org/risc-v-space-processors",
-    published_at: new Date(Date.now() - 172800000).toISOString(),
-    summary: "The SHAKTI processor team at IIT Madras partners with ISRO SAC to deploy fault-tolerant RISC-V cores in upcoming Earth observation satellites.",
-    tags: ["India", "VLSI", "Research", "Jobs"],
-  },
-  {
-    id: "fb-4",
-    title: "Cadence and Synopsys Launch Generative AI EDA Tools for Automated Physical Layout & STA",
-    slug: "cadence-synopsys-launch-generative-ai-eda-tools-layout-sta",
-    source: "EE Times",
-    source_url: "https://www.eetimes.com/ai-driven-eda-tools-redefine-chip-layout/",
-    published_at: new Date(Date.now() - 259200000).toISOString(),
-    summary: "New AI-assisted electronic design automation software slashes Place & Route execution time by 40% and automates DRC/LVS error fixing.",
-    tags: ["VLSI", "AI Chips", "Industry"],
-  },
-  {
-    id: "fb-5",
-    title: "Intel Foundry Secures $8.5B CHIPS Act Funding for High-NA EUV Mass Production in Oregon",
-    slug: "intel-foundry-secures-chips-act-funding-high-na-euv",
-    source: "EE Times",
-    source_url: "https://www.eetimes.com",
-    published_at: new Date(Date.now() - 345600000).toISOString(),
-    summary: "Intel commercializes ASML High-NA EUV lithography tools to power 14A and 18A nodes for next-generation AI accelerators.",
-    tags: ["Semiconductor", "Industry", "AI Chips"],
-  },
-  {
-    id: "fb-6",
-    title: "AMD Announces Instinct MI350X Accelerator Challenge to NVIDIA B200 in Edge AI",
-    slug: "amd-instinct-mi350x-edge-ai-challenge",
-    source: "IEEE Spectrum",
-    source_url: "https://spectrum.ieee.org",
-    published_at: new Date(Date.now() - 432000000).toISOString(),
-    summary: "AMD reveals CDNA4 architecture featuring 288GB HBM3e memory to drive large language model inference at scale.",
-    tags: ["AI Chips", "Semiconductor", "Industry"],
-  },
-  {
-    id: "fb-7",
-    title: "IIT Bombay Microelectronics Lab Fabricates Ultra-Low-Power GaN Power Semiconductor Devices",
-    slug: "iit-bombay-gan-power-semiconductor-breakthrough",
-    source: "Academic Research",
-    source_url: "https://www.ee.iitb.ac.in",
-    published_at: new Date(Date.now() - 518400000).toISOString(),
-    summary: "Researchers at IIT Bombay demonstrate Gallium Nitride (GaN) high-electron-mobility transistors (HEMTs) with 95% efficiency for EV power electronics.",
-    tags: ["Research", "India", "Semiconductor"],
-  },
-  {
-    id: "fb-8",
-    title: "Qualcomm Unveils Snapdragon X Elite Gen 2 Arm-Based Processor for Windows PCs",
-    slug: "qualcomm-snapdragon-x-elite-gen2-arm",
-    source: "Semiconductor Engineering",
-    source_url: "https://semiengineering.com",
-    published_at: new Date(Date.now() - 604800000).toISOString(),
-    summary: "Qualcomm Oryon CPU cores hit 4.5GHz clock speeds with NPU performance exceeding 50 TOPS for AI workloads.",
-    tags: ["AI Chips", "Industry", "VLSI"],
-  },
-  {
-    id: "fb-9",
-    title: "DRDO Solid State Physics Laboratory (SSPL) Achieves 6-inch SiC Wafer Breakthrough",
-    slug: "drdo-sspl-sic-wafer-breakthrough-2026",
-    source: "DRDO Research Portal",
-    source_url: "https://drdo.gov.in",
-    published_at: new Date(Date.now() - 691200000).toISOString(),
-    summary: "SSPL Delhi successfully synthesizes single-crystal Silicon Carbide (SiC) boules, marking a major milestone for defense radar & electric vehicle power chips.",
-    tags: ["India", "Research", "Semiconductor"],
-  },
-];
-
 export default function NewsPage() {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [search, setSearch] = useState("");
   const [activeTag, setActiveTag] = useState("");
-
-  const filterArticles = useCallback((raw: NewsArticle[], query: string, tag: string) => {
-    let result = raw;
-    if (tag) {
-      const lowerTag = tag.toLowerCase();
-      result = result.filter(a =>
-        a.tags?.some(t => t.toLowerCase() === lowerTag) ||
-        a.title.toLowerCase().includes(lowerTag) ||
-        a.summary?.toLowerCase().includes(lowerTag)
-      );
-    }
-    if (query) {
-      const lowerQ = query.toLowerCase();
-      result = result.filter(a =>
-        a.title.toLowerCase().includes(lowerQ) ||
-        a.summary?.toLowerCase().includes(lowerQ) ||
-        a.source?.toLowerCase().includes(lowerQ)
-      );
-    }
-    return result;
-  }, []);
+  const [lastSynced, setLastSynced] = useState<string | null>(null);
 
   const fetchNews = useCallback(async () => {
     setLoading(true);
@@ -148,57 +37,112 @@ export default function NewsPage() {
       const res = await fetch(`/api/news?${params}`);
       const data = await res.json();
 
-      if (data && Array.isArray(data.articles) && data.articles.length > 0) {
+      if (data && Array.isArray(data.articles)) {
         setArticles(data.articles);
-      } else {
-        setArticles(filterArticles(FALLBACK_ARTICLES, search, activeTag));
+        if (data.last_synced) setLastSynced(data.last_synced);
       }
     } catch (error) {
       console.error("Error fetching news:", error);
-      setArticles(filterArticles(FALLBACK_ARTICLES, search, activeTag));
     } finally {
       setLoading(false);
     }
-  }, [search, activeTag, filterArticles]);
+  }, [search, activeTag]);
+
+  const handleForceSync = async () => {
+    setSyncing(true);
+    try {
+      const res = await fetch("/api/news/sync");
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`Synced ${data.scraped_count} fresh articles from IEEE, EE Times & SemiEngineering!`);
+      }
+      await fetchNews();
+    } catch {
+      toast.error("Failed to sync live RSS feeds.");
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   useEffect(() => {
     fetchNews();
   }, [fetchNews]);
 
-  const displayedArticles = articles.length > 0
-    ? articles
-    : filterArticles(FALLBACK_ARTICLES, search, activeTag);
-
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         
-        {/* NEWS HEADER */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4 border-b border-slate-200 pb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shadow-2xs">
-              <Newspaper className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                Semiconductor & VLSI News
-              </h1>
-              <p className="text-slate-600 text-sm mt-0.5">
-                Daily updates from IEEE Spectrum, EE Times, and Semiconductor Engineering.
+        {/* JULY 2026 FEATURE BANNER */}
+        <div className="mb-8 p-6 rounded-3xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-xl relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/20 border border-blue-400/30 rounded-full text-xs font-bold text-blue-300">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>July 2026 Major Coverage & Daily Live RSS Sync</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
+                July 2026 Semiconductor & VLSI Industry Digest
+              </h2>
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Featuring major July 2026 updates: India Semiconductor Mission $15B Fabs, TSMC 2nm N2 GAA, Intel 18A EUV, ISRO RISC-V, Cadence/Synopsys AI EDA, and daily auto-synced feeds from IEEE Spectrum & EE Times.
               </p>
             </div>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-shrink-0">
+              <button
+                onClick={handleForceSync}
+                disabled={syncing}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg transition-all disabled:opacity-50"
+              >
+                {syncing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Zap className="w-4 h-4 fill-amber-300 text-amber-300" />
+                )}
+                <span>{syncing ? "Syncing RSS..." : "Sync Live Daily Feeds"}</span>
+              </button>
+
+              <button
+                onClick={fetchNews}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 text-xs font-semibold transition-colors"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-blue-400" />
+                Refresh
+              </button>
+            </div>
           </div>
-          <button
-            onClick={fetchNews}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold shadow-2xs transition-colors self-start sm:self-auto"
-          >
-            <RefreshCw className="w-3.5 h-3.5 text-blue-600" />
-            Refresh Feed
-          </button>
         </div>
 
-        {/* TABS */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+        {/* NEWS HEADER & SEARCH */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shadow-2xs">
+              <Newspaper className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+                Live Article Stream
+              </h1>
+              {lastSynced && (
+                <p className="text-slate-500 text-xs flex items-center gap-1 mt-0.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  Auto-updated on {new Date(lastSynced).toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="max-w-md w-full">
+            <SearchBar
+              onSearch={setSearch}
+              placeholder="Search July 2026, TSMC, ISRO, IEEE news..."
+            />
+          </div>
+        </div>
+
+        {/* CATEGORY TABS */}
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
           {TABS.map((tab) => (
             <button
               key={tab.value}
@@ -214,25 +158,23 @@ export default function NewsPage() {
           ))}
         </div>
 
-        {/* SEARCH BAR */}
-        <div className="mb-8 max-w-md">
-          <SearchBar
-            onSearch={setSearch}
-            placeholder="Search IEEE, TSMC, ISRO news..."
-          />
-        </div>
-
         {/* ARTICLES FEED */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-200">
+          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-200 shadow-2xs">
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
-            <p className="text-sm text-slate-600 font-medium">Loading IEEE & Semiconductor feed...</p>
+            <p className="text-sm text-slate-600 font-medium">Fetching July 2026 & Live Semiconductor Feeds...</p>
           </div>
-        ) : (
+        ) : articles.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {displayedArticles.map((article) => (
+            {articles.map((article) => (
               <NewsCard key={article.id || article.slug} article={article} />
             ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8">
+            <Newspaper className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+            <h3 className="text-slate-900 font-bold text-base">No Articles Found</h3>
+            <p className="text-slate-500 text-xs mt-1">Try clearing your search query or selecting &quot;All July 2026 News&quot;.</p>
           </div>
         )}
 
