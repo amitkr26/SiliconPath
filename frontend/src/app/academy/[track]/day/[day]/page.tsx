@@ -58,7 +58,7 @@ export default function DayDetailsPage() {
         setQuestions(data.questions);
 
         const completedList = await api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: user?.id || "" } });
-        setCompletedDays(completedList);
+        setCompletedDays(Array.isArray(completedList) ? completedList : []);
 
         if (data.questions.length === 0) {
           setQuizCompleted(true);
