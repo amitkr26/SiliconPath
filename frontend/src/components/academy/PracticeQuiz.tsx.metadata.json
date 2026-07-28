@@ -1,4 +1,0 @@
-{
-  "summary": "Fix PracticeQuiz.tsx to safely handle string/object options and numeric/string correct_answer",
-  "updatedAt": "2026-07-28T14:32:25.123392800Z"
-}
