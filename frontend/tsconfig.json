@@ -25,6 +25,12 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@berojgardegreewala/api": [
+        "../backend/api/src/index.ts"
+      ],
+      "@berojgardegreewala/api/*": [
+        "../backend/api/src/*"
       ]
     }
   },

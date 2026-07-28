@@ -6,14 +6,14 @@ import { serverError } from "@berojgardegreewala/api";
 // Returns the content of a specific day within a track.
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ trackId: string; dayNumber: string }> }
+  { params }: { params: { trackId: string; dayNumber: string } }
 ) {
   if (!isAdminConfigured) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
   try {
-    const { trackId, dayNumber } = await params;
+    const { trackId, dayNumber } = params;
     const day = parseInt(dayNumber, 10);
 
     if (isNaN(day) || day < 1) {
