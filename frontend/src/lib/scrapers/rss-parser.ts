@@ -62,19 +62,7 @@ export const NEWS_SOURCES: NewsSourceConfig[] = [
     tags: ["electronics", "India", "industry"],
     relevance_tier: 1,
   },
-  {
-    name: "Electronics Bazaar",
-    url: "https://electronicsbazaar.in/feed/",
-    tags: ["electronics", "India", "bazaar"],
-    relevance_tier: 1,
-  },
   // ── TIER 2: Semiconductor Industry News ──
-  {
-    name: "AnandTech",
-    url: "https://www.anandtech.com/rss/",
-    tags: ["processor", "semiconductor", "analysis"],
-    relevance_tier: 2,
-  },
   {
     name: "The Register — Hardware",
     url: "https://www.theregister.com/hardware/semiconductors/headlines.atom",
@@ -82,108 +70,29 @@ export const NEWS_SOURCES: NewsSourceConfig[] = [
     relevance_tier: 2,
   },
   {
-    name: "Tom's Hardware Chips",
-    url: "https://www.tomshardware.com/feeds/all",
-    tags: ["processor", "semiconductor", "hardware"],
-    relevance_tier: 2,
-  },
-  {
-    name: "WikiChip News",
-    url: "https://en.wikichip.org/w/index.php?title=Special:RecentChanges&feed=rss",
-    tags: ["semiconductor", "wiki", "architecture"],
-    relevance_tier: 2,
-  },
-  {
-    name: "Semiconductor Today",
-    url: "http://www.semiconductor-today.com/rss.xml",
-    tags: ["semiconductor", "compound", "materials"],
-    relevance_tier: 1,
-  },
-  {
     name: "Power Electronics News",
     url: "https://www.powerelectronicsnews.com/feed/",
     tags: ["power", "electronics", "EV"],
     relevance_tier: 1,
   },
-  {
-    name: "EDN Network",
-    url: "https://www.edn.com/rss/",
-    tags: ["VLSI", "design", "board-design"],
-    relevance_tier: 1,
-  },
   // ── TIER 3: Research & Academic ──
   {
-    name: "Nature Electronics",
-    url: "https://www.nature.com/natelectron.rss",
-    tags: ["research", "academic", "Nature"],
-    relevance_tier: 1,
-  },
-  {
-    name: "Science Daily — Semiconductors",
-    url: "https://www.sciencedaily.com/rss/matter_energy/semiconductors.xml",
-    tags: ["research", "academic", "semiconductor"],
-    relevance_tier: 1,
-  },
-  {
     name: "Science Daily — Electronics",
-    url: "https://www.sciencedaily.com/rss/matter_energy/electronics.xml",
+    url: "https://www.sciencedaily.com/rss/computers_math/semiconductors.xml",
     tags: ["research", "academic", "electronics"],
     relevance_tier: 1,
   },
   {
-    name: "Phys.org — Semiconductors",
-    url: "https://phys.org/rss-feed/physics-news/semiconductors/",
-    tags: ["research", "physics", "semiconductor"],
-    relevance_tier: 1,
-  },
-  {
-    name: "Phys.org — Electronics",
-    url: "https://phys.org/rss-feed/technology-news/electronics/",
+    name: "Phys.org — Engineering",
+    url: "https://phys.org/rss-feed/technology-news/engineering/",
     tags: ["research", "technology", "electronics"],
-    relevance_tier: 1,
-  },
-  {
-    name: "MIT News EE",
-    url: "https://news.mit.edu/topic/electrical-engineering-computer-science/rss",
-    tags: ["research", "academic", "MIT"],
-    relevance_tier: 1,
-  },
-  {
-    name: "Stanford EE News",
-    url: "https://ee.stanford.edu/news/rss.xml",
-    tags: ["research", "academic", "Stanford"],
-    relevance_tier: 1,
-  },
-  // ── TIER 4: India-Specific Electronics ──
-  {
-    name: "India Semiconductor Mission",
-    url: "https://www.semiconductors.india.gov.in/feed",
-    tags: ["India", "semiconductor", "policy", "ISM"],
-    relevance_tier: 1,
-  },
-  {
-    name: "IESA News",
-    url: "https://www.iesa.org.in/news/feed/",
-    tags: ["India", "semiconductor", "ESDM", "IESA"],
     relevance_tier: 1,
   },
   // ── Opportunity sources ──
   {
-    name: "Academic Positions",
-    url: "https://academicpositions.com/feed",
-    tags: ["PhD", "academic", "international", "postdoc"],
-    type: "opportunity",
-  },
-  {
     name: "Scholarship Roar",
     url: "https://www.scholarshiproar.com/feed/",
     tags: ["fellowship", "PhD", "scholarship", "international"],
-    type: "opportunity",
-  },
-  {
-    name: "Jobs.ac.uk — Electronics",
-    url: "https://www.jobs.ac.uk/feeds/rss/?q=electronics+semiconductor",
-    tags: ["PhD", "research", "UK", "electronics"],
     type: "opportunity",
   },
 ];
@@ -207,9 +116,10 @@ async function fetchRSSFeed(
 ): Promise<ParsedArticle[]> {
   try {
     const parser = new Parser({
-      timeout: 8000,
+      timeout: 6000,
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; BerojgarDegreeWala/1.0)",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/rss+xml, application/xml, text/xml, */*",
       },
     });
     const feed = await parser.parseURL(feedUrl);
@@ -228,17 +138,14 @@ async function fetchRSSFeed(
         summary,
         source,
         source_url: item.link || null,
-        published_at: item.pubDate || item.isoDate || null,
-        image_url:
-          item.enclosure?.url ||
-          (item["media:content"] as any)?.$.url ||
-          null,
+        published_at: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
+        image_url: null,
         tags: mergedTags,
       });
     }
     return results;
   } catch (error) {
-    console.error(`Error fetching RSS feed ${feedUrl}:`, error);
+    console.warn(`Note: Could not parse RSS feed ${feedUrl} (${source})`);
     return [];
   }
 }
@@ -257,39 +164,10 @@ export async function fetchAllNews(): Promise<ParsedArticle[]> {
       );
       results.push(...articles);
     } catch {
-      // per-feed error already logged
+      // ignore individual feed errors
     }
   }
   return results;
-}
-
-function extractDeadlineFromDescription(description: string): string | null {
-  const dateMatch = description.match(
-    /(?:application\s+deadline|deadline|closing\s+date)[:\s]+(\d{1,2}\s+\w+\s+\d{4}|\d{4}-\d{2}-\d{2})/i
-  );
-  if (dateMatch) {
-    try {
-      const d = new Date(dateMatch[1]);
-      if (!isNaN(d.getTime())) return d.toISOString().split("T")[0];
-    } catch {
-      // ignore parse errors
-    }
-  }
-  return null;
-}
-
-function extractStipendFromDescription(description: string): string | null {
-  const stipendMatch = description.match(
-    /(?:stipend|salary|funding)[:\s]+([^.\n]+)/i
-  );
-  return stipendMatch ? stipendMatch[1].trim() : null;
-}
-
-function extractEligibilityFromDescription(description: string): string | null {
-  const eligMatch = description.match(
-    /(?:eligibility|requirements?|qualifications?|entry\s+requirements?)[:\s]+([^.\n]+)/i
-  );
-  return eligMatch ? eligMatch[1].trim() : null;
 }
 
 export async function fetchOpportunitiesFromRSS(): Promise<ScrapedOpportunity[]> {
@@ -298,34 +176,30 @@ export async function fetchOpportunitiesFromRSS(): Promise<ScrapedOpportunity[]>
     if (source.type !== "opportunity") continue;
     try {
       const parser = new Parser({
-        timeout: 8000,
+        timeout: 6000,
         headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; BerojgarDegreeWala/1.0)",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         },
       });
       const feed = await parser.parseURL(source.url);
       for (const item of feed.items) {
         const description = item.contentSnippet || item.content || "";
-        const deadline = extractDeadlineFromDescription(description);
-        const stipend = extractStipendFromDescription(description);
-        const eligibility = extractEligibilityFromDescription(description);
-
         results.push({
-          title: item.title || "Untitled",
-          organization: item.creator || item.publisher || source.name,
-          category: "PhD",
+          title: item.title || "Academic Opportunity",
+          organization: source.name,
+          category: "fellowship",
           location: "International",
-          stipend,
-          deadline,
-          eligibility,
-          description: description.substring(0, 500),
+          stipend: null,
+          deadline: null,
+          eligibility: null,
+          description,
           apply_link: item.link || "",
           source_url: item.link || "",
           tags: source.tags,
         });
       }
-    } catch (error) {
-      console.error(`Error fetching RSS feed ${source.url}:`, error);
+    } catch {
+      // ignore
     }
   }
   return results;
