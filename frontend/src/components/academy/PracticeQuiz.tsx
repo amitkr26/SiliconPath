@@ -19,7 +19,7 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
   if (!questions || questions.length === 0) return null;
 
   const handleSelectOption = (questionId: string, optionValue: string) => {
-    if (submitted[questionId]) return; // locked after submit
+    if (submitted[questionId]) return;
     setSelectedAnswers((prev) => ({ ...prev, [questionId]: optionValue }));
   };
 
@@ -28,11 +28,11 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
     setSelectedAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
-  const handleSubmitQuestion = (questionId: string, correctAnswer: string) => {
+  const handleSubmitQuestion = (questionId: string, rawCorrectAnswer: any) => {
     if (submitted[questionId]) return;
     
-    const userAns = selectedAnswers[questionId]?.trim().toLowerCase();
-    const correctAns = correctAnswer.trim().toLowerCase();
+    const userAns = (selectedAnswers[questionId] || "").trim().toLowerCase();
+    const correctAns = String(rawCorrectAnswer ?? "").trim().toLowerCase();
     
     const isCorrect = userAns === correctAns;
     if (isCorrect) {
@@ -42,7 +42,6 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
     setSubmitted((prev) => ({ ...prev, [questionId]: true }));
     setShowExplanation((prev) => ({ ...prev, [questionId]: true }));
 
-    // Check if all questions are submitted
     const newSubmittedCount = Object.keys(submitted).length + 1;
     if (newSubmittedCount === questions.length) {
       onQuizCompleted();
@@ -65,7 +64,24 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
         {questions.map((q, idx) => {
           const isSubmitted = submitted[q.id];
           const selectedAns = selectedAnswers[q.id] || "";
-          const isCorrect = selectedAns.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
+          const strCorrectAns = String(q.correct_answer ?? "").trim().toLowerCase();
+          const isCorrect = selectedAns.trim().toLowerCase() === strCorrectAns;
+
+          const rawOptions = (q as any).options || [];
+          const normalizedOptions = rawOptions.map((opt: any, oIdx: number) => {
+            if (typeof opt === "string") {
+              return {
+                value: String(oIdx),
+                label: opt,
+                altValue: opt.trim().toLowerCase(),
+              };
+            }
+            return {
+              value: String(opt.value ?? oIdx),
+              label: String(opt.label || opt.value || ""),
+              altValue: String(opt.value || opt.label || "").trim().toLowerCase(),
+            };
+          });
 
           return (
             <div
@@ -92,7 +108,7 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
                       : "bg-red-500/10 text-red-400"
                   }`}
                 >
-                  {q.difficulty}
+                  {q.difficulty || "medium"}
                 </span>
               </div>
 
@@ -102,11 +118,14 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
 
               {/* Input Styles depending on MCQ/True-False/Short Answer */}
               <div className="mt-4 space-y-2">
-                {q.question_type === "mcq" || q.question_type === "truefalse" ? (
+                {normalizedOptions.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {q.options?.map((opt) => {
+                    {normalizedOptions.map((opt: any) => {
                       const isSelected = selectedAns === opt.value;
-                      const isCorrectOption = opt.value === q.correct_answer;
+                      const isCorrectOption =
+                        opt.value.toLowerCase() === strCorrectAns ||
+                        opt.altValue === strCorrectAns;
+
                       let btnStyle = "bg-[#1F2937]/40 border-[#374151]/50 hover:bg-[#1F2937]/80 text-gray-300";
 
                       if (isSubmitted) {
@@ -150,7 +169,7 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
                       <div className="flex items-center gap-2 text-sm">
                         <span className="text-gray-400">Correct Answer:</span>
                         <code className="bg-gray-800 text-emerald-400 px-2 py-0.5 rounded font-mono font-medium">
-                          {q.correct_answer}
+                          {String(q.correct_answer)}
                         </code>
                       </div>
                     )}
