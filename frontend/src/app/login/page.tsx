@@ -55,7 +55,7 @@ export default function LoginPage() {
           <Link href="/" className="flex items-center justify-center gap-2 mb-8">
             <Zap className="w-6 h-6 text-accent" />
             <span className="font-display text-xl font-bold text-text-primary">
-              Silicon<span className="text-accent">Path</span>
+              Berojgar<span className="text-accent">DegreeWala</span>
             </span>
           </Link>
 

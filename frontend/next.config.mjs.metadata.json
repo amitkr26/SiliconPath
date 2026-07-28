@@ -1,0 +1,4 @@
+{
+  "summary": "Clean next.config.mjs to avoid Sentry vendor chunk webpack errors",
+  "updatedAt": "2026-07-28T14:38:05.297515700Z"
+}
