@@ -81,6 +81,11 @@ function csrfGuard(request: NextRequest): Response | null {
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
+  const code = request.nextUrl.searchParams.get("code");
+
+  if (code && (path === "/" || path === "/login")) {
+    return NextResponse.redirect(new URL(`/auth/callback?code=${encodeURIComponent(code)}`, request.url));
+  }
 
   const csrfResponse = csrfGuard(request);
   if (csrfResponse) return csrfResponse;
