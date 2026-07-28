@@ -6,10 +6,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string; day: string }> }
+  { params }: { params: { id: string; day: string } }
 ) {
-  const { id, day: dayStr } = await params;
-  const dayNumber = parseInt(dayStr, 10) || 1;
+  const { id, day } = params;
+  const dayNumber = parseInt(day, 10) || 1;
 
   const track = FALLBACK_TRACKS.find((t) => t.slug === id || t.id === id) || FALLBACK_TRACKS[0];
 

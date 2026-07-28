@@ -4,7 +4,7 @@ import { serverError } from "@berojgardegreewala/api";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   if (!isAdminConfigured) {
     return NextResponse.json(
