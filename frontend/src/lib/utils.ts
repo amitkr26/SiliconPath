@@ -6,6 +6,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getURL() {
+  if (typeof window !== "undefined" && window.location.origin) {
+    return window.location.origin.endsWith("/") ? window.location.origin : `${window.location.origin}/`;
+  }
   const siteUrl = process?.env?.NEXT_PUBLIC_SITE_URL?.trim();
   const appUrl = process?.env?.NEXT_PUBLIC_APP_URL?.trim();
   const vercelUrl = process?.env?.NEXT_PUBLIC_VERCEL_URL?.trim();
