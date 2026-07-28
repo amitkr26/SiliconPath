@@ -10,11 +10,11 @@ export async function GET(request: Request) {
 
   if (error) {
     console.error('[Auth callback]', error, errorDescription);
-    return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(errorDescription || error)}`, getURL()));
+    return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(errorDescription || error)}`, request.url));
   }
 
   if (!code) {
-    return NextResponse.redirect(new URL('/login?error=no_code', getURL()));
+    return NextResponse.redirect(new URL('/login?error=no_code', request.url));
   }
 
   const supabase = await createClient();
@@ -22,8 +22,8 @@ export async function GET(request: Request) {
 
   if (exchangeError) {
     console.error('[Auth callback] exchange failed:', exchangeError.message);
-    return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(exchangeError.message)}`, getURL()));
+    return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(exchangeError.message)}`, request.url));
   }
 
-  return NextResponse.redirect(new URL('/dashboard', getURL()));
+  return NextResponse.redirect(new URL('/dashboard', request.url));
 }

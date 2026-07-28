@@ -38,9 +38,11 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
       const supabase = createClient();
+      const origin = typeof window !== "undefined" ? window.location.origin : getURL();
+      const cleanOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${getURL()}auth/callback` },
+        options: { redirectTo: `${cleanOrigin}/auth/callback` },
       });
       if (error) toast.error(error.message);
     } catch (err: any) {
