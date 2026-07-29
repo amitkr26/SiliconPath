@@ -106,27 +106,27 @@ export default async function Home() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-slate-50 text-slate-900 pb-20">
+    <div className="relative min-h-screen bg-[#FAF9F6] text-slate-900 pb-20">
       
       {/* HERO SECTION */}
-      <section className="relative pt-16 pb-20 overflow-hidden bg-gradient-to-b from-blue-50/80 via-white to-slate-50 border-b border-slate-200/60">
+      <section className="relative pt-16 pb-20 overflow-hidden bg-amber-100/50 border-b-4 border-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           
           {/* LIVE AGGREGATION BADGE */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full badge-live text-xs font-semibold mb-6 shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-            <span>Live Aggregator: {stats.verified}+ Official Verified Opportunities Ingested</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-300 border-2 border-slate-900 text-xs font-black mb-6 shadow-[3px_3px_0px_0px_#0F172A]">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border border-slate-900 animate-ping" />
+            <span>LIVE AGGREGATOR: {stats.verified}+ VERIFIED OPPORTUNITIES INGESTED</span>
           </div>
 
           {/* MAIN HERO HEADLINE */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 max-w-5xl mx-auto leading-[1.15]">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 max-w-5xl mx-auto leading-[1.15]">
             India’s Premier Hub for <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600">
+            <span className="inline-block mt-2 px-4 py-1 bg-yellow-300 border-3 border-slate-900 shadow-[5px_5px_0px_0px_#0F172A] -rotate-1 text-slate-900">
               Semiconductor & VLSI Careers
             </span>
           </h1>
 
-          <p className="mt-6 text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed font-normal">
+          <p className="mt-8 text-base sm:text-lg text-slate-800 max-w-3xl mx-auto leading-relaxed font-semibold">
             Aggregating verified JRF, PhD, DRDO, ISRO, CSIR, IIT Bombay, IIT Madras, IISc research positions, and premier enterprise opportunities from Intel, Qualcomm, AMD, TSMC, and Arm.
           </p>
 
@@ -134,26 +134,26 @@ export default async function Home() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/opportunities"
-              className="px-8 py-3.5 rounded-full font-semibold text-sm btn-glow inline-flex items-center gap-2"
+              className="px-8 py-3.5 rounded-xl font-black text-sm bg-yellow-400 text-slate-900 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:shadow-[6px_6px_0px_0px_#0F172A] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#0F172A] transition-all inline-flex items-center gap-2"
             >
-              Explore All Openings <ArrowRight className="w-4 h-4" />
+              EXPLORE ALL OPENINGS <ArrowRight className="w-4 h-4 stroke-[3]" />
             </Link>
             <Link
               href="/chat"
-              className="px-8 py-3.5 rounded-full font-semibold text-sm bg-white border border-slate-200 text-slate-800 hover:border-blue-500 hover:bg-slate-50 transition-all inline-flex items-center gap-2 shadow-xs"
+              className="px-8 py-3.5 rounded-xl font-black text-sm bg-white text-slate-900 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:bg-cyan-200 hover:shadow-[6px_6px_0px_0px_#0F172A] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#0F172A] transition-all inline-flex items-center gap-2"
             >
-              <Sparkles className="w-4 h-4 text-blue-600" /> Ask AI Career Assistant
+              <Sparkles className="w-4 h-4 text-blue-600 stroke-[2.5]" /> ASK AI ASSISTANT
             </Link>
           </div>
 
           {/* QUICK TARGET TAGS */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-600">
-            <span className="font-semibold text-slate-500">Popular Searches:</span>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5 text-xs text-slate-900">
+            <span className="font-extrabold uppercase text-slate-700">Popular Searches:</span>
             {["DRDO JRF", "ISRO Scientist", "IIT Bombay PhD", "VLSI Verification", "RTL Design", "Qualcomm", "Arm Ltd"].map((tag) => (
               <Link
                 key={tag}
                 href={`/opportunities?search=${encodeURIComponent(tag)}`}
-                className="px-3.5 py-1 bg-white border border-slate-200 rounded-full text-slate-700 hover:border-blue-500 hover:text-blue-600 transition-all shadow-2xs"
+                className="px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-lg font-bold text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] hover:bg-yellow-300 hover:shadow-[3px_3px_0px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
               >
                 {tag}
               </Link>
@@ -166,21 +166,21 @@ export default async function Home() {
       {/* STATS STRIP */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="glass-premium rounded-2xl p-6 text-center shadow-sm">
-            <p className="text-3xl sm:text-4xl font-extrabold text-blue-600 tracking-tight">{stats.total}+</p>
-            <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mt-1.5">Active Opportunities</p>
+          <div className="bg-white border-2 border-slate-900 rounded-xl p-6 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+            <p className="text-3xl sm:text-4xl font-black text-blue-600 tracking-tight">{stats.total}+</p>
+            <p className="text-slate-900 text-xs font-black uppercase tracking-wider mt-1.5">Active Opportunities</p>
           </div>
-          <div className="glass-premium rounded-2xl p-6 text-center shadow-sm">
-            <p className="text-3xl sm:text-4xl font-extrabold text-emerald-600 tracking-tight">{stats.verified}+</p>
-            <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mt-1.5">Verified Official Links</p>
+          <div className="bg-white border-2 border-slate-900 rounded-xl p-6 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+            <p className="text-3xl sm:text-4xl font-black text-emerald-600 tracking-tight">{stats.verified}+</p>
+            <p className="text-slate-900 text-xs font-black uppercase tracking-wider mt-1.5">Verified Official Links</p>
           </div>
-          <div className="glass-premium rounded-2xl p-6 text-center shadow-sm">
-            <p className="text-3xl sm:text-4xl font-extrabold text-purple-600 tracking-tight">{stats.jrf}+</p>
-            <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mt-1.5">JRF Fellowships</p>
+          <div className="bg-white border-2 border-slate-900 rounded-xl p-6 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+            <p className="text-3xl sm:text-4xl font-black text-purple-600 tracking-tight">{stats.jrf}+</p>
+            <p className="text-slate-900 text-xs font-black uppercase tracking-wider mt-1.5">JRF Fellowships</p>
           </div>
-          <div className="glass-premium rounded-2xl p-6 text-center shadow-sm">
-            <p className="text-3xl sm:text-4xl font-extrabold text-amber-600 tracking-tight">{stats.phd}+</p>
-            <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mt-1.5">PhD Programs</p>
+          <div className="bg-white border-2 border-slate-900 rounded-xl p-6 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+            <p className="text-3xl sm:text-4xl font-black text-amber-600 tracking-tight">{stats.phd}+</p>
+            <p className="text-slate-900 text-xs font-black uppercase tracking-wider mt-1.5">PhD Programs</p>
           </div>
         </div>
       </section>
