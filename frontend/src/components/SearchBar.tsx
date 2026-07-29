@@ -6,28 +6,43 @@ import { useState } from "react";
 interface SearchBarProps {
   onSearch: (query: string) => void;
   placeholder?: string;
+  value?: string;
+  onChange?: (val: string) => void;
 }
 
 export default function SearchBar({
   onSearch,
   placeholder = "Search opportunities...",
+  value: externalValue,
+  onChange: externalOnChange,
 }: SearchBarProps) {
-  const [value, setValue] = useState("");
+  const [internalValue, setInternalValue] = useState("");
+  const isControlled = externalValue !== undefined;
+  const currentValue = isControlled ? externalValue : internalValue;
+
+  const handleChange = (val: string) => {
+    if (!isControlled) {
+      setInternalValue(val);
+    }
+    if (externalOnChange) {
+      externalOnChange(val);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(value);
+    onSearch(currentValue);
   };
 
   return (
     <form onSubmit={handleSubmit} className="relative">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-900" />
       <input
         type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
+        value={currentValue}
+        onChange={(e) => handleChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-xl pl-10 pr-4 py-2.5 focus:border-accent/40 outline-none placeholder:text-text-muted/65 transition-colors"
+        className="w-full bg-white border-2 border-slate-900 text-slate-900 font-semibold text-sm rounded-xl pl-10 pr-4 py-2.5 shadow-[2px_2px_0px_0px_#0F172A] focus:shadow-[4px_4px_0px_0px_#0F172A] outline-none placeholder:text-slate-400 transition-all"
       />
     </form>
   );

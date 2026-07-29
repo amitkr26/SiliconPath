@@ -41,9 +41,9 @@ export async function GET(request: NextRequest) {
       .order("created_at", { ascending: false });
 
     if (verified === "all") {
-      supabaseQuery = supabaseQuery.neq("verification_status", "pending");
+      supabaseQuery = supabaseQuery.neq("verification_status", "rejected");
     } else {
-      supabaseQuery = supabaseQuery.eq("verification_status", "verified");
+      supabaseQuery = supabaseQuery.or("verification_status.eq.verified,verification_status.is.null,verification_status.eq.auto_verified");
     }
 
     if (category && category !== "All") {
@@ -88,24 +88,29 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      const cleanSearch = search.replace(/[{}()"\\,.]/g, "").slice(0, 100);
-      let matchingOrgIds: string[] = [];
+      const cleanSearch = search.replace(/[{}()"\\,.]/g, "").trim().slice(0, 100);
+      const words = cleanSearch.split(/\s+/).filter((k) => k.length >= 2);
+
+      const conditions: string[] = [];
+
+      for (const w of words) {
+        conditions.push(`title.ilike.%${w}%`);
+        conditions.push(`category.ilike.%${w}%`);
+        conditions.push(`eligibility.ilike.%${w}%`);
+      }
+
       const { data: orgs } = await supabaseAdmin
         .from("organizations")
         .select("id")
-        .ilike("name", `%${cleanSearch}%`);
+        .or(words.map((w) => `name.ilike.%${w}%`).join(","));
+
       if (orgs && orgs.length > 0) {
-        matchingOrgIds = orgs.map((o: { id: string }) => o.id);
+        const orgIds = orgs.map((o: { id: string }) => o.id);
+        conditions.push(`organization_id.in.(${orgIds.join(",")})`);
       }
 
-      if (matchingOrgIds.length > 0) {
-        supabaseQuery = supabaseQuery.or(
-          `title.ilike.%${cleanSearch}%,organization_id.in.(${matchingOrgIds.join(",")}),tags.cs.{"${cleanSearch}"}`
-        );
-      } else {
-        supabaseQuery = supabaseQuery.or(
-          `title.ilike.%${cleanSearch}%,tags.cs.{"${cleanSearch}"}`
-        );
+      if (conditions.length > 0) {
+        supabaseQuery = supabaseQuery.or(conditions.join(","));
       }
     }
 

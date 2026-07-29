@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { supabaseAdmin } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
@@ -12,10 +13,8 @@ export const metadata: Metadata = {
   },
 };
 
-// Revalidate every 5 minutes
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
-// Drop legacy nav-heading rows ("Payment Gateway", "At a Glance", ...) on read.
 function isDisplayableOpportunity(o: { title?: string | null }): boolean {
   if (!o || !o.title) return false;
   const t = o.title.trim();
@@ -23,19 +22,53 @@ function isDisplayableOpportunity(o: { title?: string | null }): boolean {
   return !GARBAGE_TITLE_PATTERNS.test(t);
 }
 
-export default async function OpportunitiesPage() {
+export default async function OpportunitiesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ search?: string; category?: string }> | { search?: string; category?: string };
+}) {
   let initialData: ReturnType<typeof mapDbOpportunityToClient>[] = [];
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const searchVal = resolvedSearchParams.search || "";
 
   if (supabaseAdmin?.from) {
     const today = new Date().toISOString().split("T")[0];
-    const { data } = await supabaseAdmin
+    let query = supabaseAdmin
       .from("opportunities")
       .select("*, organizations(*)")
       .eq("is_active", true)
-      .eq("verification_status", "verified")
+      .or("verification_status.eq.verified,verification_status.is.null,verification_status.eq.auto_verified")
       .or(`deadline.gte.${today},deadline.is.null`)
-      .order("created_at", { ascending: false })
-      .limit(30);
+      .order("created_at", { ascending: false });
+
+    if (searchVal) {
+      const cleanSearch = searchVal.replace(/[{}()"\\,.]/g, "").trim().slice(0, 100);
+      const words = cleanSearch.split(/\s+/).filter((k) => k.length >= 2);
+
+      const conditions: string[] = [];
+
+      for (const w of words) {
+        conditions.push(`title.ilike.%${w}%`);
+        conditions.push(`category.ilike.%${w}%`);
+        conditions.push(`eligibility.ilike.%${w}%`);
+      }
+
+      const { data: orgs } = await supabaseAdmin
+        .from("organizations")
+        .select("id")
+        .or(words.map((w) => `name.ilike.%${w}%`).join(","));
+
+      if (orgs && orgs.length > 0) {
+        const orgIds = orgs.map((o: { id: string }) => o.id);
+        conditions.push(`organization_id.in.(${orgIds.join(",")})`);
+      }
+
+      if (conditions.length > 0) {
+        query = query.or(conditions.join(","));
+      }
+    }
+
+    const { data } = await query.limit(30);
 
     if (data) {
       initialData = data.map(mapDbOpportunityToClient).filter(isDisplayableOpportunity);
@@ -58,7 +91,13 @@ export default async function OpportunitiesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
       />
-      <OpportunitiesClient initialData={initialData} />
+      <Suspense fallback={
+        <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center p-8">
+          <p className="text-slate-900 font-bold text-sm">Loading opportunities...</p>
+        </div>
+      }>
+        <OpportunitiesClient initialData={initialData} />
+      </Suspense>
     </>
   );
 }

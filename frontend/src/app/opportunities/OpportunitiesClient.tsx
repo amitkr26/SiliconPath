@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import type { Opportunity } from "@/types";
 import OpportunityRow from "@/components/OpportunityRow";
 import OpportunityCard from "@/components/OpportunityCard";
@@ -9,13 +10,24 @@ import SearchBar from "@/components/SearchBar";
 import { Loader2, ShieldCheck, EyeOff, Sparkles, X, Filter, LayoutGrid, List } from "lucide-react";
 
 export default function OpportunitiesClient({ initialData }: { initialData: Opportunity[] }) {
+  const searchParams = useSearchParams();
+  const initialSearchParam = searchParams.get("search") || "";
+  const initialCategoryParam = searchParams.get("category") || "All";
+
   const [opportunities, setOpportunities] = useState<Opportunity[]>(initialData);
   const [loading, setLoading] = useState(false);
-  const [category, setCategory] = useState("All");
+  const [category, setCategory] = useState(initialCategoryParam);
   const [eligibility, setEligibility] = useState("All");
   const [location, setLocation] = useState("All");
   const [deadline, setDeadline] = useState("All");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearchParam);
+
+  useEffect(() => {
+    const s = searchParams.get("search") || "";
+    const c = searchParams.get("category") || "All";
+    if (s !== search) setSearch(s);
+    if (c !== category) setCategory(c);
+  }, [searchParams]);
   const [showUnverified, setShowUnverified] = useState(false);
   const [viewMode, setViewMode] = useState<"card" | "row">("card");
   const [aiChips, setAiChips] = useState<Record<string, string>>({});
@@ -171,7 +183,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
             {/* SEARCH & TOGGLES */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
               <div className="flex-1">
-                <SearchBar onSearch={handleSearch} />
+                <SearchBar value={search} onChange={setSearch} onSearch={handleSearch} />
                 {aiSearching && (
                   <div className="flex items-center gap-1.5 mt-1.5 text-xs text-blue-600 font-medium">
                     <Sparkles className="w-3.5 h-3.5 animate-spin" />
