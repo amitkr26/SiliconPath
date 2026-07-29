@@ -71,7 +71,7 @@ export default function NewsPage() {
   const filteredArticles = articles.filter((art) => {
     if (viewMode === "monthly") {
       // Show monthly digests or featured July 2026 updates
-      return art.summary?.toLowerCase().includes("july 2026") || art.summary?.toLowerCase().includes("digest") || art.is_breaking;
+      return art.summary?.toLowerCase().includes("july 2026") || art.summary?.toLowerCase().includes("digest") || (art as any).is_breaking;
     }
     return true;
   });
