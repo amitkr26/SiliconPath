@@ -18,7 +18,7 @@ const clientOptions = {
     autoRefreshToken: false,
   },
   global: {
-    fetch: (url: any, options: any) => fetch(url, options),
+    fetch: (url: any, options: any = {}) => fetch(url, { ...options, cache: "no-store" }),
   },
 };
 
