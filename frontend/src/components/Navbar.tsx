@@ -64,15 +64,15 @@ export default function Navbar() {
         
         {/* BRAND LOGO */}
         <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
-          <div className="w-9 h-9 rounded-lg bg-yellow-400 border-2 border-slate-900 flex items-center justify-center shadow-[2px_2px_0px_0px_#0F172A] group-hover:-translate-y-0.5 group-hover:shadow-[3px_3px_0px_0px_#0F172A] transition-all">
-            <CircuitBoard className="w-5 h-5 text-slate-900" />
+          <div className="w-9.5 h-9.5 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center shadow-[2.5px_2.5px_0px_0px_#0F172A] group-hover:-translate-y-0.5 group-hover:shadow-[4px_4px_0px_0px_#0F172A] transition-all">
+            <CircuitBoard className="w-5 h-5 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="font-extrabold text-lg tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
+            <span className="font-black text-lg tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
               Berojgar<span className="text-blue-600">DegreeWala</span>
             </span>
-            <span className="text-[10px] text-slate-700 -mt-1 font-bold tracking-wide uppercase">
-              Semiconductor & VLSI Aggregator
+            <span className="text-[10px] text-slate-600 -mt-1 font-extrabold tracking-wider uppercase">
+              Semiconductor &amp; VLSI Aggregator
             </span>
           </div>
         </Link>
@@ -86,9 +86,9 @@ export default function Navbar() {
             placeholder="Search JRF, PhD, DRDO, ISRO, Intel, RTL..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-12 py-1.5 bg-white border-2 border-slate-900 rounded-lg text-xs font-semibold text-slate-900 placeholder-slate-500 shadow-[2px_2px_0px_0px_#0F172A] focus:outline-none focus:shadow-[4px_4px_0px_0px_#0F172A] transition-all"
+            className="w-full pl-10 pr-12 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 shadow-[2px_2px_0px_0px_#0F172A] focus:outline-none focus:shadow-[4px_4px_0px_0px_#0F172A] transition-all"
           />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-bold text-slate-900 bg-yellow-300 border border-slate-900 rounded">
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 text-[10px] font-black text-white bg-blue-600 border border-slate-900 rounded-md shadow-[1px_1px_0px_0px_#0F172A]">
             ⌘K
           </kbd>
         </form>
@@ -101,13 +101,13 @@ export default function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border-2 border-slate-900 ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all border-2 border-slate-900 ${
                   active
-                    ? "bg-yellow-400 text-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
-                    : "bg-white text-slate-800 hover:bg-slate-100 hover:shadow-[2px_2px_0px_0px_#0F172A] hover:-translate-y-0.5"
+                    ? "bg-blue-600 text-white shadow-[2.5px_2.5px_0px_0px_#0F172A]"
+                    : "bg-white text-slate-800 hover:bg-blue-50 hover:text-blue-600 hover:shadow-[2.5px_2.5px_0px_0px_#0F172A] hover:-translate-y-0.5"
                 }`}
               >
-                <Icon className="w-3.5 h-3.5 text-slate-900" />
+                <Icon className={`w-3.5 h-3.5 ${active ? "text-white" : "text-slate-900"}`} />
                 {label}
               </Link>
             );

@@ -2,34 +2,71 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Cpu, Code2, Shield, TestTube, Layers, Trophy, Lock, Zap, Play, Check, AlertCircle, RefreshCw, Sparkles } from "lucide-react";
-import { Toaster } from "sonner";
+import { 
+  Cpu, Code2, Shield, TestTube, Layers, Trophy, Lock, Zap, Play, Check, 
+  AlertCircle, RefreshCw, Sparkles, ExternalLink, BookOpen, Terminal, CheckCircle2 
+} from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import type { LearningTrack, TrackSlug } from "@/lib/academy/types";
 
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  Cpu, Code2, Shield, TestTube, Layers, Layers3: Layers, Trophy,
-};
+const TRUSTED_SOURCES = [
+  {
+    category: "Digital Design & RTL (Track 1)",
+    color: "bg-blue-600",
+    resources: [
+      { name: "NPTEL - Digital Circuits (IIT Kharagpur, Prof. Santanu Chattopadhyay)", url: "https://onlinecourses.nptel.ac.in/", type: "Course", tag: "NPTEL / IIT" },
+      { name: "NPTEL - Hardware Modeling using Verilog (IIT Kharagpur, Prof. Indranil Sengupta)", url: "https://onlinecourses.nptel.ac.in/", type: "Course", tag: "NPTEL / IIT" },
+      { name: "HDLBits (01xz) Interactive Practice", url: "https://hdlbits.01xz.net/", type: "Interactive Practice", tag: "Auto-graded" },
+      { name: "ChipVerify - Verilog & Digital Design", url: "https://chipverify.com/", type: "Tutorial & Lab", tag: "Self-Paced" },
+      { name: "ARM Education Media", url: "https://www.arm.com/resources/education", type: "Official Reference", tag: "ARM Architecture" },
+    ]
+  },
+  {
+    category: "Verification SV & UVM (Track 2)",
+    color: "bg-indigo-600",
+    resources: [
+      { name: "Verification Academy (Siemens EDA)", url: "https://verificationacademy.com/", type: "Course & Reference", tag: "Industry Standard" },
+      { name: "ChipVerify - SystemVerilog & UVM Tutorials", url: "https://chipverify.com/systemverilog", type: "Tutorial & Code", tag: "Hands-on" },
+      { name: "Verification Guide - UVM Masterclass", url: "https://verificationguide.com/uvm/uvm-tutorial/", type: "Tutorial", tag: "UVM Library" },
+      { name: "Doulos Knowhow - UVM Verification Primer", url: "https://www.doulos.com/knowhow/systemverilog/uvm/", type: "Article & Code", tag: "Advanced" },
+    ]
+  },
+  {
+    category: "Physical Design & Backend (Track 3)",
+    color: "bg-purple-600",
+    resources: [
+      { name: "NPTEL - VLSI Design Flow: RTL to GDS (IIIT Delhi, Prof. Sneh Saurabh)", url: "https://nptel.ac.in/courses/108106191", type: "Course", tag: "RTL to GDSII" },
+      { name: "OpenLane - Open-Source RTL-to-GDSII Flow", url: "https://github.com/The-OpenROAD-Project/OpenLane", type: "Tool & Docs", tag: "OpenROAD" },
+      { name: "SkyWater Sky130 PDK Documentation", url: "https://skywater-pdk.readthedocs.io/", type: "Process Reference", tag: "130nm PDK" },
+      { name: "OpenROAD Project Documentation", url: "https://openroad.readthedocs.io/", type: "EDA Docs", tag: "Place & Route" },
+    ]
+  }
+];
+
+const EDA_TOOLS = [
+  { name: "EDA Playground", description: "Browser-based SystemVerilog/Verilog simulator with Aldec & Riviera-PRO engines.", url: "https://www.edaplayground.com/", badge: "Browser Simulator" },
+  { name: "ChipVerify In-Browser Lab", description: "Synthesize Verilog code with Yosys & Sky130 PDK directly in your web browser.", url: "https://chipverify.com/", badge: "Yosys + Sky130" },
+  { name: "Icarus Verilog + GTKWave", description: "Industry standard open-source simulation & waveform analysis suite.", url: "http://iverilog.icarus.com/", badge: "Open Source CLI" },
+  { name: "Verilator", description: "High-performance open-source Verilog/SystemVerilog cycle-accurate simulator.", url: "https://www.veripool.org/verilator/", badge: "High Speed C++" },
+  { name: "Surfer Waveform Viewer", description: "Modern, fast waveform viewer alternative/complement to GTKWave.", url: "https://surfer-project.org/", badge: "Rust Waveform" },
+];
 
 export default function AcademyDashboard() {
   const { user } = useUser();
   const [tracks, setTracks] = useState<LearningTrack[]>([]);
   const [completedDays, setCompletedDays] = useState<string[]>([]);
   const [passedTracks, setPassedTracks] = useState<TrackSlug[]>([]);
-  const [trackDaysMap, setTrackDaysMap] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       let tracksData: LearningTrack[] = [];
       try {
         const res = await Promise.race([
           api.get<any>("/api/academy/tracks"),
-          new Promise<any>((_, rej) => setTimeout(() => rej(new Error("timeout")), 8000)),
+          new Promise<any>((_, rej) => setTimeout(() => rej(new Error("timeout")), 6000)),
         ]);
         tracksData = Array.isArray(res) ? res : (res?.tracks || []);
       } catch {
@@ -40,29 +77,15 @@ export default function AcademyDashboard() {
       }
       setTracks(tracksData);
 
-      try {
-        const userId = user?.id || null;
-        const [cd, pt] = await Promise.all([
-          api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: userId || "" } }).catch(() => [] as string[]),
-          api.get<TrackSlug[]>("/api/academy/progress/passed-tracks", { params: { userId: userId || "" } }).catch(() => [] as TrackSlug[]),
-        ]);
-        setCompletedDays(cd);
-        setPassedTracks(pt);
-
-        const daysResults = await Promise.all(
-          tracksData.map((t) =>
-            api.get<{ id: string }[]>(`/api/academy/tracks/${t.id}/days`).then((days) => ({ id: t.id, days: days.map((d: any) => d.id) })).catch(() => ({ id: t.id, days: [] as string[] }))
-          )
-        );
-        const daysMap: Record<string, string[]> = {};
-        for (const res of daysResults) daysMap[res.id] = res.days;
-        setTrackDaysMap(daysMap);
-      } catch {
-        // Fallback progress
-      }
+      const userId = user?.id || null;
+      const [cd, pt] = await Promise.all([
+        api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: userId || "" } }).catch(() => []),
+        api.get<TrackSlug[]>("/api/academy/progress/passed-tracks", { params: { userId: userId || "" } }).catch(() => []),
+      ]);
+      setCompletedDays(cd);
+      setPassedTracks(pt);
     } catch (err) {
       console.error("Academy load failed:", err);
-      setError("Could not load the academy. Please refresh.");
     } finally {
       setLoading(false);
     }
@@ -72,117 +95,195 @@ export default function AcademyDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4">
-        <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-        <p className="mt-4 text-slate-600 font-medium text-sm">Loading VLSI Academy Tracks...</p>
-      </div>
-    );
-  }
-
-  if (error && tracks.length === 0) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4 text-center">
-        <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <h2 className="text-xl font-bold text-slate-900 mb-1">Something went wrong</h2>
-        <p className="text-slate-600 max-w-sm mb-6 text-sm">{error}</p>
-        <button onClick={loadData} className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full btn-glow font-semibold text-xs">
-          <RefreshCw className="w-4 h-4" /> Try again
-        </button>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAF9F6] px-4">
+        <div className="w-10 h-10 border-4 border-slate-900 border-t-blue-600 rounded-full animate-spin" />
+        <p className="mt-4 text-slate-900 font-black text-sm">Loading VLSI Academy Tracks &amp; Trusted Resources...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-[#FAF9F6] py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto space-y-12">
         
-        {/* ACADEMY HEADER */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-700 uppercase tracking-wide mb-4 shadow-2xs">
-            <Zap className="w-3.5 h-3.5 text-blue-600" /> 100% Free • Self-Paced Curated Roadmap
+        {/* ACADEMY HERO */}
+        <div className="p-8 sm:p-12 rounded-2xl bg-blue-600 border-3 border-slate-900 text-white shadow-[6px_6px_0px_0px_#0F172A] relative overflow-hidden">
+          <div className="max-w-3xl space-y-4 relative z-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white text-slate-900 text-xs font-black border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]">
+              <Sparkles className="w-4 h-4 text-blue-600 stroke-[2.5]" />
+              <span>SELF-PACED HARDWARE &amp; VLSI CURRICULUM</span>
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+              VLSI &amp; Microelectronics Academy
+            </h1>
+            <p className="text-blue-50 text-sm sm:text-base font-semibold leading-relaxed">
+              Structured learning paths with verified NPTEL lectures, ChipVerify tutorials, SystemVerilog/UVM masterclasses, OpenLANE Physical Design labs, and auto-graded assessments.
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 mb-3">
-            Your Roadmap to <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600">VLSI Careers</span>
-          </h1>
-          <p className="max-w-xl mx-auto text-sm sm:text-base text-slate-600">
-            Master Digital Logic, Verilog, SystemVerilog, UVM, RTL, and Physical Design with day-wise structured plans and assessments.
-          </p>
         </div>
 
-        {/* TRACKS LIST */}
-        <div className="space-y-4">
-          {tracks.map((track) => {
-            const Icon = ICON_MAP[track.icon] || Cpu;
-            const isUnlocked = track.prerequisites.length === 0 || track.prerequisites.every((p) => passedTracks.includes(p));
-            const dayIds = trackDaysMap[track.id] || [];
-            const totalDays = dayIds.length || track.estimated_days;
-            const completedCount = dayIds.filter((id) => completedDays.includes(id)).length;
-            const progressPercent = totalDays > 0 ? Math.round((completedCount / totalDays) * 100) : 0;
-            const isTrackPassed = passedTracks.includes(track.slug);
-            const allDaysCompleted = completedCount === totalDays && totalDays > 0;
+        {/* CURRICULUM TRACKS */}
+        <div>
+          <div className="mb-6">
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Structured Curriculum Tracks
+            </h2>
+            <p className="text-slate-600 text-sm mt-1 font-semibold">
+              Complete each daily module and pass the track checkpoint exam to unlock advanced tracks.
+            </p>
+          </div>
 
-            return (
-              <div key={track.id} className={`glass-premium rounded-2xl p-6 transition-all ${isUnlocked ? "opacity-100" : "opacity-60 bg-slate-100"}`}>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-                  <div className="flex items-start gap-4 flex-1 min-w-0">
-                    <div className="p-3.5 rounded-2xl flex-shrink-0 bg-blue-50 text-blue-600 border border-blue-100">
-                      <Icon className="w-6 h-6" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {tracks.map((t, idx) => {
+              const isPassed = passedTracks.includes(t.slug);
+              const isLocked = idx > 0 && !passedTracks.includes(tracks[idx - 1]?.slug) && !passedTracks.includes(t.slug);
+
+              return (
+                <div
+                  key={t.id}
+                  className={`bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[5px_5px_0px_0px_#0F172A] flex flex-col justify-between transition-all ${
+                    isLocked ? "opacity-70 bg-slate-100" : "hover:-translate-y-1"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-md bg-blue-100 text-blue-800 border-2 border-slate-900 shadow-[1.5px_1.5px_0px_0px_#0F172A]">
+                        Track {t.order_index || idx + 1}
+                      </span>
+                      {isPassed ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-300">
+                          <CheckCircle2 className="w-3.5 h-3.5 stroke-[3]" /> Passed
+                        </span>
+                      ) : isLocked ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-black text-slate-500 bg-slate-200 px-2.5 py-1 rounded-md border border-slate-400">
+                          <Lock className="w-3.5 h-3.5 stroke-[2.5]" /> Locked
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
+                          <Zap className="w-3.5 h-3.5 stroke-[2.5]" /> Active
+                        </span>
+                      )}
                     </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-lg font-bold text-slate-900">{track.title}</h3>
-                        {isTrackPassed && (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            <Check className="w-3.5 h-3.5" /> Passed
-                          </span>
-                        )}
-                        {!isUnlocked && (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
-                            <Lock className="w-3.5 h-3.5" /> Locked
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-slate-600 mt-1">{track.description}</p>
-                      <div className="flex items-center gap-3 text-xs font-medium text-slate-500 mt-2">
-                        <span>{track.estimated_days} days</span>
-                        <span>•</span>
-                        <span>{track.estimated_hours} hours</span>
-                      </div>
-                    </div>
+
+                    <h3 className="font-extrabold text-slate-900 text-lg mb-2">{t.title || t.name}</h3>
+                    <p className="text-slate-600 text-xs leading-relaxed font-semibold mb-6">
+                      {t.description}
+                    </p>
                   </div>
-                  <div className="w-full sm:w-48 flex-shrink-0">
-                    {isUnlocked ? (
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs font-semibold text-slate-600">
-                          <span>Progress</span><span>{progressPercent}%</span>
-                        </div>
-                        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-                          <div className="h-full bg-blue-600 rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }} />
-                        </div>
-                        {allDaysCompleted && !isTrackPassed ? (
-                          <Link href={`/academy/${track.slug}/assessment`} className="mt-3 w-full py-2.5 rounded-full text-center text-xs font-bold bg-amber-500 text-white hover:bg-amber-600 transition-colors flex items-center justify-center gap-1.5 shadow-xs">
-                            Take Assessment <Trophy className="w-4 h-4" />
-                          </Link>
-                        ) : (
-                          <Link href={`/academy/${track.slug}`} className="mt-3 w-full py-2.5 rounded-full text-center text-xs font-bold btn-glow transition-colors flex items-center justify-center gap-1.5">
-                            {completedCount > 0 ? "Continue Track" : "Start Track"} <Play className="w-3.5 h-3.5 fill-current" />
-                          </Link>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center sm:text-right text-xs text-slate-400">
-                        <Lock className="w-5 h-5 mx-auto sm:ml-auto sm:mr-0 mb-1" />
-                        Complete prior tracks to unlock
-                      </div>
-                    )}
+
+                  <div className="pt-4 border-t-2 border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-500">{t.estimated_days} Days Curriculum</span>
+                    <Link
+                      href={`/academy/${t.slug}`}
+                      className={`px-4 py-2 rounded-xl text-xs font-black border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A] transition-all inline-flex items-center gap-1.5 ${
+                        isLocked
+                          ? "bg-slate-200 text-slate-500 cursor-not-allowed"
+                          : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-[3px_3px_0px_0px_#0F172A]"
+                      }`}
+                    >
+                      <span>{isPassed ? "Review Track" : "Start Track"}</span>
+                      <Play className="w-3 h-3 fill-white stroke-none" />
+                    </Link>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
+
+        {/* TRUSTED RESOURCES HUB */}
+        <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 sm:p-10 shadow-[6px_6px_0px_0px_#0F172A]">
+          <div className="mb-8">
+            <div className="flex items-center gap-2 text-xs font-black uppercase text-blue-600 mb-1">
+              <BookOpen className="w-4 h-4 stroke-[3]" />
+              <span>Curated Reference Library</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Trusted Resources &amp; Lecture Sources
+            </h2>
+            <p className="text-slate-600 text-sm mt-1 font-semibold">
+              Official courses from NPTEL IITs, Siemens EDA Verification Academy, ChipVerify, Doulos Knowhow, and OpenROAD.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {TRUSTED_SOURCES.map((sec, i) => (
+              <div key={i} className="border-2 border-slate-900 rounded-xl p-5 bg-slate-50 shadow-[3px_3px_0px_0px_#0F172A]">
+                <h3 className="font-extrabold text-slate-900 text-sm mb-4 pb-2 border-b-2 border-slate-200 flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${sec.color} border border-slate-900`} />
+                  {sec.category}
+                </h3>
+                <div className="space-y-3">
+                  {sec.resources.map((r, rIdx) => (
+                    <a
+                      key={rIdx}
+                      href={r.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group block p-3 bg-white border-2 border-slate-900 rounded-lg hover:bg-blue-50 transition-all shadow-[2px_2px_0px_0px_#0F172A]"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-xs font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
+                          {r.name}
+                        </span>
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 shrink-0 stroke-[2.5]" />
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-slate-900">
+                          {r.type}
+                        </span>
+                        <span className="text-[9px] font-bold text-slate-500">{r.tag}</span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FREE EDA TOOLS & SIMULATORS */}
+        <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 sm:p-10 shadow-[6px_6px_0px_0px_#0F172A]">
+          <div className="mb-8">
+            <div className="flex items-center gap-2 text-xs font-black uppercase text-blue-600 mb-1">
+              <Terminal className="w-4 h-4 stroke-[3]" />
+              <span>Interactive Hands-On Practice</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Embedded Open-Source EDA Tools
+            </h2>
+            <p className="text-slate-600 text-sm mt-1 font-semibold">
+              Free browser-based and local simulators to write, test, synthesize, and view waveforms.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {EDA_TOOLS.map((tool, idx) => (
+              <a
+                key={idx}
+                href={tool.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-slate-50 border-2 border-slate-900 rounded-xl p-6 shadow-[3.5px_3.5px_0px_0px_#0F172A] hover:shadow-[5px_5px_0px_0px_#0F172A] hover:-translate-y-1 transition-all group block"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded bg-blue-600 text-white border border-slate-900 shadow-[1px_1px_0px_0px_#0F172A]">
+                    {tool.badge}
+                  </span>
+                  <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors stroke-[2.5]" />
+                </div>
+                <h3 className="font-extrabold text-slate-900 text-base group-hover:text-blue-600 transition-colors mb-1.5">
+                  {tool.name}
+                </h3>
+                <p className="text-slate-600 text-xs leading-relaxed font-semibold">
+                  {tool.description}
+                </p>
+              </a>
+            ))}
+          </div>
+        </div>
+
       </div>
-      <Toaster position="bottom-right" />
     </div>
   );
 }
