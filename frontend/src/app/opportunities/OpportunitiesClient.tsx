@@ -230,9 +230,9 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
 
             {/* RELEVANT MATCH BANNER */}
             {search && matchInfo.type === "relevant" && (
-              <div className="mb-4 p-3.5 bg-amber-50 border-2 border-slate-900 rounded-xl text-xs font-semibold text-slate-900 flex items-center gap-2.5 shadow-[2px_2px_0px_0px_#0F172A]">
-                <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                <span>Showing relevant postings for <strong>"{matchInfo.query}"</strong> matching your search <strong>"{search}"</strong>.</span>
+              <div className="mb-4 p-3.5 bg-blue-50 border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 flex items-center gap-2.5 shadow-[2px_2px_0px_0px_#0F172A]">
+                <Sparkles className="w-4 h-4 text-blue-600 flex-shrink-0 stroke-[2.5]" />
+                <span>Showing relevant postings for <strong>&quot;{matchInfo.query}&quot;</strong> matching your search <strong>&quot;{search}&quot;</strong>.</span>
               </div>
             )}
 

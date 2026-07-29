@@ -56,7 +56,7 @@ export default function ReviewsSection() {
             <span>Community Success Stories</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Trusted by India's Hardware Engineers
+            Trusted by India&apos;s Hardware Engineers
           </h2>
           <p className="text-slate-600 text-sm mt-1 font-semibold">
             See how candidates landed JRF positions, PhD admissions, and VLSI industry roles.
@@ -91,7 +91,7 @@ export default function ReviewsSection() {
               </div>
               <Quote className="w-6 h-6 text-blue-600 mb-2 opacity-40 stroke-[2.5]" />
               <p className="text-slate-800 text-xs sm:text-sm leading-relaxed font-semibold mb-6">
-                "{rev.comment}"
+                &quot;{rev.comment}&quot;
               </p>
             </div>
 
