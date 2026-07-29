@@ -91,34 +91,127 @@ export async function GET(request: NextRequest) {
       const cleanSearch = search.replace(/[{}()"\\,.]/g, "").trim().slice(0, 100);
       const words = cleanSearch.split(/\s+/).filter((k) => k.length >= 2);
 
-      const conditions: string[] = [];
+      async function queryWordSet(wordArray: string[]) {
+        let q = supabaseAdmin
+          .from("opportunities")
+          .select("*, organizations(*)", { count: "exact" })
+          .eq("is_active", true)
+          .order("created_at", { ascending: false });
 
-      for (const w of words) {
-        conditions.push(`title.ilike.%${w}%`);
-        conditions.push(`category.ilike.%${w}%`);
-        conditions.push(`eligibility.ilike.%${w}%`);
+        if (verified === "all") {
+          q = q.neq("verification_status", "rejected");
+        } else {
+          q = q.or("verification_status.eq.verified,verification_status.is.null,verification_status.eq.auto_verified");
+        }
+
+        if (category && category !== "All") {
+          if (category === "Research Fellowship") {
+            q = q.or("category.ilike.%Research Fellowship%,category.ilike.%JRF%,category.ilike.%SRF%");
+          } else if (category === "PhD Scholarship") {
+            q = q.or("category.ilike.%PhD%,category.ilike.%Scholarship%");
+          } else {
+            q = q.ilike("category", `%${category}%`);
+          }
+        }
+
+        if (eligibility && eligibility !== "All") {
+          q = q.ilike("eligibility", `%${eligibility}%`);
+        }
+
+        if (location && location !== "All") {
+          if (location === "International") {
+            q = q.not("location", "ilike", "%India%").not("location", "ilike", "%Delhi%").not("location", "ilike", "%Bangalore%").not("location", "ilike", "%Mumbai%");
+          } else {
+            q = q.ilike("location", `%${location}%`);
+          }
+        }
+
+        if (deadline && deadline !== "All") {
+          const now = new Date();
+          if (deadline === "This Week") {
+            const weekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            q = q.gte("deadline", now.toISOString().split("T")[0]).lte("deadline", weekLater.toISOString().split("T")[0]);
+          } else if (deadline === "This Month") {
+            const monthLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+            q = q.gte("deadline", now.toISOString().split("T")[0]).lte("deadline", monthLater.toISOString().split("T")[0]);
+          } else if (deadline === "Later") {
+            const monthLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+            q = q.gt("deadline", monthLater.toISOString().split("T")[0]);
+          }
+        }
+
+        for (const w of wordArray) {
+          const { data: orgs } = await supabaseAdmin
+            .from("organizations")
+            .select("id")
+            .ilike("name", `%${w}%`);
+
+          let cond = `title.ilike.%${w}%,category.ilike.%${w}%,eligibility.ilike.%${w}%,description.ilike.%${w}%`;
+          if (orgs && orgs.length > 0) {
+            const orgIds = orgs.map((o: { id: string }) => o.id);
+            cond += `,organization_id.in.(${orgIds.join(",")})`;
+          }
+          q = q.or(cond);
+        }
+
+        return await q.range(start, end);
       }
 
-      const { data: orgs } = await supabaseAdmin
-        .from("organizations")
-        .select("id")
-        .or(words.map((w) => `name.ilike.%${w}%`).join(","));
+      let matchType = "none";
+      let matchedQuery = "";
+      let res = await queryWordSet(words);
 
-      if (orgs && orgs.length > 0) {
-        const orgIds = orgs.map((o: { id: string }) => o.id);
-        conditions.push(`organization_id.in.(${orgIds.join(",")})`);
+      if (res.data && res.data.length > 0) {
+        matchType = "exact";
+        matchedQuery = cleanSearch;
+      } else if (words.length >= 2) {
+        const mainCat = words.find((w) => /^(phd|jrf|srf|job|internship|fellowship|scholarship)$/i.test(w));
+        const mainEnt = words.find((w) => /^(iit|bits|iiit|drdo|isro|csir|vlsi|intel|qualcomm|nvidia|amd)$/i.test(w)) || words[0];
+
+        if (mainCat && mainEnt && mainCat.toLowerCase() !== mainEnt.toLowerCase()) {
+          res = await queryWordSet([mainEnt, mainCat]);
+          if (res.data && res.data.length > 0) {
+            matchType = "relevant";
+            matchedQuery = `${mainEnt} ${mainCat}`;
+          }
+        }
+
+        if (!res.data || res.data.length === 0) {
+          res = await queryWordSet([words[0], words[words.length - 1]]);
+          if (res.data && res.data.length > 0) {
+            matchType = "relevant";
+            matchedQuery = `${words[0]} ${words[words.length - 1]}`;
+          }
+        }
       }
 
-      if (conditions.length > 0) {
-        supabaseQuery = supabaseQuery.or(conditions.join(","));
+      if (!res.data || res.data.length === 0) {
+        const prim = words.find((w) => /^(phd|jrf|srf|drdo|isro|csir|vlsi)$/i.test(w)) || words[0];
+        res = await queryWordSet([prim]);
+        if (res.data && res.data.length > 0) {
+          matchType = "broad";
+          matchedQuery = prim;
+        }
       }
+
+      const mappedData = (res.data ? res.data.map(mapDbOpportunityToClient) : []).filter(isDisplayableOpportunity);
+
+      return NextResponse.json({
+        opportunities: mappedData,
+        count: mappedData.length,
+        total_count: res.count || 0,
+        page,
+        limit,
+        total_pages: Math.ceil((res.count || 0) / limit),
+        match_type: matchType,
+        matched_query: matchedQuery,
+      });
     }
 
     const { data, count, error } = await supabaseQuery.range(start, end);
 
     if (error) throw error;
 
-    // Map to client shape, then drop legacy garbage-title rows on the read path.
     const mappedData = (data ? data.map(mapDbOpportunityToClient) : []).filter(
       isDisplayableOpportunity
     );
