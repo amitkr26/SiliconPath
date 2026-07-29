@@ -38,6 +38,8 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   const [totalCount, setTotalCount] = useState(initialData.length);
   const lastAISearch = useRef("");
 
+  const [matchInfo, setMatchInfo] = useState<{ type?: string; query?: string }>({});
+
   const fetchOpportunities = useCallback(async (pageNum = 1) => {
     setLoading(true);
 
@@ -61,10 +63,12 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
         setTotalPages(data.total_pages || 1);
         setTotalCount(data.total_count || data.opportunities.length);
         setPage(data.page || pageNum);
+        setMatchInfo({ type: data.match_type, query: data.matched_query });
       } else {
         setOpportunities([]);
         setTotalPages(1);
         setTotalCount(0);
+        setMatchInfo({});
       }
     } catch (error) {
       console.error("Error fetching opportunities:", error);
@@ -221,6 +225,14 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                     </button>
                   </span>
                 ))}
+              </div>
+            )}
+
+            {/* RELEVANT MATCH BANNER */}
+            {search && matchInfo.type === "relevant" && (
+              <div className="mb-4 p-3.5 bg-amber-50 border-2 border-slate-900 rounded-xl text-xs font-semibold text-slate-900 flex items-center gap-2.5 shadow-[2px_2px_0px_0px_#0F172A]">
+                <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                <span>Showing relevant postings for <strong>"{matchInfo.query}"</strong> matching your search <strong>"{search}"</strong>.</span>
               </div>
             )}
 
