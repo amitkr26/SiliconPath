@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
       const cleanSearch = search.replace(/[{}()"\\,.]/g, "").trim().slice(0, 100);
       const words = cleanSearch.split(/\s+/).filter((k) => k.length >= 2);
 
-      async function queryWordSet(wordArray: string[]) {
+      const queryWordSet = async (wordArray: string[]) => {
         let q = supabaseAdmin
           .from("opportunities")
           .select("*, organizations(*)", { count: "exact" })
