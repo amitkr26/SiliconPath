@@ -73,31 +73,36 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="bg-navy-light border border-gray-800 rounded-xl p-6 w-full max-w-md mx-4 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+      <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 sm:p-8 w-full max-w-lg relative shadow-[8px_8px_0px_0px_#0F172A]">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-text-muted hover:text-text-primary transition-colors"
+          className="absolute top-4 right-4 text-slate-500 hover:text-slate-900 transition-colors p-1 bg-slate-100 border border-slate-900 rounded-lg"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5 stroke-[2.5]" />
         </button>
 
         <div className="flex items-center gap-3 mb-6">
-          <Bell className="w-6 h-6 text-cyan" />
-          <h2 className="text-xl font-display font-bold text-text-primary">
-            Get Email Alerts
-          </h2>
+          <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white shadow-[2px_2px_0px_0px_#0F172A]">
+            <Bell className="w-5 h-5 stroke-[2.5]" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-slate-900">
+              Customize Alert Preferences
+            </h2>
+            <p className="text-xs text-slate-600 font-semibold">Select your target categories &amp; key search terms</p>
+          </div>
         </div>
 
         {status === "success" ? (
-          <div className="text-center py-6">
-            <Check className="w-12 h-12 text-success mx-auto mb-3" />
-            <p className="text-text-primary font-medium">{message}</p>
+          <div className="text-center py-6 bg-blue-50 border-2 border-slate-900 rounded-xl p-4">
+            <Check className="w-12 h-12 text-emerald-600 mx-auto mb-2 stroke-[3]" />
+            <p className="text-slate-900 font-extrabold text-sm">{message}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-text-muted text-xs font-medium mb-1.5">
+              <label className="block text-slate-900 text-xs font-extrabold mb-1.5 uppercase">
                 Email Address
               </label>
               <input
@@ -106,56 +111,59 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full bg-gray-800 border border-gray-700 text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-cyan focus:border-cyan outline-none"
+                className="w-full bg-white border-2 border-slate-900 text-slate-900 font-bold text-sm rounded-xl px-3.5 py-2.5 shadow-[2px_2px_0px_0px_#0F172A] focus:shadow-[4px_4px_0px_0px_#0F172A] outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-text-muted text-xs font-medium mb-1.5">
-                Categories (select all that apply)
+              <label className="block text-slate-900 text-xs font-extrabold mb-1.5 uppercase">
+                Target Categories
               </label>
               <div className="flex flex-wrap gap-2">
-                {CATEGORY_OPTIONS.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => toggleCategory(cat)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors",
-                      selectedCategories.includes(cat)
-                        ? "bg-cyan/20 border-cyan/50 text-cyan"
-                        : "bg-gray-800 border-gray-700 text-text-muted hover:border-gray-600"
-                    )}
-                  >
-                    {cat}
-                  </button>
-                ))}
+                {CATEGORY_OPTIONS.map((cat) => {
+                  const selected = selectedCategories.includes(cat);
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => toggleCategory(cat)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs font-extrabold border-2 border-slate-900 transition-all shadow-[1.5px_1.5px_0px_0px_#0F172A]",
+                        selected
+                          ? "bg-blue-600 text-white shadow-[2px_2px_0px_0px_#0F172A]"
+                          : "bg-white text-slate-800 hover:bg-slate-50"
+                      )}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             <div>
-              <label className="block text-text-muted text-xs font-medium mb-1.5">
-                Keywords (comma-separated, e.g. VLSI, spintronics, thin film)
+              <label className="block text-slate-900 text-xs font-extrabold mb-1.5 uppercase">
+                Target Keywords (comma-separated)
               </label>
               <input
                 type="text"
                 value={keywords}
                 onChange={(e) => setKeywords(e.target.value)}
-                placeholder="VLSI, embedded, semiconductor"
-                className="w-full bg-gray-800 border border-gray-700 text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-cyan focus:border-cyan outline-none"
+                placeholder="e.g. VLSI, SystemVerilog, IIT Bombay, DRDO, UVM"
+                className="w-full bg-white border-2 border-slate-900 text-slate-900 font-bold text-sm rounded-xl px-3.5 py-2.5 shadow-[2px_2px_0px_0px_#0F172A] focus:shadow-[4px_4px_0px_0px_#0F172A] outline-none"
               />
             </div>
 
             {status === "error" && (
-              <p className="text-red-400 text-sm">{message}</p>
+              <p className="text-red-600 text-xs font-extrabold">{message}</p>
             )}
 
             <button
               type="submit"
               disabled={status === "loading"}
-              className="w-full bg-cyan text-navy font-semibold rounded-lg py-2.5 text-sm hover:bg-cyan/90 transition-colors disabled:opacity-50"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl py-3 text-sm border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:shadow-[4px_4px_0px_0px_#0F172A] transition-all disabled:opacity-50"
             >
-              {status === "loading" ? "Subscribing..." : "Subscribe"}
+              {status === "loading" ? "Saving Preferences..." : "Save &amp; Activate Alerts"}
             </button>
           </form>
         )}

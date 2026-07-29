@@ -9,6 +9,8 @@ import type { Opportunity, NewsArticle } from "@/types";
 import OpportunityCard from "@/components/OpportunityCard";
 import NewsCard from "@/components/NewsCard";
 import SubscribeSection from "@/components/SubscribeSection";
+import ReviewsSection from "@/components/ReviewsSection";
+import FaqSection from "@/components/FaqSection";
 
 async function getStats() {
   if (!supabaseAdmin?.from) {
@@ -109,20 +111,20 @@ export default async function Home() {
     <div className="relative min-h-screen bg-[#FAF9F6] text-slate-900 pb-20">
       
       {/* HERO SECTION */}
-      <section className="relative pt-16 pb-20 overflow-hidden bg-amber-100/50 border-b-4 border-slate-900">
+      <section className="relative pt-16 pb-20 overflow-hidden bg-blue-50/60 border-b-4 border-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           
           {/* LIVE AGGREGATION BADGE */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-300 border-2 border-slate-900 text-xs font-black mb-6 shadow-[3px_3px_0px_0px_#0F172A]">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border border-slate-900 animate-ping" />
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white border-2 border-slate-900 text-xs font-black mb-6 shadow-[3px_3px_0px_0px_#0F172A]">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 border border-slate-900 animate-ping" />
             <span>LIVE AGGREGATOR: {stats.verified}+ VERIFIED OPPORTUNITIES INGESTED</span>
           </div>
 
           {/* MAIN HERO HEADLINE */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 max-w-5xl mx-auto leading-[1.15]">
             India’s Premier Hub for <br />
-            <span className="inline-block mt-2 px-4 py-1 bg-yellow-300 border-3 border-slate-900 shadow-[5px_5px_0px_0px_#0F172A] -rotate-1 text-slate-900">
-              Semiconductor & VLSI Careers
+            <span className="inline-block mt-2 px-5 py-1.5 bg-blue-600 text-white border-3 border-slate-900 shadow-[5px_5px_0px_0px_#0F172A] -rotate-1">
+              Semiconductor &amp; VLSI Careers
             </span>
           </h1>
 
@@ -134,13 +136,13 @@ export default async function Home() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/opportunities"
-              className="px-8 py-3.5 rounded-xl font-black text-sm bg-yellow-400 text-slate-900 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:shadow-[6px_6px_0px_0px_#0F172A] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#0F172A] transition-all inline-flex items-center gap-2"
+              className="px-8 py-3.5 rounded-xl font-black text-sm bg-blue-600 text-white border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:bg-blue-700 hover:shadow-[6px_6px_0px_0px_#0F172A] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#0F172A] transition-all inline-flex items-center gap-2"
             >
               EXPLORE ALL OPENINGS <ArrowRight className="w-4 h-4 stroke-[3]" />
             </Link>
             <Link
               href="/chat"
-              className="px-8 py-3.5 rounded-xl font-black text-sm bg-white text-slate-900 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:bg-cyan-200 hover:shadow-[6px_6px_0px_0px_#0F172A] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#0F172A] transition-all inline-flex items-center gap-2"
+              className="px-8 py-3.5 rounded-xl font-black text-sm bg-white text-slate-900 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:bg-blue-50 hover:text-blue-600 hover:shadow-[6px_6px_0px_0px_#0F172A] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#0F172A] transition-all inline-flex items-center gap-2"
             >
               <Sparkles className="w-4 h-4 text-blue-600 stroke-[2.5]" /> ASK AI ASSISTANT
             </Link>
@@ -153,7 +155,7 @@ export default async function Home() {
               <Link
                 key={tag}
                 href={`/opportunities?search=${encodeURIComponent(tag)}`}
-                className="px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-lg font-bold text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] hover:bg-yellow-300 hover:shadow-[3px_3px_0px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
+                className="px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-lg font-extrabold text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] hover:bg-blue-600 hover:text-white hover:shadow-[3.5px_3.5px_0px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
               >
                 {tag}
               </Link>
@@ -166,20 +168,20 @@ export default async function Home() {
       {/* STATS STRIP */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white border-2 border-slate-900 rounded-xl p-6 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+          <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 text-center shadow-[5px_5px_0px_0px_#0F172A]">
             <p className="text-3xl sm:text-4xl font-black text-blue-600 tracking-tight">{stats.total}+</p>
             <p className="text-slate-900 text-xs font-black uppercase tracking-wider mt-1.5">Active Opportunities</p>
           </div>
-          <div className="bg-white border-2 border-slate-900 rounded-xl p-6 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+          <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 text-center shadow-[5px_5px_0px_0px_#0F172A]">
             <p className="text-3xl sm:text-4xl font-black text-emerald-600 tracking-tight">{stats.verified}+</p>
             <p className="text-slate-900 text-xs font-black uppercase tracking-wider mt-1.5">Verified Official Links</p>
           </div>
-          <div className="bg-white border-2 border-slate-900 rounded-xl p-6 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+          <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 text-center shadow-[5px_5px_0px_0px_#0F172A]">
             <p className="text-3xl sm:text-4xl font-black text-purple-600 tracking-tight">{stats.jrf}+</p>
             <p className="text-slate-900 text-xs font-black uppercase tracking-wider mt-1.5">JRF Fellowships</p>
           </div>
-          <div className="bg-white border-2 border-slate-900 rounded-xl p-6 text-center shadow-[4px_4px_0px_0px_#0F172A]">
-            <p className="text-3xl sm:text-4xl font-black text-amber-600 tracking-tight">{stats.phd}+</p>
+          <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 text-center shadow-[5px_5px_0px_0px_#0F172A]">
+            <p className="text-3xl sm:text-4xl font-black text-indigo-600 tracking-tight">{stats.phd}+</p>
             <p className="text-slate-900 text-xs font-black uppercase tracking-wider mt-1.5">PhD Programs</p>
           </div>
         </div>
@@ -189,8 +191,8 @@ export default async function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Browse by Specialization</h2>
-            <p className="text-slate-600 text-sm mt-1">Targeted listings across core microelectronics and research sectors</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Browse by Specialization</h2>
+            <p className="text-slate-600 text-sm mt-1 font-semibold">Targeted listings across core microelectronics and research sectors</p>
           </div>
         </div>
 
@@ -199,13 +201,13 @@ export default async function Home() {
             <Link
               key={name}
               href={href}
-              className="glass-premium rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 group block"
+              className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-[3.5px_3.5px_0px_0px_#0F172A] hover:shadow-[5.5px_5.5px_0px_0px_#0F172A] hover:-translate-y-1 transition-all group block"
             >
-              <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-[2px_2px_0px_0px_#0F172A]">
                 <Icon className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" />
               </div>
-              <h3 className="font-semibold text-slate-900 text-base group-hover:text-blue-600 transition-colors">{name}</h3>
-              <p className="text-slate-500 text-xs mt-1.5 font-medium">{count}</p>
+              <h3 className="font-extrabold text-slate-900 text-base group-hover:text-blue-600 transition-colors">{name}</h3>
+              <p className="text-slate-500 text-xs mt-1.5 font-bold">{count}</p>
             </Link>
           ))}
         </div>
@@ -216,10 +218,10 @@ export default async function Home() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Verified Live Opportunities</h2>
-              <p className="text-slate-600 text-sm mt-1">Direct application links to official career portals</p>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Verified Live Opportunities</h2>
+              <p className="text-slate-600 text-sm mt-1 font-semibold">Direct application links to official career portals</p>
             </div>
-            <Link href="/opportunities" className="text-blue-600 text-sm font-semibold hover:underline flex items-center gap-1">
+            <Link href="/opportunities" className="text-blue-600 text-sm font-extrabold hover:underline flex items-center gap-1">
               View All ({stats.total}) <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -232,15 +234,25 @@ export default async function Home() {
         </section>
       )}
 
+      {/* REVIEWS SECTION */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
+        <ReviewsSection />
+      </section>
+
+      {/* FAQS SECTION */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
+        <FaqSection />
+      </section>
+
       {/* INDUSTRY NEWS */}
       {news.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Semiconductor Industry News</h2>
-              <p className="text-slate-600 text-sm mt-1">Daily updates from IEEE Spectrum, EE Times, and Semiconductor Engineering</p>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Semiconductor Industry News</h2>
+              <p className="text-slate-600 text-sm mt-1 font-semibold">Daily updates from IEEE Spectrum, EE Times, and Semiconductor Engineering</p>
             </div>
-            <Link href="/news" className="text-blue-600 text-sm font-semibold hover:underline flex items-center gap-1">
+            <Link href="/news" className="text-blue-600 text-sm font-extrabold hover:underline flex items-center gap-1">
               Read News Feed <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

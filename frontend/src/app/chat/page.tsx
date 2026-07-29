@@ -58,6 +58,8 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   const currentSession = sessions.find((s) => s.id === activeSessionId) || sessions[0];
 
   useEffect(() => {
@@ -206,44 +208,80 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-50 flex flex-col md:flex-row">
+    <div className="min-h-[calc(100vh-4rem)] bg-[#FAF9F6] flex flex-col md:flex-row">
       
       {/* DESKTOP SIDEBAR */}
-      <aside className="hidden md:flex w-72 bg-white border-r border-slate-200 flex-col shrink-0">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
-            <ArrowLeft className="w-4 h-4 text-blue-600" /> Back to Home
-          </Link>
-          <button
-            onClick={createNewChat}
-            className="flex items-center gap-1.5 bg-blue-600 text-white text-xs px-3.5 py-1.5 rounded-full hover:bg-blue-700 transition font-semibold shadow-2xs"
-          >
-            <Plus className="w-3.5 h-3.5" /> New Chat
-          </button>
+      <aside className={`hidden md:flex bg-white border-r-3 border-slate-900 flex-col shrink-0 transition-all duration-300 ${
+        sidebarCollapsed ? "w-16" : "w-72"
+      }`}>
+        <div className="p-3.5 border-b-2 border-slate-900 flex items-center justify-between">
+          {!sidebarCollapsed ? (
+            <>
+              <Link href="/" className="flex items-center gap-1.5 text-xs font-black text-slate-800 hover:text-blue-600 transition">
+                <ArrowLeft className="w-4 h-4 text-blue-600 stroke-[3]" /> Home
+              </Link>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={createNewChat}
+                  className="flex items-center gap-1.5 bg-blue-600 text-white text-xs px-3 py-1.5 rounded-xl hover:bg-blue-700 transition font-black border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
+                  title="New Chat"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[3]" /> New
+                </button>
+                <button
+                  onClick={() => setSidebarCollapsed(true)}
+                  className="p-1.5 text-slate-700 hover:bg-slate-100 rounded-lg border border-slate-900"
+                  title="Collapse Sidebar"
+                >
+                  <Menu className="w-4 h-4" />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="w-full flex flex-col items-center gap-3">
+              <button
+                onClick={() => setSidebarCollapsed(false)}
+                className="p-2 text-slate-900 hover:bg-blue-50 hover:text-blue-600 rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
+                title="Expand Sidebar"
+              >
+                <Menu className="w-4 h-4" />
+              </button>
+              <button
+                onClick={createNewChat}
+                className="p-2 bg-blue-600 text-white rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
+                title="New Chat"
+              >
+                <Plus className="w-4 h-4 stroke-[3]" />
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="flex-1 overflow-y-auto p-3 space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1">
-            Recent Conversations
-          </p>
+        <div className="flex-1 overflow-y-auto p-2 space-y-1">
+          {!sidebarCollapsed && (
+            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 px-3 py-1">
+              Recent Conversations
+            </p>
+          )}
           {sessions.map((s) => (
             <div
               key={s.id}
               onClick={() => setActiveSessionId(s.id)}
-              className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer text-xs font-medium transition ${
+              title={s.title}
+              className={`group flex items-center justify-between p-2.5 rounded-xl cursor-pointer text-xs font-bold border-2 transition-all ${
                 activeSessionId === s.id
-                  ? "bg-blue-50 text-blue-700 font-semibold"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  ? "bg-blue-600 text-white border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
+                  : "bg-white text-slate-800 border-transparent hover:bg-slate-100 hover:border-slate-900"
               }`}
             >
               <div className="flex items-center gap-2 truncate">
-                <MessageSquare className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span className="truncate">{s.title}</span>
+                <MessageSquare className={`w-4 h-4 shrink-0 ${activeSessionId === s.id ? "text-white" : "text-slate-700"}`} />
+                {!sidebarCollapsed && <span className="truncate">{s.title}</span>}
               </div>
-              {sessions.length > 1 && (
+              {!sidebarCollapsed && sessions.length > 1 && (
                 <button
                   onClick={(e) => deleteSession(s.id, e)}
-                  className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition p-1"
+                  className={`opacity-0 group-hover:opacity-100 transition p-1 ${activeSessionId === s.id ? "text-white hover:text-red-200" : "text-slate-400 hover:text-red-600"}`}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -256,27 +294,27 @@ export default function ChatPage() {
       {/* MOBILE DRAWER */}
       {mobileSidebarOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
-          <div className="fixed inset-0 bg-slate-900/50" onClick={() => setMobileSidebarOpen(false)} />
-          <div className="relative bg-white w-72 max-w-xs flex flex-col p-4 z-10 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
-              <span className="font-bold text-slate-900 text-sm">Conversations</span>
-              <button onClick={() => setMobileSidebarOpen(false)} className="text-slate-500">
-                <X className="w-5 h-5" />
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={() => setMobileSidebarOpen(false)} />
+          <div className="relative bg-white w-72 max-w-xs flex flex-col p-4 z-10 shadow-2xl border-r-3 border-slate-900">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-slate-900 mb-3">
+              <span className="font-black text-slate-900 text-sm">Conversations</span>
+              <button onClick={() => setMobileSidebarOpen(false)} className="text-slate-700 p-1 border border-slate-900 rounded-md">
+                <X className="w-4 h-4" />
               </button>
             </div>
             <button
               onClick={createNewChat}
-              className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-xs py-2.5 rounded-full font-semibold mb-4"
+              className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-xs py-2.5 rounded-xl font-black border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] mb-4"
             >
-              <Plus className="w-4 h-4" /> New Chat
+              <Plus className="w-4 h-4 stroke-[3]" /> New Chat
             </button>
-            <div className="flex-1 overflow-y-auto space-y-1">
+            <div className="flex-1 overflow-y-auto space-y-1.5">
               {sessions.map((s) => (
                 <div
                   key={s.id}
                   onClick={() => { setActiveSessionId(s.id); setMobileSidebarOpen(false); }}
-                  className={`flex items-center justify-between p-2.5 rounded-xl text-xs font-medium ${
-                    activeSessionId === s.id ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-700 hover:bg-slate-100"
+                  className={`flex items-center justify-between p-2.5 rounded-xl text-xs font-bold border-2 ${
+                    activeSessionId === s.id ? "bg-blue-600 text-white border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]" : "bg-slate-50 text-slate-900 border-slate-900"
                   }`}
                 >
                   <span className="truncate">{s.title}</span>
@@ -288,38 +326,47 @@ export default function ChatPage() {
       )}
 
       {/* MAIN CHAT CANVAS */}
-      <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] min-w-0 bg-slate-50">
+      <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] min-w-0 bg-[#FAF9F6]">
         
         {/* HEADER */}
-        <header className="h-14 border-b border-slate-200 bg-white px-4 flex items-center justify-between shrink-0">
+        <header className="h-14 border-b-3 border-slate-900 bg-white px-4 flex items-center justify-between shrink-0 shadow-[0_2px_0px_0px_#0F172A]">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden p-1.5 rounded-lg text-slate-600 hover:bg-slate-100"
+              className="md:hidden p-1.5 rounded-lg border-2 border-slate-900 bg-white text-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-4 h-4" />
             </button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-xs">
-                <Sparkles className="w-4 h-4" />
+            {sidebarCollapsed && (
+              <button
+                onClick={() => setSidebarCollapsed(false)}
+                className="hidden md:flex p-1.5 rounded-lg border-2 border-slate-900 bg-white text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] hover:bg-blue-50 hover:text-blue-600 transition"
+                title="Expand Sidebar"
+              >
+                <Menu className="w-4 h-4" />
+              </button>
+            )}
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white font-bold shadow-[2px_2px_0px_0px_#0F172A]">
+                <Sparkles className="w-4 h-4 stroke-[2.5]" />
               </div>
               <div>
-                <h1 className="font-bold text-sm text-slate-900 leading-none flex items-center gap-2">
+                <h1 className="font-black text-sm text-slate-900 leading-none flex items-center gap-2">
                   BerojgarDegreeWala AI Assistant
-                  <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-semibold border border-emerald-200">
+                  <span className="text-[10px] bg-emerald-400 text-slate-900 px-2 py-0.5 rounded-md font-black border border-slate-900">
                     Online
                   </span>
                 </h1>
-                <p className="text-[11px] text-slate-500 mt-0.5">Semiconductor & VLSI Career Specialist</p>
+                <p className="text-[11px] text-slate-600 mt-0.5 font-bold">Semiconductor &amp; VLSI Career Specialist</p>
               </div>
             </div>
           </div>
 
           <button
             onClick={createNewChat}
-            className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-blue-600 font-semibold transition px-3 py-1.5 rounded-full border border-slate-200 bg-white shadow-2xs"
+            className="flex items-center gap-1.5 text-xs text-slate-900 hover:text-blue-600 font-extrabold transition px-3.5 py-1.5 rounded-xl border-2 border-slate-900 bg-white shadow-[2px_2px_0px_0px_#0F172A]"
           >
-            <RefreshCw className="w-3.5 h-3.5 text-blue-600" /> Reset
+            <RefreshCw className="w-3.5 h-3.5 text-blue-600 stroke-[2.5]" /> Reset
           </button>
         </header>
 
