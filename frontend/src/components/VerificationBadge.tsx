@@ -26,7 +26,7 @@ export default function VerificationBadge({ status, compact }: VerificationBadge
 
   if (status === "link_unavailable") {
     return (
-      <span className={`inline-flex items-center gap-1 ${compact ? "text-[10px]" : "text-xs"} text-amber-400 font-medium`}>
+      <span className={`inline-flex items-center gap-1 ${compact ? "text-[10px]" : "text-xs"} text-blue-600 font-extrabold`}>
         <ShieldQuestion className={`${compact ? "w-3 h-3" : "w-3.5 h-3.5"}`} />
         {compact ? "" : "Check Official Site"}
       </span>

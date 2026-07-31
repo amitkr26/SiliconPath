@@ -79,25 +79,25 @@ export default function DayDetailsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#030712] text-gray-100 flex flex-col items-center justify-center">
-        <div className="w-10 h-10 border-4 border-cyan/20 border-t-cyan rounded-full animate-spin"></div>
-        <p className="mt-4 text-gray-400 text-sm">Opening today&apos;s lessons...</p>
+      <div className="min-h-screen bg-[#FAF9F6] text-slate-900 flex flex-col items-center justify-center">
+        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-slate-600 text-sm font-semibold">Opening today&apos;s lessons...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#030712] text-gray-100 flex flex-col items-center justify-center px-4">
-        <div className="max-w-md text-center space-y-4">
-          <div className="w-16 h-16 mx-auto rounded-full bg-red-500/10 flex items-center justify-center">
-            <HelpCircle className="w-8 h-8 text-red-400" />
+      <div className="min-h-screen bg-[#FAF9F6] text-slate-900 flex flex-col items-center justify-center px-4">
+        <div className="max-w-md text-center space-y-4 bg-white p-8 border-3 border-slate-900 rounded-2xl shadow-[6px_6px_0px_0px_#0F172A]">
+          <div className="w-16 h-16 mx-auto rounded-full bg-red-100 border-2 border-slate-900 flex items-center justify-center">
+            <HelpCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-100">Failed to Load Lesson</h2>
-          <p className="text-gray-400 text-sm">{error}</p>
+          <h2 className="text-xl font-bold text-slate-900">Failed to Load Lesson</h2>
+          <p className="text-slate-600 text-sm font-medium">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan text-navy font-semibold rounded-lg text-sm hover:bg-cyan/90 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl text-sm border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-blue-700 transition-all"
           >
             Retry
           </button>
@@ -132,7 +132,6 @@ export default function DayDetailsPage() {
         setCompletedDays((prev) => [...prev, day.id]);
         toast.success(`Day ${day.day_number} completed!`);
         
-        // Auto-navigate to next day if available after a brief delay
         setTimeout(() => {
           if (nextDayNum) {
             router.push(`/academy/${track.slug}/day/${nextDayNum}`);
@@ -151,43 +150,38 @@ export default function DayDetailsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] text-gray-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Decorative track blur background */}
-      <div 
-        className="absolute top-0 left-10 w-96 h-96 rounded-full filter blur-[150px] pointer-events-none opacity-10"
-        style={{ backgroundColor: track.color }}
-      ></div>
-
-      <div className="max-w-4xl mx-auto relative z-10 space-y-10">
+    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="max-w-4xl mx-auto relative z-10 space-y-8">
+        
         {/* Header Breadcrumbs */}
-        <div className="flex items-center justify-between gap-4 flex-wrap border-b border-[#374151]/40 pb-6">
+        <div className="flex items-center justify-between gap-4 flex-wrap bg-white p-6 rounded-2xl border-3 border-slate-900 shadow-[6px_6px_0px_0px_#0F172A]">
           <div className="space-y-1.5">
             <Link 
               href={`/academy/${track.slug}`}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-cyan uppercase tracking-wider transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-extrabold text-blue-600 hover:underline uppercase tracking-wider transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               {track.title}
             </Link>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-2">
-              <span className="text-gray-400 font-medium">Day {day.day_number}:</span>
+            <h1 className="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-2">
+              <span className="text-blue-600 font-bold">Day {day.day_number}:</span>
               <span>{day.title}</span>
             </h1>
           </div>
 
           {/* Top Status */}
           {isCompleted && (
-            <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-bold">
-              <Check className="w-3.5 h-3.5" /> Completed
+            <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-900 border-2 border-slate-900 px-3 py-1 rounded-xl text-xs font-extrabold shadow-[2px_2px_0px_0px_#0F172A]">
+              <Check className="w-4 h-4 text-emerald-700 stroke-[3]" /> Completed
             </span>
           )}
         </div>
 
-        {/* Video Lectures (Attributed Embed Only) */}
+        {/* Video Lectures */}
         {resources.length > 0 && (
-          <div className="space-y-5">
-            <h3 className="text-lg font-bold text-gray-200 flex items-center gap-2">
-              <Play className="w-5 h-5 text-red-500 fill-current" />
+          <div className="space-y-5 bg-white p-6 rounded-2xl border-3 border-slate-900 shadow-[6px_6px_0px_0px_#0F172A]">
+            <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+              <Play className="w-5 h-5 text-blue-600 fill-current" />
               Video Lectures & Tutorials
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -210,52 +204,50 @@ export default function DayDetailsPage() {
 
         {/* Theory Summary */}
         {day.theory_summary && (
-          <div className="p-6 md:p-8 bg-[#111827]/40 border border-[#374151]/50 rounded-3xl backdrop-blur-sm shadow-xl space-y-6">
-            <div className="flex items-center gap-2 border-b border-[#374151]/30 pb-4">
-              <FileText className="w-5 h-5 text-cyan" />
-              <h3 className="text-lg font-bold text-gray-200">Core Theory Summary</h3>
+          <div className="p-6 md:p-8 bg-white border-3 border-slate-900 rounded-2xl shadow-[6px_6px_0px_0px_#0F172A] space-y-6">
+            <div className="flex items-center gap-2 border-b-2 border-slate-900 pb-4">
+              <FileText className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-black text-slate-900">Core Theory & Design Manual</h3>
             </div>
             
             {/* Custom Simple Markdown Renderer */}
-            <div className="prose prose-invert max-w-none text-sm md:text-base text-gray-300 space-y-4 leading-relaxed">
+            <div className="prose max-w-none text-sm md:text-base text-slate-800 space-y-4 leading-relaxed font-medium">
               {day.theory_summary.split("\n\n").map((block, bIdx) => {
                 if (block.startsWith("## ")) {
                   return (
-                    <h4 key={bIdx} className="text-lg font-extrabold text-white mt-6 mb-2 border-l-2 border-cyan pl-2.5">
+                    <h4 key={bIdx} className="text-lg font-black text-slate-900 mt-6 mb-2 border-l-4 border-blue-600 pl-3">
                       {block.replace("## ", "")}
                     </h4>
                   );
                 }
                 if (block.startsWith("### ")) {
                   return (
-                    <h5 key={bIdx} className="text-base font-bold text-gray-200 mt-4 mb-2">
+                    <h5 key={bIdx} className="text-base font-bold text-slate-900 mt-4 mb-2">
                       {block.replace("### ", "")}
                     </h5>
                   );
                 }
                 if (block.startsWith("```")) {
-                  // Basic code block format
                   const lines = block.split("\n").filter(l => !l.startsWith("```"));
                   return (
-                    <pre key={bIdx} className="bg-black/60 border border-[#374151]/40 rounded-xl p-4 overflow-x-auto font-mono text-xs text-emerald-400">
+                    <pre key={bIdx} className="bg-slate-950 border-2 border-slate-900 rounded-xl p-4 overflow-x-auto font-mono text-xs text-blue-300 shadow-[3px_3px_0px_0px_#0F172A]">
                       {lines.join("\n")}
                     </pre>
                   );
                 }
                 if (block.startsWith("|")) {
-                  // Render basic tables
                   const rows = block.split("\n").filter(r => r.trim().length > 0);
                   return (
-                    <div key={bIdx} className="overflow-x-auto my-4 border border-[#374151]/30 rounded-xl">
-                      <table className="min-w-full divide-y divide-[#374151]/30 text-xs">
-                        <tbody className="divide-y divide-[#374151]/20 bg-[#111827]/30">
+                    <div key={bIdx} className="overflow-x-auto my-4 border-2 border-slate-900 rounded-xl shadow-[3px_3px_0px_0px_#0F172A]">
+                      <table className="min-w-full divide-y-2 divide-slate-900 text-xs font-bold">
+                        <tbody className="divide-y divide-slate-200 bg-white">
                           {rows.map((row, rIdx) => {
                             const cells = row.split("|").filter((c, cIdx) => cIdx > 0 && cIdx < row.split("|").length - 1);
-                            if (row.includes("---")) return null; // skip separator row
+                            if (row.includes("---")) return null;
                             return (
-                              <tr key={rIdx} className={rIdx === 0 ? "bg-[#1F2937]/50 font-bold text-gray-200" : ""}>
+                              <tr key={rIdx} className={rIdx === 0 ? "bg-blue-600 text-white font-extrabold" : "text-slate-800"}>
                                 {cells.map((cell, cIdx) => (
-                                  <td key={cIdx} className="px-4 py-2.5 whitespace-nowrap text-left border-r border-[#374151]/20 last:border-r-0">
+                                  <td key={cIdx} className="px-4 py-2.5 whitespace-nowrap text-left border-r border-slate-200 last:border-r-0">
                                     {cell.trim()}
                                   </td>
                                 ))}
@@ -268,10 +260,9 @@ export default function DayDetailsPage() {
                   );
                 }
                 if (block.startsWith("- ")) {
-                  // Render list items
                   const items = block.split("\n").map(i => i.replace("- ", ""));
                   return (
-                    <ul key={bIdx} className="list-disc list-inside space-y-1.5 pl-2 text-gray-300">
+                    <ul key={bIdx} className="list-disc list-inside space-y-1.5 pl-2 text-slate-800 font-semibold">
                       {items.map((it, itIdx) => (
                         <li key={itIdx}>{it}</li>
                       ))}
@@ -279,7 +270,7 @@ export default function DayDetailsPage() {
                   );
                 }
                 return (
-                  <p key={bIdx} className="text-gray-300 whitespace-pre-wrap leading-relaxed">
+                  <p key={bIdx} className="text-slate-800 font-medium whitespace-pre-wrap leading-relaxed">
                     {block}
                   </p>
                 );
@@ -290,14 +281,14 @@ export default function DayDetailsPage() {
 
         {/* Practice Links (HDLBits, EDA Playground, etc.) */}
         {day.practice_links && day.practice_links.length > 0 && (
-          <div className="p-5 bg-cyan/5 border border-cyan/20 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="p-6 bg-blue-50 border-3 border-slate-900 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-[6px_6px_0px_0px_#0F172A]">
             <div className="space-y-1 flex-1">
-              <h4 className="text-sm font-bold text-cyan uppercase tracking-wider flex items-center gap-1.5">
-                <GraduationCap className="w-4 h-4" />
-                Hands-on Practice Tools & Labs
+              <h4 className="text-sm font-black text-blue-700 uppercase tracking-wider flex items-center gap-1.5">
+                <GraduationCap className="w-5 h-5 text-blue-600" />
+                Hands-on Practice Tools & Interactive Simulators
               </h4>
-              <p className="text-xs text-gray-400">
-                Put theory into practice by solving compiler/coding tasks on these recommended external platforms.
+              <p className="text-xs text-slate-700 font-semibold">
+                Put theory into practice by solving Verilog/SystemVerilog exercises and synthesizing design blocks.
               </p>
             </div>
             
@@ -308,10 +299,10 @@ export default function DayDetailsPage() {
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 bg-cyan text-gray-950 px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#00E5FF]/80 transition-colors shadow-md shadow-cyan/15"
+                  className="inline-flex items-center gap-1.5 bg-blue-600 text-white px-4 py-2.5 rounded-xl text-xs font-black border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-blue-700 transition-all"
                 >
                   <span>{link.label}</span>
-                  <ExternalLink className="w-3 h-3" />
+                  <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               ))}
             </div>
@@ -320,7 +311,7 @@ export default function DayDetailsPage() {
 
         {/* Practice Quiz */}
         {questions.length > 0 && (
-          <div className="p-6 md:p-8 bg-[#111827]/40 border border-[#374151]/50 rounded-3xl backdrop-blur-sm shadow-xl">
+          <div className="p-6 md:p-8 bg-white border-3 border-slate-900 rounded-2xl shadow-[6px_6px_0px_0px_#0F172A]">
             <PracticeQuiz 
               questions={questions} 
               onQuizCompleted={() => setQuizCompleted(true)} 
@@ -329,28 +320,28 @@ export default function DayDetailsPage() {
         )}
 
         {/* Daily Completion Actions / Next Navigation Panel */}
-        <div className="p-6 bg-[#1F2937]/20 border border-[#374151]/40 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="p-6 bg-white border-3 border-slate-900 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-[6px_6px_0px_0px_#0F172A]">
           {/* Day switching links */}
           <div className="flex items-center gap-4">
             {prevDayNum ? (
               <Link
                 href={`/academy/${track.slug}/day/${prevDayNum}`}
-                className="p-3 bg-gray-900 border border-gray-800 rounded-xl hover:bg-gray-800 transition-colors text-gray-400 hover:text-white"
+                className="p-3 bg-white border-2 border-slate-900 rounded-xl hover:bg-blue-50 transition-all text-slate-900 font-bold shadow-[2px_2px_0px_0px_#0F172A]"
                 title={`Back to Day ${prevDayNum}`}
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
               </Link>
             ) : (
-              <div className="p-3 bg-gray-950 border border-gray-900 opacity-25 rounded-xl cursor-not-allowed">
+              <div className="p-3 bg-slate-100 border-2 border-slate-300 opacity-40 rounded-xl cursor-not-allowed">
                 <ChevronLeft className="w-5 h-5" />
               </div>
             )}
 
             <div className="text-center sm:text-left">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Current Roadmap Position
+              <span className="text-xs font-extrabold text-blue-600 uppercase tracking-wider">
+                Roadmap Progress
               </span>
-              <p className="text-sm font-bold text-gray-300">
+              <p className="text-sm font-black text-slate-900">
                 Day {day.day_number} of {track.estimated_days}
               </p>
             </div>
@@ -358,13 +349,13 @@ export default function DayDetailsPage() {
             {nextDayNum ? (
               <Link
                 href={`/academy/${track.slug}/day/${nextDayNum}`}
-                className="p-3 bg-gray-900 border border-gray-800 rounded-xl hover:bg-gray-800 transition-colors text-gray-400 hover:text-white"
+                className="p-3 bg-white border-2 border-slate-900 rounded-xl hover:bg-blue-50 transition-all text-slate-900 font-bold shadow-[2px_2px_0px_0px_#0F172A]"
                 title={`Go to Day ${nextDayNum}`}
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-5 h-5 stroke-[2.5]" />
               </Link>
             ) : (
-              <div className="p-3 bg-gray-950 border border-gray-900 opacity-25 rounded-xl cursor-not-allowed">
+              <div className="p-3 bg-slate-100 border-2 border-slate-300 opacity-40 rounded-xl cursor-not-allowed">
                 <ChevronRight className="w-5 h-5" />
               </div>
             )}
@@ -376,9 +367,9 @@ export default function DayDetailsPage() {
               <button
                 type="button"
                 disabled
-                className="w-full sm:w-auto px-6 py-3 rounded-xl text-sm font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center gap-1.5"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl text-sm font-black bg-emerald-100 text-emerald-900 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] flex items-center justify-center gap-1.5"
               >
-                <Check className="w-4 h-4" />
+                <Check className="w-4 h-4 text-emerald-700 stroke-[3]" />
                 Completed & Unlocked
               </button>
             ) : (
@@ -386,16 +377,16 @@ export default function DayDetailsPage() {
                 type="button"
                 onClick={handleMarkComplete}
                 disabled={submitting}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl text-sm font-bold bg-cyan text-gray-900 hover:bg-[#00E5FF]/80 disabled:opacity-50 transition-colors shadow-lg shadow-cyan/20 flex items-center justify-center gap-1.5"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl text-sm font-black bg-blue-600 text-white border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
               >
                 {submitting ? "Saving Progress..." : "Mark Day Complete"}
-                <CheckCircle2 className="w-4 h-4" />
+                <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
               </button>
             )}
           </div>
         </div>
       </div>
-      <Toaster position="bottom-right" theme="dark" />
+      <Toaster position="bottom-right" theme="light" />
     </div>
   );
 }

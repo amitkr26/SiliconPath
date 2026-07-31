@@ -50,12 +50,12 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
 
   return (
     <div className="space-y-8">
-      <div className="border-b border-[#374151]/50 pb-4">
-        <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">
-          <HelpCircle className="w-6 h-6 text-cyan" />
+      <div className="border-b-2 border-slate-900 pb-4">
+        <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+          <HelpCircle className="w-6 h-6 text-blue-600 stroke-[2.5]" />
           Daily Practice & Concept Verification
         </h3>
-        <p className="text-sm text-gray-400 mt-1">
+        <p className="text-sm font-semibold text-slate-600 mt-1">
           Verify your knowledge of today&apos;s topics. Submit each answer to see detailed explanations.
         </p>
       </div>
@@ -67,7 +67,6 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
           const strCorrectAns = String(q.correct_answer ?? "").trim().toLowerCase();
           const isCorrect = selectedAns.trim().toLowerCase() === strCorrectAns;
 
-          // Normalize options whether array of strings or array of objects
           const rawOptions = (q as any).options || [];
           const normalizedOptions = rawOptions.map((opt: any, oIdx: number) => {
             if (typeof opt === "string") {
@@ -87,38 +86,38 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
           return (
             <div
               key={q.id}
-              className={`p-5 rounded-2xl border transition-all duration-300 ${
+              className={`p-6 rounded-2xl border-3 border-slate-900 transition-all duration-300 shadow-[4px_4px_0px_0px_#0F172A] ${
                 isSubmitted
                   ? isCorrect
-                    ? "bg-emerald-500/5 border-emerald-500/30"
-                    : "bg-red-500/5 border-red-500/30"
-                  : "bg-[#111827]/40 border-[#374151]/50 hover:border-gray-700"
+                    ? "bg-emerald-50 border-slate-900"
+                    : "bg-red-50 border-slate-900"
+                  : "bg-white border-slate-900"
               }`}
             >
               {/* Question Header */}
               <div className="flex items-start gap-3 justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-gray-800 text-gray-400">
+                <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-lg bg-slate-900 text-white">
                   Question {idx + 1}
                 </span>
                 <span
-                  className={`text-xs font-medium px-2 py-0.5 rounded capitalize ${
+                  className={`text-xs font-extrabold px-3 py-1 rounded-lg border border-slate-900 capitalize ${
                     q.difficulty === "easy"
-                      ? "bg-emerald-500/10 text-emerald-400"
+                      ? "bg-emerald-100 text-emerald-900"
                       : q.difficulty === "medium"
-                      ? "bg-amber-500/10 text-amber-400"
-                      : "bg-red-500/10 text-red-400"
+                      ? "bg-blue-100 text-blue-900"
+                      : "bg-red-100 text-red-900"
                   }`}
                 >
                   {q.difficulty || "medium"}
                 </span>
               </div>
 
-              <p className="text-base text-gray-200 font-medium mt-3 whitespace-pre-wrap">
+              <p className="text-base text-slate-900 font-extrabold mt-3 whitespace-pre-wrap">
                 {q.question}
               </p>
 
               {/* Input Styles depending on MCQ/True-False/Short Answer */}
-              <div className="mt-4 space-y-2">
+              <div className="mt-4 space-y-3">
                 {normalizedOptions.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {normalizedOptions.map((opt: any) => {
@@ -127,18 +126,18 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
                         opt.value.toLowerCase() === strCorrectAns ||
                         opt.altValue === strCorrectAns;
 
-                      let btnStyle = "bg-[#1F2937]/40 border-[#374151]/50 hover:bg-[#1F2937]/80 text-gray-300";
+                      let btnStyle = "bg-white border-2 border-slate-900 text-slate-900 hover:bg-blue-50 font-bold shadow-[2px_2px_0px_0px_#0F172A]";
 
                       if (isSubmitted) {
                         if (isCorrectOption) {
-                          btnStyle = "bg-emerald-500/20 border-emerald-500/80 text-emerald-200 font-medium";
+                          btnStyle = "bg-emerald-100 border-2 border-slate-900 text-emerald-950 font-black shadow-[2px_2px_0px_0px_#0F172A]";
                         } else if (isSelected) {
-                          btnStyle = "bg-red-500/20 border-red-500/80 text-red-200";
+                          btnStyle = "bg-red-100 border-2 border-slate-900 text-red-950 font-black shadow-[2px_2px_0px_0px_#0F172A]";
                         } else {
-                          btnStyle = "bg-gray-800/20 border-gray-800 text-gray-600 opacity-60";
+                          btnStyle = "bg-slate-100 border-2 border-slate-300 text-slate-400 opacity-60";
                         }
                       } else if (isSelected) {
-                        btnStyle = "bg-cyan/20 border-cyan text-cyan font-medium shadow-md shadow-cyan/10";
+                        btnStyle = "bg-blue-600 border-2 border-slate-900 text-white font-black shadow-[3px_3px_0px_0px_#0F172A]";
                       }
 
                       return (
@@ -147,11 +146,11 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
                           type="button"
                           onClick={() => handleSelectOption(q.id, opt.value)}
                           disabled={isSubmitted}
-                          className={`w-full p-3.5 text-left rounded-xl border text-sm transition-all duration-200 flex items-center justify-between ${btnStyle}`}
+                          className={`w-full p-4 text-left rounded-xl text-sm transition-all duration-200 flex items-center justify-between ${btnStyle}`}
                         >
                           <span>{opt.label}</span>
-                          {isSubmitted && isCorrectOption && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
-                          {isSubmitted && isSelected && !isCorrectOption && <XCircle className="w-4 h-4 text-red-400" />}
+                          {isSubmitted && isCorrectOption && <CheckCircle2 className="w-4 h-4 text-emerald-700 stroke-[3]" />}
+                          {isSubmitted && isSelected && !isCorrectOption && <XCircle className="w-4 h-4 text-red-700 stroke-[3]" />}
                         </button>
                       );
                     })}
@@ -164,12 +163,12 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
                       value={selectedAns}
                       onChange={(e) => handleInputChange(q.id, e.target.value)}
                       placeholder="Type your answer here..."
-                      className="w-full bg-[#111827]/60 border border-[#374151]/80 rounded-xl px-4 py-3 text-gray-100 placeholder-gray-500 text-sm focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan/30 disabled:opacity-75 disabled:text-gray-400"
+                      className="w-full bg-white border-2 border-slate-900 rounded-xl px-4 py-3 text-slate-900 font-bold placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-[2px_2px_0px_0px_#0F172A]"
                     />
                     {isSubmitted && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-gray-400">Correct Answer:</span>
-                        <code className="bg-gray-800 text-emerald-400 px-2 py-0.5 rounded font-mono font-medium">
+                      <div className="flex items-center gap-2 text-sm font-bold">
+                        <span className="text-slate-600">Correct Answer:</span>
+                        <code className="bg-slate-900 text-white px-3 py-1 rounded-lg font-mono text-xs">
                           {String(q.correct_answer)}
                         </code>
                       </div>
@@ -185,22 +184,22 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
                     type="button"
                     disabled={!selectedAns}
                     onClick={() => handleSubmitQuestion(q.id, q.correct_answer)}
-                    className="px-5 py-2 rounded-xl text-sm font-semibold bg-cyan text-gray-900 hover:bg-[#00E5FF]/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-1 shadow-lg shadow-cyan/20"
+                    className="px-6 py-3 rounded-xl text-sm font-black bg-blue-600 text-white border-2 border-slate-900 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-[3px_3px_0px_0px_#0F172A]"
                   >
                     Check Answer
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                   </button>
                 </div>
               )}
 
               {/* Detailed Explanation */}
               {isSubmitted && q.explanation && (
-                <div className="mt-4 p-4 bg-[#1F2937]/30 border-t border-[#374151]/20 rounded-xl">
-                  <div className="flex gap-2 text-xs text-gray-400 font-semibold items-center uppercase tracking-wider mb-2">
-                    <AlertCircle className="w-4 h-4 text-cyan" />
+                <div className="mt-4 p-4 bg-blue-50 border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_#0F172A]">
+                  <div className="flex gap-2 text-xs text-blue-700 font-black items-center uppercase tracking-wider mb-2">
+                    <AlertCircle className="w-4 h-4 text-blue-600 stroke-[2.5]" />
                     <span>Explanation</span>
                   </div>
-                  <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
+                  <p className="text-sm text-slate-900 font-semibold leading-relaxed whitespace-pre-wrap">
                     {q.explanation}
                   </p>
                 </div>

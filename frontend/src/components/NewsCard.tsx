@@ -24,8 +24,8 @@ const SOURCE_COLORS: Record<string, string> = {
   "Science Daily — Electronics": "bg-sky-600",
   "Phys.org — Semiconductors": "bg-violet-600",
   "Phys.org — Electronics": "bg-violet-600",
-  "India Semiconductor Mission": "bg-amber-600",
-  "IESA News": "bg-amber-600",
+  "India Semiconductor Mission": "bg-blue-600",
+  "IESA News": "bg-blue-600",
 };
 
 function timeAgo(dateString: string): string {

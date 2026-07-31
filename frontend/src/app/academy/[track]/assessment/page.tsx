@@ -28,7 +28,6 @@ export default function TrackAssessmentPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [scorePercent, setScorePercent] = useState(0);
   const [passed, setPassed] = useState(false);
-  const [retrying, setRetrying] = useState(false);
 
   useEffect(() => {
     async function loadAssessment() {
@@ -49,7 +48,6 @@ export default function TrackAssessmentPage() {
         }
         setAssessment(ass);
 
-        // Gate: require all days completed before showing assessment
         if (user) {
           const [completedDayIds, trackDays] = await Promise.all([
             api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: user.id } }).catch(() => [] as string[]),
@@ -77,9 +75,9 @@ export default function TrackAssessmentPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#030712] text-gray-100 flex flex-col items-center justify-center">
-        <div className="w-10 h-10 border-4 border-cyan/20 border-t-cyan rounded-full animate-spin"></div>
-        <p className="mt-4 text-gray-400 text-sm">Opening testing terminal...</p>
+      <div className="min-h-screen bg-[#FAF9F6] text-slate-900 flex flex-col items-center justify-center">
+        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-slate-600 font-semibold text-sm">Opening testing terminal...</p>
       </div>
     );
   }
@@ -97,14 +95,12 @@ export default function TrackAssessmentPage() {
   };
 
   const handleSubmitQuiz = async () => {
-    // Verify all questions are answered
     const unanswered = assessment.questions.some((_, idx) => !answers[idx]);
     if (unanswered) {
       toast.warning("Please answer all questions before submitting.");
       return;
     }
 
-    // Calculate score
     let correctCount = 0;
     assessment.questions.forEach((q, idx) => {
       const userAns = answers[idx]?.trim().toLowerCase();
@@ -152,57 +148,51 @@ export default function TrackAssessmentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] text-gray-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Glow */}
-      <div 
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full filter blur-[150px] pointer-events-none opacity-10"
-        style={{ backgroundColor: track.color }}
-      ></div>
-
-      <div className="max-w-3xl mx-auto relative z-10 space-y-10">
+    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="max-w-3xl mx-auto relative z-10 space-y-8">
         {/* Navigation */}
         <Link 
           href={`/academy/${track.slug}`} 
-          className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-cyan transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-extrabold text-blue-600 hover:underline transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
           Cancel and return to Track
         </Link>
 
         {/* Header Panel */}
-        <div className="text-center space-y-3 pb-6 border-b border-[#374151]/40">
-          <div className="inline-flex p-3 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/30 mb-2">
-            <Trophy className="w-8 h-8" />
+        <div className="bg-white p-8 rounded-2xl border-3 border-slate-900 shadow-[6px_6px_0px_0px_#0F172A] text-center space-y-3">
+          <div className="inline-flex p-4 rounded-2xl bg-blue-100 text-blue-900 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] mb-2">
+            <Trophy className="w-8 h-8 text-blue-600 stroke-[2.5]" />
           </div>
-          <h1 className="text-3xl font-extrabold text-white">
+          <h1 className="text-3xl font-black text-slate-900">
             {track.title} Gating Assessment
           </h1>
-          <p className="text-sm text-gray-400 max-w-xl mx-auto leading-relaxed">
-            Verify your understanding of all materials in this track. Scoring **{assessment.passing_score_percent}%** or higher unlocks the next course in the VLSI curriculum.
+          <p className="text-sm font-semibold text-slate-600 max-w-xl mx-auto leading-relaxed">
+            Verify your understanding of all materials in this track. Scoring <strong className="text-slate-900 font-extrabold">{assessment.passing_score_percent}%</strong> or higher unlocks the next course in the VLSI curriculum.
           </p>
         </div>
 
         {/* Gating Status / Result Cards */}
         {isSubmitted && (
-          <div className={`p-6 md:p-8 rounded-3xl border text-center space-y-4 shadow-xl ${
+          <div className={`p-8 rounded-2xl border-3 border-slate-900 text-center space-y-4 shadow-[6px_6px_0px_0px_#0F172A] ${
             passed 
-              ? "bg-emerald-500/10 border-emerald-500/30 shadow-emerald-500/5" 
-              : "bg-red-500/10 border-red-500/30 shadow-red-500/5"
+              ? "bg-emerald-50" 
+              : "bg-red-50"
           }`}>
-            <div className="inline-flex p-4 rounded-full bg-black/40">
+            <div className="inline-flex p-4 rounded-full bg-white border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]">
               {passed ? (
-                <Award className="w-12 h-12 text-emerald-400 animate-bounce" />
+                <Award className="w-12 h-12 text-emerald-600" />
               ) : (
-                <AlertTriangle className="w-12 h-12 text-red-400" />
+                <AlertTriangle className="w-12 h-12 text-red-600" />
               )}
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-2xl font-extrabold text-white">
+              <h3 className="text-2xl font-black text-slate-900">
                 {passed ? "Assessment Passed!" : "Assessment Failed"}
               </h3>
-              <p className="text-sm text-gray-400">
-                You scored <strong className="text-white text-base">{scorePercent}%</strong>. Required passing score: {assessment.passing_score_percent}%.
+              <p className="text-sm font-semibold text-slate-700">
+                You scored <strong className="text-slate-900 font-extrabold text-base">{scorePercent}%</strong>. Required passing score: {assessment.passing_score_percent}%.
               </p>
             </div>
 
@@ -210,7 +200,7 @@ export default function TrackAssessmentPage() {
               {passed ? (
                 <Link
                   href="/academy"
-                  className="px-6 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-950 transition-colors shadow-lg shadow-emerald-500/20"
+                  className="px-6 py-3 rounded-xl text-sm font-black bg-blue-600 text-white border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-blue-700 transition-all"
                 >
                   Return to Academy Dashboard
                 </Link>
@@ -219,14 +209,14 @@ export default function TrackAssessmentPage() {
                   <button
                     type="button"
                     onClick={handleRetry}
-                    className="px-6 py-2.5 rounded-xl text-sm font-bold bg-red-500 hover:bg-red-400 text-gray-950 transition-colors shadow-lg shadow-red-500/20 flex items-center gap-1.5"
+                    className="px-6 py-3 rounded-xl text-sm font-black bg-red-600 text-white border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-red-700 transition-all flex items-center gap-2"
                   >
-                    <RefreshCw className="w-4 h-4 animate-spin-reverse" />
+                    <RefreshCw className="w-4 h-4 stroke-[2.5]" />
                     Retry Assessment
                   </button>
                   <Link
                     href={`/academy/${track.slug}`}
-                    className="px-6 py-2.5 rounded-xl text-sm font-bold bg-[#1F2937] hover:bg-[#374151] text-gray-200 transition-colors"
+                    className="px-6 py-3 rounded-xl text-sm font-black bg-white text-slate-900 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-blue-50 transition-all"
                   >
                     Review Curriculum Days
                   </Link>
@@ -237,7 +227,7 @@ export default function TrackAssessmentPage() {
         )}
 
         {/* Questions Terminal */}
-        <div className="space-y-8">
+        <div className="space-y-6">
           {assessment.questions.map((q, idx) => {
             const userAns = answers[idx] || "";
             const isCorrect = userAns.trim().toLowerCase() === q.correct.trim().toLowerCase();
@@ -245,37 +235,37 @@ export default function TrackAssessmentPage() {
             return (
               <div 
                 key={idx}
-                className={`p-6 rounded-3xl border transition-all duration-300 ${
+                className={`p-6 rounded-2xl border-3 border-slate-900 transition-all duration-300 shadow-[4px_4px_0px_0px_#0F172A] ${
                   isSubmitted
                     ? isCorrect
-                      ? "bg-emerald-500/5 border-emerald-500/20"
-                      : "bg-red-500/5 border-red-500/20"
-                    : "bg-[#111827]/40 border-[#374151]/50 shadow-md hover:border-gray-700"
+                      ? "bg-emerald-50"
+                      : "bg-red-50"
+                    : "bg-white"
                 }`}
               >
                 {/* Question Header */}
-                <div className="flex justify-between items-center gap-4 border-b border-[#374151]/20 pb-3 mb-4">
-                  <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <div className="flex justify-between items-center gap-4 border-b-2 border-slate-900 pb-3 mb-4">
+                  <span className="text-xs font-black text-slate-900 uppercase tracking-wider">
                     Question {idx + 1}
                   </span>
                   {isSubmitted && (
-                    <span className={`flex items-center gap-1 text-xs font-bold ${
-                      isCorrect ? "text-emerald-400" : "text-red-400"
+                    <span className={`flex items-center gap-1 text-xs font-black ${
+                      isCorrect ? "text-emerald-700" : "text-red-700"
                     }`}>
                       {isCorrect ? (
                         <>
-                          <Check className="w-4 h-4" /> Correct
+                          <Check className="w-4 h-4 stroke-[3]" /> Correct
                         </>
                       ) : (
                         <>
-                          <X className="w-4 h-4" /> Incorrect
+                          <X className="w-4 h-4 stroke-[3]" /> Incorrect
                         </>
                       )}
                     </span>
                   )}
                 </div>
 
-                <p className="text-base text-gray-200 font-semibold mb-4 leading-relaxed">
+                <p className="text-base text-slate-900 font-extrabold mb-4 leading-relaxed">
                   {q.q}
                 </p>
 
@@ -286,18 +276,18 @@ export default function TrackAssessmentPage() {
                       const isSelected = userAns === opt;
                       const isCorrectOption = opt === q.correct;
                       
-                      let btnStyle = "bg-[#1F2937]/30 border-[#374151]/40 hover:bg-[#1F2937]/70 text-gray-300";
+                      let btnStyle = "bg-white border-2 border-slate-900 text-slate-900 hover:bg-blue-50 font-bold shadow-[2px_2px_0px_0px_#0F172A]";
                       
                       if (isSubmitted) {
                         if (isCorrectOption) {
-                          btnStyle = "bg-emerald-500/20 border-emerald-500/80 text-emerald-200 font-semibold";
+                          btnStyle = "bg-emerald-100 border-2 border-slate-900 text-emerald-950 font-black shadow-[2px_2px_0px_0px_#0F172A]";
                         } else if (isSelected) {
-                          btnStyle = "bg-red-500/20 border-red-500/80 text-red-200";
+                          btnStyle = "bg-red-100 border-2 border-slate-900 text-red-950 font-black shadow-[2px_2px_0px_0px_#0F172A]";
                         } else {
-                          btnStyle = "bg-gray-800/10 border-gray-900 text-gray-600 opacity-60";
+                          btnStyle = "bg-slate-100 border-2 border-slate-300 text-slate-400 opacity-60";
                         }
                       } else if (isSelected) {
-                        btnStyle = "bg-cyan/20 border-cyan text-cyan font-semibold shadow-md shadow-cyan/10";
+                        btnStyle = "bg-blue-600 border-2 border-slate-900 text-white font-black shadow-[3px_3px_0px_0px_#0F172A]";
                       }
 
                       return (
@@ -306,11 +296,11 @@ export default function TrackAssessmentPage() {
                           type="button"
                           disabled={isSubmitted}
                           onClick={() => handleSelectOption(idx, opt)}
-                          className={`w-full p-4 text-left rounded-2xl border text-sm transition-all duration-200 flex items-center justify-between ${btnStyle}`}
+                          className={`w-full p-4 text-left rounded-xl text-sm transition-all duration-200 flex items-center justify-between ${btnStyle}`}
                         >
                           <span>{opt}</span>
-                          {isSubmitted && isCorrectOption && <Check className="w-4 h-4 text-emerald-400" />}
-                          {isSubmitted && isSelected && !isCorrectOption && <X className="w-4 h-4 text-red-400" />}
+                          {isSubmitted && isCorrectOption && <Check className="w-4 h-4 text-emerald-700 stroke-[3]" />}
+                          {isSubmitted && isSelected && !isCorrectOption && <X className="w-4 h-4 text-red-700 stroke-[3]" />}
                         </button>
                       );
                     })}
@@ -323,12 +313,12 @@ export default function TrackAssessmentPage() {
                       value={userAns}
                       onChange={(e) => handleTextChange(idx, e.target.value)}
                       placeholder="Type your answer here..."
-                      className="w-full bg-[#111827]/60 border border-[#374151]/80 rounded-2xl px-4 py-3.5 text-gray-100 placeholder-gray-500 text-sm focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan/30 disabled:opacity-75"
+                      className="w-full bg-white border-2 border-slate-900 rounded-xl px-4 py-3.5 text-slate-900 font-bold placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-[2px_2px_0px_0px_#0F172A]"
                     />
                     {isSubmitted && (
-                      <div className="flex items-center gap-2 text-sm pt-1">
-                        <span className="text-gray-400">Correct Answer:</span>
-                        <code className="bg-gray-800 text-emerald-400 px-2 py-0.5 rounded font-mono font-medium">
+                      <div className="flex items-center gap-2 text-sm pt-1 font-bold">
+                        <span className="text-slate-600">Correct Answer:</span>
+                        <code className="bg-slate-900 text-white px-3 py-1 rounded-lg font-mono text-xs">
                           {q.correct}
                         </code>
                       </div>
@@ -338,11 +328,11 @@ export default function TrackAssessmentPage() {
 
                 {/* Explanation */}
                 {isSubmitted && q.exp && (
-                  <div className="mt-4 p-4 bg-[#1F2937]/30 border-t border-[#374151]/20 rounded-2xl">
-                    <p className="text-xs text-cyan font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                      <HelpCircle className="w-3.5 h-3.5" /> Explanation
+                  <div className="mt-4 p-4 bg-blue-50 border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_#0F172A]">
+                    <p className="text-xs text-blue-700 font-black uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                      <HelpCircle className="w-4 h-4 text-blue-600 stroke-[2.5]" /> Explanation
                     </p>
-                    <p className="text-xs md:text-sm text-gray-300 leading-relaxed">
+                    <p className="text-xs md:text-sm text-slate-900 font-semibold leading-relaxed">
                       {q.exp}
                     </p>
                   </div>
@@ -354,24 +344,24 @@ export default function TrackAssessmentPage() {
 
         {/* Submit Panel */}
         {!isSubmitted && (
-          <div className="p-6 bg-[#1F2937]/20 border border-[#374151]/40 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="p-6 bg-white border-3 border-slate-900 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[6px_6px_0px_0px_#0F172A]">
             <div className="text-center sm:text-left space-y-1">
-              <h4 className="text-sm font-bold text-gray-200">Ready to submit?</h4>
-              <p className="text-xs text-gray-500">Ensure you have answered all questions. You can retry if you don&apos;t pass.</p>
+              <h4 className="text-sm font-black text-slate-900">Ready to submit?</h4>
+              <p className="text-xs font-semibold text-slate-600">Ensure you have answered all questions. You can retry if you don&apos;t pass.</p>
             </div>
 
             <button
               type="button"
               onClick={handleSubmitQuiz}
-              className="w-full sm:w-auto px-8 py-3 rounded-2xl text-sm font-extrabold bg-cyan text-gray-900 hover:bg-[#00E5FF]/80 transition-colors shadow-lg shadow-cyan/20 flex items-center justify-center gap-1.5"
+              className="w-full sm:w-auto px-8 py-3 rounded-xl text-sm font-black bg-blue-600 text-white border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
             >
               Submit Assessment
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
         )}
       </div>
-      <Toaster position="bottom-right" theme="dark" />
+      <Toaster position="bottom-right" theme="light" />
     </div>
   );
 }
