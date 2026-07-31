@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ExternalLink, Clock, Newspaper, ArrowRight, X, Sparkles, BookOpen } from "lucide-react";
-import Link from "next/link";
+import { Clock, ExternalLink, ArrowRight, X, Newspaper } from "lucide-react";
 import type { NewsArticle } from "@/types";
 
 interface NewsCardProps {
@@ -11,54 +10,42 @@ interface NewsCardProps {
 
 const SOURCE_COLORS: Record<string, string> = {
   "IEEE Spectrum": "bg-blue-600",
-  "Semiconductor Engineering": "bg-emerald-600",
-  "EE Times": "bg-orange-600",
+  "EE Times": "bg-emerald-600",
+  "Semiconductor Engineering": "bg-purple-600",
+  "India Semiconductor Mission": "bg-orange-600",
   "Electronics Weekly": "bg-red-600",
-  "Chip Design Magazine": "bg-indigo-600",
-  "SemiWiki": "bg-teal-600",
-  "Electronics For You": "bg-green-600",
-  "AnandTech": "bg-purple-600",
-  "The Register — Hardware": "bg-slate-600",
-  "Nature Electronics": "bg-rose-600",
-  "Science Daily — Semiconductors": "bg-sky-600",
-  "Science Daily — Electronics": "bg-sky-600",
-  "Phys.org — Semiconductors": "bg-violet-600",
-  "Phys.org — Electronics": "bg-violet-600",
-  "India Semiconductor Mission": "bg-blue-600",
-  "IESA News": "bg-blue-600",
+  "AnandTech": "bg-indigo-600",
 };
 
 function timeAgo(dateString: string): string {
-  if (!dateString) return "Recently";
-  const now = new Date();
   const date = new Date(dateString);
-  const diffMs = now.getTime() - date.getTime();
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffHours / 24);
+  const now = new Date();
+  const diffSec = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (diffHours < 1) return "Just now";
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return date.toLocaleDateString("en-IN", { month: "short", day: "numeric" });
+  if (diffSec < 60) return "Just now";
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+  if (diffSec < 604800) return `${Math.floor(diffSec / 86400)}d ago`;
+
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 export default function NewsCard({ article }: NewsCardProps) {
-  const [imgError, setImgError] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
-  const tags = (article as any).tags || [];
+  const tags = article.tags || [];
   const sourceName = article.source || (article as any).source_name || "Official Source";
   const sourceUrl = article.source_url || (article as any).url || "https://semiengineering.com/";
   const sourceDotColor = SOURCE_COLORS[sourceName] || "bg-blue-600";
-  const internalSlug = article.slug || article.id;
   const articleContent = article.summary || (article as any).content || "Detailed research summary available on official publisher portal.";
 
   return (
     <>
-      <div className="glass-premium rounded-2xl p-5 border border-slate-200 hover:border-blue-500 hover:shadow-md transition-all duration-300 flex flex-col justify-between group h-full">
+      <div className="bg-white rounded-2xl p-5 border-3 border-slate-900 shadow-[5px_5px_0px_0px_#0F172A] hover:shadow-[7px_7px_0px_0px_#0F172A] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group h-full">
         <div>
           {/* TOP BANNER IMAGE */}
-          <div className="w-full h-36 rounded-xl overflow-hidden border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] mb-3.5 relative bg-slate-100">
+          <div className="w-full h-36 rounded-xl overflow-hidden border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] mb-4 relative bg-slate-100">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={!imgError && article.image_url ? article.image_url : "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80"}
@@ -77,29 +64,24 @@ export default function NewsCard({ article }: NewsCardProps) {
               onClick={() => setShowModal(true)}
               className="text-left w-full focus:outline-none"
             >
-              <h3 className="text-slate-900 text-sm font-black line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
+              <h3 className="text-slate-900 text-base font-black line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
                 {article.title}
               </h3>
             </button>
 
-              <div className="flex items-center gap-2.5 mt-2 flex-wrap text-xs">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 border border-blue-100 rounded-full text-[11px] font-semibold text-blue-700">
-                  <span className={`w-2 h-2 rounded-full ${sourceDotColor}`} />
-                  {sourceName}
+            <div className="flex items-center gap-2.5 mt-2 flex-wrap text-xs">
+              {article.published_at && (
+                <span className="flex items-center gap-1 text-slate-600 text-[11px] font-bold">
+                  <Clock size={12} className="stroke-[2.5]" />
+                  {timeAgo(article.published_at)}
                 </span>
-                {article.published_at && (
-                  <span className="flex items-center gap-1 text-slate-500 text-[11px] font-medium">
-                    <Clock size={12} />
-                    {timeAgo(article.published_at)}
-                  </span>
-                )}
-              </div>
+              )}
             </div>
           </div>
 
           {/* Article Summary */}
           {article.summary && (
-            <p className="text-slate-600 text-xs mt-3 line-clamp-2 leading-relaxed font-normal">
+            <p className="text-slate-700 text-xs mt-3 line-clamp-2 leading-relaxed font-medium">
               {article.summary}
             </p>
           )}
@@ -110,9 +92,9 @@ export default function NewsCard({ article }: NewsCardProps) {
               {tags.slice(0, 3).map((tag: string) => (
                 <span
                   key={tag}
-                  className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[10px] font-semibold border border-slate-200"
+                  className="px-2 py-0.5 bg-blue-50 text-blue-900 rounded-md text-[10px] font-black border border-slate-900 shadow-[1px_1px_0px_0px_#0F172A]"
                 >
-                  {tag}
+                  #{tag}
                 </span>
               ))}
             </div>
@@ -120,96 +102,87 @@ export default function NewsCard({ article }: NewsCardProps) {
         </div>
 
         {/* Action Footer */}
-        <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-100">
+        <div className="flex items-center justify-between pt-4 mt-4 border-t-2 border-slate-900">
           <button
             onClick={() => setShowModal(true)}
-            className="text-xs font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-1"
+            className="text-xs font-black text-slate-900 hover:text-blue-600 transition flex items-center gap-1"
           >
             <span>Read Summary</span>
-            <ArrowRight size={13} />
+            <ArrowRight size={13} className="stroke-[3]" />
           </button>
 
           <a
             href={sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-full border border-blue-200 transition shadow-2xs"
+            className="inline-flex items-center gap-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-xl border-2 border-slate-900 transition shadow-[2px_2px_0px_0px_#0F172A]"
           >
             <span>Official Source</span>
-            <ExternalLink size={13} />
+            <ExternalLink size={13} className="stroke-[2.5]" />
           </a>
         </div>
       </div>
 
-      {/* DETAILED POPUP MODAL */}
+      {/* MODAL VIEW */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl border-3 border-slate-900 shadow-[8px_8px_0px_0px_#0F172A] max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 relative">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute right-5 top-5 p-2 rounded-full text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              className="absolute top-4 right-4 p-1.5 rounded-xl border-2 border-slate-900 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold transition shadow-[2px_2px_0px_0px_#0F172A]"
+              aria-label="Close modal"
             >
-              <X className="w-5 h-5" />
+              <X size={18} className="stroke-[3]" />
             </button>
 
-            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 mb-3">
-              <Sparkles className="w-4 h-4" />
-              <span>Semiconductor Executive Briefing</span>
-            </div>
-
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug mb-4">
-              {article.title}
-            </h2>
-
-            <div className="flex items-center gap-3 mb-6 flex-wrap text-xs">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full font-semibold text-blue-700">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg text-xs font-black text-slate-900 shadow-[2px_2px_0px_0px_#0F172A]">
                 <span className={`w-2 h-2 rounded-full ${sourceDotColor}`} />
                 {sourceName}
               </span>
               {article.published_at && (
-                <span className="text-slate-500 font-medium flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />
+                <span className="text-slate-600 text-xs font-bold flex items-center gap-1">
+                  <Clock size={12} className="stroke-[2.5]" />
                   {timeAgo(article.published_at)}
                 </span>
               )}
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-6 text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">
-              <h4 className="font-bold text-slate-900 text-sm mb-2 flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-blue-600" /> Executive Summary
-              </h4>
+            <h2 className="text-xl font-black text-slate-900 mb-4 leading-snug">
+              {article.title}
+            </h2>
+
+            {/* Modal Image */}
+            <div className="w-full h-56 rounded-xl overflow-hidden border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] mb-5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={!imgError && article.image_url ? article.image_url : "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"}
+                alt={article.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="prose prose-slate max-w-none text-slate-800 text-sm font-medium leading-relaxed whitespace-pre-line mb-6">
               {articleContent}
             </div>
 
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mb-6">
-                {tags.map((t: string) => (
-                  <span key={t} className="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold border border-slate-200">
-                    {t}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-100">
-              <Link
-                href={`/news/${internalSlug}`}
-                onClick={() => setShowModal(false)}
-                className="text-xs font-semibold text-slate-600 hover:text-blue-600 transition"
-              >
-                View Full Dedicated News Page →
-              </Link>
+            <div className="flex items-center justify-between pt-4 border-t-2 border-slate-900">
               <a
                 href={sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 btn-glow font-semibold text-xs rounded-full shadow-md"
+                className="inline-flex items-center gap-2 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] transition"
               >
-                Visit Official Source Article <ExternalLink className="w-4 h-4" />
+                <span>Read Full Article on {sourceName}</span>
+                <ExternalLink size={14} className="stroke-[2.5]" />
               </a>
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 text-xs font-black text-slate-900 border-2 border-slate-900 rounded-xl hover:bg-slate-100 transition shadow-[2px_2px_0px_0px_#0F172A]"
+              >
+                Close
+              </button>
             </div>
-
           </div>
         </div>
       )}
