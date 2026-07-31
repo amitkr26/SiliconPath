@@ -60,6 +60,29 @@ body {
 }
 
 /* ==========================================================================
+   Custom Neo-Brutalist Electric Blue Scrollbar
+   ========================================================================== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FAF9F6;
+  border-left: 2px solid #0F172A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2563EB;
+  border: 2px solid #0F172A;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1D4ED8;
+}
+
+/* ==========================================================================
    Neo-Brutalist Component Classes
    ========================================================================== */
 
