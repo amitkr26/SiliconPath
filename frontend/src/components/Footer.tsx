@@ -40,7 +40,7 @@ export default function Footer() {
               <Link href="/network" className="text-slate-400 hover:text-blue-400 transition-colors">Hardware Network</Link>
               <Link href="/news" className="text-slate-400 hover:text-blue-400 transition-colors">News Feed</Link>
               <Link href="/community" className="text-slate-400 hover:text-blue-400 transition-colors">Community Forum</Link>
-              <Link href="/chat" className="text-slate-400 hover:text-blue-400 transition-colors">Ask AI Assistant</Link>
+              <Link href="/ask-ai" className="text-slate-400 hover:text-blue-400 transition-colors">Ask AI Assistant</Link>
               <Link href="/resume" className="text-slate-400 hover:text-blue-400 transition-colors">AI Resume Builder</Link>
             </div>
           </div>

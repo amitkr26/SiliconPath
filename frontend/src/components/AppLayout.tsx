@@ -9,7 +9,7 @@ import { Sparkles } from "lucide-react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isChat = pathname === "/chat";
+  const isChat = pathname === "/chat" || pathname === "/ask-ai";
   const [aiModalOpen, setAiModalOpen] = useState(false);
 
   if (isChat) {

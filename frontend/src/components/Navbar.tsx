@@ -138,22 +138,13 @@ export default function Navbar() {
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white text-slate-900 hover:bg-slate-100 text-xs font-black border-2 border-slate-900 rounded-xl shadow-[2.5px_2.5px_0px_0px_#0F172A] transition-all hover:-translate-y-0.5"
-              >
-                <LogIn className="w-3.5 h-3.5 stroke-[2.5]" />
-                Sign In
-              </Link>
-              <Link
-                href="/signup"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-black border-2 border-slate-900 rounded-xl shadow-[2.5px_2.5px_0px_0px_#0F172A] transition-all hover:-translate-y-0.5"
-              >
-                <UserPlus className="w-3.5 h-3.5 stroke-[2.5]" />
-                Sign Up
-              </Link>
-            </div>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black border-2 border-slate-900 rounded-xl shadow-[3px_3px_0px_0px_#0F172A] transition-all hover:-translate-y-0.5"
+            >
+              <LogIn className="w-4 h-4 stroke-[2.5]" />
+              Sign In / Join
+            </Link>
           )}
         </div>
 

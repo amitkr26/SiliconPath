@@ -180,22 +180,24 @@ export default function AdminPage() {
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-2">Username</label>
+              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-2">Username / Admin Email</label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                placeholder="amitkr26 or amitkrbsc26@gmail.com"
                 required
                 className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-sm font-black text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-2">Password</label>
+              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-2">Admin Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="amitkr26"
                 required
                 className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-sm font-black text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
               />
@@ -209,9 +211,15 @@ export default function AdminPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-[11px] font-bold text-slate-500">
-              Default Admin Access: Username <code className="bg-slate-100 border border-slate-900 px-1.5 py-0.5 rounded text-blue-600">amitkr26</code> | Password <code className="bg-slate-100 border border-slate-900 px-1.5 py-0.5 rounded text-blue-600">amitkr26</code>
+          <div className="mt-6 text-center space-y-1">
+            <p className="text-[11px] font-bold text-slate-600">
+              Admin Username: <code className="bg-slate-100 border border-slate-900 px-1.5 py-0.5 rounded text-blue-600 font-mono">amitkr26</code>
+            </p>
+            <p className="text-[11px] font-bold text-slate-600">
+              Admin Email: <code className="bg-slate-100 border border-slate-900 px-1.5 py-0.5 rounded text-blue-600 font-mono">amitkrbsc26@gmail.com</code>
+            </p>
+            <p className="text-[11px] font-bold text-slate-600">
+              Admin Password: <code className="bg-slate-100 border border-slate-900 px-1.5 py-0.5 rounded text-blue-600 font-mono">amitkr26</code>
             </p>
           </div>
         </div>

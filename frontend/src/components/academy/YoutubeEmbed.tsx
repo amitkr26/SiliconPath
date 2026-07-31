@@ -1,5 +1,5 @@
 // src/components/academy/YoutubeEmbed.tsx
-import React from "react";
+import React, { useState } from "react";
 import { Youtube, ExternalLink, Play } from "lucide-react";
 
 interface YoutubeEmbedProps {
@@ -28,12 +28,15 @@ export const YoutubeEmbed: React.FC<YoutubeEmbedProps> = ({
   notes,
   watchFromSeconds
 }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
   const cleanVideoId = extractYoutubeId(videoId);
-  let embedUrl = `https://www.youtube-nocookie.com/embed/${cleanVideoId}?rel=0&autoplay=0`;
+  
+  let embedUrl = `https://www.youtube.com/embed/${cleanVideoId}?autoplay=1&rel=0`;
   if (watchFromSeconds) {
     embedUrl += `&start=${watchFromSeconds}`;
   }
   const directWatchUrl = `https://www.youtube.com/watch?v=${cleanVideoId}`;
+  const thumbnailUrl = `https://img.youtube.com/vi/${cleanVideoId}/hqdefault.jpg`;
 
   return (
     <div className="w-full bg-white border-3 border-slate-900 rounded-2xl overflow-hidden shadow-[5px_5px_0px_0px_#0F172A] transition-all duration-300 hover:shadow-[7px_7px_0px_0px_#0F172A]">
@@ -51,20 +54,39 @@ export const YoutubeEmbed: React.FC<YoutubeEmbedProps> = ({
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 text-[11px] font-black bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-xl border border-white shadow-[2px_2px_0px_0px_#FFFFFF] transition-all shrink-0"
         >
-          <span>{channelName || "YouTube Channel"}</span>
+          <span>{channelName || "Neso Academy"}</span>
           <ExternalLink className="w-3 h-3 stroke-[2.5]" />
         </a>
       </div>
 
       {/* Video Container (16:9 Aspect Ratio) */}
-      <div className="relative w-full aspect-video bg-slate-950">
-        <iframe
-          src={embedUrl}
-          title={title}
-          className="absolute top-0 left-0 w-full h-full border-0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-        ></iframe>
+      <div className="relative w-full aspect-video bg-slate-950 flex items-center justify-center">
+        {isPlaying ? (
+          <iframe
+            src={embedUrl}
+            title={title}
+            className="absolute top-0 left-0 w-full h-full border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          ></iframe>
+        ) : (
+          <div 
+            onClick={() => setIsPlaying(true)}
+            className="relative w-full h-full cursor-pointer group flex items-center justify-center"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={thumbnailUrl}
+              alt={title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90"
+            />
+            <div className="absolute inset-0 bg-slate-950/40 group-hover:bg-slate-950/20 transition-all flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-red-600 border-3 border-slate-900 flex items-center justify-center text-white shadow-[4px_4px_0px_0px_#0F172A] group-hover:scale-110 transition-transform">
+                <Play className="w-8 h-8 fill-current ml-1" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Action Bar & Helpful Notes */}
