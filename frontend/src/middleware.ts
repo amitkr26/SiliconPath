@@ -30,7 +30,7 @@ function addSecurityHeaders(response: NextResponse): void {
     "default-src 'self'",
     "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.supabase.co https://plausible.io https://js.sentry-cdn.com",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://*.supabase.co https://*.vercel.app https://img.youtube.com",
+    "img-src 'self' data: blob: https://*.supabase.co https://*.vercel.app https://img.youtube.com https://*.unsplash.com https://images.unsplash.com",
     "font-src 'self'",
     "connect-src 'self' https://*.supabase.co https://plausible.io https://o4506458839588864.ingest.us.sentry.io",
     "frame-src 'self' https://www.youtube.com",
