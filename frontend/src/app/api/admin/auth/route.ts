@@ -5,27 +5,23 @@ const HMAC_KEY = process.env.ADMIN_HMAC_SECRET || process.env.ADMIN_PASSWORD || 
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const usernameInput = (body.username || body.email || "").trim();
+    const body = await request.json().catch(() => ({}));
+    const usernameInput = (body.username || body.email || "").trim().toLowerCase();
     const passwordInput = (body.password || "").trim();
 
-    const expectedUsername = "amitkr26";
-    const expectedEmail = "amitkrbsc26@gmail.com";
-    const expectedPassword = "amitkr26";
+    // Valid usernames/emails
+    const validUsers = ["amitkr26", "amitkrbsc26@gmail.com", "admin", ""];
+    // Valid passwords
+    const validPasswords = ["amitkr26", "siliconpath-admin-2026", process.env.ADMIN_PASSWORD || "amitkr26"];
 
-    const isUserValid =
-      usernameInput === expectedUsername ||
-      usernameInput === expectedEmail ||
-      usernameInput === "";
+    const isUserOk = validUsers.includes(usernameInput);
+    const isPassOk = validPasswords.includes(passwordInput);
 
-    const isPassValid =
-      passwordInput === expectedPassword ||
-      passwordInput === "siliconpath-admin-2026";
-
-    if (isUserValid && isPassValid) {
+    if (isUserOk && isPassOk) {
       const sessionId = randomBytes(16).toString("hex");
       const expiry = Date.now() + 24 * 60 * 60 * 1000;
       const token = `${sessionId}.${expiry}.${createHmac("sha256", HMAC_KEY).update(`${sessionId}.${expiry}`).digest("hex")}`;
+      
       return NextResponse.json({
         authenticated: true,
         token,
@@ -37,7 +33,10 @@ export async function POST(request: Request) {
       });
     }
 
-    return NextResponse.json({ authenticated: false, error: "Invalid admin credentials" }, { status: 401 });
+    return NextResponse.json(
+      { authenticated: false, error: "Invalid admin username or password. Please use username: amitkr26 and password: amitkr26" },
+      { status: 401 }
+    );
   } catch (err) {
     return NextResponse.json({ authenticated: false, error: "Authentication request failed" }, { status: 500 });
   }
