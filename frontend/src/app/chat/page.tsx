@@ -337,15 +337,6 @@ export default function ChatPage() {
             >
               <Menu className="w-4 h-4" />
             </button>
-            {sidebarCollapsed && (
-              <button
-                onClick={() => setSidebarCollapsed(false)}
-                className="hidden md:flex p-1.5 rounded-lg border-2 border-slate-900 bg-white text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] hover:bg-blue-50 hover:text-blue-600 transition"
-                title="Expand Sidebar"
-              >
-                <Menu className="w-4 h-4" />
-              </button>
-            )}
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white font-bold shadow-[2px_2px_0px_0px_#0F172A]">
                 <Sparkles className="w-4 h-4 stroke-[2.5]" />
