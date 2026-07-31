@@ -59,27 +59,44 @@ body {
   overflow-x: hidden;
 }
 
+html, body, * {
+  scrollbar-color: #2563EB #0F172A !important;
+  scrollbar-width: auto !important;
+}
+
 /* ==========================================================================
    Custom Neo-Brutalist Electric Blue Scrollbar
    ========================================================================== */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 12px !important;
+  height: 12px !important;
 }
 
-::-webkit-scrollbar-track {
-  background: #FAF9F6;
-  border-left: 2px solid #0F172A;
+::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background: #0F172A !important;
+  border-left: 2px solid #0F172A !important;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #2563EB;
-  border: 2px solid #0F172A;
-  border-radius: 4px;
+::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background: #2563EB !important;
+  border: 2px solid #0F172A !important;
+  border-radius: 6px !important;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #1D4ED8;
+::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background: #1D4ED8 !important;
 }
 
 /* ==========================================================================
