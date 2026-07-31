@@ -57,24 +57,30 @@ export default function NewsCard({ article }: NewsCardProps) {
     <>
       <div className="glass-premium rounded-2xl p-5 border border-slate-200 hover:border-blue-500 hover:shadow-md transition-all duration-300 flex flex-col justify-between group h-full">
         <div>
-          <div className="flex items-start gap-3.5">
+          {/* TOP BANNER IMAGE */}
+          <div className="w-full h-36 rounded-xl overflow-hidden border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] mb-3.5 relative bg-slate-100">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={!imgError && article.image_url ? article.image_url : "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80"}
+              src={!imgError && article.image_url ? article.image_url : "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80"}
               alt={article.title}
-              className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={() => setImgError(true)}
             />
+            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border-2 border-slate-900 rounded-lg text-[11px] font-black text-slate-900 shadow-[2px_2px_0px_0px_#0F172A]">
+              <span className={`w-2 h-2 rounded-full ${sourceDotColor}`} />
+              {sourceName}
+            </span>
+          </div>
 
-            <div className="flex-1 min-w-0">
-              <button
-                onClick={() => setShowModal(true)}
-                className="text-left w-full focus:outline-none"
-              >
-                <h3 className="text-slate-900 text-sm font-bold line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
-                  {article.title}
-                </h3>
-              </button>
+          <div className="flex-1 min-w-0">
+            <button
+              onClick={() => setShowModal(true)}
+              className="text-left w-full focus:outline-none"
+            >
+              <h3 className="text-slate-900 text-sm font-black line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
+                {article.title}
+              </h3>
+            </button>
 
               <div className="flex items-center gap-2.5 mt-2 flex-wrap text-xs">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-50 border border-blue-100 rounded-full text-[11px] font-semibold text-blue-700">
