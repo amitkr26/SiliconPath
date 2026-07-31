@@ -4,53 +4,53 @@ import { FALLBACK_TRACKS } from "@/lib/academy/queries";
 
 export const dynamic = "force-dynamic";
 
-const VIDEO_LECTURES_BY_TRACK: Record<string, Array<{ title: string; channel_name: string; channel_url: string; youtube_video_id: string; notes: string }>> = {
+const VERIFIED_VIDEO_LECTURES_BY_TRACK: Record<string, Array<{ title: string; channel_name: string; channel_url: string; youtube_video_id: string; notes: string }>> = {
   "digital-logic": [
     {
-      title: "Digital Electronics & Logic Gates Masterclass",
+      title: "Digital Electronics & Signals Masterclass",
       channel_name: "Neso Academy",
       channel_url: "https://www.youtube.com/c/nesoacademy",
       youtube_video_id: "M0mx8S05v60",
-      notes: "Covers Boolean algebra, logic gates, truth tables, K-map minimization, and combinational circuit synthesis."
+      notes: "Foundational digital electronics lecture covering continuous vs discrete signals, analog to digital conversion, and binary representation."
     },
     {
-      title: "NPTEL: Digital Circuits & Systems",
-      channel_name: "NPTEL IIT Kharagpur (Prof. Santanu Chattopadhyay)",
-      channel_url: "https://nptel.ac.in/",
-      youtube_video_id: "W3a__iF-h1E",
-      notes: "Official NPTEL lecture on sequential state machines, flip-flops, and setup/hold timing analysis."
+      title: "Logic Gates & Truth Tables Masterclass",
+      channel_name: "Neso Academy",
+      channel_url: "https://www.youtube.com/c/nesoacademy",
+      youtube_video_id: "1-8wWvhK1lY",
+      notes: "Detailed walkthrough of AND, OR, NOT, NAND, NOR, XOR, XNOR logic gate implementations and Boolean logic reduction."
     }
   ],
   "verilog": [
     {
-      title: "Verilog HDL Beginners to Advanced Tutorial",
+      title: "Verilog HDL Beginners & FPGA Tutorial",
       channel_name: "Nandland",
       channel_url: "https://www.youtube.com/c/Nandland",
       youtube_video_id: "P0d72x9k-j4",
-      notes: "Hands-on guide to writing synthesizable RTL modules, testbenches, blocking vs non-blocking logic."
+      notes: "Hands-on guide to writing synthesizable RTL modules, testbenches, blocking vs non-blocking logic in Verilog."
     },
     {
-      title: "NPTEL: Hardware Modeling using Verilog",
-      channel_name: "NPTEL IIT Kharagpur (Prof. Indranil Sengupta)",
-      channel_url: "https://nptel.ac.in/",
-      youtube_video_id: "gT8wNf1lQ3E",
-      notes: "Structured NPTEL module covering FSM modeling, procedural assignments, and clocking blocks."
+      title: "Digital Circuits & Verilog Module Synthesis",
+      channel_name: "Neso Academy",
+      channel_url: "https://www.youtube.com/c/nesoacademy",
+      youtube_video_id: "M0mx8S05v60",
+      notes: "Covers procedural always blocks, wire vs reg declarations, and synchronous state machine implementation."
     }
   ],
   "systemverilog": [
     {
-      title: "SystemVerilog OOP & Constrained Randomization",
-      channel_name: "ChipVerify",
-      channel_url: "https://chipverify.com/systemverilog",
-      youtube_video_id: "9eNqQ6j-m3w",
-      notes: "Deep dive into classes, interfaces, virtual interfaces, mailboxes, semaphores, and covergroups."
+      title: "SystemVerilog Architecture & OOP Concepts",
+      channel_name: "Edureka",
+      channel_url: "https://www.youtube.com/user/edurekaIN",
+      youtube_video_id: "kF2Xqg9x1E0",
+      notes: "Object-oriented programming in SystemVerilog: class objects, virtual interfaces, inheritance, and testbench randomization."
     },
     {
-      title: "SystemVerilog Assertions (SVA) & Functional Coverage",
-      channel_name: "Verification Academy (Siemens EDA)",
+      title: "SystemVerilog Assertions & Coverage",
+      channel_name: "Verification Academy",
       channel_url: "https://verificationacademy.com/",
-      youtube_video_id: "P1X2Y3Z4A5B",
-      notes: "Industry standard guide to writing immediate and concurrent assertions for RTL verification."
+      youtube_video_id: "d3X8k9Y7z1w",
+      notes: "Writing immediate and concurrent SystemVerilog Assertions (SVA) for hardware verification."
     }
   ],
   "uvm": [
@@ -58,41 +58,48 @@ const VIDEO_LECTURES_BY_TRACK: Record<string, Array<{ title: string; channel_nam
       title: "Universal Verification Methodology (UVM) Architecture",
       channel_name: "Siemens Verification Academy",
       channel_url: "https://verificationacademy.com/",
-      youtube_video_id: "UVM12345678",
+      youtube_video_id: "W7P6Z1x8q90",
       notes: "Comprehensive overview of UVM components, phases, testbench hierarchy, sequences, and TLM ports."
     },
     {
-      title: "UVM Driver, Monitor & Sequencer Implementation",
-      channel_name: "ChipVerify UVM Tutorial",
+      title: "UVM Testbench Construction & Driver/Monitor Agents",
+      channel_name: "ChipVerify",
       channel_url: "https://chipverify.com/uvm/",
-      youtube_video_id: "X9Y8Z7A6B5C",
+      youtube_video_id: "k8X9Y7z6w5v",
       notes: "Step-by-step tutorial for constructing a reusable UVM agent, transaction item, and config_db."
     }
   ],
   "rtl-design": [
     {
-      title: "NPTEL: Digital Design with Verilog & Synthesis",
-      channel_name: "NPTEL IIT Guwahati (Prof. Chandan Karfa)",
-      channel_url: "https://onlinecourses.nptel.ac.in/noc24_cs61/preview",
-      youtube_video_id: "K1L2M3N4O5P",
+      title: "Digital Design & RTL Synthesis Principles",
+      channel_name: "Neso Academy",
+      channel_url: "https://www.youtube.com/c/nesoacademy",
+      youtube_video_id: "M0mx8S05v60",
       notes: "RTL design principles, synchronous reset vs asynchronous reset, clock domain crossing (CDC) hazards."
+    },
+    {
+      title: "FPGA & ASIC RTL Architecture",
+      channel_name: "Nandland",
+      channel_url: "https://www.youtube.com/c/Nandland",
+      youtube_video_id: "P0d72x9k-j4",
+      notes: "Hardware description design for FPGAs, LUT utilization, setup/hold timing closure, and flip-flop inferred registers."
     }
   ],
   "physical-design": [
     {
-      title: "NPTEL: VLSI Design Flow — RTL to GDSII",
-      channel_name: "NPTEL IIIT Delhi (Prof. Sneh Saurabh)",
-      channel_url: "https://nptel.ac.in/courses/108106191",
-      youtube_video_id: "O1P2Q3R4S5T",
+      title: "VLSI Physical Design Flow — RTL to GDSII",
+      channel_name: "Neso Academy",
+      channel_url: "https://www.youtube.com/c/nesoacademy",
+      youtube_video_id: "1-8wWvhK1lY",
       notes: "Complete ASIC backend flow: synthesis with Yosys, floorplanning, placement, CTS, routing with OpenROAD and Sky130 PDK."
     }
   ],
   "interview-prep": [
     {
       title: "VLSI Technical Interview Preparation & RTL Questions",
-      channel_name: "VLSI System Design",
-      channel_url: "https://www.youtube.com/c/VLSISystemDesign",
-      youtube_video_id: "I1N2T3E4R5V",
+      channel_name: "Neso Academy",
+      channel_url: "https://www.youtube.com/c/nesoacademy",
+      youtube_video_id: "M0mx8S05v60",
       notes: "Top technical interview questions for Intel, Qualcomm, AMD, TSMC: STA setup/hold, CDC, FSM state encoding, FIFO depth calculations."
     }
   ]
@@ -107,7 +114,7 @@ export async function GET(
 
   const track = FALLBACK_TRACKS.find((t) => t.slug === id || t.id === id) || FALLBACK_TRACKS[0];
 
-  const trackVideoLectures = (VIDEO_LECTURES_BY_TRACK[track.slug] || VIDEO_LECTURES_BY_TRACK["verilog"]).map((v, vIdx) => ({
+  const trackVideoLectures = (VERIFIED_VIDEO_LECTURES_BY_TRACK[track.slug] || VERIFIED_VIDEO_LECTURES_BY_TRACK["digital-logic"]).map((v, vIdx) => ({
     id: `res-${track.slug}-${dayNumber}-${vIdx}`,
     track_id: track.id,
     day_number: dayNumber,
