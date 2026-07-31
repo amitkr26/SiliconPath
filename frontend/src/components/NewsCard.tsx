@@ -58,19 +58,13 @@ export default function NewsCard({ article }: NewsCardProps) {
       <div className="glass-premium rounded-2xl p-5 border border-slate-200 hover:border-blue-500 hover:shadow-md transition-all duration-300 flex flex-col justify-between group h-full">
         <div>
           <div className="flex items-start gap-3.5">
-            {article.image_url && !imgError ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={article.image_url}
-                alt=""
-                className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border border-slate-200"
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center flex-shrink-0">
-                <Newspaper size={22} />
-              </div>
-            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={!imgError && article.image_url ? article.image_url : "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80"}
+              alt={article.title}
+              className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
+              onError={() => setImgError(true)}
+            />
 
             <div className="flex-1 min-w-0">
               <button
