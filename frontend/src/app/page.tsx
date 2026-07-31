@@ -1,16 +1,27 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   ArrowRight, Sparkles, Cpu, CircuitBoard, HardDrive, Wifi,
-  GraduationCap, Award, ShieldCheck, UserCheck, Building2, BookOpen, Bot, CheckCircle2, Play
+  GraduationCap, Award, ShieldCheck, UserCheck, Building2, BookOpen, Bot, CheckCircle2, Search
 } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
 import type { Opportunity, NewsArticle } from "@/types";
 import OpportunityCard from "@/components/OpportunityCard";
 import NewsCard from "@/components/NewsCard";
-import SubscribeSection from "@/components/SubscribeSection";
-import ReviewsSection from "@/components/ReviewsSection";
-import FaqSection from "@/components/FaqSection";
+
+// Ponytail Lazy Loading for heavy client interactive components
+const ReviewsSection = dynamic(() => import("@/components/ReviewsSection"), {
+  loading: () => <div className="h-64 bg-white border-3 border-slate-900 rounded-2xl animate-pulse" />,
+});
+
+const FaqSection = dynamic(() => import("@/components/FaqSection"), {
+  loading: () => <div className="h-64 bg-white border-3 border-slate-900 rounded-2xl animate-pulse" />,
+});
+
+const SubscribeSection = dynamic(() => import("@/components/SubscribeSection"), {
+  loading: () => <div className="h-48 bg-blue-600 border-3 border-slate-900 rounded-2xl animate-pulse" />,
+});
 
 async function getStats() {
   if (!supabaseAdmin?.from) {
@@ -169,7 +180,7 @@ export default async function Home() {
   return (
     <div className="relative min-h-screen bg-[#FAF9F6] text-slate-900 pb-20">
       
-      {/* HERO SECTION */}
+      {/* 1. HERO SECTION */}
       <section className="relative pt-16 pb-20 overflow-hidden bg-blue-50/60 border-b-4 border-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           
@@ -207,10 +218,12 @@ export default async function Home() {
             </Link>
           </div>
 
-          {/* QUICK TARGET TAGS */}
+          {/* HIGH-INTENT KEYWORD SEARCH PILLS */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5 text-xs text-slate-900">
-            <span className="font-extrabold uppercase text-slate-700">Popular Searches:</span>
-            {["DRDO JRF", "ISRO Scientist", "IIT Bombay PhD", "VLSI Verification", "RTL Design", "Qualcomm", "Arm Ltd"].map((tag) => (
+            <span className="font-extrabold uppercase text-slate-700 flex items-center gap-1">
+              <Search className="w-3.5 h-3.5 text-blue-600" /> Popular Keywords:
+            </span>
+            {["DRDO JRF", "ISRO Scientist", "IIT Bombay PhD", "VLSI Verification", "RTL Design", "Qualcomm", "SystemVerilog", "Physical Design"].map((tag) => (
               <Link
                 key={tag}
                 href={`/opportunities?search=${encodeURIComponent(tag)}`}
@@ -224,7 +237,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* STATS STRIP */}
+      {/* 2. REAL-TIME STATS & SOCIAL PROOF STRIP */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 text-center shadow-[5px_5px_0px_0px_#0F172A]">
@@ -246,7 +259,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* DEDICATED SECTION 1: USER ROLES (JOB SEEKERS VS RECRUITERS) */}
+      {/* 3. DUAL USER ROLES SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
         <div className="text-center max-w-3xl mx-auto mb-10">
           <span className="px-3.5 py-1 bg-blue-600 text-white rounded-lg border-2 border-slate-900 text-xs font-black shadow-[2px_2px_0px_0px_#0F172A] uppercase">
@@ -292,7 +305,7 @@ export default async function Home() {
               href="/signup?role=candidate"
               className="w-full text-center py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] transition-all block"
             >
-              JOIN AS JOB SEEKERS / RESEARCHER
+              JOIN AS JOB SEEKER / RESEARCHER
             </Link>
           </div>
 
@@ -333,7 +346,54 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* DEDICATED SECTION 2: VLSI ACADEMY CURRICULUM */}
+      {/* 4. BROWSE BY SPECIALIZATION GRID */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Browse by Specialization</h2>
+            <p className="text-slate-600 text-sm mt-1 font-semibold">Targeted listings across core microelectronics and research sectors</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {categories.map(({ name, icon: Icon, count, href }) => (
+            <Link
+              key={name}
+              href={href}
+              className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-[3.5px_3.5px_0px_0px_#0F172A] hover:shadow-[5.5px_5.5px_0px_0px_#0F172A] hover:-translate-y-1 transition-all group block"
+            >
+              <div className="w-12 h-12 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-[2px_2px_0px_0px_#0F172A]">
+                <Icon className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base group-hover:text-blue-600 transition-colors">{name}</h3>
+              <p className="text-slate-500 text-xs mt-1.5 font-bold">{count}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* 5. FEATURED VERIFIED OPPORTUNITIES */}
+      {opportunities.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Verified Live Opportunities</h2>
+              <p className="text-slate-600 text-sm mt-1 font-semibold">Direct application links to official career portals</p>
+            </div>
+            <Link href="/opportunities" className="text-blue-600 text-sm font-extrabold hover:underline flex items-center gap-1">
+              View All ({stats.total}) <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {opportunities.map((opp) => (
+              <OpportunityCard key={opp.id} opportunity={opp} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 6. VLSI ACADEMY CURRICULUM SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
         <div className="bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] space-y-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-3 border-slate-900 pb-6">
@@ -380,7 +440,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* DEDICATED SECTION 3: ASK AI CAREER ASSISTANT */}
+      {/* 7. ASK AI CAREER ASSISTANT SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
         <div className="bg-blue-600 text-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="space-y-4 max-w-2xl">
@@ -410,64 +470,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* SPECIALIZATIONS GRID */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Browse by Specialization</h2>
-            <p className="text-slate-600 text-sm mt-1 font-semibold">Targeted listings across core microelectronics and research sectors</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {categories.map(({ name, icon: Icon, count, href }) => (
-            <Link
-              key={name}
-              href={href}
-              className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-[3.5px_3.5px_0px_0px_#0F172A] hover:shadow-[5.5px_5.5px_0px_0px_#0F172A] hover:-translate-y-1 transition-all group block"
-            >
-              <div className="w-12 h-12 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-[2px_2px_0px_0px_#0F172A]">
-                <Icon className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" />
-              </div>
-              <h3 className="font-extrabold text-slate-900 text-base group-hover:text-blue-600 transition-colors">{name}</h3>
-              <p className="text-slate-500 text-xs mt-1.5 font-bold">{count}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* FEATURED VERIFIED OPPORTUNITIES */}
-      {opportunities.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Verified Live Opportunities</h2>
-              <p className="text-slate-600 text-sm mt-1 font-semibold">Direct application links to official career portals</p>
-            </div>
-            <Link href="/opportunities" className="text-blue-600 text-sm font-extrabold hover:underline flex items-center gap-1">
-              View All ({stats.total}) <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {opportunities.map((opp) => (
-              <OpportunityCard key={opp.id} opportunity={opp} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* REVIEWS SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
-        <ReviewsSection />
-      </section>
-
-      {/* FAQS SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
-        <FaqSection />
-      </section>
-
-      {/* INDUSTRY NEWS */}
+      {/* 8. SEMICONDUCTOR INDUSTRY NEWS FEED */}
       {news.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
           <div className="flex items-center justify-between mb-8">
@@ -488,7 +491,17 @@ export default async function Home() {
         </section>
       )}
 
-      {/* SUBSCRIBE & ALERT SECTION */}
+      {/* 9. PONYTAIL LAZY LOADED REVIEWS SECTION */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
+        <ReviewsSection />
+      </section>
+
+      {/* 10. PONYTAIL LAZY LOADED FAQS SECTION */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
+        <FaqSection />
+      </section>
+
+      {/* 11. PONYTAIL LAZY LOADED SUBSCRIBE & ALERT SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
         <SubscribeSection />
       </section>
