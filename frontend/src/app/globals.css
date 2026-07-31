@@ -10,7 +10,7 @@
 :root {
   --bg:               #FAF9F6;
   --surface:          #FFFFFF;
-  --surface-raised:   #FEF9C3;
+  --surface-raised:   #DBEAFE;
   --surface-sunken:   #F1F5F9;
   --text:             #0F172A;
   --text-secondary:   #334155;
@@ -21,9 +21,9 @@
 
   --primary:          #2563EB;
   --primary-hover:    #1D4ED8;
-  --primary-light:    #FEF08A;
+  --primary-light:    #DBEAFE;
 
-  --accent-yellow:    #FACC15;
+  --accent-yellow:    #2563EB;
   --accent-blue:      #3B82F6;
   --accent-cyan:      #06B6D4;
   --accent-emerald:   #10B981;
@@ -32,7 +32,7 @@
   --accent-orange:    #F97316;
 
   --success:          #059669;
-  --warning:          #D97706;
+  --warning:          #2563EB;
   --error:            #DC2626;
 
   --shadow-brutal:    4px 4px 0px 0px #0F172A;
@@ -95,8 +95,8 @@ body {
 
 /* Brutal Buttons */
 .btn-glow, .btn-brutal {
-  background: #FACC15;
-  color: #0F172A;
+  background: #2563EB;
+  color: #FFFFFF;
   font-weight: 700;
   border: 2px solid #0F172A;
   box-shadow: 4px 4px 0px 0px #0F172A;
@@ -104,7 +104,7 @@ body {
 }
 
 .btn-glow:hover, .btn-brutal:hover {
-  background: #EAB308;
+  background: #1D4ED8;
   transform: translate(-2px, -2px);
   box-shadow: 6px 6px 0px 0px #0F172A;
 }
@@ -136,7 +136,8 @@ body {
 
 /* Brutal Badge */
 .badge-live, .badge-brutal {
-  background: #FEF08A;
+  background: #2563EB;
+  color: #FFFFFF;
   border: 2px solid #0F172A;
   color: #0F172A;
   font-weight: 700;
