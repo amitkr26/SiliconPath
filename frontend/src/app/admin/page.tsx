@@ -36,8 +36,8 @@ const MONITORED_SCRAPER_SOURCES = [
 export default function AdminPage() {
   const { user } = useUser();
   const [authenticated, setAuthenticated] = useState(false);
-  const [username, setUsername] = useState("amitkr26");
-  const [password, setPassword] = useState("amitkr26");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"scrapers" | "sources" | "ai" | "opportunities" | "subscribers">("scrapers");
 
@@ -184,9 +184,6 @@ export default function AdminPage() {
             </div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">Admin Console Login</h1>
             <p className="text-slate-600 text-xs font-extrabold mt-1">BerojgarDegreeWala Control Panel</p>
-            <div className="mt-3 px-3 py-1.5 bg-blue-50 border border-slate-900 rounded-lg text-[11px] font-black text-blue-900 shadow-[2px_2px_0px_0px_#0F172A]">
-              🔒 Direct Admin Credentials Only (Google Sign-In Disabled)
-            </div>
           </div>
 
           {error && (
@@ -202,7 +199,7 @@ export default function AdminPage() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="amitkr26 or amitkrbsc26@gmail.com"
+                placeholder="Enter admin username or email"
                 required
                 className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-sm font-black text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
               />
@@ -214,7 +211,7 @@ export default function AdminPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="amitkr26"
+                placeholder="Enter admin password"
                 required
                 className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-sm font-black text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
               />
@@ -224,21 +221,9 @@ export default function AdminPage() {
               type="submit"
               className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-sm border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] transition-all hover:-translate-y-0.5 active:translate-y-0"
             >
-              Sign In as Admin (amitkr26)
+              Sign In to Control Panel
             </button>
           </form>
-
-          <div className="mt-6 text-center space-y-1">
-            <p className="text-[11px] font-bold text-slate-600">
-              Admin Username: <code className="bg-slate-100 border border-slate-900 px-1.5 py-0.5 rounded text-blue-600 font-mono">amitkr26</code>
-            </p>
-            <p className="text-[11px] font-bold text-slate-600">
-              Admin Email: <code className="bg-slate-100 border border-slate-900 px-1.5 py-0.5 rounded text-blue-600 font-mono">amitkrbsc26@gmail.com</code>
-            </p>
-            <p className="text-[11px] font-bold text-slate-600">
-              Admin Password: <code className="bg-slate-100 border border-slate-900 px-1.5 py-0.5 rounded text-blue-600 font-mono">amitkr26</code>
-            </p>
-          </div>
         </div>
       </div>
     );
