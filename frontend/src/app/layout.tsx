@@ -7,11 +7,14 @@ import AppLayout from "@/components/AppLayout";
 import Providers from "@/components/Providers";
 import { AuthSync } from "@/components/AuthSync";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
-});
+let fontVariables = "";
+try {
+  const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+  const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap" });
+  fontVariables = `${inter.variable} ${spaceGrotesk.variable}`;
+} catch {
+  fontVariables = "";
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://berojgardegreewala.vercel.app"),
@@ -82,7 +85,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} font-body bg-navy text-text-primary min-h-screen`}
+        className={`${fontVariables} font-body bg-[#FAF9F6] text-slate-900 min-h-screen`}
       >
         <AuthSync />
         <Providers>
