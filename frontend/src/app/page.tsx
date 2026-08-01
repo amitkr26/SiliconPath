@@ -5,13 +5,12 @@ import Link from "next/link";
 import nextDynamic from "next/dynamic";
 import {
   ArrowRight, Sparkles, Cpu, CircuitBoard, HardDrive, Wifi,
-  GraduationCap, Award, ShieldCheck, UserCheck, Building2, BookOpen, Bot, CheckCircle2, Search
+  GraduationCap, Award, ShieldCheck, UserCheck, Building2, BookOpen, Bot, CheckCircle2, Search, Layers, Radio, HelpCircle
 } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
 import type { Opportunity, NewsArticle } from "@/types";
 import OpportunityCard from "@/components/OpportunityCard";
-import NewsCard from "@/components/NewsCard";
 
 // Ponytail Lazy Loading for heavy client interactive components
 const ReviewsSection = nextDynamic(() => import("@/components/ReviewsSection"), {
@@ -61,174 +60,76 @@ async function getLatestOpportunities(): Promise<Opportunity[]> {
     .select("*, organizations(*)")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
-    .limit(40);
+    .limit(6);
 
-  if (!data || data.length === 0) return [];
-
-  const mapped = data.map(mapDbOpportunityToClient);
-  const result: Opportunity[] = [];
-  const seenOrgs = new Set<string>();
-
-  for (const item of mapped) {
-    const orgName = (item.organization || "Enterprise").trim().toLowerCase();
-    if (!seenOrgs.has(orgName)) {
-      seenOrgs.add(orgName);
-      result.push(item);
-    }
-    if (result.length >= 6) break;
-  }
-
-  if (result.length < 6) {
-    for (const item of mapped) {
-      if (!result.some((r) => r.id === item.id)) {
-        result.push(item);
-      }
-      if (result.length >= 6) break;
-    }
-  }
-
-  return result;
+  if (!data) return [];
+  return data.map((d: any) => mapDbOpportunityToClient(d));
 }
 
-async function getLatestNews(): Promise<NewsArticle[]> {
-  const FRESH_NEWS: NewsArticle[] = [
-    {
-      id: "news-jul-31-1",
-      title: "India Semiconductor Mission Approves $15B Fab & Packaging Hubs in Gujarat and Assam",
-      slug: "india-semiconductor-mission-approves-15b-chip-fab-projects-july-2026",
-      source: "India Semiconductor Mission",
-      source_url: "https://ism.gov.in/news",
-      published_at: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
-      summary: "The Union Cabinet has officially approved major semiconductor fabrication and packaging projects with a cumulative investment exceeding $15 Billion USD, generating 20,000+ high-tech jobs.",
-      image_url: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-      tags: ["India", "Semiconductor", "Industry", "Jobs"],
-    },
-    {
-      id: "news-jul-31-2",
-      title: "TSMC Begins Risk Production for 2nm N2 Node featuring Gate-All-Around Nanosheets",
-      slug: "tsmc-begins-risk-production-2nm-n2-node-gaa-july-2026",
-      source: "Semiconductor Engineering",
-      source_url: "https://semiengineering.com/2nm-nanosheet-gaa-manufacturing-challenges/",
-      published_at: new Date(Date.now() - 8 * 3600 * 1000).toISOString(),
-      summary: "TSMC has officially initiated risk production on its 2nm (N2) manufacturing process at Fab 20 in Hsinchu Science Park, introducing GAA nanosheet transistor architecture.",
-      image_url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80",
-      tags: ["Semiconductor", "VLSI", "AI Chips", "Research"],
-    },
-    {
-      id: "news-jul-31-3",
-      title: "ISRO & IIT Madras Release Open-Source Radiation-Hardened RISC-V Space Processor",
-      slug: "isro-iit-madras-release-open-source-risc-v-microprocessor-space-july-2026",
-      source: "IEEE Spectrum",
-      source_url: "https://spectrum.ieee.org/risc-v-space-processors",
-      published_at: new Date(Date.now() - 18 * 3600 * 1000).toISOString(),
-      summary: "The SHAKTI Processor Program at IIT Madras, in collaboration with ISRO SAC, has unveiled radiation-hardened RISC-V processor IP cores for satellite telemetry.",
-      image_url: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
-      tags: ["India", "VLSI", "Research", "Jobs"],
-    },
-    {
-      id: "news-jul-31-4",
-      title: "Cadence & Synopsys Launch Generative AI EDA Tools for Automated Physical Layout & STA",
-      slug: "cadence-synopsys-launch-generative-ai-eda-tools-layout-sta-july-2026",
-      source: "EE Times",
-      source_url: "https://www.eetimes.com/ai-driven-eda-tools-redefine-chip-layout/",
-      published_at: new Date(Date.now() - 28 * 3600 * 1000).toISOString(),
-      summary: "New AI-assisted electronic design automation software slashes Place & Route execution time by 40% and automates DRC/LVS error fixing.",
-      image_url: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80",
-      tags: ["VLSI", "AI Chips", "Industry"],
-    },
-  ];
-
-  if (!supabaseAdmin?.from) return FRESH_NEWS;
-  try {
-    const { data } = await supabaseAdmin
-      .from("news_articles")
-      .select("*")
-      .order("published_at", { ascending: false })
-      .limit(4);
-
-    if (data && data.length > 0) {
-      return (data as NewsArticle[]).map((art, idx) => ({
-        ...art,
-        published_at: new Date(Date.now() - (idx + 1) * 4 * 3600 * 1000).toISOString(),
-        image_url: art.image_url || FRESH_NEWS[idx % FRESH_NEWS.length].image_url
-      }));
-    }
-  } catch (err) {
-    console.error("Error fetching news:", err);
-  }
-
-  return FRESH_NEWS;
-}
-
-export default async function Home() {
-  const [stats, opportunities, news] = await Promise.all([
-    getStats(),
-    getLatestOpportunities(),
-    getLatestNews(),
-  ]);
-
-  const categories = [
-    { name: "VLSI & ASIC Design", icon: Cpu, count: "120+ Openings", href: "/opportunities?search=VLSI" },
-    { name: "Semiconductor Process & Fab", icon: CircuitBoard, count: "85+ Openings", href: "/opportunities?search=Semiconductor" },
-    { name: "Embedded Systems & Firmware", icon: HardDrive, count: "90+ Openings", href: "/opportunities?search=Embedded" },
-    { name: "RF, Microwave & Photonics", icon: Wifi, count: "45+ Openings", href: "/opportunities?search=RF" },
-    { name: "JRF & Research Fellowships", icon: Award, count: `${stats.jrf} Verified JRFs`, href: "/category/jrf" },
-    { name: "PhD & Postdoc Programs", icon: GraduationCap, count: `${stats.phd} Direct Programs`, href: "/category/phd" },
-    { name: "DRDO, ISRO & Govt Labs", icon: ShieldCheck, count: `${stats.govt} Govt Positions`, href: "/category/govt" },
-    { name: "AI Hardware & Edge Compute", icon: Sparkles, count: "60+ Openings", href: "/opportunities?search=AI" },
-  ];
+export default async function HomePage() {
+  const stats = await getStats();
+  const latestOpenings = await getLatestOpportunities();
 
   return (
-    <div className="relative min-h-screen bg-[#FAF9F6] text-slate-900 pb-20">
+    <div className="space-y-16 pb-16">
       
-      {/* 1. HERO SECTION */}
-      <section className="relative pt-16 pb-20 overflow-hidden bg-blue-50/60 border-b-4 border-slate-900">
+      {/* 1. HERO SECTION WITH EXPANDED CONTENT & METRICS */}
+      <section className="relative overflow-hidden bg-[#FAF9F6] border-b-4 border-slate-900 py-16 sm:py-20 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           
-          {/* LIVE AGGREGATION BADGE */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white border-2 border-slate-900 text-xs font-black mb-6 shadow-[3px_3px_0px_0px_#0F172A]">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 border border-slate-900 animate-ping" />
-            <span>LIVE AGGREGATOR: {stats.verified}+ VERIFIED OPPORTUNITIES INGESTED</span>
+          {/* TOP ANNOUNCEMENT BADGE */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] mb-8 animate-bounce">
+            <ShieldCheck className="w-4 h-4 stroke-[3]" />
+            <span className="text-xs font-black uppercase tracking-wider">
+              100% Direct Official Links &bull; DRDO, ISRO, CSIR, IITs &amp; Fabless Enterprises
+            </span>
           </div>
 
           {/* MAIN HERO HEADLINE */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 max-w-5xl mx-auto leading-[1.15]">
-            India’s Premier Hub for <br />
-            <span className="inline-block mt-2 px-5 py-1.5 bg-blue-600 text-white border-3 border-slate-900 shadow-[5px_5px_0px_0px_#0F172A] -rotate-1">
-              Semiconductor &amp; VLSI Careers
-            </span>
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.08] max-w-5xl mx-auto">
+            India&apos;s Dedicated Hub for{" "}
+            <span className="bg-blue-600 text-white px-3 py-1 rounded-2xl border-3 border-slate-900 shadow-[5px_5px_0px_0px_#0F172A] inline-block mt-2">
+              Silicon Openings
+            </span>{" "}
+            &amp; VLSI Engineering
           </h1>
 
-          <p className="mt-8 text-base sm:text-lg text-slate-800 max-w-3xl mx-auto leading-relaxed font-semibold">
-            Aggregating verified JRF, PhD, DRDO, ISRO, CSIR, IIT Bombay, IIT Madras, IISc research positions, and premier enterprise opportunities from Intel, Qualcomm, AMD, TSMC, and Arm.
+          <p className="mt-8 text-base sm:text-lg lg:text-xl text-slate-800 max-w-3xl mx-auto leading-relaxed font-semibold">
+            Aggregating verified JRF, PhD, DRDO, ISRO, CSIR, IIT Bombay, IIT Madras, IISc research positions, and premier enterprise opportunities from Intel, Qualcomm, AMD, TSMC, and Arm into one centralized ecosystem.
           </p>
 
           {/* HERO CALL TO ACTIONS */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/opportunities"
-              className="px-8 py-3.5 rounded-xl font-black text-sm bg-blue-600 text-white border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:bg-blue-700 hover:shadow-[6px_6px_0px_0px_#0F172A] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#0F172A] transition-all inline-flex items-center gap-2"
+              className="px-8 py-4 rounded-2xl font-black text-sm bg-blue-600 text-white border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:bg-blue-700 hover:shadow-[6px_6px_0px_0px_#0F172A] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all inline-flex items-center gap-2.5"
             >
-              EXPLORE ALL OPENINGS <ArrowRight className="w-4 h-4 stroke-[3]" />
+              EXPLORE SILICON OPENINGS <ArrowRight className="w-4 h-4 stroke-[3]" />
+            </Link>
+            <Link
+              href="/academy"
+              className="px-8 py-4 rounded-2xl font-black text-sm bg-emerald-500 text-slate-900 border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:bg-emerald-600 hover:shadow-[6px_6px_0px_0px_#0F172A] hover:-translate-y-0.5 transition-all inline-flex items-center gap-2.5"
+            >
+              <GraduationCap className="w-5 h-5 stroke-[2.5]" /> BROWSE VLSI COURSES
             </Link>
             <Link
               href="/ask-ai"
-              className="px-8 py-3.5 rounded-xl font-black text-sm bg-white text-slate-900 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:bg-blue-50 hover:text-blue-600 hover:shadow-[6px_6px_0px_0px_#0F172A] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#0F172A] transition-all inline-flex items-center gap-2"
+              className="px-8 py-4 rounded-2xl font-black text-sm bg-white text-slate-900 border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:bg-blue-50 hover:text-blue-600 hover:shadow-[6px_6px_0px_0px_#0F172A] hover:-translate-y-0.5 transition-all inline-flex items-center gap-2.5"
             >
               <Sparkles className="w-4 h-4 text-blue-600 stroke-[2.5]" /> ASK AI ASSISTANT
             </Link>
           </div>
 
           {/* HIGH-INTENT KEYWORD SEARCH PILLS */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5 text-xs text-slate-900">
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-2.5 text-xs text-slate-900">
             <span className="font-extrabold uppercase text-slate-700 flex items-center gap-1">
-              <Search className="w-3.5 h-3.5 text-blue-600" /> Popular Keywords:
+              <Search className="w-3.5 h-3.5 text-blue-600" /> Popular Openings:
             </span>
             {["DRDO JRF", "ISRO Scientist", "IIT Bombay PhD", "VLSI Verification", "RTL Design", "Qualcomm", "SystemVerilog", "Physical Design"].map((tag) => (
               <Link
                 key={tag}
                 href={`/opportunities?search=${encodeURIComponent(tag)}`}
-                className="px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-lg font-extrabold text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] hover:bg-blue-600 hover:text-white hover:shadow-[3.5px_3.5px_0px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
+                className="px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-xl font-extrabold text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] hover:bg-blue-600 hover:text-white hover:shadow-[3.5px_3.5px_0px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
               >
                 {tag}
               </Link>
@@ -238,12 +139,12 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 2. REAL-TIME STATS & SOCIAL PROOF STRIP */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
+      {/* 2. REAL-TIME STATS STRIP */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 text-center shadow-[5px_5px_0px_0px_#0F172A]">
             <p className="text-3xl sm:text-4xl font-black text-blue-600 tracking-tight">{stats.total}+</p>
-            <p className="text-slate-900 text-xs font-black uppercase tracking-wider mt-1.5">Active Opportunities</p>
+            <p className="text-slate-900 text-xs font-black uppercase tracking-wider mt-1.5">Silicon Openings Active</p>
           </div>
           <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 text-center shadow-[5px_5px_0px_0px_#0F172A]">
             <p className="text-3xl sm:text-4xl font-black text-emerald-600 tracking-tight">{stats.verified}+</p>
@@ -260,22 +161,22 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 3. DUAL USER ROLES SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
+      {/* 3. DUAL PLATFORM PORTALS SECTION */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="text-center max-w-3xl mx-auto mb-10">
           <span className="px-3.5 py-1 bg-blue-600 text-white rounded-lg border-2 border-slate-900 text-xs font-black shadow-[2px_2px_0px_0px_#0F172A] uppercase">
-            Platform Roles
+            Platform Portals
           </span>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
-            Tailored Ecosystem for Students, Researchers &amp; Employers
+            Engineered for Candidates, Researchers &amp; Employers
           </h2>
           <p className="text-slate-600 text-sm mt-2 font-bold">
-            Whether you are looking for your next JRF position or posting verified research opportunities, BerojgarDegreeWala is engineered for you.
+            Whether you are looking for your next JRF position or posting verified research roles, BerojgarDegreeWala is structured for you.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* CARD A: FOR JOB SEEKERS / RESEARCHERS */}
+          {/* CARD A: CANDIDATE PORTAL */}
           <div className="bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] flex flex-col justify-between space-y-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -298,11 +199,11 @@ export default async function Home() {
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span>Access verified JRF, SRF, PhD, DRDO, ISRO &amp; IIT opportunities.</span>
+                  <span>Access verified JRF, SRF, PhD, DRDO, ISRO &amp; IIT openings.</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span>Interactive VLSI Academy tracks with synthesizable SystemVerilog labs.</span>
+                  <span>Interactive VLSI Courses with synthesizable SystemVerilog labs.</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
@@ -319,7 +220,7 @@ export default async function Home() {
             </Link>
           </div>
 
-          {/* CARD B: FOR JOB POSTERS / ORGANIZATIONS */}
+          {/* CARD B: EMPLOYER PORTAL */}
           <div className="bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] flex flex-col justify-between space-y-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -365,93 +266,117 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 4. BROWSE BY SPECIALIZATION GRID */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Browse by Specialization</h2>
-            <p className="text-slate-600 text-sm mt-1 font-semibold">Targeted listings across core microelectronics and research sectors</p>
-          </div>
+      {/* 4. HARDWARE SPECIALIZATIONS GRID */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <span className="px-3.5 py-1 bg-purple-600 text-white rounded-lg border-2 border-slate-900 text-xs font-black shadow-[2px_2px_0px_0px_#0F172A] uppercase">
+            Specialization Domains
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
+            Explore Openings by Hardware Discipline
+          </h2>
+          <p className="text-slate-600 text-sm mt-2 font-bold">
+            Targeted job roles across front-end RTL, back-end physical design, verification, and semiconductor fabrication.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {categories.map(({ name, icon: Icon, count, href }) => (
-            <Link
-              key={name}
-              href={href}
-              className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-[3.5px_3.5px_0px_0px_#0F172A] hover:shadow-[5.5px_5.5px_0px_0px_#0F172A] hover:-translate-y-1 transition-all group block"
-            >
-              <div className="w-12 h-12 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-[2px_2px_0px_0px_#0F172A]">
-                <Icon className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" />
-              </div>
-              <h3 className="font-extrabold text-slate-900 text-base group-hover:text-blue-600 transition-colors">{name}</h3>
-              <p className="text-slate-500 text-xs mt-1.5 font-bold">{count}</p>
-            </Link>
+          {[
+            { title: "RTL Design & Synthesis", count: "120+ Roles", desc: "Verilog, SystemVerilog, ASIC Architecture", icon: Cpu, href: "/opportunities?search=RTL" },
+            { title: "Physical Design & STA", count: "95+ Roles", desc: "Floorplanning, Placement, Timing Closure", icon: Layers, href: "/opportunities?search=Physical" },
+            { title: "Verification & UVM", count: "110+ Roles", desc: "Testbench, Coverage, SystemVerilog OOP", icon: ShieldCheck, href: "/opportunities?search=Verification" },
+            { title: "Analog & Mixed-Signal", count: "45+ Roles", desc: "Cadence Virtuoso, SPICE, Layout", icon: CircuitBoard, href: "/opportunities?search=Analog" },
+            { title: "FPGA & Vivado", count: "65+ Roles", desc: "Xilinx, Altera, High-Speed I/O", icon: HardDrive, href: "/opportunities?search=FPGA" },
+            { title: "RISC-V Microarchitecture", count: "40+ Roles", desc: "Custom Instructions, Core Verification", icon: Bot, href: "/opportunities?search=RISC-V" },
+            { title: "Embedded Firmware & RTOS", count: "80+ Roles", desc: "C/C++, Drivers, ARM Cortex, FreeRTOS", icon: Wifi, href: "/opportunities?search=Embedded" },
+            { title: "Semiconductor Fab & Packaging", count: "30+ Roles", desc: "Wafer Fab, Cleanroom, Advanced Packaging", icon: Building2, href: "/opportunities?search=Fab" },
+          ].map((track) => {
+            const Icon = track.icon;
+            return (
+              <Link
+                key={track.title}
+                href={track.href}
+                className="bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[4px_4px_0px_0px_#0F172A] hover:shadow-[7px_7px_0px_0px_#0F172A] hover:-translate-y-1 transition-all group flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="w-10 h-10 bg-blue-50 border-2 border-slate-900 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <Icon className="w-5 h-5 stroke-[2.5]" />
+                  </div>
+                  <h3 className="font-black text-slate-900 text-base leading-snug group-hover:text-blue-600 transition-colors">
+                    {track.title}
+                  </h3>
+                  <p className="text-slate-600 text-xs font-bold leading-relaxed">{track.desc}</p>
+                </div>
+                <div className="pt-4 flex items-center justify-between border-t-2 border-slate-100 mt-4">
+                  <span className="text-[11px] font-black text-blue-600 uppercase">{track.count}</span>
+                  <ArrowRight className="w-4 h-4 text-slate-900 group-hover:translate-x-1 transition-transform stroke-[2.5]" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 5. LATEST OPENINGS GRID */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-4">
+          <div>
+            <span className="px-3 py-1 bg-emerald-500 text-slate-900 rounded-lg border-2 border-slate-900 text-xs font-black shadow-[2px_2px_0px_0px_#0F172A] uppercase">
+              Fresh Listings
+            </span>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight mt-2">Latest Verified Silicon Openings</h2>
+            <p className="text-slate-600 text-xs font-bold mt-1">Updated daily from DRDO RAC, ISRO, CSIR labs, IITs &amp; top fabless semiconductor firms.</p>
+          </div>
+          <Link
+            href="/opportunities"
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-black text-xs border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-blue-700 transition-all shrink-0"
+          >
+            VIEW ALL OPENINGS &rarr;
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {latestOpenings.slice(0, 6).map((opp) => (
+            <OpportunityCard key={opp.id} opportunity={opp} />
           ))}
         </div>
       </section>
 
-      {/* 5. FEATURED VERIFIED OPPORTUNITIES */}
-      {opportunities.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Verified Live Opportunities</h2>
-              <p className="text-slate-600 text-sm mt-1 font-semibold">Direct application links to official career portals</p>
-            </div>
-            <Link href="/opportunities" className="text-blue-600 text-sm font-extrabold hover:underline flex items-center gap-1">
-              View All ({stats.total}) <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {opportunities.map((opp) => (
-              <OpportunityCard key={opp.id} opportunity={opp} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 6. VLSI ACADEMY CURRICULUM SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
-        <div className="bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] space-y-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-3 border-slate-900 pb-6">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600 text-white border-2 border-slate-900 rounded-lg text-xs font-black shadow-[2px_2px_0px_0px_#0F172A] mb-2">
-                <BookOpen className="w-4 h-4" /> VLSI ACADEMY
-              </div>
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight">Structured Industry Curriculum &amp; Labs</h2>
-              <p className="text-slate-600 text-xs font-bold mt-1">
-                Zero to Industry-Ready in Digital Logic, Verilog, SystemVerilog, UVM, and Physical Design.
+      {/* 6. VLSI COURSES SHOWCASE */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-slate-900 border-4 border-slate-900 rounded-3xl p-8 sm:p-12 text-white shadow-[10px_10px_0px_0px_#0F172A] space-y-8">
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+            <div className="space-y-3 max-w-2xl">
+              <span className="px-3 py-1 bg-emerald-400 text-slate-950 rounded-lg border-2 border-slate-950 text-xs font-black uppercase">
+                Free Structured Curriculum
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                VLSI Courses &amp; Synthesizable Design Labs
+              </h2>
+              <p className="text-slate-300 text-xs sm:text-sm font-semibold leading-relaxed">
+                Step-by-step practical VLSI learning tracks covering Verilog, SystemVerilog, UVM Verification, STA Timing Closure, and FPGA synthesis using top free curated resources.
               </p>
             </div>
             <Link
               href="/academy"
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] transition-all shrink-0 inline-flex items-center gap-1.5"
+              className="px-6 py-3.5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-xs border-2 border-slate-950 rounded-xl shadow-[3px_3px_0px_0px_#FFFFFF] transition-all shrink-0"
             >
-              EXPLORE ALL TRACKS <ArrowRight className="w-4 h-4" />
+              EXPLORE ALL VLSI COURSES &rarr;
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
             {[
-              { title: "Digital Logic Fundamentals", desc: "Boolean algebra, K-maps, logic gates, flip-flops, setup/hold timing.", track: "digital-logic" },
-              { title: "Verilog HDL & Hardware Modeling", desc: "Synthesizable RTL, always blocks, non-blocking assignments, testbenches.", track: "verilog" },
-              { title: "SystemVerilog & OOP Verification", desc: "Classes, interfaces, constrained randomization, SV assertions.", track: "systemverilog" },
-              { title: "UVM Architecture & Components", desc: "Agents, drivers, monitors, scoreboards, TLM ports & sequences.", track: "uvm" },
-              { title: "RTL Design & Microarchitecture", desc: "FIFO design, FSM encoding, CDC synchronizers, Yosys synthesis.", track: "rtl-design" },
-              { title: "Physical Design & ASIC Flow", desc: "Floorplanning, Placement, CTS, OpenROAD & Sky130 PDK flow.", track: "physical-design" },
-            ].map((t) => (
-              <div key={t.track} className="bg-slate-50 border-2 border-slate-900 rounded-xl p-5 shadow-[3.5px_3.5px_0px_0px_#0F172A] flex flex-col justify-between space-y-4">
-                <div className="space-y-2">
-                  <h3 className="font-black text-slate-900 text-base">{t.title}</h3>
-                  <p className="text-slate-600 text-xs font-bold leading-relaxed">{t.desc}</p>
-                </div>
-                <Link
-                  href={`/academy/${t.track}`}
-                  className="inline-flex items-center gap-1 text-xs font-black text-blue-600 hover:underline"
-                >
-                  <span>Start Track</span> <ArrowRight className="w-3.5 h-3.5" />
+              { day: "Track 1", title: "Digital Logic & SystemVerilog", desc: "Combinational & sequential circuits, FSM design, synthesizable SystemVerilog constructs." },
+              { day: "Track 2", title: "RTL Verification & UVM", desc: "Testbench architecture, constrained random generation, functional coverage, UVM methodology." },
+              { day: "Track 3", title: "Physical Design & STA", desc: "Floorplanning, CTS, Placement, Setup/Hold slack analysis, Primetime STA timing closure." },
+            ].map((course) => (
+              <div key={course.title} className="bg-slate-950 border-2 border-slate-800 rounded-2xl p-6 space-y-3">
+                <span className="px-2.5 py-1 bg-blue-600 text-white rounded-md text-[10px] font-black uppercase">{course.day}</span>
+                <h3 className="text-lg font-black text-white">{course.title}</h3>
+                <p className="text-slate-400 text-xs font-semibold leading-relaxed">{course.desc}</p>
+                <Link href="/academy" className="text-blue-400 text-xs font-black hover:underline inline-block pt-2">
+                  Start Track &rarr;
                 </Link>
               </div>
             ))}
@@ -459,69 +384,10 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 7. ASK AI CAREER ASSISTANT SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
-        <div className="bg-blue-600 text-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-          <div className="space-y-4 max-w-2xl">
-            <span className="px-3.5 py-1 bg-white text-slate-900 rounded-lg border-2 border-slate-900 text-xs font-black shadow-[2px_2px_0px_0px_#0F172A] inline-block uppercase">
-              AI Powered Career Specialist
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
-              Ask AI Career Assistant (/ask-ai)
-            </h2>
-            <p className="text-blue-100 text-xs sm:text-sm font-bold leading-relaxed">
-              Get instant answers on SystemVerilog syntax, DRDO/ISRO recruitment exam syllabus, STA timing violation fixes, and JRF fellowship eligibility.
-            </p>
-            <div className="flex flex-wrap gap-2 pt-2 text-xs font-black text-slate-900">
-              <span className="px-3 py-1 bg-white border border-slate-900 rounded-md">⚡ RTL Debugging</span>
-              <span className="px-3 py-1 bg-white border border-slate-900 rounded-md">⚡ DRDO/ISRO Exam Guidance</span>
-              <span className="px-3 py-1 bg-white border border-slate-900 rounded-md">⚡ STA &amp; Setup/Hold Math</span>
-            </div>
-          </div>
-
-          <Link
-            href="/ask-ai"
-            className="px-8 py-4 bg-white hover:bg-slate-100 text-slate-900 rounded-xl font-black text-sm border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] transition-all shrink-0 inline-flex items-center gap-2"
-          >
-            <Bot className="w-5 h-5 text-blue-600 stroke-[2.5]" />
-            LAUNCH ASK AI ASSISTANT
-          </Link>
-        </div>
-      </section>
-
-      {/* 8. SEMICONDUCTOR INDUSTRY NEWS FEED */}
-      {news.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Semiconductor Industry News</h2>
-              <p className="text-slate-600 text-sm mt-1 font-semibold">Daily updates from IEEE Spectrum, EE Times, and Semiconductor Engineering</p>
-            </div>
-            <Link href="/news" className="text-blue-600 text-sm font-extrabold hover:underline flex items-center gap-1">
-              Read News Feed <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {news.map((article) => (
-              <NewsCard key={article.id} article={article} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 9. PONYTAIL LAZY LOADED REVIEWS SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
+      {/* 7. PONYTAIL LAZY LOADED REVIEWS, FAQ & NEWSLETTER */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         <ReviewsSection />
-      </section>
-
-      {/* 10. PONYTAIL LAZY LOADED FAQS SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
         <FaqSection />
-      </section>
-
-      {/* 11. PONYTAIL LAZY LOADED SUBSCRIBE & ALERT SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
         <SubscribeSection />
       </section>
 
