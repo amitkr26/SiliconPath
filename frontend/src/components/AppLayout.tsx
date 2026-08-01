@@ -9,8 +9,13 @@ import { Sparkles } from "lucide-react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const isAdmin = pathname.startsWith("/admin");
   const isChat = pathname === "/chat" || pathname === "/ask-ai";
   const [aiModalOpen, setAiModalOpen] = useState(false);
+
+  if (isAdmin) {
+    return <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">{children}</div>;
+  }
 
   if (isChat) {
     return (
