@@ -41,60 +41,62 @@ export default function ConnectionCard({
     .toUpperCase();
 
   return (
-    <div className="flex items-start gap-3 p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] hover:shadow-[var(--shadow-sm)] transition-shadow">
-      {/* Avatar */}
-      <Link href={username ? `/profile/${username}` : "#"} className="flex-shrink-0">
-        {avatarUrl ? (
-          <img
-            src={avatarUrl}
-            alt={name}
-            className="w-12 h-12 rounded-full object-cover border border-[var(--border-subtle)]"
-          />
-        ) : (
-          <span className="flex items-center justify-center w-12 h-12 rounded-full bg-[var(--primary-light)] text-[var(--primary)] font-semibold text-sm">
-            {initials}
-          </span>
-        )}
-      </Link>
-
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <Link
-          href={username ? `/profile/${username}` : "#"}
-          className="font-semibold text-sm text-[var(--text)] hover:text-[var(--primary)] transition-colors line-clamp-1"
-        >
-          {name}
+    <div className="bg-white border-3 border-slate-900 rounded-2xl p-4 shadow-[4px_4px_0px_0px_#0F172A] flex items-start justify-between gap-3 hover:shadow-[6px_6px_0px_0px_#0F172A] transition-all">
+      {/* Avatar & Info */}
+      <div className="flex items-start gap-3 min-w-0 flex-1">
+        <Link href={username ? `/profile/${username}` : "#"} className="shrink-0">
+          {avatarUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={avatarUrl}
+              alt={name}
+              className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
+            />
+          ) : (
+            <span className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white font-black text-sm border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]">
+              {initials}
+            </span>
+          )}
         </Link>
-        {headline && (
-          <p className="text-xs text-[var(--text-secondary)] line-clamp-2 mt-0.5">{headline}</p>
-        )}
-        {mutualConnections != null && mutualConnections > 0 && (
-          <p className="text-xs text-[var(--text-tertiary)] mt-1 flex items-center gap-1">
-            <UserCheck size={11} />
-            {mutualConnections} mutual connection{mutualConnections !== 1 ? "s" : ""}
-          </p>
-        )}
-        {connectedAt && (
-          <p className="text-xs text-[var(--text-tertiary)] mt-1 flex items-center gap-1">
-            <Clock size={11} />
-            Connected {formatDistanceToNow(new Date(connectedAt), { addSuffix: true })}
-          </p>
-        )}
+
+        <div className="min-w-0 flex-1 space-y-0.5">
+          <Link
+            href={username ? `/profile/${username}` : "#"}
+            className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors truncate block"
+          >
+            {name}
+          </Link>
+          {headline && (
+            <p className="text-xs font-bold text-slate-600 line-clamp-2 leading-tight">{headline}</p>
+          )}
+          {mutualConnections != null && mutualConnections > 0 && (
+            <p className="text-[11px] font-extrabold text-blue-600 mt-1 flex items-center gap-1">
+              <UserCheck className="w-3.5 h-3.5 stroke-[2.5]" />
+              {mutualConnections} mutual hardware connection{mutualConnections !== 1 ? "s" : ""}
+            </p>
+          )}
+          {connectedAt && (
+            <p className="text-[11px] font-bold text-slate-500 mt-1 flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5" />
+              Connected {formatDistanceToNow(new Date(connectedAt), { addSuffix: true })}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Actions */}
-      <div className="flex flex-col gap-1.5 flex-shrink-0">
+      <div className="shrink-0 flex flex-col gap-1.5">
         {isPending ? (
           <>
             <button
               onClick={() => onAccept?.(id)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--primary)] text-white text-xs font-medium hover:bg-[var(--primary-hover)] transition-colors min-h-[36px]"
+              className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-900 text-xs font-black border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A] transition"
             >
-              <UserCheck size={13} /> Accept
+              Accept
             </button>
             <button
               onClick={() => onDecline?.(id)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-secondary)] text-xs font-medium hover:bg-[var(--surface-raised)] transition-colors min-h-[36px]"
+              className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-black border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A] transition"
             >
               Decline
             </button>
@@ -102,16 +104,16 @@ export default function ConnectionCard({
         ) : onConnect ? (
           <button
             onClick={() => onConnect(id)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--primary)] text-[var(--primary)] text-xs font-medium hover:bg-[var(--primary-light)] transition-colors min-h-[36px]"
+            className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black border-2 border-slate-900 shadow-[2.5px_2.5px_0px_0px_#0F172A] transition flex items-center gap-1.5"
           >
-            <UserPlus size={13} /> Connect
+            <UserPlus className="w-3.5 h-3.5 stroke-[2.5]" /> Connect
           </button>
-        ) : onMessage && username ? (
+        ) : onMessage ? (
           <button
-            onClick={() => onMessage(username)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-secondary)] text-xs font-medium hover:bg-[var(--surface-raised)] transition-colors min-h-[36px]"
+            onClick={() => onMessage(username || id)}
+            className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black border-2 border-slate-900 shadow-[2.5px_2.5px_0px_0px_#0F172A] transition flex items-center gap-1.5"
           >
-            <MessageCircle size={13} /> Message
+            <MessageCircle className="w-3.5 h-3.5 stroke-[2.5]" /> Message
           </button>
         ) : null}
       </div>
