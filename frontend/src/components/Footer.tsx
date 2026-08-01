@@ -35,10 +35,11 @@ export default function Footer() {
           <div>
             <h4 className="text-xs font-black text-white tracking-widest uppercase mb-4 pb-1 border-b-2 border-blue-600 inline-block">Platform Ecosystem</h4>
             <div className="flex flex-col gap-2 font-bold text-xs">
+              <Link href="/signup?role=candidate" className="text-blue-400 hover:underline">Candidate Registration (@username)</Link>
+              <Link href="/signup?role=employer" className="text-emerald-400 hover:underline">Employer Registration Portal</Link>
               <Link href="/opportunities" className="text-slate-400 hover:text-blue-400 transition-colors">Opportunities Engine</Link>
               <Link href="/academy" className="text-slate-400 hover:text-blue-400 transition-colors">VLSI Academy</Link>
               <Link href="/network" className="text-slate-400 hover:text-blue-400 transition-colors">Hardware Network</Link>
-              <Link href="/news" className="text-slate-400 hover:text-blue-400 transition-colors">News Feed</Link>
               <Link href="/community" className="text-slate-400 hover:text-blue-400 transition-colors">Community Forum</Link>
               <Link href="/ask-ai" className="text-slate-400 hover:text-blue-400 transition-colors">Ask AI Assistant</Link>
               <Link href="/resume" className="text-slate-400 hover:text-blue-400 transition-colors">AI Resume Builder</Link>

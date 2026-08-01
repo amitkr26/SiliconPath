@@ -278,15 +278,24 @@ export default async function Home() {
           {/* CARD A: FOR JOB SEEKERS / RESEARCHERS */}
           <div className="bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              <div className="w-14 h-14 bg-blue-600 border-3 border-slate-900 rounded-2xl flex items-center justify-center text-white shadow-[4px_4px_0px_0px_#0F172A]">
-                <UserCheck className="w-7 h-7 stroke-[2.5]" />
+              <div className="flex items-center justify-between">
+                <div className="w-14 h-14 bg-blue-600 border-3 border-slate-900 rounded-2xl flex items-center justify-center text-white shadow-[4px_4px_0px_0px_#0F172A]">
+                  <UserCheck className="w-7 h-7 stroke-[2.5]" />
+                </div>
+                <span className="px-3 py-1 bg-blue-100 border border-slate-900 rounded-lg text-[10px] font-black text-blue-900 uppercase">
+                  Unique @username Profile
+                </span>
               </div>
-              <h3 className="text-2xl font-black text-slate-900">For Job Seekers &amp; Researchers</h3>
+              <h3 className="text-2xl font-black text-slate-900">For Candidates &amp; Researchers</h3>
               <p className="text-slate-700 text-xs font-bold leading-relaxed">
-                Build industry-grade VLSI skills, apply to 100% verified government and enterprise positions, and generate tailored resumes.
+                Build industry-grade VLSI skills, claim your unique @username hardware profile, and apply to 100% verified government and enterprise positions.
               </p>
               
               <ul className="space-y-2.5 text-xs font-bold text-slate-900 pt-2">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>Claim your verified unique hardware handle (e.g. @ananya_vlsi).</span>
+                </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
                   <span>Access verified JRF, SRF, PhD, DRDO, ISRO &amp; IIT opportunities.</span>
@@ -306,22 +315,31 @@ export default async function Home() {
               href="/signup?role=candidate"
               className="w-full text-center py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] transition-all block"
             >
-              JOIN AS JOB SEEKER / RESEARCHER
+              CREATE CANDIDATE ACCOUNT (@USERNAME)
             </Link>
           </div>
 
           {/* CARD B: FOR JOB POSTERS / ORGANIZATIONS */}
           <div className="bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              <div className="w-14 h-14 bg-emerald-500 border-3 border-slate-900 rounded-2xl flex items-center justify-center text-slate-900 shadow-[4px_4px_0px_0px_#0F172A]">
-                <Building2 className="w-7 h-7 stroke-[2.5]" />
+              <div className="flex items-center justify-between">
+                <div className="w-14 h-14 bg-emerald-500 border-3 border-slate-900 rounded-2xl flex items-center justify-center text-slate-900 shadow-[4px_4px_0px_0px_#0F172A]">
+                  <Building2 className="w-7 h-7 stroke-[2.5]" />
+                </div>
+                <span className="px-3 py-1 bg-emerald-100 border border-slate-900 rounded-lg text-[10px] font-black text-emerald-900 uppercase">
+                  Organization Handle
+                </span>
               </div>
               <h3 className="text-2xl font-black text-slate-900">For Employers &amp; Research Labs</h3>
               <p className="text-slate-700 text-xs font-bold leading-relaxed">
-                Post verified research fellowships, recruit top VLSI candidate talent, and claim official organization pages.
+                Post verified research fellowships, recruit top VLSI candidate talent, and claim official organization directory pages.
               </p>
 
               <ul className="space-y-2.5 text-xs font-bold text-slate-900 pt-2">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Claim your official lab / company handle (e.g. @drdo_rac_careers).</span>
+                </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Post verified JRF, PhD &amp; microelectronics positions for free.</span>
@@ -332,7 +350,7 @@ export default async function Home() {
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Claim and brand official laboratory/company directory pages.</span>
+                  <span>Brand official laboratory and company directory pages.</span>
                 </li>
               </ul>
             </div>
@@ -341,7 +359,7 @@ export default async function Home() {
               href="/signup?role=employer"
               className="w-full text-center py-3.5 bg-emerald-500 hover:bg-emerald-600 text-slate-900 rounded-xl font-black text-xs border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] transition-all block"
             >
-              POST AN OPPORTUNITY / JOIN AS EMPLOYER
+              CREATE EMPLOYER ACCOUNT &amp; POST ROLE
             </Link>
           </div>
         </div>
