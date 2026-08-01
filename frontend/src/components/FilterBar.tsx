@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { CATEGORIES, ELIGIBILITY_OPTIONS, LOCATIONS, DEADLINE_FILTERS } from "@/lib/utils";
-import { X } from "lucide-react";
+import { LOCATIONS } from "@/lib/utils";
+import { X, Check } from "lucide-react";
 
 interface FilterBarProps {
   selectedCategory: string;
@@ -15,8 +14,30 @@ interface FilterBarProps {
   onDeadlineChange: (value: string) => void;
 }
 
-const JOB_TYPES = ["Internship", "Full-time", "Research Fellowship", "PhD Scholarship", "Trainee"];
-const DEGREES = ["B.Tech", "M.Tech", "PhD"];
+const JOB_TYPES = [
+  { label: "Research Fellowship (JRF/SRF)", value: "Research Fellowship" },
+  { label: "PhD & Doctoral Admissions", value: "PhD Scholarship" },
+  { label: "Full-Time & Govt Engineering", value: "Full-time" },
+  { label: "Internship & Co-Op", value: "Internship" },
+  { label: "Trainee & Graduate Apprentice", value: "Trainee" },
+];
+
+const DEGREES = [
+  { label: "B.Tech / B.E / Graduate", value: "B.Tech" },
+  { label: "M.Tech / M.E / Post Graduate", value: "M.Tech" },
+  { label: "PhD / Doctorate", value: "PhD" },
+];
+
+const FILTER_LOCATIONS = [
+  "All India",
+  "Bangalore",
+  "Hyderabad",
+  "Pune",
+  "Delhi / NCR",
+  "Chennai",
+  "Remote / WFH",
+  "Abroad",
+];
 
 export default function FilterBar({
   selectedCategory,
@@ -28,7 +49,11 @@ export default function FilterBar({
   onLocationChange,
   onDeadlineChange,
 }: FilterBarProps) {
-  const hasFilters = selectedCategory !== "All" || selectedEligibility !== "All" || selectedLocation !== "All" || selectedDeadline !== "All";
+  const hasFilters =
+    selectedCategory !== "All" ||
+    selectedEligibility !== "All" ||
+    selectedLocation !== "All" ||
+    selectedDeadline !== "All";
 
   const handleClearAll = () => {
     onCategoryChange("All");
@@ -37,102 +62,109 @@ export default function FilterBar({
     onDeadlineChange("All");
   };
 
-  const toggleFilter = (current: string, value: string, onChange: (v: string) => void) => {
-    onChange(current === value ? "All" : value);
-  };
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text-primary">Filters</h3>
+    <div className="space-y-6 bg-white p-5 rounded-2xl border-3 border-slate-900 shadow-[5px_5px_0px_0px_#0F172A]">
+      
+      {/* FILTER HEADER */}
+      <div className="flex items-center justify-between pb-3 border-b-2 border-slate-900">
+        <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">Search Filters</h3>
         {hasFilters && (
           <button
             onClick={handleClearAll}
-            className="text-xs text-accent hover:underline"
+            className="inline-flex items-center gap-1 text-xs font-black text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg border border-red-300 transition-colors"
           >
-            Clear all
+            <X className="w-3 h-3 stroke-[3]" /> Clear All
           </button>
         )}
       </div>
 
+      {/* 1. JOB TYPE CATEGORY FILTER */}
       <div>
-        <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Job Type</h4>
+        <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+          <span>Job / Research Category</span>
+          {selectedCategory !== "All" && (
+            <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded font-black">Active</span>
+          )}
+        </h4>
         <div className="space-y-1.5">
-          {JOB_TYPES.map((type) => (
-            <label
-              key={type}
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-surface-elevated/50 cursor-pointer transition-colors"
-            >
-              <input
-                type="checkbox"
-                checked={selectedCategory === type}
-                onChange={() => toggleFilter(selectedCategory, type, onCategoryChange)}
-                className="w-4 h-4 rounded border-border bg-surface-elevated text-accent focus:ring-accent focus:ring-offset-0"
-              />
-              <span className="text-sm text-text-secondary">{type}</span>
-            </label>
-          ))}
+          {JOB_TYPES.map((item) => {
+            const active = selectedCategory === item.value;
+            return (
+              <button
+                key={item.value}
+                onClick={() => onCategoryChange(active ? "All" : item.value)}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black border-2 transition-all ${
+                  active
+                    ? "bg-blue-600 text-white border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
+                    : "bg-white text-slate-800 border-slate-300 hover:border-slate-900 hover:bg-blue-50"
+                }`}
+              >
+                <span>{item.label}</span>
+                {active && <Check className="w-3.5 h-3.5 stroke-[3] text-white" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 
+      {/* 2. REQUIRED DEGREE FILTER */}
       <div>
-        <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Degree</h4>
+        <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+          <span>Required Qualification</span>
+          {selectedEligibility !== "All" && (
+            <span className="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-black">Active</span>
+          )}
+        </h4>
         <div className="space-y-1.5">
-          {DEGREES.map((degree) => (
-            <label
-              key={degree}
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-surface-elevated/50 cursor-pointer transition-colors"
-            >
-              <input
-                type="checkbox"
-                checked={selectedEligibility === degree}
-                onChange={() => toggleFilter(selectedEligibility, degree, onEligibilityChange)}
-                className="w-4 h-4 rounded border-border bg-surface-elevated text-accent focus:ring-accent focus:ring-offset-0"
-              />
-              <span className="text-sm text-text-secondary">{degree}</span>
-            </label>
-          ))}
+          {DEGREES.map((item) => {
+            const active = selectedEligibility === item.value;
+            return (
+              <button
+                key={item.value}
+                onClick={() => onEligibilityChange(active ? "All" : item.value)}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black border-2 transition-all ${
+                  active
+                    ? "bg-emerald-500 text-slate-900 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
+                    : "bg-white text-slate-800 border-slate-300 hover:border-slate-900 hover:bg-emerald-50"
+                }`}
+              >
+                <span>{item.label}</span>
+                {active && <Check className="w-3.5 h-3.5 stroke-[3] text-slate-900" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 
+      {/* 3. LOCATION FILTER */}
       <div>
-        <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Location</h4>
-        <div className="space-y-1.5">
-          <label className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-surface-elevated/50 cursor-pointer transition-colors">
-            <input
-              type="checkbox"
-              checked={selectedLocation === "India"}
-              onChange={() => toggleFilter(selectedLocation, "India", onLocationChange)}
-              className="w-4 h-4 rounded border-border bg-surface-elevated text-accent focus:ring-accent focus:ring-offset-0"
-            />
-            <span className="text-sm text-text-secondary">India</span>
-          </label>
-          <label className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-surface-elevated/50 cursor-pointer transition-colors">
-            <input
-              type="checkbox"
-              checked={selectedLocation === "International"}
-              onChange={() => toggleFilter(selectedLocation, "International", onLocationChange)}
-              className="w-4 h-4 rounded border-border bg-surface-elevated text-accent focus:ring-accent focus:ring-offset-0"
-            />
-            <span className="text-sm text-text-secondary">International</span>
-          </label>
+        <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+          <span>Location Domain</span>
+          {selectedLocation !== "All" && (
+            <span className="text-[10px] bg-purple-600 text-white px-2 py-0.5 rounded font-black">Active</span>
+          )}
+        </h4>
+        <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+          {FILTER_LOCATIONS.map((loc) => {
+            const active = selectedLocation === loc;
+            return (
+              <button
+                key={loc}
+                onClick={() => onLocationChange(active ? "All" : loc)}
+                className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-black border-2 transition-all ${
+                  active
+                    ? "bg-purple-600 text-white border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
+                    : "bg-white text-slate-800 border-slate-200 hover:border-slate-900 hover:bg-purple-50"
+                }`}
+              >
+                <span>{loc}</span>
+                {active && <Check className="w-3.5 h-3.5 stroke-[3] text-white" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div>
-        <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Deadline</h4>
-        <select
-          value={selectedDeadline}
-          onChange={(e) => onDeadlineChange(e.target.value)}
-          className="w-full bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2 focus:ring-accent focus:border-accent outline-none"
-        >
-          {DEADLINE_FILTERS.map((df) => (
-            <option key={df} value={df}>
-              {df}
-            </option>
-          ))}
-        </select>
-      </div>
     </div>
   );
 }

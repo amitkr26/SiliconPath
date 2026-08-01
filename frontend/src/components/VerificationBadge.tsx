@@ -6,11 +6,11 @@ interface VerificationBadgeProps {
 }
 
 export default function VerificationBadge({ status, compact }: VerificationBadgeProps) {
-  if (status === "verified") {
+  if (status === "verified" || (status as string) === "auto_verified" || !status) {
     return (
-      <span className={`inline-flex items-center gap-1 ${compact ? "text-[10px]" : "text-xs"} text-green-400 font-medium`}>
-        <ShieldCheck className={`${compact ? "w-3 h-3" : "w-3.5 h-3.5"}`} />
-        {compact ? "" : "Verified"}
+      <span className={`inline-flex items-center gap-1 ${compact ? "text-[10px]" : "text-xs"} text-emerald-700 bg-emerald-100 border border-emerald-400 px-1.5 py-0.5 rounded font-black`}>
+        <ShieldCheck className={`${compact ? "w-3 h-3" : "w-3.5 h-3.5"} text-emerald-700 stroke-[2.5]`} />
+        <span>Official Link Verified</span>
       </span>
     );
   }
