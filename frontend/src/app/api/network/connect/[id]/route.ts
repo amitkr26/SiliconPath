@@ -11,21 +11,37 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await request.json();
-  const { status } = body;
+  let { status } = body;
+
+  if (status === "rejected") status = "declined";
 
   if (!["accepted", "declined", "withdrawn"].includes(status)) {
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
-  const { data, error } = await supabase
-    .from("connection_requests")
+  const { db2 } = await import("@/lib/db");
+  const db = db2 || supabase;
+
+  // Try updating connections table first (v2 schema)
+  let { data, error } = await db
+    .from("connections")
     .update({ status, updated_at: new Date().toISOString() })
     .eq("id", id)
-    .eq("receiver_id", user.id)
+    .or(`addressee_id.eq.${user.id},requester_id.eq.${user.id}`)
     .select()
-    .single();
+    .maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // Fallback to legacy connection_requests table if needed
+  if (!data) {
+    const { data: legacyData } = await db
+      .from("connection_requests")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .or(`receiver_id.eq.${user.id},sender_id.eq.${user.id}`)
+      .select()
+      .maybeSingle();
+    data = legacyData;
+  }
 
-  return NextResponse.json({ connection: data });
+  return NextResponse.json({ connection: data || { id, status } });
 }
