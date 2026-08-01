@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
 
       if (searchTerms.length > 0) {
         const termConditions = searchTerms.map(term =>
-          `title.ilike.%${term}%,category.ilike.%${term}%,eligibility.ilike.%${term}%,description.ilike.%${term}%,organization.ilike.%${term}%`
+          `title.ilike.%${term}%,category.ilike.%${term}%,eligibility.ilike.%${term}%,description.ilike.%${term}%,specialization.ilike.%${term}%`
         ).join(",");
         supabaseQuery = supabaseQuery.or(termConditions);
       }
