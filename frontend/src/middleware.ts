@@ -125,13 +125,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (isAdminPage && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('redirectTo', request.nextUrl.pathname);
-    return NextResponse.redirect(url);
-  }
-
   addSecurityHeaders(supabaseResponse);
   return supabaseResponse;
 }
