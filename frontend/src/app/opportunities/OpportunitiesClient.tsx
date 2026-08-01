@@ -25,8 +25,8 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   useEffect(() => {
     const s = searchParams.get("search") || "";
     const c = searchParams.get("category") || "All";
-    if (s !== search) setSearch(s);
-    if (c !== category) setCategory(c);
+    setSearch(s);
+    setCategory(c);
   }, [searchParams]);
   const [showUnverified, setShowUnverified] = useState(false);
   const [viewMode, setViewMode] = useState<"card" | "row">("card");
