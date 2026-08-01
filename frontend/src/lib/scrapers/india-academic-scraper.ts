@@ -3,7 +3,7 @@ import type { ScrapedOpportunity } from "./types";
 import institutions from "@/config/scrapers/institutions.json";
 
 // Filter for Indian academic institutions
-const ACADEMIC_SOURCES = institutions.filter(inst => inst.country === "India" && inst.type !== "Research Lab");
+const ACADEMIC_SOURCES = institutions.flatMap(cat => cat.organizations);
 
 function detectCategory(title: string): string | null {
   const t = title.toUpperCase();
