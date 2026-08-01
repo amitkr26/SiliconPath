@@ -1,90 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { scrapeDRDO } from "@/lib/scrapers/drdo-scraper";
-import { scrapeISRO } from "@/lib/scrapers/isro-scraper";
-import { scrapeCSIR } from "@/lib/scrapers/csir-scraper";
-import { scrapeIndiaAcademic } from "@/lib/scrapers/india-academic-scraper";
-import { scrapeGlobalSemiconductor } from "@/lib/scrapers/global-semiconductor-scraper";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
-
-export const dynamic = "force-dynamic";
+import { runScraperRoute } from "../utils";
+import {
+  scrapeSpaceAndDefence,
+  scrapeScientificResearch,
+  scrapeElectronicsAndSemiconductor,
+  scrapePsuElectronics,
+  scrapeRailways,
+  scrapeUniversitiesAndInstitutes
+} from "@/lib/scrapers/national-scrapers";
 
 export async function GET(request: NextRequest) {
-  const startTime = Date.now();
-  const summary: Record<string, number> = {};
+  const allScraperFn = async () => {
+    let all: any[] = [];
+    all = all.concat(await scrapeSpaceAndDefence());
+    all = all.concat(await scrapeScientificResearch());
+    all = all.concat(await scrapeElectronicsAndSemiconductor());
+    all = all.concat(await scrapePsuElectronics());
+    all = all.concat(await scrapeRailways());
+    all = all.concat(await scrapeUniversitiesAndInstitutes());
+    return all;
+  };
 
-  try {
-    const [drdo, isro, csir, iit, semi] = await Promise.all([
-      scrapeDRDO().catch(() => []),
-      scrapeISRO().catch(() => []),
-      scrapeCSIR().catch(() => []),
-      scrapeIndiaAcademic().catch(() => []),
-      scrapeGlobalSemiconductor().catch(() => []),
-    ]);
-
-    summary["DRDO Vacancies"] = drdo.length;
-    summary["ISRO Careers"] = isro.length;
-    summary["CSIR Labs"] = csir.length;
-    summary["IIT / IISc Research"] = iit.length;
-    summary["Semiconductor Fabs & EDA"] = semi.length;
-
-    const allScraped = [...drdo, ...isro, ...csir, ...iit, ...semi];
-    let inserted = 0;
-
-    if (isAdminConfigured && supabaseAdmin) {
-      for (const item of allScraped) {
-        const applyUrl = item.apply_link || item.source_url;
-        if (!item.title || !applyUrl) continue;
-
-        const slug = (item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now().toString(36)).slice(0, 100);
-        const catMap: Record<string, string> = {
-          "jrf": "jrf",
-          "srf": "srf",
-          "phd": "phd",
-          "govt job": "government",
-          "government": "government",
-          "job": "job",
-          "fellowship": "fellowship",
-          "internship": "internship",
-        };
-        const cleanCat = catMap[(item.category || "jrf").toLowerCase()] || "jrf";
-
-        try {
-          const { error } = await supabaseAdmin
-            .from("opportunities")
-            .insert({
-              title: item.title,
-              category: cleanCat,
-              location: item.location || "India",
-              salary_range: item.stipend || null,
-              deadline: item.deadline || null,
-              eligibility: item.eligibility || null,
-              description: item.description || item.title,
-              apply_url: applyUrl,
-              source_url: applyUrl,
-              verification_status: "verified",
-              is_active: true,
-              slug,
-              tags: item.tags || [item.organization || "Electronics", "Verified", "Official Portal"],
-            });
-
-          if (!error) inserted++;
-        } catch {
-          // ignore individual insert error
-        }
-      }
-    }
-
-    return NextResponse.json({
-      success: true,
-      executionTimeMs: Date.now() - startTime,
-      totalAuthenticScraped: allScraped.length,
-      upsertedVerifiedCount: inserted,
-      db_status: isAdminConfigured ? "synced_to_supabase" : "scraped_live",
-      breakdown: summary,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (err: any) {
-    console.error("Master Scraper API Error:", err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
-  }
+  return runScraperRoute(
+    allScraperFn,
+    "Master National Scraper Runner (80+ Institutions Across Space, Defence, CSIR, Semiconductor, Railways, IITs & IISc)",
+    ["Master Sync", "National Scraper", "100% Verified"]
+  );
 }
