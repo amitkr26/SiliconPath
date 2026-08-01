@@ -1,6 +1,5 @@
 "use client";
 
-import { LOCATIONS } from "@/lib/utils";
 import { X, Check } from "lucide-react";
 
 interface FilterBarProps {
@@ -15,11 +14,12 @@ interface FilterBarProps {
 }
 
 const JOB_TYPES = [
-  { label: "Research Fellowship (JRF/SRF)", value: "Research Fellowship" },
-  { label: "PhD & Doctoral Admissions", value: "PhD Scholarship" },
-  { label: "Full-Time & Govt Engineering", value: "Full-time" },
-  { label: "Internship & Co-Op", value: "Internship" },
-  { label: "Trainee & Graduate Apprentice", value: "Trainee" },
+  { label: "Junior Research Fellow (JRF)", value: "jrf" },
+  { label: "Senior Research Fellow (SRF)", value: "srf" },
+  { label: "PhD & Doctoral Admissions", value: "phd" },
+  { label: "Government Research Jobs", value: "government" },
+  { label: "Private VLSI Engineering Jobs", value: "job" },
+  { label: "Internships & Fellowships", value: "internship" },
 ];
 
 const DEGREES = [
@@ -78,10 +78,10 @@ export default function FilterBar({
         )}
       </div>
 
-      {/* 1. JOB TYPE CATEGORY FILTER */}
+      {/* 1. JOB CATEGORY FILTER */}
       <div>
         <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-2.5 flex items-center justify-between">
-          <span>Job / Research Category</span>
+          <span>Job Category</span>
           {selectedCategory !== "All" && (
             <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded font-black">Active</span>
           )}
@@ -107,7 +107,7 @@ export default function FilterBar({
         </div>
       </div>
 
-      {/* 2. REQUIRED DEGREE FILTER */}
+      {/* 2. REQUIRED QUALIFICATION FILTER */}
       <div>
         <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-2.5 flex items-center justify-between">
           <span>Required Qualification</span>
@@ -139,7 +139,7 @@ export default function FilterBar({
       {/* 3. LOCATION FILTER */}
       <div>
         <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-2.5 flex items-center justify-between">
-          <span>Location Domain</span>
+          <span>Location</span>
           {selectedLocation !== "All" && (
             <span className="text-[10px] bg-purple-600 text-white px-2 py-0.5 rounded font-black">Active</span>
           )}

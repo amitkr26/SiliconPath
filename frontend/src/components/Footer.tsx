@@ -18,7 +18,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-slate-400 text-xs font-semibold leading-relaxed">
-              India&apos;s premier platform for semiconductor &amp; hardware engineers: 100% verified research openings, VLSI Courses curriculum, professional network, and AI career tools.
+              India&apos;s premier platform for semiconductor &amp; VLSI engineers: 100% verified research openings, VLSI Courses, professional network, and AI career tools.
             </p>
             <div className="pt-2">
               <Link 
@@ -33,30 +33,30 @@ export default function Footer() {
 
           {/* ECOSYSTEM COLUMN */}
           <div>
-            <h4 className="text-xs font-black text-white tracking-widest uppercase mb-4 pb-1 border-b-2 border-blue-600 inline-block">Platform Ecosystem</h4>
+            <h4 className="text-xs font-black text-white tracking-widest uppercase mb-4 pb-1 border-b-2 border-blue-600 inline-block">Platform Services</h4>
             <div className="flex flex-col gap-2 font-bold text-xs">
+              <Link href="/opportunities" className="text-slate-400 hover:text-blue-400 transition-colors">Jobs &amp; Opportunities</Link>
+              <Link href="/academy" className="text-slate-400 hover:text-blue-400 transition-colors">VLSI Courses</Link>
+              <Link href="/network" className="text-slate-400 hover:text-blue-400 transition-colors">Professional Network</Link>
+              <Link href="/community" className="text-slate-400 hover:text-blue-400 transition-colors">Community Forum</Link>
               <Link href="/signup?role=candidate" className="text-blue-400 hover:underline">Candidate Registration (@username)</Link>
               <Link href="/signup?role=employer" className="text-emerald-400 hover:underline">Employer Registration Portal</Link>
-              <Link href="/opportunities" className="text-slate-400 hover:text-blue-400 transition-colors">Silicon Openings Engine</Link>
-              <Link href="/academy" className="text-slate-400 hover:text-blue-400 transition-colors">VLSI Courses</Link>
-              <Link href="/network" className="text-slate-400 hover:text-blue-400 transition-colors">Hardware Network</Link>
-              <Link href="/community" className="text-slate-400 hover:text-blue-400 transition-colors">Community Forum</Link>
               <Link href="/ask-ai" className="text-slate-400 hover:text-blue-400 transition-colors">Ask AI Assistant</Link>
               <Link href="/resume" className="text-slate-400 hover:text-blue-400 transition-colors">AI Resume Builder</Link>
             </div>
           </div>
 
-          {/* SILICON OPENING CATEGORIES */}
+          {/* JOB CATEGORIES */}
           <div>
-            <h4 className="text-xs font-black text-white tracking-widest uppercase mb-4 pb-1 border-b-2 border-blue-600 inline-block">Silicon Roles</h4>
+            <h4 className="text-xs font-black text-white tracking-widest uppercase mb-4 pb-1 border-b-2 border-blue-600 inline-block">Job Categories</h4>
             <div className="flex flex-col gap-2 font-bold text-xs">
-              <Link href="/opportunities?category=jrf" className="text-slate-400 hover:text-blue-400 transition-colors">JRF Positions</Link>
-              <Link href="/opportunities?category=srf" className="text-slate-400 hover:text-blue-400 transition-colors">SRF Positions</Link>
-              <Link href="/opportunities?category=phd" className="text-slate-400 hover:text-blue-400 transition-colors">PhD Admissions</Link>
+              <Link href="/opportunities?category=jrf" className="text-slate-400 hover:text-blue-400 transition-colors">Junior Research Fellow (JRF)</Link>
+              <Link href="/opportunities?category=srf" className="text-slate-400 hover:text-blue-400 transition-colors">Senior Research Fellow (SRF)</Link>
+              <Link href="/opportunities?category=phd" className="text-slate-400 hover:text-blue-400 transition-colors">PhD &amp; Doctoral Admissions</Link>
               <Link href="/opportunities?category=government" className="text-slate-400 hover:text-blue-400 transition-colors">Government Research Jobs</Link>
-              <Link href="/opportunities?category=fellowship" className="text-slate-400 hover:text-blue-400 transition-colors">Semiconductor Fellowships</Link>
-              <Link href="/opportunities?category=job" className="text-slate-400 hover:text-blue-400 transition-colors">Private Fabless Roles</Link>
-              <Link href="/opportunities?search=DRDO" className="text-slate-400 hover:text-blue-400 transition-colors">DRDO Openings</Link>
+              <Link href="/opportunities?category=job" className="text-slate-400 hover:text-blue-400 transition-colors">Private VLSI Engineering Jobs</Link>
+              <Link href="/opportunities?category=internship" className="text-slate-400 hover:text-blue-400 transition-colors">Internships &amp; Fellowships</Link>
+              <Link href="/opportunities?search=DRDO" className="text-slate-400 hover:text-blue-400 transition-colors">DRDO Recruitment</Link>
             </div>
           </div>
 
@@ -67,7 +67,7 @@ export default function Footer() {
               <Link href="/organizations" className="text-slate-400 hover:text-blue-400 transition-colors">Organizations Directory</Link>
               <Link href="/resources/jrf-guide" className="text-slate-400 hover:text-blue-400 transition-colors">JRF Complete Guide</Link>
               <Link href="/resources/phd-guide" className="text-slate-400 hover:text-blue-400 transition-colors">PhD Admission Guide</Link>
-              <Link href="/resources/vlsi-careers" className="text-slate-400 hover:text-blue-400 transition-colors">VLSI Career Guide</Link>
+              <Link href="/resources/vlsi-careers" className="text-slate-400 hover:text-blue-400 transition-colors">VLSI Career Roadmap</Link>
               <Link href="/contact" className="text-slate-400 hover:text-blue-400 transition-colors">Contact Support</Link>
             </div>
           </div>
@@ -75,8 +75,8 @@ export default function Footer() {
 
         {/* BOTTOM BAR */}
         <div className="border-t-2 border-slate-900 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-bold text-slate-500">
-          <p>&copy; {new Date().getFullYear()} BerojgarDegreeWala. Built for India&apos;s semiconductor revolution.</p>
-          <p>Data aggregated daily from DRDO, ISRO, CSIR, IITs &amp; premier fabless enterprises.</p>
+          <p>&copy; {new Date().getFullYear()} BerojgarDegreeWala. Built for India&apos;s semiconductor &amp; VLSI engineers.</p>
+          <p>Verified openings from DRDO, ISRO, CSIR, IITs &amp; top fabless enterprises.</p>
         </div>
       </div>
     </footer>
