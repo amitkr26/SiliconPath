@@ -184,6 +184,9 @@ export default function AdminPage() {
             </div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">Admin Console Login</h1>
             <p className="text-slate-600 text-xs font-extrabold mt-1">BerojgarDegreeWala Control Panel</p>
+            <div className="mt-3 px-3 py-1.5 bg-blue-50 border border-slate-900 rounded-lg text-[11px] font-black text-blue-900 shadow-[2px_2px_0px_0px_#0F172A]">
+              🔒 Direct Admin Credentials Only (Google Sign-In Disabled)
+            </div>
           </div>
 
           {error && (
