@@ -2,17 +2,17 @@
 
 # 🎓 BerojgarDegreeWala
 
-### **India's Premier Verified Opportunity Engine & Knowledge Ecosystem for Semiconductor, VLSI & Microelectronics Engineers**
+### **India's Premier Verified Platform for Semiconductor & VLSI Engineers**
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
 [![Neon PostgreSQL](https://img.shields.io/badge/Neon-PostgreSQL-00E599?style=for-the-badge&logo=postgresql)](https://neon.tech/)
-[![Deployment Status](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel)](https://berojgardegreewala.vercel.app)
+[![Deployment Status](https://img.shields.io/badge/Vercel-Live-000000?style=for-the-badge&logo=vercel)](https://berojgardegreewala.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-[**Live Platform**](https://berojgardegreewala.vercel.app) • [**Explore Openings**](https://berojgardegreewala.vercel.app/opportunities) • [**July 2026 News Feed**](https://berojgardegreewala.vercel.app/news) • [**VLSI Academy**](https://berojgardegreewala.vercel.app/academy) • [**Documentation**](ARCHITECTURE.md)
+[**Live Platform**](https://berojgardegreewala.vercel.app) • [**Silicon Openings**](https://berojgardegreewala.vercel.app/opportunities) • [**VLSI Courses**](https://berojgardegreewala.vercel.app/academy) • [**Hardware Network**](https://berojgardegreewala.vercel.app/network font) • [**Admin Command Center**](https://berojgardegreewala.vercel.app/admin)
 
 </div>
 
@@ -20,167 +20,81 @@
 
 ## 📌 Executive Summary
 
-**BerojgarDegreeWala** is an open, unified opportunity engine and technical ecosystem built specifically for microelectronics, VLSI design, semiconductor manufacturing, and embedded system engineers across India and globally.
+**BerojgarDegreeWala** (SiliconPath Engine) is India's dedicated unified career ecosystem and learning platform built specifically for microelectronics, VLSI design, semiconductor manufacturing, and embedded systems engineers.
 
-By combining real-time multi-source web scrapers, automated RSS ingestion, structured VLSI curriculum tracks, and an AI-driven career assistant, BerojgarDegreeWala bridges the gap between research institutions (**DRDO**, **ISRO**, **CSIR**, **IIT Bombay**, **IIT Madras**, **IISc**) and global semiconductor leaders (**Intel**, **Qualcomm**, **AMD**, **TSMC**, **Arm Ltd**, **Graphcore**, **Tata Electronics**).
-
----
-
-## ✨ Key Platform Features
-
-### 🎯 1. Verified Live Opportunity Engine (`/opportunities`)
-- **Direct Portal Links**: Zero dead links or fake aggregators. Every listing links directly to official government notifications (`drdo.gov.in`, `isro.gov.in`, `csir.res.in`, `iitb.ac.in`) or verified Greenhouse/Workday corporate portals.
-- **Categorized Openings**: JRF (Junior Research Fellowship), SRF, PhD admissions, Postdoc, DRDO/ISRO Scientist B recruitment, Private VLSI/ASIC Engineer roles, and Internships.
-- **Smart Filters**: Multi-field search by keyword, location (Bangalore, Hyderabad, Pune, Remote), eligibility (B.Tech, M.Tech, PhD), and deadline window.
-
-### 📰 2. July 2026 Live Semiconductor News Stream (`/news`)
-- **Real-Time News Aggregation**: Automated daily RSS sync from premier industry publications including *IEEE Spectrum*, *EE Times*, *Semiconductor Engineering*, and *SemiWiki*.
-- **July 2026 Industry Coverage**: Major coverage of India Semiconductor Mission ($15B Fab investments), TSMC 2nm N2 GAA, Intel 18A EUV adoption, ISRO RISC-V space-grade processors, and Cadence/Synopsys AI-driven EDA design flows.
-
-### 📚 3. VLSI Academy (`/academy`)
-- **7 Core Microelectronics Tracks**:
-  1. Verilog HDL & Digital Logic Design
-  2. SystemVerilog & UVM Testbench Verification
-  3. Physical Design, Floorplanning & PnR
-  4. Static Timing Analysis (STA) & Synthesis
-  5. RTL Design & System-on-Chip (SoC) Architecture
-  6. Design for Testability (DFT) & Boundary Scan
-  7. FPGA Prototyping & Emulation
-
-### 🌐 4. Hardware Network & Community (`/network`, `/community`)
-- Interactive community hub for hardware engineers, verified recruiters, and academic researchers to share tapeout insights, paper summaries, and interview experiences.
-
-### 🤖 5. AI Career Assistant (`/chat`)
-- Context-aware AI copilot tuned specifically for microelectronics career guidance, resume formatting, gate/NET preparation, and technical interview questions.
+By combining real-time multi-source web scrapers, automated RSS ingestion, structured VLSI Courses, unique `@username` candidate profiles, organization portals, and an AI-driven hardware copilot, BerojgarDegreeWala connects research institutions (**DRDO**, **ISRO**, **CSIR**, **IIT Bombay**, **IIT Madras**, **IISc**) with global semiconductor leaders (**Intel**, **Qualcomm**, **AMD**, **TSMC**, **Arm**, **Texas Instruments**, **C-DAC**, **SCL**).
 
 ---
 
-## 🏗️ System Architecture
+## ✨ Core Platform Architecture & Features
 
-```
-                               ┌──────────────────────────────────────────────┐
-                               │     BerojgarDegreeWala Client (Next.js 14)    │
-                               └──────────────────────┬───────────────────────┘
-                                                      │
-                                   ┌──────────────────┴──────────────────┐
-                                   ▼                                     ▼
-                      ┌─────────────────────────┐           ┌─────────────────────────┐
-                      │    Supabase (Main DB)   │           │    Neon PostgreSQL DB   │
-                      │  - Opportunities        │           │  - Analytics Mirror     │
-                      │  - News Articles        │           │  - Search & Click Logs  │
-                      │  - User Auth & Profiles │           │  - Trending Cache       │
-                      └────────────▲────────────┘           └────────────▲────────────┘
-                                   │                                     │
-                                   └──────────────────┬──────────────────┘
-                                                      │
-                                     ┌────────────────┴────────────────┐
-                                     │      Automated Multi-Scrapers   │
-                                     │ - DRDO / ISRO / CSIR Ingestion  │
-                                     │ - Greenhouse / Workday API      │
-                                     │ - IEEE / EE Times RSS Sync      │
-                                     └─────────────────────────────────┘
-```
+### 🎯 1. Silicon Openings Engine (`/opportunities`)
+- **Direct Official Verification**: Every listing links directly to official government recruitment notifications (`rac.gov.in`, `isro.gov.in`, `csir.res.in`, `iitb.ac.in`) or corporate career portals.
+- **Categorized Roles**: JRF (Junior Research Fellowship), SRF, PhD admissions, Postdoc, DRDO/ISRO Scientist vacancies, Private VLSI/ASIC Engineer roles, and Internships.
+- **Ponytail Lazy Loading**: Heavy interactive client components utilize `nextDynamic` loading for high performance and hydration safety.
 
----
+### 📚 2. VLSI Courses (`/academy`)
+- **Structured Self-Paced Tracks**:
+  1. *Digital Logic & SystemVerilog Fundamentals*
+  2. *RTL Verification with SystemVerilog & UVM*
+  3. *Physical Design, Floorplanning & Primetime STA*
+  4. *FPGA Architecture, Xilinx Vivado & IP Cores*
+  5. *RISC-V Microarchitecture & Custom Instruction Extension*
+  6. *Analog IC Design & Cadence Virtuoso Fundamentals*
+- **Curated Open Resources**: Direct integration with NPTEL (IIT Kharagpur/Madras), ChipVerify tutorials, HDLBits auto-graded labs, and OpenLANE Sky130 PDK flows.
 
-## 🛠️ Technology Stack
+### 🌐 3. Hardware Network & Direct Messaging (`/network`, `/messages`)
+- **Unique `@username` Profiles**: Candidates and researchers claim verified unique handles (e.g. `@ananya_vlsi`) for direct talent matching.
+- **Employer Portals**: Organizations post JRF, PhD, and microelectronics roles under official organization handles.
+- **Instant Messaging & Connection Approvals**: Full multi-threaded direct messaging and connection request management (`accepted`, `declined`).
 
-| Layer | Technology | Purpose |
-| :--- | :--- | :--- |
-| **Frontend Framework** | [Next.js 14](https://nextjs.org/) (App Router) | Server-side rendering, static generation, API routes |
-| **Language** | [TypeScript 5.4](https://www.typescriptlang.org/) | Type-safe enterprise codebase |
-| **Styling** | [Tailwind CSS 3.4](https://tailwindcss.com/) | Glassmorphism UI, custom HSL color palette, dark mode |
-| **Icons** | [Lucide React](https://lucide.dev/) | High-performance vector UI icons |
-| **Primary Database** | [Supabase](https://supabase.com/) | PostgreSQL, Auth, Row-Level Security (RLS) |
-| **Analytics & Cache DB** | [Neon PostgreSQL](https://neon.tech/) | Serverless PostgreSQL replica, query analytics, click tracking |
-| **AI Providers** | OpenRouter, Groq, Gemini, NVIDIA NIM | LLM career guidance & automated parsing |
-| **Deployment** | [Vercel](https://vercel.com/) | Global Edge Network, automated Vercel Cron Jobs |
+### 🛡️ 4. Standalone Admin Command Center (`/admin`)
+- **Isolated Layout**: Fully separated from public website navigation with a dark executive theme (`Slate-950`).
+- **25+ Monitored Scraper Sources & RSS Feeds**: Real-time sync logs for DRDO RAC, ISRO Careers, CSIR Labs, IIT Microelectronics, IEEE Spectrum, EE Times, Semiconductor Engineering, EDN, SemiWiki, and Electronics Weekly.
 
 ---
 
-## 🚀 Getting Started & Local Setup
+## 💻 Tech Stack & Engineering Standards
+
+| Layer | Technology |
+| :--- | :--- |
+| **Framework** | Next.js 14 (App Router) |
+| **Language** | TypeScript 5.4 |
+| **Styling** | Custom Neo-Brutalist & Slate Dark Themes (Vanilla CSS + Tailwind CSS) |
+| **Database** | Supabase PostgreSQL & Neon DB |
+| **Lazy Loading** | Ponytail Lazy Loading Pattern (`nextDynamic`) |
+| **Icons** | Lucide React |
+
+---
+
+## ⚡ Quick Start & Deployment
 
 ### Prerequisites
-- **Node.js**: `v18.17.0` or higher
-- **npm**: `v9.0.0` or higher
+- Node.js 18.x or 20.x
+- npm / yarn / pnpm
 
-### Installation Steps
+### Environment Setup (`frontend/.env.local`)
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+```
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/amitkr26/BerojgarDegreeWala.git
-   cd BerojgarDegreeWala/frontend
-   ```
+### Installation & Execution
+```bash
+# Navigate to frontend directory
+cd frontend
 
-2. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
+# Install dependencies
+npm install
 
-3. **Configure Environment Variables**:
-   Create a `.env.local` file in the `frontend/` directory with the following variables:
-   ```env
-   # --- App Config ---
-   NEXT_PUBLIC_APP_URL=http://localhost:3000
-   NEXT_PUBLIC_SITE_URL=https://berojgardegreewala.vercel.app
-   NEXT_PUBLIC_APP_NAME=BerojgarDegreeWala
-   NODE_ENV=development
+# Run development server
+npm run dev
 
-   # --- Supabase (Primary Database & Auth) ---
-   NEXT_PUBLIC_SUPABASE_URL=https://your-supabase-id.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-   SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
-
-   # --- Neon (Analytics & Mirror DB) ---
-   DATABASE_URL=postgresql://user:password@ep-green-paper.neon.tech/neondb?sslmode=require
-   NEON_DATABASE_URL=postgresql://user:password@ep-green-paper.neon.tech/neondb?sslmode=require
-
-   # --- AI Providers ---
-   GROQ_API_KEY=your-groq-api-key
-   GEMINI_API_KEY=your-gemini-api-key
-   OPENROUTER_API_KEY=your-openrouter-api-key
-
-   # --- Cron & Communication ---
-   CRON_SECRET=your-cron-secret
-   RESEND_API_KEY=your-resend-api-key
-   TELEGRAM_BOT_TOKEN=your-telegram-bot-token
-   ```
-
-4. **Run Development Server**:
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-5. **Build for Production**:
-   ```bash
-   npm run build
-   npm run start
-   ```
+# Build production bundle
+npm run build
+```
 
 ---
 
-## 📡 API Endpoints Overview
-
-| Endpoint | Method | Description |
-| :--- | :--- | :--- |
-| `/api/opportunities` | `GET` | Fetch verified opportunities with category, location, and search query filters |
-| `/api/news` | `GET` | Fetch latest semiconductor and VLSI industry articles |
-| `/api/news/sync` | `GET / POST` | Trigger automated RSS sync across IEEE Spectrum, EE Times, and Semi Engineering |
-| `/api/scrapers/run-all` | `GET / POST` | Master scraper endpoint for DRDO, ISRO, CSIR, and corporate job portals |
-| `/api/subscribe` | `POST` | Subscribe email/Telegram for daily job digest notifications |
-| `/api/chat` | `POST` | AI Career Assistant completion stream |
-
----
-
-## 📄 License & Community
-
-This project is open-source under the [MIT License](LICENSE).
-
-Made with ❤️ for the Indian Semiconductor & Electronics Community.
-
----
-
-<div align="center">
-  <sub>BerojgarDegreeWala — Empowering the Next Generation of Hardware Engineers.</sub>
-</div>
+&copy; 2026 BerojgarDegreeWala. Built for India's semiconductor and VLSI revolution.

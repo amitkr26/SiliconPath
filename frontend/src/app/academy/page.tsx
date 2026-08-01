@@ -114,7 +114,7 @@ export default function AcademyDashboard() {
               <span>SELF-PACED HARDWARE &amp; VLSI CURRICULUM</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-              VLSI &amp; Microelectronics Academy
+              VLSI &amp; Microelectronics Courses
             </h1>
             <p className="text-blue-50 text-sm sm:text-base font-semibold leading-relaxed">
               Structured learning paths with verified NPTEL lectures, ChipVerify tutorials, SystemVerilog/UVM masterclasses, OpenLANE Physical Design labs, and auto-graded assessments.
