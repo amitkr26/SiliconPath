@@ -27,14 +27,36 @@ interface ScrapeLog {
 }
 
 const MONITORED_SCRAPER_SOURCES = [
-  { name: "India Semiconductor Mission", category: "News & Policy", url: "https://ism.gov.in", status: "Active Live", lastRun: "Today, 19:40" },
-  { name: "IEEE Spectrum", category: "Research & VLSI", url: "https://spectrum.ieee.org", status: "Active Live", lastRun: "Today, 19:35" },
-  { name: "EE Times", category: "Semiconductor News", url: "https://www.eetimes.com", status: "Active Live", lastRun: "Today, 19:30" },
-  { name: "Semiconductor Engineering", category: "Chip Architecture", url: "https://semiengineering.com", status: "Active Live", lastRun: "Today, 19:25" },
-  { name: "DRDO Recruitment (RAC)", category: "Govt JRF & Scientist", url: "https://rac.gov.in", status: "Active Live", lastRun: "Today, 19:20" },
-  { name: "ISRO Careers (VSSC/SAC)", category: "Govt Fellowships", url: "https://isro.gov.in", status: "Active Live", lastRun: "Today, 19:15" },
-  { name: "CSIR Research Labs", category: "Research Scientist", url: "https://csir.res.in", status: "Active Live", lastRun: "Today, 19:10" },
-  { name: "IIT Bombay & IIT Madras", category: "PhD & Postdoc", url: "https://www.iitb.ac.in", status: "Active Live", lastRun: "Today, 19:05" },
+  // GOVERNMENT & ACADEMIC RESEARCH PORTALS
+  { name: "DRDO Recruitment (RAC)", category: "Govt JRF & Scientist", url: "https://rac.gov.in", status: "Active Live", type: "Scraper", lastRun: "Today, 19:40" },
+  { name: "ISRO Careers (VSSC/SAC/URSC/IPRC)", category: "Govt Space & Microelectronics", url: "https://isro.gov.in", status: "Active Live", type: "Scraper", lastRun: "Today, 19:35" },
+  { name: "CSIR CEERI, CSIO & NPL Labs", category: "Govt Research Fellowships", url: "https://csir.res.in", status: "Active Live", type: "Scraper", lastRun: "Today, 19:30" },
+  { name: "IIT Bombay Microelectronics", category: "PhD & Postdoc Fellowships", url: "https://ee.iitb.ac.in", status: "Active Live", type: "Scraper", lastRun: "Today, 19:25" },
+  { name: "IIT Madras Microelectronics & VLSI", category: "PhD & Research Assistant", url: "https://ee.iitm.ac.in", status: "Active Live", type: "Scraper", lastRun: "Today, 19:20" },
+  { name: "IISc Bangalore CeNSE", category: "PhD & Postdoc Nano Science", url: "https://cense.iisc.ac.in", status: "Active Live", type: "Scraper", lastRun: "Today, 19:15" },
+  { name: "IIT Delhi Microelectronics", category: "PhD & JRF Openings", url: "https://ee.iitd.ac.in", status: "Active Live", type: "Scraper", lastRun: "Today, 19:10" },
+  { name: "IIT Kharagpur VLSI Design Centre", category: "JRF & SRF Fellowships", url: "https://www.iitkgp.ac.in", status: "Active Live", type: "Scraper", lastRun: "Today, 19:05" },
+  { name: "IIT Kanpur Electrical Engineering", category: "JRF & Postdoc Opportunities", url: "https://www.iitk.ac.in", status: "Active Live", type: "Scraper", lastRun: "Today, 19:00" },
+  { name: "India Semiconductor Mission (ISM)", category: "Govt Policy & Bulletins", url: "https://ism.gov.in", status: "Active Live", type: "Scraper", lastRun: "Today, 18:55" },
+  { name: "C-DAC Microelectronics & RISC-V", category: "Govt Chip Design Roles", url: "https://cdac.in", status: "Active Live", type: "Scraper", lastRun: "Today, 18:50" },
+  { name: "SCL Chandigarh (Semi-Conductor Lab)", category: "Govt Fab & Wafer Processing", url: "https://scl.gov.in", status: "Active Live", type: "Scraper", lastRun: "Today, 18:45" },
+
+  // HIGH-STANDARD GENUINE RSS NEWS FEEDS
+  { name: "IEEE Spectrum (Semiconductors)", category: "IEEE Journal RSS Feed", url: "https://spectrum.ieee.org/rss/semiconductors/fulltext", status: "Active Live", type: "RSS Feed", lastRun: "Today, 19:35" },
+  { name: "EE Times (Electronics Engineering Times)", category: "Global Chip News RSS", url: "https://www.eetimes.com/feed/", status: "Active Live", type: "RSS Feed", lastRun: "Today, 19:30" },
+  { name: "Semiconductor Engineering", category: "EDA, Verification & Packaging", url: "https://semiengineering.com/feed/", status: "Active Live", type: "RSS Feed", lastRun: "Today, 19:25" },
+  { name: "EDN (Electronic Design News)", category: "Circuit & IC Design News", url: "https://www.edn.com/feed/", status: "Active Live", type: "RSS Feed", lastRun: "Today, 19:20" },
+  { name: "SemiWiki Semiconductor Forum", category: "Foundry & IP Industry News", url: "https://semiwiki.com/feed/", status: "Active Live", type: "RSS Feed", lastRun: "Today, 19:15" },
+  { name: "Electronics Weekly", category: "Embedded & Microelectronics", url: "https://www.electronicsweekly.com/feed/", status: "Active Live", type: "RSS Feed", lastRun: "Today, 19:10" },
+  { name: "Tom's Hardware Chip Architecture", category: "Silicon Node & Process Feed", url: "https://www.tomshardware.com/feeds/all", status: "Active Live", type: "RSS Feed", lastRun: "Today, 19:05" },
+  { name: "EETimes Asia & Global", category: "Fabless & Foundry Journal", url: "https://www.eetimes.asia/feed/", status: "Active Live", type: "RSS Feed", lastRun: "Today, 19:00" },
+
+  // PREMIER ENTERPRISE CAREER PORTALS
+  { name: "Intel India Microelectronics", category: "Enterprise RTL & Silicon", url: "https://jobs.intel.com", status: "Active Live", type: "Scraper", lastRun: "Today, 18:40" },
+  { name: "Qualcomm India VLSI & Modem", category: "Modem & Verification Roles", url: "https://qualcomm.com/careers", status: "Active Live", type: "Scraper", lastRun: "Today, 18:35" },
+  { name: "AMD India Microelectronics", category: "SoC Design & GPU Firmware", url: "https://careers.amd.com", status: "Active Live", type: "Scraper", lastRun: "Today, 18:30" },
+  { name: "Texas Instruments India", category: "Analog & Mixed-Signal IC", url: "https://careers.ti.com", status: "Active Live", type: "Scraper", lastRun: "Today, 18:25" },
+  { name: "Arm Semiconductor India", category: "CPU Core & Architecture IP", url: "https://careers.arm.com", status: "Active Live", type: "Scraper", lastRun: "Today, 18:20" },
 ];
 
 export default function AdminPage() {
@@ -369,22 +391,27 @@ export default function AdminPage() {
               {MONITORED_SCRAPER_SOURCES.map((src) => (
                 <div key={src.name} className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-[3px_3px_0px_0px_#0F172A] flex items-center justify-between gap-4">
                   <div className="space-y-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-black text-slate-900 text-sm truncate">{src.name}</h3>
+                      <span className={`px-2 py-0.5 border border-slate-900 rounded-md text-[10px] font-black ${
+                        src.type === "RSS Feed" ? "bg-purple-100 text-purple-900" : "bg-blue-100 text-blue-900"
+                      }`}>
+                        {src.type}
+                      </span>
                       <span className="px-2 py-0.5 bg-emerald-100 border border-slate-900 rounded-md text-[10px] font-black text-emerald-800">
                         {src.status}
                       </span>
                     </div>
                     <p className="text-xs font-bold text-slate-500">{src.category}</p>
-                    <a href={src.url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1">
-                      {src.url} <ExternalLink className="w-3 h-3" />
+                    <a href={src.url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1 truncate">
+                      {src.url} <ExternalLink className="w-3 h-3 shrink-0" />
                     </a>
                   </div>
                   <button
                     onClick={runAllScrapers}
                     className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A] shrink-0"
                   >
-                    Run Scraper
+                    Run Sync
                   </button>
                 </div>
               ))}
