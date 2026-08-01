@@ -7,7 +7,11 @@ import { useUser } from "@/hooks/useUser";
 import { useConnections, useConnectionSuggestions } from "@/hooks/useNetwork";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import ConnectionCard from "@/components/ConnectionCard";
+import nextDynamic from "next/dynamic";
+
+const ConnectionCard = nextDynamic(() => import("@/components/ConnectionCard"), {
+  loading: () => <div className="h-32 bg-white border-3 border-slate-900 rounded-2xl animate-pulse" />,
+});
 
 type TabKey = "connections" | "received" | "suggestions";
 
