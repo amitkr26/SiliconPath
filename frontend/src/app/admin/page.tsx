@@ -9,7 +9,11 @@ import {
   Loader2, RefreshCw, Check, ShieldCheck, ExternalLink, Sparkles, Users, TrendingUp,
   Briefcase, Building2, FileText, Activity, BarChart3, Lock, Play, Globe, CheckCircle, AlertTriangle
 } from "lucide-react";
-import AIAnalyticsPanel from "@/app/admin/_components/AIAnalyticsPanel";
+import nextDynamic from "next/dynamic";
+
+const AIAnalyticsPanel = nextDynamic(() => import("@/app/admin/_components/AIAnalyticsPanel"), {
+  loading: () => <div className="h-64 bg-white border-3 border-slate-900 rounded-2xl animate-pulse" />,
+});
 
 const ADMIN_TOKEN_KEY = "admin_token";
 
