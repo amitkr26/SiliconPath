@@ -138,10 +138,10 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
         <div className="mb-8">
           <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 mb-2">
             <Sparkles className="w-4 h-4" />
-            <span>Verified Official Openings Ingestion Engine</span>
+            <span>Verified Semiconductor &amp; VLSI Opportunities</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Silicon Openings Engine</h1>
-          <p className="text-slate-600 mt-1 text-xs sm:text-sm font-bold">Browse 100% verified JRF, PhD, DRDO, ISRO, CSIR, and premier VLSI industry roles.</p>
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Jobs &amp; Opportunities</h1>
+          <p className="text-slate-600 mt-1 text-xs sm:text-sm font-bold">Browse 100% verified JRF, SRF, PhD admissions, DRDO, ISRO, CSIR, and premier VLSI industry roles.</p>
         </div>
 
         <div className="flex gap-8">

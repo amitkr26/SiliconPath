@@ -9,10 +9,10 @@ import {
 import { useUser } from "@/hooks/useUser";
 
 const MAIN_NAV_ITEMS = [
-  { href: "/opportunities", label: "Silicon Openings", icon: Briefcase },
+  { href: "/opportunities", label: "Jobs & Opportunities", icon: Briefcase },
   { href: "/academy", label: "VLSI Courses", icon: GraduationCap },
-  { href: "/network", label: "Hardware Network", icon: Users },
-  { href: "/community", label: "Forum", icon: MessageSquare },
+  { href: "/network", label: "Professional Network", icon: Users },
+  { href: "/community", label: "Community Forum", icon: MessageSquare },
 ];
 
 export default function Navbar() {
@@ -74,7 +74,7 @@ export default function Navbar() {
               Berojgar<span className="text-blue-600">DegreeWala</span>
             </span>
             <span className="text-[9px] sm:text-[10px] text-slate-600 -mt-1 font-extrabold tracking-wider uppercase">
-              Semiconductor &amp; VLSI Hub
+              Semiconductor &amp; VLSI Career Portal
             </span>
           </div>
         </Link>
@@ -85,7 +85,7 @@ export default function Navbar() {
           <input
             ref={searchRef}
             type="text"
-            placeholder="Search VLSI, JRF, DRDO, ISRO..."
+            placeholder="Search VLSI, JRF, DRDO, ISRO, Intel..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-12 py-1.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 placeholder-slate-400 shadow-[2px_2px_0px_0px_#0F172A] focus:outline-none focus:shadow-[4px_4px_0px_0px_#0F172A] transition-all"
