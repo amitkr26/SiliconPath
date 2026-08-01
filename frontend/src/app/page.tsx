@@ -338,7 +338,7 @@ export default async function Home() {
             </div>
 
             <Link
-              href="/employer/post-job"
+              href="/signup?role=employer"
               className="w-full text-center py-3.5 bg-emerald-500 hover:bg-emerald-600 text-slate-900 rounded-xl font-black text-xs border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] transition-all block"
             >
               POST AN OPPORTUNITY / JOIN AS EMPLOYER
