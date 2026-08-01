@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, KeyboardEvent } from "react";
+import Image from "next/image";
 import { Loader2, Send } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -74,7 +75,7 @@ export default function MessageThread({
               {!isMine && (
                 <div className="flex-shrink-0 w-7 h-7 rounded-full bg-[var(--primary-light)] flex items-center justify-center text-[var(--primary)] text-xs font-semibold">
                   {otherUserAvatar ? (
-                    <img src={otherUserAvatar} alt={otherUserName} className="w-7 h-7 rounded-full object-cover" />
+                    <Image src={otherUserAvatar} alt={otherUserName} width={28} height={28} className="w-7 h-7 rounded-full object-cover" unoptimized />
                   ) : initials(otherUserName)}
                 </div>
               )}

@@ -1,6 +1,7 @@
 import { Bell, UserPlus, UserCheck, Heart, MessageCircle, Repeat2, Award, Star, Briefcase } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
+import Image from "next/image";
 
 type NotificationType =
   | "connection_request"
@@ -69,7 +70,7 @@ export default function NotificationItem({
       {/* Actor or icon */}
       <div className="relative flex-shrink-0">
         {actorAvatar ? (
-          <img src={actorAvatar} alt={actorName} className="w-10 h-10 rounded-full object-cover" />
+          <Image src={actorAvatar} alt={actorName} width={40} height={40} className="w-10 h-10 rounded-full object-cover" unoptimized />
         ) : actorName ? (
           <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[var(--surface-raised)] text-[var(--text-secondary)] font-semibold text-sm">
             {initials}
