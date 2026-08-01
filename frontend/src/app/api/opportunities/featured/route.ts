@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
