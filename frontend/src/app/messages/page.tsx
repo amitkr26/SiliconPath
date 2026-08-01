@@ -51,7 +51,10 @@ export default function MessagesPage() {
   }, [user, userLoading, router]);
 
   const { data: convData, isLoading: convLoading } = useConversations();
-  const conversations = (convData?.conversations || []) as unknown as Conversation[];
+  const conversations = useMemo(
+    () => (convData?.conversations || []) as unknown as Conversation[],
+    [convData?.conversations]
+  );
 
   const { data: msgData } = useConversationMessages(activeConv ?? "");
   const messages = useMemo(() => (msgData?.messages || []) as unknown as Message[], [msgData?.messages]);
