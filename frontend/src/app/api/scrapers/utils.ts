@@ -20,7 +20,7 @@ export async function runScraperRoute(
     let inserted = 0;
 
     for (const item of scraped) {
-      if (!item.title) continue;
+      const applyUrl = item.apply_link || item.source_url || "https://rac.gov.in";
       const rawSlug = item.title.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-+|-+$/g, "").slice(0, 65);
       const slug = rawSlug || `opportunity-${Date.now()}`;
 
