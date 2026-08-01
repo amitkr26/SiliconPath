@@ -21,8 +21,8 @@ export async function runScraperRoute(
 
     for (const item of scraped) {
       if (!item.title) continue;
-      const applyUrl = item.apply_link || item.source_url || "https://drdo.gov.in/drdo/careers";
-      const slug = (item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now().toString(36)).slice(0, 100);
+      const rawSlug = item.title.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-+|-+$/g, "").slice(0, 65);
+      const slug = rawSlug || `opportunity-${Date.now()}`;
 
       const { error } = await supabaseAdmin
         .from("opportunities")
