@@ -75,7 +75,7 @@ export default function MessageThread({
               {!isMine && (
                 <div className="flex-shrink-0 w-7 h-7 rounded-full bg-[var(--primary-light)] flex items-center justify-center text-[var(--primary)] text-xs font-semibold">
                   {otherUserAvatar ? (
-                    <Image src={otherUserAvatar} alt={otherUserName} width={28} height={28} className="w-7 h-7 rounded-full object-cover" unoptimized />
+                    <Image src={otherUserAvatar} alt={otherUserName || "User"} width={28} height={28} className="w-7 h-7 rounded-full object-cover" unoptimized />
                   ) : initials(otherUserName)}
                 </div>
               )}

@@ -70,7 +70,7 @@ export default function NotificationItem({
       {/* Actor or icon */}
       <div className="relative flex-shrink-0">
         {actorAvatar ? (
-          <Image src={actorAvatar} alt={actorName} width={40} height={40} className="w-10 h-10 rounded-full object-cover" unoptimized />
+          <Image src={actorAvatar} alt={actorName || "User"} width={40} height={40} className="w-10 h-10 rounded-full object-cover" unoptimized />
         ) : actorName ? (
           <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[var(--surface-raised)] text-[var(--text-secondary)] font-semibold text-sm">
             {initials}
