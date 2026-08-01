@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import Link from "next/link";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import {
   ArrowRight, Sparkles, Cpu, CircuitBoard, HardDrive, Wifi,
   GraduationCap, Award, ShieldCheck, UserCheck, Building2, BookOpen, Bot, CheckCircle2, Search
@@ -14,15 +14,15 @@ import OpportunityCard from "@/components/OpportunityCard";
 import NewsCard from "@/components/NewsCard";
 
 // Ponytail Lazy Loading for heavy client interactive components
-const ReviewsSection = dynamic(() => import("@/components/ReviewsSection"), {
+const ReviewsSection = nextDynamic(() => import("@/components/ReviewsSection"), {
   loading: () => <div className="h-64 bg-white border-3 border-slate-900 rounded-2xl animate-pulse" />,
 });
 
-const FaqSection = dynamic(() => import("@/components/FaqSection"), {
+const FaqSection = nextDynamic(() => import("@/components/FaqSection"), {
   loading: () => <div className="h-64 bg-white border-3 border-slate-900 rounded-2xl animate-pulse" />,
 });
 
-const SubscribeSection = dynamic(() => import("@/components/SubscribeSection"), {
+const SubscribeSection = nextDynamic(() => import("@/components/SubscribeSection"), {
   loading: () => <div className="h-48 bg-blue-600 border-3 border-slate-900 rounded-2xl animate-pulse" />,
 });
 
