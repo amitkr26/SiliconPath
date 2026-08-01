@@ -25,13 +25,14 @@ const STATIC_INTERNATIONAL_SOURCES = [
 const INTERNATIONAL_SOURCES = [
   ...STATIC_INTERNATIONAL_SOURCES,
   ...institutions
-    .filter(inst => inst.country !== "India")
+    .filter(cat => cat.category !== "India")
+    .flatMap(cat => cat.organizations)
     .map(inst => ({
       name: inst.name,
       url: inst.url,
       type: 'html',
       category: 'PhD' as const,
-      org: inst.org
+      org: inst.name
     }))
 ];
 
