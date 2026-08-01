@@ -82,7 +82,8 @@ export default function MessagesPage() {
           .select("id, display_name, avatar_url, headline")
           .or(`id.eq.${userParam},username.eq.${userParam}`)
           .maybeSingle()
-          .then(({ data }) => {
+          .then((res: any) => {
+            const data = res?.data;
             if (data) {
               setTargetUser({
                 id: data.id,
