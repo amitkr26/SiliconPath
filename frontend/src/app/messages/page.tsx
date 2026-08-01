@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { Loader2, MessageCircle, Search, ArrowLeft, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@/hooks/useUser";
@@ -198,7 +199,7 @@ export default function MessagesPage() {
                     >
                       <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shrink-0 border border-slate-900 shadow-[1.5px_1.5px_0px_0px_#0F172A]">
                         {c.other_user?.avatar_url ? (
-                          <img src={c.other_user.avatar_url} alt="" className="w-10 h-10 rounded-xl object-cover" />
+                          <Image src={c.other_user.avatar_url} alt="" width={40} height={40} className="w-10 h-10 rounded-xl object-cover" unoptimized />
                         ) : (
                           initials(c.other_user?.display_name)
                         )}
@@ -246,7 +247,7 @@ export default function MessagesPage() {
                   </button>
                   <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shrink-0 border border-slate-900 shadow-[1.5px_1.5px_0px_0px_#0F172A]">
                     {activeOtherUser.avatar_url ? (
-                      <img src={activeOtherUser.avatar_url} alt="" className="w-9 h-9 rounded-xl object-cover" />
+                      <Image src={activeOtherUser.avatar_url} alt="" width={36} height={36} className="w-9 h-9 rounded-xl object-cover" unoptimized />
                     ) : (
                       initials(activeOtherUser.display_name)
                     )}

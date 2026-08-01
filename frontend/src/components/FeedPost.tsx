@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ThumbsUp, MessageCircle, Repeat2, MoreHorizontal, Trash2, Briefcase } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Dropdown from "./shared/Dropdown";
@@ -68,7 +69,7 @@ export default function FeedPost({
         <div className="flex items-start gap-3 min-w-0">
           <Link href={authorUsername ? `/profile/${authorUsername}` : "#"} className="flex-shrink-0">
             {authorAvatar ? (
-              <img src={authorAvatar} alt={authorName} className="w-10 h-10 rounded-full object-cover border border-[var(--border-subtle)]" />
+              <Image src={authorAvatar} alt={authorName} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-[var(--border-subtle)]" unoptimized />
             ) : (
               <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[var(--primary-light)] text-[var(--primary)] font-semibold text-sm">
                 {initials}
