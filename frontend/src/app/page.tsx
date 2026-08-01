@@ -160,8 +160,6 @@ async function getLatestNews(): Promise<NewsArticle[]> {
   return FRESH_NEWS;
 }
 
-export const revalidate = 300;
-
 export default async function Home() {
   const [stats, opportunities, news] = await Promise.all([
     getStats(),
