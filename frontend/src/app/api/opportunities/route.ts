@@ -3,6 +3,8 @@ import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
 import { GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
 
+export const dynamic = 'force-dynamic';
+
 // A row is displayable only if it has a real title that is not a nav/menu heading.
 function isDisplayableOpportunity(o: { title?: string | null } | null): boolean {
   if (!o || !o.title) return false;

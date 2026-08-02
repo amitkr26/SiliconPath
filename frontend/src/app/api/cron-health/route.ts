@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin, isConfigured } from '@/lib/supabase';
 import { serverError } from "@berojgardegreewala/api";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   if (!isConfigured) {
     return NextResponse.json({ error: 'Database not configured.' }, { status: 503 });
