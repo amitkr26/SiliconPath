@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "SiliconPath" }],
   creator: "SiliconPath",
+  verification: {
+    google: "QnEIBEpKxP_ZiQxtneegX-6WWKxO_FZ8Yzzxp4kOqxA",
+  },
   openGraph: {
     type: "website",
     locale: "en_IN",
