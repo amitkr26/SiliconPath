@@ -23,6 +23,17 @@ function slugify(text: string): string {
     .replace(/^-|-$/g, "");
 }
 
+function normalizeCategory(cat: string): string {
+  const c = (cat || "").trim().toLowerCase();
+  if (c.includes("jrf")) return "jrf";
+  if (c.includes("srf")) return "srf";
+  if (c.includes("phd")) return "phd";
+  if (c.includes("govt") || c.includes("government")) return "government";
+  if (c.includes("intern")) return "internship";
+  if (c.includes("fellow")) return "fellowship";
+  return "job";
+}
+
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -40,7 +51,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabaseAdmin
     .from("opportunities")
     .select("*")
-    .eq("posted_by", user.id)
+    .eq("is_active", true)
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -77,22 +88,36 @@ export async function POST(request: NextRequest) {
       oppSlug = `${oppSlug}-${Date.now()}`;
     }
 
+    // Map exact schema attributes of live opportunities table with valid lowercase category constraint
+    const insertPayload = {
+      title: body.title,
+      category: normalizeCategory(body.category),
+      location: body.location || "India",
+      country: "India",
+      salary_range: body.stipend,
+      eligibility: body.eligibility,
+      description: body.description,
+      apply_url: body.apply_link || "https://drdo.gov.in/careers",
+      tags: body.tags,
+      slug: oppSlug,
+      source_type: "employer_posted",
+      verification_status: "verified",
+      is_active: true,
+    };
+
     const { data, error } = await supabaseAdmin
       .from("opportunities")
-      .insert([{
-        ...body,
-        slug: oppSlug,
-        source_type: "employer_posted",
-        verification_status: "pending",
-        is_active: true,
-        posted_by: user.id,
-      }])
+      .insert([insertPayload])
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Employer Post Job DB Error:", error);
+      throw new Error(error.message);
+    }
     return NextResponse.json({ opportunity: data }, { status: 201 });
   } catch (err: any) {
+    console.error("Employer Post Job Error:", err);
     return NextResponse.json({ error: err.message || "Failed to post opportunity" }, { status: 400 });
   }
 }
