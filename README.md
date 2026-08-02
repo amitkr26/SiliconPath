@@ -8,8 +8,10 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-Orchestrated-326CE5?style=for-the-badge&logo=kubernetes)](https://kubernetes.io/)
-[![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
-[![Neon PostgreSQL](https://img.shields.io/badge/Neon-PostgreSQL-00E599?style=for-the-badge&logo=postgresql)](https://neon.tech/)
+[![Supabase Primary](https://img.shields.io/badge/Supabase_DB1-Primary-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
+[![Supabase DR](https://img.shields.io/badge/Supabase_DB2-Backup-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
+[![Neon Pooler](https://img.shields.io/badge/Neon_DB1-Read_Pooler-00E599?style=for-the-badge&logo=postgresql)](https://neon.tech/)
+[![Neon Analytics](https://img.shields.io/badge/Neon_DB2-Analytics-00E599?style=for-the-badge&logo=postgresql)](https://neon.tech/)
 [![Deployment Status](https://img.shields.io/badge/Vercel-Live-000000?style=for-the-badge&logo=vercel)](https://berojgardegreewala.vercel.app)
 
 [**Live Platform**](https://berojgardegreewala.vercel.app) • [**Jobs & Opportunities**](https://berojgardegreewala.vercel.app/opportunities) • [**VLSI Courses**](https://berojgardegreewala.vercel.app/academy) • [**Professional Network**](https://berojgardegreewala.vercel.app/network) • [**Admin Command Center**](https://berojgardegreewala.vercel.app/admin)
@@ -20,9 +22,36 @@
 
 ## 📌 Executive Summary
 
-**BerojgarDegreeWala** is an enterprise-grade, unified career portal and technical learning ecosystem designed specifically for microelectronics, VLSI design, semiconductor manufacturing, embedded systems engineers, and scientific researchers.
+**BerojgarDegreeWala** is an enterprise-grade career portal and technical learning ecosystem designed specifically for microelectronics, VLSI design, semiconductor manufacturing, embedded systems engineers, and scientific researchers.
 
 By combining real-time multi-source career scrapers, automated RSS news aggregation, structured VLSI Courses, candidate `@username` verified profiles, employer portals, and an AI-driven career assistant, BerojgarDegreeWala bridges **150+ global national laboratories, universities, semiconductor foundries, and EDA leaders**.
+
+---
+
+## 🗄️ Multi-Database Architecture (4-Database Strategy)
+
+The system operates a high-resilience **Distributed Multi-Database Architecture** utilizing 2 Supabase instances + 2 Neon PostgreSQL connection poolers:
+
+```
+                               ┌──────────────────────────────────────────────┐
+                               │       BerojgarDegreeWala Application        │
+                               └──────────────────────┬───────────────────────┘
+                                                      │
+         ┌─────────────────────────┬──────────────────┴──────────────────┬─────────────────────────┐
+         │                         │                                     │                         │
+         ▼                         ▼                                     ▼                         ▼
+┌───────────────────┐    ┌───────────────────┐                 ┌───────────────────┐    ┌───────────────────┐
+│ Supabase DB 1     │    │ Supabase DB 2     │                 │ Neon DB 1         │    │ Neon DB 2         │
+│ (Primary App DB)  │    │ (Backup & Storage)│                 │ (Pooler / Search) │    │ (Telemetry/Logs)  │
+└───────────────────┘    └───────────────────┘                 └───────────────────┘    └───────────────────┘
+```
+
+| Database Instance | Infrastructure | Purpose & Responsibilities |
+| :--- | :--- | :--- |
+| **Supabase DB 1 (Primary)** | `aqauempuwmbizqoaolop.supabase.co` | **Primary Application DB**: User Authentication, User Profiles (`@username`), Connection Requests, Direct Messaging, Community Feed, and Realtime WebSockets. |
+| **Supabase DB 2 (Secondary)** | `jbqjipwanfsxyqkfrrpx.supabase.co` | **Disaster Recovery (DR) & Media**: Backup mirror, resume PDF bucket storage, and verification certificate assets. |
+| **Neon DB 1 (Primary Pooler)** | `plain-glade-52224468` | **High-Concurrency Read Pooler**: Serverless connection pooler executing read-heavy opportunity queries, instant keyword search, and fast category filtering. |
+| **Neon DB 2 (Secondary)** | `jolly-haze-11306362` | **Telemetry & Analytics**: Automated scraper execution logs, audit trails, system performance metrics, and secondary failover pooler. |
 
 ---
 
@@ -42,7 +71,7 @@ By combining real-time multi-source career scrapers, automated RSS news aggregat
 ### 3. 🇪🇺 Europe
 - **Research Centers & Universities**: CERN, IMEC Belgium, CEA-Leti France, Fraunhofer Society (IIS / IZM), Max Planck Society, CNRS France, ETH Zurich, EPFL Switzerland, TNO Netherlands, Cambridge University, Oxford University, Imperial College London.
 
-### 4. 🌏 Asia-Pacific & Global Leaders
+### 4. 🌏 Asia-Pacific & Global Industry Leaders
 - **Japan**: RIKEN, AIST, JAXA, NIMS.
 - **South Korea**: KAIST, KIST, ETRI.
 - **China**: Chinese Academy of Sciences (CAS), Tsinghua University, Peking University.
@@ -50,7 +79,7 @@ By combining real-time multi-source career scrapers, automated RSS news aggregat
 - **Taiwan**: ITRI, Academia Sinica, NTU.
 - **Australia**: CSIRO.
 - **Top Foundries & Semiconductor Giants**: TSMC, Intel, AMD, NVIDIA, Qualcomm, Broadcom, Samsung Semiconductor, SK hynix, Micron, Texas Instruments, NXP, Infineon, STMicroelectronics, Renesas, ADI, onsemi, GlobalFoundries, UMC, Tower, Wolfspeed, ARM Architecture, Microchip Technology, Espressif Systems, Bosch.
-- **Top EDA & Equipment Manufacturers**: Cadence Design Systems, Synopsys, Siemens EDA, Ansys, Keysight, ASML Lithography, Applied Materials (AMAT), Lam Research, KLA Corporation, Tokyo Electron (TEL).
+- **Top EDA & Equipment Leaders**: Cadence Design Systems, Synopsys, Siemens EDA, Ansys, Keysight, ASML Lithography, Applied Materials (AMAT), Lam Research, KLA Corporation, Tokyo Electron (TEL).
 
 ---
 
@@ -61,7 +90,7 @@ By combining real-time multi-source career scrapers, automated RSS news aggregat
 | **Frontend & API** | Next.js 14 (App Router, Standalone Build Output) |
 | **Language** | TypeScript 5.4 |
 | **Styling** | Custom Neo-Brutalist & Slate Dark Themes (Vanilla CSS + Tailwind CSS) |
-| **Database & ORM** | Supabase PostgreSQL & Neon DB (Serverless Postgres) |
+| **Databases** | 2 Supabase DBs + 2 Neon Serverless PostgreSQL Poolers |
 | **Caching & Rate Limit**| Redis 7 |
 | **AI Integration** | Groq Llama-3.1 & OpenRouter Gateway with Fallback |
 | **Containerization** | Docker Multi-Stage Builds & Docker Compose |
