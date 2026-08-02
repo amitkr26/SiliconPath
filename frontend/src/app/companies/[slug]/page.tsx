@@ -7,11 +7,7 @@ import {
   Loader2, Building2, MapPin, Globe, Users, Calendar,
   ArrowLeft, ExternalLink
 } from "lucide-react";
-import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
-import { toast } from "sonner";
-import { FEATURES } from "@/lib/feature-flags";
-import { ComingSoon } from "@/components/shared/ComingSoon";
 
 function getInitials(name: string): string {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
@@ -20,11 +16,9 @@ function getInitials(name: string): string {
 export default function CompanyDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const { user } = useUser();
 
   const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isFollowing, setIsFollowing] = useState(false);
 
   const injectJsonLd = useCallback((data: any) => {
     const existing = document.getElementById("company-jsonld");
@@ -36,8 +30,8 @@ export default function CompanyDetailPage() {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: data.name,
-      description: data.description || `${data.name} — Company profile on BerojgarDegreeWala`,
-      url: `https://berojgardegreewala.vercel.app/companies/${slug}`,
+      description: data.description || `${data.name} — Company profile on SiliconPath`,
+      url: `https://siliconpath.vercel.app/companies/${slug}`,
       ...(data.website ? { sameAs: [data.website] } : {}),
       ...(data.industry ? { industry: data.industry } : {}),
     };
@@ -46,8 +40,8 @@ export default function CompanyDetailPage() {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://berojgardegreewala.vercel.app" },
-        { "@type": "ListItem", position: 2, name: "Companies", item: "https://berojgardegreewala.vercel.app/companies" },
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://siliconpath.vercel.app" },
+        { "@type": "ListItem", position: 2, name: "Companies", item: "https://siliconpath.vercel.app/companies" },
         { "@type": "ListItem", position: 3, name: data.name },
       ],
     };
@@ -71,37 +65,12 @@ export default function CompanyDetailPage() {
       try {
         const data = await api.get<any>(`/api/companies/${slug}`);
         setCompany(data);
-        setIsFollowing(data.is_following || false);
         injectJsonLd(data);
       } catch { setCompany(null); }
       setLoading(false);
     };
     load();
   }, [slug, injectJsonLd]);
-
-  const handleFollow = async () => {
-    if (!user) { toast.error("Login required"); return; }
-    if (isFollowing) {
-      await api.delete(`/api/companies/${slug}/follow`);
-      setIsFollowing(false);
-      setCompany((prev: any) => ({ ...prev, follower_count: Math.max(0, (prev.follower_count || 0) - 1) }));
-      toast.success("Unfollowed");
-    } else {
-      await api.post(`/api/companies/${slug}/follow`);
-      setIsFollowing(true);
-      setCompany((prev: any) => ({ ...prev, follower_count: (prev.follower_count || 0) + 1 }));
-      toast.success("Following company!");
-    }
-  };
-
-  if (!FEATURES.LINKEDIN_ENABLED) {
-    return (
-      <ComingSoon
-        feature="Company Profile"
-        description="Follow top VLSI companies, government research labs, and universities to track their hiring updates."
-      />
-    );
-  }
 
   if (loading) {
     return (
@@ -159,17 +128,6 @@ export default function CompanyDetailPage() {
             )}
             <span className="flex items-center gap-1"><Users className="w-4 h-4" /> {company.follower_count || 0} followers</span>
           </div>
-
-          <button
-            onClick={handleFollow}
-            className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors border ${
-              isFollowing
-                ? "bg-surface border-border text-text-secondary"
-                : "bg-accent/20 border-accent/30 text-accent hover:bg-accent/30"
-            }`}
-          >
-            {isFollowing ? "Following" : "Follow"}
-          </button>
         </div>
       </div>
 

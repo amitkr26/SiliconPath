@@ -1,67 +1,60 @@
-# ⚡ SiliconPath — VLSI Academy & Hardware Professional Network
+# ⚡ SiliconPath — VLSI Opportunities Aggregator & Academy
 
-> **The Dedicated Professional Network and VLSI Academy for Semiconductor, Electronics, and Hardware Engineers.**
+> **Aggregated career opportunities + free structured VLSI learning. No login required.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Framework-Next.js%2014-black)](https://nextjs.org/)
 [![Supabase](https://img.shields.io/badge/Database-Supabase-emerald)](https://supabase.com/)
-[![Status](https://img.shields.io/badge/Production%20Status-100%25%20Verified%20%26%20Live-brightgreen)](https://siliconpath.vercel.app/)
 
 ---
 
-## 🚀 Overview & Product Scope
+## What it is
 
-**SiliconPath** is a standalone, targeted platform designed specifically for hardware and semiconductor engineers to learn, network, and advance their careers. It combines structured VLSI educational tracks with a LinkedIn-style social layer.
+SiliconPath is a single-purpose platform for semiconductor and VLSI engineers:
 
-### 🌟 Core Features
+1. **Opportunity Aggregator (`/`)**
+   - Curated JRF, SRF, PhD, fellowship, government and industry positions from DRDO, ISRO, CSIR, IITs, IISc, and semiconductor companies.
+   - Search, categories, company directory, deadlines, verification status, calendar export, and link health checks.
 
-1. 🎓 **VLSI Academy (`/academy`)**
-   - 7 Structured, Self-Paced Learning Tracks:
-     - **Digital Logic Fundamentals**
-     - **Verilog HDL**
-     - **SystemVerilog for Verification**
-     - **Universal Verification Methodology (UVM)**
-     - **RTL Design & Synthesis**
-     - **Physical Design & Backend (OpenLane/SkyWater 130nm)**
-     - **VLSI Interview Preparation**
-   - Interactive day-wise lesson plans, code snippets, quizzes, and track progress tracking.
+2. **VLSI Academy (`/academy`)**
+   - 7 structured tracks: Digital Logic, Verilog HDL, SystemVerilog, UVM, RTL Design & Synthesis, Physical Design, VLSI Interview Prep.
+   - Day-wise lessons with YouTube content, practice quizzes, and end-of-track gating assessments.
+   - Progress and bookmarks are stored locally in the browser — no accounts.
 
-2. 👥 **Professional Hardware Network (`/network`, `/feed`, `/messages`)**
-   - Dedicated engineering social feed (`/feed`) to share RTL designs, tapeout updates, and hardware projects.
-   - Professional connection cards, connection requests, and search (`/network`).
-   - Direct real-time messaging threads (`/messages`).
+No login, no social network, no profiles. Just opportunities and learning.
 
-3. 📄 **AI-Powered Resume Builder (`/resume`)**
-   - Built-in ATS resume optimization and hardware-specific skill summary suggestions.
+## Stack
 
-4. 🤖 **AI Engineering Assistant (`/chat`)**
-   - Full-screen AI assistant with multi-model fallback chain for hardware explanations, Verilog debugging, and interview prep.
+- **Frontend**: Next.js 14 (App Router), Tailwind CSS
+- **Database**: Supabase (Postgres) — opportunities, academy content, news, subscribers
+- **Analytics**: Neon Postgres
+- **AI**: classify/expire/summarize for opportunity ops (multi-provider gateway)
+- **Workspaces**: `backend/api` (shared utils), `backend/ai-gateway` (AI provider routing)
 
----
-
-## 🛠️ Repository Structure
-
-```text
-SiliconPath/
-├── frontend/                     # Next.js 14 Web Application (App Router)
-│   ├── src/app/                  # Routes: /academy, /feed, /network, /messages, /profile, /resume, /chat
-│   ├── src/components/           # Navbar, Feed Cards, Academy Layouts, Network Cards
-│   └── src/lib/                  # Supabase, AI providers, Utilities
-└── vercel.json                   # Deployment configurations
-```
-
----
-
-## ⚡ Quick Start
+## Quick start
 
 ```bash
-# Clone the repository
-git clone https://github.com/amitkr26/SiliconPath.git
-cd SiliconPath/frontend
-
-# Install dependencies and start local dev server
 npm install
+cd frontend
+cp .env.example .env.local   # fill with your Supabase/Neon credentials
 npm run dev
 ```
 
-Live Production Site: **[https://siliconpath.vercel.app/](https://siliconpath.vercel.app/)**
+## Repo layout
+
+```text
+SiliconPath/
+├── frontend/            # Next.js app (opportunities + academy)
+├── backend/api          # shared API utils (validation, rate-limit, errors)
+├── backend/ai-gateway   # AI provider fallback chain
+├── neon/                # analytics schema
+└── vercel.json          # deployment + crons
+```
+
+## Scripts
+
+```bash
+npm run dev        # dev servers
+npm run build      # production build
+npm run test       # jest tests
+```

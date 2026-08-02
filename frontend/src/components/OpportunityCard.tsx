@@ -9,16 +9,9 @@ import DeadlineCountdown from "./DeadlineCountdown";
 import { cn, getDaysAgo, isNew } from "@/lib/utils";
 import ShareButtons from "./ShareButtons";
 import VerificationBadge from "./VerificationBadge";
-import { useUser } from "@/hooks/useUser";
-import { api } from "@/lib/api-client";
-import { toast } from "sonner";
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
-}
-
-interface BookmarkResponse {
-  id: string;
 }
 
 const ORG_COLORS: Record<string, string> = {
@@ -51,7 +44,7 @@ function getInitials(name?: string): string {
 function getLocalBookmarks(): string[] {
   if (typeof window === "undefined") return [];
   try {
-    const stored = localStorage.getItem("BerojgarDegreeWala_bookmarks");
+    const stored = localStorage.getItem("siliconpath_bookmarks");
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
@@ -59,66 +52,32 @@ function getLocalBookmarks(): string[] {
 }
 
 function setLocalBookmarks(ids: string[]) {
-  localStorage.setItem("BerojgarDegreeWala_bookmarks", JSON.stringify(ids));
+  localStorage.setItem("siliconpath_bookmarks", JSON.stringify(ids));
 }
 
 export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
   const router = useRouter();
   const oppId = opportunity.id!;
-  const { user, loading: userLoading } = useUser();
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [bookmarkId, setBookmarkId] = useState<string | null>(null);
   const linkUnavailable = opportunity.verification_status === "link_unavailable" || opportunity.verification_status === "expired";
 
   useEffect(() => {
-    if (userLoading) return;
-    if (user) {
-      api
-        .get<BookmarkResponse[]>("/api/bookmarks", { params: { opportunityId: oppId } })
-        .then((bookmarks) => {
-          if (bookmarks.length > 0) {
-            setIsBookmarked(true);
-            setBookmarkId(bookmarks[0].id);
-          } else {
-            setIsBookmarked(false);
-            setBookmarkId(null);
-          }
-        })
-        .catch(() => {
-          setIsBookmarked(false);
-          setBookmarkId(null);
-        });
-    } else {
-      setIsBookmarked(getLocalBookmarks().includes(oppId));
-    }
-  }, [oppId, user, userLoading]);
+    setIsBookmarked(getLocalBookmarks().includes(oppId));
+  }, [oppId]);
 
-  const handleBookmark = async (e: React.MouseEvent) => {
+  const handleBookmark = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (user) {
-      if (isBookmarked && bookmarkId) {
-        await api.delete(`/api/bookmarks/${bookmarkId}`);
-        setIsBookmarked(false);
-        setBookmarkId(null);
-      } else {
-        const res = await api.post<BookmarkResponse>("/api/bookmarks", { opportunityId: oppId });
-        setIsBookmarked(true);
-        setBookmarkId(res.id);
-      }
+    const bookmarks = getLocalBookmarks();
+    const idx = bookmarks.indexOf(oppId);
+    if (idx === -1) {
+      bookmarks.push(oppId);
+      setLocalBookmarks(bookmarks);
+      setIsBookmarked(true);
     } else {
-      const bookmarks = getLocalBookmarks();
-      const idx = bookmarks.indexOf(oppId);
-      if (idx === -1) {
-        bookmarks.push(oppId);
-        setLocalBookmarks(bookmarks);
-        setIsBookmarked(true);
-      } else {
-        bookmarks.splice(idx, 1);
-        setLocalBookmarks(bookmarks);
-        setIsBookmarked(false);
-      }
-      toast.info("Sign in to sync your saved opportunities across devices");
+      bookmarks.splice(idx, 1);
+      setLocalBookmarks(bookmarks);
+      setIsBookmarked(false);
     }
   };
 
@@ -214,7 +173,7 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
                 title={opportunity.title}
                 organization={opportunity.organization}
                 deadline={opportunity.deadline}
-                opportunityUrl={`https://berojgardegreewala.vercel.app/opportunities/${opportunity.slug}`}
+                opportunityUrl={`https://siliconpath.vercel.app/opportunities/${opportunity.slug}`}
               />
             </div>
           </div>

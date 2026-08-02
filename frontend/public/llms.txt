@@ -1,18 +1,20 @@
-# BerojgarDegreeWala (formerly BerojgarDegreeWala)
+# SiliconPath
 
-BerojgarDegreeWala is the premier global aggregator for semiconductor and VLSI career opportunities, fellowships, and research positions.
+SiliconPath is the aggregator and academy for VLSI, semiconductor, and hardware engineering careers. No login required.
 
 ## Core Features
-- Complete aggregation of semiconductor and VLSI career opportunities without requiring login.
-- Real-time updates on JRF, SRF, RA, and PhD positions from top Indian institutions (IITs, IISc, NITs, DRDO, ISRO, CSIR).
-- International fellowships (DAAD, SINGA, MEXT) and PhD opportunities for electronics researchers.
+- Aggregation of JRF, SRF, RA, PhD, fellowship, government and industry opportunities for semiconductor and VLSI engineers.
+- Opportunities from Indian institutions (IITs, IISc, NITs, DRDO, ISRO, CSIR) and international programs.
 - Private sector roles (VLSI Design, Physical Design, Verification, DFT, Embedded Systems).
+- Free structured VLSI Academy: 7 tracks (Digital Logic, Verilog, SystemVerilog, UVM, RTL Design, Physical Design, Interview Prep) with day-wise lessons, videos, quizzes and assessments.
+- No login required. Bookmark opportunities and track academy progress locally in your browser.
 
 ## Main Sections
-- [Opportunities](https://berojgardegreewala.vercel.app/opportunities): Browse all active opportunities.
-- [Resources](https://berojgardegreewala.vercel.app/resources): Comprehensive guides on career paths, exams (GATE, NET), and interview preparation for ISRO/DRDO.
-- [Organizations](https://berojgardegreewala.vercel.app/organizations): Directory of top universities, labs, and semiconductor companies.
-- [News](https://berojgardegreewala.vercel.app/news): Latest updates in the global semiconductor industry.
+- [Opportunities](https://siliconpath.vercel.app/): Browse all active opportunities.
+- [Categories](https://siliconpath.vercel.app/categories): Browse by category.
+- [Companies](https://siliconpath.vercel.app/companies): Directory of organizations hiring in VLSI and semiconductors.
+- [Search](https://siliconpath.vercel.app/search): Full-text search across opportunities.
+- [VLSI Academy](https://siliconpath.vercel.app/academy): Structured learning tracks.
 
 ## Target Audience
-Electronics Engineers, VLSI Researchers, Embedded Systems Professionals, and Students seeking higher education (MTech/PhD) or research roles globally.
+Electronics Engineers, VLSI Researchers, Embedded Systems Professionals, and Students seeking research roles or VLSI careers.

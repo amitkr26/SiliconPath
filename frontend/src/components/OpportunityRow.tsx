@@ -5,26 +5,9 @@ import { MapPin, IndianRupee } from "lucide-react";
 import type { Opportunity } from "@/types";
 import CategoryBadge from "./CategoryBadge";
 import DeadlineCountdown from "./DeadlineCountdown";
-import { useUser } from "@/hooks/useUser";
-import { useBookmarks, useAddBookmark, useRemoveBookmark } from "@/hooks/useBookmarks";
-import { toast } from "sonner";
 
 interface OpportunityRowProps {
   opportunity: Opportunity;
-}
-
-function getLocalBookmarks(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const stored = localStorage.getItem("BerojgarDegreeWala_bookmarks");
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-}
-
-function setLocalBookmarks(ids: string[]) {
-  localStorage.setItem("BerojgarDegreeWala_bookmarks", JSON.stringify(ids));
 }
 
 function getInitials(name?: string): string {
@@ -40,41 +23,6 @@ function getInitials(name?: string): string {
 export default function OpportunityRow({ opportunity }: OpportunityRowProps) {
   const router = useRouter();
   const oppId = opportunity.id!;
-  const { user } = useUser();
-  const { data: bookmarksData } = useBookmarks(100, 0);
-  const addBookmark = useAddBookmark();
-  const removeBookmark = useRemoveBookmark();
-
-  const bookmarkEntry = bookmarksData?.bookmarks.find(
-    (b) => b.opportunity_id === oppId,
-  );
-
-  const isBookmarked = user
-    ? !!bookmarkEntry
-    : getLocalBookmarks().includes(oppId);
-
-  const handleBookmark = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (user) {
-      if (isBookmarked && bookmarkEntry) {
-        await removeBookmark.mutateAsync(bookmarkEntry.id);
-      } else {
-        await addBookmark.mutateAsync(oppId);
-      }
-    } else {
-      const bookmarks = getLocalBookmarks();
-      const idx = bookmarks.indexOf(oppId);
-      if (idx === -1) {
-        bookmarks.push(oppId);
-        setLocalBookmarks(bookmarks);
-      } else {
-        bookmarks.splice(idx, 1);
-        setLocalBookmarks(bookmarks);
-      }
-      toast.info("Sign in to sync your saved opportunities across devices");
-    }
-  };
 
   const handleRowClick = () => {
     router.push(`/opportunities/${opportunity.slug}`);

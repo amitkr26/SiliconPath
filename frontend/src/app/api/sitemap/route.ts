@@ -11,36 +11,25 @@ export async function GET() {
   }
 
   try {
-    const [{ data: opportunities }, { data: news }] = await Promise.all([
-      supabaseAdmin
-        .from("opportunities")
-        .select("slug, updated_at")
-        .eq("is_active", true)
-        .eq("verification_status", "verified")
-        .order("updated_at", { ascending: false })
-        .limit(1000),
-      supabaseAdmin
-        .from("news_articles")
-        .select("slug, updated_at")
-        .order("updated_at", { ascending: false })
-        .limit(1000),
-    ]);
+    const { data: opportunities } = await supabaseAdmin
+      .from("opportunities")
+      .select("slug, updated_at")
+      .eq("is_active", true)
+      .eq("verification_status", "verified")
+      .order("updated_at", { ascending: false })
+      .limit(1000);
 
-    const baseUrl = "https://berojgardegreewala.vercel.app";
+    const baseUrl = "https://siliconpath.vercel.app";
     const urls = [
       { url: baseUrl, lastmod: new Date().toISOString(), changefreq: "daily", priority: 1.0 },
-      { url: `${baseUrl}/opportunities`, lastmod: new Date().toISOString(), changefreq: "daily", priority: 0.9 },
-      { url: `${baseUrl}/news`, lastmod: new Date().toISOString(), changefreq: "daily", priority: 0.8 },
-      { url: `${baseUrl}/academy`, lastmod: new Date().toISOString(), changefreq: "weekly", priority: 0.8 },
+      { url: `${baseUrl}/search`, lastmod: new Date().toISOString(), changefreq: "daily", priority: 0.9 },
+      { url: `${baseUrl}/academy`, lastmod: new Date().toISOString(), changefreq: "daily", priority: 0.8 },
+      { url: `${baseUrl}/categories`, lastmod: new Date().toISOString(), changefreq: "weekly", priority: 0.7 },
       { url: `${baseUrl}/companies`, lastmod: new Date().toISOString(), changefreq: "weekly", priority: 0.7 },
     ];
 
     (opportunities || []).forEach((o: { slug: string; updated_at: string }) => {
       urls.push({ url: `${baseUrl}/opportunities/${o.slug}`, lastmod: o.updated_at, changefreq: "daily", priority: 0.8 });
-    });
-
-    (news || []).forEach((n: { slug: string; updated_at: string }) => {
-      urls.push({ url: `${baseUrl}/news/${n.slug}`, lastmod: n.updated_at, changefreq: "weekly", priority: 0.7 });
     });
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

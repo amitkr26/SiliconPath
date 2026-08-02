@@ -4,16 +4,15 @@ import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Cpu, Code2, Shield, TestTube, Layers, Trophy, Lock, Zap, Play, Check, AlertCircle, RefreshCw, Sparkles } from "lucide-react";
 import { Toaster } from "sonner";
-import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import type { LearningTrack, TrackSlug } from "@/lib/academy/types";
+import { getCompletedDays, getPassedTracks } from "@/lib/academy/progress";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Cpu, Code2, Shield, TestTube, Layers, Layers3: Layers, Trophy,
 };
 
 export default function AcademyDashboard() {
-  const { user } = useUser();
   const [tracks, setTracks] = useState<LearningTrack[]>([]);
   const [completedDays, setCompletedDays] = useState<string[]>([]);
   const [passedTracks, setPassedTracks] = useState<TrackSlug[]>([]);
@@ -38,10 +37,9 @@ export default function AcademyDashboard() {
       setTracks(tracksData);
 
       try {
-        const userId = user?.id || null;
         const [cd, pt] = await Promise.all([
-          api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: userId || "" } }).catch(() => [] as string[]),
-          api.get<TrackSlug[]>("/api/academy/progress/passed-tracks", { params: { userId: userId || "" } }).catch(() => [] as TrackSlug[]),
+          Promise.resolve(getCompletedDays()),
+          Promise.resolve(getPassedTracks()),
         ]);
         setCompletedDays(cd);
         setPassedTracks(pt);
@@ -63,7 +61,7 @@ export default function AcademyDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
 

@@ -18,7 +18,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mb-4">
-              Premium VLSI Academy and professional network for semiconductor engineers. Master your craft and connect with the hardware industry.
+              Aggregated career opportunities for VLSI, semiconductor and hardware engineers, plus a free structured VLSI academy.
             </p>
           </div>
 
@@ -26,12 +26,10 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-white tracking-wide uppercase mb-4">Platform</h4>
             <div className="flex flex-col gap-2.5">
-              <Link href="/academy" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm font-medium">VLSI Academy</Link>
-              <Link href="/feed" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Social Feed</Link>
-              <Link href="/network" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Hardware Network</Link>
-              <Link href="/community" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Community Forum</Link>
-              <Link href="/messages" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Messages</Link>
-              <Link href="/chat" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Ask AI</Link>
+              <Link href="/" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm font-medium">Opportunities</Link>
+              <Link href="/categories" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Browse Categories</Link>
+              <Link href="/companies" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Companies</Link>
+              <Link href="/search" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Search</Link>
             </div>
           </div>
 
@@ -48,10 +46,10 @@ export default function Footer() {
 
           {/* RESOURCES COLUMN */}
           <div>
-            <h4 className="text-sm font-semibold text-white tracking-wide uppercase mb-4">Company & Resources</h4>
+            <h4 className="text-sm font-semibold text-white tracking-wide uppercase mb-4">Learn & Help</h4>
             <div className="flex flex-col gap-2.5">
+              <Link href="/academy" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">VLSI Academy</Link>
               <Link href="/about" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">About SiliconPath</Link>
-              <Link href="/resources/vlsi-careers" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">VLSI Career Guide</Link>
               <Link href="/contact" className="text-slate-400 hover:text-cyan-400 transition-colors text-sm">Contact Support</Link>
             </div>
           </div>
@@ -59,7 +57,7 @@ export default function Footer() {
 
         {/* BOTTOM BAR */}
         <div className="border-t border-slate-800/80 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>&copy; {new Date().getFullYear()} SiliconPath. Elevating VLSI education & hardware engineering.</p>
+          <p>&copy; {new Date().getFullYear()} SiliconPath. VLSI opportunities & education.</p>
           <p>Built for semiconductor professionals worldwide</p>
         </div>
       </div>

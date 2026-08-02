@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { ExternalLink, ShieldAlert } from "lucide-react";
-import { useUser } from "@/hooks/useUser";
-import { api } from "@/lib/api-client";
 
 interface ApplyButtonProps {
   applyLink: string;
@@ -13,7 +11,6 @@ interface ApplyButtonProps {
 }
 
 export default function ApplyButton({ applyLink, opportunityId, verificationStatus, officialPageUrl }: ApplyButtonProps) {
-  const { user } = useUser();
   const isUnavailable = verificationStatus === "link_unavailable" || verificationStatus === "expired";
 
   const handleClick = async () => {
@@ -23,18 +20,6 @@ export default function ApplyButton({ applyLink, opportunityId, verificationStat
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ opportunity_id: opportunityId }),
       });
-      if (user) {
-        const existing = await api.get<{ id: string }[] | null>("/api/applications", {
-          params: { user_id: user.id, opportunity_id: opportunityId },
-        });
-        if (!existing || existing.length === 0) {
-          await api.post("/api/applications", {
-            user_id: user.id,
-            opportunity_id: opportunityId,
-            status: "applied",
-          });
-        }
-      }
     } catch {}
     if (!isUnavailable) {
       window.open(applyLink, "_blank", "noopener noreferrer");

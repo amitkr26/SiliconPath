@@ -8,16 +8,15 @@ import {
   ArrowLeft, Cpu, Play, CheckCircle2, Lock, 
   Sparkles, Award, BookOpen, AlertCircle, HelpCircle, Trophy 
 } from "lucide-react";
-import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { LearningTrack, LearningDay, TrackSlug } from "@/lib/academy/types";
+import { getCompletedDays, getPassedTracks } from "@/lib/academy/progress";
 import { Toaster, toast } from "sonner";
 
 export default function TrackOverview() {
   const params = useParams();
   const router = useRouter();
   const trackSlug = params.track as string;
-  const { user } = useUser();
 
   const [track, setTrack] = useState<LearningTrack | null>(null);
   const [days, setDays] = useState<LearningDay[]>([]);
@@ -45,13 +44,8 @@ export default function TrackOverview() {
         const daysList = await api.get<LearningDay[]>(`/api/academy/tracks/${t.id}/days`);
         setDays(daysList);
 
-        const userId = user?.id || null;
-        const [completedList, passedList] = await Promise.all([
-          api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: userId || "" } }),
-          api.get<TrackSlug[]>("/api/academy/progress/passed-tracks", { params: { userId: userId || "" } })
-        ]);
-        setCompletedDays(completedList);
-        setPassedTracks(passedList);
+        setCompletedDays(getCompletedDays());
+        setPassedTracks(getPassedTracks());
       } catch (err) {
         console.error("Failed to load track details:", err);
         setError("Something went wrong loading this track. Please refresh.");
@@ -62,7 +56,7 @@ export default function TrackOverview() {
     }
     loadTrackData();
     return () => clearTimeout(timeoutId);
-  }, [trackSlug, router, user?.id]);
+  }, [trackSlug, router]);
 
   if (loading) {
     return (

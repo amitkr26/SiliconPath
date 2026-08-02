@@ -11,11 +11,11 @@ export async function postToTelegram(opportunity: Opportunity) {
   }
 
   const detailUrl = opportunity.slug
-    ? `https://berojgardegreewala.vercel.app/opportunities/${opportunity.slug}`
-    : `https://berojgardegreewala.vercel.app/opportunities/${opportunity.id}`;
+    ? `https://siliconpath.vercel.app/opportunities/${opportunity.slug}`
+    : `https://siliconpath.vercel.app/opportunities/${opportunity.id}`;
 
   const message = `
-🔬 *New Opportunity on BerojgarDegreeWala*
+🔬 *New Opportunity on SiliconPath*
 
 📌 *${opportunity.title}*
 🏛️ ${opportunity.organization}
@@ -28,7 +28,7 @@ ${opportunity.tags?.map((t) => "#" + t.replace(/\s+/g, "_")).join(" ")}
 
 🔗 [View Details & Apply](${detailUrl})
 
-_BerojgarDegreeWala — Electronics & Semiconductor Opportunities_
+_SiliconPath — Electronics & Semiconductor Opportunities_
   `;
 
   try {

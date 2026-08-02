@@ -15,7 +15,7 @@ export default function ShareButtons({
   deadline,
   opportunityUrl,
 }: ShareButtonsProps) {
-  const shareText = `New JRF/PhD opportunity: ${title} at ${organization} | Deadline: ${deadline || "TBD"} | Apply: ${opportunityUrl} | More opportunities: https://berojgardegreewala.vercel.app`;
+  const shareText = `New JRF/PhD opportunity: ${title} at ${organization} | Deadline: ${deadline || "TBD"} | Apply: ${opportunityUrl} | More opportunities: https://siliconpath.vercel.app`;
   const tweetText = `New opportunity: ${title} at ${organization} | Deadline: ${deadline || "TBD"} #JRF #Electronics #Semiconductor`;
 
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;

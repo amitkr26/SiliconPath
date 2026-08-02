@@ -4,7 +4,7 @@ import { generateWeeklyDigest } from "@/lib/ai/newsletter";
 import { logger } from "@/lib/logger";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL || "digest@berojgardegreewala.vercel.app";
+const FROM_EMAIL = process.env.FROM_EMAIL || "digest@siliconpath.vercel.app";
 
 interface DigestData {
   newThisWeek: Opportunity[];
@@ -54,8 +54,8 @@ async function getActiveSubscribers(): Promise<Subscriber[]> {
 function buildDigestHTML(data: DigestData): string {
   const formatOppRow = (opp: Opportunity, index: number) => {
     const detailUrl = opp.slug
-      ? `https://berojgardegreewala.vercel.app/opportunities/${opp.slug}`
-      : `https://berojgardegreewala.vercel.app/opportunities/${opp.id}`;
+      ? `https://siliconpath.vercel.app/opportunities/${opp.slug}`
+      : `https://siliconpath.vercel.app/opportunities/${opp.id}`;
 
     return `
     <tr>
@@ -91,7 +91,7 @@ function buildDigestHTML(data: DigestData): string {
       <td style="padding: 40px 24px 0;">
         <div style="text-align: center; margin-bottom: 32px;">
           <h1 style="color: #F1F5F9; font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.02em;">
-            ⚡ BerojgarDegreeWala Weekly Digest
+            ⚡ SiliconPath Weekly Digest
           </h1>
           <p style="color: #64748B; font-size: 14px; margin: 8px 0 0;">
             Your weekly roundup of electronics &amp; semiconductor opportunities
@@ -120,7 +120,7 @@ function buildDigestHTML(data: DigestData): string {
 
         <div style="text-align: center; padding: 24px 0;">
           <p style="color: #475569; font-size: 12px; margin: 0;">
-            <a href="https://berojgardegreewala.vercel.app" style="color: #06B6D4; text-decoration: none;">BerojgarDegreeWala</a>
+            <a href="https://siliconpath.vercel.app" style="color: #06B6D4; text-decoration: none;">SiliconPath</a>
             &mdash; Electronics &amp; Semiconductor Opportunities
           </p>
         </div>
@@ -146,7 +146,7 @@ export async function sendDigest() {
   }
 
   let html = buildDigestHTML(data);
-  let subject = `⚡ BerojgarDegreeWala Weekly Digest — ${new Date().toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })}`;
+  let subject = `⚡ SiliconPath Weekly Digest — ${new Date().toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })}`;
 
   try {
     const aiDigest = await generateWeeklyDigest(data.newThisWeek, []);

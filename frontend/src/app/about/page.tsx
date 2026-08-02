@@ -7,12 +7,12 @@ import {
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "About — SiliconPath | VLSI Academy & Hardware Network",
-  description: "Learn about SiliconPath — the premier platform for Verilog, UVM, Physical Design education, and hardware engineering networking.",
+  title: "About — SiliconPath | VLSI Opportunities & Academy",
+  description: "Learn about SiliconPath — the aggregator for VLSI career opportunities and a free structured VLSI learning academy.",
   alternates: { canonical: "https://siliconpath.vercel.app/about" },
   openGraph: {
     title: "About SiliconPath",
-    description: "Premier VLSI Academy and professional network for semiconductor & hardware engineers.",
+    description: "Aggregated VLSI career opportunities and a free structured VLSI learning academy.",
     url: "https://siliconpath.vercel.app/about",
   },
 };
@@ -42,37 +42,37 @@ const coverageCards = [
     icon: GraduationCap,
     title: "JRF / SRF Positions",
     desc: "Junior and Senior Research Fellowship positions at DRDO, ISRO, CSIR labs, IITs, and NITs with stipends up to ₹42,000/month.",
-    href: "/category/jrf",
+    href: "/search?category=jrf",
   },
   {
     icon: BookOpen,
     title: "PhD Opportunities",
     desc: "Fully-funded doctoral positions in electronics and semiconductor research at premier Indian and international institutions.",
-    href: "/category/phd",
+    href: "/search?category=phd",
   },
   {
     icon: ShieldCheck,
     title: "Government Research Jobs",
     desc: "Scientist and engineer positions at DRDO, ISRO, BARC, and CSIR with 7th CPC pay scales and benefits.",
-    href: "/category/govt-job",
+    href: "/search?category=government",
   },
   {
     icon: Globe,
     title: "International Fellowships",
     desc: "DAAD (Germany), SINGA (Singapore), MEXT (Japan), and Marie Curie (EU) programs for Indian researchers.",
-    href: "/category/international",
+    href: "/search?category=fellowship",
   },
   {
     icon: TrendingUp,
     title: "Private Sector Roles",
     desc: "VLSI, embedded systems, and chip design jobs at Intel, Qualcomm, AMD, TI, Synopsys, and Nvidia.",
-    href: "/category/private",
+    href: "/search",
   },
   {
     icon: Newspaper,
-    title: "Tech News",
-    desc: "Curated electronics and semiconductor news from IEEE Spectrum, Semiconductor Engineering, EE Times, and more.",
-    href: "/news",
+    title: "VLSI Academy",
+    desc: "Structured learning tracks for VLSI and semiconductor engineers — Verilog, SystemVerilog, UVM, Physical Design, and interview prep, all free.",
+    href: "/academy",
   },
 ];
 
@@ -101,8 +101,8 @@ const verificationSteps = [
 
 const faqItems = [
   {
-    q: "Is BerojgarDegreeWala free?",
-    a: "Yes, BerojgarDegreeWala is completely free for all users. Browse, search, filter, and apply for opportunities without any subscription or payment.",
+    q: "Is SiliconPath free?",
+    a: "Yes, SiliconPath is completely free for all users. Browse, search, filter, and apply for opportunities without any subscription or payment.",
   },
   {
     q: "How often are opportunities updated?",
@@ -121,7 +121,7 @@ const faqItems = [
     a: "Each opportunity page has a report button. You can also use our Contact page to send suggestions or report issues directly to our team.",
   },
   {
-    q: "Which organizations does BerojgarDegreeWala cover?",
+    q: "Which organizations does SiliconPath cover?",
     a: "We cover DRDO labs (LRDE, DEAL, RCI, CAIR), CSIR institutes (NPL, CEERI, CSIO), ISRO centers, IITs, NITs, BARC, and private companies like Intel, Qualcomm, AMD, Texas Instruments, and more.",
   },
 ];
@@ -138,12 +138,12 @@ export default async function AboutPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "BerojgarDegreeWala",
-    url: "https://berojgardegreewala.vercel.app",
+    name: "SiliconPath",
+    url: "https://siliconpath.vercel.app",
     description: "Electronics and semiconductor opportunity aggregator for Indian researchers",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://berojgardegreewala.vercel.app/opportunities?search={search_term_string}",
+      target: "https://siliconpath.vercel.app/opportunities?search={search_term_string}",
       "query-input": "required name=search_term_string",
     },
   };
@@ -166,7 +166,7 @@ export default async function AboutPage() {
       {/* Hero */}
       <div className="text-center mb-12">
         <h1 className="font-display text-4xl sm:text-5xl font-bold text-text-primary mb-4">
-          About BerojgarDegreeWala
+          About SiliconPath
         </h1>
         <p className="text-text-secondary text-lg max-w-2xl mx-auto">
           Your gateway to electronics and semiconductor research opportunities in India and globally.
@@ -193,7 +193,7 @@ export default async function AboutPage() {
           opportunities remains fragmented across dozens of websites, portals, and notice boards.
         </p>
         <p className="text-text-secondary text-sm leading-relaxed mb-4">
-          BerojgarDegreeWala was built to solve this. We aggregate JRF, PhD, government research jobs, and private sector
+          SiliconPath was built to solve this. We aggregate JRF, PhD, government research jobs, and private sector
           opportunities from across India and internationally — all in one searchable, verified platform.
         </p>
         <p className="text-text-secondary text-sm leading-relaxed">

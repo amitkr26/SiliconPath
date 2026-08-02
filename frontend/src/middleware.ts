@@ -1,38 +1,22 @@
-import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { applyRateLimit } from '@berojgardegreewala/api';
 
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
-  'https://berojgardegreewala.vercel.app',
-  'https://www.berojgardegreewala.vercel.app',
-  'https://ponytail.dev',
-  'https://www.ponytail.dev',
-  'https://omniroute.online',
-  'https://www.omniroute.online',
+  'https://siliconpath.vercel.app',
+  'https://www.siliconpath.vercel.app',
 ];
 
 const MUTATION_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
-const GATED_PATHS = [
-  '/api/feed',
-  '/api/network',
-  '/api/companies',
-  '/api/messages',
-  '/api/notifications',
-  '/api/people',
-  '/api/resume',
-  '/api/applications',
-];
-
 function addSecurityHeaders(response: NextResponse): void {
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.supabase.co https://plausible.io https://js.sentry-cdn.com",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.supabase.co",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://*.supabase.co https://*.vercel.app https://img.youtube.com",
     "font-src 'self'",
-    "connect-src 'self' https://*.supabase.co https://plausible.io https://o4506458839588864.ingest.us.sentry.io",
+    "connect-src 'self' https://*.supabase.co",
     "frame-src 'self' https://www.youtube.com",
     "object-src 'none'",
     "base-uri 'self'",
@@ -50,8 +34,7 @@ function addSecurityHeaders(response: NextResponse): void {
   }
 }
 
-function rateLimiterKey(path: string): 'api' | 'auth' | 'search' | 'scrape' | 'ai' | null {
-  if (path.startsWith('/api/auth')) return 'auth';
+function rateLimiterKey(path: string): 'api' | 'search' | 'scrape' | 'ai' | null {
   if (path.startsWith('/api/search')) return 'search';
   if (path.startsWith('/api/scrape') || path.startsWith('/api/cron/scrape')) return 'scrape';
   if (path.startsWith('/api/ai')) return 'ai';
@@ -62,7 +45,6 @@ function rateLimiterKey(path: string): 'api' | 'auth' | 'search' | 'scrape' | 'a
 function csrfGuard(request: NextRequest): Response | null {
   if (!MUTATION_METHODS.includes(request.method)) return null;
   if (request.method === 'POST' && (
-    request.nextUrl.pathname.startsWith('/api/auth') ||
     request.nextUrl.pathname.startsWith('/api/subscribe') ||
     request.nextUrl.pathname.startsWith('/api/report-issue')
   )) return null;
@@ -81,19 +63,6 @@ function csrfGuard(request: NextRequest): Response | null {
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const code = request.nextUrl.searchParams.get("code");
-  const host = request.headers.get("host") || "";
-  const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
-  const targetBase = isLocal ? "http://localhost:3000" : "https://berojgardegreewala.vercel.app";
-
-  if (code) {
-    return NextResponse.redirect(new URL(`/auth/callback?code=${encodeURIComponent(code)}`, targetBase));
-  }
-
-  if (path === "/dashboard" || path === "/auth/callback") {
-    const targetUrl = new URL(path + request.nextUrl.search, targetBase);
-    return NextResponse.redirect(targetUrl);
-  }
 
   const csrfResponse = csrfGuard(request);
   if (csrfResponse) return csrfResponse;
@@ -104,44 +73,9 @@ export async function middleware(request: NextRequest) {
     if (rateLimitResponse) return rateLimitResponse;
   }
 
-  const isGated = GATED_PATHS.some(p => path === p || path.startsWith(p + '/'));
-  const isAdminPage = path.startsWith('/admin');
-  let supabaseResponse = NextResponse.next({ request });
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return request.cookies.getAll(); },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (isGated && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('redirectTo', request.nextUrl.pathname);
-    return NextResponse.redirect(url);
-  }
-
-  if (isAdminPage && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('redirectTo', request.nextUrl.pathname);
-    return NextResponse.redirect(url);
-  }
-
-  addSecurityHeaders(supabaseResponse);
-  return supabaseResponse;
+  const response = NextResponse.next({ request });
+  addSecurityHeaders(response);
+  return response;
 }
 
 export const config = {

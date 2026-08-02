@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { FEATURES } from "@/lib/feature-flags";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 
 export async function GET(request: NextRequest) {
-  if (!FEATURES.LINKEDIN_ENABLED) {
-    return NextResponse.json({ error: "Feature not yet available" }, { status: 503 });
+  if (!isAdminConfigured) {
+    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
-  const supabase = await createClient();
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q") || "";
   const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
 
-  let query = supabase
+  let query = supabaseAdmin
     .from("company_pages")
     .select("*")
     .order("follower_count", { ascending: false })

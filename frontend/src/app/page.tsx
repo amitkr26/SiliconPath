@@ -95,14 +95,14 @@ export default async function Home() {
   ]);
 
   const categories = [
-    { name: "VLSI & ASIC Design", icon: Cpu, count: "120+ Openings", href: "/opportunities?search=VLSI" },
-    { name: "Semiconductor Process & Fab", icon: CircuitBoard, count: "85+ Openings", href: "/opportunities?search=Semiconductor" },
-    { name: "Embedded Systems & Firmware", icon: HardDrive, count: "90+ Openings", href: "/opportunities?search=Embedded" },
-    { name: "RF, Microwave & Photonics", icon: Wifi, count: "45+ Openings", href: "/opportunities?search=RF" },
+    { name: "VLSI & ASIC Design", icon: Cpu, count: "120+ Openings", href: "/search?q=VLSI" },
+    { name: "Semiconductor Process & Fab", icon: CircuitBoard, count: "85+ Openings", href: "/search?q=Semiconductor" },
+    { name: "Embedded Systems & Firmware", icon: HardDrive, count: "90+ Openings", href: "/search?q=Embedded" },
+    { name: "RF, Microwave & Photonics", icon: Wifi, count: "45+ Openings", href: "/search?q=RF" },
     { name: "JRF & Research Fellowships", icon: Award, count: `${stats.jrf} Verified JRFs`, href: "/category/jrf" },
     { name: "PhD & Postdoc Programs", icon: GraduationCap, count: `${stats.phd} Direct Programs`, href: "/category/phd" },
     { name: "DRDO, ISRO & Govt Labs", icon: ShieldCheck, count: `${stats.govt} Govt Positions`, href: "/category/govt" },
-    { name: "AI Hardware & Edge Compute", icon: Sparkles, count: "60+ Openings", href: "/opportunities?search=AI" },
+    { name: "AI Hardware & Edge Compute", icon: Sparkles, count: "60+ Openings", href: "/search?q=AI" },
   ];
 
   return (
@@ -139,10 +139,10 @@ export default async function Home() {
               Explore VLSI Academy Tracks <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/feed"
+              href="/search"
               className="px-8 py-3.5 rounded-full font-semibold text-sm bg-slate-900 border border-slate-800 text-cyan-400 hover:bg-slate-800 transition-all inline-flex items-center gap-2"
             >
-              <Users className="w-4 h-4 text-cyan-400" /> Join Hardware Network
+              <Users className="w-4 h-4 text-cyan-400" /> Browse All Opportunities
             </Link>
           </div>
 
@@ -219,7 +219,7 @@ export default async function Home() {
               <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Verified Live Opportunities</h2>
               <p className="text-slate-600 text-sm mt-1">Direct application links to official career portals</p>
             </div>
-            <Link href="/opportunities" className="text-blue-600 text-sm font-semibold hover:underline flex items-center gap-1">
+            <Link href="/search" className="text-blue-600 text-sm font-semibold hover:underline flex items-center gap-1">
               View All ({stats.total}) <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -240,8 +240,8 @@ export default async function Home() {
               <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Semiconductor Industry News</h2>
               <p className="text-slate-600 text-sm mt-1">Daily updates from IEEE Spectrum, EE Times, and Semiconductor Engineering</p>
             </div>
-            <Link href="/news" className="text-blue-600 text-sm font-semibold hover:underline flex items-center gap-1">
-              Read News Feed <ArrowRight className="w-4 h-4" />
+            <Link href="/search" className="text-blue-600 text-sm font-semibold hover:underline flex items-center gap-1">
+              Browse All Opportunities <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 

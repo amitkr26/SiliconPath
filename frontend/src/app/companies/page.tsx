@@ -4,11 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Search, Building2, Users, MapPin, Globe } from "lucide-react";
 import { Loader2 } from "lucide-react";
-import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
-import { toast } from "sonner";
-import { FEATURES } from "@/lib/feature-flags";
-import { ComingSoon } from "@/components/shared/ComingSoon";
 
 function getInitials(name: string): string {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
@@ -18,7 +14,6 @@ export default function CompaniesPage() {
   const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const { user } = useUser();
 
   const loadCompanies = useCallback(async () => {
     setLoading(true);
@@ -31,27 +26,6 @@ export default function CompaniesPage() {
   }, [search]);
 
   useEffect(() => { loadCompanies(); }, [loadCompanies]);
-
-  const handleFollow = async (companyId: string, isFollowing: boolean) => {
-    if (!user) { toast.error("Login required"); return; }
-    if (isFollowing) {
-      await api.delete(`/api/companies/${companyId}/follow`);
-      toast.success("Unfollowed");
-    } else {
-      await api.post(`/api/companies/${companyId}/follow`);
-      toast.success("Following company!");
-    }
-    loadCompanies();
-  };
-
-  if (!FEATURES.LINKEDIN_ENABLED) {
-    return (
-      <ComingSoon
-        feature="Company Directory"
-        description="Follow top VLSI companies, government research labs, and universities to track their hiring updates."
-      />
-    );
-  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -98,20 +72,10 @@ export default function CompaniesPage() {
                 <p className="text-text-secondary text-xs mt-3 line-clamp-2">{c.description}</p>
               )}
 
-              <div className="flex items-center justify-between mt-4">
+              <div className="mt-4">
                 <span className="text-text-muted text-xs flex items-center gap-1">
                   <Users className="w-3 h-3" /> {c.follower_count || 0} followers
                 </span>
-                <button
-                  onClick={(e) => { e.preventDefault(); handleFollow(c.id, c.is_following); }}
-                  className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors border ${
-                    c.is_following
-                      ? "bg-surface border-border text-text-secondary"
-                      : "bg-accent/20 border-accent/30 text-accent hover:bg-accent/30"
-                  }`}
-                >
-                  {c.is_following ? "Following" : "Follow"}
-                </button>
               </div>
             </div>
           ))}

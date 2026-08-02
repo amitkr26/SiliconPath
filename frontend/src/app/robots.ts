@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       { userAgent: "*", allow: "/", disallow: ["/admin", "/api/"] },
     ],
-    sitemap: "https://berojgardegreewala.vercel.app/sitemap.xml",
-    host: "https://berojgardegreewala.vercel.app",
+    sitemap: "https://siliconpath.vercel.app/sitemap.xml",
+    host: "https://siliconpath.vercel.app",
   };
 }
