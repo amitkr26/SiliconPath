@@ -61,12 +61,17 @@ export default function AcademyDashboard() {
 
   const loadData = useCallback(async () => {
     setLoading(true);
+    const timeout = setTimeout(() => {
+      setTracks((prev) => prev.length > 0 ? prev : (require("@/lib/academy/queries").FALLBACK_TRACKS || []));
+      setLoading(false);
+    }, 2500);
+
     try {
       let tracksData: LearningTrack[] = [];
       try {
         const res = await Promise.race([
           api.get<any>("/api/academy/tracks"),
-          new Promise<any>((_, rej) => setTimeout(() => rej(new Error("timeout")), 6000)),
+          new Promise<any>((_, rej) => setTimeout(() => rej(new Error("timeout")), 2000)),
         ]);
         tracksData = Array.isArray(res) ? res : (res?.tracks || []);
       } catch {
@@ -82,11 +87,13 @@ export default function AcademyDashboard() {
         api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: userId || "" } }).catch(() => []),
         api.get<TrackSlug[]>("/api/academy/progress/passed-tracks", { params: { userId: userId || "" } }).catch(() => []),
       ]);
-      setCompletedDays(cd);
-      setPassedTracks(pt);
+      setCompletedDays(cd || []);
+      setPassedTracks(pt || []);
     } catch (err) {
       console.error("Academy load failed:", err);
+      setTracks((await import("@/lib/academy/queries")).FALLBACK_TRACKS);
     } finally {
+      clearTimeout(timeout);
       setLoading(false);
     }
   }, [user?.id]);
