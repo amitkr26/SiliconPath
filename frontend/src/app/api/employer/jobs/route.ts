@@ -31,7 +31,7 @@ function normalizeCategory(cat: string): string {
   if (c.includes("govt") || c.includes("government")) return "government";
   if (c.includes("intern")) return "internship";
   if (c.includes("fellow")) return "fellowship";
-  return "job";
+  return "jrf"; // Allowed DB check constraint values: 'jrf', 'srf', 'phd', 'fellowship', 'government', 'internship'
 }
 
 export async function GET(request: NextRequest) {
