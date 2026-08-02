@@ -41,14 +41,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  createNotification({ userId: receiverId, type: "connection_request", actorId: user.id, entityType: "connection", entityId: data?.id });
-  const { data: profile } = await db.from("user_profiles").select("display_name, email").eq("id", user.id).single();
-  if (profile?.email) {
-    const { data: receiver } = await db.from("user_profiles").select("email").eq("id", receiverId).single();
-    if (receiver?.email) {
-      const email = connectionRequestEmail(profile.display_name || "Someone");
-      sendEmailNotification({ to: receiver.email, subject: email.subject, html: email.html });
+  try {
+    createNotification({ userId: receiverId, type: "connection_request", actorId: user.id, entityType: "connection", entityId: data?.id });
+    const { data: profile } = await db.from("user_profiles").select("display_name, email").eq("id", user.id).maybeSingle();
+    if (profile?.email) {
+      const { data: receiver } = await db.from("user_profiles").select("email").eq("id", receiverId).maybeSingle();
+      if (receiver?.email) {
+        const email = connectionRequestEmail(profile.display_name || "Someone");
+        sendEmailNotification({ to: receiver.email, subject: email.subject, html: email.html });
+      }
     }
+  } catch {
+    /* ignore notification failures */
   }
 
   return NextResponse.json(data || { success: true }, { status: 201 });
