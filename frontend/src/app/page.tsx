@@ -4,13 +4,14 @@ export const revalidate = 0;
 import Link from "next/link";
 import nextDynamic from "next/dynamic";
 import {
-  ArrowRight, Sparkles, Cpu, CircuitBoard, HardDrive, Wifi,
-  GraduationCap, Award, ShieldCheck, UserCheck, Building2, BookOpen, Bot, CheckCircle2, Search, Layers, Radio, HelpCircle
+  ArrowRight, Sparkles, CircuitBoard, ShieldCheck, UserCheck, 
+  Building2, GraduationCap, Search, CheckCircle2, Newspaper, Radio
 } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
-import type { Opportunity } from "@/types";
+import type { Opportunity, NewsArticle } from "@/types";
 import OpportunityCard from "@/components/OpportunityCard";
+import NewsCard from "@/components/NewsCard";
 
 // Ponytail Lazy Loading for heavy client interactive components
 const ReviewsSection = nextDynamic(() => import("@/components/ReviewsSection"), {
@@ -66,9 +67,35 @@ async function getLatestOpportunities(): Promise<Opportunity[]> {
   return data.map((d: any) => mapDbOpportunityToClient(d));
 }
 
+async function getLatestNews(): Promise<NewsArticle[]> {
+  if (!supabaseAdmin?.from) return [];
+  try {
+    const { data } = await supabaseAdmin
+      .from("news_articles")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(3);
+
+    if (!data) return [];
+    return data.map((item: any) => ({
+      id: item.id,
+      title: item.title,
+      summary: item.summary || item.content || "Latest news update from official semiconductor and microelectronics source.",
+      source: item.source_name || item.source || "Official Source",
+      source_url: item.url || item.source_url || "https://semiengineering.com/",
+      image_url: item.image_url || "",
+      tags: item.tags || ["Semiconductor", "Research"],
+      published_at: item.created_at || new Date().toISOString(),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function HomePage() {
   const stats = await getStats();
   const latestOpenings = await getLatestOpportunities();
+  const latestNews = await getLatestNews();
 
   return (
     <div className="space-y-16 pb-16">
@@ -248,6 +275,10 @@ export default async function HomePage() {
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Direct candidate matching with top IIT, NIT &amp; IIIT hardware graduates.</span>
                 </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Verified employer badge &amp; applicant management dashboard.</span>
+                </li>
               </ul>
             </div>
 
@@ -255,68 +286,17 @@ export default async function HomePage() {
               href="/signup?role=employer"
               className="w-full text-center py-3.5 bg-emerald-500 hover:bg-emerald-600 text-slate-900 rounded-xl font-black text-xs border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] transition-all block"
             >
-              CREATE EMPLOYER ACCOUNT &amp; POST JOB
+              CREATE EMPLOYER ACCOUNT
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 4. HARDWARE DISCIPLINES GRID */}
+      {/* 4. LATEST VERIFIED OPPORTUNITIES (OPEN WITHOUT LOGIN) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <span className="px-3.5 py-1 bg-purple-600 text-white rounded-lg border-2 border-slate-900 text-xs font-black shadow-[2px_2px_0px_0px_#0F172A] uppercase">
-            Specialization Domains
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
-            Explore Opportunities by Engineering Discipline
-          </h2>
-          <p className="text-slate-600 text-sm mt-2 font-bold">
-            Targeted positions across front-end RTL design, physical design, verification, analog layout, and semiconductor fabrication.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { title: "RTL Design & Synthesis", count: "120+ Jobs", desc: "Verilog, SystemVerilog, ASIC Logic Design", icon: Cpu, href: "/opportunities?search=RTL" },
-            { title: "Physical Design & STA", count: "95+ Jobs", desc: "Floorplanning, Placement, Timing Closure", icon: Layers, href: "/opportunities?search=Physical" },
-            { title: "Design Verification (UVM)", count: "110+ Jobs", desc: "SystemVerilog Testbench, Coverage", icon: ShieldCheck, href: "/opportunities?search=Verification" },
-            { title: "Analog & Mixed-Signal IC", count: "45+ Jobs", desc: "Cadence Virtuoso, SPICE, Layout", icon: CircuitBoard, href: "/opportunities?search=Analog" },
-            { title: "FPGA & Embedded Systems", count: "65+ Jobs", desc: "Xilinx Vivado, Altera, High-Speed I/O", icon: HardDrive, href: "/opportunities?search=FPGA" },
-            { title: "RISC-V Microarchitecture", count: "40+ Jobs", desc: "Custom Instructions, Processor Design", icon: Bot, href: "/opportunities?search=RISC-V" },
-            { title: "Embedded Firmware & RTOS", count: "80+ Jobs", desc: "C/C++, Drivers, ARM Cortex, FreeRTOS", icon: Wifi, href: "/opportunities?search=Embedded" },
-            { title: "Semiconductor Fab & Packaging", count: "30+ Jobs", desc: "Wafer Fab, Cleanroom, Packaging", icon: Building2, href: "/opportunities?search=Fab" },
-          ].map((track) => {
-            const Icon = track.icon;
-            return (
-              <Link
-                key={track.title}
-                href={track.href}
-                className="bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[4px_4px_0px_0px_#0F172A] hover:shadow-[7px_7px_0px_0px_#0F172A] hover:-translate-y-1 transition-all group flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="w-10 h-10 bg-blue-50 border-2 border-slate-900 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                    <Icon className="w-5 h-5 stroke-[2.5]" />
-                  </div>
-                  <h3 className="font-black text-slate-900 text-base leading-snug group-hover:text-blue-600 transition-colors">
-                    {track.title}
-                  </h3>
-                  <p className="text-slate-600 text-xs font-bold leading-relaxed">{track.desc}</p>
-                </div>
-                <div className="pt-4 flex items-center justify-between border-t-2 border-slate-100 mt-4">
-                  <span className="text-[11px] font-black text-blue-600 uppercase">{track.count}</span>
-                  <ArrowRight className="w-4 h-4 text-slate-900 group-hover:translate-x-1 transition-transform stroke-[2.5]" />
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 5. LATEST VERIFIED JOBS GRID */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
           <div>
-            <span className="px-3 py-1 bg-emerald-500 text-slate-900 rounded-lg border-2 border-slate-900 text-xs font-black shadow-[2px_2px_0px_0px_#0F172A] uppercase">
+            <span className="px-3 py-1 bg-blue-600 text-white rounded-lg border-2 border-slate-900 text-xs font-black uppercase shadow-[2px_2px_0px_0px_#0F172A]">
               Fresh Verified Postings
             </span>
             <h2 className="text-3xl font-black text-slate-900 tracking-tight mt-2">Latest Verified Opportunities</h2>
@@ -337,7 +317,40 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 6. VLSI COURSES SHOWCASE */}
+      {/* 5. LATEST SEMICONDUCTOR & RESEARCH NEWS SECTION (OPEN WITHOUT LOGIN) */}
+      {latestNews.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-600 text-white rounded-lg border-2 border-slate-900 text-xs font-black uppercase shadow-[2px_2px_0px_0px_#0F172A]">
+                <Radio className="w-3.5 h-3.5 text-white animate-pulse" />
+                <span>100% Open Access &bull; Daily Tech News</span>
+              </div>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tight mt-2">
+                Latest Semiconductor &amp; Research News
+              </h2>
+              <p className="text-slate-600 text-xs font-bold mt-1">
+                Real-time updates from IEEE Spectrum, EE Times, India Semiconductor Mission &amp; top research labs. No login required.
+              </p>
+            </div>
+            <Link
+              href="/community"
+              className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-black text-xs border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-purple-700 transition-all shrink-0 inline-flex items-center gap-2"
+            >
+              <Newspaper className="w-4 h-4 stroke-[2.5]" />
+              <span>EXPLORE ALL NEWS &rarr;</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {latestNews.map((article) => (
+              <NewsCard key={article.id} article={article} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 6. VLSI COURSES SHOWCASE (OPEN WITHOUT LOGIN) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-slate-900 border-4 border-slate-900 rounded-3xl p-8 sm:p-12 text-white shadow-[10px_10px_0px_0px_#0F172A] space-y-8">
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
@@ -379,7 +392,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 7. PONYTAIL LAZY LOADED REVIEWS, FAQ & NEWSLETTER */}
+      {/* 7. REVIEWS, FAQ & NEWSLETTER */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         <ReviewsSection />
         <FaqSection />

@@ -36,7 +36,7 @@ export default function Navbar() {
     ? [
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
         { href: "/academy", label: "Academy", icon: GraduationCap },
-        { href: "/community", label: "News & Community", icon: MessageSquare },
+        { href: "/news", label: "News & Feed", icon: MessageSquare },
       ]
     : isEmployer
     ? [

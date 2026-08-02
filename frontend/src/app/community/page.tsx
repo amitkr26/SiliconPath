@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-// Consolidated: /community is now the /feed.
+// Public Access: /community maps directly to /news which is 100% open without login
 export default function CommunityRedirect() {
-  redirect("/feed");
+  redirect("/news");
 }
