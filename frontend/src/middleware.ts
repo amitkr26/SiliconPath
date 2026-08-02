@@ -23,6 +23,15 @@ const GATED_PATHS = [
   '/api/people',
   '/api/resume',
   '/api/applications',
+  '/applications',
+  '/resume',
+  '/saved',
+];
+
+const EMPLOYER_ONLY_PATHS = [
+  '/post-job',
+  '/employers',
+  '/employer',
 ];
 
 function addSecurityHeaders(response: NextResponse): void {
@@ -98,7 +107,8 @@ export async function middleware(request: NextRequest) {
   }
 
   const isGated = GATED_PATHS.some(p => path === p || path.startsWith(p + '/'));
-  const isAdminPage = path.startsWith('/admin');
+  const isEmployerOnly = EMPLOYER_ONLY_PATHS.some(p => path === p || path.startsWith(p + '/'));
+
   let supabaseResponse = NextResponse.next({ request });
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -119,7 +129,8 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (isGated && !user) {
+  // Auth gate check
+  if ((isGated || isEmployerOnly) && !user) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     url.searchParams.set('redirectTo', request.nextUrl.pathname);
