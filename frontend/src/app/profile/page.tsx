@@ -2,14 +2,31 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Loader2, Save, X, Plus, MapPin, Briefcase, FileText } from "lucide-react";
+import { 
+  Loader2, 
+  Pencil, 
+  MapPin, 
+  Briefcase, 
+  GraduationCap, 
+  Globe, 
+  Linkedin, 
+  Github, 
+  CheckCircle2, 
+  Plus, 
+  X, 
+  Sparkles,
+  User,
+  Share2,
+  Camera,
+  Check
+} from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 
 interface Profile {
   display_name?: string;
+  username?: string;
   headline?: string;
   bio?: string;
   job_title?: string;
@@ -23,6 +40,7 @@ interface Profile {
   is_open_to_work?: boolean;
   avatar_url?: string | null;
   skills?: string[];
+  account_type?: string;
 }
 
 function initials(name?: string): string {
@@ -30,14 +48,18 @@ function initials(name?: string): string {
   return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 }
 
-export default function ProfilePage() {
+export default function LinkedInStyleProfilePage() {
   const router = useRouter();
   const { user, loading: authLoading } = useUser();
-  const [saving, setSaving] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
   const [profile, setProfile] = useState<Profile>({});
+  const [editForm, setEditForm] = useState<Profile>({});
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
+  const [usernameError, setUsernameError] = useState("");
 
   useEffect(() => {
     if (authLoading) return;
@@ -53,11 +75,21 @@ export default function ProfilePage() {
       .then((existing) => {
         if (cancelled) return;
         setProfile(existing);
-        setSkills(existing.skills || []);
+        setEditForm(existing);
+        setSkills(existing.skills || ["SystemVerilog", "UVM", "RTL Synthesis", "OpenLANE", "FPGA"]);
       })
       .catch(() => {
         if (cancelled) return;
-        setProfile({ display_name: user.user_metadata?.full_name || "" });
+        const defaultProfile: Profile = {
+          display_name: user.user_metadata?.full_name || "Hardware Engineer",
+          username: (user.email || "").split("@")[0] || "vlsi_dev",
+          headline: "Hardware & VLSI Design Engineer | Open for Opportunities",
+          location: "Bengaluru, Karnataka, India",
+          is_open_to_work: true,
+        };
+        setProfile(defaultProfile);
+        setEditForm(defaultProfile);
+        setSkills(["SystemVerilog", "UVM", "RTL Synthesis", "OpenLANE", "FPGA"]);
       })
       .finally(() => {
         if (!cancelled) setProfileLoading(false);
@@ -68,223 +100,484 @@ export default function ProfilePage() {
     };
   }, [user, authLoading, router]);
 
-  const update = (patch: Partial<Profile>) => setProfile((prev) => ({ ...prev, ...patch }));
-
-  const addSkill = () => {
-    const s = newSkill.trim();
-    if (s && !skills.includes(s)) setSkills([...skills, s]);
-    setNewSkill("");
-  };
-
-  const removeSkill = (s: string) => setSkills(skills.filter((x) => x !== s));
-
-  const save = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!user) return;
     setSaving(true);
+    setUsernameError("");
+
     try {
       const res = await fetch(`/api/profile/${user.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          display_name: profile.display_name,
-          headline: profile.headline,
-          bio: profile.bio,
-          job_title: profile.job_title,
-          current_company: profile.current_company,
-          location: profile.location,
-          country: profile.country,
-          website_url: profile.website_url,
-          linkedin_url: profile.linkedin_url,
-          github_url: profile.github_url,
-          experience_years: profile.experience_years,
-          is_open_to_work: profile.is_open_to_work,
-          skills,
+          display_name: editForm.display_name,
+          username: editForm.username,
+          headline: editForm.headline,
+          bio: editForm.bio,
+          job_title: editForm.job_title,
+          current_company: editForm.current_company,
+          location: editForm.location,
+          country: editForm.country,
+          website_url: editForm.website_url,
+          linkedin_url: editForm.linkedin_url,
+          github_url: editForm.github_url,
+          is_open_to_work: editForm.is_open_to_work,
+          skills: skills,
         }),
       });
-      if (res.ok) toast.success("Profile saved!");
-      else toast.error("Failed to save");
-    } catch {
-      toast.error("Failed to save profile");
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.error && data.error.includes("username")) {
+          setUsernameError(data.error);
+        }
+        toast.error(data.error || "Failed to update profile.");
+        return;
+      }
+
+      setProfile({ ...editForm, skills });
+      setIsEditModalOpen(false);
+      toast.success("LinkedIn Profile updated successfully!");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to update profile.");
     } finally {
       setSaving(false);
     }
   };
 
+  const addSkill = () => {
+    const s = newSkill.trim();
+    if (s && !skills.includes(s)) {
+      const updated = [...skills, s];
+      setSkills(updated);
+      setNewSkill("");
+      if (user) {
+        fetch(`/api/profile/${user.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ skills: updated }),
+        });
+      }
+    }
+  };
+
+  const removeSkill = (s: string) => {
+    const updated = skills.filter((x) => x !== s);
+    setSkills(updated);
+    if (user) {
+      fetch(`/api/profile/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ skills: updated }),
+      });
+    }
+  };
+
   if (authLoading || profileLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bg-primary">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      <div className="min-h-screen bg-[#F3F2EF] flex items-center justify-center">
+        <div className="flex items-center gap-3 px-6 py-4 bg-white border-2 border-slate-900 rounded-2xl shadow-[4px_4px_0px_0px_#0F172A]">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+          <span className="font-black text-slate-900 text-sm">Loading Profile...</span>
+        </div>
       </div>
     );
   }
 
-  const inputCls =
-    "w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none placeholder:text-text-muted";
-
   return (
-    <div className="min-h-screen bg-bg-primary py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Header card */}
-        <div className="bg-bg-secondary border border-border rounded-xl p-6 mb-6">
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-accent/15 text-accent flex items-center justify-center text-2xl font-bold flex-shrink-0">
-              {initials(profile.display_name)}
+    <div className="min-h-screen bg-[#F3F2EF] text-slate-900 pb-16 font-sans">
+      
+      {/* LINKEDIN TOP NAV BREADCRUMB */}
+      <div className="bg-white border-b border-slate-300 py-3 px-4 shadow-sm sticky top-0 z-20">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white font-black text-xs">
+              BP
             </div>
-            <div className="min-w-0">
-              <h1 className="text-xl font-bold text-text-primary truncate">
-                {profile.display_name || "Your name"}
-              </h1>
-              {profile.headline && (
-                <p className="text-sm text-text-secondary">{profile.headline}</p>
-              )}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-text-muted">
-                {(profile.job_title || profile.current_company) && (
-                  <span className="flex items-center gap-1">
-                    <Briefcase className="w-3.5 h-3.5" />
-                    {[profile.job_title, profile.current_company].filter(Boolean).join(" at ")}
-                  </span>
-                )}
-                {(profile.location || profile.country) && (
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5" />
-                    {[profile.location, profile.country].filter(Boolean).join(", ")}
-                  </span>
-                )}
-              </div>
-            </div>
+            <span className="font-black text-sm text-slate-900">Professional Profile</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                toast.success("Profile link copied!");
+              }}
+              className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] flex items-center gap-1.5 transition"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>Share Profile</span>
+            </button>
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-2 border-slate-900 rounded-xl text-xs font-black shadow-[2px_2px_0px_0px_#0F172A] flex items-center gap-1.5 transition"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+              <span>Edit Profile</span>
+            </button>
           </div>
         </div>
+      </div>
 
-        <form onSubmit={save} className="space-y-6">
-          {/* About */}
-          <div className="bg-bg-secondary border border-border rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-text-primary mb-3">About</h2>
-            <textarea
-              value={profile.bio || ""}
-              onChange={(e) => update({ bio: e.target.value })}
-              placeholder="Write a brief description about yourself..."
-              maxLength={500}
-              rows={4}
-              className={`${inputCls} resize-none`}
-            />
-            <p className="text-xs text-text-muted text-right mt-1">{(profile.bio || "").length}/500</p>
+      <div className="max-w-5xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* MAIN PROFILE COLUMN (LEFT 2 COLS) */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* CARD 1: LINKEDIN HEADER & BANNER */}
+          <div className="bg-white border-3 border-slate-900 rounded-2xl overflow-hidden shadow-[6px_6px_0px_0px_#0F172A] relative">
+            
+            {/* HARDWARE BANNER COVER */}
+            <div className="h-40 bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 relative p-4 flex justify-end items-start">
+              <span className="px-3 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-[10px] font-black text-white uppercase tracking-wider flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-amber-400 fill-amber-400" /> VLSI Hardware Talent
+              </span>
+            </div>
+
+            {/* AVATAR & QUICK ACTIONS */}
+            <div className="px-6 pb-6 pt-0 relative">
+              <div className="flex justify-between items-end -mt-16 mb-4">
+                <div className="relative">
+                  <div className="w-28 h-28 rounded-full bg-slate-900 text-white font-black text-3xl flex items-center justify-center border-4 border-white shadow-lg overflow-hidden">
+                    {profile.avatar_url ? (
+                      <img src={profile.avatar_url} alt={profile.display_name} className="w-full h-full object-cover" />
+                    ) : (
+                      initials(profile.display_name)
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="absolute bottom-1 right-1 p-1.5 bg-blue-600 text-white rounded-full border-2 border-white shadow hover:scale-105 transition"
+                    title="Change Photo / Edit"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="p-2.5 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 rounded-xl text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] transition"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* NAME & HANDLE */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl font-black text-slate-900 tracking-tight">{profile.display_name || "Hardware Engineer"}</h1>
+                  <span className="px-2 py-0.5 bg-blue-100 border border-blue-600 rounded text-[11px] font-black text-blue-900">
+                    @{profile.username || "username"}
+                  </span>
+                </div>
+
+                <p className="text-sm font-bold text-slate-700 leading-snug">
+                  {profile.headline || "VLSI ASIC & FPGA Hardware Design Engineer | RISC-V Enthusiast"}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs font-semibold text-slate-500">
+                  {profile.location && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                      {profile.location}
+                    </span>
+                  )}
+                  {profile.current_company && (
+                    <span className="flex items-center gap-1">
+                      <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+                      {profile.job_title || "Engineer"} at {profile.current_company}
+                    </span>
+                  )}
+                </div>
+
+                {/* OPEN TO WORK BADGE */}
+                {profile.is_open_to_work !== false && (
+                  <div className="mt-3 p-3 bg-emerald-50 border-2 border-emerald-600 rounded-xl flex items-center gap-3">
+                    <div className="p-1.5 bg-emerald-600 text-white rounded-lg">
+                      <Check className="w-4 h-4 stroke-[3]" />
+                    </div>
+                    <div>
+                      <span className="block text-xs font-black text-emerald-900">Open to Work</span>
+                      <span className="text-[11px] font-bold text-emerald-700">Available for VLSI, RTL Design, FPGA, & JRF Research roles</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+            </div>
           </div>
 
-          {/* Skills */}
-          <div className="bg-bg-secondary border border-border rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-text-primary mb-3">Skills</h2>
+          {/* CARD 2: ABOUT SECTION */}
+          <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[6px_6px_0px_0px_#0F172A] space-y-3">
+            <div className="flex justify-between items-center border-b-2 border-slate-900 pb-3">
+              <h2 className="text-lg font-black text-slate-900 tracking-tight">About / Summary</h2>
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs font-semibold text-slate-700 leading-relaxed whitespace-pre-line">
+              {profile.bio ||
+                "Passionate semiconductor professional specializing in SystemVerilog, UVM verification, and digital ASIC design. Experienced with EDA synthesis tools, OpenLANE, and RISC-V SoC architecture."}
+            </p>
+          </div>
+
+          {/* CARD 3: HARDWARE SKILLS */}
+          <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[6px_6px_0px_0px_#0F172A] space-y-4">
+            <div className="flex justify-between items-center border-b-2 border-slate-900 pb-3">
+              <h2 className="text-lg font-black text-slate-900 tracking-tight">Skills & Endorsements</h2>
+              <span className="text-xs font-bold text-slate-500">{skills.length} Skills Listed</span>
+            </div>
+
             <div className="flex flex-wrap gap-2">
-              {skills.map((s) => (
+              {skills.map((sk) => (
                 <span
-                  key={s}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-bg-primary border border-border text-xs text-text-primary"
+                  key={sk}
+                  className="px-3 py-1.5 bg-slate-100 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] flex items-center gap-2"
                 >
-                  {s}
-                  <button
-                    type="button"
-                    onClick={() => removeSkill(s)}
-                    className="text-text-muted hover:text-danger"
-                    aria-label={`Remove ${s}`}
-                  >
-                    <X className="w-3 h-3" />
+                  {sk}
+                  <button onClick={() => removeSkill(sk)} className="hover:text-red-600 transition">
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </span>
               ))}
-              <div className="inline-flex items-center gap-1">
+            </div>
+
+            {/* ADD NEW SKILL INPUT */}
+            <div className="flex gap-2 pt-2">
+              <input
+                type="text"
+                value={newSkill}
+                onChange={(e) => setNewSkill(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSkill())}
+                placeholder="Add hardware skill (e.g. Verilog, Cadence Virtuoso, STA)..."
+                className="flex-1 px-4 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] focus:outline-none"
+              />
+              <button
+                onClick={addSkill}
+                type="button"
+                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_#0F172A] flex items-center gap-1 transition"
+              >
+                <Plus className="w-4 h-4 stroke-[3]" /> Add
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        {/* RIGHT SIDEBAR COLUMN */}
+        <div className="space-y-6">
+          
+          {/* PUBLIC LINKS CARD */}
+          <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[6px_6px_0px_0px_#0F172A] space-y-4">
+            <h3 className="text-base font-black text-slate-900 border-b-2 border-slate-900 pb-2">Contact & Portfolio Links</h3>
+            
+            <div className="space-y-3">
+              {profile.linkedin_url ? (
+                <a
+                  href={profile.linkedin_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2.5 p-2.5 bg-blue-50 border-2 border-slate-900 rounded-xl text-xs font-black text-blue-900 shadow-[2px_2px_0px_0px_#0F172A] hover:bg-blue-100 transition"
+                >
+                  <Linkedin className="w-4 h-4 text-blue-600" /> LinkedIn Profile
+                </a>
+              ) : (
+                <button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="w-full text-left p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-500 hover:border-slate-900 transition flex items-center gap-2"
+                >
+                  <Linkedin className="w-4 h-4" /> Add LinkedIn URL
+                </button>
+              )}
+
+              {profile.github_url ? (
+                <a
+                  href={profile.github_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2.5 p-2.5 bg-slate-100 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] hover:bg-slate-200 transition"
+                >
+                  <Github className="w-4 h-4 text-slate-900" /> GitHub Repositories
+                </a>
+              ) : (
+                <button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="w-full text-left p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-500 hover:border-slate-900 transition flex items-center gap-2"
+                >
+                  <Github className="w-4 h-4" /> Add GitHub URL
+                </button>
+              )}
+
+              {profile.website_url && (
+                <a
+                  href={profile.website_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2.5 p-2.5 bg-emerald-50 border-2 border-slate-900 rounded-xl text-xs font-black text-emerald-900 shadow-[2px_2px_0px_0px_#0F172A] hover:bg-emerald-100 transition"
+                >
+                  <Globe className="w-4 h-4 text-emerald-600" /> Personal Website
+                </a>
+              )}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* LINKEDIN EDIT PROFILE MODAL */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border-4 border-slate-900 rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-[10px_10px_0px_0px_#0F172A] space-y-5">
+            
+            <div className="flex justify-between items-center border-b-2 border-slate-900 pb-3">
+              <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <Pencil className="w-5 h-5 text-blue-600" /> Edit LinkedIn Intro & Handle
+              </h2>
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700"
+              >
+                <X className="w-5 h-5 stroke-[2.5]" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              
+              {/* DISPLAY NAME */}
+              <div>
+                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+                  Full Display Name *
+                </label>
                 <input
-                  value={newSkill}
-                  onChange={(e) => setNewSkill(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addSkill();
-                    }
-                  }}
-                  placeholder="Add skill"
-                  className="w-28 bg-bg-primary border border-border text-text-primary text-xs rounded-full px-3 py-1.5 focus:ring-accent focus:border-accent outline-none"
+                  type="text"
+                  value={editForm.display_name || ""}
+                  onChange={(e) => setEditForm({ ...editForm, display_name: e.target.value })}
+                  required
+                  className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
                 />
+              </div>
+
+              {/* UNIQUE USERNAME HANDLE */}
+              <div>
+                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+                  Unique Hardware Handle (@username) *
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-slate-400 text-xs">@</span>
+                  <input
+                    type="text"
+                    value={editForm.username || ""}
+                    onChange={(e) => {
+                      setUsernameError("");
+                      setEditForm({ ...editForm, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") });
+                    }}
+                    required
+                    className="w-full pl-8 pr-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
+                  />
+                </div>
+                {usernameError && <p className="text-[11px] font-bold text-red-600 mt-1">{usernameError}</p>}
+              </div>
+
+              {/* HEADLINE */}
+              <div>
+                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+                  Professional Headline
+                </label>
+                <input
+                  type="text"
+                  value={editForm.headline || ""}
+                  onChange={(e) => setEditForm({ ...editForm, headline: e.target.value })}
+                  placeholder="e.g. M.Tech VLSI @ IIT Bombay | RISC-V & ASIC Design Lead"
+                  className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
+                />
+              </div>
+
+              {/* LOCATION */}
+              <div>
+                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+                  Location
+                </label>
+                <input
+                  type="text"
+                  value={editForm.location || ""}
+                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                  placeholder="e.g. Bengaluru, Karnataka, India"
+                  className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
+                />
+              </div>
+
+              {/* BIO / ABOUT */}
+              <div>
+                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+                  About / Summary
+                </label>
+                <textarea
+                  rows={4}
+                  value={editForm.bio || ""}
+                  onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                  placeholder="Write a brief overview of your background, research interests, & hardware skills..."
+                  className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none resize-none"
+                />
+              </div>
+
+              {/* LINKEDIN & GITHUB LINKS */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+                    LinkedIn URL
+                  </label>
+                  <input
+                    type="url"
+                    value={editForm.linkedin_url || ""}
+                    onChange={(e) => setEditForm({ ...editForm, linkedin_url: e.target.value })}
+                    placeholder="https://linkedin.com/in/username"
+                    className="w-full px-3 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+                    GitHub URL
+                  </label>
+                  <input
+                    type="url"
+                    value={editForm.github_url || ""}
+                    onChange={(e) => setEditForm({ ...editForm, github_url: e.target.value })}
+                    placeholder="https://github.com/username"
+                    className="w-full px-3 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* ACTION BUTTONS */}
+              <div className="flex justify-end gap-3 pt-4 border-t-2 border-slate-900">
                 <button
                   type="button"
-                  onClick={addSkill}
-                  className="text-accent hover:text-accent"
-                  aria-label="Add skill"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
                 >
-                  <Plus className="w-4 h-4" />
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white border-2 border-slate-900 rounded-xl text-xs font-black shadow-[3px_3px_0px_0px_#0F172A] flex items-center gap-2 transition disabled:opacity-50"
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
                 </button>
               </div>
-            </div>
-          </div>
 
-          {/* Details */}
-          <div className="bg-bg-secondary border border-border rounded-xl p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-text-primary">Profile details</h2>
-            <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1">Full name</label>
-              <input value={profile.display_name || ""} onChange={(e) => update({ display_name: e.target.value })} className={inputCls} />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1">Headline</label>
-              <input value={profile.headline || ""} onChange={(e) => update({ headline: e.target.value })} placeholder="VLSI Design Engineer | RTL & Verification" className={inputCls} />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Current role</label>
-                <input value={profile.job_title || ""} onChange={(e) => update({ job_title: e.target.value })} placeholder="RTL Design Engineer" className={inputCls} />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Company / Institute</label>
-                <input value={profile.current_company || ""} onChange={(e) => update({ current_company: e.target.value })} placeholder="IIT Delhi" className={inputCls} />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Location</label>
-                <input value={profile.location || ""} onChange={(e) => update({ location: e.target.value })} placeholder="Bangalore" className={inputCls} />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Country</label>
-                <input value={profile.country || ""} onChange={(e) => update({ country: e.target.value })} placeholder="India" className={inputCls} />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">LinkedIn URL</label>
-                <input value={profile.linkedin_url || ""} onChange={(e) => update({ linkedin_url: e.target.value })} placeholder="https://linkedin.com/in/..." className={inputCls} />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">GitHub URL</label>
-                <input value={profile.github_url || ""} onChange={(e) => update({ github_url: e.target.value })} placeholder="https://github.com/..." className={inputCls} />
-              </div>
-            </div>
-            <div>
-              <label className="flex items-center gap-2 text-sm text-text-primary">
-                <input
-                  type="checkbox"
-                  checked={!!profile.is_open_to_work}
-                  onChange={(e) => update({ is_open_to_work: e.target.checked })}
-                  className="w-4 h-4 accent-accent"
-                />
-                Show that I&apos;m open to opportunities
-              </label>
-            </div>
+            </form>
           </div>
+        </div>
+      )}
 
-          <div className="flex items-center justify-between gap-3">
-            <Link href="/resume" className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary">
-              <FileText className="w-4 h-4" /> Resume builder
-            </Link>
-            <button
-              type="submit"
-              disabled={saving}
-              className="inline-flex items-center gap-1.5 bg-accent text-white text-sm font-semibold rounded-lg px-5 py-2.5 disabled:opacity-60"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {saving ? "Saving..." : "Save profile"}
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
   );
 }

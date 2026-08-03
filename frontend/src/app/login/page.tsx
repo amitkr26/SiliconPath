@@ -23,7 +23,28 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const input = email.trim();
+      let loginEmail = input;
+
+      // If input is not an email (does not contain '@'), resolve email from username in user_profiles
+      if (!input.includes("@")) {
+        const cleanUser = input.toLowerCase().replace(/^@/, "");
+        const { data: profile } = await supabase
+          .from("user_profiles")
+          .select("email")
+          .eq("username", cleanUser)
+          .maybeSingle();
+
+        if (profile?.email) {
+          loginEmail = profile.email;
+        } else {
+          toast.error("No account found matching this username.");
+          setLoading(false);
+          return;
+        }
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
       if (error) {
         toast.error(error.message);
       } else {
@@ -74,7 +95,7 @@ export default function LoginPage() {
             onClick={handleGoogleLogin}
             className="w-full py-3 px-4 bg-white border-2 border-slate-900 rounded-xl font-black text-xs text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-slate-50 transition flex items-center justify-center gap-3"
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 min-w-[16px] min-h-[16px] shrink-0" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
@@ -84,7 +105,7 @@ export default function LoginPage() {
           </button>
 
           <div className="relative flex justify-center text-xs my-2">
-            <span className="bg-white px-3 font-extrabold text-slate-400 z-10">or continue with email</span>
+            <span className="bg-white px-3 font-extrabold text-slate-400 z-10 uppercase tracking-wider">or continue with email or username</span>
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t-2 border-slate-900" />
             </div>
@@ -93,13 +114,13 @@ export default function LoginPage() {
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1.5">
-                Email Address
+                Email Address or Username
               </label>
               <input
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder="you@example.com or @username"
                 required
                 className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
               />

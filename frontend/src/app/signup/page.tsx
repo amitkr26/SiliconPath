@@ -39,6 +39,7 @@ export default function SignupPage() {
   // Username validation state
   const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "available" | "unavailable">("idle");
   const [usernameMessage, setUsernameMessage] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   // Update account type if URL changes
   useEffect(() => {
@@ -49,12 +50,13 @@ export default function SignupPage() {
     }
   }, [initialRoleParam]);
 
-  // Debounced username availability check
+  // Debounced username availability check & auto-suggestions
   const checkUsername = useCallback(async (name: string) => {
     const clean = name.trim().toLowerCase().replace(/^@/, "");
     if (!clean || clean.length < 3) {
       setUsernameStatus("idle");
       setUsernameMessage("");
+      setSuggestions([]);
       return;
     }
 
@@ -62,6 +64,7 @@ export default function SignupPage() {
     try {
       const res = await fetch(`/api/auth/check-username?username=${encodeURIComponent(clean)}`);
       const data = await res.json();
+      setSuggestions(data.suggestions || []);
       if (data.available) {
         setUsernameStatus("available");
         setUsernameMessage(`@${clean} is available!`);
@@ -369,6 +372,24 @@ export default function SignupPage() {
                 <p className={`text-[11px] font-bold mt-1 ${usernameStatus === "available" ? "text-emerald-700" : "text-red-600"}`}>
                   {usernameMessage}
                 </p>
+              )}
+
+              {suggestions.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">Available Handle Suggestions:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {suggestions.map((sug) => (
+                      <button
+                        key={sug}
+                        type="button"
+                        onClick={() => setUsername(sug)}
+                        className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 hover:border-blue-600 text-slate-900 font-extrabold text-[10px] rounded-lg border border-slate-300 transition-all"
+                      >
+                        @{sug}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
 
