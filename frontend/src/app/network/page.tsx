@@ -270,7 +270,14 @@ export default function NetworkPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {connections.map((c: any) => (
-                  <ConnectionCard key={c.id} connection={c} />
+                  <ConnectionCard
+                    key={c.id || c.user_id}
+                    id={c.id || c.user_id}
+                    name={c.display_name || c.name || "Hardware Engineer"}
+                    username={c.username}
+                    headline={c.headline}
+                    avatarUrl={c.avatar_url || c.avatarUrl}
+                  />
                 ))}
               </div>
             )}
