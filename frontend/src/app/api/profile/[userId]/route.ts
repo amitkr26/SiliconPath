@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-/**
- * Fields a user may update on their own profile. Prevents mass assignment.
- * Professional title column is `job_title` (current_role is a reserved word).
- */
 const UPDATABLE_FIELDS = [
   "display_name",
+  "username",
   "headline",
   "bio",
   "location",
@@ -45,7 +42,6 @@ export async function GET(
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!data) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
 
-  // Sync to DB2 (social replica)
   try {
     const { syncProfile } = await import("@/lib/db");
     await syncProfile(userId);
@@ -80,6 +76,21 @@ export async function PATCH(
 
   const body = await request.json();
 
+  // Validate username uniqueness if present
+  if (body.username) {
+    const cleanUser = String(body.username).trim().toLowerCase().replace(/^@/, "");
+    const { data: existing } = await supabase
+      .from("user_profiles")
+      .select("id")
+      .eq("username", cleanUser)
+      .maybeSingle();
+
+    if (existing && existing.id !== userId) {
+      return NextResponse.json({ error: "This username is already taken by another user." }, { status: 400 });
+    }
+    body.username = cleanUser;
+  }
+
   const sanitized: Record<string, unknown> = {};
   for (const key of UPDATABLE_FIELDS) {
     if (key in body) sanitized[key] = body[key];
@@ -96,7 +107,6 @@ export async function PATCH(
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Sync to DB2 (social replica)
   try {
     const { syncProfile } = await import("@/lib/db");
     await syncProfile(userId);
