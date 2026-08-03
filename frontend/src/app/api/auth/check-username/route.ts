@@ -25,12 +25,12 @@ export async function GET(request: NextRequest) {
 
   const suggestions = generateSuggestions(username);
 
-  // Validate username format (3-20 chars, alphanumeric and underscores)
-  const isValidFormat = /^[a-z0-9_]{3,20}$/.test(username);
+  // Validate username format (3-35 chars, alphanumeric and underscores)
+  const isValidFormat = /^[a-z0-9_]{3,35}$/.test(username);
   if (!isValidFormat) {
     return NextResponse.json({
       available: false,
-      error: "Username must be 3-20 characters long (letters, numbers, underscores).",
+      error: "Username must be 3-35 characters long (letters, numbers, underscores).",
       suggestions,
     });
   }
