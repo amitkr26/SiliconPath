@@ -114,10 +114,10 @@ export default function AdminPage() {
         sessionStorage.setItem("admin_password", cleanPass);
         setAuthenticated(true);
       } else {
-        setError(data.error || "Invalid credentials. Use username: amitkr26 and password: amitkr26");
+        setError(data.error || "Invalid username or password.");
       }
     } catch {
-      setError("Auth failure. Use username: amitkr26 and password: amitkr26");
+      setError("Authentication failed. Please check your credentials.");
     }
   };
 
