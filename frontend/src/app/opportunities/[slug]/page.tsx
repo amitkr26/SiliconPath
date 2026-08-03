@@ -14,6 +14,7 @@ import LinkTypeIndicator from "@/components/LinkTypeIndicator";
 import OpportunityDisclaimer from "@/components/OpportunityDisclaimer";
 import AIOpportunitySummary from "@/components/AIOpportunitySummary";
 import OpenToWorkBanner from "@/components/OpenToWorkBanner";
+import SaveShareBar from "@/components/opportunities/SaveShareBar";
 
 export const revalidate = 3600;
 
@@ -406,15 +407,14 @@ export default async function OpportunityDetailPage({ params }: Props) {
               Visit Official Organization Website
             </a>
 
-            {/* Save + Share */}
-            <div className="flex gap-2">
-              <button className="flex-1 inline-flex items-center justify-center gap-2 border border-border text-text-primary font-medium rounded-lg px-4 py-2.5 text-sm hover:border-accent/50 transition-colors">
-                <Bookmark className="w-4 h-4" /> Save
-              </button>
-              <button className="flex-1 inline-flex items-center justify-center gap-2 border border-border text-text-primary font-medium rounded-lg px-4 py-2.5 text-sm hover:border-accent/50 transition-colors">
-                <Share2 className="w-4 h-4" /> Share
-              </button>
-            </div>
+            {/* Save, Share, Copy Link & Calendar Actions */}
+            <SaveShareBar
+              opportunityId={opportunity.id!}
+              title={opportunity.title}
+              organization={opportunity.organization}
+              deadline={opportunity.deadline}
+              slug={opportunity.slug}
+            />
 
             {/* Open to Work banner */}
             <OpenToWorkBanner />
@@ -453,27 +453,6 @@ export default async function OpportunityDetailPage({ params }: Props) {
                 </div>
               </div>
             </div>
-
-            {/* Calendar export */}
-            {opportunity.id && (
-              <a
-                href={`/api/calendar-export/${opportunity.id}`}
-                className="inline-flex items-center justify-center gap-2 border border-border text-text-primary font-medium rounded-lg px-4 py-2.5 text-sm hover:border-accent/50 transition-colors w-full"
-                download
-              >
-                <Calendar className="w-4 h-4" />
-                Add to Calendar
-              </a>
-            )}
-
-            {/* Share + Copy */}
-            <ShareButtons
-              title={opportunity.title}
-              organization={opportunity.organization}
-              deadline={opportunity.deadline}
-              opportunityUrl={`https://berojgardegreewala.vercel.app/opportunities/${opportunity.slug}`}
-            />
-            <CopyLinkButton url={`https://berojgardegreewala.vercel.app/opportunities/${opportunity.slug}`} />
           </div>
         </div>
       </div>
