@@ -35,12 +35,12 @@ export function useUser() {
       const supabase = createClient();
       const { data: profile } = await supabase
         .from("user_profiles")
-        .select("role")
+        .select("account_type")
         .eq("id", authUser.id)
         .maybeSingle();
 
-      if (profile?.role) {
-        const pRole = profile.role.toLowerCase();
+      if (profile?.account_type) {
+        const pRole = profile.account_type.toLowerCase();
         if (pRole === "employer" || pRole === "provider") {
           setRole("employer");
           return;
