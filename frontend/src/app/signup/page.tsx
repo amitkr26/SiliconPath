@@ -93,6 +93,47 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
+      // 1. Primary signup attempt via auto-confirming admin API (bypasses Supabase email rate limiters)
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          fullName,
+          username: cleanUser,
+          accountType,
+          orgName,
+          orgType,
+          specialization,
+        }),
+      });
+
+      const apiData = await res.json();
+
+      if (res.ok && apiData.success) {
+        // Auto-login user with created credentials
+        const supabase = createClient();
+        const { error: loginErr } = await supabase.auth.signInWithPassword({ email, password });
+        
+        if (!loginErr) {
+          toast.success("Account created successfully! Welcome to BerojgarDegreeWala.");
+          router.push(accountType === "provider" ? "/employer/post-job" : "/onboarding");
+          return;
+        }
+        
+        toast.success("Account created! Please sign in with your credentials.");
+        router.push("/login");
+        return;
+      }
+
+      // If backend error indicates email rate limit or general error, try standard client signup as fallback
+      if (apiData.error && (apiData.error.includes("already exists") || apiData.error.includes("registered"))) {
+        toast.error(apiData.error);
+        return;
+      }
+
+      // Fallback: standard client signup
       const supabase = createClient();
       const { error } = await supabase.auth.signUp({
         email,
@@ -111,7 +152,11 @@ export default function SignupPage() {
       });
 
       if (error) {
-        toast.error(error.message);
+        if (error.message.includes("rate limit") || error.message.includes("exceeded")) {
+          toast.error("Registration server busy. Please sign in or try again in a few minutes.");
+        } else {
+          toast.error(error.message);
+        }
       } else {
         setConfirmSent(true);
         toast.success("Registration link sent! Please check your email to activate.");

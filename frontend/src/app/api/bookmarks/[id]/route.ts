@@ -14,7 +14,7 @@ export async function DELETE(
   const { error } = await supabase
     .from("saved_opportunities")
     .delete()
-    .eq("id", id)
+    .or(`id.eq.${id},opportunity_id.eq.${id}`)
     .eq("user_id", user.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
