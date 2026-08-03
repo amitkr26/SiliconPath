@@ -7,17 +7,32 @@ export async function GET(request: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(request.url);
+  const opportunityId = searchParams.get("opportunityId") || searchParams.get("opportunity_id");
   const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
   const offset = parseInt(searchParams.get("offset") || "0");
 
-  const { data, error, count } = await supabase
+  let query = supabase
     .from("saved_opportunities")
-    .select("*, opportunities(*)", { count: "exact" })
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .range(offset, offset + limit - 1);
+    .select("id, user_id, opportunity_id, created_at, opportunities(*)", { count: "exact" })
+    .eq("user_id", user.id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (opportunityId) {
+    query = query.eq("opportunity_id", opportunityId);
+  } else {
+    query = query.order("created_at", { ascending: false }).range(offset, offset + limit - 1);
+  }
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    console.error("GET /api/bookmarks DB Error:", error);
+    // Fallback if join fails
+    const { data: fallback, count: fCount } = await supabase
+      .from("saved_opportunities")
+      .select("*", { count: "exact" })
+      .eq("user_id", user.id);
+    return NextResponse.json({ bookmarks: fallback || [], count: fCount || 0 });
+  }
 
   return NextResponse.json({ bookmarks: data || [], count: count || 0 });
 }
