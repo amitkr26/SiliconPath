@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { authenticated: false, error: "Invalid admin username or password. Please use username: amitkr26 and password: amitkr26" },
+      { authenticated: false, error: "Invalid admin username or password." },
       { status: 401 }
     );
   } catch (err) {
