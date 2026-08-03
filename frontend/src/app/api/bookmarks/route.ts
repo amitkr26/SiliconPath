@@ -27,22 +27,40 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await request.json();
-  const { opportunityId } = body;
+  const body = await request.json().catch(() => ({}));
+  const opportunityId = body.opportunityId || body.opportunity_id;
 
   if (!opportunityId) {
     return NextResponse.json({ error: "opportunityId required" }, { status: 400 });
   }
 
+  // Check if already bookmarked to keep operation idempotent and prevent 409 ApiError exceptions
+  const { data: existing } = await supabase
+    .from("saved_opportunities")
+    .select("*, opportunities(*)")
+    .eq("user_id", user.id)
+    .eq("opportunity_id", opportunityId)
+    .maybeSingle();
+
+  if (existing) {
+    return NextResponse.json({ bookmark: existing, alreadyBookmarked: true }, { status: 200 });
+  }
+
   const { data, error } = await supabase
     .from("saved_opportunities")
     .insert({ user_id: user.id, opportunity_id: opportunityId })
-    .select()
+    .select("*, opportunities(*)")
     .single();
 
   if (error) {
     if (error.code === "23505") {
-      return NextResponse.json({ error: "Already bookmarked" }, { status: 409 });
+      const { data: found } = await supabase
+        .from("saved_opportunities")
+        .select("*, opportunities(*)")
+        .eq("user_id", user.id)
+        .eq("opportunity_id", opportunityId)
+        .maybeSingle();
+      return NextResponse.json({ bookmark: found, alreadyBookmarked: true }, { status: 200 });
     }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
