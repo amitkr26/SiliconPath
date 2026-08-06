@@ -19,19 +19,29 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  try {
-    const raw = await request.json();
-    const { email, keywords, categories } = validateOrThrow(subscribeSchema, raw);
-    const normalizedEmail = email.trim().toLowerCase();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
 
-    // v2 subscribers schema: email, keywords, categories (no is_active column).
+    const email = (body.email || "").toString().trim().toLowerCase();
+    if (!email || !email.includes("@")) {
+      return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
+    }
+
+    const keywords = Array.isArray(body.keywords) ? body.keywords : [];
+    const categories = Array.isArray(body.categories) ? body.categories : [];
+
+    // v2 subscribers schema: email, keywords, categories
     const { error } = await supabase
       .from("subscribers")
       .insert([
         {
-          email: normalizedEmail,
-          keywords: keywords || [],
-          categories: categories || [],
+          email,
+          keywords,
+          categories,
         },
       ]);
 
@@ -39,13 +49,14 @@ export async function POST(request: NextRequest) {
       if (error.code === "23505") {
         return NextResponse.json({ error: "Email already subscribed" }, { status: 409 });
       }
-      throw error;
+      console.error("Supabase subscribe insert error:", error.message);
+      return NextResponse.json({ error: "Failed to save subscription. Please try again." }, { status: 500 });
     }
 
     return NextResponse.json({ message: "Successfully subscribed!" }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error subscribing:", error);
-    return serverError("Failed to subscribe");
+    return NextResponse.json({ error: "Failed to subscribe" }, { status: 500 });
   }
 }
 
