@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { checkRateLimit } from "@/lib/rate-limiter";
-import { subscribeSchema, validateOrThrow } from "@/lib/validation";
-import { serverError } from "@berojgardegreewala/api";
 
 export async function POST(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -10,8 +8,7 @@ export async function POST(request: NextRequest) {
   }
 
   const ip = request.headers.get("x-forwarded-for") || "unknown";
-  // Durable rate limiter is async and returns { success, remaining, resetAt }.
-  const { success } = await checkRateLimit(`subscribe:${ip}`, 3, 60 * 60);
+  const { success } = await checkRateLimit(`subscribe:${ip}`, 5, 60 * 60);
   if (!success) {
     return NextResponse.json(
       { error: "Too many requests. Try again later." },
@@ -19,6 +16,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  try {
     let body;
     try {
       body = await request.json();
@@ -26,7 +24,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-<<<<<<< HEAD
     const email = (body.email || "").toString().trim().toLowerCase();
     if (!email || !email.includes("@")) {
       return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
@@ -35,12 +32,7 @@ export async function POST(request: NextRequest) {
     const keywords = Array.isArray(body.keywords) ? body.keywords : [];
     const categories = Array.isArray(body.categories) ? body.categories : [];
 
-    // v2 subscribers schema: email, keywords, categories
-    const { error } = await supabase
-=======
-    // v2 subscribers schema: email, keywords, categories (no is_active column).
     const { error } = await supabaseAdmin
->>>>>>> 8f668129fde271d91963288334f876e1c6403d8d
       .from("subscribers")
       .insert([
         {
@@ -77,7 +69,6 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    // v2: no soft-delete column; remove the subscriber row.
     const { error } = await supabaseAdmin
       .from("subscribers")
       .delete()
@@ -85,8 +76,8 @@ export async function DELETE(request: NextRequest) {
 
     if (error) throw error;
     return NextResponse.json({ message: "Unsubscribed successfully" });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error unsubscribing:", error);
-    return serverError("Failed to unsubscribe");
+    return NextResponse.json({ error: "Failed to unsubscribe" }, { status: 500 });
   }
 }
