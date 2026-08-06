@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Zap, Loader2, Eye, EyeOff, Lock, User, Building2 } from "lucide-react";
@@ -9,6 +9,14 @@ import { getURL } from "@/lib/utils";
 import { toast } from "sonner";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <LoginPageInner />
+    </Suspense>
+  );
+}
+
+function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/dashboard";
@@ -180,6 +188,27 @@ export default function LoginPage() {
           </div>
         </div>
 
+      </div>
+    </div>
+  );
+}
+
+// Rendered server-side (and as hydration fallback) so the page always ships an <h1>.
+function LoginFallback() {
+  return (
+    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 py-12 px-4 flex items-center justify-center">
+      <div className="max-w-md w-full space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full shadow-[3px_3px_0px_0px_#0F172A]">
+            <Zap className="w-4 h-4 text-blue-600 fill-blue-600" />
+            <span className="text-xs font-black text-slate-900 uppercase tracking-wider">BerojgarDegreeWala</span>
+          </div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Welcome Back</h1>
+          <p className="text-slate-600 text-xs font-extrabold">Sign in to your candidate or employer account</p>
+        </div>
+        <div className="bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] flex items-center justify-center py-16">
+          <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { Suspense, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { 
@@ -14,6 +14,14 @@ import { toast } from "sonner";
 type AccountType = "seeker" | "provider";
 
 export default function SignupPage() {
+  return (
+    <Suspense fallback={<SignupFallback />}>
+      <SignupPageInner />
+    </Suspense>
+  );
+}
+
+function SignupPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialRoleParam = searchParams.get("role");
@@ -512,6 +520,27 @@ export default function SignupPage() {
           </div>
         </div>
 
+      </div>
+    </div>
+  );
+}
+
+// Rendered server-side (and as hydration fallback) so the page always ships an <h1>.
+function SignupFallback() {
+  return (
+    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 py-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
+      <div className="max-w-lg w-full space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full shadow-[3px_3px_0px_0px_#0F172A]">
+            <Zap className="w-4 h-4 text-blue-600 fill-blue-600" />
+            <span className="text-xs font-black text-slate-900 uppercase tracking-wider">BerojgarDegreeWala</span>
+          </div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Join as Candidate / Researcher</h1>
+          <p className="text-slate-600 text-xs font-extrabold">Create your BerojgarDegreeWala account</p>
+        </div>
+        <div className="bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] flex items-center justify-center py-16">
+          <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+        </div>
       </div>
     </div>
   );
