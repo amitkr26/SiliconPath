@@ -100,19 +100,10 @@ export default function AcademyDashboard() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAF9F6] px-4">
-        <div className="w-10 h-10 border-4 border-slate-900 border-t-blue-600 rounded-full animate-spin" />
-        <p className="mt-4 text-slate-900 font-black text-sm">Loading VLSI Academy Tracks &amp; Trusted Resources...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[#FAF9F6] py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-12">
-        
+
         {/* ACADEMY HERO */}
         <div className="p-8 sm:p-12 rounded-2xl bg-blue-600 border-3 border-slate-900 text-white shadow-[6px_6px_0px_0px_#0F172A] relative overflow-hidden">
           <div className="max-w-3xl space-y-4 relative z-10">
@@ -129,6 +120,13 @@ export default function AcademyDashboard() {
           </div>
         </div>
 
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-10 h-10 border-4 border-slate-900 border-t-blue-600 rounded-full animate-spin" />
+            <p className="mt-4 text-slate-900 font-black text-sm">Loading VLSI Academy Tracks &amp; Trusted Resources...</p>
+          </div>
+        ) : (
+        <>
         {/* CURRICULUM TRACKS */}
         <div>
           <div className="mb-6">
@@ -289,6 +287,9 @@ export default function AcademyDashboard() {
             ))}
           </div>
         </div>
+
+        </>
+        )}
 
       </div>
     </div>
