@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase, isConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { checkRateLimit } from "@/lib/rate-limiter";
 import { subscribeSchema, validateOrThrow } from "@/lib/validation";
 import { serverError } from "@berojgardegreewala/api";
 
 export async function POST(request: NextRequest) {
-  if (!isConfigured) {
+  if (!isAdminConfigured) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.trim().toLowerCase();
 
     // v2 subscribers schema: email, keywords, categories (no is_active column).
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("subscribers")
       .insert([
         {
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  if (!isConfigured) {
+  if (!isAdminConfigured) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
@@ -62,7 +62,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // v2: no soft-delete column; remove the subscriber row.
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("subscribers")
       .delete()
       .eq("email", email.trim().toLowerCase());

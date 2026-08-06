@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
       await supabaseAdmin.from("user_profiles").upsert({
         id: data.user.id,
         email: email,
+        username: cleanUser,
         display_name: fullName || cleanUser,
         headline: specialization || (accountType === "provider" ? orgName : "VLSI & Hardware Engineer"),
         account_type: accountType === "provider" ? "employer" : "candidate",
