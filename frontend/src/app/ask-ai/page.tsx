@@ -170,7 +170,7 @@ export default function AskAIPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -179,7 +179,7 @@ export default function AskAIPage() {
       });
 
       const data = await res.json();
-      const replyContent = data.reply || data.content || "I am analyzing semiconductor opportunities and research data. Feel free to ask details about JRF, DRDO, ISRO, or VLSI design!";
+      const replyContent = data.message || data.reply || data.content || "I am analyzing semiconductor opportunities and research data. Feel free to ask details about JRF, DRDO, ISRO, or VLSI design!";
 
       const botMsg: Message = {
         id: `b-${Date.now()}`,
