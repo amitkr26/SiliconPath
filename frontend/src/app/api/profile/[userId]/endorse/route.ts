@@ -67,7 +67,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   const { data, error } = await supabase
     .from("skill_endorsements")
-    .select("*, endorser:user_profiles!endorser_id(full_name, avatar_url)")
+    .select("*, endorser:user_profiles!skill_endorsements_endorser_id_profile_fkey(display_name, avatar_url)")
     .eq("profile_owner_id", userId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

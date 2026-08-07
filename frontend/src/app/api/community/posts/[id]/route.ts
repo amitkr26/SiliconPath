@@ -7,7 +7,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   const { data: post, error } = await supabase
     .from("community_posts")
-    .select("*, user_profiles(full_name)")
+    .select("*, user_profiles(display_name)")
     .eq("id", id)
     .single();
 
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   const { data: comments } = await supabase
     .from("community_comments")
-    .select("*, user_profiles(full_name)")
+    .select("*, user_profiles(display_name)")
     .eq("post_id", id)
     .order("created_at", { ascending: true });
 

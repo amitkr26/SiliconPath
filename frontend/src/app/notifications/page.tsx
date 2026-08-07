@@ -133,7 +133,7 @@ export default function NotificationsPage() {
               <div className="relative flex-shrink-0">
                 <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
                   <span className="text-xs font-bold text-accent">
-                    {n.actor ? getInitials(n.actor.full_name || "") : "?"}
+                    {n.actor ? getInitials(n.actor.display_name || "") : "?"}
                   </span>
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-surface border border-border flex items-center justify-center">
@@ -142,7 +142,7 @@ export default function NotificationsPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-text-primary text-sm">
-                  <span className="font-semibold">{n.actor?.full_name || "Someone"}</span>{" "}
+                  <span className="font-semibold">{n.actor?.display_name || "Someone"}</span>{" "}
                   {n.message || TYPE_LABELS[n.type] || "interacted with you"}
                 </p>
                 <p className="text-text-muted text-xs mt-0.5">
