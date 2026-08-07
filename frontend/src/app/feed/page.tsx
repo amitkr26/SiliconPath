@@ -161,11 +161,11 @@ export default function FeedPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-10 h-10 rounded-full bg-accent/15 text-accent flex items-center justify-center text-sm font-bold flex-shrink-0">
-                        {initials(post.user_profile?.full_name)}
+                        {initials(post.author?.display_name)}
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-text-primary truncate">
-                          {post.user_profile?.full_name || "Member"}
+                          {post.author?.display_name || "Member"}
                         </p>
                         <p className="text-xs text-text-muted">{timeAgo(post.created_at)}</p>
                       </div>

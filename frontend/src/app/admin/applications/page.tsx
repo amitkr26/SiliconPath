@@ -80,11 +80,11 @@ export default function AdminApplicationsPage() {
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
                         <span className="text-xs font-bold text-accent">
-                          {(app.user?.full_name || "?").split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2)}
+                          {(app.user?.display_name || "?").split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2)}
                         </span>
                       </div>
                       <div>
-                        <div className="text-text-primary text-sm font-medium">{app.user?.full_name || "Anonymous"}</div>
+                        <div className="text-text-primary text-sm font-medium">{app.user?.display_name || "Anonymous"}</div>
                         {app.user?.headline && <div className="text-text-muted text-xs">{app.user.headline}</div>}
                       </div>
                     </div>

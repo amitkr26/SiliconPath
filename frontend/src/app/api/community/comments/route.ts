@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     post_id: body.post_id,
     user_id: user.id,
     content: body.content,
-  }).select("*, user_profiles(full_name)").single();
+  }).select("*, user_profiles(display_name)").single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

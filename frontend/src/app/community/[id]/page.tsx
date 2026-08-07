@@ -15,7 +15,7 @@ interface Comment {
   content: string;
   created_at: string;
   user_id: string;
-  user_profiles?: { full_name: string } | null;
+  user_profiles?: { display_name: string } | null;
 }
 
 interface PostDetail {
@@ -28,7 +28,7 @@ interface PostDetail {
   comment_count: number;
   created_at: string;
   user_id: string;
-  user_profiles?: { full_name: string } | null;
+  user_profiles?: { display_name: string } | null;
   comments: Comment[];
 }
 
@@ -83,7 +83,7 @@ export default function PostDetailPage() {
       });
       setPost(prev => prev ? {
         ...prev,
-        comments: [...prev.comments, { ...newComment, user_profiles: user?.user_metadata?.full_name ? { full_name: user.user_metadata.full_name } : null }],
+        comments: [...prev.comments, { ...newComment, user_profiles: user?.user_metadata?.full_name ? { display_name: user.user_metadata.full_name } : null }],
         comment_count: prev.comment_count + 1,
       } : prev);
       setCommentText("");
@@ -130,9 +130,9 @@ export default function PostDetailPage() {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-7 h-7 rounded-full bg-accent/20 flex items-center justify-center">
-                <span className="text-accent text-xs font-bold">{getInitials(post.user_profiles?.full_name)}</span>
+                <span className="text-accent text-xs font-bold">{getInitials(post.user_profiles?.display_name)}</span>
               </div>
-              <span className="text-text-secondary text-sm">{post.user_profiles?.full_name || "Anonymous"}</span>
+              <span className="text-text-secondary text-sm">{post.user_profiles?.display_name || "Anonymous"}</span>
               <span className="text-text-muted text-xs">·</span>
               <span className="text-text-muted text-xs">{formatTimeAgo(post.created_at)}</span>
               <span className="px-2 py-0.5 bg-accent/10 text-accent rounded text-xs border border-accent/30">{post.category}</span>
@@ -189,11 +189,11 @@ export default function PostDetailPage() {
             {post.comments.map(comment => (
               <div key={comment.id} className="flex items-start gap-3 pb-4 border-b border-border/50 last:border-0">
                 <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-accent text-[10px] font-bold">{getInitials(comment.user_profiles?.full_name)}</span>
+                  <span className="text-accent text-[10px] font-bold">{getInitials(comment.user_profiles?.display_name)}</span>
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-text-primary text-xs font-medium">{comment.user_profiles?.full_name || "Anonymous"}</span>
+                    <span className="text-text-primary text-xs font-medium">{comment.user_profiles?.display_name || "Anonymous"}</span>
                     <span className="text-text-muted text-xs">{formatTimeAgo(comment.created_at)}</span>
                   </div>
                   <p className="text-text-secondary text-sm">{comment.content}</p>

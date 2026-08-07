@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from("community_posts")
-    .select("*, user_profiles(full_name)", { count: "exact" });
+    .select("*, user_profiles(display_name)", { count: "exact" });
 
   if (category && category !== "all") {
     query = query.eq("category", category);
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     content: body.content,
     category: "general",
     tags: body.tags || [],
-  }).select("*, user_profiles(full_name)").single();
+  }).select("*, user_profiles(display_name)").single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data, { status: 201 });

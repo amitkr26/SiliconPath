@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     .eq("is_profile_public", true);
 
   if (q) {
-    query = query.or(`full_name.ilike.%${q}%,headline.ilike.%${q}%,current_org.ilike.%${q}%,about.ilike.%${q}%`);
+    query = query.or(`display_name.ilike.%${q}%,headline.ilike.%${q}%,current_org.ilike.%${q}%,about.ilike.%${q}%`);
   }
   if (location) {
     query = query.or(`city.ilike.%${location}%,preferred_location.ilike.%${location}%`);
