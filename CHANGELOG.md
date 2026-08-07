@@ -2,6 +2,10 @@
 
 ## [Unreleased] - clean/main branch
 
+### Security
+- **2026-08-07 — Git history force-rewritten to purge secrets.** Hardcoded Supabase service keys, a Vercel token, and Neon DB passwords that were committed in `frontend/scripts/*`, `frontend/src/lib/db/multi-db.ts`, and `test-db.js` were removed from the repository AND rewritten out of all git history (`git filter-branch` + force-push; remote `main` rewritten, old HEAD was `078c59a`). **Collaborators must `git fetch origin && git reset --hard origin/main` (or re-clone) — do NOT `git pull`** — the shared history has been rewritten. Keys were rotated on Supabase/Neon; Vercel env vars updated.
+- Deleted all QA scripts with hardcoded credentials (19 files + `multi-db.ts` + `test_neon.js`). Secrets must only come from environment variables.
+
 ### Removed
 - `docs/10-api-specification.md` (duplicate of `10-api-spec.md`)
 - `docs/13-environment.md` (duplicate of `13-environment-variables.md`)
