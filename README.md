@@ -16,6 +16,8 @@
 
 [**Live Platform**](https://berojgardegreewala.vercel.app) • [**Jobs & Opportunities**](https://berojgardegreewala.vercel.app/opportunities) • [**VLSI Courses**](https://berojgardegreewala.vercel.app/academy) • [**Professional Network**](https://berojgardegreewala.vercel.app/network) • [**Admin Command Center**](https://berojgardegreewala.vercel.app/admin)
 
+> **⚠️ IMPORTANT — 2026-08-07:** Git history was force-rewritten to purge committed secrets (hardcoded Supabase/Neon keys in scripts). **Re-clone or `git fetch origin && git reset --hard origin/main` — do not `git pull`.** See CHANGELOG.
+
 </div>
 
 ---
