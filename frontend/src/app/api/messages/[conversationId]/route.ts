@@ -18,8 +18,9 @@ async function assertParticipant(
   return { ok: true as const };
 }
 
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ conversationId: string }> }) {
-  const { conversationId } = await params;
+export async function GET(_request: NextRequest, { params }: { params: { conversationId: string } | Promise<{ conversationId: string }> }) {
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const conversationId = resolvedParams?.conversationId;
   const supabase = await createClient();
   const {
     data: { user },
@@ -48,8 +49,9 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   return NextResponse.json({ messages: messages || [] });
 }
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ conversationId: string }> }) {
-  const { conversationId } = await params;
+export async function POST(request: NextRequest, { params }: { params: { conversationId: string } | Promise<{ conversationId: string }> }) {
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const conversationId = resolvedParams?.conversationId;
   const supabase = await createClient();
   const {
     data: { user },

@@ -35,7 +35,6 @@ export default function Navbar() {
   const navItems = !user
     ? [
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
-        { href: "/academy", label: "Academy", icon: GraduationCap },
         { href: "/news", label: "News & Feed", icon: MessageSquare },
       ]
     : isEmployer
@@ -44,12 +43,10 @@ export default function Navbar() {
         { href: "/employers/postings", label: "My Postings", icon: Building2 },
         { href: "/employers/applicants", label: "Applicants", icon: Users },
         { href: "/employers/profile", label: "Company Profile", icon: Building2 },
-        { href: "/academy", label: "Academy", icon: GraduationCap },
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
       ]
     : [
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
-        { href: "/academy", label: "Academy", icon: GraduationCap },
         { href: "/applications", label: "My Applications", icon: FileText },
         { href: "/saved", label: "Saved", icon: Bookmark },
         { href: "/resume", label: "My Resume", icon: FileText },
