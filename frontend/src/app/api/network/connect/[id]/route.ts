@@ -20,11 +20,8 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
-  const { db2 } = await import("@/lib/db");
-  const db = db2 || supabase;
-
-  // Try updating connections table first (v2 schema)
-  let { data, error } = await db
+  // Update connections table (primary Supabase DB)
+  let { data, error } = await supabase
     .from("connections")
     .update({ status, updated_at: new Date().toISOString() })
     .eq("id", id)
@@ -32,9 +29,9 @@ export async function PATCH(
     .select()
     .maybeSingle();
 
-  // Fallback to legacy connection_requests table if needed
+  // Fallback to connection_requests table if needed
   if (!data) {
-    const { data: legacyData } = await db
+    const { data: legacyData } = await supabase
       .from("connection_requests")
       .update({ status, updated_at: new Date().toISOString() })
       .eq("id", id)

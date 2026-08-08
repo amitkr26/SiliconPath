@@ -36,6 +36,8 @@ export default function Navbar() {
     ? [
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
         { href: "/news", label: "News & Feed", icon: MessageSquare },
+        { href: "/about", label: "About", icon: Building2 },
+        { href: "/contact", label: "Contact", icon: Users },
       ]
     : isEmployer
     ? [
@@ -44,6 +46,7 @@ export default function Navbar() {
         { href: "/employers/applicants", label: "Applicants", icon: Users },
         { href: "/employers/profile", label: "Company Profile", icon: Building2 },
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
+        { href: "/about", label: "About", icon: Building2 },
       ]
     : [
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
@@ -52,6 +55,7 @@ export default function Navbar() {
         { href: "/resume", label: "My Resume", icon: FileText },
         { href: "/network", label: "Network", icon: Users },
         { href: "/messages", label: "Messages", icon: MessageSquare },
+        { href: "/about", label: "About", icon: Building2 },
       ];
 
   return (
