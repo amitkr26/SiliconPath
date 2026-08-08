@@ -24,9 +24,10 @@ const UPDATABLE_FIELDS = [
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: { userId: string } | Promise<{ userId: string }> }
 ) {
-  const { userId } = await params;
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const userId = resolvedParams?.userId;
   const supabase = await createClient();
   const {
     data: { user },
@@ -43,13 +44,6 @@ export async function GET(
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!data) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
 
-  try {
-    const { syncProfile } = await import("@/lib/db");
-    await syncProfile(data.id);
-  } catch (e) {
-    console.error("[Profile Get] Sync profile to DB2 failed:", e);
-  }
-
   if (user.id !== data.id) {
     try {
       await supabase.rpc("increment_profile_views", { profile_id: data.id });
@@ -63,9 +57,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: { userId: string } | Promise<{ userId: string }> }
 ) {
-  const { userId } = await params;
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const userId = resolvedParams?.userId;
   const supabase = await createClient();
   const {
     data: { user },
@@ -107,13 +102,6 @@ export async function PATCH(
     .eq("id", userId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  try {
-    const { syncProfile } = await import("@/lib/db");
-    await syncProfile(userId);
-  } catch (e) {
-    console.error("[Profile Patch] Sync profile to DB2 failed:", e);
-  }
 
   return NextResponse.json({ success: true });
 }

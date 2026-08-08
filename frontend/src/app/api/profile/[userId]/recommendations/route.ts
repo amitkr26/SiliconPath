@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
-  const { userId } = await params;
+export async function GET(request: NextRequest, { params }: { params: { userId: string } | Promise<{ userId: string }> }) {
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const userId = resolvedParams?.userId;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   let query = supabase
     .from("recommendations")
-    .select("*, author:user_profiles!recommendations_author_id_profile_fkey(display_name, avatar_url, headline)")
+    .select("*, author:user_profiles(display_name, avatar_url, headline)")
     .eq("recipient_id", userId);
 
   if (!user || user.id !== userId) {
@@ -16,12 +17,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 
   const { data, error } = await query.order("created_at", { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    // Fallback to non-joined query if foreign key alias differs
+    const { data: fallbackData } = await supabase
+      .from("recommendations")
+      .select("*")
+      .eq("recipient_id", userId)
+      .order("created_at", { ascending: false });
+    return NextResponse.json({ recommendations: fallbackData || [] });
+  }
   return NextResponse.json({ recommendations: data || [] });
 }
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
-  const { userId } = await params;
+export async function POST(request: NextRequest, { params }: { params: { userId: string } | Promise<{ userId: string }> }) {
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const userId = resolvedParams?.userId;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -35,7 +45,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     recipient_id: userId,
     content,
     relationship: relationship || "",
-  }).select("*, author:user_profiles!recommendations_author_id_profile_fkey(display_name, avatar_url, headline)").single();
+  }).select("*").single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data, { status: 201 });
