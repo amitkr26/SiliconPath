@@ -5,12 +5,34 @@ import { GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
 
 export const dynamic = 'force-dynamic';
 
-// A row is displayable only if it has a real title that is not a nav/menu heading.
-function isDisplayableOpportunity(o: { title?: string | null } | null): boolean {
+// A row is displayable only if it has a real title that is not a nav/menu heading or test entry.
+function isDisplayableOpportunity(o: { title?: string | null; organization?: string | null; stipend?: string | null; salary_range?: string | null; apply_url?: string | null; apply_link?: string | null } | null): boolean {
   if (!o || !o.title) return false;
   const t = o.title.trim();
   if (t.length < 5) return false;
-  return !GARBAGE_TITLE_PATTERNS.test(t);
+  if (GARBAGE_TITLE_PATTERNS.test(t)) return false;
+
+  const titleLower = t.toLowerCase();
+  const orgLower = (o.organization || "").toLowerCase();
+  const fullStr = JSON.stringify(o).toLowerCase();
+  const apply = (o.apply_url || o.apply_link || "").toLowerCase();
+
+  // Safeguard: Exclude test entries and fake data
+  if (
+    titleLower.includes("qa audit test") ||
+    titleLower.includes("ui verified") ||
+    titleLower.includes("lead risc-v soc architect (qa") ||
+    orgLower.includes("qa test") ||
+    orgLower.includes("semiconductor lab test") ||
+    fullStr.includes("1,80,00,000") ||
+    fullStr.includes("2,40,00,000") ||
+    apply === "https://berojgardegreewala.vercel.app" ||
+    apply === "https://berojgardegreewala.vercel.app/"
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 export async function GET(request: NextRequest) {
