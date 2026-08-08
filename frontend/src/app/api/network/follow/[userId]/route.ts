@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createNotification } from "@/lib/notifications";
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
-  const { userId } = await params;
+export async function POST(request: NextRequest, { params }: { params: { userId: string } | Promise<{ userId: string }> }) {
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const userId = resolvedParams?.userId;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -29,8 +30,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   return NextResponse.json({ success: true }, { status: 201 });
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
-  const { userId } = await params;
+export async function DELETE(request: NextRequest, { params }: { params: { userId: string } | Promise<{ userId: string }> }) {
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const userId = resolvedParams?.userId;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
