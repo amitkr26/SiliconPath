@@ -26,15 +26,12 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { db2 } = await import("@/lib/db");
-  const db = db2 || supabase;
-
   const { searchParams } = new URL(request.url);
   const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 50);
   const offset = parseInt(searchParams.get("offset") || "0", 10);
 
   // Accepted connections (either direction).
-  const { data: conns } = await db
+  const { data: conns } = await supabase
     .from("connections")
     .select("requester_id, addressee_id, status")
     .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
@@ -45,7 +42,7 @@ export async function GET(request: NextRequest) {
     authorIds.add(c.requester_id === user.id ? c.addressee_id : c.requester_id);
   });
 
-  const { data: postRows, error } = await db
+  const { data: postRows, error } = await supabase
     .from("feed_posts")
     .select("id, author_id, content, created_at, like_count, comment_count")
     .in("author_id", Array.from(authorIds))

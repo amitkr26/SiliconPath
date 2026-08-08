@@ -19,16 +19,33 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { db2 } = await import("@/lib/db");
-  const db = db2 || supabase;
-
   const { receiverId } = await request.json();
   if (!receiverId) return NextResponse.json({ error: "Receiver ID required" }, { status: 400 });
   if (receiverId === user.id) {
     return NextResponse.json({ error: "Cannot connect with yourself" }, { status: 400 });
   }
 
-  const { data, error } = await db
+  // Ensure current user profile exists to prevent foreign key violation
+  const { data: existingProfile } = await supabase
+    .from("user_profiles")
+    .select("id")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!existingProfile) {
+    const fallbackName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Hardware Engineer";
+    const fallbackUsername = user.user_metadata?.username || user.email?.split("@")[0] || `user_${user.id.slice(0, 6)}`;
+    await supabase.from("user_profiles").upsert({
+      id: user.id,
+      display_name: fallbackName,
+      username: fallbackUsername,
+      email: user.email,
+      account_type: user.user_metadata?.account_type || user.user_metadata?.role || "seeker",
+      is_profile_public: true
+    });
+  }
+
+  const { data, error } = await supabase
     .from("connections")
     .insert({ requester_id: user.id, addressee_id: receiverId, status: "pending" })
     .select()
@@ -43,9 +60,9 @@ export async function POST(request: NextRequest) {
 
   try {
     createNotification({ userId: receiverId, type: "connection_request", actorId: user.id, entityType: "connection", entityId: data?.id });
-    const { data: profile } = await db.from("user_profiles").select("display_name, email").eq("id", user.id).maybeSingle();
+    const { data: profile } = await supabase.from("user_profiles").select("display_name, email").eq("id", user.id).maybeSingle();
     if (profile?.email) {
-      const { data: receiver } = await db.from("user_profiles").select("email").eq("id", receiverId).maybeSingle();
+      const { data: receiver } = await supabase.from("user_profiles").select("email").eq("id", receiverId).maybeSingle();
       if (receiver?.email) {
         const email = connectionRequestEmail(profile.display_name || "Someone");
         sendEmailNotification({ to: receiver.email, subject: email.subject, html: email.html });

@@ -17,13 +17,10 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { db2 } = await import("@/lib/db");
-  const db = db2 || supabase;
-
   const { searchParams } = new URL(request.url);
   const q = (searchParams.get("q") || "").trim();
 
-  const { data: conns } = await db
+  const { data: conns } = await supabase
     .from("connections")
     .select("requester_id, addressee_id, status")
     .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
@@ -34,7 +31,7 @@ export async function GET(request: NextRequest) {
   );
   if (ids.length === 0) return NextResponse.json({ connections: [] });
 
-  let query = db
+  let query = supabase
     .from("user_profiles")
     .select("id, display_name, headline, current_company, avatar_url")
     .in("id", ids);
