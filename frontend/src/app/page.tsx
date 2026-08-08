@@ -350,7 +350,14 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 6. VLSI COURSES SHOWCASE (OPEN WITHOUT LOGIN) */}
+      {/* 6. REVIEWS, FAQ & NEWSLETTER */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+        <ReviewsSection />
+        <FaqSection />
+        <SubscribeSection />
+      </section>
+
+      {/* 7. VLSI COURSES SHOWCASE (FINAL CONTENT SECTION IMMEDIATELY ABOVE FOOTER) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-slate-900 border-4 border-slate-900 rounded-3xl p-8 sm:p-12 text-white shadow-[10px_10px_0px_0px_#0F172A] space-y-8">
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
@@ -390,13 +397,6 @@ export default async function HomePage() {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* 7. REVIEWS, FAQ & NEWSLETTER */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-        <ReviewsSection />
-        <FaqSection />
-        <SubscribeSection />
       </section>
 
     </div>

@@ -29,8 +29,8 @@ export default function PostJobPage() {
       router.push("/login?redirectTo=/employer/post-job");
       return;
     }
-    const role = user?.user_metadata?.role;
-    if (user && role !== "employer" && role !== "admin") {
+    const role = user?.user_metadata?.role || user?.user_metadata?.account_type;
+    if (user && role !== "employer" && role !== "provider" && role !== "admin") {
       router.push("/dashboard");
     }
   }, [user, authLoading, router]);
