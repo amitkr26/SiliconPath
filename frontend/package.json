@@ -9,6 +9,7 @@
     "lint": "next lint",
     "omnirouter": "node ../scripts/omnirouter-gateway.js",
     "daily-scraper": "node ../scripts/auto-daily-scraper.js",
+    "clean:test-data": "node scripts/delete-fake-jobs.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
