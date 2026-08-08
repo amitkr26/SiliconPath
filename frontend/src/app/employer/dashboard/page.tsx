@@ -209,7 +209,7 @@ export default function EmployerDashboard() {
                         className="flex items-start gap-4 p-4 bg-bg-primary/50 border border-border/80 rounded-xl"
                       >
                         <div className="w-11 h-11 rounded-full bg-accent/15 text-accent flex items-center justify-center font-bold flex-shrink-0">
-                          {rec.full_name ? rec.full_name[0].toUpperCase() : "C"}
+                          {rec.display_name ? rec.display_name[0].toUpperCase() : "C"}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
@@ -218,7 +218,7 @@ export default function EmployerDashboard() {
                                 href={`/people/${rec.username || rec.id}`}
                                 className="font-semibold text-text-primary text-sm hover:text-accent transition-colors"
                               >
-                                {rec.full_name || "Anonymous Candidate"}
+                                {rec.display_name || "Anonymous Candidate"}
                               </Link>
                               <p className="text-xs text-text-secondary line-clamp-1 mt-0.5">{rec.headline}</p>
                             </div>
@@ -262,9 +262,9 @@ export default function EmployerDashboard() {
                     >
                       <div>
                         <p className="font-semibold text-sm text-text-primary">
-                          {app.user_profile?.full_name || "Candidate"}
+                          {app.user_profile?.display_name || "Candidate"}
                         </p>
-                        <p className="text-xs text-text-muted mt-0.5">Applied to: {app.opportunity_title}</p>
+                        <p className="text-xs text-text-muted mt-0.5">Applied to: {app.opportunity?.title}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <button

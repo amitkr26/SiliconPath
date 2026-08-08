@@ -182,11 +182,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             // eslint-disable-next-line @next/next/no-img-element
             <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
           ) : (
-            <span className="text-3xl font-bold text-accent">{getInitials(profile.full_name || "")}</span>
+            <span className="text-3xl font-bold text-accent">{getInitials(profile.display_name || "")}</span>
           )}
         </div>
         <div className="flex-1 min-w-0 pt-2 sm:pt-0">
-          <h1 className="text-2xl font-bold text-text-primary">{profile.full_name}</h1>
+          <h1 className="text-2xl font-bold text-text-primary">{profile.display_name}</h1>
           {profile.headline && <p className="text-text-secondary text-sm mt-0.5">{profile.headline}</p>}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-text-secondary">
             {(profile.current_position || profile.current_org) && (
@@ -289,10 +289,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
               <div key={rec.id} className="bg-bg-primary rounded-lg p-4 border border-border/50">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                    <span className="text-accent text-xs font-bold">{getInitials(rec.author?.full_name || "")}</span>
+                    <span className="text-accent text-xs font-bold">{getInitials(rec.author?.display_name || "")}</span>
                   </div>
                   <div>
-                    <p className="text-text-primary text-sm font-medium">{rec.author?.full_name}</p>
+                    <p className="text-text-primary text-sm font-medium">{rec.author?.display_name}</p>
                     {rec.relationship && <p className="text-text-muted text-xs">{rec.relationship}</p>}
                     <p className="text-text-secondary text-sm mt-2">{rec.content}</p>
                   </div>

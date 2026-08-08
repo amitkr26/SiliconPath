@@ -33,25 +33,26 @@ export async function GET(
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data, error } = await supabase
-    .from("user_profiles")
-    .select("*")
-    .eq("id", userId)
-    .maybeSingle();
+  // Accept either a profile id (UUID) or a username — public people pages link by username.
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+  let query = supabase.from("user_profiles").select("*");
+  if (isUuid) query = query.eq("id", userId);
+  else query = query.eq("username", userId);
+  const { data, error } = await query.maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!data) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
 
   try {
     const { syncProfile } = await import("@/lib/db");
-    await syncProfile(userId);
+    await syncProfile(data.id);
   } catch (e) {
     console.error("[Profile Get] Sync profile to DB2 failed:", e);
   }
 
-  if (user.id !== userId) {
+  if (user.id !== data.id) {
     try {
-      await supabase.rpc("increment_profile_views", { profile_id: userId });
+      await supabase.rpc("increment_profile_views", { profile_id: data.id });
     } catch {
       /* non-blocking */
     }

@@ -76,7 +76,7 @@ export interface OpportunityReport {
 
 export interface UserProfile {
   id: string;
-  full_name: string;
+  display_name: string;
   username: string;
   headline: string;
   about: string;
@@ -121,7 +121,8 @@ export interface FeedPost {
   visibility: 'public' | 'connections' | 'followers';
   is_pinned: boolean;
   created_at: string;
-  user_profile?: Pick<UserProfile, 'full_name' | 'username' | 'avatar_url' | 'headline'>;
+  user_profile?: Pick<UserProfile, 'display_name' | 'username' | 'avatar_url' | 'headline'>;
+  author?: Pick<UserProfile, 'display_name' | 'avatar_url' | 'headline'> | null;
   user_reaction?: string | null;
   has_reposted?: boolean;
   opportunity?: Opportunity | null;
@@ -142,7 +143,7 @@ export interface SkillEndorsement {
   endorser_id: string;
   skill: string;
   created_at: string;
-  endorser?: Pick<UserProfile, 'full_name' | 'avatar_url'>;
+  endorser?: Pick<UserProfile, 'display_name' | 'avatar_url'>;
 }
 
 export interface Recommendation {
@@ -153,7 +154,7 @@ export interface Recommendation {
   content: string;
   is_visible: boolean;
   created_at: string;
-  author?: Pick<UserProfile, 'full_name' | 'avatar_url' | 'headline'>;
+  author?: Pick<UserProfile, 'display_name' | 'avatar_url' | 'headline'>;
 }
 
 export interface Notification {
@@ -166,7 +167,7 @@ export interface Notification {
   message: string;
   is_read: boolean;
   created_at: string;
-  actor?: Pick<UserProfile, 'full_name' | 'avatar_url' | 'username'>;
+  actor?: Pick<UserProfile, 'display_name' | 'avatar_url' | 'username'>;
 }
 
 export interface Conversation {
@@ -178,7 +179,7 @@ export interface Conversation {
   unread_count_1: number;
   unread_count_2: number;
   created_at: string;
-  other_user?: Pick<UserProfile, 'full_name' | 'avatar_url' | 'headline' | 'username'>;
+  other_user?: Pick<UserProfile, 'display_name' | 'avatar_url' | 'headline' | 'username'>;
 }
 
 export interface Message {

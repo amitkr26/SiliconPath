@@ -8,7 +8,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   let query = supabase
     .from("recommendations")
-    .select("*, author:user_profiles!author_id(full_name, avatar_url, headline)")
+    .select("*, author:user_profiles!recommendations_author_id_profile_fkey(display_name, avatar_url, headline)")
     .eq("recipient_id", userId);
 
   if (!user || user.id !== userId) {
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     recipient_id: userId,
     content,
     relationship: relationship || "",
-  }).select("*, author:user_profiles!author_id(full_name, avatar_url, headline)").single();
+  }).select("*, author:user_profiles!recommendations_author_id_profile_fkey(display_name, avatar_url, headline)").single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data, { status: 201 });
