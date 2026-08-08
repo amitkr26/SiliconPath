@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     // 2. Query candidates whose skills overlap with tags, or grab top profiles
     const { data: candidates, error: candidateError } = await supabase
       .from("user_profiles")
-      .select("id, full_name, headline, skills, avatar_url, city, preferred_location");
+      .select("id, display_name, headline, skills, avatar_url, city, preferred_location");
 
     if (candidateError) throw candidateError;
 

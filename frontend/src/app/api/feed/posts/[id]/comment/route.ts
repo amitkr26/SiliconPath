@@ -16,7 +16,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     user_id: user.id,
     content,
     parent_comment_id: parentCommentId || null,
-  }).select("*, user_profile:user_profiles!user_id(full_name, username, avatar_url)").single();
+  }).select("*, user_profile:user_profiles!feed_post_comments_user_id_profile_fkey(display_name, username, avatar_url)").single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   
   const { data, error } = await supabase
     .from("feed_post_comments")
-    .select("*, user_profile:user_profiles!user_id(full_name, username, avatar_url)")
+    .select("*, user_profile:user_profiles!feed_post_comments_user_id_profile_fkey(display_name, username, avatar_url)")
     .eq("post_id", id)
     .order("created_at", { ascending: true });
 

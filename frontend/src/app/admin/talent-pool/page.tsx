@@ -54,12 +54,12 @@ export default function TalentPoolPage() {
           {candidates.map((p: any) => (
             <div key={p.id} className="bg-surface border border-border rounded-xl p-4 flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-sm font-bold text-accent">{getInitials(p.full_name || "")}</span>
+                <span className="text-sm font-bold text-accent">{getInitials(p.display_name || "")}</span>
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <Link href={`/people/${p.username || p.id}`} className="text-text-primary font-medium hover:text-accent truncate">
-                    {p.full_name}
+                    {p.display_name}
                   </Link>
                   <span className="bg-success/20 text-success text-[10px] font-medium px-1.5 py-0.5 rounded-full flex items-center gap-1">
                     <Check className="w-2.5 h-2.5" /> Open to {p.open_to_work_types?.join(", ") || "work"}

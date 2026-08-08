@@ -177,10 +177,10 @@ export default function SearchPage() {
                 <div key={p.id} className="bg-surface border border-border rounded-xl p-4">
                   <Link href={`/people/${p.username || p.id}`} className="flex items-start gap-3">
                     <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold text-accent">{getInitials(p.full_name || "")}</span>
+                      <span className="text-sm font-bold text-accent">{getInitials(p.display_name || "")}</span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-text-primary text-sm font-medium truncate">{p.full_name}</p>
+                      <p className="text-text-primary text-sm font-medium truncate">{p.display_name}</p>
                       {p.headline && <p className="text-text-muted text-xs truncate">{p.headline}</p>}
                       {p.current_org && <p className="text-text-muted text-[10px] mt-0.5">{p.current_org}</p>}
                       {p.city && <p className="text-text-muted text-[10px] flex items-center gap-1"><MapPin className="w-3 h-3" />{p.city}</p>}
