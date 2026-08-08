@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 
   const authorsById: Record<string, AuthorRow> = {};
   if (uniqueAuthorIds.length > 0) {
-    const { data: authors } = await db
+    const { data: authors } = await supabase
       .from("user_profiles")
       .select("id, display_name, headline, avatar_url")
       .in("id", uniqueAuthorIds);
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
   const postIds = rows.map((p) => p.id);
   const reactedPostIds = new Set<string>();
   if (postIds.length > 0) {
-    const { data: reactions } = await db
+    const { data: reactions } = await supabase
       .from("post_reactions")
       .select("post_id")
       .eq("user_id", user.id)
@@ -99,13 +99,10 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { db2 } = await import("@/lib/db");
-  const db = db2 || supabase;
-
   const raw = await request.json();
   const body = validateOrThrow<{ content: string }>(feedPostSchema, raw);
 
-  const { data, error } = await db
+  const { data, error } = await supabase
     .from("feed_posts")
     .insert({ author_id: user.id, content: body.content })
     .select("id, author_id, content, created_at, like_count, comment_count")
