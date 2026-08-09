@@ -49,12 +49,19 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(initialData.length);
+  const [loadingMore, setLoadingMore] = useState(false);
   const lastAISearch = useRef("");
 
   const [matchInfo, setMatchInfo] = useState<{ type?: string; query?: string }>({});
+  const requestToken = useRef(0);
 
-  const fetchOpportunities = useCallback(async (pageNum = 1) => {
-    setLoading(true);
+  const fetchOpportunities = useCallback(async (pageNum = 1, append = false) => {
+    const token = ++requestToken.current;
+    if (append) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
 
     try {
       const params = new URLSearchParams();
@@ -71,8 +78,13 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
       const res = await fetch(`/api/opportunities?${params}`);
       const data = await res.json();
 
+      // Ignore stale responses (filters changed or Load More superseded while in flight)
+      if (token !== requestToken.current) return;
+
       if (data.opportunities) {
-        setOpportunities(data.opportunities);
+        setOpportunities((prev) =>
+          append ? Array.from(new Map([...prev, ...data.opportunities].map((o) => [o.id, o])).values()) : data.opportunities
+        );
         setTotalPages(data.total_pages || 1);
         setTotalCount(data.total_count || data.opportunities.length);
         setPage(data.page || pageNum);
@@ -84,12 +96,14 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
         setMatchInfo({});
       }
     } catch (error) {
+      if (token !== requestToken.current) return;
       console.error("Error fetching opportunities:", error);
       setOpportunities([]);
       setTotalPages(1);
       setTotalCount(0);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, [category, eligibility, location, deadline, search, showUnverified]);
 
@@ -127,7 +141,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   }, [category, eligibility, location, deadline, search, showUnverified, fetchOpportunities]);
 
   useEffect(() => {
-    if (page > 1) fetchOpportunities(page);
+    if (page > 1) fetchOpportunities(page, true);
   }, [page, fetchOpportunities]);
 
   return (
@@ -284,6 +298,23 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                 {opportunities.map((opp) => (
                   <OpportunityRow key={opp.id} opportunity={opp} />
                 ))}
+              </div>
+            )}
+
+            {/* LOAD MORE / PAGINATION */}
+            {!loading && page < totalPages && (
+              <div className="flex flex-col items-center gap-3 mt-10">
+                <button
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={loadingMore}
+                  className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black border-2 border-slate-900 rounded-xl shadow-[3px_3px_0px_0px_#0F172A] hover:-translate-y-0.5 transition-all disabled:opacity-60"
+                >
+                  {loadingMore ? <Loader2 className="w-4 h-4 animate-spin stroke-[2.5]" /> : <Sparkles className="w-4 h-4 stroke-[2.5]" />}
+                  {loadingMore ? "Loading more..." : "Load More Opportunities"}
+                </button>
+                <p className="text-xs font-bold text-slate-500">
+                  Showing page {page} of {totalPages} — {totalCount} verified opportunities
+                </p>
               </div>
             )}
 

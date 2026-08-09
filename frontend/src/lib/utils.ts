@@ -204,6 +204,17 @@ function inferCategoryLabel(dbRow: any): string {
   const rawCat = (dbRow.category || "").toLowerCase();
   const title = (dbRow.title || "").toUpperCase();
 
+  // Prefer the raw DB category — filters/counts run on it, so the displayed
+  // badge must agree with what the user filtered by. Title heuristics only
+  // kick in when the category is missing/unknown.
+  if (rawCat === "jrf" || rawCat === "research fellowship") return "JRF";
+  if (rawCat === "srf" || rawCat === "senior research fellow") return "SRF";
+  if (rawCat === "phd" || rawCat === "scholarship" || rawCat === "doctoral") return "PhD";
+  if (rawCat === "government" || rawCat === "govt-job") return "Govt Job";
+  if (rawCat === "internship") return "Internship";
+  if (rawCat === "fellowship") return "Fellowship";
+  if (rawCat === "job" || rawCat === "private") return "Job";
+
   if (title.includes("JRF") || title.includes("JUNIOR RESEARCH")) return "JRF";
   if (title.includes("SRF") || title.includes("SENIOR RESEARCH")) return "SRF";
   if (title.includes("PHD") || title.includes("DOCTORAL")) return "PhD";
@@ -211,14 +222,6 @@ function inferCategoryLabel(dbRow: any): string {
   if (title.includes("FELLOW")) return "Fellowship";
   if (title.includes("SCIENTIST") || title.includes("OFFICER") || title.includes("DRDO") || title.includes("ISRO")) return "Govt Job";
   if (title.includes("ENGINEER") || title.includes("DEVELOPER") || title.includes("STAFF") || title.includes("TECHNICIAN") || title.includes("ARCHITECT")) return "Job";
-
-  if (rawCat === "jrf") return "JRF";
-  if (rawCat === "srf") return "SRF";
-  if (rawCat === "phd") return "PhD";
-  if (rawCat === "government" || rawCat === "govt-job") return "Govt Job";
-  if (rawCat === "internship") return "Internship";
-  if (rawCat === "fellowship") return "Fellowship";
-  if (rawCat === "job" || rawCat === "private") return "Job";
 
   return "Job";
 }

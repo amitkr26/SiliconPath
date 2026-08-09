@@ -21,9 +21,15 @@ function isDisplayableOpportunity(o: { title?: string | null; organization?: str
   if (
     titleLower.includes("qa audit test") ||
     titleLower.includes("ui verified") ||
-    titleLower.includes("lead risc-v soc architect (qa") ||
+    titleLower.includes("lead risc-v soc architect") ||
+    titleLower.includes("senior asic verification engineer (uvm)") ||
+    titleLower.includes("senior physical design engineer (sta)") ||
+    titleLower.includes("test position") ||
+    titleLower.startsWith("test ") ||
+    /\d{13}/.test(t) ||
     orgLower.includes("qa test") ||
     orgLower.includes("semiconductor lab test") ||
+    orgLower.includes("qualcomm vlsi lab") ||
     fullStr.includes("1,80,00,000") ||
     fullStr.includes("2,40,00,000") ||
     apply === "https://berojgardegreewala.vercel.app" ||
@@ -157,10 +163,24 @@ export async function GET(request: NextRequest) {
       const searchTerms = cleanSearch.split(/\s+/).filter((w) => w.length >= 2);
 
       if (searchTerms.length > 0) {
-        const termConditions = searchTerms.map(term =>
-          `title.ilike.%${term}%,category.ilike.%${term}%,eligibility.ilike.%${term}%,description.ilike.%${term}%,specialization.ilike.%${term}%`
-        ).join(",");
-        supabaseQuery = supabaseQuery.or(termConditions);
+        // NOTE: only text columns here — ilike on text[] (specialization/tags)
+        // throws "operator does not exist: text[] ~~* unknown" and the whole
+        // query silently fails. apply_url/source_url carry org names.
+        const conditions = searchTerms.map(term =>
+          `title.ilike.%${term}%,category.ilike.%${term}%,eligibility.ilike.%${term}%,description.ilike.%${term}%,apply_url.ilike.%${term}%,source_url.ilike.%${term}%`
+        ).join(",").split(",");
+
+        // Match organization names via the organizations table (rows linked by FK)
+        const { data: orgs } = await supabaseAdmin
+          .from("organizations")
+          .select("id")
+          .or(searchTerms.map((w) => `name.ilike.%${w}%`).join(","));
+        if (orgs && orgs.length > 0) {
+          const orgIds = orgs.map((o: { id: string }) => o.id);
+          conditions.push(`organization_id.in.(${orgIds.join(",")})`);
+        }
+
+        supabaseQuery = supabaseQuery.or(conditions.join(","));
       }
     }
 
