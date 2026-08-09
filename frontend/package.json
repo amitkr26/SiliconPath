@@ -12,16 +12,17 @@
     "clean:test-data": "node scripts/delete-fake-jobs.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@berojgardegreewala/ai-gateway": "file:../backend/ai-gateway",
+    "@berojgardegreewala/api": "file:../backend/api",
     "@google-cloud/documentai": "^9.6.2",
     "@google-cloud/storage": "^7.21.0",
     "@hookform/resolvers": "^5.4.0",
     "@neondatabase/serverless": "^1.1.0",
     "@sentry/nextjs": "^10.63.0",
-    "@berojgardegreewala/ai-gateway": "file:../backend/ai-gateway",
-    "@berojgardegreewala/api": "file:../backend/api",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "@tailwindcss/typography": "^0.5.20",
@@ -43,6 +44,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/jest": "^30.0.0",
