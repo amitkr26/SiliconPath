@@ -27,13 +27,20 @@ export async function POST(request: NextRequest) {
       .eq("id", opportunity_id)
       .single();
 
-    const currentClicks = current?.apply_clicks || 0;
-    const { error } = await supabaseAdmin
-      .from("opportunities")
-      .update({ apply_clicks: currentClicks + 1 })
-      .eq("id", opportunity_id);
-
-    if (error) throw error;
+    // ponytail: apply_clicks may not exist on older DBs — if the column is
+    // missing, drop the click-tracking (never fail the apply flow for it).
+    // Upgrade path: ALTER TABLE opportunities ADD COLUMN apply_clicks bigint DEFAULT 0;
+    if (current && "apply_clicks" in current) {
+      const currentClicks = current.apply_clicks || 0;
+      const { error } = await supabaseAdmin
+        .from("opportunities")
+        .update({ apply_clicks: currentClicks + 1 })
+        .eq("id", opportunity_id);
+      if (error) {
+        console.error("Error tracking click:", error);
+        return NextResponse.json({ success: true });
+      }
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

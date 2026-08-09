@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CircuitBoard, Shield } from "lucide-react";
+import { CircuitBoard } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -20,15 +20,6 @@ export default function Footer() {
             <p className="text-slate-400 text-xs font-semibold leading-relaxed">
               India&apos;s premier platform for semiconductor &amp; VLSI engineers: 100% verified research openings, VLSI Courses, professional network, and AI career tools.
             </p>
-            <div className="pt-2">
-              <Link 
-                href="/admin" 
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-black border-2 border-slate-900 shadow-[2px_2px_0px_0px_#FFFFFF] hover:bg-blue-700 transition-all"
-              >
-                <Shield className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Admin Login</span>
-              </Link>
-            </div>
           </div>
 
           {/* ECOSYSTEM COLUMN */}
