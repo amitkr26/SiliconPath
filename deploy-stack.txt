@@ -1,0 +1,83 @@
+# Deploy Stack: BerojgarDegreeWala backend API (Express + Supabase)
+
+Follow the numbered steps in order. The stack is 100% second-DB-friendly:
+the only Supabase table the backend WRITES to that is not verified to exist on
+DB2 is `applications` (phase "Apps Tracking"). Everything else reads existing
+tables on DB1/DB2 or writes to tables verified present on both
+(saved_opportunities confirmed by the bookmarks feature).
+
+## 0. Preflight (one-time written evidence)
+
+Verified on 2026-08-08:
+- opportunities
+- organizations
+- user_profiles
+- news_articles (active articles only, `is_active = true`)
+- saved_opportunities
+- applications (verified PRESENT on DB1 — used by old feature; add to DB2 in
+  "Apps Tracking" phase before enabling POST /api/v1/applications for users)
+- HR.ar_profile_role + profile_role junction (HR routing, write required)
+
+## 1. Prerequisites
+
+- Node >= 20 (LTS)
+- Supabase DB1 (main): URL + anon key + service-role key
+- Supabase DB2 (social layer): URL + service-role key (optional but
+  recommended — saves duplication later)
+- An AI provider key (any of the ai-gateway providers; e.g. Groq is free)
+- A host for the API. Two supported targets: Render (recommended) or Docker
+  (any VPS with Docker). Frontend remap is a plain env var change.
+
+## 2. Environment variables
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| SUPABASE_URL | yes | DB1 URL |
+| SUPABASE_ANON_KEY | yes | DB1 anon key (auth.getUser) |
+| SUPABASE_SERVICE_ROLE_KEY | yes | DB1 service role |
+| SUPABASE_2_URL | no | DB2 URL |
+| SUPABASE_2_SERVICE_ROLE_KEY | no | DB2 service role |
+| ALLOWED_ORIGINS | no | CSV of browser origins; default localhost:3000 |
+| ADMIN_PASSWORD | no | X-Admin-Password header for /admin/stats |
+| PORT | no | default 8080 |
+| GROQ_API_KEY (or other AI key) | no | enables /api/v1/ai/insights |
+
+## 3. Deploy target A — Render (recommended)
+
+1. New Blueprint/Web Service → connect repo.
+2. Build: `npm ci && npm run build --workspace @berojgardegreewala/server`
+3. Start: `npm run start --workspace @berojgardegreewala/server`
+4. Add all environment variables from step 2.
+5. Health check path: `/health`.
+
+## 4. Deploy target B — Docker (any host)
+
+Build from repo root (uses the root workspace install):
+
+    docker build -f backend/server/Dockerfile -t bdw-api .
+
+Run:
+
+    docker run -d -p 8080:8080 \
+      -e SUPABASE_URL=... -e SUPABASE_ANON_KEY=... \
+      -e SUPABASE_SERVICE_ROLE_KEY=... \
+      bdw-api
+
+## 5. Point the frontend at the API
+
+In the Next.js app set base-url overrides to the API host. CORS: the API
+allow-lists exactly the origins you set in ALLOWED_ORIGINS; add the frontend
+production URL there too.
+
+## 6. Post-deploy verification
+
+    curl -s https://<api-host>/health            # -> {"status":"ok"}
+    curl -s https://<api-host>/api/v1/opportunities?limit=1
+    curl -s -H "x-admin-password: $ADMIN_PASSWORD" https://<api-host>/api/v1/admin/stats
+
+## 7. Remaining phases (not part of the shipped contract)
+
+- Apps Tracking phase: create `applications` on DB2 (id, user_id,
+  opportunity_id, status, applied_at, notes, updated_at) BEFORE enabling
+  POST /api/v1/applications for real users. Currently the frontend tracks
+  applications only as external Apply-link clicks (no in-app create exists).
