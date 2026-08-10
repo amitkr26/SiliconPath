@@ -100,6 +100,56 @@ The system operates a high-resilience **Distributed Multi-Database Architecture*
 
 ---
 
+## 🛣️ Migration Map: Next.js Internal API → Standalone Express API
+
+Standalone REST backend lives in `backend/server` (Express, same Supabase
+tables, same zod validation via `@berojgardegreewala/api`, no schema changes).
+It is **deployed-ready but not yet wired to the frontend** — the Next.js app
+still serves all routes below from `*/route.ts`.
+
+### ✅ DONE — mirrored by the standalone API
+
+| Frontend route (Next.js) | Standalone route | Backend files |
+| :--- | :--- | :--- |
+| `GET /api/opportunities`, `/api/opportunities/by-slug/[slug]` | `GET /api/v1/opportunities`, `/:idOrSlug` | `src/routes/opportunities.ts`, `src/repositories/opportunities.ts` |
+| `GET /api/profile/[userId]`, `/api/profile/me` | `GET /api/v1/profiles/:username` (new: indexed username lookup), `GET /api/v1/profiles/me` | `src/routes/profiles.ts`, `src/repositories/profiles.ts` |
+| `GET /api/organizations`, `/api/organizations/[slug]` | `GET /api/v1/organizations[...]` | `src/routes/content.ts`, `src/repositories/content.ts` |
+| `GET /api/news`, `/api/news/[slug]` | `GET /api/v1/news` | `src/routes/content.ts`, `src/repositories/content.ts` |
+| `GET/PATCH/DELETE /api/applications[...]` | `GET/POST/PATCH/DELETE /api/v1/applications` | `src/routes/userdata.ts`, `src/repositories/userdata.ts` |
+| `GET/POST/DELETE /api/bookmarks[...]` | `GET/POST/DELETE /api/v1/saved-opportunities` | `src/routes/userdata.ts`, `src/repositories/userdata.ts` |
+| `GET /api/health` | `GET /health` | `src/routes/health.ts` |
+| AI endpoints (chat/summarize/classify...) | `POST /api/v1/ai/insights` (minimal wrap over `@berojgardegreewala/ai-gateway`) | `src/routes/ai.ts` |
+| `GET /api/admin/analytics` | `GET /api/v1/admin/stats` (`X-Admin-Password`) | `src/routes/admin.ts` |
+
+### 🚧 IN PROGRESS — standalone API delivered, frontend migration not started
+
+The frontend still calls its internal routes for everything below; nothing has
+been removed from Next.js. Future sessions should mirror these next, in rough
+priority order:
+
+1. **Social layer (DB2)**: `network/*`, `messages/*`, `feed/*`, `community/*`, `notifications/*`
+2. **Academy (DB2)**: `academy/*` (tracks, days, progress)
+3. **Full AI surface**: `ai/chat`, `ai/match`, `ai/classify`, `ai/enhance`, `ai/search`, `ai/expire`, `ai/opportunity-summary/[slug]`
+4. **Admin panel**: `admin/*` (opportunities verify/reject, companies, subscribers, announcements, performance, scrape control)
+5. **Employer**: `employer/*` | **Companies**: `companies/*`
+6. **Resume**: `resume/*`, `resume/ai-suggest` | **Search**: `people/search`, `search/opportunities`
+7. **Scrapers & cron** (remain server-side, may move to separate workers): `scrapers/*` (18 sources), `cron/*`, `check-links`, `archive-news`, `cleanup-news`, `sync-replica`, `send-digest`, `cron-health`
+8. **Remaining**: `auth/*`, `subscribe`, `track-click`, `calendar-export/[id]`, `report-issue`, `resources/*`, `recommendations`, `similar/[id]`, `analytics/*`, `sitemap`, `revalidate`, `csp-report`, `opportunities/featured|stats|feed`, `admin/ai/test`, `admin/recheck-link`, `admin/scrape*`
+
+**Blocked phase — Apps Tracking**: `POST /api/v1/applications` is a v1
+addition (the app tracks Apply via external links; no in-app create exists
+today). Create the `applications` table on DB2 (id, user_id, opportunity_id,
+status, applied_at, notes, updated_at) before enabling it for users.
+
+**Deferred**: rate limiting (the api lib ships `createRateLimiter` — add to
+auth/admin/AI routes before public exposure), `ADMIN_HMAC_SECRET` HMAC flow
+for admin, DB2 wired reads beyond `saved_opportunities`.
+
+Deployment steps (env vars, Render/Docker, verification curls) live in
+[`deploy-stack.txt`](deploy-stack.txt).
+
+---
+
 ## 🐳 Containerization & Kubernetes Deployment
 
 ### 1. Local Container Execution (Docker Compose)
