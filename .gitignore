@@ -24,3 +24,6 @@ SECRETS.md
 Thumbs.db
 
 .vercel
+
+# typescript build output
+/backend/server/dist/
