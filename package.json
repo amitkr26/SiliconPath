@@ -5,6 +5,7 @@
   "workspaces": [
     "backend/api",
     "backend/ai-gateway",
+    "backend/server",
     "frontend"
   ],
   "scripts": {
