@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { RESERVED_USERNAMES } from "@/lib/utils";
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,7 +41,12 @@ export async function POST(request: NextRequest) {
 
     // Insert/upsert into user_profiles table
     if (data.user) {
-      const cleanUser = (username || email.split("@")[0]).trim().toLowerCase().replace(/^@/, "");
+      // Reserved/invalid vanity handles fall back to the email prefix so a
+      // signup never claims a route-conflicting username.
+      const submitted = (username || email.split("@")[0]).trim().toLowerCase().replace(/^@/, "");
+      const cleanUser = /^[a-z0-9_]{3,40}$/.test(submitted) && !RESERVED_USERNAMES.includes(submitted)
+        ? submitted
+        : email.split("@")[0];
       await supabaseAdmin.from("user_profiles").upsert({
         id: data.user.id,
         email: email,
