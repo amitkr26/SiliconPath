@@ -275,3 +275,18 @@ export function isDisplayableOpportunity(opp: {
   if (DISPLAY_GARBAGE_TITLE.test(title)) return false;
   return true;
 }
+
+// Usernames that would collide with real app routes or system pages.
+// Must be checked in the profile PATCH write path (server) and the edit form (client).
+export const RESERVED_USERNAMES = [
+  "about", "academy", "admin", "api", "applications", "ask-ai", "auth",
+  "categories", "category", "chat", "community", "companies", "contact",
+  "dashboard", "employer", "employers", "feed", "login", "match", "messages",
+  "network", "news", "notifications", "onboarding", "opportunities",
+  "organizations", "people", "post-job", "profile", "register", "resources",
+  "resume", "saved", "search", "settings", "signup", "me", "www",
+];
+
+// Columns safe to expose on public profiles (never email / email_notifications).
+export const PUBLIC_PROFILE_FIELDS =
+  "id, username, display_name, headline, bio, location, country, job_title, current_company, experience_years, skills, interests, linkedin_url, github_url, website_url, avatar_url, is_open_to_work, profile_views, account_type, created_at";

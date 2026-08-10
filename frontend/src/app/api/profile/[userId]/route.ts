@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { PUBLIC_PROFILE_FIELDS, RESERVED_USERNAMES } from "@/lib/utils";
 
 const UPDATABLE_FIELDS = [
   "display_name",
@@ -36,7 +37,7 @@ export async function GET(
 
   // Accept either a profile id (UUID) or a username — public people pages link by username.
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
-  let query = supabase.from("user_profiles").select("*");
+  let query = supabase.from("user_profiles").select(PUBLIC_PROFILE_FIELDS);
   if (isUuid) query = query.eq("id", userId);
   else query = query.eq("username", userId);
   const { data, error } = await query.maybeSingle();
@@ -75,6 +76,15 @@ export async function PATCH(
   // Validate username uniqueness if present
   if (body.username) {
     const cleanUser = String(body.username).trim().toLowerCase().replace(/^@/, "");
+    if (!/^[a-z0-9_]{3,40}$/.test(cleanUser)) {
+      return NextResponse.json(
+        { error: "Username must be 3–40 characters using letters, numbers, or underscores." },
+        { status: 400 }
+      );
+    }
+    if (RESERVED_USERNAMES.includes(cleanUser)) {
+      return NextResponse.json({ error: "This username is reserved and cannot be used." }, { status: 400 });
+    }
     const { data: existing } = await supabase
       .from("user_profiles")
       .select("id")

@@ -23,6 +23,7 @@ import {
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
+import EditProfileModal from "@/components/profile/EditProfileModal";
 
 interface Profile {
   display_name?: string;
@@ -52,14 +53,11 @@ export default function LinkedInStyleProfilePage() {
   const router = useRouter();
   const { user, loading: authLoading } = useUser();
   const [profileLoading, setProfileLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   const [profile, setProfile] = useState<Profile>({});
-  const [editForm, setEditForm] = useState<Profile>({});
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
-  const [usernameError, setUsernameError] = useState("");
 
   useEffect(() => {
     if (authLoading) return;
@@ -74,8 +72,13 @@ export default function LinkedInStyleProfilePage() {
       .get<Profile>("/api/profile/" + user.id)
       .then((existing) => {
         if (cancelled) return;
+        // Profile already set up -> canonical public URL is the destination.
+        // This page remains the setup/editor for users without a row yet.
+        if (existing?.username) {
+          router.replace(`/profile/${existing.username}`);
+          return;
+        }
         setProfile(existing);
-        setEditForm(existing);
         setSkills(existing.skills || ["SystemVerilog", "UVM", "RTL Synthesis", "OpenLANE", "FPGA"]);
       })
       .catch(() => {
@@ -88,7 +91,6 @@ export default function LinkedInStyleProfilePage() {
           is_open_to_work: true,
         };
         setProfile(defaultProfile);
-        setEditForm(defaultProfile);
         setSkills(["SystemVerilog", "UVM", "RTL Synthesis", "OpenLANE", "FPGA"]);
       })
       .finally(() => {
@@ -99,53 +101,6 @@ export default function LinkedInStyleProfilePage() {
       cancelled = true;
     };
   }, [user, authLoading, router]);
-
-  const handleSaveProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-    setSaving(true);
-    setUsernameError("");
-
-    try {
-      const res = await fetch(`/api/profile/${user.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          display_name: editForm.display_name,
-          username: editForm.username,
-          headline: editForm.headline,
-          bio: editForm.bio,
-          job_title: editForm.job_title,
-          current_company: editForm.current_company,
-          location: editForm.location,
-          country: editForm.country,
-          website_url: editForm.website_url,
-          linkedin_url: editForm.linkedin_url,
-          github_url: editForm.github_url,
-          is_open_to_work: editForm.is_open_to_work,
-          skills: skills,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (data.error && data.error.includes("username")) {
-          setUsernameError(data.error);
-        }
-        toast.error(data.error || "Failed to update profile.");
-        return;
-      }
-
-      setProfile({ ...editForm, skills });
-      setIsEditModalOpen(false);
-      toast.success("LinkedIn Profile updated successfully!");
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to update profile.");
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const addSkill = () => {
     const s = newSkill.trim();
@@ -201,7 +156,12 @@ export default function LinkedInStyleProfilePage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
+                // Canonical public URL, not the dashboard path.
+                navigator.clipboard.writeText(
+                  profile.username
+                    ? `${window.location.origin}/profile/${profile.username}`
+                    : window.location.href
+                );
                 toast.success("Profile link copied!");
               }}
               className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] flex items-center gap-1.5 transition"
@@ -432,150 +392,17 @@ export default function LinkedInStyleProfilePage() {
       </div>
 
       {/* LINKEDIN EDIT PROFILE MODAL */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border-4 border-slate-900 rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-[10px_10px_0px_0px_#0F172A] space-y-5">
-            
-            <div className="flex justify-between items-center border-b-2 border-slate-900 pb-3">
-              <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <Pencil className="w-5 h-5 text-blue-600" /> Edit LinkedIn Intro & Handle
-              </h2>
-              <button
-                onClick={() => setIsEditModalOpen(false)}
-                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700"
-              >
-                <X className="w-5 h-5 stroke-[2.5]" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveProfile} className="space-y-4">
-              
-              {/* DISPLAY NAME */}
-              <div>
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
-                  Full Display Name *
-                </label>
-                <input
-                  type="text"
-                  value={editForm.display_name || ""}
-                  onChange={(e) => setEditForm({ ...editForm, display_name: e.target.value })}
-                  required
-                  className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
-                />
-              </div>
-
-              {/* UNIQUE USERNAME HANDLE */}
-              <div>
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
-                  Unique Hardware Handle (@username) *
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-slate-400 text-xs">@</span>
-                  <input
-                    type="text"
-                    value={editForm.username || ""}
-                    onChange={(e) => {
-                      setUsernameError("");
-                      setEditForm({ ...editForm, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") });
-                    }}
-                    required
-                    className="w-full pl-8 pr-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
-                  />
-                </div>
-                {usernameError && <p className="text-[11px] font-bold text-red-600 mt-1">{usernameError}</p>}
-              </div>
-
-              {/* HEADLINE */}
-              <div>
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
-                  Professional Headline
-                </label>
-                <input
-                  type="text"
-                  value={editForm.headline || ""}
-                  onChange={(e) => setEditForm({ ...editForm, headline: e.target.value })}
-                  placeholder="e.g. M.Tech VLSI @ IIT Bombay | RISC-V & ASIC Design Lead"
-                  className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
-                />
-              </div>
-
-              {/* LOCATION */}
-              <div>
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  value={editForm.location || ""}
-                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                  placeholder="e.g. Bengaluru, Karnataka, India"
-                  className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
-                />
-              </div>
-
-              {/* BIO / ABOUT */}
-              <div>
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
-                  About / Summary
-                </label>
-                <textarea
-                  rows={4}
-                  value={editForm.bio || ""}
-                  onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
-                  placeholder="Write a brief overview of your background, research interests, & hardware skills..."
-                  className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none resize-none"
-                />
-              </div>
-
-              {/* LINKEDIN & GITHUB LINKS */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
-                    LinkedIn URL
-                  </label>
-                  <input
-                    type="url"
-                    value={editForm.linkedin_url || ""}
-                    onChange={(e) => setEditForm({ ...editForm, linkedin_url: e.target.value })}
-                    placeholder="https://linkedin.com/in/username"
-                    className="w-full px-3 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
-                    GitHub URL
-                  </label>
-                  <input
-                    type="url"
-                    value={editForm.github_url || ""}
-                    onChange={(e) => setEditForm({ ...editForm, github_url: e.target.value })}
-                    placeholder="https://github.com/username"
-                    className="w-full px-3 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* ACTION BUTTONS */}
-              <div className="flex justify-end gap-3 pt-4 border-t-2 border-slate-900">
-                <button
-                  type="button"
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white border-2 border-slate-900 rounded-xl text-xs font-black shadow-[3px_3px_0px_0px_#0F172A] flex items-center gap-2 transition disabled:opacity-50"
-                >
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
-                </button>
-              </div>
-
-            </form>
-          </div>
-        </div>
+      {isEditModalOpen && user && (
+        <EditProfileModal
+          userId={user.id}
+          profile={profile}
+          onClose={() => setIsEditModalOpen(false)}
+          onSaved={(updated) => {
+            setProfile(updated as Profile);
+            setSkills(updated.skills || []);
+            setIsEditModalOpen(false);
+          }}
+        />
       )}
 
     </div>
