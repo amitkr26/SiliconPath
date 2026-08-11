@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # Next.js 14 Frontend & API Service
   frontend:
@@ -18,6 +16,25 @@ services:
     depends_on:
       - postgres
       - redis
+    restart: always
+
+  # Standalone Express REST API (backend/server)
+  # Env vars are interpolated from the shell/.env (empty by default — API
+  # boots anyway and serves /health; DB routes return 503 until configured).
+  api:
+    build:
+      context: .
+      dockerfile: backend/server/Dockerfile
+    container_name: berojgardegreewala_api
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}
     restart: always
 
   # PostgreSQL Database Container

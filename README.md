@@ -90,6 +90,7 @@ The system operates a high-resilience **Distributed Multi-Database Architecture*
 | Layer | Technology |
 | :--- | :--- |
 | **Frontend & API** | Next.js 14 (App Router, Standalone Build Output) |
+| **Standalone API** | Express 4 + TypeScript (`backend/server`, npm workspace) — mirrors internal routes under `/api/v1/*` |
 | **Language** | TypeScript 5.4 |
 | **Styling** | Custom Neo-Brutalist & Slate Dark Themes (Vanilla CSS + Tailwind CSS) |
 | **Databases** | 2 Supabase DBs + 2 Neon Serverless PostgreSQL Poolers |
@@ -183,20 +184,35 @@ kubectl get ingress -n production
 - Node.js 18.x or 20.x
 - npm / yarn / pnpm / Docker
 
-### Local Development Setup
+### Local Development Setup (npm workspaces)
 ```bash
-# Navigate to frontend directory
-cd frontend
-
-# Install dependencies
+# Install all workspace deps (frontend, backend/api, backend/ai-gateway, backend/server)
 npm install
 
-# Run local development server
+# Frontend only (Next.js, port 3000)
+cd frontend && npm run dev
+
+# Standalone Express API (port 8080, tsx watch)
+npm run dev --workspace @berojgardegreewala/server
+# or run everything:
 npm run dev
 
-# Run production build check
+# Production build check (all workspaces)
 npm run build
+
+# Typecheck + tests (all workspaces)
+npm run typecheck
+npm test
 ```
+
+### Quick API smoke test (no credentials required)
+```bash
+curl -s http://localhost:8080/health                       # {"status":"ok"}
+curl -s "http://localhost:8080/api/v1/opportunities?limit=1"
+```
+
+Full deployment runbook (env vars, Render/Docker, verification curls):
+[`deploy-stack.txt`](deploy-stack.txt).
 
 ---
 

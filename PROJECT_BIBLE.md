@@ -100,14 +100,28 @@ berojgardegreewala/
 │   │       └── ai/               # AI Engine Client Setup
 │   ├── Dockerfile                # Production Multi-Stage Dockerfile
 │   └── next.config.mjs           # Next.js Configuration with Standalone Output
-├── backend/                      # Node.js Express Service API
+├── backend/                      # Monorepo backend workspaces (npm workspaces)
+│   ├── api/                      # @berojgardegreewala/api — zod validation, AppError hierarchy, response types
+│   ├── ai-gateway/               # @berojgardegreewala/ai-gateway — multi-provider LLM fallback gateway
+│   └── server/                   # @berojgardegreewala/server — standalone Express REST API (parallel to Next.js internal API)
+│       ├── src/
+│       │   ├── config/           # loadEnv (env.ts) — all env access centralized
+│       │   ├── db/               # supabase.ts — anon + service-role client factories
+│       │   ├── middleware/       # auth (Bearer→getUser), error envelope, request logging
+│       │   ├── repositories/     # opportunities / profiles / content / userdata data access
+│       │   ├── routes/           # health, opportunities, profiles, content, userdata, ai, admin
+│       │   └── app.ts, server.ts # createApp(deps) wiring + boot entry
+│       ├── tests/                # 16-test node:test suite + fake Supabase client
+│       ├── Dockerfile            # Root-context multi-stage image (docker build -f backend/server/Dockerfile .)
+│       └── .env.example          # Env var reference
 ├── k8s/                          # Production Kubernetes Manifests
 │   ├── configmap.yaml            # ConfigMaps & Base64 Secrets
 │   ├── deployment.yaml           # 3-Replica Pod Deployment
 │   ├── service.yaml              # ClusterIP Service
 │   └── ingress.yaml              # NGINX Ingress Routing & TLS
 ├── scripts/                      # Database Seeding & Verification Scripts
-├── docker-compose.yml            # Local Multi-Container Stack (Frontend + Postgres + Redis)
+├── deploy-stack.txt              # Deployment runbook: env vars, Render/Docker, verification
+├── docker-compose.yml            # Local Multi-Container Stack (Frontend + Postgres + Redis + API)
 ├── README.md                     # Enterprise Platform Overview & Deployment Guide
 └── PROJECT_BIBLE.md              # Master Single Source of Truth Architecture Specification
 ```
