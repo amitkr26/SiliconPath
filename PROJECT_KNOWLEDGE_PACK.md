@@ -2,7 +2,7 @@
 
 > **HANDOFF HANDBOOK FOR AI ASSISTANTS & ENGINEERS**  
 > *Target Audience: AI Systems (ChatGPT, Claude, Gemini), Technical Lead, Core Maintainers*  
-> *Last Updated: July 31, 2026*  
+> *Last Updated: August 11, 2026*  
 > *Repository: `https://github.com/amitkr26/BerojgarDegreeWala.git`*  
 > *Live Deployment: `https://berojgardegreewala.vercel.app` (Local Dev: `http://localhost:3000`)*
 
@@ -60,12 +60,18 @@ To serve as the primary digital talent infrastructure supporting India's **$15B+
                 │
                 ├──> Next.js App Router Pages (/opportunities, /academy, /ask-ai, /admin)
                 │
-                ├──> API Routes (/api/scrapers/*, /api/chat, /api/admin/auth, /api/news)
+                ├──> Next.js API Routes (/api/scrapers/*, /api/chat, /api/admin/auth, /api/news)
                 │         │
                 │         ├──> Multi-Provider AI Inference Engine
                 │         │     (Groq LLaMA-3 -> Gemini 1.5 -> OpenRouter -> NVIDIA NIM)
                 │         │
                 │         └──> Supabase Client & Service Role (PostgreSQL DB & Storage)
+                │
+                ├──> Standalone Express API (backend/server, npm workspace)
+                │     /health, /api/v1/opportunities, /profiles, /organizations,
+                │     /news, /applications, /saved-opportunities, /ai/insights, /admin/stats
+                │     (same Supabase tables, same @berojgardegreewala/api validation,
+                │      Bearer-token auth via supabase.auth.getUser; runs on Render/Docker)
                 │
                 └──> External Scraping Targets
                       (DRDO RAC, ISRO, CSIR, ISM, IEEE Spectrum, EE Times, SemiEngineering)
@@ -82,6 +88,7 @@ To serve as the primary digital talent infrastructure supporting India's **$15B+
    - Serverless Next.js API endpoints (`src/app/api/*`).
    - Secure server-side database access via `@supabase/supabase-js` using service role keys.
    - HMAC SHA-256 session token generation for Admin route protection (`src/app/api/admin/auth/route.ts`).
+   - **Standalone Express API (`backend/server`, workspace `@berojgardegreewala/server`)**: parallel REST surface for the Next.js internal API — opportunities (paginated, filtered, slug lookups), public profiles (`/profiles/:username` + `/me`), organizations, news, user-scoped applications & saved opportunities, minimal AI insights wrap over `@berojgardegreewala/ai-gateway`, and `X-Admin-Password`-guarded admin stats. Reuses the shared zod validation & `AppError` hierarchy from `@berojgardegreewala/api`. Deployed via root-context Dockerfile or Render (`deploy-stack.txt`).
 
 3. **Database Layer**:
    - Supabase PostgreSQL database storing opportunities, news articles, organizations, subscribers, AI usage logs, user reviews, and candidate profiles.
@@ -111,9 +118,9 @@ To serve as the primary digital talent infrastructure supporting India's **$15B+
 | **Frontend Framework** | Next.js 14.2.35 (App Router, Server & Client Components) |
 | **UI Library & Icons** | React 18, Tailwind CSS, Lucide React (`lucide-react`) |
 | **Styling Paradigm** | Neo-Brutalist Electric Blue (`#2563EB`), Dark Slate Borders (`#0F172A`), Custom Webkit Scrollbars |
-| **Backend & APIs** | Next.js API Routes (Node.js runtime & Edge runtime) |
+| **Backend & APIs** | Next.js API Routes (Node.js runtime & Edge runtime) + Standalone Express 4 API (`backend/server`) |
 | **Database & Storage** | Supabase PostgreSQL, Supabase Storage (`resumes` bucket) |
-| **Authentication** | Supabase Auth (Users) & Custom HMAC Crypto (Admin) |
+| **Authentication** | Supabase Auth (Users) & Custom HMAC Crypto (Admin) — standalone API: Bearer tokens via `auth.getUser`, `X-Admin-Password` admin guard |
 | **AI LLM Services** | Groq SDK, Google Generative AI SDK, OpenRouter API |
 | **Deployment & Hosting**| Vercel, Supabase Cloud |
 | **Version Control** | Git, GitHub (`origin/main`) |
@@ -168,6 +175,23 @@ berojgardegreewala/frontend/
 │   │   ├── supabase.ts               # Supabase Client & Admin Client Initializers
 │   │   └── utils.ts                  # Helper Functions (formatting, categories)
 │   └── types/                        # TypeScript Interfaces & Types (`index.ts`)
+backend/                              # npm workspace packages (shared by all apps)
+├── api/                              # @berojgardegreewala/api
+│   └── src/                          # zod validation (opportunityListQuerySchema), AppError hierarchy, response envelope types
+├── ai-gateway/                       # @berojgardegreewala/ai-gateway
+│   └── src/gateway/                  # Multi-provider LLM fallback (Groq→Gemini→OpenRouter→NVIDIA NIM→…)
+└── server/                           # @berojgardegreewala/server — standalone Express API
+    ├── src/
+    │   ├── config/env.ts             # Centralized env loading (loadEnv)
+    │   ├── db/supabase.ts            # anon + service-role client factories
+    │   ├── middleware/               # auth.ts (Bearer→getUser), error.ts (envelope), log.ts (request log)
+    │   ├── repositories/             # opportunities / profiles / content / userdata
+    │   ├── routes/                   # health, opportunities, profiles, content, userdata, ai, admin
+    │   ├── app.ts                    # createApp(deps) — CORS, JSON, routers, error handler
+    │   └── server.ts                 # Boot entry (loadEnv → createDbClients → createApp → listen)
+    ├── tests/                        # 16 node:test suites + select-aware fake Supabase (no creds needed)
+    ├── Dockerfile                    # Root-context multi-stage image
+    └── .env.example                  # Server env var reference
 ```
 
 ---
@@ -233,6 +257,24 @@ Stores AI model invocation telemetry.
 | `/api/scrapers/run-all` | `POST` | Admin / Cron | Triggers live scrapers for DRDO, ISRO, CSIR, IITs |
 | `/api/analytics/ai-usage` | `GET` | Admin Password | Returns aggregated AI token & call stats |
 | `/api/subscribe` | `POST` | None | Registers candidate email for daily alerts |
+
+### Standalone Express API (`backend/server`, prefix `/api/v1`)
+
+| Endpoint | Method | Auth Required | Description |
+| :--- | :--- | :--- | :--- |
+| `/health` | `GET` | None | Render/health check — `{"status":"ok"}` |
+| `/api/v1/opportunities` | `GET` | None | Active opportunities, paginated + category/eligibility/location/deadline/search filters |
+| `/api/v1/opportunities/:idOrSlug` | `GET` | None | Single opportunity by UUID or slug |
+| `/api/v1/profiles/:username` | `GET` | None | Public profile (username lookup, private fields stripped) |
+| `/api/v1/profiles/me` | `GET` | Bearer | Caller's public profile |
+| `/api/v1/organizations[...]`, `/api/v1/news` | `GET` | None | Read-only content listings |
+| `/api/v1/applications` | `GET/POST/PATCH/DELETE` | Bearer | Caller-scoped applications (POST = v1 addition, deduped) |
+| `/api/v1/saved-opportunities` | `GET/POST/DELETE` | Bearer | Caller-scoped bookmarks |
+| `/api/v1/ai/insights` | `POST` | Bearer | Minimal AI wrap over `@berojgardegreewala/ai-gateway` |
+| `/api/v1/admin/stats` | `GET` | `X-Admin-Password` | Dashboard row counts (timing-safe compare) |
+
+Response envelope everywhere: `{ success, data, ... }` or `{ success: false, error: { code, message, details? } }`.
+Full route→file migration map: see README "Migration Map" section.
 
 ---
 
@@ -323,27 +365,46 @@ ADMIN_PASSWORD=amitkr26
 ADMIN_HMAC_SECRET=siliconpath-admin-hmac-secret-2026
 ```
 
+### Standalone API (`backend/server` — see `backend/server/.env.example` & `deploy-stack.txt`)
+
+```ini
+SUPABASE_URL=https://<project-ref>.supabase.co      # DB1
+SUPABASE_ANON_KEY=<anon key>                        # auth.getUser
+SUPABASE_SERVICE_ROLE_KEY=<service role>            # server-side reads only
+SUPABASE_2_URL=                                     # optional DB2 (social layer)
+SUPABASE_2_SERVICE_ROLE_KEY=
+ALLOWED_ORIGINS=https://berojgardegreewala.vercel.app,http://localhost:3000
+ADMIN_PASSWORD=<x-admin-password for /api/v1/admin/stats>
+PORT=8080
+GROQ_API_KEY=                                       # any ai-gateway provider key enables /ai/insights
+```
+
 ---
 
 ## 12. Development Workflow
 
 ### Installation & Local Setup
 ```bash
-# 1. Install dependencies
+# 1. Install dependencies (npm workspaces: frontend, backend/api, backend/ai-gateway, backend/server)
 npm install
 
-# 2. Run local development server
+# 2. Run all workspace dev servers (frontend :3000 + server :8080 via tsx watch)
 npm run dev
 
 # 3. Access in browser
 # Local URL: http://localhost:3000
 # Admin URL: http://localhost:3000/admin
+# API health: http://localhost:8080/health
 ```
 
 ### Production Build & Verification
 ```bash
-# Build production bundle
+# Build all workspaces
 npm run build
+
+# Typecheck + tests for every workspace
+npm run typecheck
+npm test --workspace @berojgardegreewala/server   # 16 tests, no credentials required
 ```
 
 ---

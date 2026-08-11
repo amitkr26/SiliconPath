@@ -33,10 +33,32 @@
 - **Enterprise GreenHouse / Workday APIs**: Integrated scraper pipelines for Intel, Qualcomm, AMD, TSMC, Arm Ltd, Graphcore, and Tata Electronics.
 - **Automated RSS Feed Sync**: Parsers for IEEE Spectrum, EE Times, and Semiconductor Engineering.
 
+### D. Standalone REST API Layer (`backend/server`)
+- **Framework**: Express 4 + TypeScript (NodeNext), running independently of Next.js (Render or Docker).
+- **Scope**: Parallel REST surface for the Next.js internal API — `GET /health`, `/api/v1/opportunities`, `/profiles`, `/organizations`, `/news`, `/applications`, `/saved-opportunities`, `/ai/insights`, `/admin/stats`.
+- **Shared Libraries (npm workspaces)**:
+  - `@berojgardegreewala/api` — zod validation schemas (`opportunityListQuerySchema`), `AppError` hierarchy, response envelope types.
+  - `@berojgardegreewala/ai-gateway` — multi-provider LLM fallback chain (Groq → Gemini → OpenRouter → NVIDIA NIM → …) with per-provider cooldowns and cost estimation.
+- **Data Access**: same Supabase DBs as the Next.js app, via anon client (auth) + service-role client (server-side reads). No schema changes; only `applications` writes need a future DB2 migration (see README migration map).
+- **Security**: Bearer tokens verified with `supabase.auth.getUser(token)`; admin endpoints guarded by constant-time-compared `X-Admin-Password`; CORS allow-list via `ALLOWED_ORIGINS`; uniform `{ success, error: { code, message } }` error envelope.
+- **Testing**: 16-test node:test suite (`backend/server/tests`) with a select-aware fake Supabase client — no credentials required to run.
+- **Deployment**: root-context Dockerfile (`docker build -f backend/server/Dockerfile .`) or Render; steps in `deploy-stack.txt`.
+
+### E. Monorepo Workspace Layout
+```
+backend/
+├── api/          # @berojgardegreewala/api — validation, errors, response types (TS source)
+├── ai-gateway/   # @berojgardegreewala/ai-gateway — AI provider fallback gateway
+└── server/       # @berojgardegreewala/server — standalone Express REST API
+frontend/         # Next.js 14 App Router application (workspace member)
+```
+`npm run <script> --workspaces --if-present` (or `make <script>`) drives all four workspaces.
+
 ---
 
 ## 2. Authentication Flow
 
+### A. User (Next.js app)
 ```
 [User Click Sign-In] ──> [Supabase OAuth / Google]
                               │
@@ -48,6 +70,19 @@
                               │
                               ▼
             [Redirect to /dashboard on BerojgarDegreeWala]
+```
+
+### B. Standalone API
+```
+[Client] ──> GET /api/v1/*   (Authorization: Bearer <token>)
+                  │
+                  ▼
+     [requireAuth middleware] ──> supabase.auth.getUser(token)
+                  │
+                  ├── valid ──> req.authUser { id, email, role } → route
+                  └── invalid/missing ──> 401 { code: UNAUTHORIZED | INVALID_TOKEN }
+
+[Admin] ──> GET /api/v1/admin/stats  (X-Admin-Password header, timing-safe)
 ```
 
 ---

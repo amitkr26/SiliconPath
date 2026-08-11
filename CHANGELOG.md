@@ -2,6 +2,12 @@
 
 ## [Unreleased] - clean/main branch
 
+### Added
+- **2026-08-10 — Standalone Express REST API (`backend/server` workspace).** New `@berojgardegreewala/server` package mirroring the Next.js internal API: `GET /health`, `/api/v1/opportunities` (pagination + filters, slug/UUID lookup), `/api/v1/profiles/:username` (new indexed username lookup) + `/me`, `/api/v1/organizations`, `/api/v1/news`, `/api/v1/applications` + `/api/v1/saved-opportunities` (user-scoped via Bearer tokens), `POST /api/v1/ai/insights` (wraps `@berojgardegreewala/ai-gateway`), `GET /api/v1/admin/stats` (constant-time `X-Admin-Password`). Reuses `@berojgardegreewala/api` zod validation + error hierarchy. Added to root npm workspaces; `npm ci && npm run build --workspace @berojgardegreewala/server` builds it.
+- **2026-08-10 — Server test suite (16 tests).** node:test + select-aware fake Supabase client in `backend/server/tests` — run with `npm test --workspace @berojgardegreewala/server`; no credentials required.
+- **2026-08-10 — Deployment artifacts.** Root-context multi-stage Dockerfile (`backend/server/Dockerfile`) + `deploy-stack.txt` (Render/Docker steps, env var table, verification curls) + `backend/server/.env.example`.
+- **2026-08-10 — README migration map.** Mirrored routes marked DONE with route→file mapping; remaining ~120 Next.js routes queued IN PROGRESS in priority order (social layer, academy, full AI surface, admin, employer/companies, resume/search, scrapers & cron, misc).
+
 ### Security
 - **2026-08-07 — Git history force-rewritten to purge secrets.** Hardcoded Supabase service keys, a Vercel token, and Neon DB passwords that were committed in `frontend/scripts/*`, `frontend/src/lib/db/multi-db.ts`, and `test-db.js` were removed from the repository AND rewritten out of all git history (`git filter-branch` + force-push; remote `main` rewritten, old HEAD was `078c59a`). **Collaborators must `git fetch origin && git reset --hard origin/main` (or re-clone) — do NOT `git pull`** — the shared history has been rewritten. Keys were rotated on Supabase/Neon; Vercel env vars updated.
 - Deleted all QA scripts with hardcoded credentials (19 files + `multi-db.ts` + `test_neon.js`). Secrets must only come from environment variables.
