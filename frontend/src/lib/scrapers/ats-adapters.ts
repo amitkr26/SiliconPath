@@ -100,15 +100,12 @@ export function inferTags(title: string, description?: string): string[] {
   return Array.from(tags);
 }
 
+// P0 (CONTENT_UPGRADE_PLAN.md): ATS APIs rarely expose a deadline. The old
+// +30-days fabrication invented a date users saw as a real countdown.
+// Unknown deadline must stay unknown (`null` = "Not specified").
 export function extractDeadline(postedAt?: string, updatedAt?: string): string | null {
-  if (!postedAt && !updatedAt) return null;
-  try {
-    const date = postedAt ? new Date(postedAt) : new Date(updatedAt!);
-    const deadline = new Date(date.getTime() + 30 * 24 * 60 * 60 * 1000);
-    return deadline.toISOString().split("T")[0];
-  } catch {
-    return null;
-  }
+  void postedAt; void updatedAt;
+  return null;
 }
 
 export function mapATSJobToOpportunity(

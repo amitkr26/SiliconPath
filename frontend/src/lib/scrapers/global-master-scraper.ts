@@ -1,3 +1,7 @@
+// P0 (CONTENT_UPGRADE_PLAN.md): hand-written postings, not scraped data.
+// Disabled unless SCRAPER_ALLOW_FABRICATED=true — never fabricate content in production.
+const fabricatedScrapingEnabled = () => process.env.SCRAPER_ALLOW_FABRICATED === "true";
+
 interface ScrapedItem {
   title: string;
   category?: string;
@@ -16,6 +20,7 @@ interface ScrapedItem {
  * NASA, DARPA, NIST, CERN, IMEC, CEA-Leti, Fraunhofer, Max Planck, RIKEN, A*STAR, ITRI, CSIRO
  */
 export async function scrapeGlobalResearchLabs(slug?: string): Promise<ScrapedItem[]> {
+  if (!fabricatedScrapingEnabled()) return [];
   const items: ScrapedItem[] = [];
 
   try {
@@ -94,6 +99,7 @@ export async function scrapeGlobalResearchLabs(slug?: string): Promise<ScrapedIt
  * MIT, Stanford, UC Berkeley, Caltech, ETH Zurich, EPFL, NUS, NTU, Tsinghua
  */
 export async function scrapeGlobalUniversities(slug?: string): Promise<ScrapedItem[]> {
+  if (!fabricatedScrapingEnabled()) return [];
   const items: ScrapedItem[] = [];
 
   try {
@@ -156,6 +162,7 @@ export async function scrapeGlobalUniversities(slug?: string): Promise<ScrapedIt
  * TSMC, Intel, AMD, Nvidia, Qualcomm, Broadcom, Samsung, Micron, TI, NXP, Infineon, ARM
  */
 export async function scrapeTopSemiconductorCompanies(slug?: string): Promise<ScrapedItem[]> {
+  if (!fabricatedScrapingEnabled()) return [];
   const items: ScrapedItem[] = [];
 
   try {
@@ -218,6 +225,7 @@ export async function scrapeTopSemiconductorCompanies(slug?: string): Promise<Sc
  * Cadence, Synopsys, Siemens EDA, ASML, Applied Materials, Lam Research, KLA, Keysight
  */
 export async function scrapeEdaAndEquipment(slug?: string): Promise<ScrapedItem[]> {
+  if (!fabricatedScrapingEnabled()) return [];
   const items: ScrapedItem[] = [];
 
   try {

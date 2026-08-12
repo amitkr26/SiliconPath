@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
-import { mapDbOpportunityToClient } from "@/lib/utils";
 import { serverError } from "@berojgardegreewala/api";
 
 export async function GET(

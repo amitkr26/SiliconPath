@@ -1,97 +1,46 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowLeft, ExternalLink, Clock, Calendar, Tag, Newspaper } from "lucide-react";
+import { notFound } from "next/navigation";
+import { ArrowLeft, ExternalLink, Calendar, Tag, Newspaper } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
 import NewsImage from "@/components/NewsImage";
 
 export const revalidate = 1800;
 
-const FALLBACK_ARTICLES: Record<string, any> = {
-  "india-semiconductor-mission-approves-15b-chip-fab-projects-2026": {
-    id: "fb-1",
-    title: "India Semiconductor Mission Approves $15B Chip Fab Projects in Gujarat and Assam",
-    slug: "india-semiconductor-mission-approves-15b-chip-fab-projects-2026",
-    source: "India Semiconductor Mission",
-    source_url: "https://ism.gov.in/news",
-    published_at: new Date().toISOString(),
-    summary: "The Union Cabinet has approved three major semiconductor fabrication and packaging projects with a cumulative investment exceeding $15 Billion USD.\n\nKey highlights include:\n1. Tata Electronics Commercial Fab in Dholera, Gujarat (in partnership with PSMC Taiwan) with 50,000 wafer starts per month.\n2. Tata Semiconductor Assembly and Test (TSAT) OSAT facility in Jagiroad, Assam for advanced chip packaging.\n3. CG Power & Renesas Electronics Assembly facility in Sanand, Gujarat.\n\nThese projects mark a giant leap for India's semiconductor ecosystem, generating over 20,000 direct high-tech engineering jobs.",
-    tags: ["India", "Semiconductor", "Industry", "Jobs"],
-  },
-  "tsmc-begins-risk-production-2nm-n2-node-gaa-2026": {
-    id: "fb-2",
-    title: "TSMC Begins Risk Production for 2nm N2 Node featuring Nanosheet GAA Transistors",
-    slug: "tsmc-begins-risk-production-2nm-n2-node-gaa-2026",
-    source: "Semiconductor Engineering",
-    source_url: "https://semiengineering.com/2nm-nanosheet-gaa-manufacturing-challenges/",
-    published_at: new Date(Date.now() - 86400000).toISOString(),
-    summary: "TSMC has officially initiated risk production on its 2nm (N2) manufacturing process at Fab 20 in Hsinchu Science Park.\n\nN2 introduces Gate-All-Around (GAA) nanosheet transistor architecture, replacing the FinFET structure used since the 16nm generation.\n\nPerformance gains:\n- 10% to 15% speed improvement at identical power\n- 25% to 30% power reduction at identical speed\n- >1.15x chip density increase over N3E",
-    tags: ["Semiconductor", "VLSI", "AI Chips", "Research"],
-  },
-  "isro-iit-madras-release-open-source-risc-v-microprocessor-space": {
-    id: "fb-3",
-    title: "ISRO and IIT Madras Release Open-Source RISC-V Microprocessor for Space Payloads",
-    slug: "isro-iit-madras-release-open-source-risc-v-microprocessor-space",
-    source: "IEEE Spectrum",
-    source_url: "https://spectrum.ieee.org/risc-v-space-processors",
-    published_at: new Date(Date.now() - 172800000).toISOString(),
-    summary: "The SHAKTI Processor Program at IIT Madras, in collaboration with ISRO Space Applications Centre (SAC), has unveiled radiation-hardened RISC-V processor IP cores for satellite telemetry and control.\n\nThe open-source architecture features triple modular redundancy (TMR) to resist Single Event Upsets (SEUs) caused by cosmic radiation in Low Earth Orbit (LEO).",
-    tags: ["India", "VLSI", "Research", "Jobs"],
-  },
-};
-
-interface Props {
-  params: { slug: string };
-}
+// QA audit P2: the detail page must render the STORED database title — it
+// must never reverse-engineer a title from the slug, and there is no
+// fallback article fabrication (see CONTENT_UPGRADE_PLAN.md P0).
 
 const SOURCE_COLORS: Record<string, string> = {
-  "IEEE Spectrum": "bg-blue-600",
-  "Semiconductor Engineering": "bg-emerald-600",
-  "EE Times": "bg-orange-600",
-  "Electronics Weekly": "bg-red-600",
-  "Chip Design Magazine": "bg-indigo-600",
-  "SemiWiki": "bg-teal-600",
-  "India Semiconductor Mission": "bg-amber-600",
+  "IEEE Spectrum": "bg-purple-600",
+  "Semiconductor Engineering": "bg-blue-600",
+  "EE Times": "bg-cyan-600",
+  "Electronics Weekly": "bg-emerald-600",
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const article = await lookupArticle(params.slug);
-  return {
-    title: `${article.title} | BerojgarDegreeWala News`,
-    description: article.summary || `Latest news from ${article.source || "BerojgarDegreeWala"}`,
-  };
+interface NewsArticle {
+  id: string;
+  title: string;
+  slug: string;
+  source: string | null;
+  source_url: string | null;
+  published_at: string | null;
+  summary: string | null;
+  content: string | null;
+  tags: string[] | null;
+  image_url: string | null;
 }
 
-async function lookupArticle(slug: string) {
-  if (supabaseAdmin?.from) {
-    try {
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
-      let res = isUuid
-        ? await supabaseAdmin.from("news_articles").select("*").eq("id", slug).maybeSingle()
-        : await supabaseAdmin.from("news_articles").select("*").eq("slug", slug).maybeSingle();
+async function lookupArticle(slug: string): Promise<NewsArticle | null> {
+  if (!supabaseAdmin?.from) return null;
+  const { data, error } = await supabaseAdmin
+    .from("news_articles")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
 
-      if (res?.data) return res.data;
-    } catch (e) {}
-  }
-
-  if (FALLBACK_ARTICLES[slug]) {
-    return FALLBACK_ARTICLES[slug];
-  }
-
-  // Generic fallback for any slug
-  const titleFromSlug = slug
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-
-  return {
-    id: slug,
-    title: titleFromSlug,
-    slug,
-    source: "Semiconductor News Feed",
-    source_url: "https://semiengineering.com/",
-    published_at: new Date().toISOString(),
-    summary: `Detailed report on ${titleFromSlug}. Full executive briefing and technical analysis sourced from leading microelectronics publishers.`,
-    tags: ["Semiconductor", "VLSI", "Industry"],
-  };
+  if (error || !data) return null;
+  return data as NewsArticle;
 }
 
 function formatDate(dateStr: string): string {
@@ -100,8 +49,21 @@ function formatDate(dateStr: string): string {
   });
 }
 
-export default async function NewsDetailPage({ params }: Props) {
-  const article = await lookupArticle(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const article = await lookupArticle(slug);
+  if (!article) return { title: "Article not found" };
+  return {
+    title: `${article.title} — BerojgarDegreeWala`,
+    description: (article.summary || "").slice(0, 155),
+    alternates: { canonical: `https://berojgardegreewala.vercel.app/news/${article.slug}` },
+  };
+}
+
+export default async function NewsDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const article = await lookupArticle(slug);
+  if (!article) notFound();
   const tags: string[] = article.tags || [];
   const sourceDotColor = (article.source && SOURCE_COLORS[article.source]) || "bg-blue-600";
 
@@ -137,6 +99,7 @@ export default async function NewsDetailPage({ params }: Props) {
             )}
           </div>
 
+          {/* STORED DB TITLE — never derived from the slug */}
           <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-6">
             {article.title}
           </h1>

@@ -89,16 +89,11 @@ function inferTags(title: string, description?: string, department?: string): st
   return Array.from(tags);
 }
 
+// P0 (CONTENT_UPGRADE_PLAN.md): ATS APIs rarely expose a deadline; the
+// +30-days fabrication is removed — unknown deadlines stay null.
 function extractDeadline(postedAt?: string | null, description?: string | null): string | null {
-  if (!postedAt) return null;
-  try {
-    const date = new Date(postedAt);
-    if (isNaN(date.getTime())) return null;
-    const deadline = new Date(date.getTime() + 30 * 24 * 60 * 60 * 1000);
-    return deadline.toISOString().split("T")[0];
-  } catch {
-    return null;
-  }
+  void postedAt; void description;
+  return null;
 }
 
 export function mapATSJobToOpportunity(
