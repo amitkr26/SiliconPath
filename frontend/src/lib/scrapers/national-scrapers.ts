@@ -1,3 +1,7 @@
+// P0 (CONTENT_UPGRADE_PLAN.md): hand-written postings, not scraped data.
+// Disabled unless SCRAPER_ALLOW_FABRICATED=true — never fabricate content in production.
+const fabricatedScrapingEnabled = () => process.env.SCRAPER_ALLOW_FABRICATED === "true";
+
 import * as cheerio from "cheerio";
 
 interface ScrapedItem {
@@ -18,6 +22,7 @@ interface ScrapedItem {
  * DRDO, ISRO, BARC, DAE, IGCAR, RRCAT, HAL, BEL, BDL, MIDHANI, MDL, CSL
  */
 export async function scrapeSpaceAndDefence(orgSlug?: string): Promise<ScrapedItem[]> {
+  if (!fabricatedScrapingEnabled()) return [];
   const items: ScrapedItem[] = [];
 
   try {
@@ -128,6 +133,7 @@ export async function scrapeSpaceAndDefence(orgSlug?: string): Promise<ScrapedIt
  * CSIR (CEERI, NPL, CSIO, NAL), ICMR, DBT, DST, SERB, TIFR, NCBS, JNCASR, ARCI
  */
 export async function scrapeScientificResearch(orgSlug?: string): Promise<ScrapedItem[]> {
+  if (!fabricatedScrapingEnabled()) return [];
   const items: ScrapedItem[] = [];
 
   try {
@@ -190,6 +196,7 @@ export async function scrapeScientificResearch(orgSlug?: string): Promise<Scrape
  * C-DAC, SAMEER, SCL Mohali, NIELIT, STQC, MeitY, C-MET, India Semiconductor Mission (ISM)
  */
 export async function scrapeElectronicsAndSemiconductor(orgSlug?: string): Promise<ScrapedItem[]> {
+  if (!fabricatedScrapingEnabled()) return [];
   const items: ScrapedItem[] = [];
 
   try {
@@ -268,6 +275,7 @@ export async function scrapeElectronicsAndSemiconductor(orgSlug?: string): Promi
  * ECIL, ITI Limited, RailTel, BSNL, BHEL, EIL, Power Grid, C-DOT
  */
 export async function scrapePsuElectronics(orgSlug?: string): Promise<ScrapedItem[]> {
+  if (!fabricatedScrapingEnabled()) return [];
   const items: ScrapedItem[] = [];
 
   try {
@@ -312,6 +320,7 @@ export async function scrapePsuElectronics(orgSlug?: string): Promise<ScrapedIte
  * RDSO, RVNL, DFCCIL, IRCON, CRIS
  */
 export async function scrapeRailways(orgSlug?: string): Promise<ScrapedItem[]> {
+  if (!fabricatedScrapingEnabled()) return [];
   const items: ScrapedItem[] = [];
 
   try {
@@ -341,6 +350,7 @@ export async function scrapeRailways(orgSlug?: string): Promise<ScrapedItem[]> {
  * IITs (Bombay, Delhi, Madras, Kanpur, Kharagpur, Roorkee, Guwahati, Hyderabad, etc.), IISc Bangalore, IISERs
  */
 export async function scrapeUniversitiesAndInstitutes(orgSlug?: string): Promise<ScrapedItem[]> {
+  if (!fabricatedScrapingEnabled()) return [];
   const items: ScrapedItem[] = [];
 
   try {

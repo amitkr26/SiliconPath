@@ -29,7 +29,6 @@ function extractDeadline(text: string): string | null {
   const patterns = [
     /(?:last date|deadline|closing date|apply by|due date|last date of receipt)\s*(?::|is|of)?\s*(.+?)(?:\.|,|$)/i,
     /(?:applications? must reach|should reach)\s*(?:by|on|before)\s*(.+?)(?:\.|,|$)/i,
-    /(?:date of interview|walk‑in interview)\s*(?::|on)?\s*(.+?)(?:\.|,|$)/i,
     /(\d{1,2}\s+(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4})/i,
     /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/,
   ];

@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       salary_range: body.stipend,
       eligibility: body.eligibility,
       description: body.description,
-      apply_url: body.apply_link || "https://drdo.gov.in/careers",
+      apply_url: body.apply_link || "",
       tags: body.tags,
       slug: oppSlug,
       source_type: "employer_posted",

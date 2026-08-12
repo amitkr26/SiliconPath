@@ -1,6 +1,10 @@
 import { ImageResponse } from "next/og";
 export const runtime = "edge";
 
+// QA audit P1: production returned HTTP 200 with a 0-byte body. The only
+// external resource in this image was the ⚡ emoji (fetched from a twemoji
+// CDN at render time on the edge) — removed; the image is now fully
+// self-contained so the response always has real PNG bytes.
 export async function GET() {
   return new ImageResponse(
     (
@@ -16,7 +20,24 @@ export async function GET() {
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ fontSize: 80, color: "#0EA5E9", marginBottom: 20 }}>⚡</div>
+        <div
+          style={{
+            width: 96,
+            height: 96,
+            borderRadius: 24,
+            background: "rgba(14,165,233,0.15)",
+            border: "3px solid #0EA5E9",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 24,
+            color: "#0EA5E9",
+            fontSize: 44,
+            fontWeight: 800,
+          }}
+        >
+          BDW
+        </div>
         <div style={{ fontSize: 56, fontWeight: 700, color: "white", textAlign: "center" }}>
           Silicon<span style={{ color: "#0EA5E9" }}>Path</span>
         </div>
@@ -42,6 +63,13 @@ export async function GET() {
         </div>
       </div>
     ),
-    { width: 1200, height: 630 }
+    {
+      width: 1200,
+      height: 630,
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400, s-maxage=86400, immutable",
+      },
+    }
   );
 }

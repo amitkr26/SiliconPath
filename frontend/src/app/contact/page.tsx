@@ -27,6 +27,8 @@ export default function ContactPage() {
     setLoading(true);
 
     try {
+      // api.post resolves only on 2xx and throws ApiError (with body.error)
+      // on failure — so success here is real, and the catch shows the error.
       await api.post("/api/contact", {
         type: type || null,
         url: url || null,
@@ -36,9 +38,11 @@ export default function ContactPage() {
 
       setSubmitted(true);
       toast.success("Message sent! We'll review your feedback immediately.");
-    } catch {
-      setSubmitted(true);
-      toast.success("Thank you! Your feedback has been recorded.");
+    } catch (err: any) {
+      // Never show success on failure — surface a meaningful error instead.
+      const message = err?.body?.error || err?.message || "Network error — please check your connection and try again.";
+      setError(message);
+      toast.error("Failed to send your message. Please try again.");
     } finally {
       setLoading(false);
     }

@@ -60,13 +60,36 @@ export async function GET(_request: Request, { params }: { params: { slug: strin
           </div>
         )}
         <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 24, color: "#0EA5E9" }}>⚡</span>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 10,
+              background: "rgba(14,165,233,0.15)",
+              border: "2px solid #0EA5E9",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#0EA5E9",
+              fontSize: 16,
+              fontWeight: 800,
+            }}
+          >
+            BDW
+          </div>
           <span style={{ fontSize: 20, color: "white", fontWeight: 600 }}>
             Silicon<span style={{ color: "#0EA5E9" }}>Path</span>
           </span>
         </div>
       </div>
     ),
-    { width: 1200, height: 630 }
+    {
+      width: 1200,
+      height: 630,
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400, s-maxage=86400, immutable",
+      },
+    }
   );
 }

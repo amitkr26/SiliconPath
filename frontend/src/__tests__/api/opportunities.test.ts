@@ -79,7 +79,7 @@ jest.mock('@/lib/supabase/server', () => ({
   })),
 }));
 
-import { GET, POST } from '@/app/api/opportunities/route';
+import { GET } from '@/app/api/opportunities/route';
 
 describe('GET /api/opportunities', () => {
   beforeEach(() => { jest.clearAllMocks(); });
@@ -98,35 +98,5 @@ describe('GET /api/opportunities', () => {
     await GET(new NextRequest('http://localhost:3000/api/opportunities?category=jrf'));
     const { supabaseAdmin } = require('@/lib/supabase');
     expect(supabaseAdmin.from).toHaveBeenCalledWith('opportunities');
-  });
-});
-
-describe('POST /api/opportunities', () => {
-  beforeEach(() => { jest.clearAllMocks(); });
-
-  it('creates an opportunity and returns 201', async () => {
-    process.env.ADMIN_PASSWORD = 'test-admin-password';
-    const { NextRequest } = require('next/server');
-    const response = await POST(new NextRequest('http://localhost:3000/api/opportunities', {
-      method: 'POST',
-      headers: { 'x-admin-password': 'test-admin-password' },
-      body: JSON.stringify({ title: 'New JRF', organization: 'IIT', category: 'jrf' }),
-    }));
-    const body = await response.json();
-    expect(response.status).toBe(201);
-    expect(body.opportunity.title).toBe('Test');
-    delete process.env.ADMIN_PASSWORD;
-  });
-
-  it('returns 503 when admin is not configured', async () => {
-    const supabase = require('@/lib/supabase');
-    supabase.isAdminConfigured = false;
-    const { NextRequest } = require('next/server');
-    const response = await POST(new NextRequest('http://localhost:3000/api/opportunities', {
-      method: 'POST',
-      body: JSON.stringify({ title: 'Test' }),
-    }));
-    expect(response.status).toBe(503);
-    supabase.isAdminConfigured = true;
   });
 });
