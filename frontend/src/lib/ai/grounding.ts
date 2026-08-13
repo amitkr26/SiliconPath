@@ -170,7 +170,23 @@ export async function retrieveGrounding(
           "title", "category", "organization", "description", "eligibility",
         ]);
       }
-      opportunities = kept.slice(0, opportunityLimit);
+      // Rank by match strength (not recency) before capping: the strongest
+      // record ("IIT Madras research associate" — all 4 terms) was being cut
+      // from the top-8 by newer 1-term matches, so the LLM never saw it and
+      // answered "couldn't find" despite a grounded:true retrieval.
+      const score = (r: GroundedRecord) =>
+        terms.reduce(
+          (n, t) =>
+            n +
+            [r.title, r.organization, r.category, r.description, r.eligibility]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase()
+              .split(t).length -
+            1,
+          0
+        );
+      opportunities = kept.sort((a, b) => score(b) - score(a)).slice(0, opportunityLimit);
     } catch {
       // retrieval failure must never break the chat — falls back to LLM only
     }
