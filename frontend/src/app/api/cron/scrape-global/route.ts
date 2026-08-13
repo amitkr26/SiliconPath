@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { normalizeCategory } from "@/lib/categories";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase";
 import { scrapeGlobalSemiconductor } from "@/lib/scrapers/global-semiconductor-scraper";
 import { scrapeInternationalAcademic } from "@/lib/scrapers/international-academic-scraper";
@@ -73,13 +74,13 @@ export async function GET(request: NextRequest) {
           title: cTitle,
           slug: oppSlug,
           organization: opp.organization,
-          category: opp.category,
+          category: normalizeCategory(opp.category),
           location: opp.location,
-          stipend: opp.stipend,
+          salary_range: opp.stipend,
           deadline: opp.deadline,
           eligibility: opp.eligibility,
           description: opp.description,
-          apply_link: opp.apply_link,
+          apply_url: opp.apply_link,
           source_url: normUrl,
           tags: opp.tags,
           verification_status: "verified",

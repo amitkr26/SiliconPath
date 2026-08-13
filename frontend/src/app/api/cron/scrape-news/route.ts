@@ -24,16 +24,16 @@ export async function GET(request: NextRequest) {
         continue;
       }
 
-      if (!article.source_url) {
+      if (!article.url) {
         newsSkipped++;
         continue;
       }
 
-      const normalizedUrl = normalizeUrl(article.source_url);
+      const normalizedUrl = normalizeUrl(article.url || "");
       const { data: existingUrl } = await supabaseAdmin
         .from("news_articles")
         .select("id")
-        .or(`source_url.eq."${article.source_url.replace(/"/g, '""')}",source_url.eq."${normalizedUrl.replace(/"/g, '""')}"`)
+        .or(`url.eq."${article.url!.replace(/"/g, '""')}",url.eq."${normalizedUrl.replace(/"/g, '""')}"`)
         .maybeSingle();
 
       const { data: existingTitle } = await supabaseAdmin
@@ -59,9 +59,9 @@ export async function GET(request: NextRequest) {
         .insert([{
           title: article.title,
           slug,
+          url: normalizedUrl,
+          source_name: article.source_name,
           summary: article.summary,
-          source: article.source,
-          source_url: normalizedUrl,
           published_at: article.published_at,
           image_url: article.image_url,
           tags,

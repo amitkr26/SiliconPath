@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { normalizeCategory } from "@/lib/categories";
 
 /**
  * ponytail: Shared scraper runner that executes a scraper function,
@@ -28,7 +29,7 @@ export async function runScraperRoute(
         .from("opportunities")
         .insert({
           title: item.title,
-          category: (item.category || "jrf").toLowerCase() === "govt job" ? "government" : (item.category || "jrf").toLowerCase(),
+          category: normalizeCategory(item.category),
           location: item.location || "India",
           salary_range: item.stipend || null,
           deadline: item.deadline || null,

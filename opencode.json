@@ -6,7 +6,7 @@
       "type": "local",
       "command": ["node", ".opencode/mcp-servers/vercel-server.mjs"],
       "enabled": true,
-      "timeout": 300000
+      "timeout": 600000
     },
     "neon": {
       "type": "local",

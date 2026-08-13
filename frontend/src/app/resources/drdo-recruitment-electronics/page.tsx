@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, BookOpen, ExternalLink, ShieldAlert, Target, FileText, GraduationCap } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "DRDO Recruitment Process for Electronics Engineers: Complete Guide | BerojgarDegreeWala",
+  title: "DRDO Recruitment Process for Electronics Engineers: Complete Guide",
   description: "Learn how to join DRDO as an Electronics Engineer or Scientist 'B'. Complete syllabus, RAC exam details, and interview preparation guide.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/drdo-recruitment-electronics" },
 };

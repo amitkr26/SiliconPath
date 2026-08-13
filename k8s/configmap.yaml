@@ -18,4 +18,8 @@ type: Opaque
 data:
   # Base64 encoded placeholders for production secrets
   SUPABASE_SERVICE_ROLE_KEY: "c2Jfc2VjcmV0X3UwUzVsQUluQllPaU8yd1JfSGdYUV9zMHBITWNTSQ=="
-  DATABASE_URL: "cG9zdGdyZXNxbDovL25lb25kYl9vd25lcjpucGdfSnAzT3RBZW5IVk01QGVwLWdyZWVuLXBhcGVyLWFkM2R5NjMwLXBvb2xlci5jLTItdXMtZWFzdC0xLmF3cy5uZW9uLnRlY2gvbmVvbmRiP3NzbG1vZGU9cmVxdWlyZQ=="
+  # REDACTED (2026-08-13): contained the real Neon password (same credential
+  # previously leaked via src/lib/db/multi-db.ts). Neon password must be
+  # rotated; this entry now holds a placeholder — real secrets belong in
+  # Vercel env / a secrets manager, not in git.
+  DATABASE_URL: "cG9zdGdyZXNxbDovL25lb25kYl9vd25lcjpSRURBQ1RFRF9QTEFDRUhPTERFUkA="

@@ -174,12 +174,23 @@ export async function sendDigest() {
   let failed = 0;
 
   for (const subscriber of subscribers) {
+    // Secure unsubscribe link (token from the subscribe flow). GET endpoint
+    // on /api/subscribe so it works from email clients.
+    const unsubscribeLink = subscriber.unsubscribe_token
+      ? `https://berojgardegreewala.vercel.app/api/subscribe?email=${encodeURIComponent(subscriber.email)}&token=${encodeURIComponent(subscriber.unsubscribe_token)}`
+      : "";
+    const perSubscriberHtml = unsubscribeLink
+      ? html.replace(
+          '<div style="text-align: center; padding: 24px 0;">',
+          `<div style="text-align: center; padding: 12px 0;"><a href="${unsubscribeLink}" style="color: #64748B; font-size: 11px; text-decoration: underline;">Unsubscribe</a></div><div style="text-align: center; padding: 24px 0;">`
+        )
+      : html;
     try {
       await resend.emails.send({
         from: FROM_EMAIL,
         to: subscriber.email,
         subject,
-        html,
+        html: perSubscriberHtml,
       });
       sent++;
     } catch (error) {

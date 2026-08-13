@@ -40,17 +40,17 @@ export async function GET(request: NextRequest) {
           continue;
         }
 
-        if (!article.source_url) {
+        if (!article.url) {
           newsSkipped++;
           continue;
         }
 
-        const normalizedUrl = normalizeUrl(article.source_url);
+        const normalizedUrl = normalizeUrl(article.url);
         // Check for existing by URL (live schema: column is `url`, not `source_url`)
         const { data: existingUrl } = await supabaseAdmin
           .from("news_articles")
           .select("id")
-          .or(`url.eq.${JSON.stringify(article.source_url)},url.eq.${JSON.stringify(normalizedUrl)}`)
+          .or(`url.eq.${JSON.stringify(article.url)},url.eq.${JSON.stringify(normalizedUrl)}`)
           .maybeSingle();
 
         const { data: existingTitle } = await supabaseAdmin
@@ -68,13 +68,14 @@ export async function GET(request: NextRequest) {
           ? article.tags
           : autoTagArticle(article.title, article.summary || "");
 
-        // Live schema: news_articles has url, source_name — NO slug, NO source, NO source_url
+        // Live schema: news_articles uses url/source_name/slug
         const { error: newsError } = await supabaseAdmin
           .from("news_articles")
           .insert([{
             title: article.title,
+            slug: slugify(article.title) || `news-${Date.now()}`,
             url: normalizedUrl,            // live column: url (UNIQUE, NOT NULL)
-            source_name: article.source,   // live column: source_name (NOT NULL)
+            source_name: article.source_name,   // live column: source_name (NOT NULL)
             summary: article.summary,
             published_at: article.published_at,
             image_url: article.image_url,

@@ -31,13 +31,13 @@ export async function GET(request: NextRequest) {
 
     const { data: verifiedOpps } = await supabaseAdmin
       .from("opportunities")
-      .select("id, apply_link, verification_status, last_link_checked")
+      .select("id, apply_url, verification_status, last_link_checked")
       .eq("verification_status", "verified")
       .or(`last_link_checked.is.null,last_link_checked.lt.${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}`);
 
     const { data: pendingOpps } = await supabaseAdmin
       .from("opportunities")
-      .select("id, apply_link, verification_status, last_link_checked")
+      .select("id, apply_url, verification_status, last_link_checked")
       .eq("verification_status", "pending");
 
     const opportunities = [...(verifiedOpps || []), ...(pendingOpps || [])];
@@ -47,8 +47,8 @@ export async function GET(request: NextRequest) {
     }
 
     const results = await Promise.all(
-      opportunities.map(async (opp: { id: string; apply_link: string | null; verification_status: string | null; last_link_checked: string | null }) => {
-        const url = opp.apply_link || "";
+      opportunities.map(async (opp: { id: string; apply_url: string | null; verification_status: string | null; last_link_checked: string | null }) => {
+        const url = opp.apply_url || "";
         if (!url) {
           return { id: opp.id, status: 0, reachable: false, url, was_pending: opp.verification_status === "pending" };
         }

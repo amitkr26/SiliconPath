@@ -3,7 +3,7 @@ import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "Complete JRF Guide 2026 — Electronics Science | BerojgarDegreeWala",
+  title: "Complete JRF Guide 2026 — Electronics Science",
   description: "Everything about Junior Research Fellowship for electronics researchers: eligibility, stipend ₹37,000-42,000/month, age limit, how to apply, documents needed, DRDO ISRO CSIR openings.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/jrf-guide" },
 };

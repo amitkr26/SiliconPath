@@ -20,7 +20,7 @@ function formatCity(citySlug: string): string {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cityName = formatCity(params.city);
   return {
-    title: `VLSI & Semiconductor Jobs in ${cityName} | BerojgarDegreeWala`,
+    title: `VLSI & Semiconductor Jobs in ${cityName}`,
     description: `Browse verified VLSI, embedded systems, and semiconductor jobs and internships in ${cityName}. Find active opportunities from top organizations.`,
     alternates: { canonical: `https://berojgardegreewala.vercel.app/opportunities/location/${params.city.toLowerCase()}` },
   };

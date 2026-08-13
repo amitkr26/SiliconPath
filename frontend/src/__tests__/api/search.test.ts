@@ -47,6 +47,7 @@ function makeChain(finalResult: any) {
   chain.range = () => chain;
   chain.select = () => chain;
   chain.insert = () => chain;
+  chain.limit = () => chain;
   return chain;
 }
 

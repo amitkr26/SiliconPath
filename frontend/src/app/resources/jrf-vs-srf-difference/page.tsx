@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, BookOpen, ExternalLink, Calendar, IndianRupee, GraduationCap } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "JRF vs SRF vs Research Associate: What's the Difference? | BerojgarDegreeWala",
+  title: "JRF vs SRF vs Research Associate: What's the Difference?",
   description: "A complete comparison of Junior Research Fellow (JRF), Senior Research Fellow (SRF), and Research Associate (RA) positions in India. Stipends, eligibility, and progression.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/jrf-vs-srf-difference" },
 };

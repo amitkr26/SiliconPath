@@ -169,7 +169,7 @@ export function formatDate(dateStr: string): string {
   });
 }
 
-function inferAuthenticOrganization(dbRow: any): string {
+function inferAuthenticOrganization(dbRow: any): string | null {
   if (dbRow.organizations?.name) return dbRow.organizations.name;
   if (dbRow.organization && dbRow.organization !== "Unknown Organization" && dbRow.organization !== "Semiconductor Institute") return dbRow.organization;
 

@@ -15,8 +15,11 @@ const OpportunitiesClient = nextDynamic(() => import("./OpportunitiesClient"), {
 });
 
 export const metadata: Metadata = {
-  title: "All Opportunities | BerojgarDegreeWala",
+  title: "All Opportunities",
   description: "Browse verified semiconductor, VLSI, JRF, and PhD opportunities.",
+  openGraph: {
+    url: "https://berojgardegreewala.vercel.app/opportunities",
+  },
   alternates: {
     canonical: "https://berojgardegreewala.vercel.app/opportunities",
   },

@@ -24,6 +24,19 @@ function getCategoryColor(cat: string) {
   return map[cat] || "bg-accent/20 text-accent";
 }
 
+// Display label -> canonical DB category (canonical vocabulary in lib/categories.ts)
+// Display label -> constraint-backed category value (see lib/categories.ts;
+// the live DB CHECK constraint accepts: jrf srf phd government fellowship
+// internship industry).
+const CATEGORY_LABEL_TO_CANONICAL: Record<string, string> = {
+  "JRF": "jrf",
+  "SRF": "srf",
+  "PhD": "phd",
+  "Govt Job": "government",
+  "Private Job": "industry",
+  "Fellowship": "fellowship",
+};
+
 const CATEGORIES = ["JRF", "SRF", "PhD", "Govt Job", "Private Job", "Fellowship"];
 
 export default function SearchPage() {
@@ -34,15 +47,23 @@ export default function SearchPage() {
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "opportunities");
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [categoryFilter, setCategoryFilter] = useState(searchParams.get("category") || "");
-  const [locationFilter, setLocationFilter] = useState("");
+  const [locationFilter, setLocationFilter] = useState(searchParams.get("location") || "");
   const [connectionStatus, setConnectionStatus] = useState<Record<string, boolean>>({});
 
-  const { data, isLoading: loading } = useSearch(query, 1);
+  const canonicalCategory = CATEGORY_LABEL_TO_CANONICAL[categoryFilter] || categoryFilter || "All";
+  const { data, isLoading: loading } = useSearch(
+    query,
+    1,
+    activeTab === "opportunities" ? canonicalCategory : undefined,
+    activeTab === "opportunities" ? locationFilter || undefined : undefined
+  );
 
   const results = activeTab === "opportunities"
     ? (data?.opportunities || [])
     : (data?.people || []);
-  const totalCount = data?.total_count ?? 0;
+  const totalCount = activeTab === "opportunities"
+    ? (data?.total_count ?? 0)
+    : (data?.people?.length ?? 0);
 
   const currentUserId = currentUser?.id ?? null;
 
@@ -51,6 +72,8 @@ export default function SearchPage() {
     const params = new URLSearchParams();
     if (query) params.set("q", query);
     if (activeTab) params.set("tab", activeTab);
+    if (activeTab === "opportunities" && categoryFilter) params.set("category", categoryFilter);
+    if (activeTab === "opportunities" && locationFilter) params.set("location", locationFilter);
     router.replace(`/search?${params}`);
   };
 

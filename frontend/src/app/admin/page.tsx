@@ -73,18 +73,21 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [scrapingAll, setScrapingAll] = useState(false);
 
-  const [scrapeLogs, setScrapeLogs] = useState<ScrapeLog[]>([
-    { id: 1, timestamp: "01/08/2026, 19:40:00", source: "India Semiconductor Mission", status: "success", message: "Fetched 12 news articles & fab updates", inserted: 12 },
-    { id: 2, timestamp: "01/08/2026, 19:35:00", source: "IEEE Spectrum", status: "success", message: "Parsed RISC-V space processor papers", inserted: 8 },
-    { id: 3, timestamp: "01/08/2026, 19:30:00", source: "DRDO RAC Portal", status: "success", message: "Ingested 15 JRF & Scientist openings", inserted: 15 },
-    { id: 4, timestamp: "01/08/2026, 19:25:00", source: "ISRO Careers", status: "success", message: "Ingested 10 Scientist 'SD' vacancies", inserted: 10 },
-  ]);
+  const [scrapeLogs, setScrapeLogs] = useState<ScrapeLog[]>([]);
 
   useEffect(() => {
+    // QA audit security: a token in localStorage alone must NOT grant the
+    // admin UI. Re-validate the session server-side (HMAC token via
+    // x-admin-password flows through the same gate).
     const existingToken = localStorage.getItem(ADMIN_TOKEN_KEY);
-    if (existingToken) {
-      setAuthenticated(true);
-    }
+    if (!existingToken) return;
+    fetch("/api/admin/auth/session", { method: "POST" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated) setAuthenticated(true);
+        else localStorage.removeItem(ADMIN_TOKEN_KEY);
+      })
+      .catch(() => localStorage.removeItem(ADMIN_TOKEN_KEY));
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -93,14 +96,6 @@ export default function AdminPage() {
     
     const cleanUser = username.trim().toLowerCase();
     const cleanPass = password.trim();
-
-    if ((cleanUser === "amitkr26" || cleanUser === "amitkrbsc26@gmail.com" || cleanUser === "") && (cleanPass === "amitkr26" || cleanPass === "siliconpath-admin-2026")) {
-      const fallbackToken = "admin-session-amitkr26-token";
-      localStorage.setItem(ADMIN_TOKEN_KEY, fallbackToken);
-      sessionStorage.setItem("admin_password", cleanPass);
-      setAuthenticated(true);
-      return;
-    }
 
     try {
       const res = await fetch("/api/admin/auth", {
@@ -139,32 +134,27 @@ export default function AdminPage() {
     setScrapeLogs((prev) => [newLog, ...prev]);
 
     try {
-      const res = await fetch("/api/scrapers/run-all", { method: "POST" });
-      if (res.ok) {
-        setScrapeLogs((prev) =>
-          prev.map((l) =>
-            l.id === newLog.id
-              ? { ...l, status: "success", message: "Scraped & updated 42+ verified opportunities and news articles!", inserted: 42 }
-              : l
-          )
-        );
-      } else {
-        setScrapeLogs((prev) =>
-          prev.map((l) =>
-            l.id === newLog.id
-              ? { ...l, status: "success", message: "Completed live scraping cycle across all target source domains.", inserted: 35 }
-              : l
-          )
-        );
-      }
-    } catch {
+      const data = await api.post<{ insertedOrUpdated?: number; totalScraped?: number; success?: boolean }>("/api/scrapers/run-all");
       setScrapeLogs((prev) =>
         prev.map((l) =>
           l.id === newLog.id
-            ? { ...l, status: "success", message: "Completed scraping cycle for DRDO, ISRO, IEEE, and CSIR.", inserted: 28 }
-            : l
-        )
-      );
+              ? {
+                  ...l,
+                  status: "success",
+                  message: `Scraped ${data?.totalScraped ?? 0} records, inserted/updated ${data?.insertedOrUpdated ?? 0}`,
+                  inserted: data?.insertedOrUpdated ?? 0,
+                }
+              : l
+          )
+        );
+    } catch (err) {
+      setScrapeLogs((prev) =>
+        prev.map((l) =>
+          l.id === newLog.id
+            ? { ...l, status: "error", message: err instanceof Error ? err.message : "Scraper run failed" }
+              : l
+          )
+        );
     } finally {
       setScrapingAll(false);
     }
