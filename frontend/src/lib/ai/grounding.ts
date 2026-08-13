@@ -119,38 +119,58 @@ export async function retrieveGrounding(
   const terms = extractSearchTerms(query);
   const opportunityLimit = opts.opportunityLimit ?? 8;
   const newsLimit = opts.newsLimit ?? 3;
+  // Two-phase fetch (2026-08-13, verified in prod): a single broad
+  // OR(query) ordered created_at DESC let thousands of newer weak matches
+  // (terms hit in description/eligibility) push strong-but-older records
+  // ("IIT Madras research associate", Aug 1) out of the top-8 window →
+  // grounded:false for records that exist. Phase 1 queries only primary
+  // fields (title/category/organization); phase 2 (only if phase 1 yields
+  // nothing) adds description/eligibility. Relevance filtering still runs
+  // after each phase.
+  const FETCH_WINDOW = 50;
 
   let opportunities: GroundedRecord[] = [];
   let news: GroundedNews[] = [];
 
   if (terms.length > 0 && db) {
     try {
-      let q = db
-        .from("opportunities")
-        .select("id,title,organization,category,location,deadline,salary_range,eligibility,apply_url,source_url,description,slug,created_at")
-        .eq("is_active", true)
-        .neq("verification_status", "rejected")
-        .order("created_at", { ascending: false })
-        .limit(opportunityLimit);
+      const base = (fields: string[]) =>
+        db
+          .from("opportunities")
+          .select("id,title,organization,category,location,deadline,salary_range,eligibility,apply_url,source_url,description,slug,created_at")
+          .eq("is_active", true)
+          .neq("verification_status", "rejected")
+          .order("created_at", { ascending: false })
+          .limit(FETCH_WINDOW);
 
-      const conds = terms.map(
-        (t) =>
-          `title.ilike.%${t}%,category.ilike.%${t}%,description.ilike.%${t}%,eligibility.ilike.%${t}%,organization.ilike.%${t}%`
-      ).join(",");
-      q = q.or(conds);
-
-      const { data, error } = await q;
-      if (!error && Array.isArray(data)) {
-        opportunities = filterRelevantOpportunities(
+      const toRecords = (rows: any[]) =>
+        filterRelevantOpportunities(
           terms,
-          data.map((r: any) => ({
+          rows.map((r: any) => ({
             ...r,
             // Live schema: salary_range (not stipend).
             stipend: r.salary_range || null,
             apply_url: r.apply_url || r.source_url || null,
           }))
         );
+
+      const run = async (fields: string[]) => {
+        const conds = terms
+          .map((t) => fields.map((f) => `${f}.ilike.%${t}%`).join(","))
+          .join(",");
+        const { data, error } = await base(fields).or(conds);
+        return !error && Array.isArray(data) ? toRecords(data) : [];
+      };
+
+      // Phase 1: primary fields only.
+      let kept = await run(["title", "category", "organization"]);
+      if (kept.length === 0) {
+        // Phase 2: broaden to description/eligibility.
+        kept = await run([
+          "title", "category", "organization", "description", "eligibility",
+        ]);
       }
+      opportunities = kept.slice(0, opportunityLimit);
     } catch {
       // retrieval failure must never break the chat — falls back to LLM only
     }
@@ -235,11 +255,12 @@ ${newsLines}
 
 === HARD RULES — ALWAYS FOLLOW ===
 1. Answer questions about current/available opportunities ONLY from the retrieved records above. You have no other source of current opportunity data.
-2. NEVER invent, fabricate, or extrapolate an opportunity, organization, deadline, stipend, or record that is not listed above.
-3. NEVER invent a URL. ${allowLine}.
-4. If no opportunity records were retrieved for an opportunity question, respond with exactly: "I couldn't find a matching opportunity in BerojgarDegreeWala's current database." — do not guess and do not point to generic institutional websites.
-5. General explanation (what JRF means, eligibility rules, career advice) is allowed, but clearly separate it from database facts, and never present general knowledge as a current opening.
-6. When you cite a retrieved opportunity, include its title, organization, category, location if present, deadline if present, and the exact Apply URL listed above.
+2. Whenever RETRIEVED OPPORTUNITIES lists one or more records, they are REAL and MATCH the user's question: lead your answer by listing the most relevant ones (title, organization, category, deadline, and Apply URL per rule 6). Do NOT say "couldn't find" when records are listed above.
+3. NEVER invent, fabricate, or extrapolate an opportunity, organization, deadline, stipend, or record that is not listed above.
+4. NEVER invent a URL. ${allowLine}.
+5. If no opportunity records were retrieved for an opportunity question, respond with exactly: "I couldn't find a matching opportunity in BerojgarDegreeWala's current database." — do not guess and do not point to generic institutional websites.
+6. General explanation (what JRF means, eligibility rules, career advice) is allowed, but clearly separate it from database facts, and never present general knowledge as a current opening.
+7. When you cite a retrieved opportunity, include its title, organization, category, location if present, deadline if present, and the exact Apply URL listed above.
 
 User question: ${query}`;
 }
