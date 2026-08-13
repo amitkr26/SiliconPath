@@ -114,3 +114,32 @@ Remediate P0-P2 audit findings: AI grounding, org/category data, scraper titles,
 ```
 
 Contents: all files above (2 modified dirs: 49 M + 5 untracked). **Do NOT push or deploy until explicitly approved.**
+
+---
+
+## 13. Post-Deploy Addendum (same day, ~07:00–09:00 UTC)
+
+**Approved: commit + push + deploy.** Three commits landed and all are LIVE in production:
+
+1. `8515b61` — full P0–P2 remediation (62 files, +1412/−220)
+2. `5f3d89e` — **two-phase grounding retrieval** (see below)
+3. `5a152d8` — **relevance-ranked record capping** (see below)
+
+Deployments: MCP upload of the repo root (`dir` = workspace root) is the working path — the Vercel GitHub-integration builds keep getting stuck in UNKNOWN state; the git-triggered deploys fail for a separate reason (`file:../backend/api` outside the uploaded dir when using `dir: frontend`). Final live deployment: `2vzg9t2p0` (Ready).
+
+### New finding: retrieval quality (found by verifying the deployed fix)
+Verification queries on the live chat exposed two further grounding defects, both fixed and verified in prod:
+
+- **Single broad OR query + `created_at` ordering + top-8 cap** starved strong-but-older records: "IIT Madras research associate" (a real, verified record) returned `grounded:false` because the newest 8 rows matching ANY of 20 broad OR-conditions never included it (rank ~43–263 of the match set). Fix: **two-phase fetch** — phase 1 queries only primary fields (title/category/organization); phase 2 (only if phase 1 is empty) adds description/eligibility. Live-DB counts after fix: IIT Madras 50 (incl. the record), DRDO 28, JRF VLSI 50, semiconductor 15, no-match 0.
+- **Top-8 cap was still recency-ordered**, so the strongest match (4 terms) could still be cut for newer 1-term matches — the model answered "couldn't find" despite `grounded:true`. Fix: **rank kept records by term-match strength** before slicing to 8.
+
+### Final live verification (2026-08-13, deployment `2vzg9t2p0`)
+| Query | grounded | Answer |
+|---|---|---|
+| IIT Madras research associate | true | Lists "IIT Madras Research Associate – SHAKTI RISC-V Processor Program" w/ org, deadline, stipend, URL |
+| DRDO recruitment | true | Lists DRDO Scientist 'B' w/ full details |
+| Find JRF VLSI opportunities | true | Lists matched JRF opportunities |
+| semiconductor jobs | true | Lists ISM Technical Consultant |
+| Zulu Antarctica penguin | false | Deterministic fallback + guidance |
+
+**Status: all P0–P2 fixes are committed (`8515b61`, `5f3d89e`, `5a152d8`), pushed to main, and verified live in production.**
