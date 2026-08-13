@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { ArrowRight, GraduationCap, BookOpen, Award, Calendar, Mail } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "PhD in Electronics India 2026 — Admission Guide | BerojgarDegreeWala",
+  title: "PhD in Electronics India 2026 — Admission Guide",
   description: "Complete PhD admission guide for electronics researchers in India. IIT, IISc, TIFR, IISER, CSIR labs. Funding options, stipends, application process. Everything you need to know.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/phd-guide" },
 };

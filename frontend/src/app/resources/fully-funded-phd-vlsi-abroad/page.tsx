@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, BookOpen, ExternalLink, Globe, Landmark, GraduationCap } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "How to Get a Fully-Funded PhD in VLSI & Semiconductors Abroad | BerojgarDegreeWala",
+  title: "How to Get a Fully-Funded PhD in VLSI & Semiconductors Abroad",
   description: "Complete guide for Indian students to secure fully-funded PhD programs in VLSI, Microelectronics, and Semiconductors in Europe, USA, and Asia (DAAD, SINGA, MEXT).",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/fully-funded-phd-vlsi-abroad" },
 };

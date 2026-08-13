@@ -78,7 +78,7 @@ export async function GET(request: Request) {
           published_at, created_at, synced_at
         ) VALUES (
           ${article.id}, ${article.title}, ${article.summary},
-          ${article.source}, ${article.source_url}, ${article.tags},
+          ${article.source_name}, ${article.url}, ${article.tags},
           ${article.slug}, ${article.published_at}, ${article.created_at}, now()
         )
         ON CONFLICT (id) DO UPDATE SET

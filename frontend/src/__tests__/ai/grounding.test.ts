@@ -124,6 +124,7 @@ import {
   isOpportunityIntent,
   buildGroundedSystemPrompt,
   sanitizeAnswerUrls,
+  filterRelevantOpportunities,
   NO_MATCH_FALLBACK,
 } from "@/lib/ai/grounding";
 
@@ -244,6 +245,30 @@ describe("P0 grounding — intent", () => {
     expect(isOpportunityIntent("internship at Intel")).toBe(true);
     expect(isOpportunityIntent("what is a stipend?")).toBe(true);
     expect(isOpportunityIntent("how are you")).toBe(false);
+  });
+});
+
+describe("P0 grounding — relevance filter (no-match safety)", () => {
+  const rows = [
+    { id: "1", title: "DRDO Scientist 'B' Recruitment", category: "government", organization: "DRDO" },
+    { id: "2", title: "Embedded Systems Internship at Intel", category: "internship", organization: "Intel" },
+    // Fuzzy row: matches only in description, none of the terms in primary fields
+    { id: "3", title: "Test Development Engineer", category: "jrf", organization: null, description: "requires knowledge of embedded systems and semiconductor design" },
+  ] as any[];
+
+  test("keeps rows with a primary-field match (title/category/org)", () => {
+    const kept = filterRelevantOpportunities(["drdo"], rows);
+    expect(kept.map((r) => r.id)).toEqual(["1"]);
+  });
+
+  test("keeps rows with two distinct terms anywhere (strong fuzzy match)", () => {
+    const kept = filterRelevantOpportunities(["embedded", "systems"], rows);
+    expect(kept.map((r) => r.id).sort()).toEqual(["2", "3"]);
+  });
+
+  test("drops description-only single-term matches (unrelated query)", () => {
+    const kept = filterRelevantOpportunities(["zulu", "antarctica"], rows);
+    expect(kept).toEqual([]);
   });
 });
 

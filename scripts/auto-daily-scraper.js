@@ -10,7 +10,7 @@ async function triggerScraper(endpoint, name) {
   try {
     console.log(`[${new Date().toISOString()}] 🚀 Triggering ${name} (${endpoint})...`);
     const res = await fetch(`http://localhost:3000${endpoint}`, {
-      headers: { "x-cron-secret": process.env.CRON_SECRET || "berojgardegreewala-cron-2024-secret" }
+      headers: process.env.CRON_SECRET ? { Authorization: `Bearer ${process.env.CRON_SECRET}` } : undefined
     });
     if (res.ok) {
       const data = await res.json();

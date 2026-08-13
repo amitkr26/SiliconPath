@@ -3,7 +3,7 @@ import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
 import { GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
 import { searchOpportunities } from "@/lib/opportunities-query";
-import { isCanonicalCategory } from "@/lib/categories";
+import { isCanonicalCategory, normalizeCategoryParam } from "@/lib/categories";
 
 export const dynamic = 'force-dynamic';
 
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category") || "All";
+    const category = normalizeCategoryParam(searchParams.get("category"));
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
 
@@ -89,6 +89,10 @@ export async function GET(request: NextRequest) {
     );
   } catch (err: any) {
     console.error("[GET /api/opportunities] Unexpected error:", err);
-    return NextResponse.json({ opportunities: [], total_count: 0, total_pages: 1, page: 1 }, { status: 200 });
+    // QA audit: never fake HTTP 200 + empty results on a server error.
+    return NextResponse.json(
+      { error: "Failed to fetch opportunities. Please try again." },
+      { status: 500 }
+    );
   }
 }

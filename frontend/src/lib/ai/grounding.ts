@@ -40,7 +40,8 @@ const OPPORTUNITY_INTENT_TERMS = [
   "jrf", "srf", "phd", "research", "internship", "intern", "job", "jobs",
   "vacancy", "fellowship", "fellowships", "admission", "stipend", "apply",
   "application", "deadline", "recruit", "postdoc", "scientist", "engineer",
-  "scholarship", "trainee", "apprentice", "exam",
+  "scholarship", "trainee", "apprentice", "exam", "opportunity", "opportunities",
+  "career", "careers", "hiring", "opening", "openings", "role", "roles",
 ];
 
 /** Deterministic keyword extraction from a user query. */
@@ -58,6 +59,47 @@ export function extractSearchTerms(query: string): string[] {
 export function isOpportunityIntent(query: string): boolean {
   const q = query.toLowerCase();
   return OPPORTUNITY_INTENT_TERMS.some((t) => q.includes(t));
+}
+
+/**
+ * Relevance filter: keep only rows where at least one query term appears in
+ * the primary fields (title/category/organization), or at least two distinct
+ * terms appear anywhere, or a single DISTINCTIVE term (>= 8 chars, e.g.
+ * "semiconductor") appears anywhere. Prevents fuzzy description-only short
+ * matches from reaching the LLM for unrelated queries (e.g. "Zulu interpreter
+ * in Antarctica" must not pull "Test Development Engineer").
+ */
+export function filterRelevantOpportunities(
+  terms: string[],
+  rows: GroundedRecord[]
+): GroundedRecord[] {
+  return rows.filter((r) => {
+    const primary = [r.title, r.category, r.organization]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    const secondary = [r.description, r.eligibility]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    let primaryMatches = 0;
+    let secondaryMatches = 0;
+    let longestMatchedTerm = 0;
+    for (const t of terms) {
+      if (primary.includes(t)) {
+        primaryMatches++;
+        longestMatchedTerm = Math.max(longestMatchedTerm, t.length);
+      } else if (secondary.includes(t)) {
+        secondaryMatches++;
+        longestMatchedTerm = Math.max(longestMatchedTerm, t.length);
+      }
+    }
+    return (
+      primaryMatches >= 1 ||
+      primaryMatches + secondaryMatches >= 2 ||
+      (terms.length <= 2 && secondaryMatches === 1 && longestMatchedTerm >= 8)
+    );
+  });
 }
 
 /** Should news records be pulled too (current-context questions)? */
@@ -85,7 +127,7 @@ export async function retrieveGrounding(
     try {
       let q = db
         .from("opportunities")
-        .select("id,title,organization,category,location,deadline,stipend,eligibility,apply_url,apply_link,source_url,description,slug,created_at")
+        .select("id,title,organization,category,location,deadline,salary_range,eligibility,apply_url,source_url,description,slug,created_at")
         .eq("is_active", true)
         .neq("verification_status", "rejected")
         .order("created_at", { ascending: false })
@@ -99,10 +141,15 @@ export async function retrieveGrounding(
 
       const { data, error } = await q;
       if (!error && Array.isArray(data)) {
-        opportunities = data.map((r: any) => ({
-          ...r,
-          apply_url: r.apply_url || r.apply_link || r.source_url || null,
-        }));
+        opportunities = filterRelevantOpportunities(
+          terms,
+          data.map((r: any) => ({
+            ...r,
+            // Live schema: salary_range (not stipend).
+            stipend: r.salary_range || null,
+            apply_url: r.apply_url || r.source_url || null,
+          }))
+        );
       }
     } catch {
       // retrieval failure must never break the chat — falls back to LLM only
@@ -112,12 +159,15 @@ export async function retrieveGrounding(
       try {
         let nq = db
           .from("news_articles")
-          .select("id,title,summary,published_at,source_url,slug")
+          .select("id,title,summary,published_at,url,slug")
           .order("published_at", { ascending: false })
           .limit(newsLimit);
         nq = nq.or(terms.map((t) => `title.ilike.%${t}%,summary.ilike.%${t}%`).join(","));
         const { data, error } = await nq;
-        if (!error && Array.isArray(data)) news = data;
+        if (!error && Array.isArray(data)) {
+          // Live schema: news_articles.url (not source_url).
+          news = data.map((r: any) => ({ ...r, source_url: r.url }));
+        }
       } catch {
         // same — never block chat
       }

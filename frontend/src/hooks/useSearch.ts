@@ -11,12 +11,12 @@ interface SearchResponse {
   page: number;
 }
 
-export function useSearch(query: string, page = 1) {
+export function useSearch(query: string, page = 1, category?: string, location?: string) {
   return useQuery({
-    queryKey: ["search", query, page],
+    queryKey: ["search", query, page, category, location],
     queryFn: () =>
       api.get<SearchResponse>("/api/search", {
-        params: { q: query, page },
+        params: { q: query, page, category, location },
       }),
     enabled: !!query && query.length >= 2,
     staleTime: 30_000,

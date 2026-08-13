@@ -36,7 +36,7 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props) {
-  if (!supabaseAdmin?.from) return { title: "Opportunity | BerojgarDegreeWala" };
+  if (!supabaseAdmin?.from) return { title: "Opportunity" };
 
   const { data: rawOpportunity } = await supabaseAdmin
     .from("opportunities")
@@ -47,23 +47,26 @@ export async function generateMetadata({ params }: Props) {
   if (!rawOpportunity) return { title: "Opportunity Not Found" };
   const opportunity = mapDbOpportunityToClient(rawOpportunity);
 
+  // organization comes from the FK join when the denormalized text column is NULL.
+  const orgName = opportunity.organization || "";
+
   const deadlineStr = opportunity.deadline
     ? new Date(opportunity.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
     : "Check website";
 
   return {
-    title: `${opportunity.title} — ${opportunity.organization}`,
-    description: `${opportunity.category} position at ${opportunity.organization}${opportunity.location ? ` in ${opportunity.location}` : ""}.${opportunity.eligibility ? ` Eligibility: ${opportunity.eligibility}.` : ""}${opportunity.stipend ? ` Stipend: ${opportunity.stipend}.` : ""} Apply by ${deadlineStr}.`,
-    keywords: [...(opportunity.tags || []), opportunity.organization, opportunity.category, opportunity.location, "BerojgarDegreeWala"].filter(Boolean),
+    title: orgName ? `${opportunity.title} — ${orgName}` : opportunity.title,
+    description: `${opportunity.category} position${orgName ? ` at ${orgName}` : ""}${opportunity.location ? ` in ${opportunity.location}` : ""}.${opportunity.eligibility ? ` Eligibility: ${opportunity.eligibility}.` : ""} Apply by ${deadlineStr}.`,
+    keywords: [...(opportunity.tags || []), orgName, opportunity.category, opportunity.location, "BerojgarDegreeWala"].filter(Boolean),
     openGraph: {
-      title: `${opportunity.title} | ${opportunity.organization}`,
+      title: orgName ? `${opportunity.title} | ${orgName}` : opportunity.title,
       description: `${opportunity.category} • ${opportunity.location || "India"} • Deadline: ${deadlineStr} • ${opportunity.eligibility || ""}`,
       url: `https://berojgardegreewala.vercel.app/opportunities/${params.slug}`,
       images: [{ url: `https://berojgardegreewala.vercel.app/api/og/opportunity/${params.slug}` }],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${opportunity.title} | ${opportunity.organization}`,
+      title: orgName ? `${opportunity.title} | ${orgName}` : opportunity.title,
       images: [`https://berojgardegreewala.vercel.app/api/og/opportunity/${params.slug}`],
     },
     alternates: { canonical: `https://berojgardegreewala.vercel.app/opportunities/${params.slug}` },
@@ -90,17 +93,20 @@ export default async function OpportunityDetailPage({ params }: Props) {
 
   if (error || !rawOpportunity) notFound();
   const opportunity = mapDbOpportunityToClient(rawOpportunity);
+  const orgName = opportunity.organization || "";
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: opportunity.title,
     description: opportunity.description,
-    hiringOrganization: {
-      "@type": "Organization",
-      name: opportunity.organization,
-      sameAs: opportunity.official_page_url || opportunity.apply_link,
-    },
+    hiringOrganization: orgName
+      ? {
+          "@type": "Organization",
+          name: orgName,
+          sameAs: opportunity.official_page_url || opportunity.apply_link,
+        }
+      : undefined,
     jobLocation: opportunity.location
       ? {
           "@type": "Place",
@@ -192,11 +198,11 @@ export default async function OpportunityDetailPage({ params }: Props) {
           <div className="bg-surface border border-border rounded-xl p-6">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-accent text-sm font-bold">{getInitials(opportunity.organization)}</span>
+                <span className="text-accent text-sm font-bold">{getInitials(orgName || "BDW")}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <h1 className="font-display text-xl sm:text-2xl font-bold text-text-primary">{opportunity.title}</h1>
-                <p className="text-text-secondary text-sm mt-0.5">{opportunity.organization}</p>
+                <p className="text-text-secondary text-sm mt-0.5">{orgName || "BerojgarDegreeWala"}</p>
                 <div className="flex items-center gap-2 mt-3 flex-wrap">
                   <CategoryBadge category={opportunity.category} />
                   {opportunity.verification_status && <VerificationBadge status={opportunity.verification_status} />}

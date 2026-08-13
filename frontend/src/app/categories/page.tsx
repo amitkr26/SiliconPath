@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { GraduationCap, FlaskConical, BookOpen, Building2, Award, Briefcase } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Browse Opportunities by Category — JRF, PhD, Govt Jobs | BerojgarDegreeWala",
+  title: "Browse Opportunities by Category — JRF, PhD, Govt Jobs",
   description: "Browse electronics and semiconductor opportunities by category: JRF, SRF, PhD, Government Jobs, Fellowships, and Private Sector positions. Updated daily.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/categories" },
 };

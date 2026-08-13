@@ -3,7 +3,7 @@ import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "International Fellowships for Electronics Researchers India 2026 | BerojgarDegreeWala",
+  title: "International Fellowships for Electronics Researchers India 2026",
   description: "Complete guide to DAAD Germany, SINGA Singapore, MEXT Japan, Marie Curie fellowships for Indian MSc electronics researchers. Eligibility, stipends, application deadlines.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/international-fellowships" },
 };

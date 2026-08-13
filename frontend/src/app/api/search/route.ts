@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
 import { searchOpportunities } from "@/lib/opportunities-query";
-import { isCanonicalCategory } from "@/lib/categories";
+import { isCanonicalCategory, normalizeCategoryParam } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category") || "All";
+    const category = normalizeCategoryParam(searchParams.get("category"));
 
     if (category !== "All" && !isCanonicalCategory(category)) {
       return NextResponse.json(
@@ -40,6 +40,27 @@ export async function GET(request: NextRequest) {
       search: q || searchParams.get("search") || "",
     });
 
+    // People search (network tab) — user_profiles, public profiles only.
+    let people: any[] = [];
+    if (q && supabaseAdmin) {
+      const cleanQ = q.replace(/[{}()"\\,.]/g, "").slice(0, 100);
+      const { data: peopleData } = await supabaseAdmin
+        .from("user_profiles")
+        .select("id, username, display_name, headline, current_company, location, skills")
+        .eq("is_profile_public", true)
+        .or(`display_name.ilike.%${cleanQ}%,headline.ilike.%${cleanQ}%,current_company.ilike.%${cleanQ}%`)
+        .limit(20);
+      people = (peopleData || []).map((p: any) => ({
+        id: p.id,
+        username: p.username,
+        display_name: p.display_name,
+        headline: p.headline,
+        current_org: p.current_company,
+        city: p.location,
+        skills: Array.isArray(p.skills) ? p.skills : [],
+      }));
+    }
+
     const opportunities = (data ? data.map(mapDbOpportunityToClient) : []).filter(
       (o: any) => o && o.title && o.title.trim().length >= 5
     );
@@ -49,6 +70,7 @@ export async function GET(request: NextRequest) {
       {
         q,
         opportunities,
+        people,
         count,
         total_count: count,
         page,
@@ -59,6 +81,10 @@ export async function GET(request: NextRequest) {
     );
   } catch (err: any) {
     console.error("[GET /api/search] Unexpected error:", err);
-    return NextResponse.json({ opportunities: [], count: 0, total_count: 0, total_pages: 1, page: 1 }, { status: 200 });
+    // QA audit: no fake HTTP 200 empty results on server errors.
+    return NextResponse.json(
+      { error: "Failed to fetch search results. Please try again." },
+      { status: 500 }
+    );
   }
 }

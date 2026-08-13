@@ -3,7 +3,7 @@ import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "VLSI Career India 2026 — Jobs, Salaries, Skills & Companies | BerojgarDegreeWala",
+  title: "VLSI Career India 2026 — Jobs, Salaries, Skills & Companies",
   description: "Complete VLSI career guide for India 2026. RTL design, physical design, verification jobs. Companies: Intel, Qualcomm, AMD, TI. Salaries ₹5-50 LPA. Skills: Verilog, SystemVerilog, Cadence.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/vlsi-careers" },
 };

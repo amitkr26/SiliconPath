@@ -3,7 +3,7 @@ import Link from "next/link";
 import { GraduationCap, Briefcase, Globe, FileText, BookMarked, ArrowRight, Zap, Award, Network, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Resources — JRF Guide, PhD Guide, DRDO Labs, CSIR Research | BerojgarDegreeWala",
+  title: "Resources — JRF Guide, PhD Guide, DRDO Labs, CSIR Research",
   description: "Comprehensive guide to JRF positions in India, PhD admissions, list of DRDO and CSIR labs for electronics research, NET vs GATE comparison, international fellowship programs, and more.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources" },
   openGraph: {

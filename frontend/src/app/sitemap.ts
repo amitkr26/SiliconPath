@@ -74,20 +74,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     }
 
-    // Organization pages
+    // Organization pages (canonical source: organizations table — the
+    // historical query read opportunities.org_slug, a column that does not
+    // exist, so the section silently produced nothing)
     const { data: orgs } = await supabaseAdmin
-      .from("opportunities")
-      .select("org_slug")
-      .eq("is_active", true);
+      .from("organizations")
+      .select("slug, created_at");
 
     if (orgs) {
-      const slugSet = new Set<string>();
-      orgs.forEach((o: { org_slug: string }) => { if (o.org_slug) slugSet.add(o.org_slug); });
-      const uniqueSlugs = Array.from(slugSet);
-      for (const slug of uniqueSlugs) {
+      for (const org of orgs as Array<{ slug: string; created_at?: string }>) {
         urls.push({
-          url: `https://berojgardegreewala.vercel.app/organizations/${slug}`,
-          lastModified: new Date(),
+          url: `https://berojgardegreewala.vercel.app/organizations/${org.slug}`,
+          lastModified: new Date(org.created_at || Date.now()),
           changeFrequency: "weekly" as const,
           priority: 0.6,
         });
@@ -110,12 +108,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     }
 
-    // News article pages (by slug)
+    // News article pages (by slug) — no arbitrary cap
     const { data: news } = await supabaseAdmin
       .from("news_articles")
       .select("slug, published_at")
-      .not("slug", "is", null)
-      .limit(200);
+      .not("slug", "is", null);
 
     if (news) {
       for (const article of news as Array<{ slug: string; published_at?: string }>) {

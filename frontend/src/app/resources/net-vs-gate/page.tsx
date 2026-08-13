@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { ArrowRight, CheckCircle2, XCircle } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "UGC-NET vs GATE for Electronics Research — Complete Comparison 2026 | BerojgarDegreeWala",
+  title: "UGC-NET vs GATE for Electronics Research — Complete Comparison 2026",
   description: "Complete comparison of UGC-NET Electronic Science vs GATE ECE for electronics research careers. Which exam opens JRF, which leads to PSU jobs, stipend comparison, difficulty analysis.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/net-vs-gate" },
 };

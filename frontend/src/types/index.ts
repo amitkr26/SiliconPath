@@ -47,6 +47,7 @@ export interface Subscriber {
   categories: string[];
   created_at?: string;
   is_active: boolean;
+  unsubscribe_token?: string | null;
 }
 
 export interface SavedOpportunity {

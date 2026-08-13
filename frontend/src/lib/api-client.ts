@@ -56,6 +56,15 @@ async function request<T>(
   if (!headers.has("Content-Type") && method !== "GET") {
     headers.set("Content-Type", "application/json");
   }
+  // Admin APIs authenticate via x-admin-password (server-side requireAdmin).
+  // Central guard: the password is stored in sessionStorage right after a
+  // successful /api/admin/auth login; the admin UI otherwise 401s silently.
+  if (path.startsWith("/api/admin") || path.startsWith("/api/scrapers")) {
+    if (!headers.has("x-admin-password")) {
+      const adminPassword = sessionStorage.getItem("admin_password");
+      if (adminPassword) headers.set("x-admin-password", adminPassword);
+    }
+  }
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);

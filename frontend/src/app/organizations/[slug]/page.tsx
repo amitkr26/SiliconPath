@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: Props) {
   const { name, opportunities } = await getOrganizationOpportunities(params.slug);
   if (!opportunities.length) return { title: "Organization Not Found" };
   return {
-    title: `${name} — ${opportunities.length} Active Opportunities | BerojgarDegreeWala`,
+    title: `${name} — ${opportunities.length} Active Opportunities`,
     description: `Browse ${opportunities.length} active JRF, PhD, and research opportunities at ${name}. Find current openings and apply through BerojgarDegreeWala.`,
     alternates: { canonical: `https://berojgardegreewala.vercel.app/organizations/${params.slug}` },
   };

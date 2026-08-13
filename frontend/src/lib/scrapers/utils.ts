@@ -28,7 +28,12 @@ export function cleanTitle(title: string, organization: string): string {
   // Remove trailing "apply by..." or "last date..." or "deadline..."
   t = t.replace(/\s*[-–]\s*(?:apply\s+by|last\s+date|deadline).*$/i, "").trim();
 
-  return t;
+  // Glued employment-type suffixes from ATS sources: "...Engineer)Full-time"
+  // → "...Engineer) Full-time". Only when glued (no space) so real titles
+  // like "Full-time Faculty" are untouched.
+  t = t.replace(/(\S)(full-?time|part-?time|full ?time|part ?time)(?=\s|$)/gi, "$1 $2");
+
+  return t.trim();
 }
 
 export function formatTimeAgo(dateString: string): string {

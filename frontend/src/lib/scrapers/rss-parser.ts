@@ -100,8 +100,11 @@ export const NEWS_SOURCES: NewsSourceConfig[] = [
 export interface ParsedArticle {
   title: string;
   summary: string | null;
-  source: string;
-  source_url: string | null;
+  // Canonical DB column names (news_articles): `url` and `source_name`.
+  // Historical names source/source_url do not exist in the live schema and
+  // made every news insert fail silently.
+  source_name: string;
+  url: string | null;
   published_at: string | null;
   image_url: string | null;
   tags: string[];
@@ -136,8 +139,8 @@ async function fetchRSSFeed(
       results.push({
         title,
         summary,
-        source,
-        source_url: item.link || null,
+        source_name: source,
+        url: item.link || null,
         published_at: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
         image_url: null,
         tags: mergedTags,
@@ -151,23 +154,22 @@ async function fetchRSSFeed(
 }
 
 export async function fetchAllNews(): Promise<ParsedArticle[]> {
-  const results: ParsedArticle[] = [];
-  for (const source of NEWS_SOURCES) {
-    if (source.type === "opportunity") continue;
-    try {
-      const articles = await fetchRSSFeed(
+  const sources = NEWS_SOURCES.filter((s) => s.type !== "opportunity");
+  // Parallel fetch: worst case is the slowest feed (~6s), not the sum.
+  // Sequential code pushed the nightly cron past serverless time limits,
+  // so the DB never got new items even when a source published.
+  const settled = await Promise.allSettled(
+    sources.map((source) =>
+      fetchRSSFeed(
         source.name,
         source.url,
         source.tags,
         source.relevance_tier,
         source.keyword_filter,
-      );
-      results.push(...articles);
-    } catch {
-      // ignore individual feed errors
-    }
-  }
-  return results;
+      )
+    )
+  );
+  return settled.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
 }
 
 export async function fetchOpportunitiesFromRSS(): Promise<ScrapedOpportunity[]> {

@@ -53,10 +53,25 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const article = await lookupArticle(slug);
   if (!article) return { title: "Article not found" };
+  const articleUrl = `https://berojgardegreewala.vercel.app/news/${article.slug}`;
   return {
-    title: `${article.title} — BerojgarDegreeWala`,
+    // No "— BerojgarDegreeWala" suffix: the root layout title template
+    // already appends "| BerojgarDegreeWala" (prevents duplicated site name).
+    title: article.title,
     description: (article.summary || "").slice(0, 155),
-    alternates: { canonical: `https://berojgardegreewala.vercel.app/news/${article.slug}` },
+    openGraph: {
+      title: article.title,
+      description: (article.summary || "").slice(0, 155),
+      url: articleUrl,
+      type: "article",
+      images: [{ url: "/api/og", width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      images: ["/api/og"],
+    },
+    alternates: { canonical: articleUrl },
   };
 }
 
