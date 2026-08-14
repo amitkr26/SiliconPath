@@ -10,6 +10,8 @@ interface PersonRow {
 }
 
 // GET: accepted connections of the current user (v2 connections schema).
+// With ?myId=&theirId= returns the relationship status between those two
+// users ({ status: "none" | "pending" | "accepted" }) — used by profile pages.
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const {
@@ -19,6 +21,19 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   const q = (searchParams.get("q") || "").trim();
+  const myId = searchParams.get("myId");
+  const theirId = searchParams.get("theirId");
+
+  if (myId && theirId) {
+    const { data: rel } = await supabase
+      .from("connections")
+      .select("status")
+      .or(
+        `and(requester_id.eq.${myId},addressee_id.eq.${theirId}),and(requester_id.eq.${theirId},addressee_id.eq.${myId})`
+      )
+      .maybeSingle();
+    return NextResponse.json({ status: rel?.status || "none" });
+  }
 
   const { data: conns } = await supabase
     .from("connections")

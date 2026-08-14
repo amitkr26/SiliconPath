@@ -170,13 +170,17 @@ export default function NetworkPage() {
                           className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
                         />
                         <div>
-                          <h3 className="font-black text-sm text-slate-900">{person.display_name || "Hardware Engineer"}</h3>
-                          <p className="text-[11px] font-bold text-slate-600 line-clamp-1">{person.headline || person.current_company || "VLSI Specialist"}</p>
+                          <h3 className="font-black text-sm text-slate-900">{person.display_name || "Berojgar Member"}</h3>
+                          {(person.headline || person.current_company) && (
+                            <p className="text-[11px] font-bold text-slate-600 line-clamp-1">{person.headline || person.current_company}</p>
+                          )}
                         </div>
                       </div>
-                      <p className="text-xs text-slate-700 font-semibold leading-relaxed line-clamp-2">
-                        {person.bio || "Microelectronics & semiconductor specialist."}
-                      </p>
+                      {person.bio && (
+                        <p className="text-xs text-slate-700 font-semibold leading-relaxed line-clamp-2">
+                          {person.bio}
+                        </p>
+                      )}
                     </div>
 
                     <div className="pt-4 flex items-center gap-2">
