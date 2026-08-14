@@ -109,11 +109,15 @@ export async function middleware(request: NextRequest) {
   const isGated = GATED_PATHS.some(p => path === p || path.startsWith(p + '/'));
   const isEmployerOnly = EMPLOYER_ONLY_PATHS.some(p => path === p || path.startsWith(p + '/'));
 
+  const authHeader = request.headers.get('authorization');
   let supabaseResponse = NextResponse.next({ request });
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: {
+        headers: authHeader ? { Authorization: authHeader } : {},
+      },
       cookies: {
         getAll() { return request.cookies.getAll(); },
         setAll(cookiesToSet) {
@@ -127,22 +131,7 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  let user = null;
-  const authHeader = request.headers.get('authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
-    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-    const tempClient = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { auth: { persistSession: false, autoRefreshToken: false } }
-    );
-    const { data } = await tempClient.auth.getUser(token);
-    user = data.user;
-  } else {
-    const { data } = await supabase.auth.getUser();
-    user = data.user;
-  }
+  const { data: { user } } = await supabase.auth.getUser();
 
   // Auth gate check
   if ((isGated || isEmployerOnly) && !user) {
