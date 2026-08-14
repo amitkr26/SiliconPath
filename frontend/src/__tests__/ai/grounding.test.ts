@@ -120,9 +120,11 @@ jest.mock("@/lib/supabase", () => {
 
 import { POST } from "@/app/api/ai/chat/route";
 import {
+  buildGroundedSystemPrompt,
+  buildRecordListing,
   extractSearchTerms,
   isOpportunityIntent,
-  buildGroundedSystemPrompt,
+  retrieveGrounding,
   sanitizeAnswerUrls,
   filterRelevantOpportunities,
   NO_MATCH_FALLBACK,
@@ -274,4 +276,107 @@ describe("P0 grounding — relevance filter (no-match safety)", () => {
 
 test("fallback message is explicit about the database", () => {
   expect(NO_MATCH_FALLBACK).toContain("BerojgarDegreeWala's current database");
+});
+
+// ---------------------------------------------------------------------------
+// AI-QUALITY-2026-08-13 regression: context selection + no-match parroting.
+// Prod evidence: "DRDO JRF" and "JRF VLSI" returned grounded:true but the
+// model echo of the fallback sentence — the top-8 records in context were all
+// category="jrf" flood rows (New Careers & Internships, …) because a single
+// OR'd window plus unweighted scoring drowned the real DRDO/VLSI rows.
+// ---------------------------------------------------------------------------
+
+/** db mock returning the same rows for every opportunities query. */
+function dbReturning(rows: any[]): any {
+  const chain: any = (..._a: any[]) => chain;
+  chain.then = (fn: any) => Promise.resolve({ data: rows, error: null }).then(fn);
+  chain.eq = () => chain; chain.neq = () => chain; chain.or = () => chain;
+  chain.order = () => chain; chain.ilike = () => chain; chain.limit = () => chain;
+  chain.select = () => chain;
+  return {
+    from: (table: string) =>
+      table === "opportunities"
+        ? chain
+        : { ...chain, then: (fn: any) => Promise.resolve({ data: [], error: null }).then(fn) },
+  };
+}
+
+describe("AI-QUALITY regression — context selection", () => {
+  test("1) real DRDO row outranks category=jrf flood rows for 'DRDO JRF'", async () => {
+    const db = dbReturning([
+      { id: "f1", title: "New Careers & Internships", category: "jrf", organization: null },
+      { id: "f2", title: "Software Engineering Opportunities", category: "jrf", organization: null },
+      { id: "s1", title: "DRDO JRF in VLSI Design", category: "jrf", organization: "DRDO" },
+    ]);
+    const { opportunities } = await retrieveGrounding(db, "DRDO JRF");
+    expect(opportunities[0]).toBeDefined();
+    expect(opportunities[0].id).toBe("s1");
+  });
+
+  test("5) primary-field match ranks above description-only match at equal intent", async () => {
+    const db = dbReturning([
+      { id: "a1", title: "Semiconductor Process Engineer", category: "jrf", organization: null },
+      {
+        id: "b1",
+        title: "New Careers",
+        category: "jrf",
+        organization: null,
+        description: "semiconductor semiconductor semiconductor roles at a fab",
+      },
+    ]);
+    const { opportunities } = await retrieveGrounding(db, "semiconductor jrf");
+    expect(opportunities.map((o) => o.id)).toEqual(["a1", "b1"]);
+  });
+});
+
+describe("AI-QUALITY regression — no-match parroting guard", () => {
+  beforeEach(() => mockCallAI.mockReset());
+
+  test("2) model echoing the fallback sentence with records in context → records listed, no false 'couldn't find'", async () => {
+    mockCallAI.mockResolvedValue({
+      text: "I couldn't find a matching opportunity in BerojgarDegreeWala's current database.",
+      provider: "groq",
+      model: "test-model",
+    });
+    const res = await POST(req({ messages: [{ role: "user", content: "Latest JRF opportunities in VLSI design in India?" }] }));
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body.message).toContain("JRF Position in VLSI Design at C-DAC");
+    expect(body.message).toContain("https://www.cdac.in/jrf-vlsi-2026");
+    expect(body.message).not.toContain("couldn't find");
+    expect(body.grounded).toBe(true);
+  });
+
+  test("3) same fallback text with NO records retrieved passes through untouched", async () => {
+    mockCallAI.mockResolvedValue({
+      text: "I couldn't find a matching opportunity in BerojgarDegreeWala's current database.",
+      provider: "groq",
+      model: "test-model",
+    });
+    const emptyMock = jest.requireMock("@/lib/supabase") as any;
+    const origFrom = emptyMock.supabaseAdmin.from;
+    emptyMock.supabaseAdmin.from = (table: string) => {
+      const chain: any = (..._a: any[]) => chain;
+      chain.then = (fn: any) => Promise.resolve({ data: [], error: null }).then(fn);
+      chain.eq = () => chain; chain.neq = () => chain; chain.or = () => chain;
+      chain.order = () => chain; chain.ilike = () => chain; chain.limit = () => chain;
+      chain.select = () => chain; chain.range = () => chain; chain.contains = () => chain;
+      return chain;
+    };
+    const res = await POST(req({ messages: [{ role: "user", content: "Tell me about quantum banana farming" }] }));
+    const body = await res.json();
+    expect(body.message).toContain("couldn't find a matching opportunity");
+    expect(body.grounded).toBe(false);
+    emptyMock.supabaseAdmin.from = origFrom;
+  });
+
+  test("4) deterministic listing contains only retrieved titles and URLs", () => {
+    const listing = buildRecordListing(RECORDS);
+    expect(listing).toContain("JRF Position in VLSI Design at C-DAC");
+    expect(listing).toContain("https://www.cdac.in/jrf-vlsi-2026");
+    expect(listing).toContain("https://iitm.ac.in/rasic-2026");
+    // every URL in the listing survives the sanitizer (allowed set = records)
+    const clean = sanitizeAnswerUrls(listing, new Set(RECORDS.map((r) => r.apply_url)));
+    expect(clean).toBe(listing);
+  });
 });

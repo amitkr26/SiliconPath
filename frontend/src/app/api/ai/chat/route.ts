@@ -4,6 +4,7 @@ import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { serverError } from "@berojgardegreewala/api";
 import {
   buildGroundedSystemPrompt,
+  buildRecordListing,
   extractSearchTerms,
   isOpportunityIntent,
   NO_MATCH_FALLBACK,
@@ -73,8 +74,19 @@ export async function POST(request: NextRequest) {
       feature: "chat",
     });
 
-    // 4. Final deterministic guard: no URL outside the retrieved records.
-    const text = sanitizeAnswerUrls(response.text, allowedUrls(opportunities, news));
+    // 4. Deterministic guard: the model parroting the no-match fallback
+    //    sentence while records ARE in its context contradicts rule 2
+    //    (observed on llama-3.1-8b-class models). Surface the retrieved
+    //    records instead of a false "couldn't find".
+    let text = response.text;
+    if (
+      opportunities.length > 0 &&
+      text.includes("I couldn't find a matching opportunity in BerojgarDegreeWala's current database")
+    ) {
+      text = buildRecordListing(opportunities);
+    }
+    // 5. Final deterministic guard: no URL outside the retrieved records.
+    text = sanitizeAnswerUrls(text, allowedUrls(opportunities, news));
 
     return NextResponse.json({
       message: text,

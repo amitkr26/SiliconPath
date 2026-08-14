@@ -119,22 +119,31 @@ export async function retrieveGrounding(
   const terms = extractSearchTerms(query);
   const opportunityLimit = opts.opportunityLimit ?? 8;
   const newsLimit = opts.newsLimit ?? 3;
-  // Two-phase fetch (2026-08-13, verified in prod): a single broad
-  // OR(query) ordered created_at DESC let thousands of newer weak matches
-  // (terms hit in description/eligibility) push strong-but-older records
-  // ("IIT Madras research associate", Aug 1) out of the top-8 window →
-  // grounded:false for records that exist. Phase 1 queries only primary
-  // fields (title/category/organization); phase 2 (only if phase 1 yields
-  // nothing) adds description/eligibility. Relevance filtering still runs
-  // after each phase.
+  // Two-phase fetch, three fixes (2026-08-13, prod-verified):
+  // 1. A single broad OR(query) ordered created_at DESC let newer weak matches
+  //    push strong-but-older records out of the window ("IIT Madras research
+  //    associate"). → phase 1 queries primary fields only.
+  // 2. Even over primary fields, one OR'd window fails when a term matches a
+  //    high-cardinality category: "DRDO JRF" kept 50 rows where category
+  //    LIKE "%jrf%" (3,170 rows) drowned every real DRDO row — the LLM then
+  //    HONESTLY answered "couldn't find" with 8 irrelevant records in context.
+  //    → phase 1 runs ONE windowed query per term (primary fields), merged.
+  // 3. Ranking counts raw term hits equally, so category-only hits tied with
+  //    real title/org matches. → weighted score: title 3, category/org 2,
+  //    description/eligibility 1.
   const FETCH_WINDOW = 50;
+  const PRIMARY_FIELDS = ["title", "category", "organization"] as const;
+  const ALL_FIELDS = [...PRIMARY_FIELDS, "description", "eligibility"] as const;
+  const FIELD_WEIGHT: Record<string, number> = {
+    title: 3, category: 2, organization: 2, description: 1, eligibility: 1,
+  };
 
   let opportunities: GroundedRecord[] = [];
   let news: GroundedNews[] = [];
 
   if (terms.length > 0 && db) {
     try {
-      const base = (fields: string[]) =>
+      const base = (fields: readonly string[]) =>
         db
           .from("opportunities")
           .select("id,title,organization,category,location,deadline,salary_range,eligibility,apply_url,source_url,description,slug,created_at")
@@ -154,38 +163,54 @@ export async function retrieveGrounding(
           }))
         );
 
-      const run = async (fields: string[]) => {
-        const conds = terms
-          .map((t) => fields.map((f) => `${f}.ilike.%${t}%`).join(","))
-          .join(",");
-        const { data, error } = await base(fields).or(conds);
-        return !error && Array.isArray(data) ? toRecords(data) : [];
+      const kept: GroundedRecord[] = [];
+      const merge = (rows: any[]) => {
+        const seen = new Set(kept.map((r) => r.id));
+        const seenTitles = new Set(kept.map((r) => (r.title || "").toLowerCase().trim()));
+        for (const rec of toRecords(rows)) {
+          const titleKey = (rec.title || "").toLowerCase().trim();
+          // skip duplicate ids AND duplicate titles: the same posting exists
+          // dozens of times (e.g. 8 x "AI Research Engineer"), and 8 copies
+          // of one role would crowd out distinct matches from the top-8.
+          if (!seen.has(rec.id) && !seenTitles.has(titleKey)) {
+            seen.add(rec.id);
+            seenTitles.add(titleKey);
+            kept.push(rec);
+          }
+        }
       };
 
-      // Phase 1: primary fields only.
-      let kept = await run(["title", "category", "organization"]);
+      // Phase 1: one windowed query per term over primary fields, merged.
+      // "drdo" and "jrf" are queried in separate windows so the real DRDO JRF
+      // rows survive even though category=jrf matches thousands of rows.
+      await Promise.all(
+        terms.map((t) =>
+          base(PRIMARY_FIELDS)
+            .or(PRIMARY_FIELDS.map((f) => `${f}.ilike.%${t}%`).join(","))
+            .then(({ data, error }: any) => {
+              if (!error && Array.isArray(data)) merge(data);
+            })
+        )
+      );
       if (kept.length === 0) {
         // Phase 2: broaden to description/eligibility.
-        kept = await run([
-          "title", "category", "organization", "description", "eligibility",
-        ]);
-      }
-      // Rank by match strength (not recency) before capping: the strongest
-      // record ("IIT Madras research associate" — all 4 terms) was being cut
-      // from the top-8 by newer 1-term matches, so the LLM never saw it and
-      // answered "couldn't find" despite a grounded:true retrieval.
-      const score = (r: GroundedRecord) =>
-        terms.reduce(
-          (n, t) =>
-            n +
-            [r.title, r.organization, r.category, r.description, r.eligibility]
-              .filter(Boolean)
-              .join(" ")
-              .toLowerCase()
-              .split(t).length -
-            1,
-          0
+        const { data, error } = await base(ALL_FIELDS).or(
+          terms
+            .map((t) => ALL_FIELDS.map((f) => `${f}.ilike.%${t}%`).join(","))
+            .join(",")
         );
+        if (!error && Array.isArray(data)) merge(data);
+      }
+      // Rank by weighted match strength (not recency) before capping.
+      const score = (r: GroundedRecord) =>
+        terms.reduce((n, t) => {
+          let hits = 0;
+          for (const f of ALL_FIELDS) {
+            const v = r[f];
+            if (v) hits += (String(v).toLowerCase().split(t).length - 1) * FIELD_WEIGHT[f];
+          }
+          return n + hits;
+        }, 0);
       opportunities = kept.sort((a, b) => score(b) - score(a)).slice(0, opportunityLimit);
     } catch {
       // retrieval failure must never break the chat — falls back to LLM only
@@ -299,3 +324,24 @@ export const NO_MATCH_FALLBACK =
   "I couldn't find a matching opportunity in BerojgarDegreeWala's current database. " +
   "Try asking about a specific role (JRF, internship, PhD) or organization (DRDO, ISRO, IIT, VLSI companies), " +
   "or browse /opportunities for the latest verified openings.";
+
+/**
+ * Deterministic listing of retrieved records — used when the model echoes the
+ * no-match fallback sentence while records ARE in context (rule-2 violation
+ * observed on llama-3.1-8b-class models). Only retrieved titles/URLs, so it is
+ * as safe as the fallback itself.
+ */
+export function buildRecordListing(opportunities: GroundedRecord[]): string {
+  const lines = opportunities.slice(0, 4).map(
+    (o, i) =>
+      `${i + 1}. ${o.title}${o.organization ? ` (${o.organization})` : ""}` +
+      `${o.category ? ` — ${o.category}` : ""}` +
+      `${o.deadline ? `, deadline ${o.deadline}` : ""}` +
+      `${o.apply_url ? ` — ${o.apply_url}` : ""}`
+  );
+  return (
+    "Here are the matching opportunities I found in BerojgarDegreeWala's database:\n\n" +
+    lines.join("\n") +
+    "\n\nView the full verified list at /opportunities."
+  );
+}
