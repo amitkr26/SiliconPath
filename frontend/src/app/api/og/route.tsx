@@ -66,10 +66,6 @@ export async function GET() {
     {
       width: 1200,
       height: 630,
-      headers: {
-        "Content-Type": "image/png",
-        "Cache-Control": "public, max-age=86400, s-maxage=86400, immutable",
-      },
     }
   );
 }
