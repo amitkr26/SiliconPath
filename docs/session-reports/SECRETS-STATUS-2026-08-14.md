@@ -11,7 +11,7 @@ none of these are visible in current history.
 | Credential | Exposed in git | Window | Evidence of remediation |
 |---|---|---|---|
 | Neon PRIMARY password (`neondb_owner` @ `ep-green-paper-ad3dy630-pooler`, `npg_Jp3OtAenHVM5…`) | scripts 6bd47d5 (08-01), backend fallback bc96d89 (08-02), k8s/configmap.yaml base64 f0eda74 (08-02) | 08-01 → 08-13 (12–13 d) | **Rotated 2026-08-13** via `ALTER ROLE`; old password rejected everywhere; Vercel `NEON_1_DATABASE_URL` updated; redeployed (bpw9ggmqk); `/api/health` neon_primary ok |
-| Neon SECONDARY password (`neondb_owner` @ `ep-crimson-tree-atp6kiq0-pooler`, `npg_MyvHzL81UPTa…`) | scripts 6bd47d5 (08-01), bc96d89 (08-02) | 08-01 → 08-13 (12–13 d) | **Rotated 2026-08-14** via `ALTER ROLE`; old password rejected everywhere; `siliconpath-credentials.txt` + Vercel `NEON_2_DATABASE_URL` (production & preview) updated; redeployed (2ij08bs0o) awaiting `/api/health` neon_secondary ok |
+| Neon SECONDARY password (`neondb_owner` @ `ep-crimson-tree-atp6kiq0-pooler`, `npg_MyvHzL81UPTa…`) | scripts 6bd47d5 (08-01), bc96d89 (08-02) | 08-01 → 08-13 (12–13 d) | **Rotated 2026-08-14** via `ALTER ROLE`; old password rejected everywhere; `siliconpath-credentials.txt` + Vercel `NEON_2_DATABASE_URL` (production & preview) updated; redeployed (2ij08bs0o); `/api/health` neon_secondary **ok** |
 | Groq API key (old "API Key" in creds file) | — | — | Invalid (401) on live test |
 | Supabase PRIMARY new-format secret (`sb_secret_u0S5lA…`) | QA scripts 4f5c37b/90b0e36 (08-03) family | 08-03 → 08-13 | Invalid (401) on live test |
 | Supabase publishable/anon keys (both projects) | same window | 08-03 → 08-13 | Public by design (client-side, RLS-protected) — no action needed |
@@ -39,7 +39,7 @@ none of these are visible in current history.
 
 ## Recommended close-out order
 
-1. ✅ (Agent) Rotate Neon secondary (P0-5) — done 2026-08-14, awaiting health confirm after redeploy.
+1. ✅ (Agent) Rotate Neon secondary (P0-5) — done 2026-08-14, `/api/health` neon_secondary ok.
 2. (User, manual — no agent access needed) Revoke both `sbp_` tokens (P0-3/4) — highest blast radius, account-level.
 3. (User, manual) Regenerate primary Supabase service key (P0-1 — prod is live on it) and secondary secret key (P0-2).
 4. (User, manual) Regenerate Groq key (P0-6) and Telegram bot token (P0-7).
