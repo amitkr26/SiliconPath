@@ -86,10 +86,6 @@ export async function GET(_request: Request, { params }: { params: { slug: strin
     {
       width: 1200,
       height: 630,
-      headers: {
-        "Content-Type": "image/png",
-        "Cache-Control": "public, max-age=86400, s-maxage=86400, immutable",
-      },
     }
   );
 }
