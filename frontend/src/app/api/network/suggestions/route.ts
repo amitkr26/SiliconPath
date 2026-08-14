@@ -19,11 +19,14 @@ interface CandidateRow {
 function isTestAccount(c: CandidateRow): boolean {
   const un = (c.username || "").toLowerCase();
   const dn = (c.display_name || "").trim();
+  const dnLower = dn.toLowerCase();
   const hl = (c.headline || "").toLowerCase();
   const bio = (c.bio || "").toLowerCase();
   return (
     /^(test|qa|probe|dbg|demo|sample|feedverify|api-test|cand_|recruiter_)/.test(un) ||
     /\.user\d/.test(un) ||
+    // Also check display_name for username-like patterns (since username col may not exist)
+    /^(test|qa|probe|dbg|demo|sample|feedverify|api-test|cand_|recruiter_)/.test(dnLower) ||
     /^(test|qa|hiring lead|feed verify|user (three|four))(\s|$)/i.test(dn) ||
     /\(vls[i][^)]*\)/i.test(dn) ||
     hl === "test" ||
