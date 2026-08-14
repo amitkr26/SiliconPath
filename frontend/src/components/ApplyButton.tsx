@@ -15,7 +15,8 @@ export default function ApplyButton({ applyLink, opportunityId, verificationStat
   const { user } = useUser();
   const isUnavailable = verificationStatus === "link_unavailable" || verificationStatus === "expired";
 
-  // Fire-and-forget tracking so navigation is never blocked by it.
+  // Fire-and-forget tracking so navigation is never blocked by it. The
+  // applications route is idempotent per (user, opportunity), so no pre-check.
   const trackClick = () => {
     fetch("/api/track-click", {
       method: "POST",
@@ -24,17 +25,9 @@ export default function ApplyButton({ applyLink, opportunityId, verificationStat
     }).catch(() => {});
     if (user) {
       api
-        .get<{ id: string }[] | null>("/api/applications", {
-          params: { user_id: user.id, opportunity_id: opportunityId },
-        })
-        .then((existing) => {
-          if (!existing || existing.length === 0) {
-            return api.post("/api/applications", {
-              user_id: user.id,
-              opportunity_id: opportunityId,
-              status: "applied",
-            });
-          }
+        .post("/api/applications", {
+          opportunity_id: opportunityId,
+          status: "applied",
         })
         .catch(() => {});
     }

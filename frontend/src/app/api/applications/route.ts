@@ -16,6 +16,35 @@ export async function GET() {
   return NextResponse.json({ applications: data });
 }
 
+// POST: record an application (created by the in-app "Apply Now" tracking).
+// Idempotent per (user_id, opportunity_id) — applying again returns the
+// existing row instead of a duplicate.
+export async function POST(request: Request) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const body = await request.json();
+  const { opportunity_id, status = 'applied' } = body;
+  if (!opportunity_id) return NextResponse.json({ error: 'opportunity_id required' }, { status: 400 });
+
+  const { data: existing } = await supabase
+    .from('applications')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('opportunity_id', opportunity_id)
+    .maybeSingle();
+  if (existing) return NextResponse.json({ application: existing, alreadyApplied: true }, { status: 200 });
+
+  const { data, error } = await supabase
+    .from('applications')
+    .insert({ user_id: user.id, opportunity_id, status })
+    .select()
+    .single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ application: data }, { status: 201 });
+}
+
 export async function PATCH(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
