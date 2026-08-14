@@ -131,7 +131,13 @@ export async function middleware(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1];
-    const { data } = await supabase.auth.getUser(token);
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const tempClient = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } }
+    );
+    const { data } = await tempClient.auth.getUser(token);
     user = data.user;
   } else {
     const { data } = await supabase.auth.getUser();
