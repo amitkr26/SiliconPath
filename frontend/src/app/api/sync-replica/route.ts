@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db1, neonSecondary } from "@/lib/db";
+import { mapDbOpportunityToClient } from "@/lib/utils";
 
 export async function GET(request: Request) {
   if (!db1 || !neonSecondary) {
@@ -23,17 +24,20 @@ export async function GET(request: Request) {
   let oppsSynced = 0;
   if (opportunities && opportunities.length > 0) {
     for (const opp of opportunities) {
+      // P0.4: live db1 rows have organization_id/salary_range/apply_url; the mirror
+      // keeps the legacy text columns. Reuse the shared mapper to resolve names.
+      const m = mapDbOpportunityToClient(opp) || {};
       await neonSecondary`
         INSERT INTO opportunities_mirror (
           id, title, organization, category, location, stipend, deadline,
           eligibility, description, apply_link, tags, slug, verification_status,
           is_active, apply_clicks, posted_at, created_at, synced_at
         ) VALUES (
-          ${opp.id}, ${opp.title}, ${opp.organization}, ${opp.category},
-          ${opp.location}, ${opp.stipend}, ${opp.deadline ? opp.deadline.split('T')[0] : null},
-          ${opp.eligibility}, ${opp.description}, ${opp.apply_link},
-          ${opp.tags}, ${opp.slug}, ${opp.verification_status},
-          ${opp.is_active}, ${opp.apply_clicks || 0}, ${opp.posted_at},
+          ${opp.id}, ${m.title}, ${m.organization}, ${m.category},
+          ${opp.location}, ${m.stipend}, ${opp.deadline ? opp.deadline.split('T')[0] : null},
+          ${opp.eligibility}, ${m.description}, ${m.apply_link},
+          ${opp.tags}, ${opp.slug}, ${opp.verification_status ?? "unverified"},
+          ${opp.is_active}, ${opp.apply_clicks || 0}, ${m.posted_at},
           ${opp.created_at}, now()
         )
         ON CONFLICT (id) DO UPDATE SET

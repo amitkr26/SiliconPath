@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { checkIfExpired } from "@/lib/ai/expiry-checker";
-import { serverError } from "@berojgardegreewala/api";
+import { requireCron, serverError } from "@berojgardegreewala/api";
 
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -11,11 +11,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // P0.6: fail-closed — missing/invalid CRON_SECRET => 403 (was fail-open when CRON_SECRET unset)
+  try {
+    await requireCron(request);
+  } catch (e) {
+    return e instanceof Response ? e : serverError();
   }
 
   try {

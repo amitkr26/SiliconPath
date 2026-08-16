@@ -134,7 +134,7 @@ export default function AdminPage() {
     setScrapeLogs((prev) => [newLog, ...prev]);
 
     try {
-      const data = await api.post<{ insertedOrUpdated?: number; totalScraped?: number; success?: boolean }>("/api/scrapers/run-all");
+      const data = await api.post<{ insertedOrUpdated?: number; totalScraped?: number; success?: boolean }>("/api/cron/scrape-opportunities");
       setScrapeLogs((prev) =>
         prev.map((l) =>
           l.id === newLog.id

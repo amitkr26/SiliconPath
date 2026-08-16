@@ -1,36 +1,48 @@
 ﻿import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { mapDbOpportunityToClient } from "@/lib/utils";
 
 export async function GET() {
   if (!supabaseAdmin?.from) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
-  const { data } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from("opportunities")
     .select("*")
     .eq("is_active", true)
     .eq("verification_status", "verified")
     .order("created_at", { ascending: false });
 
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // P0.4: hand-rolled mapping read dead columns (organization, stipend, apply_link).
+  // Reuse mapDbOpportunityToClient — resolves org name + salary_range→stipend + apply_url.
+  const opportunities = (data || []).map((row: any) => {
+    const m = mapDbOpportunityToClient(row) || {};
+    return {
+      title: m.title,
+      organization: m.organization,
+      category: row.category,
+      location: m.location,
+      stipend: m.stipend,
+      deadline: m.deadline,
+      eligibility: m.eligibility,
+      tags: m.tags,
+      slug: m.slug,
+      url: `https://berojgardegreewala.vercel.app/opportunities/${m.slug}`,
+      apply_url: m.apply_link,
+      verification_status: m.verification_status,
+    };
+  });
+
   return NextResponse.json({
     platform: "BerojgarDegreeWala",
     description: "Electronics and semiconductor opportunities aggregator",
     last_updated: new Date().toISOString(),
-    total_count: data?.length || 0,
-    opportunities: (data || []).map((opp: { title: string; organization: string; category: string; location: string | null; stipend: string | null; deadline: string | null; eligibility: string | null; tags: string[]; slug: string; apply_link: string | null; official_page_url: string | null; verification_status: string }) => ({
-      title: opp.title,
-      organization: opp.organization,
-      category: opp.category,
-      location: opp.location,
-      stipend: opp.stipend,
-      deadline: opp.deadline,
-      eligibility: opp.eligibility,
-      tags: opp.tags,
-      url: `https://berojgardegreewala.vercel.app/opportunities/${opp.slug}`,
-      apply_url: opp.apply_link,
-      official_url: opp.official_page_url,
-      verification_status: opp.verification_status,
-    })),
+    total_count: opportunities.length,
+    opportunities,
   });
 }
