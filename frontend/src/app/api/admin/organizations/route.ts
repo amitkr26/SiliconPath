@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { requireAdmin, serverError } from "@berojgardegreewala/api";
+import { organizationCreateSchema, validateOrThrow } from "@/lib/validation";
 
 export async function GET(request: NextRequest) {
   try { await requireAdmin(request); }
@@ -46,11 +47,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // P0.5 mass-assignment: raw body was inserted as-is (dead-column fields
+    // like `headquarters` 400'd on PostgREST). strict() schema now rejects
+    // unknown keys outright.
     const body = await request.json();
+    const org = validateOrThrow(organizationCreateSchema, body);
 
     const { data, error } = await supabaseAdmin
       .from("organizations")
-      .insert([body])
+      .insert([org])
       .select()
       .single();
 

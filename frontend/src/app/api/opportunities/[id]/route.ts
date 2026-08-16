@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase, supabaseAdmin, isConfigured } from "@/lib/supabase";
 import { requireAdmin, serverError } from "@berojgardegreewala/api";
+import { adminOpportunityUpdateSchema, mapAdminOpportunityColumns, validateOrThrow } from "@/lib/validation";
+import { resolveOrganizationId } from "@/lib/scrapers/run-opportunity-scrape";
 
 export async function GET(
   request: NextRequest,
@@ -52,15 +54,30 @@ export async function PATCH(
     }
     try { await requireAdmin(request); } catch (e) { return e instanceof Response ? e : serverError("Unauthorized"); }
     const body = await request.json();
-    const { data, error } = await supabaseAdmin
+    // P0.5 mass-assignment: raw body was written straight to PostgREST. Now
+    // zod-validated + legacy-field-mapped (same path as /api/admin/opportunities).
+    const data = validateOrThrow(adminOpportunityUpdateSchema, body);
+    const { data: orgRows } = await supabaseAdmin
+      .from("organizations")
+      .select("id, name, slug, website");
+    const orgId = await resolveOrganizationId(
+      { title: data.title ?? "", organization: (data as any).organization, tags: data.tags },
+      orgRows ?? []
+    );
+    const columns = mapAdminOpportunityColumns(data);
+    const { data: updated, error } = await supabaseAdmin
       .from("opportunities")
-      .update(body)
+      .update({
+        ...columns,
+        ...(orgId ? { organization_id: orgId } : {}),
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", params.id)
       .select();
 
     if (error) throw error;
 
-    return NextResponse.json({ opportunity: data?.[0] });
+    return NextResponse.json({ opportunity: updated?.[0] });
   } catch (error) {
     console.error("Error updating opportunity:", error);
     return serverError("Failed to update opportunity");

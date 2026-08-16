@@ -101,22 +101,33 @@ export const adminOpportunityUpdateSchema = z.object({
   admin_notes: z.string().max(2000).optional(),
 });
 
-export const adminOrganizationSchema = z.object({
-  name: z.string().min(1).max(200),
-  slug: z.string().min(1).max(100),
-  type: z.enum(["Government PSU", "Research Lab", "Central University", "IIT/NIT", "Private MNC", "Private Indian", "Startup", "International University", "International Research Lab", "International Company"]),
-  country: z.string().max(100).default("India"),
-  headquarters: z.string().max(200).optional(),
-  state: z.string().max(100).optional(),
-  city: z.string().max(100).optional(),
-  founded_year: z.number().int().min(1800).max(2100).optional(),
-  employee_count_range: z.string().max(50).optional(),
-  specialties: z.array(z.string().max(100)).max(20).optional(),
-  industry: z.string().max(100).optional(),
-  is_active: z.boolean().default(true),
-  is_verified: z.boolean().default(false),
-  is_auto_scraped: z.boolean().default(true),
-  scrape_frequency: z.enum(["hourly", "daily", "weekly"]).default("daily"),
+// P0.5: admin create-organization body, matched to LIVE organizations columns
+// (verified 2026-08-16; the old schema carried dead columns like
+// `headquarters`/`founded_year` that 400'd on PostgREST). strict() rejects any
+// unknown key — mass-assignment defense for the raw-body admin route.
+export const organizationCreateSchema = z
+  .object({
+    name: z.string().min(1).max(200),
+    slug: z.string().min(1).max(100).optional(),
+    type: z.string().max(50).optional(),
+    country: z.string().max(100).optional(),
+    location: z.string().max(200).optional(),
+    website: z.string().url().max(500).optional(),
+    careers_url: z.string().url().max(500).optional(),
+    logo_url: z.string().url().max(500).optional(),
+    description: z.string().max(2000).optional(),
+    is_verified: z.boolean().optional(),
+    is_active: z.boolean().optional(),
+  })
+  .strict();
+
+// P0.5: employer application-status update body. Whitelist matches the live
+// lifecycle: `applied` (POST default) + the admin STATUS_FLOW values.
+export const applicationStatusUpdateSchema = z.object({
+  status: z
+    .enum(["applied", "submitted", "reviewed", "shortlisted", "accepted", "rejected"])
+    .optional(),
+  notes: z.string().max(2000).optional(),
 });
 
 export const resumeSchema = z.object({
