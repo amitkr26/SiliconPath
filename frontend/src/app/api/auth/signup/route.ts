@@ -11,6 +11,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
     }
 
+    // P0.5 RBAC: role is derived server-side from a whitelisted accountType —
+    // the client can never supply a role, and "admin" is unreachable here.
+    // Self-serve employer signup stays; admin is out-of-band only.
+    if (accountType !== "candidate" && accountType !== "provider") {
+      return NextResponse.json({ error: "Invalid account type." }, { status: 400 });
+    }
+
     if (!isAdminConfigured || !supabaseAdmin) {
       return NextResponse.json({ error: "Database admin not configured." }, { status: 503 });
     }

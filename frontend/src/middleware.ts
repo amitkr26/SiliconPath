@@ -32,6 +32,7 @@ const EMPLOYER_ONLY_PATHS = [
   '/post-job',
   '/employers',
   '/employer',
+  '/api/employer',
 ];
 
 function addSecurityHeaders(response: NextResponse): void {
@@ -142,6 +143,27 @@ export async function middleware(request: NextRequest) {
     url.pathname = '/login';
     url.searchParams.set('redirectTo', request.nextUrl.pathname);
     return NextResponse.redirect(url);
+  }
+
+  // P0.5 RBAC: server-side employer role gate (was login-only — any logged-in
+  // user could hit employer pages/APIs). Role lives in auth user_metadata
+  // (set at signup from accountType, editable via profile/me which rejects
+  // "admin"). Admin APIs are NOT gated here — the admin console authenticates
+  // via x-admin-password/HMAC tokens (no Supabase session), enforced
+  // fail-closed by requireAdmin at every /api/admin route.
+  if (isEmployerOnly && user) {
+    // Same role source the app's own checks use (useUser.ts falls back to
+    // account_type — legacy signups predate the `role` metadata field).
+    const role = user.user_metadata?.role as string | undefined;
+    const accountType = user.user_metadata?.account_type as string | undefined;
+    if (role !== "employer" && role !== "admin" && accountType !== "provider") {
+      if (path.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
   }
 
   addSecurityHeaders(supabaseResponse);

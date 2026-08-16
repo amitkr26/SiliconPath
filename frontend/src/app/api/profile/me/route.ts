@@ -11,7 +11,13 @@ export async function PATCH(request: NextRequest) {
   const body = await request.json();
   const { role, ...profileUpdates } = body;
 
-  if (role && (role === "employer" || role === "candidate" || role === "admin")) {
+  // P0.5 RBAC: "admin" is never client-settable — it was a self-serve
+  // privilege escalation. employer/candidate remain self-service; admin is
+  // granted out-of-band only (server-side secret-based admin console).
+  if (role === "admin") {
+    return NextResponse.json({ error: "Forbidden: admin role cannot be self-assigned" }, { status: 403 });
+  }
+  if (role && (role === "employer" || role === "candidate")) {
     const { error: authError } = await supabase.auth.updateUser({
       data: { role }
     });
