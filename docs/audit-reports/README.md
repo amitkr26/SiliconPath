@@ -6,7 +6,8 @@ All audit and validation reports for SiliconPath / BerojgarDegreeWala. Moved her
 
 | Report | Purpose |
 |--------|---------|
-| [2026-08-16-state-of-the-union.md](./2026-08-16-state-of-the-union.md) | **Latest — full State of the Union audit** (strategy, codebase reality, live-verified data quality, 7-day plan) |
+| [2026-08-16-implementation-map.md](./2026-08-16-implementation-map.md) | **Latest — implementation map** (code-level audit: P0 defect register, schema drift register, 12-phase plan with file-level tasks, decision points) |
+| [2026-08-16-state-of-the-union.md](./2026-08-16-state-of-the-union.md) | Full State of the Union audit (strategy, codebase reality, live-verified data quality, 7-day plan) |
 | [01-gap-analysis.md](./01-gap-analysis.md) | Comprehensive gap analysis covering all architectural dimensions |
 | [02-code-quality.md](./02-code-quality.md) | Dead code, duplicates, technical debt, anti-patterns, security risks |
 | [03-dependency-graphs.md](./03-dependency-graphs.md) | Repository graph, module dependencies, API dependencies, DB dependencies |
