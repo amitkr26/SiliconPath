@@ -1,9 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import { neon } from '@neondatabase/serverless';
 
-// ── DB1: Supabase Primary — Core public platform data ──
-// Tables: opportunities, news_articles, companies, scrapers_config,
-//         subscribers, suggestions, link_check_results
+// ── DB1: Supabase Primary — core platform + social + logs (live truth) ──
+// Tables: opportunities (+organizations), news_articles, user_profiles,
+//         connections, feed_posts, messages, saved_opportunities,
+//         applications, scrape_sources, scrape_runs, ai_usage_log,
+//         link_check_logs, opportunity_verifications (DDL pending)
 function getDb1() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return null;
@@ -19,10 +21,8 @@ function getDb1() {
   }
 }
 
-// ── DB2: Supabase Secondary — User & social layer ──
-// Tables: user_profiles, connections, feed_posts, messages,
-//         notifications, saved_opportunities, applications,
-//         community_posts, skill_endorsements, recommendations
+// ── DB2: Supabase Secondary — legacy social mirror (read-only fallback) ──
+// Retained for compat; live social tables were consolidated into db1.
 function getDb2() {
   if (!process.env.SUPABASE_2_URL || !process.env.SUPABASE_2_SERVICE_ROLE_KEY) {
     return null;
@@ -38,9 +38,9 @@ function getDb2() {
   }
 }
 
-// ── DB3: Neon Primary — Analytics & operational logs ──
-// Tables: scrape_logs, ai_usage_log, platform_events,
-//         link_check_logs, cron_health, error_logs
+// ── DB3: Neon1 — analytics, cache & mirrors ──
+// Tables: click_events, page_views, search_queries, trending_cache,
+//         keyword_stats, opportunities_mirror, news_mirror
 function getNeon1() {
   if (!process.env.NEON_1_DATABASE_URL) return null;
   try {
@@ -51,9 +51,8 @@ function getNeon1() {
   }
 }
 
-// ── DB4: Neon Secondary — Cache & search acceleration ──
-// Tables: trending_cache, popular_companies_cache,
-//         keyword_stats, opportunities_search_index, api_response_cache
+// ── DB4: Neon2 — cache mirror (subset of Neon1) ──
+// Tables: page_views, search_queries, click_events
 function getNeon2() {
   if (!process.env.NEON_2_DATABASE_URL) return null;
   try {

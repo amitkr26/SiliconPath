@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { requireAdmin, serverError } from "@berojgardegreewala/api";
-import { adminOpportunityUpdateSchema } from "@/lib/validation";
+import { adminOpportunityUpdateSchema, mapAdminOpportunityColumns } from "@/lib/validation";
 import { validateOrThrow } from "@/lib/validation";
+import { resolveOrganizationId } from "@/lib/scrapers/run-opportunity-scrape";
 
 export async function GET(
   request: NextRequest,
@@ -49,18 +50,33 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const updates = validateOrThrow(adminOpportunityUpdateSchema, body);
+    const data = validateOrThrow(adminOpportunityUpdateSchema, body);
 
-    const { data, error } = await supabaseAdmin
+    // P0.3/P0.5: same legacy-field mapping as POST (organization text → organization_id,
+    // stipend → salary_range, apply_link → apply_url).
+    const { data: orgRows } = await supabaseAdmin
+      .from("organizations")
+      .select("id, name, slug, website");
+    const orgId = await resolveOrganizationId(
+      { title: data.title ?? "", organization: (data as any).organization, tags: data.tags },
+      orgRows ?? []
+    );
+    const columns = mapAdminOpportunityColumns(data);
+
+    const { data: updated, error } = await supabaseAdmin
       .from("opportunities")
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({
+        ...columns,
+        ...(orgId ? { organization_id: orgId } : {}),
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", id)
       .select()
       .single();
 
     if (error) throw error;
 
-    return new Response(JSON.stringify({ opportunity: data }), { headers: { "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ opportunity: updated }), { headers: { "Content-Type": "application/json" } });
   } catch (error) {
     console.error("Admin update opportunity error:", error);
     return new Response(JSON.stringify({ error: "Failed to update" }), { status: 500, headers: { "Content-Type": "application/json" } });

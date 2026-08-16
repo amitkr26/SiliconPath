@@ -32,7 +32,7 @@ async function getDigestData(): Promise<DigestData> {
       .select("*")
       .eq("is_active", true)
       .or(`deadline.gte.${today},deadline.is.null`)
-      .order("apply_clicks", { ascending: false })
+      .order("view_count", { ascending: false })
       .limit(5),
   ]);
 

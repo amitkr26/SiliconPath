@@ -32,14 +32,15 @@ async function updateSourceHealth(sourceName: string, success: boolean, errorMsg
   try {
     if (success) {
       await supabaseAdmin.from("scrape_sources").update({
-        last_scraped_at: new Date().toISOString(),
+        last_scrape_at: new Date().toISOString(),
+        last_success_at: new Date().toISOString(),
         consecutive_failures: 0,
         last_error: null,
       }).eq("name", sourceName);
     } else {
       const { data } = await supabaseAdmin.from("scrape_sources").select("consecutive_failures").eq("name", sourceName).single();
       await supabaseAdmin.from("scrape_sources").update({
-        last_scraped_at: new Date().toISOString(),
+        last_scrape_at: new Date().toISOString(),
         consecutive_failures: (data?.consecutive_failures ?? 0) + 1,
         last_error: errorMsg || null,
       }).eq("name", sourceName);

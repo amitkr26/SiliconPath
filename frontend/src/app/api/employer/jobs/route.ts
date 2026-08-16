@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { resolveOrganizationId } from "@/lib/scrapers/run-opportunity-scrape";
 import { z } from "zod";
 
 const postJobSchema = z.object({
@@ -88,12 +89,23 @@ export async function POST(request: NextRequest) {
       oppSlug = `${oppSlug}-${Date.now()}`;
     }
 
+    // P0.3: resolve organization_id from the submitted org name (evidence-gated,
+    // creates the org row only when the name passes the person-name guard).
+    const { data: orgRows } = await supabaseAdmin
+      .from("organizations")
+      .select("id, name, slug, website");
+    const orgId = await resolveOrganizationId(
+      { title: body.title, organization: body.organization, tags: body.tags },
+      orgRows ?? []
+    );
+
     // Map exact schema attributes of live opportunities table with valid lowercase category constraint
     const insertPayload = {
       title: body.title,
       category: normalizeCategory(body.category),
       location: body.location || "India",
       country: "India",
+      organization_id: orgId,
       salary_range: body.stipend,
       eligibility: body.eligibility,
       description: body.description,
@@ -101,7 +113,7 @@ export async function POST(request: NextRequest) {
       tags: body.tags,
       slug: oppSlug,
       source_type: "employer_posted",
-      verification_status: "verified",
+      // P0.2: employer posts start unverified; only the admin verification queue promotes
       is_active: true,
     };
 

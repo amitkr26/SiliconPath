@@ -12,7 +12,7 @@ NEW OPPORTUNITIES (${opportunities.length}):
 ${opportunities
   .map(
     (o) =>
-      `- ${o.title} at ${o.organization} | Deadline: ${o.deadline} | ${o.stipend}`
+      `- ${o.title} at ${o.organization} | Deadline: ${o.deadline} | ${o.salary_range || o.stipend || "salary not listed"}`
   )
   .join("\n")}
 

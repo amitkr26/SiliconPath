@@ -16,6 +16,39 @@ export interface OpportunityScrapeResult {
 }
 
 /**
+ * P0.3: evidence-gated org resolution shared by every insert path.
+ * Returns the matching organizations.id, or null when no evidence passes the
+ * resolver's person-name guard. Only creates an org row when the resolved name
+ * is backed by domain/title evidence (confidence !== "none") — bare person-name
+ * strings never reach the create branch. Live schema: opportunities.organization_id uuid FK.
+ */
+export async function resolveOrganizationId(
+  opp: { apply_link?: string | null; source_url?: string | null; title?: string | null; organization?: string | null; tags?: string[] | null },
+  orgList: { id: string; name: string; slug: string | null; website: string | null }[]
+): Promise<string | null> {
+  const resolved = resolveOrganization({
+    sourceUrl: opp.apply_link || opp.source_url,
+    title: opp.title,
+    name: opp.organization,
+    organizations: orgList,
+  });
+  if (resolved.organizationId) return resolved.organizationId;
+  if (!resolved.name || resolved.confidence === "none") return null;
+  const orgSlug = slugify(resolved.name) || resolved.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").substring(0, 80);
+  const orgType = opp.tags?.includes("government") || ["ISRO","DRDO","CSIR"].includes(resolved.name)
+    ? "government"
+    : opp.tags?.includes("academic") || resolved.name.includes("IIT") || resolved.name.includes("NIT")
+    ? "academic"
+    : "private";
+  const { data: newOrg } = await supabaseAdmin
+    .from("organizations")
+    .insert([{ name: resolved.name, slug: orgSlug, type: orgType }])
+    .select("id")
+    .single();
+  return newOrg?.id ?? null;
+}
+
+/**
  * Shared opportunity-scraping pipeline (route -> service layer, mandate §36).
  * Used by /api/cron/scrape-opportunities (Vercel cron, P0.1) and /api/scrape (admin).
  * Real engine only — fabricated scrapers never flow through here.
@@ -73,32 +106,8 @@ export async function runOpportunityScrape(): Promise<OpportunityScrapeResult> {
       continue;
     }
 
-    // P0.3: evidence-gated org resolution (live schema: opportunities uses organization_id uuid FK)
-    let orgId: string | null = null;
-    const resolved = resolveOrganization({
-      sourceUrl: opp.apply_link || opp.source_url,
-      title: opp.title,
-      name: opp.organization,
-      organizations: orgList,
-    });
-    if (resolved.organizationId) {
-      orgId = resolved.organizationId;
-    } else if (resolved.name && resolved.confidence !== "none") {
-      // Name passed the person-name guard and is backed by domain/title evidence —
-      // safe to create. Bare person-name strings never reach here.
-      const orgSlug = slugify(resolved.name) || resolved.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").substring(0, 80);
-      const orgType = opp.tags?.includes("government") || ["ISRO","DRDO","CSIR"].includes(resolved.name)
-        ? "government"
-        : opp.tags?.includes("academic") || resolved.name.includes("IIT") || resolved.name.includes("NIT")
-        ? "academic"
-        : "private";
-      const { data: newOrg } = await supabaseAdmin
-        .from("organizations")
-        .insert([{ name: resolved.name, slug: orgSlug, type: orgType }])
-        .select("id")
-        .single();
-      orgId = newOrg?.id ?? null;
-    }
+    // P0.3: evidence-gated org resolution (shared helper — same rules for every insert path)
+    const orgId = await resolveOrganizationId(opp, orgList);
 
     // Normalize category to live CHECK constraint values (all lowercase)
     const CAT_MAP: Record<string, string> = {

@@ -94,7 +94,8 @@ export const adminOpportunityUpdateSchema = z.object({
   apply_link: z.string().url().max(1000).nullable().optional(),
   source_url: z.string().url().max(1000).nullable().optional(),
   apply_link_type: z.enum(["direct", "homepage", "pdf", "email", "portal"]).optional(),
-  verification_status: z.enum(["verified", "pending", "rejected", "expired", "link_unavailable"]).optional(),
+  // P0.5: live CHECK constraint allows only these values (verified 2026-08-16).
+  verification_status: z.enum(["verified", "unverified", "link_unavailable", "expired"]).optional(),
   is_active: z.boolean().optional(),
   tags: z.array(z.string().max(50)).max(20).optional(),
   admin_notes: z.string().max(2000).optional(),
@@ -138,4 +139,21 @@ export function validateOrThrow<T>(schema: z.ZodSchema<T>, data: unknown): T {
     throw new Error(first?.message || "Validation failed");
   }
   return result.data;
+}
+
+// P0.5: legacy admin form fields (organization text, stipend, apply_link,
+// apply_link_type) → live opportunities columns (organization_id via the
+// caller, salary_range, apply_url). `organization` text is dropped here.
+// Empty edit-form fields are skipped so they never clobber stored values;
+// on create, apply_url defaults to "" (NOT NULL) and salary_range to null.
+export function mapAdminOpportunityColumns(data: Record<string, unknown>, forCreate = false): Record<string, unknown> {
+  const { organization, stipend, apply_link, apply_link_type, ...rest } = data;
+  const out: Record<string, unknown> = { ...rest };
+  if (stipend && String(stipend).trim()) out.salary_range = stipend;
+  if (apply_link && String(apply_link).trim()) out.apply_url = apply_link;
+  if (forCreate) {
+    out.salary_range = out.salary_range ?? null;
+    out.apply_url = out.apply_url ?? "";
+  }
+  return out;
 }
