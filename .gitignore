@@ -18,6 +18,7 @@ yarn-error.log*
 .env.production
 siliconpath-credentials.txt
 SECRETS.md
+github-recovery-codes.txt
 
 # OS metadata
 .DS_Store
