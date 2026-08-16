@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   try {
     const { data: opp } = await supabaseAdmin
       .from("opportunities")
-      .select("id, apply_link")
+      .select("id, apply_url")
       .eq("id", opportunity_id)
       .single();
 
@@ -30,11 +30,11 @@ export async function POST(request: NextRequest) {
     let reachable = false;
     let errorMsg: string | null = null;
 
-    if (opp.apply_link) {
+    if (opp.apply_url) {
       try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 10000);
-        const response = await fetch(opp.apply_link, {
+        const response = await fetch(opp.apply_url, {
           method: "HEAD",
           signal: controller.signal,
           redirect: "follow",
@@ -56,12 +56,34 @@ export async function POST(request: NextRequest) {
       },
     ]);
 
+    // P0.2: a reachable link is evidence, not verification. Write the evidence
+    // ledger and only demote on unreachable — never promote to verified here
+    // (that requires the admin verification queue + source validation).
+    if (supabaseAdmin.from("opportunity_verifications")) {
+      const { error: vErr } = await supabaseAdmin.from("opportunity_verifications").insert([
+        {
+          opportunity_id: opp.id,
+          check_type: "link",
+          status: reachable ? "pass" : "fail",
+          source_url: opp.apply_url || null,
+          http_status: status,
+          error: errorMsg,
+          metadata: { via: "admin-recheck-link" },
+        },
+      ]);
+      if (vErr) console.error("opportunity_verifications insert error:", vErr.message);
+    }
+
     await supabaseAdmin
       .from("opportunities")
       .update({
         last_link_checked: new Date().toISOString(),
         link_check_status: status,
-        verification_status: reachable ? "verified" : "link_unavailable",
+        verification_status: reachable
+          ? opp.verification_status === "link_unavailable" || !opp.verification_status
+            ? "unverified"
+            : opp.verification_status
+          : "link_unavailable",
       })
       .eq("id", opp.id);
 

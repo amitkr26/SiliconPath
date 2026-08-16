@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { neonPrimary } from "@/lib/db";
 import { requireAdmin, serverError } from "@berojgardegreewala/api";
 
 export async function GET(request: NextRequest) {
@@ -29,13 +30,14 @@ export async function GET(request: NextRequest) {
     const catCount: Record<string, number> = {};
     (categoryData || []).forEach((o: { category?: string }) => { if (o.category) catCount[o.category] = (catCount[o.category] || 0) + 1; });
 
-    const { data: platformData } = await supabaseAdmin.from("platform_analytics")
-      .select("event_type, created_at").gte("created_at", monthAgo).order("created_at", { ascending: false });
+    // P0.4: platform_analytics does not exist — its live successor is Neon click_events.
+    const platformData = neonPrimary
+      ? await neonPrimary`SELECT event_type, created_at FROM click_events WHERE created_at >= ${monthAgo}`
+      : null;
 
     const pageViews = platformData?.filter((d: any) => d.event_type === "page_view").length || 0;
     const searches = platformData?.filter((d: any) => d.event_type === "search").length || 0;
     const applications_d = platformData?.filter((d: any) => d.event_type === "application").length || 0;
-
     return new Response(JSON.stringify({
       opportunities: opportunities || 0,
       newsArticles: news || 0,

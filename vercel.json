@@ -12,8 +12,12 @@
   ],
   "crons": [
     {
-      "path": "/api/scrapers/run-all",
+      "path": "/api/cron/scrape-opportunities",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/check-links",
+      "schedule": "0 8 * * *"
     },
     {
       "path": "/api/news/sync",

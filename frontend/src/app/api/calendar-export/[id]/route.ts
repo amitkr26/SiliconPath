@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { mapDbOpportunityToClient } from "@/lib/utils";
 
 export async function GET(
   _request: NextRequest,
@@ -23,6 +24,10 @@ export async function GET(
     return new NextResponse("No deadline date available", { status: 400 });
   }
 
+  // P0.4: live schema has organization_id/salary_range/apply_url, not the legacy
+  // text columns. Reuse the shared mapper to resolve org name + stipend + url.
+  const mapped = mapDbOpportunityToClient(opportunity) || {};
+
   const deadlineDate = new Date(opportunity.deadline);
   const now = new Date();
   const alarmDate = new Date(deadlineDate.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -32,14 +37,14 @@ export async function GET(
   }
 
   const escapedTitle = opportunity.title.replace(/[,;\\]/g, "\\$&");
-  const escapedOrg = (opportunity.organization || "").replace(/[,;\\]/g, "\\$&");
+  const escapedOrg = (mapped.organization || "").replace(/[,;\\]/g, "\\$&");
   const escapedDesc = [
-    `Organization: ${opportunity.organization || "N/A"}`,
+    `Organization: ${mapped.organization || "N/A"}`,
     `Eligibility: ${opportunity.eligibility || "N/A"}`,
-    `Stipend: ${opportunity.stipend || "Check official notice"}`,
+    `Stipend: ${mapped.stipend || "Check official notice"}`,
     opportunity.location ? `Location: ${opportunity.location}` : "",
-    opportunity.apply_link
-      ? `Apply: ${opportunity.apply_link}`
+    mapped.apply_link
+      ? `Apply: ${mapped.apply_link}`
       : "",
     "",
     "More opportunities: https://berojgardegreewala.vercel.app",

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { neonPrimary } from "@/lib/db";
+import { supabaseAdmin } from "@/lib/supabase";
 import { verifyAdmin } from "@/lib/admin-auth";
 
 export async function GET(request: Request) {
@@ -7,32 +7,54 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!neonPrimary) {
+  if (!supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
-  const result = await neonPrimary`
-    SELECT
-      feature,
-      provider,
-      model,
-      COUNT(*) AS total_calls,
-      SUM(CASE WHEN success THEN 1 ELSE 0 END) AS successful,
-      SUM(CASE WHEN success THEN 0 ELSE 1 END) AS failed,
-      AVG(prompt_length)::int AS avg_prompt_len,
-      AVG(response_length)::int AS avg_response_len,
-      MAX(created_at) AS last_used
-    FROM ai_usage_log
-    GROUP BY feature, provider, model
-    ORDER BY total_calls DESC
-    LIMIT 100
-  `;
+  // P0.4: ai_usage_log lives on Supabase db1, not Neon. Aggregated in JS —
+  // the table is admin-only and bounded (500 latest rows), so no GROUP BY RPC needed.
+  const { data: rows, error } = await supabaseAdmin
+    .from("ai_usage_log")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(500);
 
-  const recent = await neonPrimary`
-    SELECT * FROM ai_usage_log
-    ORDER BY created_at DESC
-    LIMIT 50
-  `;
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
-  return NextResponse.json({ aggregated: result, recent });
+  const byKey = new Map<string, {
+    feature: string; provider: string; model: string | null;
+    total_calls: number; successful: number; failed: number;
+    prompt_lengths: number[]; response_lengths: number[]; last_used: string;
+  }>();
+
+  for (const r of rows || []) {
+    const key = `${r.feature}|${r.provider}|${r.model ?? ""}`;
+    const agg = byKey.get(key) || {
+      feature: r.feature, provider: r.provider, model: r.model ?? null,
+      total_calls: 0, successful: 0, failed: 0,
+      prompt_lengths: [] as number[], response_lengths: [] as number[], last_used: r.created_at,
+    };
+    agg.total_calls++;
+    if (r.success) agg.successful++; else agg.failed++;
+    if (r.prompt_length != null) agg.prompt_lengths.push(r.prompt_length);
+    if (r.response_length != null) agg.response_lengths.push(r.response_length);
+    agg.last_used = agg.last_used > r.created_at ? agg.last_used : r.created_at;
+    byKey.set(key, agg);
+  }
+
+  const aggregated = [...byKey.values()].map((a) => ({
+    feature: a.feature,
+    provider: a.provider,
+    model: a.model,
+    total_calls: a.total_calls,
+    successful: a.successful,
+    failed: a.failed,
+    avg_prompt_len: a.prompt_lengths.length ? Math.round(a.prompt_lengths.reduce((x, y) => x + y, 0) / a.prompt_lengths.length) : 0,
+    avg_response_len: a.response_lengths.length ? Math.round(a.response_lengths.reduce((x, y) => x + y, 0) / a.response_lengths.length) : 0,
+    last_used: a.last_used,
+  }));
+
+  return NextResponse.json({ aggregated, recent: (rows || []).slice(0, 50) });
 }

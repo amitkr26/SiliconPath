@@ -1,6 +1,6 @@
 import { gateway } from "@berojgardegreewala/ai-gateway";
 import type { AIProvider } from "@berojgardegreewala/ai-gateway";
-import { neonPrimary } from "@/lib/db";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export type { AIProvider };
 export type AIResponse = { text: string; provider: AIProvider; model: string };
@@ -17,14 +17,21 @@ export interface AILogEntry {
 }
 
 async function logAIUsage(entry: AILogEntry) {
-  if (!neonPrimary) return;
+  // P0.4: ai_usage_log lives on Supabase db1 (migration 20260501000004), not Neon.
+  // Repointed 2026-08-16 — previously wrote to Neon where the table does not exist, so
+  // every AI log insert silently failed.
+  if (!supabaseAdmin) return;
   try {
-    await neonPrimary`
-      INSERT INTO ai_usage_log (feature, provider, model, prompt_length, response_length, success, error_message, cost_estimate)
-      VALUES (${entry.feature}, ${entry.provider}, ${entry.model},
-              ${entry.prompt_length}, ${entry.response_length},
-              ${entry.success}, ${entry.error_message}, ${entry.cost_estimate ?? 0})
-    `;
+    await supabaseAdmin.from("ai_usage_log").insert({
+      feature: entry.feature,
+      provider: entry.provider,
+      model: entry.model,
+      prompt_length: entry.prompt_length,
+      response_length: entry.response_length,
+      success: entry.success,
+      error_message: entry.error_message,
+      cost_estimate: entry.cost_estimate ?? 0,
+    });
   } catch {
     // silently fail — logging should never block the AI call
   }
