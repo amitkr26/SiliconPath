@@ -20,16 +20,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Notify post author
+  // Notify post author (P0.6: v2 feed_posts uses author_id, not user_id —
+  // the old lookup returned null so the post author was never notified).
   const { data: post } = await supabase
     .from("feed_posts")
-    .select("user_id")
+    .select("author_id")
     .eq("id", id)
     .single();
 
-  if (post && post.user_id !== user.id) {
+  if (post && post.author_id !== user.id) {
     await createNotification({
-      userId: post.user_id,
+      userId: post.author_id,
       type: "post_comment",
       actorId: user.id,
       entityType: "feed_post",

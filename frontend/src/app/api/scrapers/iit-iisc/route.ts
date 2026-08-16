@@ -5,5 +5,5 @@ import { runScraperRoute } from "../utils";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  return runScraperRoute(scrapeIndiaAcademic, "IIT / IISc Academic Scraper", ["IIT", "IISc", "Academia", "VLSI", "PhD"]);
+  return runScraperRoute(request, scrapeIndiaAcademic, "IIT / IISc Academic Scraper", ["IIT", "IISc", "Academia", "VLSI", "PhD"]);
 }

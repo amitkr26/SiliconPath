@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
   };
 
   return runScraperRoute(
+    request,
     masterGlobalScraper,
     "Global Master Scraper Runner (NASA, CERN, IMEC, TSMC, NVIDIA, Intel, AMD, ARM, Synopsys, Cadence, ASML)",
     ["Global Master", "Semiconductor", "Foundry", "EDA", "Verified"]

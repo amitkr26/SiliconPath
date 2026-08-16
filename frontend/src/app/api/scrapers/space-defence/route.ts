@@ -4,6 +4,7 @@ import { scrapeSpaceAndDefence } from "@/lib/scrapers/national-scrapers";
 
 export async function GET(request: NextRequest) {
   return runScraperRoute(
+    request,
     () => scrapeSpaceAndDefence(),
     "Space & Defence Scraper (DRDO, ISRO, BARC, DAE, HAL, BEL, BDL)",
     ["Space", "Defence", "DRDO", "ISRO"]

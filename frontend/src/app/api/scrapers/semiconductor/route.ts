@@ -5,5 +5,5 @@ import { runScraperRoute } from "../utils";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  return runScraperRoute(scrapeGlobalSemiconductor, "Global & India Semiconductor Companies Scraper", ["Semiconductor", "VLSI", "RTL", "Verification"]);
+  return runScraperRoute(request, scrapeGlobalSemiconductor, "Global & India Semiconductor Companies Scraper", ["Semiconductor", "VLSI", "RTL", "Verification"]);
 }
