@@ -348,7 +348,7 @@ RLS is enabled on all tables. Key policies:
 
 ## Related Documents
 
-- [Schema Audit Report](../reports/06-schema-audit.md)
-- [Migration Report](../reports/07-migration-report.md)
-- [Database Health Report](../reports/08-database-health.md)
+- [Schema Audit Report](../../docs/audit-reports/06-schema-audit.md)
+- [Migration Report](../../docs/audit-reports/07-migration-report.md)
+- [Database Health Report](../../docs/audit-reports/08-database-health.md)
 - [ER Diagram](./er-diagram.md)

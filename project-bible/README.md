@@ -16,11 +16,13 @@ This directory is the single source of truth for all engineering knowledge about
 
 | Path | Content |
 |------|---------|
-| `berojgardegreewala/` | Next.js 14 frontend + API (Vercel) |
+| `frontend/` | Next.js 14 frontend + API (Vercel) |
+| `backend/` | Workspaces: `api` (validation), `ai-gateway` (LLM gateway), `server` (Express mirror) |
 | `neon/` | Neon analytics database schema |
 | `project-bible/` | **You are here** — complete engineering documentation |
 | `scripts/` | Utility and setup scripts |
-| `docs/` | Legacy documentation index |
+| `docs/audit-reports/` | All audit & validation reports (moved here from `project-bible/reports/` on 2026-08-16) |
+| `docs/session-reports/` | Per-session work reports |
 
 ## Principles
 
@@ -32,4 +34,4 @@ This directory is the single source of truth for all engineering knowledge about
 
 ---
 
-*Last updated: 2026-07-13*
+*Last updated: 2026-08-16*

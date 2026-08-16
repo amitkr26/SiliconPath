@@ -19,6 +19,11 @@
       "command": ["node", ".opencode/mcp-servers/supabase-server.mjs"],
       "enabled": true,
       "timeout": 60000
+    },
+    "gitmcp": {
+      "type": "remote",
+      "url": "https://gitmcp.io/amitkr26/BerojgarDegreeWala",
+      "enabled": true
     }
   },
   "agent": {
