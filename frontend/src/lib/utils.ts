@@ -1,5 +1,6 @@
 import { clsx } from "clsx";
 import type { ClassValue } from "clsx";
+import { resolveOrganization } from "@/lib/organizations/resolve";
 
 export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
@@ -170,34 +171,20 @@ export function formatDate(dateStr: string): string {
 }
 
 function inferAuthenticOrganization(dbRow: any): string | null {
-  if (dbRow.organizations?.name) return dbRow.organizations.name;
-  if (dbRow.organization && dbRow.organization !== "Unknown Organization" && dbRow.organization !== "Semiconductor Institute") return dbRow.organization;
-
-  const url = (dbRow.apply_url || dbRow.apply_link || dbRow.source_url || "").toLowerCase();
-  const text = `${dbRow.title || ""} ${url} ${(dbRow.tags || []).join(" ")}`.toUpperCase();
-
-  if (url.includes("arm.com")) return "Arm Ltd";
-  if (url.includes("apple.com")) return "Apple";
-  if (url.includes("westerndigital.com") || url.includes("westerndigital")) return "Western Digital";
-  if (url.includes("qualcomm.com") || text.includes("QUALCOMM")) return "Qualcomm";
-  if (url.includes("intel.com") || text.includes("INTEL")) return "Intel Corporation";
-  if (url.includes("amd.com") || text.includes("AMD")) return "AMD";
-  if (url.includes("nvidia.com") || text.includes("NVIDIA")) return "NVIDIA";
-  if (url.includes("synopsys.com") || text.includes("SYNOPSYS")) return "Synopsys";
-  if (url.includes("cadence.com") || text.includes("CADENCE")) return "Cadence Design Systems";
-  if (url.includes("tataelectronics") || text.includes("TATA")) return "Tata Electronics";
-  if (url.includes("micron.com") || text.includes("MICRON")) return "Micron Technology";
-  if (url.includes("ti.com") || text.includes("TEXAS INSTRUMENTS")) return "Texas Instruments";
-  if (url.includes("drdo.gov.in") || text.includes("DRDO") || text.includes("SAG") || text.includes("DMSRDE")) return "DRDO";
-  if (url.includes("isro.gov.in") || text.includes("ISRO") || text.includes("SAC") || text.includes("URSC")) return "ISRO";
-  if (url.includes("csir.res.in") || text.includes("CSIR") || text.includes("CEERI")) return "CSIR";
-  if (url.includes("iitb.ac.in") || text.includes("IIT BOMBAY") || text.includes("IRCC")) return "IIT Bombay";
-  if (url.includes("iitm.ac.in") || text.includes("IIT MADRAS") || text.includes("ICSR")) return "IIT Madras";
-  if (url.includes("iisc.ac.in") || text.includes("IISC")) return "IISc Bangalore";
-  if (url.includes("scl.gov.in") || text.includes("SEMICONDUCTOR LABORATORY")) return "SCL Mohali";
-  if (url.includes("cdac.in") || text.includes("C-DAC")) return "C-DAC";
-
-  return null;
+  // P0.3: single resolver module owns org inference (domain/token/name/title
+  // evidence + person-name guard). Previously this function had its own URL map.
+  const r = resolveOrganization({
+    sourceUrl: dbRow.apply_url || dbRow.apply_link || dbRow.source_url,
+    title: dbRow.title,
+    name:
+      dbRow.organization &&
+      dbRow.organization !== "Unknown Organization" &&
+      dbRow.organization !== "Semiconductor Institute"
+        ? dbRow.organization
+        : null,
+    organizations: dbRow.organizations ? [dbRow.organizations] : [],
+  });
+  return r.name;
 }
 
 function inferCategoryLabel(dbRow: any): string {

@@ -3,6 +3,7 @@ import { fetchOpportunitiesFromRSS } from "@/lib/scrapers/rss-parser";
 import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper-impl";
 import { cleanTitle, slugify, normalizeUrl, GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
 import { enrichOpportunity } from "@/lib/scrapers/deep-scraper";
+import { resolveOrganization } from "@/lib/organizations/resolve";
 
 export interface OpportunityScrapeResult {
   sources: unknown[];
@@ -27,6 +28,12 @@ export async function runOpportunityScrape(): Promise<OpportunityScrapeResult> {
   const { opportunities: scrapedOpps, results: scrapeResults, total } = await scrapeAllOpportunities();
   const rssOpps = await fetchOpportunitiesFromRSS();
   const allOpportunities = [...scrapedOpps, ...rssOpps];
+  // P0.3: org table loaded once per run; resolution is evidence-gated
+  // (domain/token/name/title match, person-name guard) — never blind creation.
+  const { data: orgRows } = await supabaseAdmin
+    .from("organizations")
+    .select("id, name, slug, website");
+  const orgList = orgRows ?? [];
   let oppInserted = 0;
   let oppSkipped = 0;
   const newOppIds: { id: string; source_url: string; title: string; organization: string }[] = [];
@@ -66,30 +73,31 @@ export async function runOpportunityScrape(): Promise<OpportunityScrapeResult> {
       continue;
     }
 
-    // Resolve or create organization record (live schema: opportunities uses organization_id uuid FK)
+    // P0.3: evidence-gated org resolution (live schema: opportunities uses organization_id uuid FK)
     let orgId: string | null = null;
-    if (opp.organization) {
-      const orgSlug = opp.organization.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").substring(0, 80);
-      const { data: existingOrg } = await supabaseAdmin
+    const resolved = resolveOrganization({
+      sourceUrl: opp.apply_link || opp.source_url,
+      title: opp.title,
+      name: opp.organization,
+      organizations: orgList,
+    });
+    if (resolved.organizationId) {
+      orgId = resolved.organizationId;
+    } else if (resolved.name && resolved.confidence !== "none") {
+      // Name passed the person-name guard and is backed by domain/title evidence —
+      // safe to create. Bare person-name strings never reach here.
+      const orgSlug = slugify(resolved.name) || resolved.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").substring(0, 80);
+      const orgType = opp.tags?.includes("government") || ["ISRO","DRDO","CSIR"].includes(resolved.name)
+        ? "government"
+        : opp.tags?.includes("academic") || resolved.name.includes("IIT") || resolved.name.includes("NIT")
+        ? "academic"
+        : "private";
+      const { data: newOrg } = await supabaseAdmin
         .from("organizations")
+        .insert([{ name: resolved.name, slug: orgSlug, type: orgType }])
         .select("id")
-        .eq("name", opp.organization)
-        .maybeSingle();
-      if (existingOrg) {
-        orgId = existingOrg.id;
-      } else {
-        const orgType = opp.tags?.includes("government") || ["ISRO","DRDO","CSIR"].includes(opp.organization)
-          ? "government"
-          : opp.tags?.includes("academic") || opp.organization.includes("IIT") || opp.organization.includes("NIT")
-          ? "academic"
-          : "private";
-        const { data: newOrg } = await supabaseAdmin
-          .from("organizations")
-          .insert([{ name: opp.organization, slug: orgSlug, type: orgType }])
-          .select("id")
-          .single();
-        orgId = newOrg?.id ?? null;
-      }
+        .single();
+      orgId = newOrg?.id ?? null;
     }
 
     // Normalize category to live CHECK constraint values (all lowercase)
