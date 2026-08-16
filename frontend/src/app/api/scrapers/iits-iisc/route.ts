@@ -4,6 +4,7 @@ import { scrapeUniversitiesAndInstitutes } from "@/lib/scrapers/national-scraper
 
 export async function GET(request: NextRequest) {
   return runScraperRoute(
+    request,
     () => scrapeUniversitiesAndInstitutes(),
     "IITs & IISc Scraper (IIT Bombay, IIT Madras, IIT Delhi, IISc Bangalore, IISERs)",
     ["IIT", "IISc", "PhD", "JRF"]

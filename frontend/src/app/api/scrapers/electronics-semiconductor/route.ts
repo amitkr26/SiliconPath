@@ -4,6 +4,7 @@ import { scrapeElectronicsAndSemiconductor } from "@/lib/scrapers/national-scrap
 
 export async function GET(request: NextRequest) {
   return runScraperRoute(
+    request,
     () => scrapeElectronicsAndSemiconductor(),
     "Electronics & Semiconductor Scraper (C-DAC, SAMEER, SCL Mohali, MeitY, ISM)",
     ["Semiconductor", "Electronics", "C-DAC", "SCL Mohali"]

@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { normalizeCategory } from "@/lib/categories";
+import { requireCronOrAdmin, serverError } from "@berojgardegreewala/api";
 
 /**
  * ponytail: Shared scraper runner that executes a scraper function,
  * normalizes opportunity items, and upserts them into Supabase.
  * Keeps individual scraper API routes to under 15 lines of clean code.
+ * P0.6: every scraper now runs behind requireCronOrAdmin (they write with
+ * the service-role key) — single guard here covers all individual routes.
  */
 export async function runScraperRoute(
+  request: NextRequest,
   scraperFn: () => Promise<any[]>,
   scraperName: string,
   defaultTags: string[]
 ) {
+  try { await requireCronOrAdmin(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
+
   if (!isAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured" }, { status: 503 });
   }

@@ -4,6 +4,7 @@ import { scrapeScientificResearch } from "@/lib/scrapers/national-scrapers";
 
 export async function GET(request: NextRequest) {
   return runScraperRoute(
+    request,
     () => scrapeScientificResearch(),
     "Scientific Research Scraper (CSIR CEERI, NPL, CSIO, NAL, TIFR, NCBS)",
     ["Scientific Research", "CSIR", "TIFR"]

@@ -43,6 +43,7 @@ export async function GET(
   };
 
   return runScraperRoute(
+    request,
     scraperFn,
     `Master Scraper API [${slug.toUpperCase()}]`,
     [slug.toUpperCase(), "Verified Global Master Opening"]

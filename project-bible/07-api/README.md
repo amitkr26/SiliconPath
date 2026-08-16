@@ -75,9 +75,8 @@ BerojgarDegreeWala provides 74 API routes organized into public, protected, admi
 |-------|---------|
 | GET /api/auth/callback | Supabase auth callback |
 | GET /api/og | Open Graph image generation |
-| GET /api/revalidate | On-demand ISR revalidation |
 | GET /api/health | Health check |
-| **Total** | | **4** |
+| **Total** | | **3** |
 
 ## Response Patterns
 

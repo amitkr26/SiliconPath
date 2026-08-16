@@ -120,7 +120,6 @@
     "internal": [
       { "method": "GET", "path": "/api/auth/callback", "auth": "none" },
       { "method": "GET", "path": "/api/og", "auth": "none" },
-      { "method": "POST", "path": "/api/revalidate", "auth": "cron" },
       { "method": "GET", "path": "/api/health", "auth": "none" }
     ]
   }

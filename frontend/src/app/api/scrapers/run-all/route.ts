@@ -8,11 +8,11 @@ import {
   scrapeRailways,
   scrapeUniversitiesAndInstitutes
 } from "@/lib/scrapers/national-scrapers";
-import { requireCronOrAdmin, serverError } from "@berojgardegreewala/api";
 
 // QA audit: previously an unauthenticated GET-only route while the admin UI
 // POSTed to it (405) and Vercel cron needed protection. Now GET (Vercel cron)
-// and POST (admin UI) both run behind requireCronOrAdmin.
+// and POST (admin UI) both run behind requireCronOrAdmin — enforced centrally
+// inside the shared runScraperRoute (P0.6).
 const allScraperFn = async () => {
   let all: any[] = [];
   all = all.concat(await scrapeSpaceAndDefence());
@@ -25,15 +25,12 @@ const allScraperFn = async () => {
 };
 
 const run = (request: NextRequest) => {
-  return requireCronOrAdmin(request)
-    .then(() =>
-      runScraperRoute(
-        allScraperFn,
-        "Master National Scraper Runner (80+ Institutions Across Space, Defence, CSIR, Semiconductor, Railways, IITs & IISc)",
-        ["Master Sync", "National Scraper", "100% Verified"]
-      )
-    )
-    .catch((e) => (e instanceof Response ? e : serverError()));
+  return runScraperRoute(
+    request,
+    allScraperFn,
+    "Master National Scraper Runner (80+ Institutions Across Space, Defence, CSIR, Semiconductor, Railways, IITs & IISc)",
+    ["Master Sync", "National Scraper", "100% Verified"]
+  );
 };
 
 export async function GET(request: NextRequest) {

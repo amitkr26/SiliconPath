@@ -5,5 +5,5 @@ import { runScraperRoute } from "../utils";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  return runScraperRoute(scrapeISRO, "ISRO Careers Scraper", ["ISRO", "Space", "Avionics", "Electronics"]);
+  return runScraperRoute(request, scrapeISRO, "ISRO Careers Scraper", ["ISRO", "Space", "Avionics", "Electronics"]);
 }
