@@ -8,12 +8,20 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('applications')
-    .select('id, status, applied_at, notes, updated_at, opportunity:opportunities(id, title, organization, slug, deadline, location), user_profile:user_profiles!applications_user_id_fkey(display_name, avatar_url, headline)')
+    .select('id, status, applied_at, notes, updated_at, opportunity:opportunities(id, title, organization:organizations(name), slug, deadline, location), user_profile:user_profiles!applications_user_id_fkey(display_name, avatar_url, headline)')
     .eq('user_id', user.id)
     .order('applied_at', { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ applications: data });
+  // P0.4: live schema has no `organization` text — preserve the wire contract
+  // (client reads application.opportunity.organization as a string).
+  const applications = (data || []).map((app: any) => ({
+    ...app,
+    opportunity: app.opportunity
+      ? { ...app.opportunity, organization: app.opportunity.organization?.name ?? null }
+      : app.opportunity,
+  }));
+  return NextResponse.json({ applications });
 }
 
 // POST: record an application (created by the in-app "Apply Now" tracking).

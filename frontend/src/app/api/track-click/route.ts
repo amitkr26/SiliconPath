@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { neon1 } from "@/lib/db";
 import { serverError } from "@berojgardegreewala/api";
 
 export async function POST(request: NextRequest) {
@@ -21,25 +22,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: current } = await supabaseAdmin
-      .from("opportunities")
-      .select("apply_clicks")
-      .eq("id", opportunity_id)
-      .single();
-
-    // ponytail: apply_clicks may not exist on older DBs — if the column is
-    // missing, drop the click-tracking (never fail the apply flow for it).
-    // Upgrade path: ALTER TABLE opportunities ADD COLUMN apply_clicks bigint DEFAULT 0;
-    if (current && "apply_clicks" in current) {
-      const currentClicks = current.apply_clicks || 0;
-      const { error } = await supabaseAdmin
-        .from("opportunities")
-        .update({ apply_clicks: currentClicks + 1 })
-        .eq("id", opportunity_id);
-      if (error) {
-        console.error("Error tracking click:", error);
-        return NextResponse.json({ success: true });
-      }
+    // P0.4: apply_clicks column no longer exists on live opportunities —
+    // clicks now land in Neon click_events (event_type 'apply_click'), the
+    // table analytics/platform + admin/analytics already read.
+    if (neon1) {
+      await neon1`
+        INSERT INTO click_events (opportunity_id, event_type)
+        VALUES (${String(opportunity_id)}, 'apply_click')
+      `.catch((err: unknown) => {
+        console.error("Error tracking click:", err);
+      });
     }
 
     return NextResponse.json({ success: true });

@@ -13,11 +13,22 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from("opportunities")
-    .select("*", { count: "exact" })
+    .select("*, organization:organizations(name)", { count: "exact" })
     .eq("is_active", true);
 
   if (q) {
-    query = query.or(`title.ilike.%${q}%,organization.ilike.%${q}%,description.ilike.%${q}%,tags.cs.{${q}}`);
+    // P0.5: no legacy `organization` text filter — match the query against org
+    // names in the (small) organizations table, then filter by organization_id.
+    const { data: orgMatches } = await supabase
+      .from("organizations")
+      .select("id")
+      .ilike("name", `%${q}%`)
+      .limit(10);
+    const orgIds = (orgMatches ?? []).map((o: any) => o.id);
+    const titleTags = `title.ilike.%${q}%,description.ilike.%${q}%,tags.cs.{${q}}`;
+    query = orgIds.length > 0
+      ? query.or(`${titleTags},organization_id.in.(${orgIds.join(",")})`)
+      : query.or(titleTags);
   }
   if (category) {
     query = query.eq("category", category);
@@ -27,9 +38,14 @@ export async function GET(request: NextRequest) {
   }
 
   const { data, count, error } = await query
-    .order("posted_at", { ascending: false })
+    .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) return apiError(error, "search-opportunities");
-  return NextResponse.json({ opportunities: data || [], count: count || 0 });
+  // Preserve the wire contract: legacy `organization` text rendered as the embedded org name.
+  const opportunities = (data || []).map((opp: any) => ({
+    ...opp,
+    organization: opp.organization?.name ?? null,
+  }));
+  return NextResponse.json({ opportunities, count: count || 0 });
 }

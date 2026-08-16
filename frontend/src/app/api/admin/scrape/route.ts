@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const { sourceIds } = body;
 
     const sources = await supabaseAdmin
-      .from("scraper_sources")
+      .from("scrape_sources")
       .select("*")
       .eq("is_active", true);
 
@@ -51,9 +51,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const { data, error } = await supabaseAdmin
-      .from("scraper_sources")
+      .from("scrape_sources")
       .select("*")
-      .order("last_scraped_at", { ascending: false, nullsFirst: true });
+      .order("last_scrape_at", { ascending: false, nullsFirst: true });
 
     if (error) throw error;
 

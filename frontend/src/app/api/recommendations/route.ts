@@ -13,15 +13,21 @@ export async function GET(request: NextRequest) {
   const userInterests = (profile?.interests as string[]) || [];
 
   const { data: opportunities } = await supabase.from("opportunities")
-    .select("id, title, organization, location, category, tags, is_active, deadline, description")
+    .select("id, title, organization:organizations(name), location, category, tags, is_active, deadline, description")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(100);
 
   if (!opportunities) return NextResponse.json({ recommendations: [] });
 
+  // P0.4: live schema has no `organization` text — resolve the embedded name for scoring.
+  const withOrg = opportunities.map((opp: any) => ({
+    ...opp,
+    organization: opp.organization?.name ?? null,
+  }));
+
   const keywords = [...new Set([...userSkills, ...userInterests].map(s => s.toLowerCase()))];
-  const scored = opportunities.map(opp => {
+  const scored = withOrg.map(opp => {
     const text = [opp.title, opp.description || "", opp.category, ...(opp.tags || [])]
       .filter(Boolean).join(" ").toLowerCase();
     let score = 0;

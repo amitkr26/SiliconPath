@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { requireAdmin, serverError, forbidden } from "@berojgardegreewala/api";
-import { adminOpportunityUpdateSchema } from "@/lib/validation";
+import { adminOpportunityUpdateSchema, mapAdminOpportunityColumns } from "@/lib/validation";
 import { validateOrThrow } from "@/lib/validation";
+import { resolveOrganizationId } from "@/lib/scrapers/run-opportunity-scrape";
 
 async function guard(request: NextRequest) {
   try {
@@ -75,9 +76,26 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = validateOrThrow(adminOpportunityUpdateSchema, body);
 
+    // P0.3/P0.5: resolve org from the submitted text name (evidence-gated) and
+    // map legacy form fields (stipend/apply_link/organization) to live columns.
+    const { data: orgRows } = await supabaseAdmin
+      .from("organizations")
+      .select("id, name, slug, website");
+    const orgId = await resolveOrganizationId(
+      { title: data.title, organization: (data as any).organization, tags: data.tags },
+      orgRows ?? []
+    );
+    const columns = mapAdminOpportunityColumns(data, true);
+
     const { data: opportunity, error } = await supabaseAdmin
       .from("opportunities")
-      .insert({ ...data, verification_status: "pending", is_active: true })
+      .insert({
+        ...columns,
+        ...(orgId ? { organization_id: orgId } : {}),
+        // P0.2: new inserts are unverified (live CHECK: verified|unverified|link_unavailable|expired)
+        verification_status: "unverified",
+        is_active: true,
+      })
       .select()
       .single();
 

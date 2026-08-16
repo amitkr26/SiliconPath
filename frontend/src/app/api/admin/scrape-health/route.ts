@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
   const { data: recentOpps } = await supabaseAdmin
     .from("opportunities")
-    .select("id, title, organization, category, created_at, verification_status")
+    .select("id, title, organization:organizations(name), category, created_at, verification_status")
     .order("created_at", { ascending: false })
     .limit(20);
 
@@ -42,6 +42,10 @@ export async function GET(request: NextRequest) {
     },
     runs: runs || [],
     sources: sources || [],
-    recent_opportunities: recentOpps || [],
+    // P0.4: live schema has no `organization` text — render embedded org name.
+    recent_opportunities: (recentOpps || []).map((o: any) => ({
+      ...o,
+      organization: o.organization?.name ?? null,
+    })),
   }), { headers: { "Content-Type": "application/json" } });
 }

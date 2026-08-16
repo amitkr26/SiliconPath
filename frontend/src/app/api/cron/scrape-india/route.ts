@@ -7,6 +7,7 @@ import { scrapeCSIR } from "@/lib/scrapers/csir-scraper";
 import { scrapeIndiaPSU } from "@/lib/scrapers/india-psu-scraper";
 import { scrapeIndiaAcademic } from "@/lib/scrapers/india-academic-scraper";
 import { cleanTitle, normalizeUrl, slugify } from "@/lib/scrapers/utils";
+import { resolveOrganizationId } from "@/lib/scrapers/run-opportunity-scrape";
 import { requireCron, serverError } from "@berojgardegreewala/api";
 
 export async function GET(request: NextRequest) {
@@ -40,6 +41,12 @@ export async function GET(request: NextRequest) {
         sourceStats.push({ source: name, success: false, error: String(r.reason) });
       }
     }
+
+    // P0.3: org table loaded once per run; evidence-gated resolution shared with the main pipeline.
+    const { data: orgRows } = await supabaseAdmin
+      .from("organizations")
+      .select("id, name, slug, website");
+    const orgList = orgRows ?? [];
 
     let inserted = 0;
     let skipped = 0;
@@ -77,18 +84,19 @@ export async function GET(request: NextRequest) {
         .insert([{
           title: cTitle,
           slug: oppSlug,
-          organization: opp.organization,
+          organization_id: await resolveOrganizationId(opp, orgList),
           category: normalizeCategory(opp.category),
           location: opp.location,
           salary_range: opp.stipend,
           deadline: opp.deadline,
           eligibility: opp.eligibility,
           description: opp.description,
-          apply_url: opp.apply_link,
+          apply_url: opp.apply_link || normUrl,
           source_url: normUrl,
           tags: opp.tags,
-          verification_status: "verified",
+          // P0.2: never fabricate `verified`; new inserts default unverified
           is_active: true,
+          source_type: "scraped",
         }]);
 
       if (!error) inserted++;
