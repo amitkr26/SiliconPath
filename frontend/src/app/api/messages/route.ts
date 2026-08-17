@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 import { messageSchema, validateOrThrow } from "@/lib/validation";
 
 interface ConvRow {
@@ -24,7 +25,7 @@ export async function GET() {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: convs, error } = await supabase
+  const { data: convs, error } = await supabaseAdmin
     .from("conversations")
     .select("id, participant_a, participant_b, last_message_at")
     .or(`participant_a.eq.${user.id},participant_b.eq.${user.id}`)
@@ -35,13 +36,13 @@ export async function GET() {
   const enriched = await Promise.all(
     ((convs || []) as ConvRow[]).map(async (c) => {
       const otherId = c.participant_a === user.id ? c.participant_b : c.participant_a;
-      const { data: profile } = await supabase
+      const { data: profile } = await supabaseAdmin
         .from("user_profiles")
         .select("id, display_name, avatar_url, headline")
         .eq("id", otherId)
         .maybeSingle();
 
-      const { data: last } = await supabase
+      const { data: last } = await supabaseAdmin
         .from("messages")
         .select("body, created_at")
         .eq("conversation_id", c.id)
@@ -49,7 +50,7 @@ export async function GET() {
         .limit(1)
         .maybeSingle();
 
-      const { count: unread } = await supabase
+      const { count: unread } = await supabaseAdmin
         .from("messages")
         .select("id", { count: "exact", head: true })
         .eq("conversation_id", c.id)
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
   const a = user.id < participantId ? user.id : participantId;
   const b = user.id < participantId ? participantId : user.id;
 
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseAdmin
     .from("conversations")
     .select("id")
     .eq("participant_a", a)
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
   if (existing) {
     conversationId = existing.id;
   } else {
-    const { data: created, error: createErr } = await supabase
+    const { data: created, error: createErr } = await supabaseAdmin
       .from("conversations")
       .insert({ participant_a: a, participant_b: b })
       .select("id")
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
     conversationId = created.id;
   }
 
-  const { data: message, error: msgErr } = await supabase
+  const { data: message, error: msgErr } = await supabaseAdmin
     .from("messages")
     .insert({ conversation_id: conversationId, sender_id: user.id, body: content })
     .select()
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
 
   if (msgErr) return NextResponse.json({ error: msgErr.message }, { status: 500 });
 
-  await supabase
+  await supabaseAdmin
     .from("conversations")
     .update({ last_message_at: new Date().toISOString() })
     .eq("id", conversationId);

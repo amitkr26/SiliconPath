@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 // v2 schema: feed_posts.author_id (was user_id).
+// Uses supabaseAdmin for DB ops after auth + ownership check.
 export async function DELETE(_request: NextRequest, { params }: { params: { id: string } | Promise<{ id: string }> }) {
   const resolvedParams = params instanceof Promise ? await params : params;
   const id = resolvedParams?.id;
@@ -11,7 +13,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { error } = await supabase.from("feed_posts").delete().eq("id", id).eq("author_id", user.id);
+  const { error } = await supabaseAdmin.from("feed_posts").delete().eq("id", id).eq("author_id", user.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
 }
@@ -33,7 +35,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }
 
-  const { error } = await supabase.from("feed_posts").update(patch).eq("id", id).eq("author_id", user.id);
+  const { error } = await supabaseAdmin.from("feed_posts").update(patch).eq("id", id).eq("author_id", user.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
 }

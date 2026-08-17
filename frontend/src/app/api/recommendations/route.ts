@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: profile } = await supabase.from("user_profiles")
+  const { data: profile } = await supabaseAdmin.from("user_profiles")
     .select("skills, interests, current_company, headline").eq("id", user.id).single();
 
   const userSkills = (profile?.skills as string[]) || [];
   const userInterests = (profile?.interests as string[]) || [];
 
-  const { data: opportunities } = await supabase.from("opportunities")
+  const { data: opportunities } = await supabaseAdmin.from("opportunities")
     .select("id, title, organization:organizations(name), location, category, tags, is_active, deadline, description")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
@@ -21,13 +22,13 @@ export async function GET(request: NextRequest) {
   if (!opportunities) return NextResponse.json({ recommendations: [] });
 
   // P0.4: live schema has no `organization` text — resolve the embedded name for scoring.
-  const withOrg = opportunities.map((opp: any) => ({
+  const withOrg = opportunities.map((opp: Record<string, any>) => ({
     ...opp,
     organization: opp.organization?.name ?? null,
   }));
 
   const keywords = [...new Set([...userSkills, ...userInterests].map(s => s.toLowerCase()))];
-  const scored = withOrg.map(opp => {
+  const scored = withOrg.map((opp: Record<string, any>) => {
     const text = [opp.title, opp.description || "", opp.category, ...(opp.tags || [])]
       .filter(Boolean).join(" ").toLowerCase();
     let score = 0;
@@ -41,6 +42,6 @@ export async function GET(request: NextRequest) {
   });
 
   return NextResponse.json({
-    recommendations: scored.filter(o => o.score > 0).sort((a, b) => b.score - a.score).slice(0, 10),
+    recommendations: scored.filter((o: { score: number }) => o.score > 0).sort((a: { score: number }, b: { score: number }) => b.score - a.score).slice(0, 10),
   });
 }

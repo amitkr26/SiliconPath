@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 import { applicationStatusUpdateSchema, validateOrThrow } from "@/lib/validation";
 
 export async function PATCH(
@@ -22,7 +23,7 @@ export async function PATCH(
   const body = await request.json();
   const updates = validateOrThrow(applicationStatusUpdateSchema, body);
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("applications")
     .update({ ...updates, updated_at: new Date().toISOString() })
     .eq("id", params.id)
@@ -46,7 +47,7 @@ export async function DELETE(
 
   // P0.5 IDOR: DELETE was unscoped — any authenticated user could delete any
   // application by id. Now owner-scoped; a non-owned id returns 404.
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("applications")
     .delete()
     .eq("id", params.id)

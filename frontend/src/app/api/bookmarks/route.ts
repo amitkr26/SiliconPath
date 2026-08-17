@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -11,9 +12,9 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
   const offset = parseInt(searchParams.get("offset") || "0");
 
-  let query = supabase
+  let query = supabaseAdmin
     .from("saved_opportunities")
-    .select("id, user_id, opportunity_id, created_at, opportunities(*)", { count: "exact" })
+    .select("id, user_id, opportunity_id, created_at, opportunities(*, organizations(*))", { count: "exact" })
     .eq("user_id", user.id);
 
   if (opportunityId) {
@@ -26,15 +27,22 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     console.error("GET /api/bookmarks DB Error:", error);
-    // Fallback if join fails
-    const { data: fallback, count: fCount } = await supabase
+    const { data: fallback, count: fCount } = await supabaseAdmin
       .from("saved_opportunities")
-      .select("*", { count: "exact" })
+      .select("id, user_id, opportunity_id, created_at", { count: "exact" })
       .eq("user_id", user.id);
     return NextResponse.json({ bookmarks: fallback || [], count: fCount || 0 });
   }
 
-  return NextResponse.json({ bookmarks: data || [], count: count || 0 });
+  const mapped = (data || []).map((b: any) => ({
+    ...b,
+    opportunities: b.opportunities ? {
+      ...b.opportunities,
+      organization: b.opportunities.organizations?.name || b.opportunities.organization || "Semiconductor Institute",
+    } : null,
+  }));
+
+  return NextResponse.json({ bookmarks: mapped, count: count || 0 });
 }
 
 export async function POST(request: NextRequest) {
@@ -50,7 +58,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Check if already bookmarked to keep operation idempotent and prevent 409 ApiError exceptions
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseAdmin
     .from("saved_opportunities")
     .select("*, opportunities(*)")
     .eq("user_id", user.id)
@@ -61,7 +69,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ bookmark: existing, alreadyBookmarked: true }, { status: 200 });
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("saved_opportunities")
     .insert({ user_id: user.id, opportunity_id: opportunityId })
     .select("*, opportunities(*)")
@@ -69,7 +77,7 @@ export async function POST(request: NextRequest) {
 
   if (error) {
     if (error.code === "23505") {
-      const { data: found } = await supabase
+      const { data: found } = await supabaseAdmin
         .from("saved_opportunities")
         .select("*, opportunities(*)")
         .eq("user_id", user.id)

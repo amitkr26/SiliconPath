@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 async function assertParticipant(
   supabase: Awaited<ReturnType<typeof createClient>>,
   conversationId: string,
   userId: string
 ) {
-  const { data: conv } = await supabase
+  const { data: conv } = await supabaseAdmin
     .from("conversations")
     .select("id, participant_a, participant_b")
     .eq("id", conversationId)
@@ -30,7 +31,7 @@ export async function GET(_request: NextRequest, { params }: { params: { convers
   const check = await assertParticipant(supabase, conversationId, user.id);
   if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status });
 
-  const { data: messages, error } = await supabase
+  const { data: messages, error } = await supabaseAdmin
     .from("messages")
     .select("*")
     .eq("conversation_id", conversationId)
@@ -39,7 +40,7 @@ export async function GET(_request: NextRequest, { params }: { params: { convers
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Mark incoming messages read.
-  await supabase
+  await supabaseAdmin
     .from("messages")
     .update({ is_read: true })
     .eq("conversation_id", conversationId)
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest, { params }: { params: { convers
     return NextResponse.json({ error: "Content required" }, { status: 400 });
   }
 
-  const { data: message, error } = await supabase
+  const { data: message, error } = await supabaseAdmin
     .from("messages")
     .insert({ conversation_id: conversationId, sender_id: user.id, body: String(content) })
     .select()
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest, { params }: { params: { convers
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  await supabase
+  await supabaseAdmin
     .from("conversations")
     .update({ last_message_at: new Date().toISOString() })
     .eq("id", conversationId);

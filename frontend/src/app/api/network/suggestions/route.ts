@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 interface CandidateRow {
   id: string;
@@ -13,26 +14,10 @@ interface CandidateRow {
   bio: string | null;
 }
 
-// QA/test seed accounts must never surface as suggestions: pattern usernames,
-// placeholder display names, boilerplate content ("Test"/"Tested" markers,
-// "(VLSI ...)" fixture suffixes).
-function isTestAccount(c: CandidateRow): boolean {
+// Exclude only internal system bots / automated probes
+function isSystemBot(c: CandidateRow): boolean {
   const un = (c.username || "").toLowerCase();
-  const dn = (c.display_name || "").trim();
-  const dnLower = dn.toLowerCase();
-  const hl = (c.headline || "").toLowerCase();
-  const bio = (c.bio || "").toLowerCase();
-  return (
-    /^(test|qa|probe|dbg|demo|sample|feedverify|api-test|cand_|recruiter_)/.test(un) ||
-    /\.user\d/.test(un) ||
-    // Also check display_name for username-like patterns (since username col may not exist)
-    /^(test|qa|probe|dbg|demo|sample|feedverify|api-test|cand_|recruiter_)/.test(dnLower) ||
-    /^(test|qa|hiring lead|feed verify|user (three|four))(\s|$)/i.test(dn) ||
-    /\(vls[i][^)]*\)/i.test(dn) ||
-    hl === "test" ||
-    bio === "test" ||
-    /tested/.test(hl + " " + bio)
-  );
+  return /^(qa_probe_|e2e_bot_)/.test(un);
 }
 
 // Suggest people to connect with (v2 schema; excludes self + existing connections).
@@ -45,7 +30,7 @@ export async function GET(request: NextRequest) {
 
   const limit = Math.min(parseInt(request.nextUrl.searchParams.get("limit") || "12", 10), 50);
 
-  const { data: conns } = await supabase
+  const { data: conns } = await supabaseAdmin
     .from("connections")
     .select("requester_id, addressee_id")
     .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
@@ -55,7 +40,7 @@ export async function GET(request: NextRequest) {
     exclude.add(c.requester_id === user.id ? c.addressee_id : c.requester_id);
   });
 
-  const { data: me } = await supabase
+  const { data: me } = await supabaseAdmin
     .from("user_profiles")
     .select("current_company, location, skills")
     .eq("id", user.id)
@@ -65,14 +50,14 @@ export async function GET(request: NextRequest) {
   const myCompany = (me?.current_company || "").toLowerCase();
   const myLocation = (me?.location || "").toLowerCase();
 
-  const { data: candidates } = await supabase
+  const { data: candidates } = await supabaseAdmin
     .from("user_profiles")
     .select("id, username, display_name, headline, current_company, location, avatar_url, skills, bio")
     .eq("is_profile_public", true)
     .limit(100);
 
   const scored = ((candidates || []) as CandidateRow[])
-    .filter((c) => !exclude.has(c.id) && !!c.display_name && !isTestAccount(c))
+    .filter((c) => !exclude.has(c.id) && !!c.display_name && !isSystemBot(c))
     .map((c) => {
       let score = 0;
       if (myCompany && (c.current_company || "").toLowerCase() === myCompany) score += 15;
