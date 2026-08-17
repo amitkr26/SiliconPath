@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db1, db2, neonPrimary, neonSecondary } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 async function checkSupabase(client: any, tableName = "opportunities"): Promise<"ok" | "error"> {
   if (!client) return "error";
   try {
@@ -48,7 +50,7 @@ export async function GET() {
     try {
       const { data: opp } = await db1
         .from("opportunities")
-        .select("created_at", { count: "exact", head: true })
+        .select("created_at")
         .order("created_at", { ascending: false })
         .limit(1);
       if (opp && opp.length > 0) lastScrape = opp[0].created_at;
@@ -60,7 +62,7 @@ export async function GET() {
 
       const { data: news } = await db1
         .from("news_articles")
-        .select("created_at", { count: "exact", head: true })
+        .select("created_at")
         .order("created_at", { ascending: false })
         .limit(1);
       if (news && news.length > 0) lastNews = news[0].created_at;
