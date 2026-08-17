@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 interface PersonRow {
   id: string;
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
   const theirId = searchParams.get("theirId");
 
   if (myId && theirId) {
-    const { data: rel } = await supabase
+    const { data: rel } = await supabaseAdmin
       .from("connections")
       .select("status")
       .or(
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ status: rel?.status || "none" });
   }
 
-  const { data: conns } = await supabase
+  const { data: conns } = await supabaseAdmin
     .from("connections")
     .select("requester_id, addressee_id, status")
     .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
   );
   if (ids.length === 0) return NextResponse.json({ connections: [] });
 
-  let query = supabase
+  let query = supabaseAdmin
     .from("user_profiles")
     .select("id, display_name, headline, current_company, avatar_url")
     .in("id", ids);

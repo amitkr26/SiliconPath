@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
@@ -6,7 +7,7 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('applications')
     .select('id, status, applied_at, notes, updated_at, opportunity:opportunities(id, title, organization:organizations(name), slug, deadline, location), user_profile:user_profiles!applications_user_id_fkey(display_name, avatar_url, headline)')
     .eq('user_id', user.id)
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
   const { opportunity_id, status = 'applied' } = body;
   if (!opportunity_id) return NextResponse.json({ error: 'opportunity_id required' }, { status: 400 });
 
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseAdmin
     .from('applications')
     .select('id')
     .eq('user_id', user.id)
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
     .maybeSingle();
   if (existing) return NextResponse.json({ application: existing, alreadyApplied: true }, { status: 200 });
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('applications')
     .insert({ user_id: user.id, opportunity_id, status })
     .select()
@@ -67,7 +68,7 @@ export async function PATCH(request: Request) {
   if (status) updates.status = status;
   if (notes !== undefined) updates.notes = notes;
 
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('applications')
     .update(updates)
     .eq('id', id)
@@ -85,7 +86,7 @@ export async function DELETE(request: Request) {
   const { id } = await request.json();
   if (!id) return NextResponse.json({ error: 'Application ID required' }, { status: 400 });
 
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('applications')
     .delete()
     .eq('id', id)

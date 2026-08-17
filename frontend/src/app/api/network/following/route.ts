@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -9,16 +10,16 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("userId") || user.id;
 
-  const { data: follows } = await supabase
+  const { data: follows } = await supabaseAdmin
     .from("user_follows")
     .select("following_id, created_at")
     .eq("follower_id", userId);
 
   if (!follows || follows.length === 0) return NextResponse.json({ following: [] });
 
-  const followingIds = follows.map((f) => f.following_id);
+  const followingIds = follows.map((f: { following_id: string }) => f.following_id);
 
-  const { data: profiles } = await supabase
+  const { data: profiles } = await supabaseAdmin
     .from("user_profiles")
     .select("*")
     .in("id", followingIds);

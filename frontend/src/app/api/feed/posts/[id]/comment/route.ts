@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 import { createNotification } from "@/lib/notifications";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const { content, parentCommentId } = await request.json();
   if (!content) return NextResponse.json({ error: "Content required" }, { status: 400 });
 
-  const { data, error } = await supabase.from("feed_post_comments").insert({
+  const { data, error } = await supabaseAdmin.from("feed_post_comments").insert({
     post_id: id,
     user_id: user.id,
     content,
@@ -20,9 +21,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Notify post author (P0.6: v2 feed_posts uses author_id, not user_id —
-  // the old lookup returned null so the post author was never notified).
-  const { data: post } = await supabase
+  // Notify post author (v2 feed_posts uses author_id).
+  const { data: post } = await supabaseAdmin
     .from("feed_posts")
     .select("author_id")
     .eq("id", id)
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { id } = await params;
   const supabase = await createClient();
   
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("feed_post_comments")
     .select("*, user_profile:user_profiles!feed_post_comments_user_id_profile_fkey(display_name, username, avatar_url)")
     .eq("post_id", id)

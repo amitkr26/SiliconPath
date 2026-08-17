@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function PATCH(
   request: NextRequest,
@@ -20,8 +21,8 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
-  // Update connections table (primary Supabase DB)
-  let { data, error } = await supabase
+  // Update connections table via supabaseAdmin (RLS bypass)
+  let { data, error } = await supabaseAdmin
     .from("connections")
     .update({ status, updated_at: new Date().toISOString() })
     .eq("id", id)
@@ -31,7 +32,7 @@ export async function PATCH(
 
   // Fallback to connection_requests table if needed
   if (!data) {
-    const { data: legacyData } = await supabase
+    const { data: legacyData } = await supabaseAdmin
       .from("connection_requests")
       .update({ status, updated_at: new Date().toISOString() })
       .eq("id", id)
