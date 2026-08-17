@@ -19,6 +19,7 @@ yarn-error.log*
 siliconpath-credentials.txt
 SECRETS.md
 github-recovery-codes.txt
+change-fk.js
 
 # OS metadata
 .DS_Store

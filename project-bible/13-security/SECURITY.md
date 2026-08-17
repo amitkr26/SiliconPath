@@ -4,6 +4,7 @@
 
 | Date | Action | Systems Affected |
 | :--- | :--- | :--- |
+| **2026-08-17** | **INCIDENT: Two credentials leaked in `change-fk.js` (root) and `.opencode/mcp-servers/change-fk.js` committed to public repo. Files deleted; tokens MUST be rotated.** | Supabase DB2 (`jbqjipwanfsxyqkfrrpx`) — Management API token (`sbp_...`) + service role key (`sb_secret_...`) |
 | **2026-08-14** | Full rotation of all 4 database credentials post-git-history-rewrite | Supabase DB1, Supabase DB2, Neon DB1, Neon DB2 |
 | **2026-08-14** | Vercel access token rotated | Vercel project deployment |
 | **2026-08-14** | MCP server credentials updated to read from `siliconpath-credentials.txt` + `frontend/.env.local` only | `.opencode/mcp-servers/*` |
@@ -103,7 +104,6 @@
 | `UPSTASH_REDIS_REST_URL` | All | Upstash Console | Quarterly |
 | `UPSTASH_REDIS_REST_TOKEN` | Server only | Upstash Console | Quarterly |
 | `CRON_SECRET` | Server only | Generate: `openssl rand -hex 32` | Quarterly |
-| `REVALIDATE_SECRET` | Server only | Generate: `openssl rand -hex 32` | Quarterly |
 | `ADMIN_PASSWORD` | Server only | Generate: `openssl rand -base64 24` | Quarterly |
 | `ADMIN_HMAC_SECRET` | Server only | Generate: `openssl rand -hex 32` | Quarterly |
 | `NEXT_PUBLIC_SITE_URL` | All | `https://berojgardegreewala.vercel.app` | On domain change |
