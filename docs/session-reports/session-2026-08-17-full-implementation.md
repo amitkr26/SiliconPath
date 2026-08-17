@@ -164,10 +164,11 @@ The FK change from CASCADE to RESTRICT was necessary because:
 
 ## 7. Next Steps
 
-1. **Vercel Deployment**: Resolve build timeout — either revert vercel.json or migrate API package to npm registry
-2. **Full Smoke Test**: Once deployment succeeds, run full 5-flow smoke test against production
-3. **Cleanup**: Remove any test data created during testing from production environment
-4. **Phase 2**: Continue with remaining P0 issues (scraper cron, verification lifecycle, organization resolver)
+1. **🚨 Rotate Credentials Immediately** — `sbp_...` Management API token and `sb_secret_...` service role key for project `jbqjipwanfsxyqkfrrpx` were exposed in public repo history (files now deleted). Rotate in Supabase Dashboard → DB2 Settings → API.
+2. **Vercel Deployment** — `vercel.json` reverted to `cd frontend && npm run build` (fixes 5-min timeout). Next deploy should succeed.
+3. **RLS Audit** — Needs `psql`/supabase CLI access (Phase 1 step 7 — blocked on tooling).
+4. **Topology Reconcile** — db2 not MCP-accessible (Phase 1 step 9).
+5. **Phase 2** — Professional Profile (education/experience/skills/projects/certifications DB+API+UI) ready to start, no blockers.
 
 ---
 
