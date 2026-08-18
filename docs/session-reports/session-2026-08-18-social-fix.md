@@ -86,9 +86,43 @@ afterwards. Details: `project-bible/E2E_TEST_STATUS.md`.
 - Legacy `accept-connection.spec.ts`/`network-connect.spec.ts` keep a clean-state
   contract (documented in E2E_TEST_STATUS).
 
+## Follow-up round 1 (deploy `b07ebd1`): social counts + connection_count
+- `PUBLIC_PROFILE_FIELDS` (server-side allowlist in `frontend/src/lib/utils.ts`) was
+  missing `follower_count`/`following_count`/`connection_count` — the PublicProfile
+  count spans never rendered even though the profile fetch returned them. All three
+  added.
+- `connections` had no trigger → `user_profiles.connection_count` stayed 0. Migration
+  `20260818000003_connection_count_trigger.sql` (applied live via Management API):
+  `handle_connection_count()` SECURITY DEFINER + `on_connection_change` trigger
+  (AFTER INSERT/UPDATE/DELETE; accepted rows only) + backfill. Verified live: pending
+  no-op, accept +1 both sides, reject −1; backfill from real accepted rows correct.
+- 104 jest pass; full suite 8/9 (only messaging flake — see round 2).
+
+## Follow-up round 2 (deploy `6d9684d`): messaging list read-after-write lag (last flake)
+- Symptom: on a clean DB, right after the messaging spec seeded a brand-new A↔B
+  conversation, `GET /api/messages` returned `200 {"conversations":[]}` ("No
+  conversations yet") for the full 25s assertion window, while `GET
+  /api/messages/[id]` (same session) already returned the message — the seed bubble
+  always rendered. Subsequent reads were always correct.
+- Root cause (proven by reproduction): a browser debug spec reproduced it
+  deterministically on first-ever conversation creation — the list GET lagged the
+  committed insert by ~5-10s (pooler read-after-write lag; per-conversation GET
+  unaffected). The messages query already polled (`refetchInterval: 10_000`); the
+  conversations query had no polling.
+- Fix (one line): `useConversations()` now polls every 5s. Verified: fresh-
+  conversation solo messaging run green, then full suite **9/9 (1.7m)** on a clean
+  DB. (An intermediate suite run failed on a leftover accepted connection — the
+  cleanup contract must run before every full suite.)
+- Debug spec used for the reproduction was deleted; `messaging.spec.ts` is the
+  permanent regression check.
+
 ## Files changed
 Migration (social counts + post count triggers), follow/connect/feed routes,
 PublicProfile, network page, academy (fallback + page + queries), messages page,
 people page, e2e helpers + social-workflow/messaging/accept-connection specs, docs
 (CHANGELOG, AGENT_STATE, AGENT_HANDOFF, IMPLEMENTATION_STATUS, KNOWN_ISSUES,
 E2E_TEST_STATUS, this report).
+- Round 1: `frontend/src/lib/utils.ts` (PUBLIC_PROFILE_FIELDS),
+  `frontend/supabase/migrations/20260818000003_connection_count_trigger.sql`.
+- Round 2: `frontend/src/hooks/useMessages.ts` (refetchInterval 5s on
+  useConversations).

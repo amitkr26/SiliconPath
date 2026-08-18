@@ -26,6 +26,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - *(b)* Both count triggers were SECURITY INVOKER, and `feed_posts` has no cross-user UPDATE policy → the trigger's `UPDATE feed_posts` was RLS-filtered to 0 rows for authenticated-role inserts (counts silently drifted). Both functions are now SECURITY DEFINER, so counts always match like/comment row counts for every insert path. Verified 8/8: comment/like inserts, unlikes, comment deletes, plain-user path.
   - *(c)* Like and comment routes no longer read-modify-write the counts manually (was double-incrementing on top of the trigger — observed `comment_count=2` with 1 row).
   - *(d)* E2E spec fixes (`86acb2f`): whitespace-tolerant count assertion (`/^\s*1\s*$/` — JSX whitespace), connected-state assertion is the "Message" link (no "Connected" text exists), connect flow waits for `GET /api/network/connections`, messaging spec seeds deterministically via `?user=` and targets the list container's real class (`overflow-y-auto`; `divide-y-2` ≠ `divide-y`). **Production full suite: 9/9 passed.**
+
+### Fixed (follow-up, deploy `b07ebd1`)
+- **2026-08-18 — Social counts on public profiles + connection_count maintained.** (a)
+  `PUBLIC_PROFILE_FIELDS` in `frontend/src/lib/utils.ts` did not include
+  `follower_count`/`following_count`/`connection_count`, so PublicProfile never rendered
+  the count spans (the profile page fetched the counts, but the field allowlist stripped
+  them server-side). All three columns added. (b) The `connections` table had no trigger,
+  so `connection_count` stayed 0 forever. New migration
+  `frontend/supabase/migrations/20260818000003_connection_count_trigger.sql` (applied
+  live): `handle_connection_count()` SECURITY DEFINER + `on_connection_change` trigger
+  (AFTER INSERT/UPDATE/DELETE, only `accepted` rows count) + backfill. Verified live:
+  pending insert is a no-op, accept bumps +1 on both sides, reject/un-accept decrements.
+  `handle_follow` was already SECURITY DEFINER. 104 jest pass; **production full suite:
+  9/9 passed**.
+
+### Fixed (follow-up, deploy `6d9684d`)
+- **2026-08-18 — Messaging conversation list read-after-write lag (the last E2E flake).**
+  Reproduced deterministically with a browser debug spec: on a clean DB, immediately
+  after a fresh conversation is created the list GET `/api/messages` returns
+  `200 {"conversations":[]}` for several seconds while the per-conversation GET
+  `[id]` (same session, same route family) already sees the row — a read-after-write
+  lag through the Supabase pooler (the list later self-heals within ~5-10s; every
+  subsequent read is correct). The messages query already polled via
+  `refetchInterval`; the conversations query had none. Fix: `useConversations()`
+  now polls every 5s (one line, same pattern as the messages query), so a just-created
+  conversation appears without a manual reload. Verified: fresh-conversation solo run
+  green, then **production full suite 9/9 passed (1.7m)** on a clean DB (an earlier
+  suite run had failed on leftover connection state — cleanup contract enforced).
+
 - **2026-08-17 — Core 3-Portal Ecosystem Hardening & Bug Fixes (Phases 1-3).**
   - *(a) Opportunities Search & Filter Blacklist*: Removed destructive keyword blocklist in `frontend/src/app/api/opportunities/route.ts` that erroneously filtered valid semiconductor positions ("Qualcomm", "Lead RISC-V", "Senior ASIC Verification Engineer", etc.).
   - *(b) Network & Connection Suggestions*: Replaced over-aggressive `isTestAccount()` in `frontend/src/app/api/network/suggestions/route.ts` with minimal bot filter `isSystemBot()`, allowing all genuine registered candidate profiles to be discoverable and connectable with zero `sug-*` mock ID failures.

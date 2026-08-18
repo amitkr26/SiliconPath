@@ -1,4 +1,4 @@
-# E2E TEST STATUS — 2026-08-18 (FINAL: 9/9 GREEN on production)
+# E2E TEST STATUS — 2026-08-18 (FINAL: 9/9 GREEN on production, deploy 6d9684d)
 
 ## Suite
 `frontend/tests/e2e/` — Playwright, chromium, workers=1, BASE_URL defaults to
@@ -41,12 +41,26 @@ by design (see Cleanup below — run it before each full suite run).
   Message-link assertion, connection-state wait, messaging list locator
   (`overflow-y-auto` — the list container uses `divide-y-2`, not `divide-y`).
   **Full suite: 9/9 passed (1.5m)** — see summary below.
+- 2026-08-18 deploy `b07ebd1` (social counts + connection_count trigger): full suite
+  8/9 — only `messaging.spec.ts` failed: on a CLEAN DB the conversation list showed
+  "No conversations yet" right after the seed created a brand-new conversation.
+- 2026-08-18 deploy `6d9684d` — **messaging flake root-caused and fixed.** A browser
+  debug spec reproduced it deterministically: the first-ever conversation creation
+  makes the immediate list GET return `200 {"conversations":[]}` for ~5-10s while the
+  per-conversation GET already sees the row (read-after-write lag through the Supabase
+  pooler). The conversations query now polls every 5s (`useConversations`
+  `refetchInterval`, same pattern the messages query already used), so a fresh
+  conversation appears without a manual reload. **Full suite: 9/9 passed (1.7m)** —
+  see summary below. (The 8/9 run earlier the same day also exposed the cleanup
+  contract: a leftover accepted connection from a prior run makes the connect test
+  fail by design — always run the Cleanup SQL before each full suite run.)
 
-## Final run — 9/9 PASSED (2026-08-18, deploy `cdc80a7`)
+## Final run — 9/9 PASSED (2026-08-18, deploy `6d9684d`, clean DB)
 1. accept-connection (B sees received tab, empty state) ✓
 2. header-nav guest ✓
 3. header-nav candidate ✓
 4. messaging: seed via ?user= → list shows conversation → in-thread send ✓
+   (fresh-conversation path — the previously flaky case)
 5. network-connect (no FK-error toast) ✓
 6. social-workflow: follow → Following persists → unfollow → persists ✓
 7. social-workflow: connect → Pending persists → B accepts → A sees Message link ✓
