@@ -21,6 +21,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
+  // Keep the denormalized count in sync (mirrors the like route's read-modify-write).
+  const { data: postRow } = await supabaseAdmin
+    .from("feed_posts")
+    .select("comment_count")
+    .eq("id", id)
+    .maybeSingle();
+  await supabaseAdmin
+    .from("feed_posts")
+    .update({ comment_count: ((postRow?.comment_count as number) || 0) + 1 })
+    .eq("id", id);
+
   // Notify post author (v2 feed_posts uses author_id).
   const { data: post } = await supabaseAdmin
     .from("feed_posts")

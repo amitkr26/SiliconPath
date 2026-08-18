@@ -64,11 +64,19 @@ export async function POST(request: NextRequest) {
     if (error.code === "23505") {
       // Duplicate request — return the existing relationship state so the UI
       // can reflect Pending / Connected instead of hiding a genuine conflict.
-      const { data: existing } = await supabaseAdmin
+      const { data: r1 } = await supabaseAdmin
         .from("connections")
         .select("id, status, requester_id, addressee_id")
-        .or(`and(requester_id.eq.${user.id},addressee_id.eq.${receiverId}),and(requester_id.eq.${receiverId},addressee_id.eq.${user.id})`)
+        .eq("requester_id", user.id)
+        .eq("addressee_id", receiverId)
         .maybeSingle();
+      const { data: r2 } = await supabaseAdmin
+        .from("connections")
+        .select("id, status, requester_id, addressee_id")
+        .eq("requester_id", receiverId)
+        .eq("addressee_id", user.id)
+        .maybeSingle();
+      const existing = r1 || r2;
       return NextResponse.json({ error: "Connection request already exists", connection: existing }, { status: 409 });
     }
     return NextResponse.json({ error: error.message }, { status: 500 });

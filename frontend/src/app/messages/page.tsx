@@ -80,11 +80,17 @@ export default function MessagesPage() {
         setActiveConv(existing.id);
         setTargetUser(null);
       } else {
-        // Fetch target user details from user_profiles to allow starting a new thread
-        createClient()
-          .from("user_profiles")
-          .select("id, display_name, avatar_url, headline")
-          .or(`id.eq.${userParam},username.eq.${userParam}`)
+        // Fetch target user details from user_profiles to allow starting a new thread.
+        // PostgREST 400s if a non-UUID is compared against the id column, so match
+        // by id only when the param is a UUID, otherwise by username.
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userParam);
+        let query = createClient().from("user_profiles").select("id, display_name, avatar_url, headline");
+        if (isUuid) {
+          query = query.eq("id", userParam);
+        } else {
+          query = query.eq("username", userParam.toLowerCase());
+        }
+        query
           .maybeSingle()
           .then((res: any) => {
             const data = res?.data;
