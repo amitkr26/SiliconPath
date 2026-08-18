@@ -14,7 +14,7 @@ import {
   UserCheck, Pencil, Share2, Star, Send
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
-import { api } from "@/lib/api-client";
+import { api, ApiError } from "@/lib/api-client";
 import { toast } from "sonner";
 import type { UserProfile, SkillEndorsement, Recommendation } from "@/types";
 import EditProfileModal from "@/components/profile/EditProfileModal";
@@ -75,19 +75,26 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
   }, [username, currentUser, userLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadRelationship = async (myId: string, theirId: string) => {
-    const conn = await api.get<any>("/api/network/connections", {
-      params: { myId, theirId },
-    });
-
-    if (conn) {
-      setConnectionStatus(conn.status);
-      if (conn.status === "accepted") setIsConnected(true);
+    // Each call is isolated so a failure in one never blocks the others
+    // (e.g. endorsements/recommendations must still load).
+    try {
+      const conn = await api.get<any>("/api/network/connections", {
+        params: { myId, theirId },
+      });
+      if (conn?.status) {
+        setConnectionStatus(conn.status);
+        if (conn.status === "accepted") setIsConnected(true);
+      }
+    } catch {
+      // relationship state unavailable — buttons default to Connect/Follow
     }
 
-    const follow = await api.get<any>(`/api/network/follow/${theirId}`, {
-      params: { followerId: myId },
-    });
-    if (follow) setIsFollowing(true);
+    try {
+      const follow = await api.get<{ following: boolean }>(`/api/network/follow/${theirId}`);
+      setIsFollowing(!!follow?.following);
+    } catch {
+      // follow state unavailable — button defaults to Follow
+    }
   };
 
   const loadEndorsements = async (userId: string) => {
@@ -118,6 +125,19 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
       toast.success("Connection request sent!");
       setConnectionStatus("pending");
     } catch (err: any) {
+      if (err instanceof ApiError && err.status === 409) {
+        // A request already exists — reflect the REAL relationship state.
+        const existing = err.body?.connection as { status?: string } | undefined;
+        if (existing?.status === "accepted") {
+          setIsConnected(true);
+          setConnectionStatus("accepted");
+          toast.info("Already connected");
+        } else {
+          setConnectionStatus("pending");
+          toast.info("Connection request already pending");
+        }
+        return;
+      }
       toast.error(err?.body?.error || "Failed to send request");
     }
   };
@@ -125,13 +145,26 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
   const handleFollow = async () => {
     if (!profile || !currentUser) return;
     if (isFollowing) {
-      await api.delete(`/api/network/follow/${profile.id}`);
-      setIsFollowing(false);
-      toast.success("Unfollowed");
+      try {
+        await api.delete(`/api/network/follow/${profile.id}`);
+        setIsFollowing(false);
+        toast.success("Unfollowed");
+      } catch (err: any) {
+        toast.error(err?.body?.error || "Failed to unfollow");
+      }
     } else {
-      await api.post(`/api/network/follow/${profile.id}`);
-      setIsFollowing(true);
-      toast.success("Following!");
+      try {
+        await api.post(`/api/network/follow/${profile.id}`);
+        setIsFollowing(true);
+        toast.success("Following!");
+      } catch (err: any) {
+        if (err instanceof ApiError && err.status === 409) {
+          setIsFollowing(true); // already following — keep the UI truthful
+          toast.info("Already following");
+          return;
+        }
+        toast.error(err?.body?.error || "Failed to follow");
+      }
     }
   };
 
