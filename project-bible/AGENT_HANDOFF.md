@@ -16,6 +16,14 @@ BLOCKED with "GitHub could not associate the committer with a GitHub user". Fixe
 setting `git config user.email amitkr26@users.noreply.github.com`. Keep it that way;
 re-check with `git config user.email` if deploys start blocking again.
 
+**`[vercel skip]` in commit messages does NOT skip builds here (verified 2026-08-18).**
+The project has no Ignored Build Step configured, so the turbo-ignore skip tokens
+(`[vercel skip]`/`[skip vercel]`) are ignored — docs-only commits still trigger a
+~15 min no-op rebuild (e.g. 86acb2f, 183dd58, dce254a all deployed READY despite the
+token). Harmless (identical app code), but don't count on it; to actually skip,
+owner must enable an ignored build step (e.g. Vercel's monorepo auto-skip or a
+`git diff --quiet HEAD^ HEAD -- frontend/` script) in project settings.
+
 ## Keys / credentials state
 - `siliconpath-credentials.txt` is the single source of truth (gitignored).
 - Project 1 (`aqauempuwmbizqoaolop`) is the PRODUCTION DB (core + social + logs).
