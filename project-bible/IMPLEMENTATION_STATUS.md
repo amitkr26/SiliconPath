@@ -21,6 +21,9 @@
 | 15 | Pair-connection query 400 (or(and())) | DONE | two flat queries in connections/connect routes |
 | 16 | Messages username lookup 400 | DONE | UUID-aware lookup in messages page |
 | 17 | **Feed like/comment counts** | DONE — fixed live | `on_post_like` wrote dead `likes_count` → likes never persisted (route masked it); trigger now writes `like_count`; both count triggers SECURITY DEFINER; routes no longer manually increment. Migration `20260818000002_fix_post_count_triggers.sql` applied live; 8/8 probes + E2E green |
+| 18 | Social counts on public profiles | DONE — fixed live | `PUBLIC_PROFILE_FIELDS` (utils.ts) + migration `20260818000003_connection_count_trigger.sql` (SECURITY DEFINER, accepted-only) applied live; probes + E2E green. Deploy `b07ebd1` |
+| 19 | Messaging conversation-list read-after-write lag | DONE | `useConversations` polls 5s (pooler lag; reproduced deterministically). Deploy `6d9684d` |
+| 20 | Final production E2E | DONE | **9/9 PASSED** (1.7m, clean DB, deploy `6d9684d`) — see E2E_TEST_STATUS.md |
 
 ## RLS
 Verified live on DB1 — all social tables have correct v2 policies. No migration needed;
