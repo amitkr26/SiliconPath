@@ -8,11 +8,13 @@ import { Loader2, FileText, ExternalLink, Clock, Calendar, MapPin } from "lucide
 import { toast } from "sonner";
 
 const STATUS_STYLES: Record<string, string> = {
-  submitted: "bg-yellow-400/10 text-yellow-400 border-yellow-400/30",
-  reviewed: "bg-blue-400/10 text-blue-400 border-blue-400/30",
-  shortlisted: "bg-purple-400/10 text-purple-400 border-purple-400/30",
-  accepted: "bg-green-400/10 text-green-400 border-green-400/30",
-  rejected: "bg-red-400/10 text-red-400 border-red-400/30",
+  applied: "bg-blue-500/10 text-blue-600 border-blue-200",
+  submitted: "bg-yellow-400/10 text-yellow-500 border-yellow-300",
+  reviewed: "bg-blue-400/10 text-blue-500 border-blue-300",
+  shortlisted: "bg-purple-400/10 text-purple-600 border-purple-300",
+  interview: "bg-amber-400/10 text-amber-600 border-amber-300",
+  accepted: "bg-emerald-400/10 text-emerald-600 border-emerald-300",
+  rejected: "bg-rose-400/10 text-rose-600 border-rose-300",
 };
 
 export default function ApplicationsPage() {

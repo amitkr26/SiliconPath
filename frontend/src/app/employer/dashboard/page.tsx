@@ -13,7 +13,7 @@ import { toast } from "sonner";
 
 export default function EmployerDashboard() {
   const router = useRouter();
-  const { user, loading: authLoading } = useUser();
+  const { user, isEmployer, isAdmin, loading: authLoading } = useUser();
   const [jobs, setJobs] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
@@ -27,11 +27,10 @@ export default function EmployerDashboard() {
       router.push("/login?redirectTo=/employer/dashboard");
       return;
     }
-    const role = user?.user_metadata?.role || user?.user_metadata?.account_type;
-    if (user && role !== "employer" && role !== "provider" && role !== "admin") {
+    if (!authLoading && user && !isEmployer && !isAdmin) {
       router.push("/dashboard");
     }
-  }, [user, authLoading, router]);
+  }, [user, isEmployer, isAdmin, authLoading, router]);
 
   const loadDashboardData = useCallback(async () => {
     if (!user) return;

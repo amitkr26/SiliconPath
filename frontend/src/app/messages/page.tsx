@@ -10,7 +10,7 @@ import { useConversations, useConversationMessages, useSendMessage } from "@/hoo
 import MessageThread from "@/components/MessageThread";
 import EmptyState from "@/components/shared/EmptyState";
 import { formatDistanceToNow } from "date-fns";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase";
 
 interface OtherUser {
   id: string;
@@ -80,21 +80,11 @@ export default function MessagesPage() {
         setActiveConv(existing.id);
         setTargetUser(null);
       } else {
-        // Fetch target user details from user_profiles to allow starting a new thread.
-        // PostgREST 400s if a non-UUID is compared against the id column, so match
-        // by id only when the param is a UUID, otherwise by username.
-        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userParam);
-        let query = createClient().from("user_profiles").select("id, display_name, avatar_url, headline");
-        if (isUuid) {
-          query = query.eq("id", userParam);
-        } else {
-          query = query.eq("username", userParam.toLowerCase());
-        }
-        query
-          .maybeSingle()
-          .then((res: any) => {
-            const data = res?.data;
-            if (data) {
+        // Fetch target user details via server API to allow starting a new thread
+        fetch(`/api/profile/${userParam}`)
+          .then((res) => res.json())
+          .then((data: any) => {
+            if (data && data.id) {
               setTargetUser({
                 id: data.id,
                 display_name: data.display_name || "Hardware Member",
@@ -103,7 +93,8 @@ export default function MessagesPage() {
               });
               setActiveConv(null);
             }
-          });
+          })
+          .catch(() => {});
       }
     }
   }, [searchParams, conversations, user]);

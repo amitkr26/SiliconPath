@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 export default function PostJobPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useUser();
+  const { user, isEmployer, isAdmin, loading: authLoading } = useUser();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -29,11 +29,10 @@ export default function PostJobPage() {
       router.push("/login?redirectTo=/employer/post-job");
       return;
     }
-    const role = user?.user_metadata?.role || user?.user_metadata?.account_type;
-    if (user && role !== "employer" && role !== "provider" && role !== "admin") {
+    if (!authLoading && user && !isEmployer && !isAdmin) {
       router.push("/dashboard");
     }
-  }, [user, authLoading, router]);
+  }, [user, isEmployer, isAdmin, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
