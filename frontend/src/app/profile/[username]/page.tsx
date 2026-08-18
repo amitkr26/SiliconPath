@@ -10,17 +10,19 @@ interface Props {
 
 // No generateStaticParams + no revalidate => dynamic render, so profile
 // edits (username, headline, skills) show up immediately. Fine at this scale.
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { username } = await params;
-  const { data } = await supabaseAdmin
-    .from("user_profiles")
-    .select("username, display_name, headline, bio")
-    .eq("username", username.toLowerCase())
-    .maybeSingle();
+export async function generateMetadata({ params }: { params: { username: string } }): Promise<Metadata> {
+  const username = params?.username;
+  if (!username) return { title: "Profile Not Found" };
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(username);
+  const query = supabaseAdmin.from("user_profiles").select("username, display_name, headline, bio");
+  const { data } = isUuid
+    ? await query.eq("id", username).maybeSingle()
+    : await query.eq("username", username.toLowerCase()).maybeSingle();
 
   if (!data) return { title: "Profile Not Found" };
 
-  const canonical = `/profile/${data.username}`;
+  const canonical = `/profile/${data.username || username}`;
   const description = data.headline || (data.bio || "").slice(0, 160);
 
   return {
@@ -35,15 +37,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ProfileByUsernamePage({ params }: Props) {
-  const { username } = await params;
-  const { data: profile } = await supabaseAdmin
-    .from("user_profiles")
-    .select(PUBLIC_PROFILE_FIELDS)
-    .eq("username", username.toLowerCase())
-    .maybeSingle();
+export default async function ProfileByUsernamePage({ params }: { params: { username: string } }) {
+  const username = params?.username;
+  if (!username) notFound();
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(username);
+  const query = supabaseAdmin.from("user_profiles").select(PUBLIC_PROFILE_FIELDS);
+  const { data: profile } = isUuid
+    ? await query.eq("id", username).maybeSingle()
+    : await query.eq("username", username.toLowerCase()).maybeSingle();
 
   if (!profile) notFound();
 
-  return <PublicProfile username={username.toLowerCase()} initialProfile={profile} notFoundBackHref="/opportunities" />;
+  return <PublicProfile username={profile.username || username} initialProfile={profile} notFoundBackHref="/opportunities" />;
 }

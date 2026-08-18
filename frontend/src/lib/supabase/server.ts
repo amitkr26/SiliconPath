@@ -1,29 +1,22 @@
 import { createServerClient } from '@supabase/ssr';
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies, headers } from 'next/headers';
 
 export async function createClient() {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
+  let token: string | null = null;
   try {
-    const headerStore = await headers();
+    const headerStore = headers();
     const authHeader = headerStore.get('authorization');
     if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1];
-      return createSupabaseClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          global: { headers: { Authorization: `Bearer ${token}` } },
-          auth: { persistSession: false, autoRefreshToken: false }
-        }
-      );
+      token = authHeader.split(' ')[1];
     }
   } catch {}
 
-  return createServerClient(
+  const client = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: token ? { headers: { Authorization: `Bearer ${token}` } } : undefined,
       cookies: {
         getAll() { return cookieStore.getAll(); },
         setAll(cookiesToSet) {
@@ -36,4 +29,11 @@ export async function createClient() {
       },
     }
   );
+
+  if (token) {
+    const origGetUser = client.auth.getUser.bind(client.auth);
+    client.auth.getUser = (jwt?: string) => origGetUser(jwt || token!);
+  }
+
+  return client;
 }
