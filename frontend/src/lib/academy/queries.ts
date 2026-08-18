@@ -1,6 +1,12 @@
 // src/lib/academy/queries.ts
+// NOTE: keep this module free of imports used by client bundles except
+// FALLBACK_TRACKS — the academy page imports it directly from ./fallback
+// so lib/supabase never lands in the /academy client bundle.
 import { supabase, isConfigured } from "../supabase";
 import { LearningTrack, LearningDay, TrackCheckpoint, UserProgressItem, TrackSlug } from "./types";
+
+export { FALLBACK_TRACKS } from "./fallback";
+import { FALLBACK_TRACKS } from "./fallback";
 
 const TRACK_METADATA: Record<string, { slug: TrackSlug; color: string; icon: string; estimated_days: number; estimated_hours: number; prerequisites: TrackSlug[] }> = {
   'Digital Logic Fundamentals': { slug: 'digital-logic', color: '#00E5FF', icon: 'Cpu', estimated_days: 30, estimated_hours: 45, prerequisites: [] },
@@ -11,16 +17,6 @@ const TRACK_METADATA: Record<string, { slug: TrackSlug; color: string; icon: str
   'Physical Design & Backend': { slug: 'physical-design', color: '#8B5CF6', icon: 'Layers3', estimated_days: 35, estimated_hours: 55, prerequisites: ['rtl-design'] },
   'VLSI Interview Preparation': { slug: 'interview-prep', color: '#EF4444', icon: 'Trophy', estimated_days: 20, estimated_hours: 30, prerequisites: ['physical-design'] }
 };
-
-export const FALLBACK_TRACKS: LearningTrack[] = [
-  { id: "digital-logic-fallback", name: "Digital Logic Fundamentals", title: "Digital Logic Fundamentals", slug: "digital-logic", order_index: 1, unlock_condition: null, description: "Master number systems, Boolean algebra, K-maps, combinational and sequential circuit design, finite state machines, and timing analysis.", estimated_days: 30, estimated_hours: 45, color: "#00E5FF", icon: "Cpu", prerequisites: [] },
-  { id: "verilog-fallback", name: "Verilog HDL", title: "Verilog HDL", slug: "verilog", order_index: 2, unlock_condition: "Pass Track 1 assessment >= 70%", description: "Learn hardware description and RTL design using Verilog. Covers module structure, dataflow/behavioral modeling, FSM design, testbenches.", estimated_days: 30, estimated_hours: 45, color: "#10B981", icon: "Code2", prerequisites: ["digital-logic"] },
-  { id: "sv-fallback", name: "SystemVerilog for Verification", title: "SystemVerilog for Verification", slug: "systemverilog", order_index: 3, unlock_condition: "Pass Track 2 assessment >= 70%", description: "Deep dive into SystemVerilog: OOP, constrained-random verification, functional coverage, assertions (SVA), and interface-based testbench architecture.", estimated_days: 30, estimated_hours: 45, color: "#A855F7", icon: "Shield", prerequisites: ["verilog"] },
-  { id: "uvm-fallback", name: "Universal Verification Methodology (UVM)", title: "Universal Verification Methodology (UVM)", slug: "uvm", order_index: 4, unlock_condition: "Pass Track 3 assessment >= 70%", description: "Master the industry-standard UVM library: component hierarchy, phasing, factory pattern, sequences, TLM, register abstraction layer (RAL).", estimated_days: 30, estimated_hours: 45, color: "#F59E0B", icon: "TestTube", prerequisites: ["systemverilog"] },
-  { id: "rtl-design-fallback", name: "RTL Design & Synthesis", title: "RTL Design & Synthesis", slug: "rtl-design", order_index: 5, unlock_condition: "Pass Track 2 assessment >= 70%", description: "Practical RTL design: synchronous design principles, clock domain crossing (CDC), SDC constraints, Yosys open-source synthesis flow, DFT.", estimated_days: 25, estimated_hours: 40, color: "#EC4899", icon: "Layers", prerequisites: ["verilog"] },
-  { id: "pd-fallback", name: "Physical Design & Backend", title: "Physical Design & Backend", slug: "physical-design", order_index: 6, unlock_condition: "Pass Track 5 assessment >= 70%", description: "Full OpenLane/Sky130 physical design flow: synthesis, floorplanning, placement, CTS, routing, signoff DRC/LVS, STA, and IR drop analysis.", estimated_days: 35, estimated_hours: 55, color: "#8B5CF6", icon: "Layers3", prerequisites: ["rtl-design"] },
-  { id: "interview-fallback", name: "VLSI Interview Preparation", title: "VLSI Interview Preparation", slug: "interview-prep", order_index: 7, unlock_condition: "Pass Track 6 assessment >= 70%", description: "Technical and behavioral interview prep for top semiconductor companies. RTL design, verification, physical design, STA, DFT patterns.", estimated_days: 20, estimated_hours: 30, color: "#EF4444", icon: "Trophy", prerequisites: ["physical-design"] }
-];
 
 export async function getTracks(): Promise<LearningTrack[]> {
   if (!isConfigured || !supabase) {

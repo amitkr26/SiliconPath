@@ -1,14 +1,15 @@
 "use client";
 
-import { use } from "react";
 import PublicProfile from "@/components/profile/PublicProfile";
 import { FEATURES } from "@/lib/feature-flags";
 import { ComingSoon } from "@/components/shared/ComingSoon";
 
 // Legacy route — canonical public profiles live at /profile/{username}.
 // Kept working (username OR profile id, via the API) for existing links.
-export default function PeopleProfilePage({ params }: { params: Promise<{ username: string }> }) {
-  const { username } = use(params);
+// Note: params is a plain object in Next 14 client pages — React 18.3's use()
+// throws on non-Thenables, so destructure directly.
+export default function PeopleProfilePage({ params }: { params: { username: string } }) {
+  const { username } = params;
 
   if (!FEATURES.LINKEDIN_ENABLED) {
     return (
