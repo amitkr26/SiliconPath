@@ -89,11 +89,12 @@ export async function runOpportunityScrape(): Promise<OpportunityScrapeResult> {
       continue;
     }
 
-    const { data: existingUrl } = await supabaseAdmin
+    const { data: existingUrlRows } = await supabaseAdmin
       .from("opportunities")
       .select("id")
-      .or(`source_url.eq."${opp.source_url.replace(/"/g, '""')}",source_url.eq."${normalizedUrl.replace(/"/g, '""')}"`)
-      .maybeSingle();
+      .in("source_url", [opp.source_url, normalizedUrl].filter(Boolean))
+      .limit(1);
+    const existingUrl = existingUrlRows?.[0];
 
     const { data: existingTitle } = await supabaseAdmin
       .from("opportunities")

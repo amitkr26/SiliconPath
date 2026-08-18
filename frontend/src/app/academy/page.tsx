@@ -154,7 +154,7 @@ export default function AcademyDashboard() {
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-md bg-blue-100 text-blue-800 border-2 border-slate-900 shadow-[1.5px_1.5px_0px_0px_#0F172A]">
-                        Track {t.order_index || idx + 1}
+                        Track {idx + 1}
                       </span>
                       {isPassed ? (
                         <span className="inline-flex items-center gap-1 text-xs font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-300">

@@ -16,9 +16,7 @@ export function useConversations() {
   return useQuery({
     queryKey: ["conversations"],
     queryFn: () => api.get<ConversationsResponse>("/api/messages"),
-    staleTime: 10_000,
-    // The pooler can lag behind a just-created conversation (read-after-write);
-    // poll so a fresh conversation appears without a manual reload.
+    staleTime: 3_000,
     refetchInterval: 5_000,
   });
 }
@@ -29,8 +27,8 @@ export function useConversationMessages(conversationId: string) {
     queryFn: () =>
       api.get<MessagesResponse>(`/api/messages/${conversationId}`),
     enabled: !!conversationId,
-    staleTime: 5_000,
-    refetchInterval: 10_000,
+    staleTime: 2_000,
+    refetchInterval: 3_000,
   });
 }
 

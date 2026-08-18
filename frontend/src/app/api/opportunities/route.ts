@@ -7,35 +7,21 @@ import { isCanonicalCategory, normalizeCategoryParam } from "@/lib/categories";
 
 export const dynamic = 'force-dynamic';
 
-// A row is displayable only if it has a real title that is not a nav/menu heading or test entry.
+// A row is displayable only if it has a real title that is not a nav/menu heading or internal audit mock.
 function isDisplayableOpportunity(o: { title?: string | null; organization?: string | null; stipend?: string | null; salary_range?: string | null; apply_url?: string | null; apply_link?: string | null } | null): boolean {
   if (!o || !o.title) return false;
   const t = o.title.trim();
-  if (t.length < 5) return false;
+  if (t.length < 4) return false;
   if (GARBAGE_TITLE_PATTERNS.test(t)) return false;
 
   const titleLower = t.toLowerCase();
   const orgLower = (o.organization || "").toLowerCase();
-  const fullStr = JSON.stringify(o).toLowerCase();
-  const apply = (o.apply_url || o.apply_link || "").toLowerCase();
 
-  // Safeguard: Exclude test entries and fake data
+  // Safeguard: Exclude internal synthetic test seeds
   if (
-    titleLower.includes("qa audit test") ||
-    titleLower.includes("ui verified") ||
-    titleLower.includes("lead risc-v soc architect") ||
-    titleLower.includes("senior asic verification engineer (uvm)") ||
-    titleLower.includes("senior physical design engineer (sta)") ||
-    titleLower.includes("test position") ||
-    titleLower.startsWith("test ") ||
-    /\d{13}/.test(t) ||
-    orgLower.includes("qa test") ||
-    orgLower.includes("semiconductor lab test") ||
-    orgLower.includes("qualcomm vlsi lab") ||
-    fullStr.includes("1,80,00,000") ||
-    fullStr.includes("2,40,00,000") ||
-    apply === "https://berojgardegreewala.vercel.app" ||
-    apply === "https://berojgardegreewala.vercel.app/"
+    titleLower.includes("qa_audit_fixture") ||
+    titleLower.includes("internal_synthetic_test") ||
+    orgLower.includes("synthetic_qa_test_org")
   ) {
     return false;
   }

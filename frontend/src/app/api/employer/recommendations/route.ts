@@ -2,18 +2,32 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 
+async function isEmployerUser(userId: string, userMetadata: any): Promise<boolean> {
+  const role = userMetadata?.role || userMetadata?.account_type;
+  if (role === "employer" || role === "provider" || role === "admin") return true;
+
+  const { data } = await supabaseAdmin
+    .from("user_profiles")
+    .select("account_type")
+    .eq("id", userId)
+    .maybeSingle();
+
+  const pRole = (data?.account_type || "").toLowerCase();
+  return pRole === "employer" || pRole === "provider" || pRole === "admin";
+}
+
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const role = user.user_metadata?.role;
-  if (role !== "employer" && role !== "admin") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
   if (!isAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+  }
+
+  const allowed = await isEmployerUser(user.id, user.user_metadata);
+  if (!allowed) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { searchParams } = new URL(request.url);
@@ -37,15 +51,17 @@ export async function GET(request: NextRequest) {
     const tags = opp.tags || [];
 
     // 2. Query candidates whose skills overlap with tags, or grab top profiles
-    const { data: candidates, error: candidateError } = await supabase
+    const { data: candidates, error: candidateError } = await supabaseAdmin
       .from("user_profiles")
-      .select("id, display_name, headline, skills, avatar_url, city, preferred_location");
+      .select("id, display_name, headline, skills, avatar_url, location, current_company")
+      .eq("is_profile_public", true)
+      .limit(50);
 
     if (candidateError) throw candidateError;
 
     // 3. Score candidates by matching skills
     const scored = (candidates || [])
-      .map((c) => {
+      .map((c: any) => {
         const matchingSkills = (c.skills || []).filter((s: string) =>
           tags.some((t: string) => t.toLowerCase() === s.toLowerCase())
         );
@@ -55,7 +71,7 @@ export async function GET(request: NextRequest) {
           matchingSkills,
         };
       })
-      .sort((a, b) => b.matchScore - a.matchScore)
+      .sort((a: any, b: any) => b.matchScore - a.matchScore)
       .slice(0, 10);
 
     return NextResponse.json({ recommendations: scored });

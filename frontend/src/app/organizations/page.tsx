@@ -66,77 +66,33 @@ async function getOrganizations(): Promise<OrgItem[]> {
   return fetched.length > 0 ? fetched : FEATURED_ORGS;
 }
 
+import OrganizationsClient from "./OrganizationsClient";
+
 export default async function OrganizationsPage() {
   const organizations = await getOrganizations();
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#FAF9F6] py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         
         {/* HEADER */}
-        <div className="mb-8 border-b border-slate-200 pb-6">
-          <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 mb-2">
-            <Sparkles className="w-4 h-4" />
-            <span>Official Organization Directory</span>
+        <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 sm:p-8 shadow-[6px_6px_0px_0px_#0F172A] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 text-xs font-black uppercase text-blue-600 mb-1 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg shadow-[2px_2px_0px_0px_#0F172A]">
+              <Sparkles className="w-4 h-4 stroke-[2.5]" />
+              <span>OFFICIAL DIRECTORY</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
+              Semiconductor &amp; Hardware Organizations
+            </h1>
+            <p className="text-slate-600 text-xs sm:text-sm font-semibold mt-1">
+              Explore active research labs, defense establishments (DRDO, ISRO, CSIR), IIT microelectronics centres, and global fabless/IDM giants.
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Organizations & Research Labs
-          </h1>
-          <p className="text-slate-600 text-sm mt-1">
-            Explore active openings across DRDO, ISRO, CSIR, IITs, and top global semiconductor enterprises ({organizations.length} total).
-          </p>
         </div>
 
-        {/* ORGANIZATIONS GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {organizations.map((org) => (
-            <Link
-              key={org.slug}
-              href={`/opportunities?search=${encodeURIComponent(org.name)}`}
-              className="glass-premium rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300 group block"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                  <span className="text-blue-600 font-extrabold text-sm group-hover:text-white transition-colors">
-                    {org.name
-                      .split(" ")
-                      .map((w) => w[0])
-                      .join("")
-                      .substring(0, 2)
-                      .toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-slate-900 font-bold text-base group-hover:text-blue-600 transition-colors truncate">
-                    {org.name}
-                  </h3>
-                  {org.type && (
-                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-semibold mt-1">
-                      {org.type}
-                    </span>
-                  )}
-                  {org.location && (
-                    <p className="text-slate-500 text-xs mt-2 flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="truncate">{org.location}</span>
-                    </p>
-                  )}
-                  {org.description && (
-                    <p className="text-slate-600 text-xs mt-2 line-clamp-2 leading-relaxed">
-                      {org.description}
-                    </p>
-                  )}
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-xs font-semibold text-blue-600">
-                      {org.count > 0 ? `${org.count} Open Opportunities` : "Explore Openings"}
-                    </span>
-                    <ArrowRight className="w-4 h-4 text-blue-600 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {/* INTERACTIVE ORGANIZATIONS CLIENT */}
+        <OrganizationsClient initialOrganizations={organizations} />
 
       </div>
     </div>

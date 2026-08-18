@@ -35,18 +35,32 @@ function normalizeCategory(cat: string): string {
   return "jrf"; // Allowed DB check constraint values: 'jrf', 'srf', 'phd', 'fellowship', 'government', 'internship'
 }
 
+async function isEmployerUser(userId: string, userMetadata: any): Promise<boolean> {
+  const role = userMetadata?.role || userMetadata?.account_type;
+  if (role === "employer" || role === "provider" || role === "admin") return true;
+
+  const { data } = await supabaseAdmin
+    .from("user_profiles")
+    .select("account_type")
+    .eq("id", userId)
+    .maybeSingle();
+
+  const pRole = (data?.account_type || "").toLowerCase();
+  return pRole === "employer" || pRole === "provider" || pRole === "admin";
+}
+
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const role = user.user_metadata?.role;
-  if (role !== "employer" && role !== "admin") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
   if (!isAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+  }
+
+  const allowed = await isEmployerUser(user.id, user.user_metadata);
+  if (!allowed) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { data, error } = await supabaseAdmin
@@ -64,13 +78,13 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const role = user.user_metadata?.role;
-  if (role !== "employer" && role !== "admin") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
   if (!isAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+  }
+
+  const allowed = await isEmployerUser(user.id, user.user_metadata);
+  if (!allowed) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
