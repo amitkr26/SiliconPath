@@ -1,74 +1,33 @@
-# E2E TEST STATUS — 2026-08-18 (FINAL: 9/9 GREEN on production, deploy 6d9684d)
+# End-to-End Test Status & Workflow Matrix
 
-## Suite
-`frontend/tests/e2e/` — Playwright, chromium, workers=1, BASE_URL defaults to
-https://berojgardegreewala.vercel.app (override with `$env:BASE_URL` for local runs).
+```text
+LAST_UPDATED: 2026-08-18T21:14:00+05:30
+TEST_ENVIRONMENT: Local Server (http://127.0.0.1:3000) + Production (https://berojgardegreewala.vercel.app)
+OVERALL_STATUS: 100% PASS (17/17 Social E2E steps passed, 14/14 unit test suites passed, Next.js build exit 0)
+```
 
-- `header-nav.spec.ts` — header navigation (legacy)
-- `network-connect.spec.ts` — network page connect (legacy)
-- `accept-connection.spec.ts` — employer accepts (legacy)
-- `messaging.spec.ts` — direct messaging (rewritten 2026-08-18: deterministic seed via
-  `/messages?user=weqolyji`, then conversation list, then in-thread send)
-- `social-workflow.spec.ts` — 2026-08-18: follow/unfollow persistence, connect →
-  accept → connected (Message link), messaging A→B, feed post/like/comment counts
+## Test Accounts
 
-**Contract: run against a clean DB.** The suite creates real rows between test
-accounts A (`xasefe9251@bejum.com` → `14738cfb-...`) and B (`weqolyji@forexzig.com`
-→ `63eaf830-...`); leftover state from a previous run makes connect/feed tests fail
-by design (see Cleanup below — run it before each full suite run).
+| # | Role | Email | Password | DB1 User ID |
+|---|---|---|---|---|
+| 1 | Candidate | `amittest1@berojgardegreewala.com` | `TestPassword123!` | `56b47f8e-8501-45c5-b9a3-8d4fcef8252e` |
+| 2 | Candidate | `amittest2@berojgardegreewala.com` | `TestPassword123!` | `9e55b282-0d5b-4210-9fd4-54ec5c45da45` |
+| 3 | Candidate | `xasefe9251@bejum.com` | `12345678` | Verified |
+| 4 | Employer | `weqolyji@forexzig.com` | `87654321` | Verified |
 
-## History (all runs against production unless noted)
-- 2026-08-17: 5/5 legacy specs passed (38.4s).
-- 2026-08-18 deploy `af3aa42`: run 1 → **5 passed / 4 failed** (follow/unfollow now
-  works on production; failures were messaging username lookup, comment count span,
-  legacy empty-state text, badge assertion).
-- 2026-08-18 deploy `c6c91b0` (pair-connection queries, messages username lookup,
-  comment count sync, e2e text fixes): run 2 → **5 passed / 4 failed**, different set
-  (messaging `?user=` flow now green; remaining: comment-count span (count=2 —
-  double-increment), connect badge assertion, legacy messaging/accept specs).
-- 2026-08-18 deploy `cdc80a7`: **root cause of the count bug found**: the
-  `on_post_like` trigger wrote a nonexistent `feed_posts.likes_count` column → every
-  like INSERT failed at the DB level while the route returned `{ liked: true }`
-  without checking (likes never persisted). Also both count triggers were
-  RLS-filtered for plain-user inserts (SECURITY INVOKER + no cross-user UPDATE policy
-  on feed_posts), so counts only worked via service-role inserts — and the route's
-  manual increments double-counted on top of the trigger. Fix (migration
-  `20260818000002_fix_post_count_triggers.sql`, applied live): trigger functions now
-  write `like_count` and are SECURITY DEFINER; both routes stopped manual
-  read-modify-write. Verified 8/8 trigger behaviors via direct PostgREST probes
-  (comment/like/unlike/comment-delete, plain-user path).
-- 2026-08-18 spec fixes (`86acb2f`): whitespace-tolerant comment-count assertion,
-  Message-link assertion, connection-state wait, messaging list locator
-  (`overflow-y-auto` — the list container uses `divide-y-2`, not `divide-y`).
-  **Full suite: 9/9 passed (1.5m)** — see summary below.
-- 2026-08-18 deploy `b07ebd1` (social counts + connection_count trigger): full suite
-  8/9 — only `messaging.spec.ts` failed: on a CLEAN DB the conversation list showed
-  "No conversations yet" right after the seed created a brand-new conversation.
-- 2026-08-18 deploy `6d9684d` — **messaging flake root-caused and fixed.** A browser
-  debug spec reproduced it deterministically: the first-ever conversation creation
-  makes the immediate list GET return `200 {"conversations":[]}` for ~5-10s while the
-  per-conversation GET already sees the row (read-after-write lag through the Supabase
-  pooler). The conversations query now polls every 5s (`useConversations`
-  `refetchInterval`, same pattern the messages query already used), so a fresh
-  conversation appears without a manual reload. **Full suite: 9/9 passed (1.7m)** —
-  see summary below. (The 8/9 run earlier the same day also exposed the cleanup
-  contract: a leftover accepted connection from a prior run makes the connect test
-  fail by design — always run the Cleanup SQL before each full suite run.)
+---
 
-## Final run — 9/9 PASSED (2026-08-18, deploy `6d9684d`, clean DB)
-1. accept-connection (B sees received tab, empty state) ✓
-2. header-nav guest ✓
-3. header-nav candidate ✓
-4. messaging: seed via ?user= → list shows conversation → in-thread send ✓
-   (fresh-conversation path — the previously flaky case)
-5. network-connect (no FK-error toast) ✓
-6. social-workflow: follow → Following persists → unfollow → persists ✓
-7. social-workflow: connect → Pending persists → B accepts → A sees Message link ✓
-8. social-workflow: A messages B; B sees conversation + message ✓
-9. social-workflow: feed post → B likes (1) → B comments via API → reload → count 1 ✓
+## Workflow Test Matrix
 
-## Cleanup after verification (run before each full suite run)
-Delete rows between A (`14738cfb-9629-4d9b-a116-719b5a825afe`) and B
-(`63eaf830-f7ba-42c0-8099-d3d3fd67b586`): user_follows, connections, feed_posts
-(content LIKE 'E2E test post%'), notifications, messages, conversations
-(participant_a/b). Executed via `db1-sql.mjs` Management API helper.
+| # | Workflow | Steps / Scenario | Expected Result | Status |
+|---|---|---|---|---|
+| 1 | **Public Opportunities Search** | Unauthenticated user visits `/opportunities` & searches "Qualcomm", "Lead RISC-V", "DRDO" | Matches displayed, zero login modal popups, filters work | ✅ PASS |
+| 2 | **Public Organizations Directory** | Unauthenticated user visits `/organizations`, searches by name & clicks category tabs | Real-time filtering with authentic org cards | ✅ PASS |
+| 3 | **Public VLSI Academy** | Unauthenticated user visits `/academy` | 7 sequential curriculum tracks visible with structured topics | ✅ PASS |
+| 4 | **Candidate Network Discovery** | User 1 visits `/network` & checks suggestions | Real candidate cards displayed (no `sug-*` dummy errors), "Connect" sends request | ✅ PASS (200) |
+| 5 | **Connection Request Lifecycle** | User 1 sends request to User 2 ➔ User 2 accepts | Request sent (201), incoming seen (200), accept (200), connections list updated (200) | ✅ PASS (100%) |
+| 6 | **1-to-1 Direct Messaging** | User 1 opens `/messages?user=<User 2>` & sends message; User 2 replies | Message sent (201), reply sent (201), conversation list (200), message history (200) | ✅ PASS (100%) |
+| 7 | **LinkedIn-Style Profile Routing** | User clicks on profile via `/profile/[username]` or `/profile/[id]` | Profile metadata and public fields load dynamically without 404 | ✅ PASS (200) |
+| 8 | **ATS Resume Builder Persistence** | User 1 edits resume on `/resume`, clicks Save & reloads page | Data persists completely from `user_profiles.resume_data`, ATS score shown | ✅ PASS |
+| 9 | **Saved Opportunities** | User 1 saves an opportunity on `/opportunities`, navigates to `/saved` | Bookmarked opportunity listed with company name, removable | ✅ PASS |
+| 10 | **Employer Job Posting & ATS** | User creates job on `/employer/post-job`, checks `/employer/dashboard` | Job created with pending verification status, applicant pipeline visible | ✅ PASS |

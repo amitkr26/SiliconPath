@@ -64,5 +64,24 @@ export async function GET(request: NextRequest) {
   }
 
   const { data } = await query;
-  return NextResponse.json({ connections: (data || []) as PersonRow[] });
+  const profileMap = new Map((data || []).map((p: any) => [p.id, p]));
+
+  const result = (conns || [])
+    .filter((c: any) => {
+      const otherId = c.requester_id === user.id ? c.addressee_id : c.requester_id;
+      return !q || profileMap.has(otherId);
+    })
+    .map((c: any) => {
+      const otherId = c.requester_id === user.id ? c.addressee_id : c.requester_id;
+      const profile = profileMap.get(otherId) || {};
+      return {
+        ...profile,
+        user_id: otherId,
+        requester_id: c.requester_id,
+        addressee_id: c.addressee_id,
+        status: c.status,
+      };
+    });
+
+  return NextResponse.json({ connections: result });
 }

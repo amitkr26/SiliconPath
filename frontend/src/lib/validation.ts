@@ -43,8 +43,13 @@ export const communityCommentSchema = z.object({
 });
 
 export const messageSchema = z.object({
-  participantId: z.string().uuid(),
+  participantId: z.string().uuid().optional(),
+  recipientId: z.string().uuid().optional(),
+  recipient_id: z.string().uuid().optional(),
+  participant_id: z.string().uuid().optional(),
   content: z.string().min(1).max(5000),
+}).refine((data) => Boolean(data.participantId || data.recipientId || data.recipient_id || data.participant_id), {
+  message: "participantId or recipientId is required",
 });
 
 export const messageReplySchema = z.object({

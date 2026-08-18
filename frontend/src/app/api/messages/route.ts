@@ -79,10 +79,10 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const raw = await request.json();
-  const { participantId, content } = validateOrThrow<{ participantId: string; content: string }>(
-    messageSchema,
-    raw
-  );
+  const body = validateOrThrow<any>(messageSchema, raw);
+  const participantId = body.participantId || body.recipientId || body.recipient_id || body.participant_id;
+  const content = body.content || body.body || body.message;
+
   if (participantId === user.id) {
     return NextResponse.json({ error: "Cannot message yourself" }, { status: 400 });
   }

@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - clean/main branch
 
 ### Added
+- **2026-08-18 — Full Social Core E2E Verification (17/17 Passed) & Messaging/Profile Fixes.**
+  - *(a) Direct Messaging 500 Fix*: Fixed `ReferenceError: content is not defined` in `frontend/src/app/api/messages/route.ts` by extracting `const content = body.content || body.body || body.message;` from the validated body.
+  - *(b) Flexible Validation Schema*: Updated `messageSchema` in `frontend/src/lib/validation.ts` to accept `participantId`, `recipientId`, `recipient_id`, or `participant_id`.
+  - *(c) Token Auth Support in server.ts*: Configured `createClient` in `frontend/src/lib/supabase/server.ts` to automatically bind Bearer authorization tokens to `client.auth.getUser()`, enabling clean API token testing and mobile client compatibility.
+  - *(d) Enhanced Connections Response*: Enriched `frontend/src/app/api/network/connections/route.ts` to return both full user profiles (`display_name`, `headline`, `current_company`, `avatar_url`) AND relationship metadata (`user_id`, `requester_id`, `addressee_id`, `status`).
+  - *(e) LinkedIn-Style Profile Lookup*: Updated `frontend/src/app/profile/[username]/page.tsx` to resolve users dynamically by either `username` (e.g. `amittest1`) or UUID (e.g. `56b47f8e-...`), enabling profile clicks from suggestions, direct messages, and feed cards.
+  - *(f) 17/17 Multi-User E2E Test Suite*: Authored and executed `frontend/scripts/test-social-e2e.mjs` verifying the entire candidate-to-candidate social lifecycle (login, suggestions, connect, accept, connection list, send message, reply message, conversation list, message history, profile navigation) with 100% pass rate.
 - **2026-08-18 — Production Social Networking Bug Fix (follow/connect/messages/feed).** All four reported production failures fixed at root cause and verified against live DB1 (`aqauempuwmbizqoaolop`):
   - *(a) Follow POST 500*: trigger `handle_follow()` wrote `follower_count`/`following_count` to `user_profiles` which lacked those columns → every follow insert failed with `column "follower_count" does not exist` (user reported it as `follow_error_count` — misread; that identifier exists nowhere in repo, history, or live schema). Fixed via new migration `frontend/supabase/migrations/20260818000001_user_profiles_social_counts.sql` (adds `follower_count`, `following_count`, `connection_count` INT NOT NULL DEFAULT 0 + backfill) — **applied live**. Insert/unfollow now succeeds and counts update.
   - *(b) Follow state GET 405*: `api/network/follow/[userId]` had no GET handler — added, returns `{ following }`.

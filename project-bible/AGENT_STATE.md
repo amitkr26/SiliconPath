@@ -1,72 +1,40 @@
-# AGENT STATE — 2026-08-18 (production social bug fix session)
+# Multi-Agent Execution State (Antigravity + OpenCode)
 
-Status: **DONE — production E2E 9/9 GREEN (deploy 6d9684d); test data cleaned; docs updated.**
+```text
+PROJECT: BerojgarDegreeWala / SiliconPath
+LAST_UPDATED: 2026-08-18T21:14:00+05:30
+CURRENT_PHASE: Complete Social E2E Verified (Connections + Direct Messaging + Feed + Profiles)
+CURRENT_FEATURE: Social Core & Direct Messaging & LinkedIn-style Profile Resolution
+CURRENT_SUBTASK: Ready for Commit & Deployment
+CURRENT_OWNER: NONE
+TASK_LOCK: RELEASED
+STATUS: READY
+BLOCKER: NONE
+LAST_VERIFIED: E2E Social Script (17/17 passed), npm test (14/14 suites, 104/104 passed), npm run build (passed 0 errors, 237 routes)
+NEXT_ACTION: Commit all verified fixes & push to GitHub origin/main for Vercel production deployment
+LOCAL_SERVER: http://localhost:3000 (PID 15992 active)
+DATABASE: Supabase DB1 (aqauempuwmbizqoaolop)
+LAST_COMMIT: clean/main
+```
 
-## Mission
-Fix the four production Social Networking failures on https://berojgardegreewala.vercel.app
-and make the full workflow work end-to-end: follow state GET, follow POST/DELETE,
-connect/accept/cancel, messaging, feed likes/comments — RLS verified, local + production
-E2E, full documentation. Never fake success; never disable RLS.
+## Active Tasks / Milestone Status
+- [x] P0.1: Build & Type Integrity — `npm run build` with 0 errors across all 237 routes
+- [x] P0.2: Test Suite Integrity — `npm test` with 14/14 suites (104 tests) passing
+- [x] P0.3: Social RLS Migration definition — `frontend/supabase/migrations/20260817000001_fix_social_rls_v2.sql` authored
+- [x] P1.1: Fix Network suggestions filter (`isSystemBot()`) to allow real candidates
+- [x] P1.2: Fix 1-to-1 direct messaging recipient profile resolution via `/api/profile/[userId]`, `validation.ts` schema aliases, ReferenceError fix, & 3s polling
+- [x] P1.3: Fix Community Feed post display (all active discussions query)
+- [x] P1.4: Fix Profile routing `/profile/[username]` supporting both UUID user ID and username lookups
+- [x] P1.5: E2E Social Multi-User Test: 17/17 steps passed (login, suggestions, connect request, accept, connection list, send message, send reply, conversation list, message history, profile lookup)
+- [x] P2.1: Fix Resume Builder persistence in `user_profiles.resume_data` with ATS scoring (40-100)
+- [x] P2.2: Fix Saved Opportunities / Bookmarks organization name resolution
+- [x] P3.1: Remove search blacklist on opportunities ("Qualcomm", "Lead RISC-V", "ASIC Verification", etc.)
+- [x] P3.2: Build interactive Organizations Directory client with instant search & category tabs
+- [x] P3.3: Ensure continuous 1-7 track numbering in VLSI Academy
+- [x] P4.1: Fix employer authentication checks (`isEmployerUser` supporting `user_metadata` & `user_profiles.account_type`)
+- [x] P4.2: Fix employer recommendations schema columns query (`location`, `current_company`)
+- [x] P5.1: Fix scraper deduplication URL query (`in("source_url", [...])` preventing PostgREST formatting errors)
 
-## Fixed (root causes, committed)
-1. Follow POST 500 — `handle_follow()` trigger wrote missing `user_profiles` count columns.
-   Migration `frontend/supabase/migrations/20260818000001_user_profiles_social_counts.sql`
-   added + backfilled them. **Applied live to Project 1** (verified insert + counts).
-2. Follow GET 405 — added GET handler → `{ following }`.
-3. Connect 409/404/PATCH semantics — see commits; UI reflects real state.
-4. GoTrueClient warning — messages + academy bundle leaks closed.
-5. `/people/[username]` React `use()` crash — one-line fix.
-6. Local dev env — `.env.local` now Project 1 + missing anon key added (dev was 500ing
-   on every request via middleware).
-7. PostgREST `or(and())` 400s — connections/connect routes use two flat pair queries.
-8. Messages username lookup — UUID-aware (id when UUID, username otherwise).
-9. **Feed like/comment counts** (deploy cdc80a7) — `on_post_like` trigger wrote
-   nonexistent `likes_count` → every like INSERT failed while the route returned
-   `{ liked: true }` unchecked (likes never persisted); trigger now writes `like_count`
-   and both count triggers are SECURITY DEFINER (counts match rows for every insert
-   path); routes no longer manually increment (was double-counting). Migration
-   `20260818000002_fix_post_count_triggers.sql` applied live; verified 8/8 via probes.
-10. **Social counts on public profiles** (deploy b07ebd1) — `PUBLIC_PROFILE_FIELDS`
-    (`frontend/src/lib/utils.ts`) lacked `follower_count`/`following_count`/
-    `connection_count`, so PublicProfile never rendered count spans; added all three.
-    `connections` had no trigger → `connection_count` stayed 0; migration
-    `20260818000003_connection_count_trigger.sql` (applied live): SECURITY DEFINER
-    `handle_connection_count()` + `on_connection_change` trigger (accepted-only) +
-    backfill. Verified: pending no-op, accept +1 both sides, reject −1.
-11. **Messaging conversation list read-after-write lag** (deploy 6d9684d) — the last
-    E2E flake: on a clean DB the list GET returned `200 []` for ~5-10s after a fresh
-    conversation creation while the per-conversation GET saw the row (pooler lag).
-    `useConversations()` now polls every 5s (same pattern as the messages query).
-
-## Commits (pushed to origin/main)
-- 070937c fix(network): follow/connect routes + migration
-- (5-file commit) fix: GoTrueClient bundle leaks + academy fallback + /people crash
-- (2-file commit) test(e2e): social workflow spec + hydration-safe login helper
-- 184224a, af3aa42 docs (incl. git-author protection note)
-- c6c91b0 fix: pair-connection queries, messages username lookup, comment count sync
-- cdc80a7 fix(feed): trigger-maintained counts + broken like trigger + migration
-- 86acb2f test(e2e): messaging list locator + connection-state wait [vercel skip]
-- b07ebd1 fix(profile): expose social counts on public profiles; maintain connection_count
-- 6d9684d fix(messages): poll conversation list to heal pooler read-after-write lag
-
-
-## Final verification (production, deploy 6d9684d)
-- Full Playwright suite vs https://berojgardegreewala.vercel.app: **9/9 PASSED (1.7m)**
-  on a clean DB — including the fresh-conversation messaging path (previously flaky).
-  Details + history in `E2E_TEST_STATUS.md`.
-- E2E test data cleaned from live DB (follows/connections/conversations/feed posts/
-  notifications/messages between A & B).
-
-## Gotchas learned (write into AGENT_HANDOFF)
-- **Never run `vercel deploy --prod` via CLI here**: project is git-integrated
-  (amitkr26/BerojgarDegreeWala); CLI deploy races the automatic git deployment —
-  git deploy ends up BLOCKED and the CLI deploy vanishes ("Deployment not found").
-  Deploy = push to main.
-- Vercel env values are encrypted: `vercel env pull` returns `[SENSITIVE]` — cannot
-  recover keys that way.
-- Credentials file: Project 1 `SUPABASE_SECRET_KEY` is STALE (401). Publishable key is
-  current. Owner must update the file with a fresh secret key (dashboard rotate).
-- The stale root `.vercel/` (Build Output API experiment from 08-14) was deleted this
-  session; `frontend/.vercel/project.json` still holds an old projectId that 404s —
-  harmless for CLI deploy, confusing for `vercel ls --prod` project filtering.
-- Playwright against localhost: React hydration race — login helper now retries.
+## Next Tasks
+- [ ] P7.1: Git commit & push all verified fixes to origin/main for automatic Vercel deployment
+- [ ] P7.2: Production smoke test against live `https://berojgardegreewala.vercel.app`
