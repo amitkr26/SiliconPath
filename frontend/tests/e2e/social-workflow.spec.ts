@@ -56,10 +56,10 @@ test.describe('Social workflow: follow, connect, message, feed (local E2E)', () 
     await expect(page.locator('[data-sonner-toast]').first()).toBeVisible({ timeout: 15000 });
     await expect(page.locator('[data-sonner-toast]').first()).not.toContainText('error', { timeout: 5000 });
 
-    // A now sees Connected on B's profile
+    // A now sees the connected state on B's profile (a Message link, no "Connected" text)
     await loginAsCandidate(page);
     await page.goto(B_PROFILE, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText('Connected', { exact: true }).first()).toBeVisible({ timeout: 30000 });
+    await expect(page.getByRole('link', { name: 'Message', exact: true }).first()).toBeVisible({ timeout: 30000 });
   });
 
   test('A messages B and the bubble renders; B sees it in the conversation list', async ({ page }) => {

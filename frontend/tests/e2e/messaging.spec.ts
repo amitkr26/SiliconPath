@@ -2,35 +2,35 @@ import { test, expect } from '@playwright/test';
 import { loginAsCandidate } from './helpers';
 
 test.describe('Direct Messaging E2E Verification', () => {
-  test('Candidate logs in, selects conversation on /messages, types and sends a message, and asserts it appears on screen', async ({ page }) => {
+  test('Candidate sends a direct message via ?user=, then sees the conversation in the list and sends another', async ({ page }) => {
     // 1. Log in as Candidate
     await loginAsCandidate(page);
 
-    // 2. Navigate to Messages page
-    await page.goto('/messages', { waitUntil: 'domcontentloaded' });
+    // 2. Deterministically create/open the conversation with B (no dependency on prior state)
+    await page.goto('/messages?user=weqolyji', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('h1')).toContainText('Direct Messages');
+    const textarea = page.locator('textarea');
+    await expect(textarea).toBeVisible({ timeout: 15000 });
+    const firstMessage = `[Playwright Live UI] seed ${Date.now()}`;
+    await textarea.fill(firstMessage);
+    await page.locator('button[aria-label="Send message"]').click();
+    await expect(page.locator(`text=${firstMessage}`)).toBeVisible({ timeout: 15000 });
 
-    // 3. Locate conversation thread buttons in the conversation list
+    // 3. Navigate to the conversation list; the seeded conversation must be there
+    await page.goto('/messages', { waitUntil: 'domcontentloaded' });
     const convButtons = page.locator('div.divide-y button, div.overflow-y-auto button');
     await expect(convButtons.first()).toBeVisible({ timeout: 15000 });
-
-    // Click the first conversation thread
     await convButtons.first().click();
-    await page.waitForTimeout(1000);
+    await expect(page.locator(`text=${firstMessage}`)).toBeVisible({ timeout: 15000 });
 
-    // 4. Locate message textarea input
-    const textarea = page.locator('textarea');
-    await expect(textarea).toBeVisible({ timeout: 10000 });
-
+    // 4. Send another message from within the conversation thread
+    const textarea2 = page.locator('textarea');
+    await expect(textarea2).toBeVisible({ timeout: 10000 });
     const testMessageText = `[Playwright Live UI] Testing at ${Date.now()}`;
-    await textarea.fill(testMessageText);
-
-    // 5. Click Send button
+    await textarea2.fill(testMessageText);
     const sendButton = page.locator('button[aria-label="Send message"]');
     await expect(sendButton).toBeEnabled();
     await sendButton.click();
-
-    // 6. Assert that the message text appears as a message bubble in the active conversation thread
     const sentMessageBubble = page.locator(`text=${testMessageText}`);
     await expect(sentMessageBubble).toBeVisible({ timeout: 15000 });
 

@@ -8,16 +8,19 @@ test.describe('Accept Connection E2E Verification', () => {
 
     // 2. Navigate to Network received tab
     await page.goto('/network', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('h1')).toContainText('Professional VLSI Network');
+    await expect(page.locator('h1')).toContainText('Professional VLSI Network', { timeout: 30000 });
+
+    // Wait for the page content to finish loading before touching tabs (avoids hydration spinner races)
+    await expect(page.getByText('Suggested Connections', { exact: true })).toBeVisible({ timeout: 30000 });
 
     // Click Received Requests Tab
     const receivedTab = page.locator('button:has-text("Received Requests")');
     await expect(receivedTab).toBeVisible({ timeout: 10000 });
     await receivedTab.click();
-    await page.waitForTimeout(1500);
 
     // Check if there is an Accept button or empty state
     const acceptBtn = page.locator('button:has-text("Accept")');
+    await expect(acceptBtn.first().or(page.getByText('No pending connection requests', { exact: true }))).toBeVisible({ timeout: 15000 });
     if (await acceptBtn.count() > 0) {
       await acceptBtn.first().click();
       await page.waitForTimeout(2000);
