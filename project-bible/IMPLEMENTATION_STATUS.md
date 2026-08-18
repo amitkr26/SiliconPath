@@ -13,11 +13,14 @@
 | 7 | /people/[username] use() crash | DONE | plain param destructure |
 | 8 | Local env → Project 1 + anon key | DONE (partial) | .env.local repointed + anon key added; **service-role key stale** (see KNOWN_ISSUES) |
 | 9 | Build + jest | DONE | build passes; 104 tests pass |
-| 10 | E2E spec for social workflow | DONE (written) | `social-workflow.spec.ts` — pending production run |
-| 11 | Production deploy | IN PROGRESS | push-triggered git deploy; awaiting Ready |
-| 12 | Production E2E + live verify | PENDING | after deploy |
-| 13 | Test-data cleanup | PENDING | after E2E |
-| 14 | Docs | DONE (this session) | CHANGELOG + state files + session report |
+| 10 | E2E spec for social workflow | DONE | `social-workflow.spec.ts` — **passing on production** |
+| 11 | Production deploy | DONE | `cdc80a7` READY (git integration, ~16 min build) |
+| 12 | Production E2E + live verify | DONE | **9/9 PASSED** (1.5m) — see E2E_TEST_STATUS.md |
+| 13 | Test-data cleanup | DONE | A↔B rows removed from live DB after final run |
+| 14 | Docs | DONE | CHANGELOG + state files + session report |
+| 15 | Pair-connection query 400 (or(and())) | DONE | two flat queries in connections/connect routes |
+| 16 | Messages username lookup 400 | DONE | UUID-aware lookup in messages page |
+| 17 | **Feed like/comment counts** | DONE — fixed live | `on_post_like` wrote dead `likes_count` → likes never persisted (route masked it); trigger now writes `like_count`; both count triggers SECURITY DEFINER; routes no longer manually increment. Migration `20260818000002_fix_post_count_triggers.sql` applied live; 8/8 probes + E2E green |
 
 ## RLS
 Verified live on DB1 — all social tables have correct v2 policies. No migration needed;

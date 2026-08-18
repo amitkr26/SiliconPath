@@ -1,6 +1,6 @@
 # AGENT STATE — 2026-08-18 (production social bug fix session)
 
-Status: **code complete, committed, pushed (05a5494), awaiting production deploy + live E2E.**
+Status: **DONE — production E2E 9/9 GREEN (deploy cdc80a7); test data cleaned; docs updated.**
 
 ## Mission
 Fix the four production Social Networking failures on https://berojgardegreewala.vercel.app
@@ -18,17 +18,30 @@ E2E, full documentation. Never fake success; never disable RLS.
 5. `/people/[username]` React `use()` crash — one-line fix.
 6. Local dev env — `.env.local` now Project 1 + missing anon key added (dev was 500ing
    on every request via middleware).
+7. PostgREST `or(and())` 400s — connections/connect routes use two flat pair queries.
+8. Messages username lookup — UUID-aware (id when UUID, username otherwise).
+9. **Feed like/comment counts** (deploy cdc80a7) — `on_post_like` trigger wrote
+   nonexistent `likes_count` → every like INSERT failed while the route returned
+   `{ liked: true }` unchecked (likes never persisted); trigger now writes `like_count`
+   and both count triggers are SECURITY DEFINER (counts match rows for every insert
+   path); routes no longer manually increment (was double-counting). Migration
+   `20260818000002_fix_post_count_triggers.sql` applied live; verified 8/8 via probes.
 
-## Commits (pushed to origin/main, 05a5494)
+## Commits (pushed to origin/main)
 - 070937c fix(network): follow/connect routes + migration
 - (5-file commit) fix: GoTrueClient bundle leaks + academy fallback + /people crash
 - (2-file commit) test(e2e): social workflow spec + hydration-safe login helper
-- docs commit (this session): CHANGELOG + state files + session report
+- 184224a, af3aa42 docs (incl. git-author protection note)
+- c6c91b0 fix: pair-connection queries, messages username lookup, comment count sync
+- cdc80a7 fix(feed): trigger-maintained counts + broken like trigger + migration
+- 86acb2f test(e2e): messaging list locator + connection-state wait [vercel skip]
 
-## In flight
-- Production deploy (Vercel git integration, push-triggered) — poll `vercel ls --prod`.
-- Run full E2E suite against production (BASE_URL default is prod URL).
-- Production verification + test-data cleanup + E2E_TEST_STATUS.md update.
+
+## Final verification (production, deploy cdc80a7)
+- Full Playwright suite vs https://berojgardegreewala.vercel.app: **9/9 PASSED (1.5m)**.
+  Details + history in `E2E_TEST_STATUS.md`.
+- E2E test data cleaned from live DB (follows/connections/conversations/feed posts/
+  notifications/messages between A & B).
 
 ## Gotchas learned (write into AGENT_HANDOFF)
 - **Never run `vercel deploy --prod` via CLI here**: project is git-integrated

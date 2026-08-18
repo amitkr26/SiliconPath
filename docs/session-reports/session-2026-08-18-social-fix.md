@@ -3,9 +3,10 @@
 ## Summary
 Four production failures on https://berojgardegreewala.vercel.app (follow state GET,
 follow POST 500, connect 409, GoTrueClient console warning) diagnosed to root cause,
-fixed, committed (05a5494), and pushed. Deploy runs via Vercel git integration.
-Live verification of the full social workflow (follow/connect/message/feed) is the
-remaining step, pending deploy completion.
+fixed, committed, and pushed (deploys 05a5494 → c6c91b0 → cdc80a7, all via Vercel git
+integration). Full production E2E verification: **9/9 green**. One additional
+real production bug found and fixed along the way: feed likes never persisted (broken
+`on_post_like` trigger writing a dead `likes_count` column; route masked the failure).
 
 ## Root causes & fixes
 1. **Follow POST 500** — `handle_follow()` trigger (AFTER INSERT/DELETE on
@@ -43,18 +44,51 @@ remaining step, pending deploy completion.
   crash found + fixed; social flows locally blocked by stale service-role key
   (see KNOWN_ISSUES #1) → full local run deferred; production run is the gate.
 
+## Follow-up fixes (deploys c6c91b0 → cdc80a7)
+7. **Pair-connection queries** — PostgREST rejects nested `and()` inside `or()`
+   (400 PGRST100); connections/connect routes now use two flat queries.
+8. **Messages username lookup** — `id.eq.<username>` 400s (UUID cast); lookup is
+   now UUID-aware (id when UUID, username otherwise).
+9. **Feed like/comment counts — root cause** (see CHANGELOG):
+   - `on_post_like` trigger wrote nonexistent `likes_count` → every like INSERT
+     failed at the DB level; the route returned `{ liked: true }` without checking
+     (likes never persisted). Fixed: trigger writes `like_count`.
+   - Both count triggers were SECURITY INVOKER → RLS-filtered to 0 rows for
+     plain-user inserts; now SECURITY DEFINER (counts always match rows).
+   - Routes no longer manually increment (was double-counting with the trigger:
+     observed `comment_count=2` with 1 row).
+   - Verified via direct PostgREST probes (8/8 behaviors, plain-user path) + the
+     production E2E feed test.
+10. **E2E spec fixes** — whitespace-tolerant count assertion, "Message" link (no
+    "Connected" text exists), wait for connection-state fetch before Connect click,
+    deterministic messaging seed + correct list locator (`overflow-y-auto`;
+    container uses `divide-y-2` not `divide-y`).
+
+## Final production verification (deploy cdc80a7)
+Full Playwright suite against https://berojgardegreewala.vercel.app:
+**9/9 PASSED (1.5m)** — accept-connection, header-nav ×2, messaging (seed → list →
+thread send), network-connect (no FK-error toast), follow/unfollow persistence,
+connect → accept → connected (Message link), A→B messaging both directions, feed
+post/like/comment counts persist after reload. Test data cleaned from live DB
+afterwards. Details: `project-bible/E2E_TEST_STATUS.md`.
+
 ## Deployment
-- Project is git-integrated (amitkr26/BerojgarDegreeWala → main). Pushing deploys.
+- Project is git-integrated (amitkr26/BerojgarDegreeWala → main). Pushing deploys
+  (~15-16 min build). Git-author protection: commits must be authored as
+  `amitkr26@users.noreply.github.com` (Vercel's generated identity gets BLOCKED).
 - CLI `vercel deploy --prod` races the git deployment (git deploy BLOCKED, CLI deploy
   deleted) — do not use it. Deleted stale root `.vercel/` (08-14 failed build output).
 
 ## Open items
-- Production deploy Ready + full E2E + live DB spot-check + test-data cleanup.
-- Owner: refresh Project 1 secret key in credentials file (KNOWN_ISSUES #1).
+- Owner: refresh Project 1 secret key in credentials file (KNOWN_ISSUES #1) so
+  admin-backed local E2E runs become possible.
 - Product decision: network-filtered feed (comment says so; code returns all posts).
+- Legacy `accept-connection.spec.ts`/`network-connect.spec.ts` keep a clean-state
+  contract (documented in E2E_TEST_STATUS).
 
 ## Files changed
-Migration, follow/connect routes, PublicProfile, network page, academy (fallback +
-page + queries), messages page, people page, e2e helpers + social-workflow spec,
-docs (CHANGELOG, AGENT_STATE, AGENT_HANDOFF, IMPLEMENTATION_STATUS, KNOWN_ISSUES,
+Migration (social counts + post count triggers), follow/connect/feed routes,
+PublicProfile, network page, academy (fallback + page + queries), messages page,
+people page, e2e helpers + social-workflow/messaging/accept-connection specs, docs
+(CHANGELOG, AGENT_STATE, AGENT_HANDOFF, IMPLEMENTATION_STATUS, KNOWN_ISSUES,
 E2E_TEST_STATUS, this report).
