@@ -31,7 +31,7 @@ test.describe('Accept Connection E2E Verification', () => {
       }
     } else {
       // Empty state or existing connections
-      await expect(page.locator('text=Received Connection Requests')).toBeVisible();
+      await expect(page.locator('text=No pending connection requests')).toBeVisible();
     }
 
     await page.screenshot({ path: 'playwright-report/employer-network-received.png' });

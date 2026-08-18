@@ -26,14 +26,20 @@ export async function GET(request: NextRequest) {
   const theirId = searchParams.get("theirId");
 
   if (myId && theirId) {
-    const { data: rel } = await supabaseAdmin
+    // Two flat queries (PostgREST rejects nested and() inside or() — PGRST100).
+    const { data: rel1 } = await supabaseAdmin
       .from("connections")
       .select("status")
-      .or(
-        `and(requester_id.eq.${myId},addressee_id.eq.${theirId}),and(requester_id.eq.${theirId},addressee_id.eq.${myId})`
-      )
+      .eq("requester_id", myId)
+      .eq("addressee_id", theirId)
       .maybeSingle();
-    return NextResponse.json({ status: rel?.status || "none" });
+    const { data: rel2 } = await supabaseAdmin
+      .from("connections")
+      .select("status")
+      .eq("requester_id", theirId)
+      .eq("addressee_id", myId)
+      .maybeSingle();
+    return NextResponse.json({ status: rel1?.status || rel2?.status || "none" });
   }
 
   const { data: conns } = await supabaseAdmin
