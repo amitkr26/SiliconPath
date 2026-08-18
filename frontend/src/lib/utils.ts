@@ -276,4 +276,4 @@ export const RESERVED_USERNAMES = [
 
 // Columns safe to expose on public profiles (never email / email_notifications).
 export const PUBLIC_PROFILE_FIELDS =
-  "id, username, display_name, headline, bio, location, country, job_title, current_company, experience_years, skills, interests, linkedin_url, github_url, website_url, avatar_url, is_open_to_work, profile_views, account_type, created_at";
+  "id, username, display_name, headline, bio, location, country, job_title, current_company, experience_years, skills, interests, linkedin_url, github_url, website_url, avatar_url, is_open_to_work, profile_views, account_type, created_at, follower_count, following_count, connection_count";
