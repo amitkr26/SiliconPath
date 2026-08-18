@@ -14,13 +14,13 @@ export async function GET(request: NextRequest) {
 
   let query = supabaseAdmin
     .from("saved_opportunities")
-    .select("id, user_id, opportunity_id, created_at, opportunities(*, organizations(*))", { count: "exact" })
+    .select("id, user_id, opportunity_id, opportunities(*, organizations(*))", { count: "exact" })
     .eq("user_id", user.id);
 
   if (opportunityId) {
     query = query.eq("opportunity_id", opportunityId);
   } else {
-    query = query.order("created_at", { ascending: false }).range(offset, offset + limit - 1);
+    query = query.range(offset, offset + limit - 1);
   }
 
   const { data, error, count } = await query;
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     console.error("GET /api/bookmarks DB Error:", error);
     const { data: fallback, count: fCount } = await supabaseAdmin
       .from("saved_opportunities")
-      .select("id, user_id, opportunity_id, created_at", { count: "exact" })
+      .select("id, user_id, opportunity_id", { count: "exact" })
       .eq("user_id", user.id);
     return NextResponse.json({ bookmarks: fallback || [], count: fCount || 0 });
   }

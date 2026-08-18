@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - clean/main branch
 
 ### Added
+- **2026-08-18 — Full Platform Audit & E2E Verification (27/27 Passed, 104/104 Unit Tests, Build Exit 0).**
+  - *(a) Full Platform Audit Report*: Authored `docs/audit-reports/2026-08-18-full-platform-audit-report.md` documenting 100% verification across all 3 portals (Public Aggregator, Candidate Social Hub, Employer Recruitment Pipeline).
+  - *(b) Added GET /api/profile/me*: Implemented `GET` handler in `frontend/src/app/api/profile/me/route.ts` returning authenticated user profile and metadata.
+  - *(c) Parameter Aliases in Connect Route*: Supported `receiverId`, `recipientId`, `targetUserId`, `addressee_id` in `frontend/src/app/api/network/connect/route.ts`.
+  - *(d) Verified Bookmarks & Resume ATS*: Verified `/api/bookmarks` and `/api/resume` persistence and scoring (40-100).
 - **2026-08-18 — Full Social Core E2E Verification (17/17 Passed) & Messaging/Profile Fixes.**
   - *(a) Direct Messaging 500 Fix*: Fixed `ReferenceError: content is not defined` in `frontend/src/app/api/messages/route.ts` by extracting `const content = body.content || body.body || body.message;` from the validated body.
   - *(b) Flexible Validation Schema*: Updated `messageSchema` in `frontend/src/lib/validation.ts` to accept `participantId`, `recipientId`, `recipient_id`, or `participant_id`.
