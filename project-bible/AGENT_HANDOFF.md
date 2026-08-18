@@ -56,12 +56,20 @@ DELETE user_follows / connections / notifications where user_id IN (A,B) etc.
 (see session report for exact SQL).
 
 ## E2E
-- `frontend/tests/e2e/*`: 5 legacy specs + new `social-workflow.spec.ts`.
+- `frontend/tests/e2e/*`: 5 legacy specs + `social-workflow.spec.ts`.
   Default BASE_URL = production. Local: `$env:BASE_URL="http://localhost:3000"`
   (dev server must be running; admin-backed routes 500 locally until the key is fixed).
+- **2026-08-18 final: full suite 9/9 GREEN against production** (deploy `cdc80a7`).
+  Suite contract: run on a CLEAN DB (leftover A↔B state makes connect/feed tests fail
+  by design). Cleanup SQL + run history: `project-bible/E2E_TEST_STATUS.md`.
+- Feed like/comment counts are trigger-maintained (SECURITY DEFINER, live):
+  `on_post_like`/`on_post_comment` → `update_post_likes_count`/`update_post_comments_count`
+  write `like_count`/`comment_count`. Routes must NOT manually increment. Migration:
+  `frontend/supabase/migrations/20260818000002_fix_post_count_triggers.sql`.
 - 104 jest tests pass; build passes.
 
 ## Environment quirks
 - PowerShell 5.1: no `&&`/`||`/`head`; use `cmd1; if ($?) { cmd2 }`.
 - Node 26: inline `node -e` with top-level await must wrap in `(async()=>{})()`.
 - `.vercel` dirs are gitignored and disposable.
+- Commit messages can skip the deploy with `[vercel skip]` (used for spec-only fixes).
