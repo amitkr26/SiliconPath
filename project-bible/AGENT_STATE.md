@@ -1,6 +1,6 @@
 # AGENT STATE — 2026-08-18 (production social bug fix session)
 
-Status: **DONE — production E2E 9/9 GREEN (deploy cdc80a7); test data cleaned; docs updated.**
+Status: **DONE — production E2E 9/9 GREEN (deploy 6d9684d); test data cleaned; docs updated.**
 
 ## Mission
 Fix the four production Social Networking failures on https://berojgardegreewala.vercel.app
@@ -26,6 +26,17 @@ E2E, full documentation. Never fake success; never disable RLS.
    and both count triggers are SECURITY DEFINER (counts match rows for every insert
    path); routes no longer manually increment (was double-counting). Migration
    `20260818000002_fix_post_count_triggers.sql` applied live; verified 8/8 via probes.
+10. **Social counts on public profiles** (deploy b07ebd1) — `PUBLIC_PROFILE_FIELDS`
+    (`frontend/src/lib/utils.ts`) lacked `follower_count`/`following_count`/
+    `connection_count`, so PublicProfile never rendered count spans; added all three.
+    `connections` had no trigger → `connection_count` stayed 0; migration
+    `20260818000003_connection_count_trigger.sql` (applied live): SECURITY DEFINER
+    `handle_connection_count()` + `on_connection_change` trigger (accepted-only) +
+    backfill. Verified: pending no-op, accept +1 both sides, reject −1.
+11. **Messaging conversation list read-after-write lag** (deploy 6d9684d) — the last
+    E2E flake: on a clean DB the list GET returned `200 []` for ~5-10s after a fresh
+    conversation creation while the per-conversation GET saw the row (pooler lag).
+    `useConversations()` now polls every 5s (same pattern as the messages query).
 
 ## Commits (pushed to origin/main)
 - 070937c fix(network): follow/connect routes + migration
@@ -35,10 +46,13 @@ E2E, full documentation. Never fake success; never disable RLS.
 - c6c91b0 fix: pair-connection queries, messages username lookup, comment count sync
 - cdc80a7 fix(feed): trigger-maintained counts + broken like trigger + migration
 - 86acb2f test(e2e): messaging list locator + connection-state wait [vercel skip]
+- b07ebd1 fix(profile): expose social counts on public profiles; maintain connection_count
+- 6d9684d fix(messages): poll conversation list to heal pooler read-after-write lag
 
 
-## Final verification (production, deploy cdc80a7)
-- Full Playwright suite vs https://berojgardegreewala.vercel.app: **9/9 PASSED (1.5m)**.
+## Final verification (production, deploy 6d9684d)
+- Full Playwright suite vs https://berojgardegreewala.vercel.app: **9/9 PASSED (1.7m)**
+  on a clean DB — including the fresh-conversation messaging path (previously flaky).
   Details + history in `E2E_TEST_STATUS.md`.
 - E2E test data cleaned from live DB (follows/connections/conversations/feed posts/
   notifications/messages between A & B).

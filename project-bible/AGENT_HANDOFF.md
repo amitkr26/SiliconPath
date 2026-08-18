@@ -41,6 +41,14 @@ re-check with `git config user.email` if deploys start blocking again.
   `like_count`/`comment_count`.
 - `user_profiles`: has `username`, `account_type`, `is_profile_public`, and now
   `follower_count`/`following_count`/`connection_count` (added today).
+- `PUBLIC_PROFILE_FIELDS` (`frontend/src/lib/utils.ts`) MUST include any profile field
+  the PublicProfile page should display — it is a server-side allowlist that strips
+  everything else (counts silently never rendered before the fix).
+- `connections` is trigger-maintained: `handle_connection_count()` SECURITY DEFINER,
+  `on_connection_change` AFTER INSERT/UPDATE/DELETE (accepted rows only) keeps
+  `user_profiles.connection_count` in sync (migration `20260818000003`). Feed counts
+  are trigger-maintained the same way (`20260818000002`). Routes must NOT
+  read-modify-write these counts manually.
 - RLS v2 is LIVE and correct on all social tables — do NOT apply
   `20260817000001_fix_social_rls_v2.sql` (would duplicate policies; references a
   non-existent `feed_posts.visibility`).
@@ -58,6 +66,15 @@ DELETE user_follows / connections / notifications where user_id IN (A,B) etc.
 ## E2E
 - `frontend/tests/e2e/*`: 5 legacy specs + `social-workflow.spec.ts`.
   Default BASE_URL = production. Local: `$env:BASE_URL="http://localhost:3000"`
+- **Full-suite contract: ALWAYS run the inter-account Cleanup SQL (see
+  `E2E_TEST_STATUS.md`) before a full run.** Leftover state between A and B fails
+  tests by design (observed 2026-08-18: a leftover accepted connection made the
+  connect test see "Message" instead of "Connect").
+- **Pooler read-after-write lag (real, reproduced):** after a fresh conversation
+  creation, `GET /api/messages` can return `200 []` for ~5-10s while
+  `GET /api/messages/[id]` already sees the row. `useConversations()` polls every 5s
+  to heal this; the messages query polls at 10s. Do not "fix" by removing the polling
+  or by weakening the messaging spec's 25s assertions.
   (dev server must be running; admin-backed routes 500 locally until the key is fixed).
 - **2026-08-18 final: full suite 9/9 GREEN against production** (deploy `cdc80a7`).
   Suite contract: run on a CLEAN DB (leftover A↔B state makes connect/feed tests fail
