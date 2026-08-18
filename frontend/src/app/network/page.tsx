@@ -18,6 +18,7 @@ type TabKey = "connections" | "received" | "suggestions";
 interface Request {
   id: string;
   status?: string;
+  direction?: "incoming" | "outgoing";
   requester?: { id: string; display_name?: string | null; headline?: string | null; avatar_url?: string | null } | null;
 }
 
@@ -73,6 +74,10 @@ export default function NetworkPage() {
       if (res.ok) {
         toast.success("Connection request sent successfully!");
         queryClient.invalidateQueries({ queryKey: ["network", "suggestions"] });
+      } else if (res.status === 409) {
+        // Duplicate — reflect the actual relationship state instead of hiding it.
+        const existing = data?.connection as { status?: string } | undefined;
+        toast.info(existing?.status === "accepted" ? "Already connected" : "Request already pending");
       } else {
         toast.error(data.error || "Failed to send connection request");
       }
@@ -81,17 +86,20 @@ export default function NetworkPage() {
     }
   };
 
-  const respond = async (id: string, status: "accepted" | "rejected") => {
+  const respond = async (id: string, status: "accepted" | "rejected" | "withdrawn") => {
     try {
       const res = await fetch(`/api/network/connect/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
+      const data = await res.json();
       if (res.ok) {
-        toast.success(status === "accepted" ? "Connected! 🎉" : "Request declined");
+        toast.success(status === "accepted" ? "Connected! 🎉" : status === "withdrawn" ? "Request cancelled" : "Request declined");
         queryClient.invalidateQueries({ queryKey: ["connections"] });
         loadRequests();
+      } else {
+        toast.error(data.error || "Failed to update request");
       }
     } catch { /* ignore */ }
   };
@@ -207,7 +215,7 @@ export default function NetworkPage() {
 
         {tab === "received" && (
           <div className="space-y-6">
-            <h2 className="text-xl font-black text-slate-900">Received Connection Requests</h2>
+            <h2 className="text-xl font-black text-slate-900">Connection Requests</h2>
             {requestsLoading ? (
               <div className="py-12 flex justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
@@ -220,39 +228,58 @@ export default function NetworkPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {requests.map((req) => (
-                  <div
-                    key={req.id}
-                    className="bg-white border-3 border-slate-900 rounded-2xl p-5 shadow-[4px_4px_0px_0px_#0F172A] flex items-center justify-between gap-4"
-                  >
-                    <div className="flex items-center gap-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={req.requester?.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
-                        alt={req.requester?.display_name || "Engineer"}
-                        className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900"
-                      />
-                      <div>
-                        <h4 className="font-black text-sm text-slate-900">{req.requester?.display_name || "Engineer"}</h4>
-                        <p className="text-xs text-slate-600 font-semibold">{req.requester?.headline || "Hardware Engineer"}</p>
+                {requests.map((req) => {
+                  const incoming = req.direction !== "outgoing";
+                  const otherName = incoming ? req.requester?.display_name : "You";
+                  const otherAvatar = req.requester?.avatar_url || "";
+                  const otherHeadline = incoming ? req.requester?.headline : "Waiting for response";
+                  return (
+                    <div
+                      key={req.id}
+                      className="bg-white border-3 border-slate-900 rounded-2xl p-5 shadow-[4px_4px_0px_0px_#0F172A] flex items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={otherAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
+                          alt={otherName || "Engineer"}
+                          className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900"
+                        />
+                        <div>
+                          <h4 className="font-black text-sm text-slate-900">{otherName || "Engineer"}</h4>
+                          <p className="text-xs text-slate-600 font-semibold">
+                            {incoming ? (otherHeadline || "Hardware Engineer") : "Request sent — awaiting response"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {incoming ? (
+                          <>
+                            <button
+                              onClick={() => respond(req.id, "accepted")}
+                              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_#0F172A]"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => respond(req.id, "rejected")}
+                              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl"
+                            >
+                              Decline
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => respond(req.id, "withdrawn")}
+                            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl"
+                          >
+                            Cancel Request
+                          </button>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => respond(req.id, "accepted")}
-                        className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_#0F172A]"
-                      >
-                        Accept
-                      </button>
-                      <button
-                        onClick={() => respond(req.id, "rejected")}
-                        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl"
-                      >
-                        Decline
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

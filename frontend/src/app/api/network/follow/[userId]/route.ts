@@ -3,6 +3,25 @@ import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { createNotification } from "@/lib/notifications";
 
+// GET: current follow relationship state for the authenticated viewer.
+export async function GET(request: NextRequest, { params }: { params: { userId: string } | Promise<{ userId: string }> }) {
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const userId = resolvedParams?.userId;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { data, error } = await supabaseAdmin
+    .from("user_follows")
+    .select("id")
+    .eq("follower_id", user.id)
+    .eq("following_id", userId)
+    .maybeSingle();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ following: !!data });
+}
+
 export async function POST(request: NextRequest, { params }: { params: { userId: string } | Promise<{ userId: string }> }) {
   const resolvedParams = params instanceof Promise ? await params : params;
   const userId = resolvedParams?.userId;
@@ -17,16 +36,21 @@ export async function POST(request: NextRequest, { params }: { params: { userId:
   });
 
   if (error) {
-    if (error.code === "23505") return NextResponse.json({ error: "Already following" }, { status: 409 });
+    if (error.code === "23505") return NextResponse.json({ error: "Already following", following: true }, { status: 409 });
+    if (error.code === "23503") return NextResponse.json({ error: "User not found" }, { status: 404 });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  await createNotification({
-    userId,
-    type: "follow",
-    actorId: user.id,
-    message: "started following you",
-  });
+  try {
+    await createNotification({
+      userId,
+      type: "follow",
+      actorId: user.id,
+      message: "started following you",
+    });
+  } catch {
+    // notification failure must not fail the follow
+  }
 
   return NextResponse.json({ success: true }, { status: 201 });
 }
@@ -38,9 +62,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { userI
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  await supabaseAdmin.from("user_follows").delete()
+  const { data, error } = await supabaseAdmin
+    .from("user_follows")
+    .delete()
     .eq("follower_id", user.id)
-    .eq("following_id", userId);
+    .eq("following_id", userId)
+    .select("id")
+    .maybeSingle();
 
-  return NextResponse.json({ success: true });
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ success: true, deleted: !!data });
 }

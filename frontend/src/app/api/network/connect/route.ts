@@ -46,6 +46,14 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  // Receiver must exist — fail cleanly instead of a raw FK error
+  const { data: receiverExists } = await supabaseAdmin
+    .from("user_profiles")
+    .select("id")
+    .eq("id", receiverId)
+    .maybeSingle();
+  if (!receiverExists) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
   const { data, error } = await supabaseAdmin
     .from("connections")
     .insert({ requester_id: user.id, addressee_id: receiverId, status: "pending" })
@@ -54,7 +62,14 @@ export async function POST(request: NextRequest) {
 
   if (error) {
     if (error.code === "23505") {
-      return NextResponse.json({ error: "Connection request already exists" }, { status: 409 });
+      // Duplicate request — return the existing relationship state so the UI
+      // can reflect Pending / Connected instead of hiding a genuine conflict.
+      const { data: existing } = await supabaseAdmin
+        .from("connections")
+        .select("id, status, requester_id, addressee_id")
+        .or(`and(requester_id.eq.${user.id},addressee_id.eq.${receiverId}),and(requester_id.eq.${receiverId},addressee_id.eq.${user.id})`)
+        .maybeSingle();
+      return NextResponse.json({ error: "Connection request already exists", connection: existing }, { status: 409 });
     }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -90,6 +105,7 @@ export async function GET() {
     .from("connections")
     .select("id, requester_id, addressee_id, status, created_at")
     .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+    .eq("status", "pending")
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -119,6 +135,7 @@ export async function GET() {
       requester_id: r.requester_id,
       addressee_id: r.addressee_id,
       status: r.status,
+      direction: r.addressee_id === user.id ? "incoming" : "outgoing",
       // "requester" from the current user's perspective = the other person on an incoming request.
       requester: r.addressee_id === user.id ? byId[r.requester_id] : null,
       addressee: r.requester_id === user.id ? byId[r.addressee_id] : null,
