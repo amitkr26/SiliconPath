@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Users, Search, UserPlus, Sparkles, MessageSquare } from "lucide-react";
+import Link from "next/link";
 import { useUser } from "@/hooks/useUser";
 import { useConnections, useConnectionSuggestions } from "@/hooks/useNetwork";
 import { useQueryClient } from "@tanstack/react-query";
@@ -19,7 +20,7 @@ interface Request {
   id: string;
   status?: string;
   direction?: "incoming" | "outgoing";
-  requester?: { id: string; display_name?: string | null; headline?: string | null; avatar_url?: string | null } | null;
+  requester?: { id: string; username?: string | null; display_name?: string | null; headline?: string | null; avatar_url?: string | null } | null;
 }
 
 export default function NetworkPage() {
@@ -171,14 +172,18 @@ export default function NetworkPage() {
                   >
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={person.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
-                          alt={person.display_name || "Engineer"}
-                          className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
-                        />
+                        <Link href={`/profile/${person.username || person.id}`} className="shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={person.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
+                            alt={person.display_name || "Engineer"}
+                            className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A] hover:ring-2 hover:ring-blue-500 transition-all"
+                          />
+                        </Link>
                         <div>
-                          <h3 className="font-black text-sm text-slate-900">{person.display_name || "Berojgar Member"}</h3>
+                          <Link href={`/profile/${person.username || person.id}`} className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors">
+                            {person.display_name || "Berojgar Member"}
+                          </Link>
                           {(person.headline || person.current_company) && (
                             <p className="text-[11px] font-bold text-slate-600 line-clamp-1">{person.headline || person.current_company}</p>
                           )}
@@ -239,14 +244,18 @@ export default function NetworkPage() {
                       className="bg-white border-3 border-slate-900 rounded-2xl p-5 shadow-[4px_4px_0px_0px_#0F172A] flex items-center justify-between gap-4"
                     >
                       <div className="flex items-center gap-3">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={otherAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
-                          alt={otherName || "Engineer"}
-                          className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900"
-                        />
+                        <Link href={`/profile/${req.requester?.username || req.requester?.id || "#"}`} className="shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={otherAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
+                            alt={otherName || "Engineer"}
+                            className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 hover:ring-2 hover:ring-blue-500 transition-all"
+                          />
+                        </Link>
                         <div>
-                          <h4 className="font-black text-sm text-slate-900">{otherName || "Engineer"}</h4>
+                          <Link href={`/profile/${req.requester?.username || req.requester?.id || "#"}`} className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors">
+                            {otherName || "Engineer"}
+                          </Link>
                           <p className="text-xs text-slate-600 font-semibold">
                             {incoming ? (otherHeadline || "Hardware Engineer") : "Request sent — awaiting response"}
                           </p>
