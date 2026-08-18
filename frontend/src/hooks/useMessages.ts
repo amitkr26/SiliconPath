@@ -17,6 +17,9 @@ export function useConversations() {
     queryKey: ["conversations"],
     queryFn: () => api.get<ConversationsResponse>("/api/messages"),
     staleTime: 10_000,
+    // The pooler can lag behind a just-created conversation (read-after-write);
+    // poll so a fresh conversation appears without a manual reload.
+    refetchInterval: 5_000,
   });
 }
 
