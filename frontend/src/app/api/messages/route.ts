@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { messageSchema, validateOrThrow } from "@/lib/validation";
 
 interface ConvRow {
   id: string;
@@ -78,10 +77,22 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const raw = await request.json();
-  const body = validateOrThrow<any>(messageSchema, raw);
-  const participantId = body.participantId || body.recipientId || body.recipient_id || body.participant_id;
-  const content = body.content || body.body || body.message;
+  let raw: Record<string, unknown>;
+  try {
+    raw = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  const participantId = String(raw.participantId || raw.recipientId || raw.recipient_id || raw.participant_id || "");
+  const content = String(raw.content || raw.body || raw.message || "");
+
+  if (!participantId || !participantId.includes("-")) {
+    return NextResponse.json({ error: "recipientId is required" }, { status: 400 });
+  }
+  if (!content.trim()) {
+    return NextResponse.json({ error: "content is required" }, { status: 400 });
+  }
 
   if (participantId === user.id) {
     return NextResponse.json({ error: "Cannot message yourself" }, { status: 400 });
