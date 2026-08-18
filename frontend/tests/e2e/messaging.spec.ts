@@ -16,11 +16,12 @@ test.describe('Direct Messaging E2E Verification', () => {
     await page.locator('button[aria-label="Send message"]').click();
     await expect(page.locator(`text=${firstMessage}`)).toBeVisible({ timeout: 15000 });
 
-    // 3. Navigate to the conversation list; the seeded conversation must be there
+    // 3. Navigate to the conversation list; the seeded conversation must appear.
+    //    List container uses "overflow-y-auto" (not divide-y) for the buttons.
     await page.goto('/messages', { waitUntil: 'domcontentloaded' });
-    const convButtons = page.locator('div.divide-y button, div.overflow-y-auto button');
-    await expect(convButtons.first()).toBeVisible({ timeout: 15000 });
-    await convButtons.first().click();
+    const convBtn = page.locator('div.overflow-y-auto button').filter({ hasText: firstMessage }).first();
+    await expect(convBtn).toBeVisible({ timeout: 25000 });
+    await convBtn.click();
     await expect(page.locator(`text=${firstMessage}`)).toBeVisible({ timeout: 15000 });
 
     // 4. Send another message from within the conversation thread
