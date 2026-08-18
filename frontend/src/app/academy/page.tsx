@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
+import { FALLBACK_TRACKS } from "@/lib/academy/fallback";
 import type { LearningTrack, TrackSlug } from "@/lib/academy/types";
 
 const TRUSTED_SOURCES = [
@@ -62,7 +63,7 @@ export default function AcademyDashboard() {
   const loadData = useCallback(async () => {
     setLoading(true);
     const timeout = setTimeout(() => {
-      setTracks((prev) => prev.length > 0 ? prev : (require("@/lib/academy/queries").FALLBACK_TRACKS || []));
+      setTracks((prev) => prev.length > 0 ? prev : FALLBACK_TRACKS);
       setLoading(false);
     }, 2500);
 
@@ -75,10 +76,10 @@ export default function AcademyDashboard() {
         ]);
         tracksData = Array.isArray(res) ? res : (res?.tracks || []);
       } catch {
-        tracksData = (await import("@/lib/academy/queries")).FALLBACK_TRACKS;
+        tracksData = FALLBACK_TRACKS;
       }
       if (!tracksData || tracksData.length === 0) {
-        tracksData = (await import("@/lib/academy/queries")).FALLBACK_TRACKS;
+        tracksData = FALLBACK_TRACKS;
       }
       setTracks(tracksData);
 
@@ -91,7 +92,7 @@ export default function AcademyDashboard() {
       setPassedTracks(pt || []);
     } catch (err) {
       console.error("Academy load failed:", err);
-      setTracks((await import("@/lib/academy/queries")).FALLBACK_TRACKS);
+      setTracks(FALLBACK_TRACKS);
     } finally {
       clearTimeout(timeout);
       setLoading(false);

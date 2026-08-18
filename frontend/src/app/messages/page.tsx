@@ -10,7 +10,7 @@ import { useConversations, useConversationMessages, useSendMessage } from "@/hoo
 import MessageThread from "@/components/MessageThread";
 import EmptyState from "@/components/shared/EmptyState";
 import { formatDistanceToNow } from "date-fns";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 interface OtherUser {
   id: string;
@@ -81,7 +81,7 @@ export default function MessagesPage() {
         setTargetUser(null);
       } else {
         // Fetch target user details from user_profiles to allow starting a new thread
-        supabase
+        createClient()
           .from("user_profiles")
           .select("id, display_name, avatar_url, headline")
           .or(`id.eq.${userParam},username.eq.${userParam}`)
