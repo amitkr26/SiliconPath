@@ -6,6 +6,7 @@ import { sendEmailNotification, connectionRequestEmail } from "@/lib/email-notif
 
 interface PersonRow {
   id: string;
+  username: string | null;
   display_name: string | null;
   headline: string | null;
   current_company: string | null;
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    createNotification({ userId: receiverId, type: "connection_request", actorId: user.id, entityType: "connection", entityId: data?.id });
+    await createNotification({ userId: receiverId, type: "connection_request", actorId: user.id, entityType: "connection", entityId: data?.id });
     const { data: profile } = await supabaseAdmin.from("user_profiles").select("display_name, email").eq("id", user.id).maybeSingle();
     if (profile?.email) {
       const { data: receiver } = await supabaseAdmin.from("user_profiles").select("email").eq("id", receiverId).maybeSingle();
@@ -131,7 +132,7 @@ export async function GET() {
   if (otherIds.length > 0) {
     const { data: people } = await db
       .from("user_profiles")
-      .select("id, display_name, headline, current_company, avatar_url")
+      .select("id, username, display_name, headline, current_company, avatar_url")
       .in("id", otherIds);
     (people || []).forEach((p: PersonRow) => {
       byId[p.id] = p;
