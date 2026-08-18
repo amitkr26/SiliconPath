@@ -35,6 +35,13 @@ test.describe('Social workflow: follow, connect, message, feed (local E2E)', () 
     await loginAsCandidate(page);
     await page.goto(B_PROFILE, { waitUntil: 'domcontentloaded' });
 
+    // The page renders a default "Connect" button until the connection state
+    // fetch resolves — wait for it so we don't click a pre-hydration button.
+    await page.waitForResponse(
+      (r) => r.url().includes('/api/network/connections') && r.request().method() === 'GET',
+      { timeout: 30000 }
+    );
+
     const connectBtn = page.getByRole('button', { name: 'Connect', exact: true });
     await expect(connectBtn).toBeVisible({ timeout: 30000 });
     await connectBtn.click();
@@ -114,6 +121,7 @@ test.describe('Social workflow: follow, connect, message, feed (local E2E)', () 
 
     await page.reload({ waitUntil: 'domcontentloaded' });
     const cardAfter = page.locator('div.bg-bg-secondary').filter({ hasText: postText }).first();
-    await expect(cardAfter.locator('span').filter({ hasText: /^1$/ }).first()).toBeVisible({ timeout: 30000 });
+    // comments span textContent is " 1" (JSX whitespace before the count)
+    await expect(cardAfter.locator('span').filter({ hasText: /^\s*1\s*$/ }).first()).toBeVisible({ timeout: 30000 });
   });
 });
