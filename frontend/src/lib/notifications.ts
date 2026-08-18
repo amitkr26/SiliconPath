@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 type NotificationType =
   | "connection_request"
@@ -11,6 +11,9 @@ type NotificationType =
   | "recommendation"
   | "message";
 
+// ponytail: uses supabaseAdmin — the cookie-bound client's RLS blocks
+// inserting notifications for a *different* user (user_id != auth.uid()),
+// causing every cross-user notification to silently fail.
 export async function createNotification({
   userId,
   type,
@@ -26,8 +29,7 @@ export async function createNotification({
   entityId?: string;
   message?: string;
 }) {
-  const supabase = await createClient();
-  await supabase.from("notifications").insert({
+  await supabaseAdmin.from("notifications").insert({
     user_id: userId,
     type,
     actor_id: actorId,

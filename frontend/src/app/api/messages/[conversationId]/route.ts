@@ -62,8 +62,14 @@ export async function POST(request: NextRequest, { params }: { params: { convers
   const check = await assertParticipant(supabase, conversationId, user.id);
   if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status });
 
-  const { content } = await request.json();
-  if (!content || !String(content).trim()) {
+  let raw: Record<string, unknown>;
+  try {
+    raw = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+  const content = String(raw.content || raw.body || raw.message || "");
+  if (!content.trim()) {
     return NextResponse.json({ error: "Content required" }, { status: 400 });
   }
 
