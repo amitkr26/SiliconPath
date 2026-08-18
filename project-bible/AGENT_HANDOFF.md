@@ -9,6 +9,13 @@ Do NOT run `npx vercel deploy --prod` — it races the git deployment: the git d
 BLOCKED and the CLI deploy is deleted ("Deployment not found"). Verify with
 `npx vercel ls --prod` and wait for the newest entry to go Ready (~15-20 min build).
 
+**Git-author protection (2026-08-18):** the project blocks deployments whose commit
+author GitHub cannot associate with a GitHub user. Local `git config user.email` was
+`amit@berojgardegreewala.vercel.app` (a Vercel-generated identity) → every git deploy
+BLOCKED with "GitHub could not associate the committer with a GitHub user". Fixed by
+setting `git config user.email amitkr26@users.noreply.github.com`. Keep it that way;
+re-check with `git config user.email` if deploys start blocking again.
+
 ## Keys / credentials state
 - `siliconpath-credentials.txt` is the single source of truth (gitignored).
 - Project 1 (`aqauempuwmbizqoaolop`) is the PRODUCTION DB (core + social + logs).
