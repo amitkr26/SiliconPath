@@ -1,0 +1,38 @@
+# render.yaml — Render Blueprint for SiliconPath backend
+# Deploy: https://dashboard.render.com/new?type=blueprint&repo=https://github.com/amitkr26/BerojgarDegreeWala
+# Or: render blueprint apply render.yaml
+
+services:
+  - type: web
+    name: siliconpath-api
+    runtime: node
+    plan: free
+    repo: https://github.com/amitkr26/BerojgarDegreeWala
+    branch: main
+    rootDir: .
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_2_URL
+        sync: false
+      - key: SUPABASE_2_SERVICE_ROLE_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: "http://localhost:3000,https://berojgardegreewala.vercel.app,https://electrobridge.vercel.app"
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_HMAC_SECRET
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: RATE_LIMIT_MAX
+        value: "120"
+    buildCommand: npm ci --workspace @berojgardegreewala/server --include-workspace-root && npm run build --workspace @berojgardegreewala/server
+    startCommand: node --import tsx backend/server/dist/server.js

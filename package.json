@@ -6,6 +6,7 @@
     "backend/api",
     "backend/ai-gateway",
     "backend/server",
+    "backend/worker",
     "frontend"
   ],
   "scripts": {

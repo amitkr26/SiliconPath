@@ -7,16 +7,20 @@
   },
   "servers": [
     {
-      "url": "https://berojgardegreewala.vercel.app",
-      "description": "Production"
+      "url": "https://electrobridge-api.onrender.com/api/v1",
+      "description": "Backend (Render)"
     },
     {
-      "url": "http://localhost:3000",
-      "description": "Development"
+      "url": "https://berojgardegreewala.vercel.app/api",
+      "description": "Frontend (Vercel)"
+    },
+    {
+      "url": "http://localhost:8080/api/v1",
+      "description": "Local backend"
     }
   ],
   "paths": {
-    "/api/opportunities": {
+    "/api/v1/opportunities": {
       "get": {
         "summary": "List opportunities",
         "description": "Paginated list of opportunities with filtering, search, and sorting",
@@ -150,7 +154,7 @@
         }
       }
     },
-    "/api/opportunities/{id}": {
+    "/api/v1/opportunities/{id}": {
       "get": {
         "summary": "Get opportunity by ID",
         "operationId": "getOpportunityById",
@@ -185,7 +189,7 @@
         }
       }
     },
-    "/api/opportunities/by-slug/{slug}": {
+    "/api/v1/opportunities/by-slug/{slug}": {
       "get": {
         "summary": "Get opportunity by slug",
         "operationId": "getOpportunityBySlug",
@@ -219,7 +223,7 @@
         }
       }
     },
-    "/api/opportunities/featured": {
+    "/api/v1/opportunities/featured": {
       "get": {
         "summary": "List featured opportunities",
         "operationId": "listFeaturedOpportunities",
@@ -233,7 +237,7 @@
         }
       }
     },
-    "/api/opportunities/stats": {
+    "/api/v1/opportunities/stats": {
       "get": {
         "summary": "Opportunity statistics",
         "operationId": "getOpportunityStats",
@@ -247,7 +251,7 @@
         }
       }
     },
-    "/api/opportunities-feed": {
+    "/api/v1/opportunities-feed": {
       "get": {
         "summary": "RSS-like JSON feed",
         "operationId": "getOpportunitiesFeed",
@@ -261,7 +265,7 @@
         }
       }
     },
-    "/api/similar/{id}": {
+    "/api/v1/similar/{id}": {
       "get": {
         "summary": "Get similar opportunities",
         "operationId": "getSimilarOpportunities",
@@ -286,7 +290,7 @@
         }
       }
     },
-    "/api/organizations": {
+    "/api/v1/organizations": {
       "get": {
         "summary": "List organizations",
         "operationId": "listOrganizations",
@@ -325,7 +329,7 @@
         }
       }
     },
-    "/api/organizations/{slug}": {
+    "/api/v1/organizations/{slug}": {
       "get": {
         "summary": "Get organization by slug",
         "operationId": "getOrganization",
@@ -352,7 +356,7 @@
         }
       }
     },
-    "/api/search/opportunities": {
+    "/api/v1/search/opportunities": {
       "get": {
         "summary": "Search opportunities",
         "operationId": "searchOpportunities",
@@ -384,7 +388,7 @@
         }
       }
     },
-    "/api/companies": {
+    "/api/v1/companies": {
       "get": {
         "summary": "List companies",
         "operationId": "listCompanies",
@@ -398,7 +402,7 @@
         }
       }
     },
-    "/api/companies/{id}": {
+    "/api/v1/companies/{id}": {
       "get": {
         "summary": "Get company",
         "operationId": "getCompany",
@@ -423,7 +427,7 @@
         }
       }
     },
-    "/api/news": {
+    "/api/v1/news": {
       "get": {
         "summary": "List news articles",
         "operationId": "listNews",
@@ -455,7 +459,7 @@
         }
       }
     },
-    "/api/news/{slug}": {
+    "/api/v1/news/{slug}": {
       "get": {
         "summary": "Get news article",
         "operationId": "getNews",
@@ -482,7 +486,7 @@
         }
       }
     },
-    "/api/subscribe": {
+    "/api/v1/subscribe": {
       "post": {
         "summary": "Subscribe to newsletter",
         "operationId": "subscribe",
@@ -515,7 +519,7 @@
         }
       }
     },
-    "/api/bookmarks": {
+    "/api/v1/bookmarks": {
       "get": {
         "summary": "List bookmarks",
         "operationId": "listBookmarks",
@@ -570,7 +574,7 @@
         }
       }
     },
-    "/api/profile/me": {
+    "/api/v1/profile/me": {
       "get": {
         "summary": "Get own profile",
         "operationId": "getMyProfile",
@@ -596,7 +600,7 @@
         }
       }
     },
-    "/api/resume": {
+    "/api/v1/resume": {
       "post": {
         "summary": "Upload resume",
         "operationId": "uploadResume",
@@ -626,7 +630,7 @@
         }
       }
     },
-    "/api/applications": {
+    "/api/v1/applications": {
       "get": {
         "summary": "List applications",
         "operationId": "listApplications",
@@ -652,7 +656,7 @@
         }
       }
     },
-    "/api/academy/tracks": {
+    "/api/v1/academy/tracks": {
       "get": {
         "summary": "List academy tracks",
         "operationId": "listTracks",
@@ -666,7 +670,7 @@
         }
       }
     },
-    "/api/academy/tracks/{id}": {
+    "/api/v1/academy/tracks/{id}": {
       "get": {
         "summary": "Get track details",
         "operationId": "getTrack",
@@ -691,7 +695,7 @@
         }
       }
     },
-    "/api/resources": {
+    "/api/v1/resources": {
       "get": {
         "summary": "List resources",
         "operationId": "listResources",
@@ -705,7 +709,7 @@
         }
       }
     },
-    "/api/resources/{slug}": {
+    "/api/v1/resources/{slug}": {
       "get": {
         "summary": "Get resource",
         "operationId": "getResource",
@@ -729,7 +733,7 @@
         }
       }
     },
-    "/api/ai/chat": {
+    "/api/v1/ai/chat": {
       "post": {
         "summary": "AI chat assistant",
         "operationId": "aiChat",
@@ -743,7 +747,7 @@
         }
       }
     },
-    "/api/ai/search": {
+    "/api/v1/ai/search": {
       "post": {
         "summary": "AI-powered search",
         "operationId": "aiSearch",
@@ -757,7 +761,7 @@
         }
       }
     },
-    "/api/ai/match": {
+    "/api/v1/ai/match": {
       "post": {
         "summary": "Match opportunities to profile",
         "operationId": "aiMatch",
@@ -771,7 +775,7 @@
         }
       }
     },
-    "/api/admin/opportunities": {
+    "/api/v1/admin/opportunities": {
       "get": {
         "summary": "Admin list opportunities",
         "operationId": "adminListOpportunities",
@@ -840,7 +844,7 @@
         }
       }
     },
-    "/api/admin/opportunities/{id}": {
+    "/api/v1/admin/opportunities/{id}": {
       "get": {
         "summary": "Admin get opportunity",
         "operationId": "adminGetOpportunity",
@@ -904,7 +908,7 @@
         }
       }
     },
-    "/api/admin/opportunities/{id}/verify": {
+    "/api/v1/admin/opportunities/{id}/verify": {
       "patch": {
         "summary": "Verify opportunity",
         "operationId": "adminVerifyOpportunity",
@@ -934,7 +938,7 @@
         }
       }
     },
-    "/api/admin/opportunities/{id}/reject": {
+    "/api/v1/admin/opportunities/{id}/reject": {
       "patch": {
         "summary": "Reject opportunity",
         "operationId": "adminRejectOpportunity",
@@ -964,7 +968,7 @@
         }
       }
     },
-    "/api/admin/organizations": {
+    "/api/v1/admin/organizations": {
       "get": {
         "summary": "Admin list organizations",
         "operationId": "adminListOrganizations",
@@ -1000,7 +1004,7 @@
         }
       }
     },
-    "/api/admin/scrape/status": {
+    "/api/v1/admin/scrape/status": {
       "get": {
         "summary": "Scrape job status",
         "operationId": "getScrapeStatus",
@@ -1019,7 +1023,7 @@
         }
       }
     },
-    "/api/admin/analytics": {
+    "/api/v1/admin/analytics": {
       "get": {
         "summary": "Admin analytics",
         "operationId": "getAdminAnalytics",
@@ -1038,7 +1042,7 @@
         }
       }
     },
-    "/api/admin/subscribers": {
+    "/api/v1/admin/subscribers": {
       "get": {
         "summary": "Admin list subscribers",
         "operationId": "adminListSubscribers",
@@ -1057,7 +1061,7 @@
         }
       }
     },
-    "/api/admin/scrape-health": {
+    "/api/v1/admin/scrape-health": {
       "get": {
         "summary": "Scrape health check",
         "operationId": "getScrapeHealth",
@@ -1076,7 +1080,7 @@
         }
       }
     },
-    "/api/admin/ai/test": {
+    "/api/v1/admin/ai/test": {
       "post": {
         "summary": "Test AI endpoint",
         "operationId": "adminTestAi",
@@ -1095,7 +1099,7 @@
         }
       }
     },
-    "/api/cron/scrape-india": {
+    "/api/v1/cron/scrape-india": {
       "get": {
         "summary": "Cron: scrape India opportunities",
         "operationId": "cronScrapeIndia",
@@ -1114,7 +1118,7 @@
         }
       }
     },
-    "/api/cron/scrape-global": {
+    "/api/v1/cron/scrape-global": {
       "get": {
         "summary": "Cron: scrape global opportunities",
         "operationId": "cronScrapeGlobal",
@@ -1133,7 +1137,7 @@
         }
       }
     },
-    "/api/cron/scrape-news": {
+    "/api/v1/cron/scrape-news": {
       "get": {
         "summary": "Cron: scrape news",
         "operationId": "cronScrapeNews",
@@ -1152,7 +1156,7 @@
         }
       }
     },
-    "/api/cron/check-links": {
+    "/api/v1/cron/check-links": {
       "get": {
         "summary": "Cron: check dead links",
         "operationId": "cronCheckLinks",
@@ -1171,7 +1175,7 @@
         }
       }
     },
-    "/api/cron/cleanup": {
+    "/api/v1/cron/cleanup": {
       "get": {
         "summary": "Cron: expire stale opportunities",
         "operationId": "cronCleanup",
@@ -1190,7 +1194,7 @@
         }
       }
     },
-    "/api/cron/digest": {
+    "/api/v1/cron/digest": {
       "get": {
         "summary": "Cron: send email digest",
         "operationId": "cronDigest",
@@ -1209,7 +1213,7 @@
         }
       }
     },
-    "/api/people/search": {
+    "/api/v1/people/search": {
       "get": {
         "summary": "Search people",
         "operationId": "searchPeople",
@@ -1233,7 +1237,7 @@
         }
       }
     },
-    "/api/feed": {
+    "/api/v1/feed": {
       "get": {
         "summary": "List social feed",
         "operationId": "listFeed",
@@ -1247,7 +1251,7 @@
         }
       }
     },
-    "/api/notifications": {
+    "/api/v1/notifications": {
       "get": {
         "summary": "List notifications",
         "operationId": "listNotifications",
@@ -1261,7 +1265,7 @@
         }
       }
     },
-    "/api/notifications/count": {
+    "/api/v1/notifications/count": {
       "get": {
         "summary": "Unread notification count",
         "operationId": "getNotificationCount",
@@ -1275,7 +1279,7 @@
         }
       }
     },
-    "/api/messages": {
+    "/api/v1/messages": {
       "get": {
         "summary": "List conversations",
         "operationId": "listConversations",
@@ -1301,7 +1305,7 @@
         }
       }
     },
-    "/api/track-click": {
+    "/api/v1/track-click": {
       "post": {
         "summary": "Track outbound click",
         "operationId": "trackClick",
@@ -1315,7 +1319,7 @@
         }
       }
     },
-    "/api/calendar-export/{id}": {
+    "/api/v1/calendar-export/{id}": {
       "get": {
         "summary": "Export calendar event",
         "operationId": "exportCalendar",
@@ -1347,7 +1351,7 @@
         }
       }
     },
-    "/api/auth/signout": {
+    "/api/v1/auth/signout": {
       "post": {
         "summary": "Sign out",
         "operationId": "signOut",
@@ -1361,7 +1365,7 @@
         }
       }
     },
-    "/api/scrape": {
+    "/api/v1/scrape": {
       "get": {
         "summary": "Trigger scrape (admin/cron)",
         "operationId": "triggerScrape",

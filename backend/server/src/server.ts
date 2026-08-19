@@ -18,7 +18,23 @@ if (!env.cronSecret) {
 
 const app = createApp({ env, ...createDbClients() });
 
-app.listen(env.port, "0.0.0.0", () => {
+const server = app.listen(env.port, "0.0.0.0", () => {
   // eslint-disable-next-line no-console
   console.log(`[server] ${env.nodeEnv} listening on :${env.port}`);
 });
+
+// Graceful shutdown — Render/K8s/Docker send SIGTERM before SIGKILL.
+// Drain in-flight requests before exiting.
+function shutdown(signal: string) {
+  // eslint-disable-next-line no-console
+  console.log(`[server] ${signal} received — shutting down`);
+  server.close(() => {
+    // eslint-disable-next-line no-console
+    console.log("[server] closed");
+    process.exit(0);
+  });
+  // Force-kill after 10 s if connections hang.
+  setTimeout(() => process.exit(1), 10_000).unref();
+}
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

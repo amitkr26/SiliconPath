@@ -144,11 +144,12 @@ export function generateOpenAPISpec(): OpenAPISpec {
       description: "BerojgarDegreeWala - VLSI/Embedded Career Platform API",
     },
     servers: [
-      { url: "https://berojgardegreewala.vercel.app", description: "Production" },
-      { url: "http://localhost:3000", description: "Development" },
+      { url: "https://electrobridge-api.onrender.com/api/v1", description: "Backend (Render)" },
+      { url: "https://berojgardegreewala.vercel.app/api", description: "Frontend (Vercel)" },
+      { url: "http://localhost:8080/api/v1", description: "Local backend" },
     ],
     paths: {
-      "/api/opportunities": {
+      "/api/v1/opportunities": {
         get: {
           summary: "List opportunities",
           description: "Paginated list of opportunities with filtering, search, and sorting",
@@ -182,7 +183,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/opportunities/{id}": {
+      "/api/v1/opportunities/{id}": {
         get: {
           summary: "Get opportunity by ID",
           operationId: "getOpportunityById",
@@ -194,7 +195,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/opportunities/by-slug/{slug}": {
+      "/api/v1/opportunities/by-slug/{slug}": {
         get: {
           summary: "Get opportunity by slug",
           operationId: "getOpportunityBySlug",
@@ -206,7 +207,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/opportunities/featured": {
+      "/api/v1/opportunities/featured": {
         get: {
           summary: "List featured opportunities",
           operationId: "listFeaturedOpportunities",
@@ -216,7 +217,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/opportunities/stats": {
+      "/api/v1/opportunities/stats": {
         get: {
           summary: "Opportunity statistics",
           operationId: "getOpportunityStats",
@@ -226,7 +227,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/opportunities-feed": {
+      "/api/v1/opportunities-feed": {
         get: {
           summary: "RSS-like JSON feed",
           operationId: "getOpportunitiesFeed",
@@ -236,7 +237,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/similar/{id}": {
+      "/api/v1/similar/{id}": {
         get: {
           summary: "Get similar opportunities",
           operationId: "getSimilarOpportunities",
@@ -247,7 +248,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/organizations": {
+      "/api/v1/organizations": {
         get: {
           summary: "List organizations",
           operationId: "listOrganizations",
@@ -262,7 +263,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/organizations/{slug}": {
+      "/api/v1/organizations/{slug}": {
         get: {
           summary: "Get organization by slug",
           operationId: "getOrganization",
@@ -274,7 +275,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/search/opportunities": {
+      "/api/v1/search/opportunities": {
         get: {
           summary: "Search opportunities",
           operationId: "searchOpportunities",
@@ -288,7 +289,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/companies": {
+      "/api/v1/companies": {
         get: {
           summary: "List companies",
           operationId: "listCompanies",
@@ -298,7 +299,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/companies/{id}": {
+      "/api/v1/companies/{id}": {
         get: {
           summary: "Get company",
           operationId: "getCompany",
@@ -309,7 +310,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/news": {
+      "/api/v1/news": {
         get: {
           summary: "List news articles",
           operationId: "listNews",
@@ -323,7 +324,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/news/{slug}": {
+      "/api/v1/news/{slug}": {
         get: {
           summary: "Get news article",
           operationId: "getNews",
@@ -335,7 +336,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/subscribe": {
+      "/api/v1/subscribe": {
         post: {
           summary: "Subscribe to newsletter",
           operationId: "subscribe",
@@ -346,7 +347,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/bookmarks": {
+      "/api/v1/bookmarks": {
         get: {
           summary: "List bookmarks",
           operationId: "listBookmarks",
@@ -367,7 +368,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/profile/me": {
+      "/api/v1/profile/me": {
         get: {
           summary: "Get own profile",
           operationId: "getMyProfile",
@@ -385,7 +386,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/resume": {
+      "/api/v1/resume": {
         post: {
           summary: "Upload resume",
           operationId: "uploadResume",
@@ -396,7 +397,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/applications": {
+      "/api/v1/applications": {
         get: {
           summary: "List applications",
           operationId: "listApplications",
@@ -414,7 +415,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/academy/tracks": {
+      "/api/v1/academy/tracks": {
         get: {
           summary: "List academy tracks",
           operationId: "listTracks",
@@ -424,7 +425,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/academy/tracks/{id}": {
+      "/api/v1/academy/tracks/{id}": {
         get: {
           summary: "Get track details",
           operationId: "getTrack",
@@ -435,7 +436,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/resources": {
+      "/api/v1/resources": {
         get: {
           summary: "List resources",
           operationId: "listResources",
@@ -445,7 +446,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/resources/{slug}": {
+      "/api/v1/resources/{slug}": {
         get: {
           summary: "Get resource",
           operationId: "getResource",
@@ -456,7 +457,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/ai/chat": {
+      "/api/v1/ai/chat": {
         post: {
           summary: "AI chat assistant",
           operationId: "aiChat",
@@ -466,7 +467,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/ai/search": {
+      "/api/v1/ai/search": {
         post: {
           summary: "AI-powered search",
           operationId: "aiSearch",
@@ -476,7 +477,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/ai/match": {
+      "/api/v1/ai/match": {
         post: {
           summary: "Match opportunities to profile",
           operationId: "aiMatch",
@@ -486,7 +487,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/admin/opportunities": {
+      "/api/v1/admin/opportunities": {
         get: {
           summary: "Admin list opportunities",
           operationId: "adminListOpportunities",
@@ -512,7 +513,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/admin/opportunities/{id}": {
+      "/api/v1/admin/opportunities/{id}": {
         get: {
           summary: "Admin get opportunity",
           operationId: "adminGetOpportunity",
@@ -542,7 +543,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/admin/opportunities/{id}/verify": {
+      "/api/v1/admin/opportunities/{id}/verify": {
         patch: {
           summary: "Verify opportunity",
           operationId: "adminVerifyOpportunity",
@@ -554,7 +555,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/admin/opportunities/{id}/reject": {
+      "/api/v1/admin/opportunities/{id}/reject": {
         patch: {
           summary: "Reject opportunity",
           operationId: "adminRejectOpportunity",
@@ -566,7 +567,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/admin/organizations": {
+      "/api/v1/admin/organizations": {
         get: {
           summary: "Admin list organizations",
           operationId: "adminListOrganizations",
@@ -586,7 +587,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/admin/scrape/status": {
+      "/api/v1/admin/scrape/status": {
         get: {
           summary: "Scrape job status",
           operationId: "getScrapeStatus",
@@ -597,7 +598,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/admin/analytics": {
+      "/api/v1/admin/analytics": {
         get: {
           summary: "Admin analytics",
           operationId: "getAdminAnalytics",
@@ -608,7 +609,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/admin/subscribers": {
+      "/api/v1/admin/subscribers": {
         get: {
           summary: "Admin list subscribers",
           operationId: "adminListSubscribers",
@@ -619,7 +620,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/admin/scrape-health": {
+      "/api/v1/admin/scrape-health": {
         get: {
           summary: "Scrape health check",
           operationId: "getScrapeHealth",
@@ -630,7 +631,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/admin/ai/test": {
+      "/api/v1/admin/ai/test": {
         post: {
           summary: "Test AI endpoint",
           operationId: "adminTestAi",
@@ -641,7 +642,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/cron/scrape-india": {
+      "/api/v1/cron/scrape-india": {
         get: {
           summary: "Cron: scrape India opportunities",
           operationId: "cronScrapeIndia",
@@ -652,7 +653,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/cron/scrape-global": {
+      "/api/v1/cron/scrape-global": {
         get: {
           summary: "Cron: scrape global opportunities",
           operationId: "cronScrapeGlobal",
@@ -663,7 +664,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/cron/scrape-news": {
+      "/api/v1/cron/scrape-news": {
         get: {
           summary: "Cron: scrape news",
           operationId: "cronScrapeNews",
@@ -674,7 +675,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/cron/check-links": {
+      "/api/v1/cron/check-links": {
         get: {
           summary: "Cron: check dead links",
           operationId: "cronCheckLinks",
@@ -685,7 +686,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/cron/cleanup": {
+      "/api/v1/cron/cleanup": {
         get: {
           summary: "Cron: expire stale opportunities",
           operationId: "cronCleanup",
@@ -696,7 +697,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/cron/digest": {
+      "/api/v1/cron/digest": {
         get: {
           summary: "Cron: send email digest",
           operationId: "cronDigest",
@@ -707,7 +708,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/people/search": {
+      "/api/v1/people/search": {
         get: {
           summary: "Search people",
           operationId: "searchPeople",
@@ -718,7 +719,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/feed": {
+      "/api/v1/feed": {
         get: {
           summary: "List social feed",
           operationId: "listFeed",
@@ -728,7 +729,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/notifications": {
+      "/api/v1/notifications": {
         get: {
           summary: "List notifications",
           operationId: "listNotifications",
@@ -738,7 +739,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/notifications/count": {
+      "/api/v1/notifications/count": {
         get: {
           summary: "Unread notification count",
           operationId: "getNotificationCount",
@@ -748,7 +749,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/messages": {
+      "/api/v1/messages": {
         get: {
           summary: "List conversations",
           operationId: "listConversations",
@@ -766,7 +767,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/track-click": {
+      "/api/v1/track-click": {
         post: {
           summary: "Track outbound click",
           operationId: "trackClick",
@@ -776,7 +777,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/calendar-export/{id}": {
+      "/api/v1/calendar-export/{id}": {
         get: {
           summary: "Export calendar event",
           operationId: "exportCalendar",
@@ -787,7 +788,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/auth/signout": {
+      "/api/v1/auth/signout": {
         post: {
           summary: "Sign out",
           operationId: "signOut",
@@ -797,7 +798,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
           },
         },
       },
-      "/api/scrape": {
+      "/api/v1/scrape": {
         get: {
           summary: "Trigger scrape (admin/cron)",
           operationId: "triggerScrape",
