@@ -12,6 +12,7 @@ export interface Env {
   allowedOrigins: string[];
   adminPassword: string;
   adminHmacSecret: string;
+  cronSecret: string;
   port: number;
   nodeEnv: string;
 }
@@ -32,6 +33,7 @@ export function loadEnv(): Env {
     allowedOrigins: csv(process.env.ALLOWED_ORIGINS, ["http://localhost:3000"]),
     adminPassword: process.env.ADMIN_PASSWORD || "",
     adminHmacSecret: process.env.ADMIN_HMAC_SECRET || "",
+    cronSecret: process.env.CRON_SECRET || "",
     port: parseInt(process.env.PORT || "8080", 10),
     nodeEnv: process.env.NODE_ENV || "development",
   };

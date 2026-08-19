@@ -81,6 +81,13 @@ export function fakeSupabase(
               error: null,
             }
           : { data: { user: null }, error: { message: "invalid token" } },
+      // Stub used by the auth signup route (real call hits Supabase Admin API).
+      admin: {
+        createUser: async (opts: { email: string }) => ({
+          data: { user: { id: "user-1", email: opts.email } },
+          error: null,
+        }),
+      },
     },
     from: (table: string) => {
       const v = lookup(table, dataByTable);

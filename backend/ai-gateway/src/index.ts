@@ -4,7 +4,7 @@
 export type { GatewayRequest, GatewayResponse } from "./types/gateway";
 
 // Gateway provider types
-export type { AIProvider } from "./gateway";
+export type { AIProvider, AILogEntry } from "./gateway";
 
 // Core singleton
 export { gateway, AIGateway } from "./gateway";
