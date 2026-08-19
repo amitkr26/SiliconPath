@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabaseAdmin
     .from("user_profiles")
-    .select("id, display_name, headline, current_company, avatar_url")
+    .select("id, username, display_name, headline, current_company, avatar_url")
     .in("id", ids);
 
   if (q) {
