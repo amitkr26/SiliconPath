@@ -1,5 +1,7 @@
 # Content Quality & Opportunity Data Upgrade — Implementation Plan
 
+> STATUS: MOSTLY RESOLVED (2026-08-16 Phase 1.x) — see CHANGELOG 2026-08-16/17 entries
+
 > Phase 1 (audit) output. Grounded in the actual codebase as of 2026-08-11.
 > **No production behavior has been modified.** Implementation begins only after
 > this plan is approved. Every change below is file-specific and reversible.

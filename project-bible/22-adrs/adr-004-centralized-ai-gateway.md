@@ -1,5 +1,7 @@
 # ADR-004: Centralized AI Gateway with Fallback Chain
 
+> STATUS: IMPLEMENTED 2026-08-16 — live chain: groq→gemini→openrouter→nvidia→agentrouter→omnirouter→cloudflare→bedrock→huggingface (9 providers, 10-min cooldown on failure).
+
 **Status**: Accepted
 **Date**: 2024-02-10
 **Author**: Architecture Board

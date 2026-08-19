@@ -1,69 +1,41 @@
 # Frontend Architecture
 
-## Stack
+> Last reconciled: 2026-08-19
 
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript (strict mode)
-- **Styling**: Tailwind CSS v3
-- **UI Library**: Lucide React (icons), Sonner (toasts)
-- **State**: React built-in (useState, useEffect, useCallback)
-- **Auth**: @supabase/ssr (cookie-based SSR auth)
-- **Data Fetching**: Server Components + client fetch
-- **Testing**: Jest + @testing-library/react
+## Stack (`frontend/package.json`, measured 2026-08-19)
 
-## Architecture
+- Next.js 14.2 (App Router), React 18, TypeScript 5, Tailwind CSS 3.4
+- Auth: `@supabase/ssr` (cookie-based SSR auth)
+- Data fetching: Server Components; `@tanstack/react-query` for client-side fetching
+- UI: `lucide-react` (icons), `sonner` (toasts)
+- Observability: `@sentry/nextjs`
+- Workspace deps: `@berojgardegreewala/api` (auth guards, rate limiting, validation, error helpers), `@berojgardegreewala/ai-gateway` (AI provider chain)
 
-### Server Components (Default)
-Public pages (opportunities, academy, news, organizations, resources) use Server Components with ISR (Incremental Static Regeneration). Data is fetched server-side and passed to client components for interactivity.
+## Structure (`frontend/src/app`)
 
-### Client Components (When Needed)
-Pages that require interactivity (filters, search, bookmarks, networking) use Client Components. The strategy is: keep the server component shell, delegate interactivity to isolated client sub-components.
+- 34 top-level route groups: about, academy, admin, api, applications, ask-ai, auth, categories, category, chat, community, companies, contact, dashboard, employer, employers, feed, login, match, messages, network, news, notifications, onboarding, opportunities, organizations, people, post-job, profile, resources, resume, saved, search, signup.
+- API surface: 138 handlers under `api/` — see `project-bible/07-api/README.md`.
+- Error boundaries: root `error.tsx`, `global-error.tsx`, plus `academy/error.tsx`, `admin/error.tsx`, `profile/error.tsx`.
+- Loading states: `loading.tsx` skeletons on list/detail pages (opportunities, organizations, news, chat, resume, category).
+- SEO: `sitemap.ts` (+ `/api/sitemap`), `robots.ts` (disallows `/admin` and `/api/`, points at sitemap.xml), metadata in `layout.tsx`.
+- Shared libs under `frontend/src/lib/`: `supabase.ts` (supabaseAdmin service-role client), `logger.ts`, `ai/`, `scrapers/`, `admin-auth.ts`.
 
-### Route Structure
-- Public routes: `/opportunities`, `/academy`, `/news`, `/organizations`, `/resources`
-- Auth routes: `/login`, `/signup`, `/auth/callback`, `/onboarding`
-- Protected routes: `/feed`, `/network`, `/messages`, `/notifications`, `/profile`, `/dashboard`
-- Admin routes: `/admin/*`
-- API routes: `/api/*` (74 handlers)
+## Middleware (`frontend/src/middleware.ts`)
 
-### Data Flow
-1. Server Component fetches initial data from Supabase
-2. Client Component hydrates with initial data
-3. Filter/search changes trigger client-side API calls to `/api/*`
-4. API routes use `supabaseAdmin` (service role) for DB queries
-5. Auth state is managed via Supabase SSR cookies
-
-### Middleware
-`middleware.ts` gates Tier 2 paths (feed, network, messages, companies, people) behind authentication. Unauthenticated users are redirected to `/login?redirectTo=...`.
+Applied to every request: origin-allowlist CSRF guard on mutations, per-bucket rate limits (api/auth/search/scrape/ai), auth gate for social and employer paths (401 for APIs, `/login?redirectTo=` redirect for pages), employer role check (`user_metadata.role` or legacy `account_type`), security headers (CSP, nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy, HSTS in prod), `code` param → `/auth/callback` redirect. Details and exact buckets: `project-bible/07-api/README.md`.
 
 ## Key Patterns
 
-### Error Boundaries
-Route groups have error boundaries at the boundary level:
-- `/academy/error.tsx`
-- `/admin/error.tsx`
-- `/profile/error.tsx`
-- Root `/error.tsx`
+- Server Components by default; client components as interactive islands (filters, search, bookmarks, networking).
+- Server-side data access via `supabaseAdmin`; auth state via Supabase SSR cookies.
+- All `/api/admin/*` routes call `requireAdmin` fail-closed; cron routes call `requireCron` / `requireCronOrAdmin`; validation via Zod schemas from `@berojgardegreewala/api`.
 
-### Loading States
-Skeleton loaders for list pages, spinners with timeouts for individual operations.
+## Deploy
 
-### SEO
-- Dynamic sitemap generation at `/sitemap.ts`
-- `robots.ts` disallows `/admin` and `/api/`
-- JSON-LD structured data on opportunity pages
-- Canonical URLs on list pages
+- `vercel.json`: `cd frontend && npm run build`, output `frontend/.next`, 3 scheduled crons (`/api/cron/scrape-opportunities` 00:00, `/api/cron/check-links` 08:00, `/api/news/sync` 06:00 UTC), permanent redirect `/auth/signin` → `/login`.
 
-## Performance Considerations
+## Related
 
-- ISR with 5-minute revalidation on public list pages
-- Streaming for data-heavy pages
-- Optimized images via `next/image`
-- Code splitting via dynamic imports for heavy components (AI panels, resume builder)
-
-## Related Documents
-
-- [component-architecture.md](./component-architecture.md)
-- [middleware-auth.md](./middleware-auth.md)
-- [data-fetching.md](./data-fetching.md)
-- [routing.md](./routing.md)
+- API surface and guards: `project-bible/07-api/README.md`
+- AI utilities and gateway wiring: `project-bible/08-ai/README.md`
+- Scraping pipeline: `project-bible/09-scrapers/README.md`

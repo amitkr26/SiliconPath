@@ -2,39 +2,32 @@
 
 ```text
 PROJECT: BerojgarDegreeWala / SiliconPath
-LAST_UPDATED: 2026-08-18T21:14:00+05:30
-CURRENT_PHASE: Complete Social E2E Verified (Connections + Direct Messaging + Feed + Profiles)
-CURRENT_FEATURE: Social Core & Direct Messaging & LinkedIn-style Profile Resolution
-CURRENT_SUBTASK: Ready for Commit & Deployment
-CURRENT_OWNER: NONE
+LAST_UPDATED: 2026-08-19
+CURRENT_PHASE: Backend Replication + Project-Bible Reconciliation
+CURRENT_FEATURE: backend/ parity (docs done, implementation in progress); full docs reconciliation (2026-08-19)
+CURRENT_OWNER: OpenCode
 TASK_LOCK: RELEASED
-STATUS: READY
+STATUS: IN PROGRESS
 BLOCKER: NONE
-LAST_VERIFIED: E2E Social Script (17/17 passed), npm test (14/14 suites, 104/104 passed), npm run build (passed 0 errors, 237 routes)
-NEXT_ACTION: Commit all verified fixes & push to GitHub origin/main for Vercel production deployment
-LOCAL_SERVER: http://localhost:3000 (PID 15992 active)
+LAST_VERIFIED: E2E production 9/9 (deploys c4c60f6, 6d9684d, 683404c); jest 104/104; build exit 0 (a79773a)
+NEXT_ACTION: Finish backend/server parity implementation (social layer → AI endpoints → cron/scrapers port), then final E2E regression + commit
+LOCAL_SERVER: http://localhost:3000 (dev, when running)
 DATABASE: Supabase DB1 (aqauempuwmbizqoaolop)
-LAST_COMMIT: clean/main
+LAST_COMMITS: 683404c (network 4 tabs + clickable cards + profile live columns), a79773a (connections username)
 ```
 
-## Active Tasks / Milestone Status
-- [x] P0.1: Build & Type Integrity — `npm run build` with 0 errors across all 237 routes
-- [x] P0.2: Test Suite Integrity — `npm test` with 14/14 suites (104 tests) passing
-- [x] P0.3: Social RLS Migration definition — `frontend/supabase/migrations/20260817000001_fix_social_rls_v2.sql` authored
-- [x] P1.1: Fix Network suggestions filter (`isSystemBot()`) to allow real candidates
-- [x] P1.2: Fix 1-to-1 direct messaging recipient profile resolution via `/api/profile/[userId]`, `validation.ts` schema aliases, ReferenceError fix, & 3s polling
-- [x] P1.3: Fix Community Feed post display (all active discussions query)
-- [x] P1.4: Fix Profile routing `/profile/[username]` supporting both UUID user ID and username lookups
-- [x] P1.5: E2E Social Multi-User Test: 17/17 steps passed (login, suggestions, connect request, accept, connection list, send message, send reply, conversation list, message history, profile lookup)
-- [x] P2.1: Fix Resume Builder persistence in `user_profiles.resume_data` with ATS scoring (40-100)
-- [x] P2.2: Fix Saved Opportunities / Bookmarks organization name resolution
-- [x] P3.1: Remove search blacklist on opportunities ("Qualcomm", "Lead RISC-V", "ASIC Verification", etc.)
-- [x] P3.2: Build interactive Organizations Directory client with instant search & category tabs
-- [x] P3.3: Ensure continuous 1-7 track numbering in VLSI Academy
-- [x] P4.1: Fix employer authentication checks (`isEmployerUser` supporting `user_metadata` & `user_profiles.account_type`)
-- [x] P4.2: Fix employer recommendations schema columns query (`location`, `current_company`)
-- [x] P5.1: Fix scraper deduplication URL query (`in("source_url", [...])` preventing PostgREST formatting errors)
+## Milestone Status
+- [x] Social core + direct messaging + LinkedIn-style profile resolution — E2E 9/9, production
+- [x] Network page 4 tabs (suggestions/received/sent/connections) + clickable user cards → `/profile/:username` (commit `683404c`, deploy READY)
+- [x] Connections API returns `username` so card links resolve (commit `a79773a` — deploy BUILDING 2026-08-19; re-verify probe after READY)
+- [x] Backend audit (backend/ + frontend/ 150-route surface) — 2026-08-19
+- [x] Parity docs: `backend/docs/FRONTEND-BACKEND-MAP.md`, `backend/docs/API-PARITY.md`
+- [x] Project-bible reconciliation (2026-08-19): section READMEs (04–23), machine specs, ADRs, backlog annotations, ARCHITECTURE/MASTER_INDEX/IMPLEMENTATION_STATUS/KNOWN_ISSUES rewritten
+- [ ] Backend/server parity implementation: rate limiting → AI endpoints (chat/match/search/summarize + usage logging) → social layer (feed/network/messages/notifications) → news `:slug`/search/signup → news RSS sync + scraper port
+- [ ] Backend tests (node:test for new routes) + all suites + independence check
+- [ ] `backend/docs/DATABASE-MAP.md` + `backend/docs/BACKEND-EXTRACTION-REPORT.md`
+- [ ] Final E2E 9/9 regression + docs/session report + commit + push
 
-## Next Tasks
-- [ ] P7.1: Git commit & push all verified fixes to origin/main for automatic Vercel deployment
-- [ ] P7.2: Production smoke test against live `https://berojgardegreewala.vercel.app`
+## Blockers
+- KNOWN_ISSUES #1 (stale local Project 1 service-role key) — production unaffected
+- KNOWN_ISSUES #9 (ci.yml broken paths), #10 (openapi script), #11 (ai-gateway no tests)

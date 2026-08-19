@@ -1,5 +1,7 @@
 # BerojgarDegreeWala — Master Specification Document
 
+> STATUS: HISTORICAL (pre-2026-08-16) — superseded by docs/audit-reports/2026-08-16-implementation-map.md and project-bible/CHANGELOG.md
+
 **Purpose of this document:** Single source of truth for the product vision, architecture, database design, and operating rules. Any agent (Claude Code, Antigravity, OpenCode) or collaborator should read this before making changes. Supersedes fragmented prior planning docs.
 
 ---

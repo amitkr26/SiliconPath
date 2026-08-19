@@ -1,88 +1,30 @@
-# User Features
+# User Features (Candidates)
 
 ## Overview
 
-BerojgarDegreeWala user module provides profiles, social connections, messaging, feed, and resume management for registered VLSI professionals.
+Candidate-facing features for registered users: profile, resume, saved opportunities, applications, academy progress, and the social layer (network, messaging, notifications, feed). E2E-verified on production (9/9 passing, 2026-08-18).
 
-## Current Status
+## Implemented
 
-Auth and basic user features are implemented. Social features (feed, connections, messaging, notifications) have database tables and some API routes but limited frontend.
+- **Profile** (`/profile`) — view/edit, username uniqueness, `PUBLIC_PROFILE_FIELDS` allowlist for public views, view counter via RPC
+- **Resume** (`/resume`) — CRUD, ATS score, ai-suggest, `parse-resume` via GCP Document AI
+- **Saved opportunities** (`/saved`)
+- **Applications** (`/applications`) — idempotent submission; status whitelist: `applied | submitted | reviewed | shortlisted | accepted | rejected`
+- **Academy progress** — guest progress stored locally, authenticated progress in DB
+- **Network** — suggestions, connect (pending/accept/reject/withdraw), connections list, follow/unfollow, followers/following
+- **Messaging** — conversations keyed by `participant_a`/`participant_b`, read receipts
+- **Notifications** — list, unread count, mark read
+- **Feed** — post, like, comment, repost; counts trigger-maintained
+- **Recommendations** — keyword-scored opportunity recommendations
+- **Skill endorsements**
+- **Community** — posts, comments, vote
 
-## User Journey
+## Authentication
 
-### Sign Up → Onboarding → Browse
-1. Register via email, Google, or GitHub (Supabase Auth)
-2. Complete onboarding profile (name, title, skills, experience)
-3. Browse opportunities and academy content
-4. Save/bookmark opportunities
-5. Connect with other professionals
-6. Build and manage resume
-
-## Implemented Features
-
-### Authentication
-- Email/password registration and login
-- Google OAuth
-- GitHub OAuth (configured but Supabase free tier only allows 2 OAuth providers)
-- Magic link (planned)
-- Password reset
-
-### Profile (`/profile`)
-- Display name, bio, avatar
-- Job title, company
-- Skills (tags)
-- Education history
-- Track completion badges
-- Social links (LinkedIn, GitHub, Twitter)
-- Settings (notifications, privacy)
-
-### Bookmarks
-- Save opportunities for later
-- Quick apply from saved list
-- Category tagging (planned)
-
-### Resume Builder (`/resume`)
-- Sections: summary, experience, education, skills, projects, certifications
-- PDF download (planned)
-- Auto-fill from profile (planned)
-
-## Planned Features
-
-### Feed
-- Post updates, articles, questions
-- Like, comment, share
-- Follow users
-- Algorithmic or chronological feed
-
-### Connections
-- Send/receive connection requests
-- Mutual connections display
-- Recommended connections based on skills
-- Import contacts (planned)
-
-### Messages
-- Real-time messaging (WebSocket or polling)
-- Conversation threads
-- Read receipts
-- File/image sharing
-
-### Notifications
-- Connection requests
-- New messages
-- Application updates
-- Academy milestone completions
-- Opportunity match alerts
-
-## Privacy Controls
-
-- Profile visibility (public, connections only, private)
-- Activity status (online/offline)
-- Block users
-- Report/inappropriate content
-- Data export (planned)
-- Account deletion (planned)
+- Email/password + Google OAuth via Supabase Auth
+- No GitHub OAuth
+- No user alerts/email-digest except the weekly digest (Resend) for subscribers
 
 ## Related Documents
 
-- [auth-flow.md](./auth-flow.md) — Authentication flow
-- [social-features.md](./social-features.md) — Social feature details
+None.

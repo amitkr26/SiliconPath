@@ -2,26 +2,29 @@
 
 ## Overview
 
-Operational procedures for running BerojgarDegreeWala: monitoring, incident response, backup/recovery, deployment, maintenance windows, and capacity planning.
+Operational procedures for BerojgarDegreeWala: monitoring, incident response,
+backup/recovery, deployment, maintenance windows, and capacity planning.
+Verified against the live setup 2026-08-19.
 
 ## Monitoring
 
 ### Health Checks
-- Backend: `GET /health` → `{ status: 'ok', db: 'connected', lastScrapeRun: '...' }`
-- Frontend: Vercel status page → uptime monitoring
-- Database: Supabase dashboard → active connections, query performance
-- Cron: Scrape run log in `scrape_runs` table
+- Frontend: `GET /api/health` — checks db1/db2 (Supabase) and neon1/neon2 (Neon).
+- Backend: `GET /health` (backend/server) — no DB dependency, returns `{ status: "ok" }`.
+- Cron: Vercel cron log for `/api/cron/scrape-opportunities`, `/api/cron/check-links`, `/api/news/sync`.
 
-### Alerting
-- Sentry: Error threshold alerts (5+ errors in 5 minutes)
-- Cron failure: Admin notification if scrape run fails 3 consecutive times
-- Database connection: Alert if pool exhaustion approaches
-- Rate limiting: Alert if hitting Upstash quota
+### Dashboards & Alerting
+- Vercel dashboard + runtime logs for the deployed app; Supabase dashboard for DB1/DB2.
+- Sentry error tracking via `NEXT_PUBLIC_SENTRY_DSN`.
+- Plausible analytics (privacy-first, allowlisted in the middleware CSP).
+- No Prometheus; no `/metrics` endpoint. No automated quota alerts.
 
-### Key Metrics (Prometheus)
-- Backend: `scrape_jobs_total`, `scrape_errors_total`, `scrape_duration_seconds`
-- API: `http_requests_total`, `http_request_duration_seconds`, `http_errors_total`
-- Database: `db_connections_active`, `db_query_duration_seconds`
+### Rate Limiting
+- In-memory token buckets from `@berojgardegreewala/api` (`createRateLimiter`),
+  applied per path in `frontend/src/middleware.ts`:
+  api 120/min, auth 10/min, search 30/min, scrape 5/min, ai 20/min.
+- Upstash Redis is optional: `frontend/src/lib/rate-limiter.ts` uses Upstash only
+  when its env vars are set, otherwise falls back to in-memory buckets.
 
 ## Incident Response
 
@@ -35,18 +38,18 @@ Operational procedures for running BerojgarDegreeWala: monitoring, incident resp
 | P4 | Cosmetic/non-functional | Backlog | None |
 
 ### Runbook
-1. **Identify**: Check Sentry, health checks, logs
+1. **Identify**: Check Vercel runtime logs, Sentry, health endpoints
 2. **Assess**: Determine severity level
-3. **Respond**: Apply fix or rollback
+3. **Respond**: Apply fix or roll back (Vercel dashboard, previous deployment)
 4. **Communicate**: Status page / in-app notice
-5. **Post-mortem**: Document root cause and prevention
+5. **Post-mortem**: Document root cause and prevention (CHANGELOG entry)
 
 ## Backup Recovery
 
 ### Supabase
 - Point-in-time recovery (7 days on free tier)
-- Export via `supabase db dump` weekly
-- Full schema in migration files
+- Schema in version-controlled migrations (`frontend/supabase/migrations`),
+  including RLS policies — verified live 2026-08-18, do not re-apply blindly
 
 ### Neon
 - Automated daily backups
@@ -61,22 +64,23 @@ Operational procedures for running BerojgarDegreeWala: monitoring, incident resp
 ## Deployment
 
 ### Frontend (Vercel)
-- Auto-deploy from `main` branch
+- Git integration: push to `main` auto-deploys (~15 min build)
 - Preview deployments for PR branches
 - Rollback via Vercel dashboard to any previous deployment
+- `[vercel skip]` commit tokens do not work (no Ignored Build Step); CLI
+  `vercel deploy --prod` races the git deploy and must not be used
 
-### Backend (Render)
-- Manual deploy from GitHub or `render.yaml`
-- Blue-green via Render's built-in deployment
-- Rollback via Render dashboard
+### Backend (backend/server)
+- Not deployed. Self-host via Docker (`backend/server/Dockerfile`) if needed;
+  the API boots with empty env, DB routes return 503 until keys are set.
 
 ### Deployment Checklist
-- [ ] All tests passing (CI green)
+- [ ] All tests passing (104 jest + 6 playwright specs)
 - [ ] Migration files reviewed and tested
-- [ ] Environment variables updated
+- [ ] Environment variables updated (reference: `frontend/.env.example`)
 - [ ] Preview deployment verified
 - [ ] Database backup current
-- [ ] Monitoring confirms healthy
+- [ ] Monitoring confirms healthy (`/api/health`)
 
 ## Maintenance Windows
 
@@ -94,22 +98,21 @@ Operational procedures for running BerojgarDegreeWala: monitoring, incident resp
 ## Capacity Planning
 
 ### Current Limits (Free Tier)
-| Resource | Limit | Current Usage | Growth Margin |
-|----------|-------|---------------|---------------|
-| DB1 storage | 500 MB | ~150 MB | 70% |
-| DB2 storage | 500 MB | ~50 MB | 90% |
-| Vercel bandwidth | 100 GB | ~20 GB/mo | 80% |
-| Vercel builds | 6000 min | ~500 min/mo | 92% |
-| Render hours | 750 hr | ~500 hr/mo | 33% |
-| Upstash commands | 10K/day | ~2K/day | 80% |
+| Resource | Limit | Notes |
+|----------|-------|-------|
+| DB1 storage | 500 MB | Supabase free tier |
+| DB2 storage | 500 MB | Supabase free tier |
+| Vercel bandwidth | 100 GB | Hobby |
+| Vercel builds | 6000 min | Hobby |
+| Neon | shared compute, 5 GB storage | 2 databases |
+| Upstash | optional | only when rate-limiter env vars set |
 
 ### Upgrade Triggers
 - DB storage > 80% → request Supabase Pro upgrade
 - Vercel bandwidth > 80% → optimize images/ISR or upgrade
-- Render visits reaching free tier limit → upgrade to Starter ($7/mo)
+- Build minutes exhausted → reduce build frequency or upgrade
 
 ## Related Documents
 
-- [incident-response.md](./incident-response.md) — Incident runbooks
-- [runbooks.md](./runbooks.md) — Common operations runbooks
-- [maintenance-checklist.md](./maintenance-checklist.md) — Scheduled maintenance
+- [SECURITY.md](../13-security/SECURITY.md) — security policy and secrets handling
+- [DevOps](../14-devops/README.md) — deployment architecture and CI/CD

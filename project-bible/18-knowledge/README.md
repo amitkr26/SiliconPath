@@ -28,7 +28,7 @@ The BerojgarDegreeWala knowledge base is a living document for domain expertise,
 - Auth redirect loop → check middleware.ts, callback URL
 - Opportunity not showing → check verification_status
 - Build errors → check TypeScript strict mode, missing imports
-- Rate limiting → check Upstash dashboard, fallback Map
+- Rate limiting → check middleware buckets (`@berojgardegreewala/api`), in-memory unless Upstash env vars set
 - Slug conflict → check DB for duplicates, regenerate
 
 ### Common Errors & Fixes
@@ -49,11 +49,8 @@ The BerojgarDegreeWala knowledge base is a living document for domain expertise,
 6. **AI output is unpredictable**: Always use tolerant parser, never `JSON.parse()`
 7. **Migration files are not the truth**: The live database schema is the truth
 8. **Column drift is real**: Bridge functions (map* patterns) are necessary
-9. **Backend cold starts**: Render spins down after inactivity — first request takes ~30s
-10. **Supabase OAuth limit**: Free tier only allows 2 OAuth providers
-
-## Related Documents
-
-- [vlsi-glossary.md](./vlsi-glossary.md) — Domain glossary
-- [debugging-guides.md](./debugging-guides.md) — Debugging procedures
-- [lessons-learned.md](./lessons-learned.md) — Full lessons learned
+9. **Serverless cold starts**: Vercel functions can be slow on first hit after
+   idle; keep DB fetches lean. The standalone backend (`backend/server`) is not
+   deployed; if self-hosted via Docker it has no spin-down behavior
+10. **OAuth surface**: Only email/password and Google OAuth are configured on
+   Supabase — no GitHub OAuth exists

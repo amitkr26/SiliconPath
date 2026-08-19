@@ -1,79 +1,64 @@
 # DevOps Architecture
 
-## Deployment Overview
+## Deployment
 
-| Service | Provider | Purpose | Plan |
-|---------|----------|---------|------|
-| Frontend | Vercel | Next.js 14 application | Free (Hobby) |
-| DB1 | Supabase | Core platform data | Free |
-| DB2 | Supabase | Social + user data | Free |
-| Analytics | Neon | Page views, clicks, search | Free |
-| Rate Limiting | Upstash | Distributed rate limiting | Free |
-| Email | Resend | Transactional emails | Free |
-| AI Providers | Groq, etc. | LLM inference | Free tier |
-| Error Tracking | Sentry | Error monitoring | Free |
-| Analytics | Plausible | Privacy-first analytics | Self-hosted |
+Production is a single deployment: the Next.js frontend on Vercel, driven by git
+integration (push to `main` triggers an auto-deploy; ~15 min build). There is no
+Render deployment and the standalone backend (`backend/server`) is not deployed
+anywhere.
 
-## Free Tier Constraints
+| Service | Provider | Purpose |
+|---------|----------|---------|
+| Frontend + API routes | Vercel (Hobby, git integration) | Next.js 14 app; all `/api/*` routes run as serverless functions |
+| DB1 | Supabase | Core platform data |
+| DB2 | Supabase | Social + user data |
+| Analytics | Neon (2 databases) | Analytics, logs, search cache |
+| Email | Resend | Transactional emails |
+| AI Providers | Groq, Gemini, NVIDIA, OpenRouter, Bedrock, Cloudflare, HuggingFace, AgentRouter, OmniRouter | LLM inference (`backend/ai-gateway`) |
+| Error Tracking | Sentry | Error monitoring (`NEXT_PUBLIC_SENTRY_DSN`) |
+| Analytics | Plausible | Privacy-first analytics (CSP allowlist) |
 
-All infrastructure must operate within free tier limits:
-- **Vercel**: 100 GB bandwidth, 6000 build minutes/month, 10 serverless function executions (concurrent)
-- **Supabase**: 500 MB database, 2 GB bandwidth, 50,000 monthly active users (free tier)
-- **Neon**: 0.5 GB compute, 5 GB storage, shared compute (always-on, but cold starts)
-- **Upstash**: 10,000 commands/day, 1 MB data (free tier)
+## CI/CD
 
-## CI/CD Pipeline
-
-### GitHub Actions
-Two workflows:
-1. `ci.yml`: Runs on `main` branch — lint, type-check, test, build
-2. `ci-berojgardegreewala.yml`: Runs on `berojgardegreewala/*` branches
-
-### Vercel Deployments
-- Production: Auto-deploys from `main` branch
-- Preview: Auto-deploys from PR branches
-- Custom domains: `berojgardegreewala.vercel.app` (primary)
-
-### Render Deployments
-- Manual deploy or GitHub integration
-- Docker-based build with multi-stage Dockerfile
-- `render.yaml` defines service configuration
+- **Vercel** (`vercel.json`): buildCommand `cd frontend && npm run build`, output
+  `frontend/.next`, framework nextjs. Three cron routes (UTC): `/api/cron/scrape-opportunities`
+  (00:00), `/api/cron/check-links` (08:00), `/api/news/sync` (06:00).
+- **GitHub Actions** (`.github/workflows/`): `ci.yml` (typecheck + tests on push/PR to
+  main) and `security-scan.yml` (gitleaks). Note: `ci.yml` references legacy paths
+  (`packages/ai-gateway`, `berojgardegreewala/`) that no longer exist in this repo.
+- `[vercel skip]` in a commit message does NOT skip deploys (no Ignored Build Step
+  configured on the Vercel project).
+- CLI `vercel deploy --prod` races the git-integration deploy and must not be used.
+  Deploys are push-triggered only.
 
 ## Environment Variables
 
-**76+ environment variables** across frontend and backend, documented in:
-- `berojgardegreewala/.env.local.example` (frontend template)
-- `backend/.env.example` (backend template)
-- `project-bible/23-reference/environment-variables.md` (complete catalog)
+- `frontend/.env.example` is the canonical env reference (DB1/DB2 Supabase, Neon,
+  AI provider keys, admin/cron secrets). Copy to `.env.local` with real values;
+  never commit `.env.local`.
 
-## Cron Jobs (Vercel)
+## Local / Self-Host Stack (docker-compose.yml)
 
-| Route | Schedule | Purpose |
-|-------|----------|---------|
-| `/api/cron/scrape-india` | Daily 6:00 AM IST | Scrape India sources |
-| `/api/cron/scrape-global` | Daily 8:00 AM IST | Scrape global sources |
-| `/api/cron/check-links` | Daily 9:00 AM IST | Verify opportunity links |
-| `/api/cron/digest` | Sunday 12:00 PM | Weekly email digest |
+- `frontend`: builds `frontend/Dockerfile`, port 3000.
+- `api`: builds `backend/server/Dockerfile` from repo root, port 8080. Boots with
+  empty env; `/health` works and DB routes return 503 until Supabase keys are set.
+- `postgres`: `postgres:16-alpine`, hardcoded local creds — UNUSED by
+  `backend/server` (which reads Supabase).
+- `redis`: `redis:7-alpine` — UNUSED.
 
-## Monitoring
+## Kubernetes (k8s/)
 
-- **Sentry**: Error tracking (frontend + backend)
-- **Prometheus**: Custom metrics on backend `/metrics` endpoint
-- **Health check**: Backend `GET /health` with DB status, last runs, uptime
-- **Scraper health**: Admin dashboard at `/admin/scrape-health`
+- Frontend-only manifests: `configmap.yaml`, `deployment.yaml`, `ingress.yaml`,
+  `service.yaml`. No backend manifests.
 
-## Backup Strategy
+## Local Scripts (scripts/)
 
-- **Supabase**: Point-in-time recovery (7-day retention on free tier)
-- **Neon**: Automated daily backups (7-day retention)
-- **Migration files**: All schema changes in version-controlled SQL files
-- **Seed data**: Version-controlled SQL files for development bootstrapping
+- `auto-daily-scraper.js`: node-cron driver that calls the FRONTEND
+  `/api/cron/scrape-*` endpoints on `localhost:3000` with a `CRON_SECRET` bearer
+  header. Not part of the production cron (Vercel crons are).
+- `omnirouter-gateway.js`: local HTTP server on `:20128` backing the omnirouter
+  AI provider.
 
 ## Related Documents
 
-- [vercel.md](./vercel.md) — Vercel configuration
-- [render.md](./render.md) — Render configuration
-- [ci-cd.md](./ci-cd.md) — CI/CD pipeline
-- [environments.md](./environments.md) — Environment variables
-- [monitoring.md](./monitoring.md) — Monitoring setup
-- [backup-recovery.md](./backup-recovery.md) — Backup procedures
+- [deploy-stack.txt](./deploy-stack.txt) — DEPRECATED Render-era backend deployment doc

@@ -1,148 +1,87 @@
 # Entity-Relationship Diagram
 
-## DB1 — Supabase Primary (Core Platform + Social)
+Simple ER summary of live tables (verified 2026-08-19). Cross-database FKs are not possible; references are enforced at the application layer.
+
+## DB1 — Supabase Project 1 (production core)
 
 ```mermaid
 erDiagram
-    opportunities ||--o| companies : "organization_id"
-    opportunities ||--o| company_pages : "company_page_id"
-    opportunities ||--o{ link_check_results : "id"
-    opportunities ||--o{ opportunity_reports : "id"
-    
-    companies ||--o{ scraper_sources : "id"
-    companies ||--o{ opportunities : "id"
-    
-    news_articles {
-        uuid id PK
-        text title
-        text slug UK
-        text summary
-        text source_name
-        text url UK
-        timestamptz published_at
-    }
-    
+    organizations ||--o{ opportunities : "organization_id"
+    user_profiles ||--o{ feed_posts : "user_id"
+    user_profiles ||--o{ connections : "requester_id/addressee_id"
+    user_profiles ||--o{ conversations : "participant_a/b"
+    user_profiles ||--o{ messages : "sender_id"
+    user_profiles ||--o{ applications : "user_id"
+    user_profiles ||--o{ saved_opportunities : "user_id"
+    user_profiles ||--o{ user_follows : "follower_id"
+    user_profiles ||--o{ notifications : "user_id"
+    user_profiles ||--o{ resumes : "user_id"
+    conversations ||--o{ messages : "conversation_id"
+    feed_posts ||--o{ feed_post_likes : "post_id"
+    feed_posts ||--o{ feed_post_comments : "post_id"
+    feed_posts ||--o{ feed_post_reposts : "post_id"
+    community_posts ||--o{ community_comments : "post_id"
+    company_pages ||--o{ company_followers : "company_id"
+    opportunities ||--o{ applications : "opportunity_id"
+    opportunities ||--o{ opportunity_reports : "opportunity_id"
+
     opportunities {
         uuid id PK
         text title
-        text organization
         uuid organization_id FK
-        text category
-        text location
-        text stipend
-        date deadline
-        text apply_link
-        text source_url UK
+        text salary_range
+        text apply_url
+        text source_type
+        text verification_status "verified|unverified|link_unavailable|expired"
         text slug UK
-        text verification_status
         boolean is_active
-        timestamptz posted_at
     }
-    
-    companies {
+    organizations {
         uuid id PK
-        text slug UK
         text name
-        text company_type
-        text industry
+        text slug UK
+        text type
         boolean is_verified
     }
-    
-    company_pages {
-        uuid id PK
-        text slug UK
-        text name
-        text industry
-        text company_type
-        integer follower_count
-    }
-    
-    company_pages ||--o{ company_followers : "id"
-    
-    company_followers {
-        uuid id PK
-        uuid company_id FK
-        uuid user_id FK
-    }
-    
-    learning_tracks ||--o{ learning_days : "id"
-    learning_tracks ||--o| track_assessments : "id"
-    learning_days ||--o{ learning_resources : "id"
-    learning_days ||--o{ learning_questions : "id"
-    
-    user_profiles ||--o| user_resumes : "id"
-    user_profiles ||--o{ saved_opportunities : "id"
-    user_profiles ||--o{ applications : "id"
-    user_profiles ||--o{ user_alerts : "id"
-    user_profiles ||--o{ feed_posts : "user_id"
-    user_profiles ||--o{ notifications : "user_id"
-    user_profiles ||--o{ conversations : "participant_1/2"
-    user_profiles ||--o{ connection_requests : "sender_id"
-    user_profiles ||--o{ user_follows : "follower_id"
-    user_profiles ||--o{ skill_endorsements : "profile_owner_id"
-    user_profiles ||--o{ recommendations : "recipient_id"
-    user_profiles ||--o{ community_posts : "user_id"
-    
-    feed_posts ||--o{ feed_post_likes : "id"
-    feed_posts ||--o{ feed_post_comments : "id"
-    feed_posts ||--o{ feed_post_reposts : "id"
-    
-    conversations ||--o{ messages : "id"
-    
-    community_posts ||--o{ community_comments : "id"
-    community_posts ||--o{ community_votes : "id"
-    
-    connection_requests ||--o| connections : "accepted"
-    
     user_profiles {
-        uuid id PK FK
+        uuid id PK
         text username UK
-        text full_name
+        text display_name
         text headline
-        text avatar_url
-        text city
-        text country
-        boolean is_open_to_work
+        text location
+        boolean is_profile_public
         integer follower_count
         integer following_count
         integer connection_count
     }
-    
+    connections {
+        uuid id PK
+        uuid requester_id FK
+        uuid addressee_id FK
+        text status "pending|accepted|rejected"
+    }
     feed_posts {
         uuid id PK
         uuid user_id FK
         text content
-        text post_type
-        integer likes_count
-        integer comments_count
-        text visibility
+        integer like_count
+        integer comment_count
     }
-    
     conversations {
         uuid id PK
-        uuid participant_1 FK
-        uuid participant_2 FK
-        timestamptz last_message_at
+        uuid participant_a FK
+        uuid participant_b FK
     }
-    
     messages {
         uuid id PK
         uuid conversation_id FK
         uuid sender_id FK
-        text content
-        boolean is_read
-    }
-    
-    notifications {
-        uuid id PK
-        uuid user_id FK
-        text type
-        uuid actor_id FK
+        text body
         boolean is_read
     }
 ```
 
-## DB2 — Supabase Secondary (Archive)
+## DB2 — Supabase Project 2 (legacy mirror)
 
 ```mermaid
 erDiagram
@@ -151,93 +90,61 @@ erDiagram
         text title
         text source_url UK
         text slug UK
-        timestamptz archived_at
-    }
-    
-    subscribers_overflow {
-        uuid id PK
-        text email UK
-        text[] keywords
-        text[] categories
-        boolean is_active
     }
 ```
 
-## NEON1 — Analytics
+`user_profiles` also mirrored here via `syncProfile` (`frontend/src/lib/db/index.ts`).
+
+## Neon 1 — analytics + mirrors
 
 ```mermaid
 erDiagram
-    ai_usage_log {
+    click_events ||--o{ page_views : ""
+    page_views {
         uuid id PK
-        text feature
-        text provider
-        text model
-        boolean success
-        integer duration_ms
-        timestamptz created_at
+        text path
+        text referrer
     }
-    
-    platform_events {
+    click_events {
         uuid id PK
-        text event_type
-        uuid opportunity_id
-        uuid news_id
-        text page_path
-        text country
-        text session_id
-        timestamptz created_at
+        text event
     }
-    
-    link_check_logs {
+    search_queries {
         uuid id PK
-        uuid opportunity_id
-        integer http_status
-        boolean is_reachable
-        timestamptz checked_at
+        text query
     }
-    
-    scrape_logs {
-        bigserial id PK
-        text source_name
-        boolean success
-        integer items_found
+    trending_cache {
+        uuid id PK
+        text key
+        jsonb payload
     }
-```
-
-## NEON2 — Cache / Mirror
-
-```mermaid
-erDiagram
+    keyword_stats {
+        uuid id PK
+        text keyword
+    }
     opportunities_mirror {
         uuid id PK
-        text title
-        text organization
-        text category
         text slug UK
-        text verification_status
-        boolean is_active
-        timestamptz synced_at
     }
-    
     news_mirror {
         uuid id PK
-        text title
         text source_url UK
-        text slug UK
-        timestamptz synced_at
     }
 ```
 
-## Cross-Database References
+## Neon 2 — cache mirror
 
-| Source | Column | Target | Type |
-|--------|--------|--------|------|
-| DB1.opportunities | `source_url` | DB1.news_articles.`source_url` | Logical (dedup) |
-| DB1.saved_opportunities | `opportunity_id` | DB1.opportunities.`id` | Logical (no FK) |
-| DB1.applications | `opportunity_id` | DB1.opportunities.`id` | Logical (no FK) |
-| DB1.feed_posts | `opportunity_id` | DB1.opportunities.`id` | Logical (no FK) |
-| DB2.news_archive | (data from) | DB1.news_articles | Sync via cron |
-| NEON2.opportunities_mirror | (data from) | DB1.opportunities | Sync via cron |
-| NEON2.news_mirror | (data from) | DB1.news_articles | Sync via cron |
+```mermaid
+erDiagram
+    page_views {
+        uuid id PK
+    }
+    search_queries {
+        uuid id PK
+    }
+    click_events {
+        uuid id PK
+    }
+```
 
-> Note: Cross-database foreign keys are not possible. References are enforced at the application layer.
+Neon 2 holds a subset (cache mirror) of Neon 1's `page_views` / `search_queries` / `click_events`. Mirrors are written by `/api/sync-replica`.
