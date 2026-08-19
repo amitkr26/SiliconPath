@@ -238,16 +238,22 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
           <h1 className="text-2xl font-bold text-text-primary">{profile.display_name}</h1>
           {profile.headline && <p className="text-text-secondary text-sm mt-0.5">{profile.headline}</p>}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-text-secondary">
-            {(profile.current_position || profile.current_org) && (
+            {(profile.job_title || profile.current_company) && (
               <span className="flex items-center gap-1">
                 <Briefcase className="w-3 h-3" />
-                {profile.current_position}{profile.current_position && profile.current_org ? " at " : ""}{profile.current_org}
+                {profile.job_title}{profile.job_title && profile.current_company ? " at " : ""}{profile.current_company}
               </span>
             )}
-            {(profile.city || profile.country) && (
+            {(profile.location || profile.country) && (
               <span className="flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
-                {[profile.city, profile.country].filter(Boolean).join(", ")}
+                {[profile.location, profile.country].filter(Boolean).join(", ")}
+              </span>
+            )}
+            {profile.experience_years != null && profile.experience_years > 0 && (
+              <span className="flex items-center gap-1">
+                <Briefcase className="w-3 h-3" />
+                {profile.experience_years}+ years experience
               </span>
             )}
             {profile.connection_count !== undefined && <span>{profile.connection_count} connections</span>}
@@ -304,10 +310,10 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
       </div>
 
       {/* About */}
-      {profile.about && (
+      {profile.bio && (
         <section className="bg-surface border border-border rounded-xl p-6 mb-6">
           <h2 className="font-display text-lg font-bold text-text-primary mb-3">About</h2>
-          <p className="text-text-secondary text-sm whitespace-pre-wrap">{profile.about}</p>
+          <p className="text-text-secondary text-sm whitespace-pre-wrap">{profile.bio}</p>
         </section>
       )}
 
@@ -335,6 +341,44 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
           )}
         </div>
       </section>
+
+      {/* Interests */}
+      {(profile.interests || []).length > 0 && (
+        <section className="bg-surface border border-border rounded-xl p-6 mb-6">
+          <h2 className="font-display text-lg font-bold text-text-primary mb-4">Interests</h2>
+          <div className="flex flex-wrap gap-2">
+            {(profile.interests || []).map((interest) => (
+              <span key={interest} className="px-3 py-1.5 bg-bg-primary border border-border rounded-full text-xs font-medium text-text-secondary">
+                {interest}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Profile links */}
+      {(profile.linkedin_url || profile.github_url || profile.website_url) && (
+        <section className="bg-surface border border-border rounded-xl p-6 mb-6">
+          <h2 className="font-display text-lg font-bold text-text-primary mb-4">Links</h2>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            {profile.linkedin_url && (
+              <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+                LinkedIn ↗
+              </a>
+            )}
+            {profile.github_url && (
+              <a href={profile.github_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+                GitHub ↗
+              </a>
+            )}
+            {profile.website_url && (
+              <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+                Website ↗
+              </a>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Recommendations */}
       <section className="bg-surface border border-border rounded-xl p-6 mb-6">
