@@ -1,7 +1,15 @@
 import { Router } from "express";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { AppError, ForbiddenError } from "@berojgardegreewala/api";
 import type { Deps } from "../types.js";
 import { fetchAllNews, slugify } from "../services/news-sync.js";
+
+// Constant-time compare — the bearer secret must not leak via string timing.
+function safeEqual(a: string, b: string): boolean {
+  const ha = createHash("sha256").update(a).digest();
+  const hb = createHash("sha256").update(b).digest();
+  return timingSafeEqual(ha, hb);
+}
 
 // GET /api/v1/cron/news-sync — Bearer CRON_SECRET protected, mirrors the
 // frontend /api/news/sync cron (vercel.json schedule 06:00 daily) without
@@ -12,7 +20,7 @@ export function cronRouter(deps: Deps): Router {
   r.get("/news-sync", async (req, res, next) => {
     try {
       const auth = String(req.headers.authorization || "");
-      if (!auth.startsWith("Bearer ") || auth.slice(7) !== deps.env.cronSecret) {
+      if (!auth.startsWith("Bearer ") || !deps.env.cronSecret || !safeEqual(auth.slice(7), deps.env.cronSecret)) {
         throw new ForbiddenError("Invalid cron secret");
       }
       if (!deps.supabaseAdmin) throw new AppError("Database not configured", 503, "DB_UNAVAILABLE");

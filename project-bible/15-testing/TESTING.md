@@ -30,8 +30,9 @@ Before full E2E runs, delete inter-account rows: connections, `user_follows`, `f
 
 | Workspace | Runner | How to run | Notes |
 | :--- | :--- | :--- | :--- |
-| `backend/server` (`@berojgardegreewala/server`) | node:test | `npm test --workspace @berojgardegreewala/server` | 16 tests: health/CORS/404 envelope, opportunities (pagination, slug lookup, validation), profiles (public field stripping, `/me` auth), Bearer auth (401s, invalid tokens, caller scoping), admin guard (403/200) |
-| `backend/api` (`@berojgardegreewala/api`) | jest | `npm test --workspace @berojgardegreewala/api` | Validation/error unit tests |
+| `backend/server` (`@berojgardegreewala/server`) | node:test | `npm test --workspace @berojgardegreewala/server` | 46 tests (parity 30 + hardening 16): health/CORS/404 envelope, opportunities (pagination, slug lookup, validation), profiles (public field stripping, `/me` auth), Bearer auth (401s, invalid tokens, caller scoping), admin guard (403/200) + AI stubbed-provider routes, XFF shim buckets, admin 429, readiness, invalid-JSON 400 |
+| `backend/api` (`@berojgardegreewala/api`) | jest | `npm test --workspace @berojgardegreewala/api` | 97 tests: validation, error handling, content helpers, openapi |
+| `backend/ai-gateway` (`@berojgardegreewala/ai-gateway`) | jest | `npm test --workspace @berojgardegreewala/ai-gateway` | 15 tests: provider fallback chain, cooldown, telemetry, logger-throw resilience |
 | All workspaces | — | `npm test` / `make test` | `--workspaces --if-present` |
 
 ### Server suite details

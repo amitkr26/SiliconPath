@@ -5,7 +5,7 @@ HANDOFF_VERSION: 1.2.0
 TIMESTAMP: 2026-08-19
 CURRENT_AGENT: OpenCode
 NEXT_AGENT: OpenCode / Antigravity (shared continuation contract)
-TASK_STATUS: Social core verified 9/9; network 4-tab feature shipped (683404c, a79773a); backend replication docs done — implementation in progress; project-bible reconciled 2026-08-19
+TASK_STATUS: Social core verified 9/9; network 4-tab feature shipped (683404c, a79773a); backend Phase 4 (parity) + Phase 5 (production readiness) COMPLETE — 46 server / 15 gateway / 97 api tests green, backend NOT deployed (decision = KNOWN_ISSUES #0); project-bible reconciled 2026-08-19
 ```
 
 ---
@@ -91,35 +91,43 @@ TASK_STATUS: Social core verified 9/9; network 4-tab feature shipped (683404c, a
 - `backend/api` = framework-less shared lib (response/error/auth/validation/
   rate-limit/cache/openapi/content), consumed as raw TS by frontend AND server.
   `backend/ai-gateway` = 9-provider fallback lib (order groq→gemini→openrouter→nvidia→
-  agentrouter→omnirouter→cloudflare→bedrock→huggingface, 10-min cooldown). Both have
-  jest configs; ai-gateway has NO tests (KNOWN_ISSUES #11).
-- `backend/server` = Express 4 on :8080. Routes today: /health, /api/v1/opportunities
-  (+/:idOrSlug), /profiles/me, /profiles/:username, /organizations(+/:slug), /news
-  (list only), /applications CRUD, /saved-opportunities CRUD, /ai/insights (no usage
-  log), /admin/stats. Envelope `{success,data,pagination}` /
-  `{success:false,error:{code,message}}`. 16 node:test tests; `dist/` generated+
-  gitignored; Dockerfile node:20-alpine EXPOSE 8080.
-- **Open parity gaps** (per `backend/docs/API-PARITY.md`): social layer (feed/network/
-  messages/notifications — `supabase2Admin` DB2 client wired but unused), AI endpoint
-  breadth + `setLogger` usage logging, cron/scrapers port (news RSS sync first),
-  news `:slug` + search + `auth/signup`, admin breadth, academy/misc, server rate
-  limiting (api package limiter exists).
+  agentrouter→omnirouter→cloudflare→bedrock→huggingface, 10-min cooldown). Both jest;
+  ai-gateway now has 15 tests (KNOWN_ISSUES #11 CLOSED). Note: omnirouter is
+  env-guard-EXEMPT (localhost:20128 default) — always attempted; documented, keep.
+- `backend/server` = Express 4 on :8080, production-ready, NOT deployed. Full surface:
+  /health + /health/ready, opportunities(+/:idOrSlug), profiles(me/:username),
+  organizations(+/:slug), news(+/:slug), applications CRUD, saved-opportunities CRUD,
+  ai/{chat,match,search,summarize,insights} (usage-logged, 502 AI_UNAVAILABLE on
+  exhaustion), admin/stats (rate-limited 20/min, timing-safe password), auth signup +
+  check-username, search + /people, feed + posts/like/comment/repost, network
+  (connections/status/connect/suggestions/follow/followers/following), notifications,
+  messages (+thread/with/:userId), cron/news-sync (timing-safe CRON_SECRET). Envelope
+  `{success,data,pagination}` / `{success:false,error:{code,message}}`. 46 node:test
+  (30 parity + 16 hardening); `dist/` generated+gitignored; Dockerfile node:20-alpine
+  non-root USER node + HEALTHCHECK, EXPOSE 8080. `.env.example` categorized
+  REQUIRED/OPTIONAL/DEPLOYMENT.
+- **Remaining parity gaps**: scraper fleet port (Phase 6 candidate, DEFERRED), PATCH
+  `/profiles/me`, `supabase2Admin` DB2 client unused, admin breadth beyond /stats,
+  academy/misc.
 - Server tests use node:test + a Proxy fake (`backend/server/tests/fake.ts`) — keep
-  that pattern for new route tests.
+  that pattern for new route tests. AI route tests stub global.fetch + GROQ_API_KEY
+  with a 127.0.0.1 passthrough (never stub the test server's own requests).
 
 ### Documentation source of truth (post-reconciliation)
 - `project-bible/ARCHITECTURE.md` (CURRENT/TRANSITION/TARGET), `MASTER_INDEX.md`,
-  `IMPLEMENTATION_STATUS.md` (full feature matrix), `KNOWN_ISSUES.md` (12 issues),
-  `backend/docs/FRONTEND-BACKEND-MAP.md` + `API-PARITY.md` — all reconciled 2026-08-19.
+  `IMPLEMENTATION_STATUS.md` (full feature matrix), `KNOWN_ISSUES.md` (13 issues),
+  `backend/docs/FRONTEND-BACKEND-MAP.md` + `API-PARITY.md` — reconciled 2026-08-19.
 - Section READMEs (04–23) were rewritten 2026-08-19 by subagents with verified counts:
   138 API route files, 3 scheduled crons, 9 AI providers, 18 scraper modules, 4 DBs
-  (2 Supabase + 2 Neon), 7 academy tracks, 104 jest / 97 api-jest / 16 server tests.
+  (2 Supabase + 2 Neon), 7 academy tracks, 104 frontend jest / 97 api jest / 15
+  ai-gateway jest / 46 server node:test.
 - Historical docs (master-specification, CONTENT_UPGRADE_PLAN, deploy-stack.txt,
   19-prompts files, ADR-001) carry DEPRECATED/HISTORICAL status headers — do not edit
   their bodies to "modernize" them.
 
-### New known issues (2026-08-19)
+### Known issues (2026-08-19)
+- #0 backend deployment decision REQUIRED (Phase 5 mandate: no deploy; recommend Docker → Render per 14-devops/deploy-stack.txt).
 - #9 ci.yml references nonexistent paths (`packages/ai-gateway`, `berojgardegreewala\`) — broken, unused.
 - #10 `backend/api` `npm run openapi` broken (missing `scripts/generate-openapi.ts`).
-- #11 ai-gateway zero tests.
+- #11 ai-gateway zero tests — CLOSED 2026-08-19 (15 tests; also fixed logFn-throw bug via safeLog).
 - #12 no verified recent production scraper run — verify via `/api/admin/scrape-health` or Vercel cron logs before claiming scrapers work.

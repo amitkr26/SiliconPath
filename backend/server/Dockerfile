@@ -25,5 +25,10 @@ COPY --from=build /app/backend/ai-gateway /app/backend/ai-gateway
 COPY --from=build /app/backend/server/dist /app/dist
 COPY --from=build /app/backend/server/package.json /app/package.json
 
+# Run as the unprivileged node user (uid 1000). Files stay root-owned/readable.
+USER node
+
 EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:8080/health || exit 1
 CMD ["node", "--import", "tsx", "dist/server.js"]

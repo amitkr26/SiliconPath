@@ -3,7 +3,7 @@
 ```text
 LAST_UPDATED: 2026-08-19
 TEST_ENVIRONMENT: Local Server (http://127.0.0.1:3000) + Production (https://berojgardegreewala.vercel.app)
-OVERALL_STATUS: 9/9 production Playwright runs passed (last vs deploy `683404c`, 2026-08-19); jest 104/104; Next build exit 0
+OVERALL_STATUS: 9/9 production Playwright runs passed (last vs deploy `a79773a`, 2026-08-19, Phase 5 regression — residue cleaned BEFORE and AFTER run); jest 104 frontend / 97 api / 15 ai-gateway; node:test 46 server; Next build exit 0
 ```
 
 ## Test Accounts
@@ -44,9 +44,7 @@ DELETE FROM conversations WHERE participant_a IN (...) AND participant_b IN (...
 `social-workflow` — the only suggestion with just amittest1/amittest2 in the DB is
 the other test user.
 
-**Latest production runs (2026-08-19): 9/9 PASSED against deploy `a79773a`
-(network username-link fix). Earlier: 9/9 vs `683404c` (network 4-tab feature),
-9/9 vs `6d9684d`, 9/9 vs `c4c60f6` (owner's round, accounts migrated).**
+**Latest production runs (2026-08-19): 9/9 PASSED against deploy `a79773a` (network username-link fix) — Phase 5 regression run; DB residue cleaned before AND after the run per the contract below. Earlier: 9/9 vs `683404c` (network 4-tab feature), 9/9 vs `6d9684d`, 9/9 vs `c4c60f6` (owner's round, accounts migrated).**
 The `a79773a` run also included a temporary probe spec (deleted after use) that
 verified the connection card name-link href is `/profile/amittest2` (not `#`) and
 that both name-link and card-body clicks navigate to the profile.

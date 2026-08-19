@@ -71,11 +71,12 @@ Verified against the live setup 2026-08-19.
   `vercel deploy --prod` races the git deploy and must not be used
 
 ### Backend (backend/server)
-- Not deployed. Self-host via Docker (`backend/server/Dockerfile`) if needed;
-  the API boots with empty env, DB routes return 503 until keys are set.
+- Not deployed (production-ready since 2026-08-19 — Phase 5). Self-host via Docker
+  (`backend/server/Dockerfile`, non-root + HEALTHCHECK) if needed; the API boots with
+  empty env, DB routes return 503 until keys are set. Deployment decision: KNOWN_ISSUES #0.
 
 ### Deployment Checklist
-- [ ] All tests passing (104 jest + 6 playwright specs)
+- [ ] All tests passing (104 frontend jest + 97 api jest + 15 ai-gateway jest + 46 server node:test + 9/9 Playwright)
 - [ ] Migration files reviewed and tested
 - [ ] Environment variables updated (reference: `frontend/.env.example`)
 - [ ] Preview deployment verified

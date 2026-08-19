@@ -3,6 +3,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { AppError } from "@berojgardegreewala/api";
 import type { Deps } from "../types.js";
+import { rateLimit } from "../middleware/rate-limit.js";
 
 // Constant-time comparison so password length never leaks via timing.
 function safeEqual(a: string, b: string): boolean {
@@ -19,8 +20,10 @@ async function countRows(db: SupabaseClient, table: string): Promise<number> {
 
 // GET /api/v1/admin/stats — dashboard counts. Guarded by X-Admin-Password
 // header (configured via ADMIN_PASSWORD env on the host; not a session flow).
+// Rate-limited (admin bucket) so the password cannot be brute-forced at speed.
 export function adminRouter(deps: Deps): Router {
   const r = Router();
+  r.use(rateLimit("admin"));
 
   r.get("/stats", async (req, res, next) => {
     try {

@@ -10,6 +10,14 @@ export const notFoundHandler: RequestHandler = (_req, _res, next) => {
 };
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+  // body-parser JSON syntax errors -> clean 400, never leak parser internals.
+  if (err?.type === "entity.parse.failed") {
+    res.status(400).json({
+      success: false,
+      error: { code: "VALIDATION_ERROR", message: "Invalid JSON body" },
+    });
+    return;
+  }
   const status: number =
     err instanceof AppError ? err.statusCode : err?.status || 500;
   const code: string =
