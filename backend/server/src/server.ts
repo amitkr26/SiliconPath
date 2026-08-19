@@ -6,7 +6,13 @@ const env = loadEnv();
 if (!isAdminConfigured(env)) {
   // eslint-disable-next-line no-console
   console.warn(
-    "[server] SUPABASE_SERVICE_ROLE_KEY missing — DB-backed routes will return 503 (health + boot still work)"
+    "[server] SUPABASE_SERVICE_ROLE_KEY missing - DB-backed routes will return 503 (health + boot still work)"
+  );
+}
+if (!env.cronSecret) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    "[server] CRON_SECRET missing - /api/v1/cron/* will reject all requests (safe default)"
   );
 }
 

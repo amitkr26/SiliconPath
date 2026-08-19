@@ -21,7 +21,11 @@ Feed, connections, messaging, notifications, bookmarks, resume — all done and 
 
 ## Backend Replication
 
-In progress: parity docs complete (`backend/docs/FRONTEND-BACKEND-MAP.md`, `backend/docs/API-PARITY.md`); implementation partial — see [05-backend](../05-backend/README.md).
+Phase 4 (parity implementation) + Phase 5 (production readiness) COMPLETE 2026-08-19:
+46 server node:test / 15 ai-gateway jest / 97 api jest, Docker hardened, `/health/ready`,
+E2E 9/9 regression. Backend is production-ready but NOT deployed — deployment decision
+pending (KNOWN_ISSUES #0). Parity docs: `backend/docs/FRONTEND-BACKEND-MAP.md`,
+`backend/docs/API-PARITY.md`; details in [05-backend](../05-backend/README.md).
 
 ## Related Documents
 

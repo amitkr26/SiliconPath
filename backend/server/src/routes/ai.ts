@@ -1,10 +1,21 @@
 import { Router } from "express";
+import type { NextFunction } from "express";
 import { AppError } from "@berojgardegreewala/api";
 import { gateway } from "@berojgardegreewala/ai-gateway";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Deps } from "../types.js";
 import { requireAuth } from "../middleware/auth.js";
 import { rateLimit } from "../middleware/rate-limit.js";
+
+// Gateway exhaustion (all providers failed) is a 502 AI_UNAVAILABLE, not a
+// 500 — consistent with insights/summarize. Non-AI errors pass through.
+function aiFailure(err: unknown, next: NextFunction): void {
+  if (err instanceof Error && /all .* providers failed/i.test(err.message)) {
+    next(new AppError("AI providers unavailable", 502, "AI_UNAVAILABLE"));
+  } else {
+    next(err);
+  }
+}
 
 const DEFAULT_PROMPT =
   "Generate 3 actionable career tips for a recent Indian graduate searching for their first job or internship. Format as a numbered list, keep each tip under 2 lines.";
@@ -119,7 +130,7 @@ export function aiRouter(deps: Deps): Router {
         data: { text: result.text, provider: result.provider, model: result.model, grounded: true, matches: rows.length },
       });
     } catch (err) {
-      next(err);
+      aiFailure(err, next);
     }
   });
 
@@ -154,7 +165,7 @@ export function aiRouter(deps: Deps): Router {
         });
       res.json({ success: true, data: { matches, candidates: data.length } });
     } catch (err) {
-      next(err);
+      aiFailure(err, next);
     }
   });
 
@@ -207,7 +218,7 @@ export function aiRouter(deps: Deps): Router {
       });
       res.json({ success: true, data: { filters: parsed, results } });
     } catch (err) {
-      next(err);
+      aiFailure(err, next);
     }
   });
 

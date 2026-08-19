@@ -52,6 +52,9 @@ export const rateLimiters = {
   search: createRateLimiter({ windowMs: 60_000, maxRequests: 30, keyPrefix: "search" }),
   scrape: createRateLimiter({ windowMs: 60_000, maxRequests: 5, keyPrefix: "scrape" }),
   ai: createRateLimiter({ windowMs: 60_000, maxRequests: 20, keyPrefix: "ai" }),
+  // Brute-force speed bump for the X-Admin-Password header; the password is
+  // still compared timing-safe, the limiter just caps scripted guessing.
+  admin: createRateLimiter({ windowMs: 60_000, maxRequests: 20, keyPrefix: "admin" }),
 };
 
 export async function applyRateLimit(request: Request, limiter: keyof typeof rateLimiters): Promise<Response | null> {

@@ -49,6 +49,16 @@ export class AIGateway {
 
   setLogger(fn: LogFn) { this.logFn = fn; }
 
+  // Telemetry is best-effort: a throwing logger (broken sink) must never make
+  // a successful provider look like it failed, nor abort a request.
+  private safeLog(entry: AILogEntry): void {
+    try {
+      this.logFn(entry);
+    } catch {
+      // ignore telemetry failures
+    }
+  }
+
   async generate(request: GatewayRequest, feature = "unknown"): Promise<{ text: string; provider: AIProvider; model: string }> {
     const preferred = request.model as AIProvider | undefined;
     const order: AIProvider[] = preferred && DEFAULT_PROVIDER_ORDER.includes(preferred)
@@ -69,11 +79,11 @@ export class AIGateway {
       try {
         const text = await this.callProvider(provider, promptText, systemPrompt);
         const cost = estimateCost(provider, promptText.length, text.length);
-        this.logFn({ feature, provider, model: cfg.model, prompt_length: promptText.length, response_length: text.length, success: true, error_message: null, cost_estimate: cost });
+        this.safeLog({ feature, provider, model: cfg.model, prompt_length: promptText.length, response_length: text.length, success: true, error_message: null, cost_estimate: cost });
         return { text, provider, model: cfg.model };
       } catch (error) {
         providerCooldowns[provider] = Date.now();
-        this.logFn({ feature, provider, model: cfg.model, prompt_length: promptText.length, response_length: 0, success: false, error_message: error instanceof Error ? error.message : String(error), cost_estimate: 0 });
+        this.safeLog({ feature, provider, model: cfg.model, prompt_length: promptText.length, response_length: 0, success: false, error_message: error instanceof Error ? error.message : String(error), cost_estimate: 0 });
       }
     }
     throw new Error("All AI providers failed. Please try again later.");
@@ -89,11 +99,11 @@ export class AIGateway {
       try {
         const text = await this.callProvider(provider, prompt, systemPrompt);
         const cost = estimateCost(provider, prompt.length, text.length);
-        this.logFn({ feature, provider, model: cfg.model, prompt_length: prompt.length, response_length: text.length, success: true, error_message: null, cost_estimate: cost });
+        this.safeLog({ feature, provider, model: cfg.model, prompt_length: prompt.length, response_length: text.length, success: true, error_message: null, cost_estimate: cost });
         return { text, provider, model: cfg.model };
       } catch (error) {
         providerCooldowns[provider] = Date.now();
-        this.logFn({ feature, provider, model: cfg.model, prompt_length: prompt.length, response_length: 0, success: false, error_message: error instanceof Error ? error.message : String(error), cost_estimate: 0 });
+        this.safeLog({ feature, provider, model: cfg.model, prompt_length: prompt.length, response_length: 0, success: false, error_message: error instanceof Error ? error.message : String(error), cost_estimate: 0 });
       }
     }
     throw new Error("All advanced AI providers failed");

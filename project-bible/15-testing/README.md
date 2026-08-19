@@ -10,7 +10,7 @@ Playwright E2E against production plus Jest unit tests (frontend) and `node:test
 
 - 6 spec files: auth (header-nav), messaging, network-connect, social-workflow, accept-connection, probe-network
 - Runs against `https://berojgardegreewala.vercel.app` (override with `BASE_URL`)
-- Production suite passes 9/9 as of 2026-08-18
+- Production suite passes 9/9 as of 2026-08-19 (Phase 5 regression; residue cleaned before AND after)
 - Sequential workers (1) to avoid state collisions; config: `frontend/playwright.config.ts`
 
 ### Unit — Jest (frontend)
@@ -20,13 +20,15 @@ Playwright E2E against production plus Jest unit tests (frontend) and `node:test
 
 ### Server — node:test (`backend/server`)
 
-- 16 tests in `backend/server/tests/` (health/CORS/404 envelope, opportunities pagination/slug/validation, profiles public-field stripping + `/me`, Bearer auth 401s/invalid tokens/caller scoping, admin guard 403/200)
-- No credentials needed: Supabase clients are fakes (`fake.ts`)
+- 46 tests in `backend/server/tests/` — `parity.test.ts` (30: health/CORS/404 envelope, opportunities pagination/slug/validation, profiles public-field stripping + `/me`, Bearer auth 401s/invalid tokens/caller scoping, admin guard 403/200, social/AI/auth/search/news-cron routes, rate-limit 429, cron secret gate) + `hardening.test.ts` (16: AI routes against a stubbed provider — grounding/allowlist/502 mapping/telemetry, CORS allowed+blocked+preflight, XFF shim rate-limit buckets, admin 429, `/health/ready` 200/503, malformed JSON → 400 `VALIDATION_ERROR`)
+- No credentials needed: Supabase clients are fakes (`fake.ts`); AI tests stub `global.fetch` + `GROQ_API_KEY` with a 127.0.0.1 passthrough
 - Real HTTP: boots the app on an ephemeral port, exercises with `fetch`
+- Each file runs in its own process — in-memory rate-limit buckets / gateway cooldowns are per-file
 
-### Library — Jest (`backend/api`)
+### Library — Jest (`backend/api` + `backend/ai-gateway`)
 
-- Unit tests in `backend/api/__tests__/` (validation, error handling, content helpers, openapi)
+- `backend/api`: 97 unit tests in `backend/api/__tests__/` (validation, error handling, content helpers, openapi)
+- `backend/ai-gateway`: 15 tests in `backend/ai-gateway/__tests__/gateway.test.ts` (provider success, fallback chain incl. 500/429/timeout/malformed JSON/nvidia empty-content guard, missing-credential skip, all-fail controlled error, cooldown, preferred-model reorder, systemPrompt, generateAdvanced, telemetry success+failure no-secret-leak, logger-throw resilience)
 
 ## Canonical E2E Test Accounts (2026-08-19)
 

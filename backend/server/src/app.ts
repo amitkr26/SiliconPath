@@ -43,7 +43,7 @@ export function createApp(deps: Deps) {
   app.use(express.json({ limit: "1mb" }));
   app.use(logMiddleware);
 
-  app.use("/health", healthRouter());
+  app.use("/health", healthRouter(deps));
 
   app.use("/api/v1/opportunities", opportunitiesRouter(deps));
   app.use("/api/v1/profiles", profilesRouter(deps));

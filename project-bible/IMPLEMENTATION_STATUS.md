@@ -42,15 +42,15 @@ Feature matrix across the whole platform. Status vocabulary: **IMPLEMENTED** (in
 | Item | Status | Evidence |
 |---|---|---|
 | `backend/api` shared library (response/error/auth/validation/rate-limit/cache/openapi/content) | IMPLEMENTED | consumed by frontend + server; 97 jest tests |
-| `backend/ai-gateway` (9-provider chain) | IMPLEMENTED | zero runtime deps; no tests yet |
-| `backend/server` Express API on :8080 | IMPLEMENTED (partial parity) | 16 node:test; routes: health, opportunities(+idOrSlug), profiles(me/:username), organizations(+slug), news list, applications CRUD, saved-opportunities CRUD, ai/insights, admin/stats |
+| `backend/ai-gateway` (9-provider chain) | IMPLEMENTED | zero runtime deps; 15 jest tests (`__tests__/gateway.test.ts`) |
+| `backend/server` Express API on :8080 | IMPLEMENTED (production-ready, NOT deployed) | 46 node:test (30 parity + 16 hardening); full route surface incl. social/AI/auth/search/news-cron; 502 `AI_UNAVAILABLE`, `/health/ready`, admin rate-limit, timing-safe admin+cron guards |
 | Parity docs (FRONTEND-BACKEND-MAP, API-PARITY) | IMPLEMENTED | `backend/docs/` (2026-08-19) |
-| Parity: social layer (feed/network/messages/notifications) | PLANNED | API-PARITY lists 22 MISSING endpoints; `supabase2Admin` wired but unused |
-| Parity: AI breadth (chat/match/search/summarize) + usage logging | PLANNED | server has only `/ai/insights`, no `setLogger` |
-| Parity: cron/scrapers port (news sync first) | PLANNED | scraping lives in frontend; server has none |
-| Parity: search, news `:slug`, auth signup, admin breadth, academy, misc | PLANNED | API-PARITY §11 |
+| Parity: social layer (feed/network/messages/notifications) | IMPLEMENTED | `routes/social.ts` + `routes/messages.ts` + notifications; `supabase2Admin` still unused |
+| Parity: AI breadth (chat/match/search/summarize) + usage logging | IMPLEMENTED | `routes/ai.ts` (grounded chat, top-10 match, LLM filters, summarize) + `services/ai-usage.ts` `setLogger` → `ai_usage_log` |
+| Parity: cron/scrapers port | PARTIAL | news RSS sync done (`/api/v1/cron/news-sync`, timing-safe `CRON_SECRET`); scraper fleet DEFERRED (Phase 6) |
+| Parity: search, news `:slug`, auth signup, admin breadth, academy, misc | PARTIAL | search + /people, news `:slug`, auth signup/check-username done; admin breadth + academy pending |
 | Independence (no frontend imports) | IMPLEMENTED | workspace deps only (`@berojgardegreewala/*`); verified in audit |
-| Rate limiting on server | PLANNED | api package limiter exists; middleware wired only in Next app |
+| Rate limiting on server | IMPLEMENTED | Web-Request shim over shared api-lib presets (api 120/min, auth 10/min, search 30/min, ai 20/min, admin 20/min); XFF-aware buckets |
 
 ## Quality & security
 
@@ -60,7 +60,8 @@ Feature matrix across the whole platform. Status vocabulary: **IMPLEMENTED** (in
 | Frontend jest | 104/104 | `frontend/src/__tests__/` (14 files) |
 | Playwright E2E (production) | 9/9 | `frontend/tests/e2e/` 6 specs; runs vs https://berojgardegreewala.vercel.app; clean-DB contract |
 | backend/api jest | 97 | `backend/api/__tests__` |
-| backend/server node:test | 16 | `backend/server/tests` |
+| backend/ai-gateway jest | 15 | `backend/ai-gateway/__tests__` |
+| backend/server node:test | 46 | `backend/server/tests` (parity 30 + hardening 16) |
 | RLS (DB1 social tables) | VERIFIED LIVE | v2 policies; do NOT re-apply `20260817000001_fix_social_rls_v2.sql` |
 | Secrets | PARTIAL | stale Project 1 service-role key in local credentials (KNOWN_ISSUES #1); production keys fine |
 | Rate limiting | IMPLEMENTED (frontend) | middleware buckets (api 120/min, auth 10/min, search 30/min, scrape 5/min, ai 20/min); Upstash optional for contact/subscribe |

@@ -1,5 +1,11 @@
 # KNOWN ISSUES — 2026-08-19 (reconciled)
 
+## 0. Backend deployment decision required (P1, owner action)
+`backend/server` is production-ready but NOT deployed (Phase 5 mandate: no deploy).
+Pick a target (recommended: Docker → Render, per `project-bible/14-devops/deploy-stack.txt`),
+set the env vars, and ship it. Backend is not a second system of record — it reads
+the same Supabase DBs the frontend uses.
+
 ## 1. Stale Project 1 service-role key in credentials (P1, local-dev only)
 `siliconpath-credentials.txt` → `SUPABASE_SECRET_KEY` (Project 1 section) 401s
 ("Unregistered API key" — rotated after the file's last update; verified by direct
@@ -68,9 +74,16 @@ does not exist, so `npm run openapi` fails. `backend/api/openapi.json` is a stat
 copy. Fix: restore the script or repoint the script to the real generator
 (`src/openapi/index.ts` + a small runner).
 
-## 11. AI gateway has zero tests (P2)
+## 11. AI gateway has zero tests (P2, FIXED 2026-08-19)
 `backend/ai-gateway` jest config exists but no test files (`--passWithNoTests`).
 Provider dispatch/fallback/cooldown is the riskiest untested logic in the repo.
+**FIXED 2026-08-19:** 15 jest tests in `backend/ai-gateway/__tests__/gateway.test.ts`
+(success path, fallback chain incl. 500/429/timeout/malformed JSON/nvidia
+empty-content guard, missing-credential skip, all-fail controlled error, cooldown
+skip, preferred-model reorder, systemPrompt, generateAdvanced, telemetry success
++failure with no secret leak, logger-throw resilience). Also fixed a real bug the
+suite caught: a throwing usage-logger was treated as a provider failure — telemetry
+now runs through `safeLog` (best-effort, never breaks the response).
 
 ## 12. No verified recent scraper production run (P3, evidence gap)
 Scheduled Vercel crons exist (3: scrape-opportunities 00:00, check-links 08:00,
