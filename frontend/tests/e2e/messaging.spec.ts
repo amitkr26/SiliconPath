@@ -7,7 +7,7 @@ test.describe('Direct Messaging E2E Verification', () => {
     await loginAsCandidate(page);
 
     // 2. Deterministically create/open the conversation with B (no dependency on prior state)
-    await page.goto('/messages?user=weqolyji', { waitUntil: 'domcontentloaded' });
+    await page.goto('/messages?user=amittest2', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('h1')).toContainText('Direct Messages');
     const textarea = page.locator('textarea');
     await expect(textarea).toBeVisible({ timeout: 15000 });

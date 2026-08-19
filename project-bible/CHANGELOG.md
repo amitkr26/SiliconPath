@@ -67,6 +67,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   green, then **production full suite 9/9 passed (1.7m)** on a clean DB (an earlier
   suite run had failed on leftover connection state — cleanup contract enforced).
 
+### Added (2026-08-18 night — owner round + account migration)
+- **Owner's round merged (`667fe62` → `c4c60f6`):** resilient messages POST field
+  names (`participantId`/`recipientId`/`recipient_id`/`participant_id` +
+  `content`/`body`/`message`), Bearer-token auth in `lib/supabase/server.ts`,
+  UUID/username profile routing, richer connections/route response, network page
+  profile links, reply-route parsing — all deployed READY by git integration.
+- **Test-account migration:** `frontend/scripts/reset-users.mjs` deleted ALL auth
+  users (incl. legacy A/B/C) and created canonical `amittest1`/`amittest2`
+  (`TestPassword123!`). Playwright helpers/specs updated (`helpers.ts` credentials,
+  `?user=amittest2`, `B_USERNAME='amittest2'`); `loginAsEmployer` kept as a legacy
+  name (no flow needs the employer role — commented).
+- **`network-connect.spec.ts` self-withdraws its request** (PATCH
+  `/api/network/connect/[id]` `{status:"withdrawn"}`): with only two accounts in the
+  DB the spec's target is the other test user, and leftover requests poisoned
+  `social-workflow`'s connect test (observed twice). Spec-only change.
+- Docs: `E2E_TEST_STATUS.md` (canonical accounts, cleanup SQL, 9/9 result),
+  `AGENT_HANDOFF.md` (OpenCode continuation §3: deploy mechanics, `[vercel skip]`
+  does not work, trigger-maintained counts, pooler lag, cleanup contract),
+  `KNOWN_ISSUES.md` #6 (new accounts + reset-users warning).
+- **Production full suite (deploy `c4c60f6`): 9/9 passed (1.6m).** Test data cleaned.
+
 - **2026-08-17 — Core 3-Portal Ecosystem Hardening & Bug Fixes (Phases 1-3).**
   - *(a) Opportunities Search & Filter Blacklist*: Removed destructive keyword blocklist in `frontend/src/app/api/opportunities/route.ts` that erroneously filtered valid semiconductor positions ("Qualcomm", "Lead RISC-V", "Senior ASIC Verification Engineer", etc.).
   - *(b) Network & Connection Suggestions*: Replaced over-aggressive `isTestAccount()` in `frontend/src/app/api/network/suggestions/route.ts` with minimal bot filter `isSystemBot()`, allowing all genuine registered candidate profiles to be discoverable and connectable with zero `sug-*` mock ID failures.

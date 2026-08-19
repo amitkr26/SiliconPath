@@ -20,9 +20,11 @@ async function login(page: Page, email: string, password: string) {
 }
 
 export async function loginAsCandidate(page: Page) {
-  await login(page, 'xasefe9251@bejum.com', '12345678');
+  await login(page, 'amittest1@berojgardegreewala.com', 'TestPassword123!');
 }
 
+// Legacy name: the second test user is a plain seeker (reset-users.mjs wiped the
+// old employer account); no flow below actually requires the employer role.
 export async function loginAsEmployer(page: Page) {
-  await login(page, 'weqolyji@forexzig.com', '87654321');
+  await login(page, 'amittest2@berojgardegreewala.com', 'TestPassword123!');
 }

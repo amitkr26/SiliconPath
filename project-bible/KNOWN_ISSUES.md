@@ -35,9 +35,13 @@ as-shipped it's a global feed. Leave as-is until product decides (changing it is
 product decision, not a bug fix).
 
 ## 6. Test data residue from E2E runs (housekeeping)
-Follows/connections/messages/feed posts between test accounts A
-(`xasefe9251@bejum.com`) and B (`weqolyji@forexzig.com`) accumulate with each E2E run.
-Cleanup SQL in the session report; re-run before any fresh verification.
+Follows/connections/messages/feed posts between the canonical test accounts
+`amittest1@berojgardegreewala.com` (`56b47f8e-...`) and
+`amittest2@berojgardegreewala.com` (`9e55b282-...`) accumulate with each E2E run.
+(The legacy A/B accounts were deleted 2026-08-18 by `frontend/scripts/reset-users.mjs`
+— that script also deletes ALL auth users, so run it only when you intend to wipe
+everything.) Cleanup SQL in `E2E_TEST_STATUS.md`; `frontend/scripts/reset-test-social.mjs`
+does the same via the service-role key; re-run before any fresh verification.
 
 ## 7. Feed page has no comment UI (product gap, not a regression)
 Likes/comments counts render; comments are only POSTable via API. E2E covers the API

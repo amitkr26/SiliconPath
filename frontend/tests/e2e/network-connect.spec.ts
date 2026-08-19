@@ -32,6 +32,20 @@ test.describe('Network & Connect E2E Verification', () => {
     expect(toastText).not.toContain('violates foreign key constraint');
     expect(toastText).not.toContain('connections_requester_id_fkey');
 
+    // Self-cleanup: withdraw the request we just sent so the next spec
+    // (social-workflow connect) starts from a clean state. With only the two
+    // canonical test accounts in the DB, this spec's target IS the other
+    // test user, and a leftover pending request breaks that spec.
+    const connRes = await page.request.get('/api/network/connect');
+    const connBody = await connRes.json();
+    const outgoing = (connBody.requests || []).find((r: any) => r.direction === 'outgoing');
+    if (outgoing) {
+      const withdrawRes = await page.request.patch(`/api/network/connect/${outgoing.id}`, {
+        data: { status: 'withdrawn' },
+      });
+      expect(withdrawRes.ok()).toBeTruthy();
+    }
+
     await page.screenshot({ path: 'playwright-report/network-connect-clicked.png' });
   });
 });
