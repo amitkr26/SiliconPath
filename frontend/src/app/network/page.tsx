@@ -14,13 +14,14 @@ const ConnectionCard = nextDynamic(() => import("@/components/ConnectionCard"), 
   loading: () => <div className="h-32 bg-white border-3 border-slate-900 rounded-2xl animate-pulse" />,
 });
 
-type TabKey = "connections" | "received" | "suggestions";
+type TabKey = "suggestions" | "received" | "sent" | "connections";
 
 interface Request {
   id: string;
   status?: string;
   direction?: "incoming" | "outgoing";
   requester?: { id: string; username?: string | null; display_name?: string | null; headline?: string | null; avatar_url?: string | null } | null;
+  addressee?: { id: string; username?: string | null; display_name?: string | null; headline?: string | null; avatar_url?: string | null } | null;
 }
 
 export default function NetworkPage() {
@@ -57,7 +58,7 @@ export default function NetworkPage() {
   }, [user, userLoading, router]);
 
   useEffect(() => {
-    if (tab === "received") loadRequests();
+    if (tab === "received" || tab === "sent") loadRequests();
   }, [tab, loadRequests]);
 
   const connect = async (id: string) => {
@@ -132,8 +133,8 @@ export default function NetworkPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            {(["suggestions", "received", "connections"] as TabKey[]).map((k) => (
+          <div className="flex flex-wrap items-center gap-2">
+            {(["suggestions", "received", "sent", "connections"] as TabKey[]).map((k) => (
               <button
                 key={k}
                 onClick={() => setTab(k)}
@@ -143,7 +144,7 @@ export default function NetworkPage() {
                     : "bg-white text-slate-900 hover:bg-slate-100 shadow-[2px_2px_0px_0px_#0F172A]"
                 }`}
               >
-                {k === "suggestions" ? "Suggested Connections" : k === "received" ? "Received Requests" : "My Connections"}
+                {k === "suggestions" ? "Suggested Connections" : k === "received" ? "Received Requests" : k === "sent" ? "Sent Requests" : "My Connections"}
               </button>
             ))}
           </div>
@@ -168,7 +169,8 @@ export default function NetworkPage() {
                 {suggestions.map((person: any) => (
                   <div
                     key={person.id}
-                    className="bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[5px_5px_0px_0px_#0F172A] hover:shadow-[7px_7px_0px_0px_#0F172A] hover:-translate-y-0.5 transition-all flex flex-col justify-between"
+                    onClick={() => router.push(`/profile/${person.username || person.id}`)}
+                    className="bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[5px_5px_0px_0px_#0F172A] hover:shadow-[7px_7px_0px_0px_#0F172A] hover:-translate-y-0.5 transition-all flex flex-col justify-between cursor-pointer"
                   >
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
@@ -198,13 +200,13 @@ export default function NetworkPage() {
 
                     <div className="pt-4 flex items-center gap-2">
                       <button
-                        onClick={() => connect(person.id)}
+                        onClick={(e) => { e.stopPropagation(); connect(person.id); }}
                         className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] transition-all flex items-center justify-center gap-1.5"
                       >
                         <UserPlus className="w-3.5 h-3.5" /> Connect
                       </button>
                       <button
-                        onClick={() => router.push(`/messages?user=${person.id}`)}
+                        onClick={(e) => { e.stopPropagation(); router.push(`/messages?user=${person.id}`); }}
                         className="p-2 bg-white hover:bg-slate-100 text-slate-900 rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A] transition-all"
                         title="Send Message"
                       >
@@ -233,59 +235,102 @@ export default function NetworkPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {requests.map((req) => {
-                  const incoming = req.direction !== "outgoing";
-                  const otherName = incoming ? req.requester?.display_name : "You";
+                {requests.filter((req) => req.direction === "incoming").map((req) => {
+                  const otherName = req.requester?.display_name || "Engineer";
                   const otherAvatar = req.requester?.avatar_url || "";
-                  const otherHeadline = incoming ? req.requester?.headline : "Waiting for response";
+                  const otherHeadline = req.requester?.headline || "Hardware Engineer";
+                  const otherProfile = `/profile/${req.requester?.username || req.requester?.id || "#"}`;
                   return (
                     <div
                       key={req.id}
-                      className="bg-white border-3 border-slate-900 rounded-2xl p-5 shadow-[4px_4px_0px_0px_#0F172A] flex items-center justify-between gap-4"
+                      onClick={() => otherProfile !== "#" && router.push(otherProfile)}
+                      className="bg-white border-3 border-slate-900 rounded-2xl p-5 shadow-[4px_4px_0px_0px_#0F172A] flex items-center justify-between gap-4 cursor-pointer hover:shadow-[6px_6px_0px_0px_#0F172A] transition-all"
                     >
                       <div className="flex items-center gap-3">
-                        <Link href={`/profile/${req.requester?.username || req.requester?.id || "#"}`} className="shrink-0">
+                        <Link href={otherProfile} className="shrink-0" onClick={(e) => e.stopPropagation()}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={otherAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
-                            alt={otherName || "Engineer"}
+                            alt={otherName}
                             className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 hover:ring-2 hover:ring-blue-500 transition-all"
                           />
                         </Link>
                         <div>
-                          <Link href={`/profile/${req.requester?.username || req.requester?.id || "#"}`} className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors">
-                            {otherName || "Engineer"}
+                          <Link href={otherProfile} className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors" onClick={(e) => e.stopPropagation()}>
+                            {otherName}
                           </Link>
-                          <p className="text-xs text-slate-600 font-semibold">
-                            {incoming ? (otherHeadline || "Hardware Engineer") : "Request sent — awaiting response"}
-                          </p>
+                          <p className="text-xs text-slate-600 font-semibold">{otherHeadline}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {incoming ? (
-                          <>
-                            <button
-                              onClick={() => respond(req.id, "accepted")}
-                              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_#0F172A]"
-                            >
-                              Accept
-                            </button>
-                            <button
-                              onClick={() => respond(req.id, "rejected")}
-                              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl"
-                            >
-                              Decline
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            onClick={() => respond(req.id, "withdrawn")}
-                            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl"
-                          >
-                            Cancel Request
-                          </button>
-                        )}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); respond(req.id, "accepted"); }}
+                          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_#0F172A]"
+                        >
+                          Accept
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); respond(req.id, "rejected"); }}
+                          className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl"
+                        >
+                          Decline
+                        </button>
                       </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "sent" && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-black text-slate-900">Sent Requests</h2>
+            {requestsLoading ? (
+              <div className="py-12 flex justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+              </div>
+            ) : requests.filter((req) => req.direction === "outgoing").length === 0 ? (
+              <div className="bg-white border-3 border-slate-900 rounded-2xl p-12 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+                <Users className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                <h3 className="text-lg font-black text-slate-900">No sent requests</h3>
+                <p className="text-slate-600 text-xs mt-1">Connection requests you send will appear here until the recipient responds.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {requests.filter((req) => req.direction === "outgoing").map((req) => {
+                  const otherProfile = `/profile/${req.addressee?.username || req.addressee?.id || "#"}`;
+                  return (
+                    <div
+                      key={req.id}
+                      onClick={() => otherProfile !== "#" && router.push(otherProfile)}
+                      className="bg-white border-3 border-slate-900 rounded-2xl p-5 shadow-[4px_4px_0px_0px_#0F172A] flex items-center justify-between gap-4 cursor-pointer hover:shadow-[6px_6px_0px_0px_#0F172A] transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Link href={otherProfile} className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={req.addressee?.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
+                            alt={req.addressee?.display_name || "Engineer"}
+                            className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 hover:ring-2 hover:ring-blue-500 transition-all"
+                          />
+                        </Link>
+                        <div>
+                          <Link href={otherProfile} className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors" onClick={(e) => e.stopPropagation()}>
+                            {req.addressee?.display_name || "Engineer"}
+                          </Link>
+                          <p className="text-xs text-slate-600 font-semibold">
+                            {req.addressee?.headline || "Hardware Engineer"} — awaiting response
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); respond(req.id, "withdrawn"); }}
+                        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl"
+                      >
+                        Cancel Request
+                      </button>
                     </div>
                   );
                 })}
@@ -317,6 +362,7 @@ export default function NetworkPage() {
                     username={c.username}
                     headline={c.headline}
                     avatarUrl={c.avatar_url || c.avatarUrl}
+                    onOpen={() => router.push(`/profile/${c.username || c.id || c.user_id}`)}
                   />
                 ))}
               </div>

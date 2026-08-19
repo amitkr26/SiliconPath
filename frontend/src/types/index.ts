@@ -81,10 +81,18 @@ export interface UserProfile {
   username: string;
   headline: string;
   about: string;
+  bio?: string;
   avatar_url: string;
   banner_url: string;
   current_position: string;
   current_org: string;
+  job_title?: string;
+  current_company?: string;
+  location?: string;
+  experience_years?: number;
+  interests?: string[];
+  linkedin_url?: string;
+  github_url?: string;
   qualification: string;
   specialization: string;
   has_net: boolean;
