@@ -2,7 +2,7 @@
 
 ## Overview
 
-BerojgarDegreeWala is a global career and knowledge platform for the Electronics, Semiconductor, Embedded Systems, Research, and Academia ecosystem. It consists of three integrated products inside a single web application.
+BerojgarDegreeWala is a career and knowledge platform for the Electronics, Semiconductor, VLSI, Embedded, Research, and Academia ecosystem — career intelligence infrastructure for that space. It consists of three integrated products inside a single web application.
 
 ## The Three Products
 
@@ -21,10 +21,12 @@ A professional networking platform specialized for Semiconductor, Electronics, R
 
 ## Key Metrics
 
-- **332+** configured scrape sources across 17 batches
-- **74** API routes
-- **4** databases (2 Supabase + 1 Neon consolidated)
-- **7** AI providers in fallback chain
+- **Next.js 14** (App Router)
+- **~139** API routes
+- **104** unit tests + **6** Playwright E2E specs (9/9 passing on production)
+- **9** AI providers via `backend/ai-gateway`
+- **4** databases (2 Supabase + 2 Neon)
+- **18** scraper modules in the frontend (8 real + 10 fabricated, gated, disabled in prod)
 - **7** VLSI academy tracks (30+ days each)
 
 ## Architecture Summary
@@ -32,8 +34,7 @@ A professional networking platform specialized for Semiconductor, Electronics, R
 ```
 User → Vercel (Next.js 14) → Supabase DB1 (core) + DB2 (social)
                            → Neon (analytics)
-                           → Render (Express backend scraper)
-Backend → 7 adapter types → 332+ sources → DB1
+Backend → frontend scraper modules (18) → DB1
 ```
 
 ## Related Documents
@@ -41,5 +42,4 @@ Backend → 7 adapter types → 332+ sources → DB1
 - [vision.md](./vision.md) — Product vision and mission
 - [prd.md](./prd.md) — Product Requirements Document
 - [user-stories.md](./user-stories.md) — User stories by persona
-- [personas.md](./personas.md) — User personas
-- [feature-matrix.md](./feature-matrix.md) — Features by tier
+- [MASTER_IMPLEMENTATION_PLAN.md](./MASTER_IMPLEMENTATION_PLAN.md) — Master implementation plan

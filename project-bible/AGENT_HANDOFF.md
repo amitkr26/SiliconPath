@@ -1,11 +1,11 @@
 # Multi-Agent Handoff Document (Antigravity ⇋ OpenCode)
 
 ```text
-HANDOFF_VERSION: 1.1.0
-TIMESTAMP: 2026-08-18T21:14:00+05:30
-CURRENT_AGENT: Antigravity
+HANDOFF_VERSION: 1.2.0
+TIMESTAMP: 2026-08-19
+CURRENT_AGENT: OpenCode
 NEXT_AGENT: OpenCode / Antigravity (shared continuation contract)
-TASK_STATUS: ALL SOCIAL CORE & MULTI-USER WORKFLOWS 100% VERIFIED
+TASK_STATUS: Social core verified 9/9; network 4-tab feature shipped (683404c, a79773a); backend replication docs done — implementation in progress; project-bible reconciled 2026-08-19
 ```
 
 ---
@@ -80,3 +80,46 @@ TASK_STATUS: ALL SOCIAL CORE & MULTI-USER WORKFLOWS 100% VERIFIED
   weaken the messaging spec's 25s assertions.
 - Comment-count span textContent is `" 1"` (JSX whitespace) — assert with
   `/^\s*1\s*$/`. Connected state on a profile = "Message" link (no "Connected" text).
+
+---
+
+## 4. OpenCode continuation notes (2026-08-19 — backend replication + docs reconciliation)
+
+### Backend replication (active workstream)
+- **Rule: replicate, never move.** The frontend is the baseline; `backend/` work is
+  COPY/REIMPLEMENT. No production traffic switch without explicit instruction.
+- `backend/api` = framework-less shared lib (response/error/auth/validation/
+  rate-limit/cache/openapi/content), consumed as raw TS by frontend AND server.
+  `backend/ai-gateway` = 9-provider fallback lib (order groq→gemini→openrouter→nvidia→
+  agentrouter→omnirouter→cloudflare→bedrock→huggingface, 10-min cooldown). Both have
+  jest configs; ai-gateway has NO tests (KNOWN_ISSUES #11).
+- `backend/server` = Express 4 on :8080. Routes today: /health, /api/v1/opportunities
+  (+/:idOrSlug), /profiles/me, /profiles/:username, /organizations(+/:slug), /news
+  (list only), /applications CRUD, /saved-opportunities CRUD, /ai/insights (no usage
+  log), /admin/stats. Envelope `{success,data,pagination}` /
+  `{success:false,error:{code,message}}`. 16 node:test tests; `dist/` generated+
+  gitignored; Dockerfile node:20-alpine EXPOSE 8080.
+- **Open parity gaps** (per `backend/docs/API-PARITY.md`): social layer (feed/network/
+  messages/notifications — `supabase2Admin` DB2 client wired but unused), AI endpoint
+  breadth + `setLogger` usage logging, cron/scrapers port (news RSS sync first),
+  news `:slug` + search + `auth/signup`, admin breadth, academy/misc, server rate
+  limiting (api package limiter exists).
+- Server tests use node:test + a Proxy fake (`backend/server/tests/fake.ts`) — keep
+  that pattern for new route tests.
+
+### Documentation source of truth (post-reconciliation)
+- `project-bible/ARCHITECTURE.md` (CURRENT/TRANSITION/TARGET), `MASTER_INDEX.md`,
+  `IMPLEMENTATION_STATUS.md` (full feature matrix), `KNOWN_ISSUES.md` (12 issues),
+  `backend/docs/FRONTEND-BACKEND-MAP.md` + `API-PARITY.md` — all reconciled 2026-08-19.
+- Section READMEs (04–23) were rewritten 2026-08-19 by subagents with verified counts:
+  138 API route files, 3 scheduled crons, 9 AI providers, 18 scraper modules, 4 DBs
+  (2 Supabase + 2 Neon), 7 academy tracks, 104 jest / 97 api-jest / 16 server tests.
+- Historical docs (master-specification, CONTENT_UPGRADE_PLAN, deploy-stack.txt,
+  19-prompts files, ADR-001) carry DEPRECATED/HISTORICAL status headers — do not edit
+  their bodies to "modernize" them.
+
+### New known issues (2026-08-19)
+- #9 ci.yml references nonexistent paths (`packages/ai-gateway`, `berojgardegreewala\`) — broken, unused.
+- #10 `backend/api` `npm run openapi` broken (missing `scripts/generate-openapi.ts`).
+- #11 ai-gateway zero tests.
+- #12 no verified recent production scraper run — verify via `/api/admin/scrape-health` or Vercel cron logs before claiming scrapers work.

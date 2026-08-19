@@ -1,135 +1,84 @@
 # API Architecture
 
+> Last reconciled: 2026-08-19
+
 ## Overview
 
-BerojgarDegreeWala provides 74 API routes organized into public, protected, admin, and cron categories. All routes live in the Next.js app at `berojgardegreewala/src/app/api/`.
+The entire product API surface is the Next.js App Router under `frontend/src/app/api`. Measured 2026-08-19: **138 route handlers** (136 `route.ts` + 2 `route.tsx`). There is no separate backend API service; shared helpers (rate limiting, admin/cron auth guards, Zod validation, error/response helpers) live in the workspace package `@berojgardegreewala/api` (`backend/api/src`).
 
-## Route Categories
+The OpenAPI spec at `backend/api/openapi.json` documents a subset of this surface: **51 paths, 60 operations, 19 tags**, security schemes `BearerAuth` / `AdminAuth` / `CronAuth`. The runtime surface (138 handlers) is larger than the spec covers.
 
-### Public Routes (No Auth Required)
+## Route Inventory (measured 2026-08-19)
 
-| Category | Routes | Count |
-|----------|--------|-------|
-| Opportunities | GET list, GET by slug, GET featured, GET stats | 4 |
-| Organizations | GET list, GET by slug | 2 |
-| Academy | GET tracks, GET track by id, GET day content, GET checkpoints | 4 |
-| News | GET list, GET by slug | 2 |
-| Resources | GET list, GET by slug | 2 |
-| Search | GET search | 1 |
-| Subscribe | POST subscribe | 1 |
-| Sitemap | GET sitemap | 1 |
-| **Total** | | **17** |
+| Category | Count | Handlers |
+|---|---|---|
+| auth | 3 | signup, signout, check-username |
+| system | 3 | health, cron-health, csp-report |
+| opportunities | 5 | list, [id], by-slug/[slug], featured, stats |
+| opportunities support | 5 | similar/[id], opportunities-feed, calendar-export/[id], sitemap, og/opportunity/[slug] |
+| og | 1 | og (base image) |
+| news | 3 | list, [slug], sync |
+| ai | 8 | chat, classify, enhance, expire, match, opportunity-summary/[slug], search, summarize |
+| bookmarks | 2 | list, [id] |
+| notifications | 3 | list, count, [id] |
+| applications | 2 | list, [id] |
+| resume | 2 | list, ai-suggest |
+| profile | 5 | me, [userId], [userId]/endorse, [userId]/recommendations, parse-resume |
+| recommendations | 1 | top-level recommendations |
+| feed | 5 | list, posts/[id], posts/[id]/like, /comment, /repost |
+| network | 7 | connect, connect/[id], connections, suggestions, follow/[userId], followers, following |
+| people | 1 | search |
+| messages | 2 | list, [conversationId] |
+| community | 4 | posts, posts/[id], comments, vote |
+| companies | 3 | list, [id], [id]/follow |
+| organizations | 2 | list, [slug] |
+| employer | 3 | claim, jobs, recommendations |
+| academy | 9 | tracks, tracks/[id], tracks/[id]/days, tracks/[id]/days/[day], tracks/[id]/checkpoints, days/[trackId]/[dayNumber], progress, progress/completed-days, progress/passed-tracks |
+| admin | 22 | auth, auth/session, analytics, announcements, applications + [id], companies + [id], opportunities + [id] + verify + reject, organizations + [id], performance, recheck-link, scrape, scrape/status, scrape-health, subscribers + [id], ai/test |
+| cron | 7 | scrape-opportunities, scrape-news, scrape-india, scrape-global, digest, check-links, cleanup |
+| cron-style top-level | 4 | archive-news, cleanup-news, send-digest, sync-replica |
+| scrapers | 14 | [slug], run-all, csir, drdo, isro, iit-iisc, iits-iisc, electronics-semiconductor, global-master, psu-electronics, railways, scientific-research, semiconductor, space-defence |
+| scrape + scrape-sources | 2 | manual scrape, source registry |
+| search | 2 | search, search/opportunities |
+| analytics | 2 | platform, ai-usage |
+| misc | 6 | contact, subscribe, track-click, report-issue, resources, resources/[slug] |
+| **Total** | **138** | |
 
-### Protected Routes (Auth Required)
+## Auth Guards
 
-| Category | Routes | Count |
-|----------|--------|-------|
-| Bookmarks | GET list, POST add, DELETE remove | 3 |
-| Feed | GET feed, POST create | 2 |
-| Network | GET connections, POST request, PATCH respond | 3 |
-| Messages | GET conversations, GET messages, POST send | 3 |
-| Notifications | GET list, PATCH read | 2 |
-| Profile | GET profile, PATCH update | 2 |
-| Companies | GET list, GET by id | 2 |
-| Resume | GET resume, POST upload, PATCH update, DELETE | 4 |
-| **Total** | | **21** |
+- **BearerAuth** — Supabase session via `@supabase/ssr` (cookies / Authorization header), checked in middleware and per-route.
+- **AdminAuth** — `requireAdmin` / `verifyAdmin` from `@berojgardegreewala/api` (x-admin-password + HMAC, fail-closed) on every `/api/admin/*` route, `/api/scrape`, `/api/scrape-sources`, `/api/analytics/*`. The admin console does not use a Supabase session.
+- **CronAuth** — `requireCron` / `requireCronOrAdmin` (CRON_SECRET bearer) on `/api/cron/*`, `/api/news/sync`, `/api/scrapers/*`, `/api/scrape`.
 
-### Admin Routes (Admin Auth Required)
+## Middleware (`frontend/src/middleware.ts`)
 
-| Category | Routes | Count |
-|----------|--------|-------|
-| Opportunities | CRUD + verify/reject | 6 |
-| Organizations | CRUD | 4 |
-| Scrapers | POST trigger, GET status, POST update sources | 3 |
-| Subscribers | GET list, DELETE remove | 2 |
-| Analytics | GET dashboard | 1 |
-| AI | POST test prompt | 1 |
-| **Total** | | **17** |
+- **CSRF guard** on POST/PUT/PATCH/DELETE: origin/referer must be in allowlist (`localhost:3000`, `*.berojgardegreewala.vercel.app`, `ponytail.dev`, `omniroute.online`, +www variants); exempts `/api/auth*`, `/api/subscribe`, `/api/report-issue`. Missing origin is allowed (non-browser clients).
+- **Rate limits** (per-path buckets from `@berojgardegreewala/api`): api 120/min, auth 10/min, search 30/min, scrape 5/min, ai 20/min. `/api/scrapers` and `/api/cron` exempt.
+- **Auth-gated paths**: `/api/feed`, `/api/network`, `/api/companies`, `/api/messages`, `/api/notifications`, `/api/people`, `/api/resume`, `/api/applications` → 401 for APIs; pages `/applications`, `/resume`, `/saved` → redirect `/login?redirectTo=`.
+- **Employer-only paths**: `/post-job`, `/employers`, `/employer`, `/api/employer`; role check `user_metadata.role` in (employer, admin) OR `account_type` = provider, else 403 / redirect `/`.
+- **Security headers** on all responses: CSP (`report-uri /api/csp-report`), `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, Referrer-Policy, Permissions-Policy, HSTS in production.
+- `code` query param on `/` or `/login` → redirect to `/auth/callback`.
 
-### Cron Routes (CRON_SECRET Auth)
+## Scheduled Crons (vercel.json, measured 2026-08-19)
 
-| Route | Schedule | Purpose |
-|-------|----------|---------|
-| POST /api/cron/scrape-india | Daily 6:00 AM IST | Scrape India sources |
-| POST /api/cron/scrape-global | Daily 8:00 AM IST | Scrape global sources |
-| POST /api/cron/check-links | Daily 9:00 AM IST | Link health verification |
-| POST /api/cron/digest | Weekly Sunday 12:00 PM | Weekly email digest |
-| POST /api/cron/newsletter | Monthly | Monthly newsletter |
-| POST /api/cron/cleanup | Daily 3:00 AM IST | Archive expired opportunities |
-| **Total** | | **6** |
+| Path | Schedule (UTC) |
+|---|---|
+| `/api/cron/scrape-opportunities` | daily 00:00 |
+| `/api/cron/check-links` | daily 08:00 |
+| `/api/news/sync` | daily 06:00 |
 
-### AI Routes
-
-| Route | Purpose |
-|-------|---------|
-| POST /api/ai/chat | Chat completion via AI Gateway |
-| POST /api/ai/enhance | Content enhancement |
-| POST /api/ai/classify | Opportunity classification |
-| POST /api/ai/summarize | Text summarization |
-| POST /api/ai/match | Opportunity matching |
-| **Total** | | **5** |
-
-### Other Internal Routes
-
-| Route | Purpose |
-|-------|---------|
-| GET /api/auth/callback | Supabase auth callback |
-| GET /api/og | Open Graph image generation |
-| GET /api/health | Health check |
-| **Total** | | **3** |
+Exactly 3 crons are scheduled. The remaining cron-capable routes (`cron/scrape-news`, `cron/scrape-india`, `cron/scrape-global`, `cron/digest`, `cron/cleanup`, `send-digest`, `sync-replica`, `archive-news`, `cleanup-news`) exist but are **not** scheduled — the previous docs' claim of 6 scheduled crons including a newsletter was wrong.
 
 ## Response Patterns
 
-### Success
-```typescript
-{ data: T }
-```
+- Success: `{ data: T }`; paginated lists: `{ data: T[], count, page, pageSize }`.
+- Error: `{ error: string, code?, details? }` (helpers in `@berojgardegreewala/api`).
+- Status codes: 200/201/204 success, 400 Zod validation, 401 missing/invalid auth, 403 forbidden/CSRF, 404 not found, 409 duplicate, 429 rate-limited, 500/503 server errors.
 
-### List with Pagination
-```typescript
-{ data: T[], count: number, page: number, pageSize: number }
-```
+## Related
 
-### Error
-```typescript
-{ error: string, code?: string, details?: unknown }
-```
-
-### HTTP Status Codes
-
-| Code | Usage |
-|------|-------|
-| 200 | GET success |
-| 201 | POST create success |
-| 204 | DELETE success, PATCH no-content update |
-| 400 | Validation error (Zod) |
-| 401 | Missing or invalid auth |
-| 403 | Valid auth but insufficient permissions |
-| 404 | Resource not found |
-| 409 | Duplicate (e.g., duplicate bookmark) |
-| 429 | Rate limited |
-| 500 | Internal server error |
-
-## Route Pattern
-
-All routes follow the same structure:
-```typescript
-export async function GET(request: NextRequest) {
-  try {
-    // 1. Parse and validate params
-    // 2. Check auth (if needed)
-    // 3. Query database
-    // 4. Transform response
-    // 5. Return NextResponse.json(...)
-  } catch (error) {
-    // 6. Log error
-    // 7. Return appropriate error response
-  }
-}
-```
-
-## Related Documents
-
-- [openapi-spec.json](./openapi-spec.json) — Complete OpenAPI 3.1 specification
-- [routes-catalog.md](./routes-catalog.md) — Detailed route documentation
-- [response-standards.md](./response-standards.md) — Response format conventions
+- Spec: `backend/api/openapi.json` (51 paths, 60 operations, 19 tags)
+- Shared helpers: `backend/api/src` (package `@berojgardegreewala/api`)
+- Middleware: `frontend/src/middleware.ts`
+- AI endpoints: `project-bible/08-ai/README.md`
+- Scraping endpoints: `project-bible/09-scrapers/README.md`

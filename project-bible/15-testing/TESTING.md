@@ -1,4 +1,4 @@
-# 🧪 Quality Assurance & Test Data Lifecycle Guidelines
+# Quality Assurance & Test Data Lifecycle Guidelines
 
 ## 1. Mandatory Rule for QA & Testing Sessions
 To ensure that test job postings and simulated employer entries never remain visible to public users on production (`https://berojgardegreewala.vercel.app`), the following rules are strictly enforced:
@@ -16,8 +16,13 @@ To ensure that test job postings and simulated employer entries never remain vis
 ---
 
 ## 2. Test Accounts Reference (Testing Only)
-- **Candidate Account:** `xasefe9251@bejum.com`
-- **Employer Account:** `weqolyji@forexzig.com`
+
+Canonical accounts (2026-08-19). Legacy accounts (`xasefe9251@bejum.com`, `weqolyji@forexzig.com`) were deleted; do not reuse them.
+
+- **Candidate Account:** `amittest1@berojgardegreewala.com` / `TestPassword123!` (UUID 56b47f8e-8501-45c5-b9a3-8d4fcef8252e)
+- **Candidate Account:** `amittest2@berojgardegreewala.com` / `TestPassword123!` (UUID 9e55b282-0d5b-4210-9fd4-54ec5c45da45)
+
+Before full E2E runs, delete inter-account rows: connections, `user_follows`, `feed_posts` like `E2E test post%`, notifications, messages by `sender_id`, conversations by participant. `frontend/scripts/test-social-e2e.mjs` leaves residue (accepted connection).
 
 ---
 

@@ -1,92 +1,60 @@
 # Backend Architecture
 
-> [!IMPORTANT]
-> **Consolidation Note (July 2026)**: The Express.js backend scraper service formerly deployed on Render has been **fully consolidated** into Next.js Serverless API endpoints inside the `berojgardegreewala/` subproject. The directory structure and concurrency models documented below are legacy reference details only.
-
 ## Overview
 
-The BerojgarDegreeWala backend is a lightweight Express.js application deployed on Render that handles all scraping, orchestration, and scheduled maintenance tasks. It runs as a Docker container with health checks and Prometheus metrics.
+Three backend components, managed as npm workspaces from the root `package.json` (`backend/api`, `backend/ai-gateway`, `backend/server`). Only `backend/server` is runnable; the other two are TypeScript libraries.
 
-## Stack
+## Components
 
-- **Runtime**: Node.js 20 (LTS)
-- **Framework**: Express.js 4
-- **Language**: TypeScript (compiled via `tsx`)
-- **Database**: Supabase JS client (DB1 + DB2)
-- **Scheduling**: `node-cron`
-- **Container**: Docker (multi-stage build)
-- **Deployment**: Render (free tier)
-- **Monitoring**: Prometheus client, Sentry
+### backend/api — framework-less TypeScript library
 
-## Directory Structure
+Consumed as raw TypeScript by both the frontend and `backend/server`. No server, no port.
 
-```
-backend/
-├── src/
-│   ├── scrapers/           # Scraper adapters + orchestrator
-│   │   ├── adapters/       # Greenhouse, Lever, Workday, SmartRecruiters, HTML, RSS, Schema
-│   │   ├── source-config.ts # 332+ source definitions
-│   │   ├── orchestrator.ts # Concurrency-limited orchestration
-│   │   └── utils.ts        # Data quality pipeline
-│   ├── cron/               # Scheduled tasks
-│   │   ├── scheduler.ts    # node-cron schedule definitions
-│   │   └── tasks.ts        # Task implementations
-│   ├── routes/             # API routes
-│   │   ├── scrape.ts       # POST /scrape/run, GET /scrape/status
-│   │   ├── health.ts       # GET /health
-│   │   └── metrics.ts      # GET /metrics
-│   ├── middleware/          # Auth, rate limiting, error handling
-│   │   ├── auth.ts         # SCRAPER_SECRET validation
-│   │   ├── rate-limit.ts   # Token-bucket rate limiter
-│   │   └── error-handler.ts # Global error handler
-│   ├── services/           # Shared services
-│   │   ├── database.ts     # Supabase client instances
-│   │   ├── ai-gateway.ts   # AI integration for parsing
-│   │   └── dedup.ts        # Deduplication logic
-│   └── utils/              # Utilities
-│       ├── url.ts          # URL normalization
-│       ├── titian.ts       # Title cleaning
-│       └── logger.ts       # Structured logging
-├── Dockerfile
-├── render.yaml
-└── package.json
-```
+- `response/` — success, created, noContent, list, cursor, error envelope helpers
+- `error/` — `AppError` hierarchy + `handleError`
+- `auth/` — `getUser`, `requireAuth`, `requireAdmin`, `requireCron`, `requireCronOrAdmin`
+- `validation/` — zod `validate`, `paginationSchema`, `opportunityListQuerySchema`, `applyPagination`/`applyCursor`/`applySort`/`applyFilters`
+- `rate-limit/` — in-memory Map sliding window; presets: api 120/min, auth 10/min, search 30/min, scrape 5/min, ai 20/min
+- `cache/` — ETag helpers
+- `openapi/` — `generateOpenAPISpec` + `zodToSchema`; static copy at `backend/api/openapi.json`
+- `content/` — taxonomy, dates, status, sources, dedup, seo, linking, quality, provenance; used by frontend scrapers/ingest
+- Jest tests in `backend/api/__tests__`
 
-## API Endpoints
+### backend/ai-gateway — AI provider library
 
-| Method | Route | Auth | Purpose |
-|--------|-------|------|---------|
-| GET | `/health` | Public | Health check with DB status |
-| GET | `/metrics` | Public | Prometheus metrics |
-| POST | `/scrape/run` | `SCRAPER_SECRET` | Trigger scrape job |
-| GET | `/scrape/status` | `SCRAPER_SECRET` | Check last run status |
+9 AI providers with fallback chain and 10-minute cooldown per provider; zero runtime dependencies (global `fetch`). No tests. Provider details live in `project-bible/08-ai`.
 
-## Concurrency Model
+### backend/server — Express 4 REST API (the only runnable component)
 
-- Scrape orchestrator limits concurrency to 3 simultaneous sources
-- Each source adapter handles its own rate limiting
-- Token-bucket rate limiter: 120 req/min per IP on the API layer
-- Backpressure: when queue exceeds 20 sources, new jobs are queued
+- Port 8080 (env `PORT`), binds `0.0.0.0`; entry `src/server.ts` → `createApp({ env, db clients })`
+- Routes:
+  - `GET /health` (no DB)
+  - `GET /api/v1/opportunities` (zod-validated filters + pagination)
+  - `GET /api/v1/opportunities/:idOrSlug`
+  - `GET /api/v1/profiles/me` (Bearer)
+  - `GET /api/v1/profiles/:username` (public, lowercase)
+  - `GET /api/v1/organizations` + `GET /api/v1/organizations/:slug`
+  - `GET /api/v1/news` (list only)
+  - `GET/POST /api/v1/applications` + `PATCH/DELETE /:id` (Bearer, caller-scoped, dedupe)
+  - `GET/POST /api/v1/saved-opportunities` + `DELETE /:id`
+  - `POST /api/v1/ai/insights` (Bearer, wraps ai-gateway, no usage logging)
+  - `GET /api/v1/admin/stats` (`x-admin-password`, sha256 + timingSafeEqual)
+- Envelope: `{ success, data, pagination }` / `{ success: false, error: { code, message, details? } }`
+- CORS allow-list via `ALLOWED_ORIGINS` env
+- 16 `node:test` tests in `backend/server/tests`
+- `dist/` generated, gitignored
+- Dockerfile: `node:20-alpine`, EXPOSE 8080
+- `.env.example` (`backend/server/.env.example`): SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_2_URL, SUPABASE_2_SERVICE_ROLE_KEY, PORT, NODE_ENV, ALLOWED_ORIGINS, ADMIN_PASSWORD, ADMIN_HMAC_SECRET + AI provider keys
 
-## Error Handling
+## Backend replication status (as of 2026-08-19)
 
-- Global error handler catches uncaught exceptions (reports to Sentry)
-- Per-source error isolation: one failing source does not block others
-- Retry: failed sources retry once after 30-second delay
-- Circuit breaker: a source that fails 5+ consecutive runs is skipped for 24 hours
+Parity docs exist: `backend/docs/FRONTEND-BACKEND-MAP.md`, `backend/docs/API-PARITY.md`.
 
-## Container
-
-Multi-stage Docker build:
-1. **Stage 1** (`deps`): `npm ci` with dev dependencies
-2. **Stage 2** (`builder`): TypeScript check + compile
-3. **Stage 3** (`runner`): `npm ci --omit=dev`, copy dist, run via `node`
-
-Health check: `CMD curl -f http://localhost:$PORT/health || exit 1`
+- Complete: opportunities (list/detail/slug), applications, saved-opportunities, profiles (GET), organizations, admin stats
+- Partial: news (list only), AI (insights only)
+- Missing: social layer (feed/network/messages/notifications), AI breadth (chat/match/search/summarize), cron/scrapers, search, auth/signup, admin breadth, academy, misc
 
 ## Related Documents
 
-- [routes.md](./routes.md) — Full route documentation
-- [middleware.md](./middleware.md) — Middleware stack
-- [docker.md](./docker.md) — Docker configuration
-- [render.md](./render.md) — Render deployment
+- [FRONTEND-BACKEND-MAP.md](../../backend/docs/FRONTEND-BACKEND-MAP.md) — frontend route ↔ backend route mapping
+- [API-PARITY.md](../../backend/docs/API-PARITY.md) — replication parity analysis

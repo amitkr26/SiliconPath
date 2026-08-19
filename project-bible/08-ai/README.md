@@ -1,97 +1,59 @@
 # AI Architecture
 
+> Last reconciled: 2026-08-19
+
 ## Overview
 
-BerojgarDegreeWala implements a centralized AI Gateway through which all AI requests must pass. No module is allowed to call an AI provider directly. The gateway provides automatic fallback, health monitoring, retry, and usage analytics.
+All AI calls pass through a single gateway: workspace package `@berojgardegreewala/ai-gateway` (`backend/ai-gateway`). The frontend re-exports it via `frontend/src/lib/ai/providers.ts` and wires usage logging. No module calls an AI provider directly.
 
-## Current Implementation Status
+## Gateway (`backend/ai-gateway/src/gateway/index.ts`)
 
-**Current**: Multi-provider fallback chain exists in `src/lib/ai/providers.ts` with 7 providers and manual routing.
-**Target**: Fully centralized AI Gateway with unified request/response contracts, automatic routing, caching, and streaming.
+9 providers (model / env key):
 
-## Provider Chain (in order)
+| Provider | Model | Env |
+|---|---|---|
+| groq | llama-3.1-8b-instant | GROQ_API_KEY |
+| gemini | gemini-1.5-flash | GEMINI_API_KEY |
+| openrouter | meta-llama/llama-3.1-8b-instruct:free | OPENROUTER_API_KEY |
+| nvidia | meta/llama-3.1-8b-instruct | NVIDIA_NIM_API_KEY |
+| agentrouter | gpt-3.5-turbo | AGENTROUTER_API_KEY |
+| omnirouter | auto | OMNIROUTER_BASE_URL (no key required) |
+| cloudflare | @cf/meta/llama-3.1-8b-instruct | CLOUDFLARE_AI_TOKEN + CLOUDFLARE_ACCOUNT_ID |
+| bedrock | openai.gpt-oss-120b | AWS_BEARER_TOKEN_BEDROCK |
+| huggingface | mistralai/Mistral-7B-Instruct-v0.3 | HUGGINGFACE_API_KEY |
 
-| Provider | Model | Purpose | Status |
-|----------|-------|---------|--------|
-| Groq | llama-3.1-8b-instruct (free) | Default text | ✅ Configured |
-| OpenRouter | Various | Fallback 1 | ✅ Configured |
-| Cloudflare Workers AI | Various | Fallback 2 | ✅ Configured |
-| Gemini | gemini-pro | Fallback 3 | ✅ Configured |
-| NVIDIA NIM | Various | Fallback 4 | ✅ Configured |
-| AWS Bedrock | Various | Fallback 5 | ✅ Configured |
-| HuggingFace | Various | Fallback 6 | ✅ Configured |
+- Fallback order: groq → gemini → openrouter → nvidia → agentrouter → omnirouter → cloudflare → bedrock → huggingface. A preferred provider (`request.model`) is moved to the front of the order.
+- Providers with unset env keys are skipped (omnirouter exempt).
+- 10-minute cooldown per provider after any failure.
+- Params: max_tokens 1024, temperature 0.3 (huggingface uses max_new_tokens 512; nvidia adds top_p 0.7); per-call timeouts 4–5s (`AbortSignal.timeout`).
+- Per-call cost estimate logged (bedrock $0.003/1k tokens, gemini $0.000075/1k; the rest are free-tier).
+- API: `gateway.generate` (messages) and `gateway.generateAdvanced` (raw prompt).
 
-## AI Features
+## Frontend Wiring (`frontend/src/lib/ai/providers.ts`)
 
-| Feature | File | Provider Preference |
-|---------|------|-------------------|
-| Search Parser | `src/lib/ai/search-parser.ts` | Groq |
-| Opportunity Matching | `src/lib/ai/matcher.ts` | Full chain |
-| Summarization | `src/lib/ai/summarizer.ts` | Gemini |
-| Expiry Detection | `src/lib/ai/expiry-checker.ts` | Fallback chain |
-| News Filter | `src/lib/ai/news-filter-ai.ts` | Groq |
-| Newsletter Generation | `src/lib/ai/newsletter.ts` | Advanced chain |
-| Content Enhancement | `src/app/api/ai/enhance/route.ts` | Gateway |
-| Chat | `src/app/api/ai/chat/route.ts` | Gateway |
+- Thin re-export of the gateway and `AIProvider` type.
+- `gateway.setLogger(logAIUsage)` — logs each call to `ai_usage_log` on Supabase **db1** (migration 20260501000004); insert failure is silent and never blocks the AI call. Previously wrote to Neon where the table did not exist; repointed 2026-08-16.
+- Wrappers: `callAI(prompt, systemPrompt?, { preferredProvider?, feature? })`, `callAIAdvanced(prompt, systemPrompt?)`.
 
-## AI Gateway Specification (Target Architecture)
+## Feature Utilities (`frontend/src/lib/ai/`)
 
-The AI Gateway should provide:
+| File | Purpose |
+|---|---|
+| grounding.ts | Grounds chat answers in DB records: extractSearchTerms, isOpportunityIntent, filterRelevantOpportunities, buildGroundedSystemPrompt, NO_MATCH_FALLBACK, sanitizeAnswerUrls (strips URLs outside the allowlist), wantsNewsContext, allowedUrls |
+| matcher.ts | Profile-to-opportunity matching, top-10 JSON output |
+| summarizer.ts | Gemini JSON summarization |
+| search-parser.ts | Groq JSON search-query parsing |
+| expiry-checker.ts | Cloudflare yes/no deadline-expiry detection |
+| news-filter-ai.ts | AI-assisted news filtering |
+| newsletter.ts | Newsletter generation |
 
-```
-Request → AI Gateway → Provider Router → Provider Chain
-                ↓                           ↓
-          Cache Check               Provider 1 (Groq)
-                ↓                           ↓
-          Rate Limit                  Provider 2 (OpenRouter)
-                ↓                           ↓
-          Usage Log                           ...
-                ↓                           ↓
-          Response ← Tolerant Parser ← Provider N (HuggingFace)
-```
+## API Endpoints (8 handlers, `frontend/src/app/api/ai/`)
 
-### Gateway Responsibilities
-- Route requests to the appropriate provider based on capability and cost
-- Handle provider failures with automatic fallback
-- Respect provider rate limits and quotas
-- Cache identical requests (configurable TTL)
-- Log all usage for analytics and cost tracking
-- Support streaming responses
-- Support tool calling/function calling
-- Implement prompt versioning
+chat (grounded — uses buildGroundedSystemPrompt), classify, enhance, expire (expiry-checker), match (matcher), opportunity-summary/[slug], search (search-parser), summarize (summarizer). All sit behind the `ai` rate-limit bucket (20/min) and the middleware CSRF guard.
 
-### Provider Contracts
-Each provider must expose a uniform interface:
-```typescript
-interface AIProvider {
-  name: string;
-  call(prompt: string, options?: AIOptions): Promise<AIResponse>;
-  isAvailable(): boolean;
-  getQuota(): ProviderQuota;
-}
-```
+## Status
 
-## Safe Parsing
-
-AI model outputs must never be parsed with bare `JSON.parse()`. Use the tolerant parser in `src/lib/ai/safe-parse.ts` which handles:
-- Markdown code fences
-- Mixed prose and JSON
-- Partial/truncated JSON
-- Leading explanatory text
-- Multiple JSON objects in one response
-
-## Cost Optimization
-
-- Free tier providers are preferred (Groq, Cloudflare)
-- Paid providers (OpenRouter paid models, Gemini, Bedrock) are fallbacks only
-- Usage is logged to `ai_usage_log` for cost analysis
-- Response caching reduces redundant calls
-- Prompt optimization minimizes token usage
-
-## Related Documents
-
-- [ai-gateway.md](./ai-gateway.md) — Gateway specification
-- [providers.md](./providers.md) — Provider configurations
-- [prompts.md](./prompts.md) — Prompt standards
-- [usage-analytics.md](./usage-analytics.md) — Usage tracking
-- [provider-contracts.json](./provider-contracts.json) — Machine-readable contracts
+- Gateway provider chain: IMPLEMENTED
+- Feature utilities: IMPLEMENTED
+- Grounded chat with URL sanitization: IMPLEMENTED
+- Spec/contract documents previously linked here (ai-gateway.md, providers.md, prompts.md, usage-analytics.md, provider-contracts.json) do not exist; removed. No streaming or tool-calling in the gateway (not built).

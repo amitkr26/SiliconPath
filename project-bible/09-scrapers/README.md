@@ -1,108 +1,69 @@
 # Scraper Architecture
 
-> [!IMPORTANT]
-> **Consolidation Note (July 2026)**: The scraping engine is now fully consolidated inside the `berojgardegreewala` Next.js application. All ATS adapters, custom HTML adapters (including ISRO, DRDO, CSIR), and RSS adapters are imported dynamically and executed via Serverless API endpoints on Vercel (triggered by Vercel Cron). The Render Express-based scraping tiers documented below are legacy references only.
+> Last reconciled: 2026-08-19
 
 ## Overview
 
-BerojgarDegreeWala operates a consolidated scraping system integrated within the Next.js app under `src/lib/scrapers/` to fetch opportunities across ATS/HTML/RSS sources.
+All scraping runs inside the Next.js app: `frontend/src/lib/scrapers` (24 files, measured 2026-08-19). Triggered by Vercel cron and admin/cron-guarded API routes. There is no external scraping service.
 
-## Architecture
+## Modules
 
-```
-Vercel Cron (/api/cron/*) → SCRAPER_SECRET → Render Backend (/scrape/*)
-                                                    ↓
-                                          Orchestrator (concurrency-limited)
-                                                    ↓
-                         ┌──────────┬──────────┬──────────┬──────────┐
-                         ↓          ↓          ↓          ↓          ↓
-                    Greenhouse  Workday    Lever    SmartR    Schema/RSS/HTML
-                   Adapter    Adapter   Adapter  ecruiters   Adapters
-                                              Adapter
-```
+### Built-in opportunity scrapers (8 real, wired into `scrapeAllOpportunities`)
 
-## Source Registry
+`isro-scraper.ts`, `drdo-scraper.ts`, `csir-scraper.ts`, `india-psu-scraper.ts`, `india-academic-scraper.ts`, `global-semiconductor-scraper.ts`, `international-academic-scraper.ts`, `fellowship-scraper.ts`.
 
-**332+ sources** across 17 batches in `backend/src/scrapers/source-config.ts`:
+### ATS adapters (4, for DB-configured sources)
 
-| Batch | Category | Count | Examples |
-|-------|----------|-------|---------|
-| 1 | Semiconductor IDM | 20+ | Intel, TSMC, Samsung, Micron |
-| 2 | Fabless | 20+ | NVIDIA, AMD, Qualcomm, Broadcom |
-| 3 | Equipment | 15+ | ASML, Applied Materials, Lam Research |
-| 4 | Materials | 10+ | Dow, ShinEtsu, Sumco |
-| 5 | OSAT | 10+ | ASE, Amkor, JCET |
-| 6 | Power/Auto | 15+ | Infineon, NXP, STMicro, Renesas |
-| 7 | Memory/Storage | 10+ | Samsung, SK Hynix, Western Digital |
-| 8 | Test/Measurement | 10+ | Keysight, Teradyne, Advantest |
-| 9 | EDA | 10+ | Synopsys, Cadence, Siemens EDA |
-| 10 | Networking/Chip | 15+ | Marvell, MediaTek, Realtek |
-| 11 | National Labs (India) | 15+ | DRDO, ISRO, BARC, CSIR |
-| 12 | National Labs (Intl) | 20+ | IMEC, Fraunhofer, MIT Lincoln |
-| 13 | Universities (India) | 30+ | IITs, NITs, IIITs, IISc |
-| 14 | Universities (NA) | 30+ | Stanford, MIT, Berkeley, CMU |
-| 15 | Universities (Europe) | 30+ | ETH, Cambridge, TU Delft, KU Leuven |
-| 16 | News RSS | 20+ | Semiconductor industry news |
-| 17 | Opportunity RSS | 20+ | Research/funding RSS feeds |
+`greenhouse-adapter.ts`, `lever-adapter.ts`, `workday-adapter.ts`, `smartrecruiters-adapter.ts`. Board token comes from `app_config.greenhouse_board_token`; adapter dispatch lives in `opportunity-scraper-impl.ts`.
 
-## Adapter Specification
+### RSS feeds (13, `rss-parser.ts`)
 
-Each adapter must implement:
+12 news feeds: IEEE Spectrum, Semiconductor Engineering, EE Times, Electronics Weekly, Chip Design Magazine, SemiWiki, Electronics For You, The Electronics Media, The Register, Power Electronics News, Science Daily, Phys.org. 1 opportunity feed: Scholarship Roar (type `opportunity`). News goes to `news_articles` (columns `url`/`source_name`); opportunities join the opportunity pipeline.
 
-```typescript
-interface ScraperAdapter {
-  name: string;
-  type: 'ats' | 'html' | 'rss' | 'schema';
-  scrape(source: SourceConfig): Promise<ScrapedResult[]>;
-  validate?(item: ScrapedOpportunity): boolean;
-}
-```
+### Fabricated postings (10 functions in 2 files)
 
-### Supported Adapter Types
-- **Greenhouse**: Board API via `boards-api.greenhouse.io`
-- **Lever**: Postings API via `api.lever.co`
-- **SmartRecruiters**: Postings API via `api.smartrecruiters.com`
-- **Workday**: Workday API (POST to `/wday/cxs/{tenant}/{site}/jobs`) with HTML fallback
-- **HTML**: Generic cheerio-based extraction with TLS fallback for `.gov.in`/`.ac.in`
-- **RSS**: Feed parser with custom field extraction
-- **Schema.org**: JSON-LD extraction from `<script type="application/ld+json">`
+`national-scrapers.ts` (6: space-defence, scientific-research, electronics-semiconductor, psu-electronics, railways, universities/institutes) and `global-master-scraper.ts` (4: research labs, universities, semiconductor companies, EDA/equipment). Hand-written demo postings, gated by `SCRAPER_ALLOW_FABRICATED=true`, **disabled in production**, and never flow through `runOpportunityScrape`.
 
-## Data Quality Pipeline
+### Other
 
-```
-Raw scrape → Clean title (remove nav headings) → Normalize URL
-  → Deduplicate (by source_url) → Infer category → Resolve organization
-  → AI parse (for unstructured listings) → Filter garbage titles
-  → Insert as verification_status='pending' → Admin review → 'verified'
-```
+`deep-scraper.ts` (detail-page enrichment), `news-filter.ts` (blocklist + whitelist, below), `utils.ts` (`cleanTitle`, `normalizeUrl`, `GARBAGE_TITLE_PATTERNS`), `ats-adapters.ts` (ATS tag/keyword patterns), `types.ts`, `opportunity-scraper.ts`, `govt-scraper.ts` (exists but not wired into the active pipeline).
 
-### Garbage Title Filter
-The `GARBAGE_TITLE_PATTERNS` regex in `src/lib/scrapers/utils.ts` blocks nav headings (Home, Contact, Sitemap, About, etc.). Titles shorter than 6 characters are also rejected.
+## Pipeline
 
-### Category Inference
-When a source does not specify category, the system infers from title keywords:
-- JRF/SRF → research fellowships
-- PhD/Postdoc/Research Associate → academic
-- Internship → internship
-- Engineer/Scientist → industry/government
+### `scrapeAllOpportunities` (`opportunity-scraper-impl.ts`)
+
+- DB-configured ATS sources (sequential) + 8 built-ins (concurrent via `Promise.allSettled`).
+- Retry x3 with exponential backoff (`1000 * 2^attempt`, cap 15s).
+- Per-source `scrape_runs` logging; `scrape_sources` health tracking (`last_scrape_at`, `last_success_at`, `consecutive_failures`, `last_error`).
+
+### `runOpportunityScrape` (`run-opportunity-scrape.ts`)
+
+- Combines built-in + RSS results.
+- `cleanTitle` + `GARBAGE_TITLE_PATTERNS` filter (rejects nav/garbage titles, <10 chars).
+- Dedupe: skip if `source_url` already exists or title matches via `ilike`.
+- Category normalized to lowercase CHECK-constraint values via `CAT_MAP`.
+- Deadline parsed to `YYYY-MM-DD`, null when unparseable.
+- `resolveOrganizationId`: evidence-gated (domain/token/name/title match, person-name guard) — never blind org creation.
+- Insert with `verification_status = 'unverified'` (link-check pipeline is the only path to `verified`).
+- Deep-enrich first 5 new rows via `deep-scraper.ts` (description, eligibility, salary_range, deadline, location, tags).
+
+### News filter (`news-filter.ts`)
+
+48 blocklist regexes, 338 whitelist keywords, hard/soft electronics checks, `autoTagArticle` caps at 6 tags; applied in `rss-parser.ts`.
+
+## Routes
+
+| Route | Guard | Purpose |
+|---|---|---|
+| `/api/cron/scrape-opportunities` | requireCronOrAdmin | daily scheduled run (00:00 UTC) |
+| `/api/scrape` | requireAdmin | manual full scrape |
+| `/api/scrapers/*` (14 handlers incl. run-all, [slug], per-scraper) | requireCronOrAdmin | individual scrapers / run-all |
+| `/api/scrape-sources` | verifyAdmin | source registry; `isSafePublicUrl` SSRF guard |
 
 ## Scheduling
 
-Vercel Cron triggers:
-- `6:00 AM IST`: India sources (ISRO, DRDO, CSIR, PSUs, IITs)
-- `8:00 AM IST`: Global sources (semiconductor companies, international unis)
-- `9:00 AM IST`: Link health check
-- `12:00 PM Sunday`: Weekly digest
+Only `/api/cron/scrape-opportunities` (daily 00:00 UTC) is scheduled in `vercel.json`; news sync via `/api/news/sync` (daily 06:00 UTC) — see `project-bible/07-api/README.md`. `cron/scrape-news`, `cron/scrape-india`, `cron/scrape-global`, `cron/digest`, `cron/cleanup`, `send-digest`, `sync-replica`, `archive-news`, `cleanup-news` exist as routes but are **not** scheduled.
 
-Backend scheduler (`node-cron` in `backend/src/cron/scheduler.ts`):
-- 6:00 AM: Daily full scrape
-- 6:30-10:00 AM Mon-Fri: Staggered batches 1-17
-- 2:00 AM: Archive old news
-- Every 6 hours: Sync neon replica
+## Verification note
 
-## Related Documents
-
-- [source-registry.md](./source-registry.md) — Full source configuration
-- [adapter-spec.md](./adapter-spec.md) — Adapter interface details
-- [pipelines.md](./pipelines.md) — Orchestration and execution
-- [quality.md](./quality.md) — Data quality and dedup
+A recent successful production scrape run was **not** verified during the 2026-08-19 audit (no evidence found). Daily-run status: UNKNOWN.

@@ -8,6 +8,17 @@ Governance rules for the BerojgarDegreeWala project-bible documentation and repo
 
 **Any future AI coding agent must be able to clone this repository and continue development without asking the owner for any information.** Every decision, pattern, configuration, and workaround must be documented. If it's not in the project-bible, it doesn't exist.
 
+## Backend Replication Rule
+
+- The frontend is the baseline implementation and remains the production
+  surface. Backend parity (`backend/server`, `backend/api`) is COPY or
+  REIMPLEMENT — never MOVE.
+- No destructive moves of frontend code, routes, or data to backend/.
+- No production traffic switch to the backend without explicit owner
+  instruction. The backend is not deployed.
+- Track parity in `backend/docs/API-PARITY.md` (regenerated from full audit,
+  latest 2026-08-19).
+
 ## Documentation Principles
 
 1. **Single source of truth**: Every fact exists in exactly one place
@@ -76,6 +87,4 @@ Each document has a status in its YAML front matter:
 
 ## Related Documents
 
-- [contribution-guide.md](./contribution-guide.md) — How to contribute
-- [review-checklist.md](./review-checklist.md) — Documentation review checklist
-- [lifecycle-policy.md](./lifecycle-policy.md) — Document lifecycle
+- [MASTER_INDEX.md](../MASTER_INDEX.md) — index of all project-bible documents

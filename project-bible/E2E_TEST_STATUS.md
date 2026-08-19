@@ -1,9 +1,9 @@
 # End-to-End Test Status & Workflow Matrix
 
 ```text
-LAST_UPDATED: 2026-08-18T21:14:00+05:30
+LAST_UPDATED: 2026-08-19
 TEST_ENVIRONMENT: Local Server (http://127.0.0.1:3000) + Production (https://berojgardegreewala.vercel.app)
-OVERALL_STATUS: 100% PASS (17/17 Social E2E steps passed, 14/14 unit test suites passed, Next.js build exit 0)
+OVERALL_STATUS: 9/9 production Playwright runs passed (last vs deploy `683404c`, 2026-08-19); jest 104/104; Next build exit 0
 ```
 
 ## Test Accounts
@@ -19,10 +19,12 @@ OVERALL_STATUS: 100% PASS (17/17 Social E2E steps passed, 14/14 unit test suites
 > seeker — no flow requires the employer role (helpers.ts `loginAsEmployer` is a
 > legacy name). Recreate canonical users with `reset-users.mjs` if wiped again.
 
-## Playwright production suite (9 specs)
+## Playwright production suite (6 spec files, 10 tests)
 
 `frontend/tests/e2e/*` — runs against https://berojgardegreewala.vercel.app
-(BASE_URL default). **Contract: clean inter-account rows before every full run** —
+(BASE_URL default). Spec files: auth, accept-connection, header-nav, messaging,
+network-connect, social-workflow (+ temporary probe specs removed after use).
+**Contract: clean inter-account rows before every full run** —
 the owner's `test-social-e2e.mjs` and the connect specs leave residue that fails
 subsequent runs by design (observed twice 2026-08-18). Cleanup SQL (Management API,
 `db1-sql.mjs`):
@@ -42,8 +44,12 @@ DELETE FROM conversations WHERE participant_a IN (...) AND participant_b IN (...
 `social-workflow` — the only suggestion with just amittest1/amittest2 in the DB is
 the other test user.
 
-**Latest production run (2026-08-18, deploy `c4c60f6` — owner's messaging/audit
-round merged, accounts migrated): 9/9 PASSED (1.6m).**
+**Latest production runs (2026-08-19): 9/9 PASSED against deploy `a79773a`
+(network username-link fix). Earlier: 9/9 vs `683404c` (network 4-tab feature),
+9/9 vs `6d9684d`, 9/9 vs `c4c60f6` (owner's round, accounts migrated).**
+The `a79773a` run also included a temporary probe spec (deleted after use) that
+verified the connection card name-link href is `/profile/amittest2` (not `#`) and
+that both name-link and card-body clicks navigate to the profile.
 
 ---
 
@@ -60,4 +66,4 @@ round merged, accounts migrated): 9/9 PASSED (1.6m).**
 | 7 | **LinkedIn-Style Profile Routing** | User clicks on profile via `/profile/[username]` or `/profile/[id]` | Profile metadata and public fields load dynamically without 404 | ✅ PASS (200) |
 | 8 | **ATS Resume Builder Persistence** | User 1 edits resume on `/resume`, clicks Save & reloads page | Data persists completely from `user_profiles.resume_data`, ATS score shown | ✅ PASS |
 | 9 | **Saved Opportunities** | User 1 saves an opportunity on `/opportunities`, navigates to `/saved` | Bookmarked opportunity listed with company name, removable | ✅ PASS |
-| 10 | **Employer Job Posting & ATS** | User creates job on `/employer/post-job`, checks `/employer/dashboard` | Job created with pending verification status, applicant pipeline visible | ✅ PASS |
+| 10 | **Employer Job Posting** | User creates job on `/employer/post-job`, checks `/employer/dashboard` | Job created with unverified status, visible on dashboard | ✅ PASS (posting; **no ATS applicant pipeline exists** — see KNOWN_ISSUES #8; dashboard shows job + raw application data only) |

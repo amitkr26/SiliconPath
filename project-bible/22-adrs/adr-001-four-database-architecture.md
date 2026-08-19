@@ -1,5 +1,7 @@
 # ADR-001: Four-Database Architecture
 
+> STATUS: SUPERSEDED 2026-08-16 — live topology: DB2 = news_archive + user_profiles mirror; Neon2 = cache mirror (page_views/search_queries/click_events), NOT background queue.
+
 **Status**: Accepted
 **Date**: 2024-01-15
 **Author**: Architecture Board

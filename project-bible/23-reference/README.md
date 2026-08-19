@@ -2,55 +2,48 @@
 
 ## Overview
 
-This directory contains comprehensive reference documents for the BerojgarDegreeWala platform. Use these files as the single source of truth for environment variables, API keys, URL schemes, commands, and patterns.
+Reference documents for the BerojgarDegreeWala platform. Files describing
+superseded or aspirational state are annotated inline as historical/aspirational.
+The canonical environment variable reference is `frontend/.env.example`.
 
 ## Document Index
 
-| Document | Purpose |
-|----------|---------|
-| `environment-variables.md` | Complete catalog of all 76+ env vars across frontend and backend |
-| `api-keys.md` | All API keys, tokens, and secrets required (values not included — see SECRETS.md) |
-| `commands.md` | Common development commands: dev, build, test, lint, typecheck, seed |
-| `url-schemes.md` | URL patterns: opportunity slugs, profile paths, track pages, admin routes |
-| `cron-schedule.md` | Complete cron job schedule with source batches |
-| `regex-patterns.md` | Regex patterns used across the codebase (garbage titles, URL validation, etc.) |
-| `supabase-queries.md` | Common Supabase query patterns and column names |
-| `error-codes.md` | Error code catalog with descriptions and resolutions |
-| `dependent-repos.md` | Links to all repository dependencies and their purposes |
+| Document | Status | Purpose |
+|----------|--------|---------|
+| `berojgardegreewala-master-specification.md` | HISTORICAL (pre-2026-08-16) | Original full spec — superseded by `docs/audit-reports/2026-08-16-implementation-map.md` and `project-bible/CHANGELOG.md` |
+| `CONTENT_UPGRADE_PLAN.md` | MOSTLY RESOLVED (2026-08-16 Phase 1.x) | Content/opportunity-data upgrade plan — see CHANGELOG 2026-08-16/17 entries |
+| `berojgardegreewala-expanded-global-source-list-v3.md` | ASPIRATIONAL | 400+ source registry, not wired to the scraper; verify each URL before use |
+| `berojgardegreewala-expanded-global-source-list-v4.md` | ASPIRATIONAL | 460+ source registry, not wired to the scraper; verify each URL before use |
+| `trusted_sources_v2.json` | ASPIRATIONAL | Source registry (data reference) |
+| `trusted_sources_v3.json` | ASPIRATIONAL | Source registry (data reference) |
 
 ## Key Facts
 
-- **Monorepo**: Single repo at `github.com/getberojgardegreewala/berojgardegreewala`
-- **Frontend URL**: `https://berojgardegreewala.vercel.app` (production)
-- **Backend URL**: Render-generated URL (check Render dashboard)
-- **Primary Database**: Supabase DB1 — `berojgardegreewala` project
-- **Secondary Database**: Supabase DB2 — `berojgardegreewala-social` project
-- **Analytics Database**: Neon — `berojgardegreewala-analytics` project
-- **Email Provider**: Resend — project `berojgardegreewala`
+- **Monorepo**: https://github.com/amitkr26/BerojgarDegreeWala
+- **Frontend URL**: `https://berojgardegreewala.vercel.app` (production, Vercel git integration)
+- **Backend**: `backend/server` is not deployed; self-host via Docker if needed
+- **Primary Database**: Supabase DB1
+- **Secondary Database**: Supabase DB2 (social layer)
+- **Analytics Databases**: Neon (2 databases)
+- **Email Provider**: Resend
 
 ## Quick Commands
 
 ```bash
-# Development
-npm run dev              # Next.js dev server (localhost:3000)
-npm run dev:backend      # Express dev server (localhost:4000)
+# Development (npm workspaces: frontend, backend/api, backend/ai-gateway, backend/server)
+npm run dev              # all workspaces
+npm run dev --workspace=frontend   # Next.js dev server (localhost:3000)
 npm run typecheck        # TypeScript type checking
 npm run lint             # ESLint
 npm test                 # Jest tests
 npm run build            # Production build
 
-# Database
-npx supabase start       # Local Supabase
-npx supabase db push     # Push migrations
-npx supabase db pull     # Pull schema from Supabase
-
-# Docker
-docker build -t berojgardegreewala-backend ./backend
-docker run -p 4000:4000 berojgardegreewala-backend
+# Backend API image (build from repo root)
+docker build -f backend/server/Dockerfile -t bdw-api .
 ```
 
 ## Related Documents
 
-- [environment-variables.md](./environment-variables.md) — Full env var catalog
-- [commands.md](./commands.md) — Development commands
-- [url-schemes.md](./url-schemes.md) — URL patterns
+- [DevOps](../14-devops/README.md) — deployment architecture
+- [Operations](../16-operations/README.md) — monitoring and runbooks
+- [Security](../13-security/README.md) — security architecture

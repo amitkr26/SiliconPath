@@ -1,4 +1,4 @@
-# KNOWN ISSUES — 2026-08-18
+# KNOWN ISSUES — 2026-08-19 (reconciled)
 
 ## 1. Stale Project 1 service-role key in credentials (P1, local-dev only)
 `siliconpath-credentials.txt` → `SUPABASE_SECRET_KEY` (Project 1 section) 401s
@@ -46,3 +46,34 @@ does the same via the service-role key; re-run before any fresh verification.
 ## 7. Feed page has no comment UI (product gap, not a regression)
 Likes/comments counts render; comments are only POSTable via API. E2E covers the API
 path. Not in scope for this fix.
+
+## 8. Employer "ATS" claim in docs over-stated (documentation, FIXED 2026-08-19)
+`E2E_TEST_STATUS.md` row #10 and the 2026-08-18 full-platform-audit report claimed an
+"applicant pipeline visible" / "100% production ready" employer portal. Reality: job
+posting, dashboard, claim (notification-only), recommendations are implemented; there
+is **no ATS applicant review UI, no recruiter messaging, no real company-claims table**.
+Reconciled in E2E_TEST_STATUS.md / 11-employers / IMPLEMENTATION_STATUS on 2026-08-19.
+Audit report kept as historical evidence. Remaining work: build the ATS review surface
+(backlog epic-05).
+
+## 9. `.github/workflows/ci.yml` references non-existent paths (P2, dev infra)
+CI job paths `packages/ai-gateway` and working-directory `berojgardegreewala\` do not
+exist (workspaces live at `backend/ai-gateway` and root). The workflow is broken and
+effectively unused; `security-scan.yml` (gitleaks) works. Fix: rewrite ci.yml job
+paths to the real workspace layout.
+
+## 10. `backend/api` `openapi` npm script is broken (P2)
+`package.json` references `scripts/generate-openapi.ts` — `backend/api/scripts/`
+does not exist, so `npm run openapi` fails. `backend/api/openapi.json` is a static
+copy. Fix: restore the script or repoint the script to the real generator
+(`src/openapi/index.ts` + a small runner).
+
+## 11. AI gateway has zero tests (P2)
+`backend/ai-gateway` jest config exists but no test files (`--passWithNoTests`).
+Provider dispatch/fallback/cooldown is the riskiest untested logic in the repo.
+
+## 12. No verified recent scraper production run (P3, evidence gap)
+Scheduled Vercel crons exist (3: scrape-opportunities 00:00, check-links 08:00,
+news/sync 06:00) but the 2026-08-19 audit found no evidence of a recent successful
+run (no log/health confirmation in docs). Verify from Vercel cron logs or
+`/api/admin/scrape-health` and record the result.

@@ -1,3 +1,9 @@
+# DEPRECATED (2026-08-19) — Render-era deployment doc. Production today is the
+# frontend on Vercel via git integration; there is no Render deployment and
+# backend/server is not deployed. The Docker target (section 4) remains valid
+# for self-hosting the API; the Render target (section 3) is historical. Body
+# kept verbatim as reference.
+
 # Deploy Stack: BerojgarDegreeWala backend API (Express + Supabase)
 
 Follow the numbered steps in order. The stack is 100% second-DB-friendly:
