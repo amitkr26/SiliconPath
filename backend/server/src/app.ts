@@ -10,6 +10,12 @@ import { organizationsRouter, newsRouter } from "./routes/content.js";
 import { applicationsRouter, savedRouter } from "./routes/userdata.js";
 import { aiRouter } from "./routes/ai.js";
 import { adminRouter } from "./routes/admin.js";
+import { authRouter } from "./routes/auth.js";
+import { searchRouter } from "./routes/search.js";
+import { feedRouter, networkRouter, notificationsRouter } from "./routes/social.js";
+import { messagesRouter } from "./routes/messages.js";
+import { cronRouter } from "./routes/cron.js";
+import { wireAiUsageLogging } from "./services/ai-usage.js";
 
 // REST API (Express) — parallels the Next.js internal API routes with a
 // consistent { success, data | error: { code, message } } envelope and the
@@ -47,6 +53,14 @@ export function createApp(deps: Deps) {
   app.use("/api/v1/saved-opportunities", savedRouter(deps));
   app.use("/api/v1/ai", aiRouter(deps));
   app.use("/api/v1/admin", adminRouter(deps));
+  app.use("/api/v1/auth", authRouter(deps));
+  app.use("/api/v1/search", searchRouter(deps));
+  app.use("/api/v1/feed", feedRouter(deps));
+  app.use("/api/v1/network", networkRouter(deps));
+  app.use("/api/v1/notifications", notificationsRouter(deps));
+  app.use("/api/v1/messages", messagesRouter(deps));
+  app.use("/api/v1/cron", cronRouter(deps));
+  wireAiUsageLogging(deps.supabaseAdmin);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

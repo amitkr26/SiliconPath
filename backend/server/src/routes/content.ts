@@ -51,5 +51,22 @@ export function newsRouter(deps: Deps): Router {
     }
   });
 
+  // GET /api/v1/news/:slug — single article (mirrors /api/news/[slug])
+  r.get("/:slug", async (req, res, next) => {
+    try {
+      if (!deps.supabaseAdmin) throw new AppError("Database not configured", 503, "DB_UNAVAILABLE");
+      const { data, error } = await deps.supabaseAdmin
+        .from("news_archive")
+        .select("*")
+        .eq("slug", req.params.slug)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) throw new NotFoundError("Article not found");
+      res.json({ success: true, data });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   return r;
 }
