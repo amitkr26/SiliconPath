@@ -12,8 +12,38 @@ OVERALL_STATUS: 100% PASS (17/17 Social E2E steps passed, 14/14 unit test suites
 |---|---|---|---|---|
 | 1 | Candidate | `amittest1@berojgardegreewala.com` | `TestPassword123!` | `56b47f8e-8501-45c5-b9a3-8d4fcef8252e` |
 | 2 | Candidate | `amittest2@berojgardegreewala.com` | `TestPassword123!` | `9e55b282-0d5b-4210-9fd4-54ec5c45da45` |
-| 3 | Candidate | `xasefe9251@bejum.com` | `12345678` | Verified |
-| 4 | Employer | `weqolyji@forexzig.com` | `87654321` | Verified |
+
+> NOTE 2026-08-18 (night): the legacy A/B accounts (`xasefe9251@bejum.com`,
+> `weqolyji@forexzig.com`) were **deleted** by `frontend/scripts/reset-users.mjs`
+> (deletes ALL auth users, creates amittest1/amittest2 above). `amittest2` is a plain
+> seeker — no flow requires the employer role (helpers.ts `loginAsEmployer` is a
+> legacy name). Recreate canonical users with `reset-users.mjs` if wiped again.
+
+## Playwright production suite (9 specs)
+
+`frontend/tests/e2e/*` — runs against https://berojgardegreewala.vercel.app
+(BASE_URL default). **Contract: clean inter-account rows before every full run** —
+the owner's `test-social-e2e.mjs` and the connect specs leave residue that fails
+subsequent runs by design (observed twice 2026-08-18). Cleanup SQL (Management API,
+`db1-sql.mjs`):
+
+```sql
+DELETE FROM connections WHERE (requester_id IN ('56b47f8e-...','9e55b282-...')
+  AND addressee_id IN ('56b47f8e-...','9e55b282-...'));
+DELETE FROM user_follows WHERE follower_id IN (...) AND following_id IN (...);
+DELETE FROM feed_posts WHERE content LIKE 'E2E test post%';
+DELETE FROM notifications WHERE actor_id IN (...) AND user_id IN (...);
+DELETE FROM messages WHERE sender_id IN (...);
+DELETE FROM conversations WHERE participant_a IN (...) AND participant_b IN (...);
+```
+
+`network-connect.spec.ts` self-withdraws the request it sends (PATCH
+`/api/network/connect/[id]` `{status:"withdrawn"}`) so it can't poison
+`social-workflow` — the only suggestion with just amittest1/amittest2 in the DB is
+the other test user.
+
+**Latest production run (2026-08-18, deploy `c4c60f6` — owner's messaging/audit
+round merged, accounts migrated): 9/9 PASSED (1.6m).**
 
 ---
 

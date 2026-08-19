@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { loginAsCandidate, loginAsEmployer } from './helpers';
 
-const B_USERNAME = 'weqolyji';
+const B_USERNAME = 'amittest2';
 const B_PROFILE = `/profile/${B_USERNAME}`;
 
 test.describe('Social workflow: follow, connect, message, feed (local E2E)', () => {

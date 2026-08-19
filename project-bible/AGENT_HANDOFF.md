@@ -42,3 +42,41 @@ TASK_STATUS: ALL SOCIAL CORE & MULTI-USER WORKFLOWS 100% VERIFIED
 ## 2. Next Action for OpenCode / Antigravity
 - Stage, commit, and push all modified files to GitHub `origin/main` to trigger the production Vercel deployment.
 - Verify live site on `https://berojgardegreewala.vercel.app`.
+
+---
+
+## 3. OpenCode continuation notes (2026-08-18 night — keep alongside §1/§2)
+
+### Deploy mechanics
+- Deploy = push to `main` (Vercel git integration, ~15-16 min build). **Never run
+  `npx vercel deploy --prod`** — it races the git deploy (git deploy BLOCKED, CLI
+  deploy deleted). Git author must stay `amitkr26@users.noreply.github.com`
+  (Vercel's generated identity gets BLOCKED).
+- **`[vercel skip]` in commit messages does NOT skip builds** (verified: 86acb2f,
+  183dd58, dce254a all deployed READY despite the token — no Ignored Build Step
+  configured). Docs-only commits trigger wasteful no-op rebuilds; harmless, but to
+  actually skip, owner must configure an ignored build step in project settings.
+
+### Production DB facts (Project 1 `aqauempuwmbizqoaolop`, verified live)
+- `connections`: `requester_id`/`addressee_id`/`status` (pending|accepted|rejected|blocked).
+- `conversations`: `participant_a`/`participant_b`. `feed_posts`: `author_id`, counts
+  in `like_count`/`comment_count` (no `likes_count`).
+- **Counts are trigger-maintained** (migrations `20260818000002` feed counts,
+  `20260818000003` connection_count; both SECURITY DEFINER). Routes must NOT
+  read-modify-write them. `PUBLIC_PROFILE_FIELDS` (`frontend/src/lib/utils.ts`) is a
+  server-side allowlist — any profile field the page should show must be in it.
+- `siliconpath-credentials.txt` Project 1 `SUPABASE_SECRET_KEY` is STALE (401; owner
+  action to rotate — production unaffected). SQL helper:
+  `C:\Users\STUDENT\AppData\Local\Temp\opencode\db1-sql.mjs` (Management API;
+  one statement per call).
+
+### E2E pitfalls (production suite, `frontend/tests/e2e/`)
+- **Clean inter-account rows before EVERY full run** (see `E2E_TEST_STATUS.md` for
+  SQL; test accounts amittest1/amittest2). `test-social-e2e.mjs` and the connect
+  specs leave residue that fails later specs by design.
+- **Pooler read-after-write lag is real**: after a fresh conversation creation the
+  list GET can return `200 []` for ~5-10s while the per-conversation GET sees the
+  row. `useConversations()` polls every 5s to heal it — do not remove the polling or
+  weaken the messaging spec's 25s assertions.
+- Comment-count span textContent is `" 1"` (JSX whitespace) — assert with
+  `/^\s*1\s*$/`. Connected state on a profile = "Message" link (no "Connected" text).
