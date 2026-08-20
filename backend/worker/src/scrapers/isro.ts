@@ -100,7 +100,7 @@ export function parseISROCareersHtml(html: string): ScrapedOpportunity[] {
     const href = linkEl.attr("href") || "";
     const linkText = linkEl.text().trim();
 
-    const title = (linkText || text.split("\n")[0].trim()).replace(/\s+/g, " ").trim();
+    const title = (linkText || text.split("\n")[0].trim()).replace(/\s+/g, " ").replace(/\s*Read More\s*$/i, "").trim(); // parity: strip trailing " Read More" (FIX #17)
     if (!title || title.length < 15) return;
     if (title.includes("Home") || title.includes("Contact") || title.includes("Sitemap")) return;
     if (isResultOrNotice(title)) return;
