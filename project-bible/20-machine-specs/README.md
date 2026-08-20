@@ -16,7 +16,7 @@ This directory contains machine-readable specifications that enable automated to
 
 ## OpenAPI Specification
 
-The canonical OpenAPI spec lives at `backend/api/openapi.json` (51 paths, frontend API surface). It is not duplicated in this directory.
+The canonical OpenAPI spec lives at `backend/api/openapi.json` (51 paths, backend `/api/v1` surface, generated via `npm run openapi`). It is not duplicated in this directory.
 
 ## Route Manifest
 

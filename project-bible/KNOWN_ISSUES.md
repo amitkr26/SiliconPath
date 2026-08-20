@@ -1,10 +1,12 @@
 # KNOWN ISSUES — 2026-08-19 (reconciled)
 
-## 0. Backend deployment decision required (P1, owner action)
-`backend/server` is production-ready but NOT deployed (Phase 5 mandate: no deploy).
-Pick a target (recommended: Docker → Render, per `project-bible/14-devops/deploy-stack.txt`),
-set the env vars, and ship it. Backend is not a second system of record — it reads
-the same Supabase DBs the frontend uses.
+## 0. Backend deployment decision made — not yet deployed (P1, owner action)
+Decision (2026-08-19, Phase 6): **Render — Docker web service for the API +
+Render cron job for the worker**, both from `backend/server/Dockerfile`
+(`render.yaml` committed, secrets excluded). Not deployed yet: an owner must
+create the Render service (blueprint or dashboard), set the env vars, and flip
+the domain. Backend is not a second system of record — it reads the same
+Supabase DBs the frontend uses.
 
 ## 1. Stale Project 1 service-role key in credentials (P1, local-dev only)
 `siliconpath-credentials.txt` → `SUPABASE_SECRET_KEY` (Project 1 section) 401s
@@ -62,17 +64,21 @@ Reconciled in E2E_TEST_STATUS.md / 11-employers / IMPLEMENTATION_STATUS on 2026-
 Audit report kept as historical evidence. Remaining work: build the ATS review surface
 (backlog epic-05).
 
-## 9. `.github/workflows/ci.yml` references non-existent paths (P2, dev infra)
-CI job paths `packages/ai-gateway` and working-directory `berojgardegreewala\` do not
-exist (workspaces live at `backend/ai-gateway` and root). The workflow is broken and
-effectively unused; `security-scan.yml` (gitleaks) works. Fix: rewrite ci.yml job
-paths to the real workspace layout.
+## 9. `.github/workflows/ci.yml` referenced non-existent paths (P2, FIXED 2026-08-19)
+CI job paths `packages/ai-gateway` and working-directory `berojgardegreewala\` did
+not exist (workspaces live at `backend/ai-gateway` and root). **FIXED 2026-08-19:**
+rewritten — ai-gateway job points at `@berojgardegreewala/ai-gateway`, a new
+`backend` job runs typecheck/test/build for api+server+worker, frontend job drops
+the bogus working-directory and uses `--workspace frontend`. First run on the next
+push; close this entry once it's green.
 
-## 10. `backend/api` `openapi` npm script is broken (P2)
-`package.json` references `scripts/generate-openapi.ts` — `backend/api/scripts/`
-does not exist, so `npm run openapi` fails. `backend/api/openapi.json` is a static
-copy. Fix: restore the script or repoint the script to the real generator
-(`src/openapi/index.ts` + a small runner).
+## 10. `backend/api` `openapi` npm script was broken (P2, FIXED 2026-08-19)
+`package.json` referenced `scripts/generate-openapi.ts` which did not exist.
+**FIXED 2026-08-19:** `backend/api/scripts/generate-openapi.ts` created (runs
+`generateOpenAPISpec()` from `src/openapi`, writes `openapi.json`); the spec was
+re-scoped to the backend `/api/v1` surface (servers: Render backend, Vercel
+frontend, local) and `openapi.json` regenerated to match; `openapi.test.ts`
+(base-spec assertions) stays green.
 
 ## 11. AI gateway has zero tests (P2, FIXED 2026-08-19)
 `backend/ai-gateway` jest config exists but no test files (`--passWithNoTests`).
@@ -90,3 +96,13 @@ Scheduled Vercel crons exist (3: scrape-opportunities 00:00, check-links 08:00,
 news/sync 06:00) but the 2026-08-19 audit found no evidence of a recent successful
 run (no log/health confirmation in docs). Verify from Vercel cron logs or
 `/api/admin/scrape-health` and record the result.
+
+## 13. Backend news-sync wrote to the wrong table (P1, FIXED 2026-08-19)
+`backend/server` cron route upserted into `news_archive` onConflict `slug` — that
+is db2's archive table and `slug` has no unique constraint there, so the backend
+route was broken against the live schema. **FIXED 2026-08-19:** news ingestion
+moved to the shared module `backend/api/src/content/news-sync.ts` with the exact
+production write contract of the frontend `/api/news/sync`: `news_articles`,
+onConflict `url` (unique in db1, verified), `ignoreDuplicates`, `is_active: true`,
+null-url rows never written. Covered by the worker suite
+(`backend/worker/tests/news-sync.test.ts`, 17 tests).

@@ -1,50 +1,23 @@
-import { loadEnv } from "./config.js";
-import { createDbClient } from "./db.js";
-import { runNewsSync } from "./workers/news-sync.js";
+import { runNewsSync } from "./run-news-sync.js";
 
-const env = loadEnv();
+// CLI entry for the scraper worker. Invoked by the deployment cron job, e.g.:
+//   node --import tsx dist/index.js news
+// Exit code: 0 when at least one feed succeeded, 1 when every feed failed
+// (or the DB write failed), 2 for unknown commands.
 
-if (!env.supabaseUrl || !env.supabaseServiceRoleKey) {
-  console.error("[worker] FATAL: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required");
-  process.exit(1);
-}
-
-const supabase = createDbClient(env);
-let running = false;
-let timer: ReturnType<typeof setInterval> | null = null;
-
-async function tick() {
-  if (running) {
-    console.log("[worker] Previous tick still running, skipping");
+async function main(): Promise<void> {
+  const [, , command] = process.argv;
+  if (command === "news") {
+    const summary = await runNewsSync();
+    console.log(JSON.stringify(summary, null, 2));
+    process.exitCode = summary.sources.length > 0 && summary.total_failed >= summary.sources.length ? 1 : 0;
     return;
   }
-  running = true;
-  try {
-    await runNewsSync(supabase);
-  } catch (err) {
-    console.error("[worker] news-sync failed:", err);
-  } finally {
-    running = false;
-  }
+  console.error("usage: node dist/index.js news");
+  process.exitCode = 2;
 }
 
-// ── Graceful shutdown ──
-
-function shutdown(signal: string) {
-  console.log(`[worker] ${signal} received — shutting down`);
-  if (timer) clearInterval(timer);
-  // Let in-flight DB writes finish (max 5s).
-  setTimeout(() => process.exit(0), 5_000).unref();
-}
-process.on("SIGTERM", () => shutdown("SIGTERM"));
-process.on("SIGINT", () => shutdown("SIGINT"));
-
-// ── Boot ──
-
-console.log(`[worker] Starting news-sync worker (interval: ${env.newsSyncIntervalMs}ms, env: ${env.nodeEnv})`);
-
-// Run immediately on boot, then on interval.
-tick().then(() => {
-  timer = setInterval(tick, env.newsSyncIntervalMs);
-  console.log(`[worker] Listening for ticks every ${env.newsSyncIntervalMs / 1000}s`);
+main().catch((err: unknown) => {
+  console.error("[worker] fatal:", err instanceof Error ? err.message : String(err));
+  process.exitCode = 1;
 });

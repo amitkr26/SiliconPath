@@ -1,0 +1,18 @@
+# The build stage npm ci's fresh node_modules in the container — never copy
+# the host's (Windows junctions + win32 binaries break the linux image).
+node_modules
+.git
+.opencode
+.vercel
+docs
+project-bible
+k8s
+neon
+scripts
+backend/*/dist
+backend/*/.tsbuildinfo
+frontend/.next
+e2e
+*.log
+.env
+.env.*

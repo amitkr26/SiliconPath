@@ -2,20 +2,24 @@
 # Uses the root workspace install so @berojgardegreewala/api and
 # @berojgardegreewala/ai-gateway resolve exactly as they do locally.
 
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 COPY backend/api/package.json backend/api/
 COPY backend/ai-gateway/package.json backend/ai-gateway/
 COPY backend/server/package.json backend/server/
+COPY backend/worker/package.json backend/worker/
 COPY frontend/package.json frontend/
-RUN npm ci --workspace @berojgardegreewala/server --include-workspace-root
+# npm ci with --workspace only links workspaces the selected package depends
+# on, so the worker must be named explicitly to get its symlink + deps.
+RUN npm ci --workspace @berojgardegreewala/server --workspace @berojgardegreewala/worker --include-workspace-root
 
 COPY . .
-RUN npm run build --workspace @berojgardegreewala/server
+RUN npm run build --workspace @berojgardegreewala/server \
+    && npm run build --workspace @berojgardegreewala/worker
 
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=build /app/node_modules /app/node_modules
@@ -24,6 +28,9 @@ COPY --from=build /app/backend/api /app/backend/api
 COPY --from=build /app/backend/ai-gateway /app/backend/ai-gateway
 COPY --from=build /app/backend/server/dist /app/dist
 COPY --from=build /app/backend/server/package.json /app/package.json
+# worker dist (used by the cron job: node --import tsx backend/worker/dist/index.js news)
+COPY --from=build /app/backend/worker/dist /app/backend/worker/dist
+COPY --from=build /app/backend/worker/package.json /app/backend/worker/package.json
 
 # Run as the unprivileged node user (uid 1000). Files stay root-owned/readable.
 USER node

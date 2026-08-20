@@ -29,3 +29,4 @@ Thumbs.db
 
 # typescript build output
 /backend/server/dist/
+/backend/worker/dist/

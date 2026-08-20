@@ -1,11 +1,11 @@
 # Multi-Agent Handoff Document (Antigravity ⇋ OpenCode)
 
 ```text
-HANDOFF_VERSION: 1.2.0
+HANDOFF_VERSION: 1.3.0
 TIMESTAMP: 2026-08-19
 CURRENT_AGENT: OpenCode
 NEXT_AGENT: OpenCode / Antigravity (shared continuation contract)
-TASK_STATUS: Social core verified 9/9; network 4-tab feature shipped (683404c, a79773a); backend Phase 4 (parity) + Phase 5 (production readiness) COMPLETE — 46 server / 15 gateway / 97 api tests green, backend NOT deployed (decision = KNOWN_ISSUES #0); project-bible reconciled 2026-08-19
+TASK_STATUS: Phase 6 COMPLETE — deployment decision (Render Docker web + cron job, render.yaml) + scraper worker shipped (backend/worker, 17 tests, shared content/news-sync fixes the news_archive parity bug #13) + Docker/CI/OpenAPI infra fixed and verified; 46 server / 15 gateway / 97 api / 17 worker tests green; backend NOT deployed (owner action, KNOWN_ISSUES #0). Remote 500955d (parallel phase 6a) integrated 2026-08-19: OpenAPI re-scoped to the backend /api/v1 surface, redundant worker-local implementation removed in favor of the shared module.
 ```
 
 ---
@@ -103,15 +103,29 @@ TASK_STATUS: Social core verified 9/9; network 4-tab feature shipped (683404c, a
   (connections/status/connect/suggestions/follow/followers/following), notifications,
   messages (+thread/with/:userId), cron/news-sync (timing-safe CRON_SECRET). Envelope
   `{success,data,pagination}` / `{success:false,error:{code,message}}`. 46 node:test
-  (30 parity + 16 hardening); `dist/` generated+gitignored; Dockerfile node:20-alpine
-  non-root USER node + HEALTHCHECK, EXPOSE 8080. `.env.example` categorized
+  (30 parity + 16 hardening); `dist/` generated+gitignored; Dockerfile node:22-alpine
+  (supabase-js ≥2.110 needs native WebSocket — node:20 crashed at boot) non-root USER
+  node + HEALTHCHECK, EXPOSE 8080, `.dockerignore` excludes host node_modules; graceful
+  SIGTERM/SIGINT drain + 10s force-exit. `.env.example` categorized
   REQUIRED/OPTIONAL/DEPLOYMENT.
-- **Remaining parity gaps**: scraper fleet port (Phase 6 candidate, DEFERRED), PATCH
-  `/profiles/me`, `supabase2Admin` DB2 client unused, admin breadth beyond /stats,
-  academy/misc.
+- `backend/worker` = Phase 6 scheduled process workspace (`@berojgardegreewala/worker`):
+  `node --import tsx dist/index.js news` — CLI subcommand, exit 0 (≥1 feed ok) / 1 (all
+  failed or DB write failed / missing env, fail-closed) / 2 (usage). Shares ALL
+  ingestion via `backend/api/src/content/news-sync.ts` (12 feeds, concurrency 4, retry
+  1+2 network/5xx/429 backoff, run-level URL dedup, `news_articles` upsert onConflict
+  `url` ignoreDuplicates, is_active true, null-url never written — the exact frontend
+  `/api/news/sync` contract). Persists `scrape_runs` + `scrape_sources` health
+  (name-keyed read-then-write; no schema changes). 17 node:test. No fabricated-data
+  path. Deployed as a Render cron job running the same Docker image (`render.yaml`).
+- **Remaining parity gaps**: scraper fleet port beyond news RSS (Phase 7 candidate:
+  opportunity scrapers via the worker + scrape_sources registry, DEFERRED — port news
+  only, then STOP), PATCH `/profiles/me`, `supabase2Admin` DB2 client unused, admin
+  breadth beyond /stats, academy/misc.
 - Server tests use node:test + a Proxy fake (`backend/server/tests/fake.ts`) — keep
   that pattern for new route tests. AI route tests stub global.fetch + GROQ_API_KEY
-  with a 127.0.0.1 passthrough (never stub the test server's own requests).
+  with a 127.0.0.1 passthrough (never stub the test server's own requests). Worker
+  tests use a Chain fake (`backend/worker/tests/news-sync.test.ts`) and MUST pass
+  `sources: [SRC]` (default NEWS_SOURCES) for persistence assertions.
 
 ### Documentation source of truth (post-reconciliation)
 - `project-bible/ARCHITECTURE.md` (CURRENT/TRANSITION/TARGET), `MASTER_INDEX.md`,
@@ -126,8 +140,10 @@ TASK_STATUS: Social core verified 9/9; network 4-tab feature shipped (683404c, a
   their bodies to "modernize" them.
 
 ### Known issues (2026-08-19)
-- #0 backend deployment decision REQUIRED (Phase 5 mandate: no deploy; recommend Docker → Render per 14-devops/deploy-stack.txt).
-- #9 ci.yml references nonexistent paths (`packages/ai-gateway`, `berojgardegreewala\`) — broken, unused.
-- #10 `backend/api` `npm run openapi` broken (missing `scripts/generate-openapi.ts`).
+- #0 backend deployment DECISION MADE (Render Docker web + cron job, render.yaml, 2026-08-19) — deployment itself is an owner action (create service, set secrets, flip domain). NOT deployed.
+- #1 stale local Project 1 service-role key (owner action, 2 min fix; production unaffected).
+- #9 ci.yml rewritten (workspace names, backend job, node 22) — FIXED in code; close after first green CI run on the next push.
+- #10 `backend/api` `npm run openapi` — FIXED 2026-08-19 (generate-openapi.ts; spec re-scoped to backend `/api/v1` surface in 500955d).
 - #11 ai-gateway zero tests — CLOSED 2026-08-19 (15 tests; also fixed logFn-throw bug via safeLog).
-- #12 no verified recent production scraper run — verify via `/api/admin/scrape-health` or Vercel cron logs before claiming scrapers work.
+- #12 no verified recent production scraper run — verify via `/api/admin/scrape-health` or Vercel cron logs before claiming scrapers work (owner can also watch the Render cron's first run once deployed).
+- #13 backend news-sync wrote to `news_archive` onConflict `slug` — FIXED 2026-08-19 (shared `content/news-sync.ts` → `news_articles` onConflict `url`).
