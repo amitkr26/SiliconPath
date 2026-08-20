@@ -41,7 +41,7 @@ export default function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 sm:p-10 shadow-[6px_6px_0px_0px_#0F172A]">
+    <div className="bg-white border-2 border-slate-900 rounded-2xl p-6 sm:p-10 shadow-brutal-lg">
       <div className="flex items-center gap-2 text-xs font-black uppercase text-blue-600 mb-2">
         <HelpCircle className="w-4 h-4 stroke-[3]" />
         <span>Got Questions? We Have Answers</span>
@@ -59,7 +59,7 @@ export default function FaqSection() {
           return (
             <div
               key={idx}
-              className="border-2 border-slate-900 rounded-xl overflow-hidden shadow-[3px_3px_0px_0px_#0F172A] transition-all bg-white"
+              className="border-2 border-slate-900 rounded-xl overflow-hidden shadow-brutal-sm transition-all bg-white"
             >
               <button
                 onClick={() => setOpenIndex(isOpen ? null : idx)}
@@ -68,9 +68,9 @@ export default function FaqSection() {
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md border ${
-                    isOpen ? "bg-white text-blue-600 border-white" : "bg-blue-50 text-blue-600 border-blue-200"
-                  }`}>
+<span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md border-2 ${
+                  isOpen ? "bg-white text-blue-600 border-white" : "bg-blue-50 text-blue-600 border-blue-200"
+                }`}>
                     {faq.category}
                   </span>
                   <span>{faq.question}</span>

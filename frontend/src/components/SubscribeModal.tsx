@@ -73,17 +73,17 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-      <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 sm:p-8 w-full max-w-lg relative shadow-[8px_8px_0px_0px_#0F172A]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+      <div className="bg-white border-2 border-slate-900 rounded-2xl p-6 sm:p-8 w-full max-w-lg relative shadow-brutal-lg">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-500 hover:text-slate-900 transition-colors p-1 bg-slate-100 border border-slate-900 rounded-lg"
+          className="absolute top-4 right-4 text-slate-500 hover:text-slate-900 transition-colors p-1 bg-slate-100 border-2 border-slate-900 rounded-lg"
         >
           <X className="w-5 h-5 stroke-[2.5]" />
         </button>
 
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white shadow-[2px_2px_0px_0px_#0F172A]">
+          <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white shadow-brutal-sm">
             <Bell className="w-5 h-5 stroke-[2.5]" />
           </div>
           <div>
@@ -95,7 +95,7 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
         </div>
 
         {status === "success" ? (
-          <div className="text-center py-6 bg-blue-50 border-2 border-slate-900 rounded-xl p-4">
+          <div className="text-center py-6 bg-blue-50 border-2 border-slate-900 rounded-xl shadow-brutal-sm">
             <Check className="w-12 h-12 text-emerald-600 mx-auto mb-2 stroke-[3]" />
             <p className="text-slate-900 font-extrabold text-sm">{message}</p>
           </div>
@@ -111,7 +111,7 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full bg-white border-2 border-slate-900 text-slate-900 font-bold text-sm rounded-xl px-3.5 py-2.5 shadow-[2px_2px_0px_0px_#0F172A] focus:shadow-[4px_4px_0px_0px_#0F172A] outline-none"
+                className="w-full bg-white border-2 border-slate-900 text-slate-900 font-bold text-sm rounded-xl px-3.5 py-2.5 shadow-brutal-sm focus:shadow-brutal outline-none"
               />
             </div>
 
@@ -128,9 +128,9 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
                       type="button"
                       onClick={() => toggleCategory(cat)}
                       className={cn(
-                        "px-3 py-1.5 rounded-lg text-xs font-extrabold border-2 border-slate-900 transition-all shadow-[1.5px_1.5px_0px_0px_#0F172A]",
+                        "px-3 py-1.5 rounded-lg text-xs font-extrabold border-2 border-slate-900 transition-all shadow-brutal-sm",
                         selected
-                          ? "bg-blue-600 text-white shadow-[2px_2px_0px_0px_#0F172A]"
+                          ? "bg-blue-600 text-white"
                           : "bg-white text-slate-800 hover:bg-slate-50"
                       )}
                     >
@@ -150,7 +150,7 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
                 value={keywords}
                 onChange={(e) => setKeywords(e.target.value)}
                 placeholder="e.g. VLSI, SystemVerilog, IIT Bombay, DRDO, UVM"
-                className="w-full bg-white border-2 border-slate-900 text-slate-900 font-bold text-sm rounded-xl px-3.5 py-2.5 shadow-[2px_2px_0px_0px_#0F172A] focus:shadow-[4px_4px_0px_0px_#0F172A] outline-none"
+                className="w-full bg-white border-2 border-slate-900 text-slate-900 font-bold text-sm rounded-xl px-3.5 py-2.5 shadow-brutal-sm focus:shadow-brutal outline-none"
               />
             </div>
 
@@ -161,7 +161,7 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
             <button
               type="submit"
               disabled={status === "loading"}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl py-3 text-sm border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:shadow-[4px_4px_0px_0px_#0F172A] transition-all disabled:opacity-50"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl py-3 text-sm border-2 border-slate-900 shadow-brutal hover:shadow-brutal-lg transition-all disabled:opacity-50"
             >
               {status === "loading" ? "Saving Preferences..." : "Save &amp; Activate Alerts"}
             </button>

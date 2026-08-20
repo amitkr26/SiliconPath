@@ -36,7 +36,7 @@ export default function SubscribeSection() {
 
   return (
     <>
-      <div className="bg-blue-600 border-3 border-slate-900 rounded-2xl p-6 sm:p-10 text-white shadow-[6px_6px_0px_0px_#0F172A] relative overflow-hidden">
+      <div className="bg-blue-600 border-2 border-slate-900 rounded-2xl p-6 sm:p-10 text-white shadow-brutal-lg relative overflow-hidden">
         
         {/* DECORATIVE BACKGROUND ACCENTS */}
         <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-blue-500/30 rounded-full blur-2xl pointer-events-none" />
@@ -44,7 +44,7 @@ export default function SubscribeSection() {
         <div className="max-w-4xl mx-auto text-center relative z-10">
           
           {/* HEADER BADGE */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white border-2 border-slate-900 text-slate-900 text-xs font-black mb-4 shadow-[2px_2px_0px_0px_#0F172A]">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border-2 border-slate-900 text-slate-900 text-xs font-black mb-4 shadow-brutal-sm">
             <Sparkles className="w-4 h-4 text-blue-600 stroke-[3]" />
             <span>NEVER MISS A VERIFIED OPPORTUNITY</span>
           </div>
@@ -59,20 +59,20 @@ export default function SubscribeSection() {
 
           {/* BENEFIT BADGES */}
           <div className="my-6 flex flex-wrap items-center justify-center gap-3">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-700/60 border border-blue-400/40 rounded-md text-xs font-extrabold text-blue-100">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-700/60 border-2 border-white/20 rounded-full text-xs font-extrabold text-blue-100">
               <Zap className="w-3.5 h-3.5 text-amber-300 stroke-[2.5]" /> Real-Time Notifications
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-700/60 border border-blue-400/40 rounded-md text-xs font-extrabold text-blue-100">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-700/60 border-2 border-white/20 rounded-full text-xs font-extrabold text-blue-100">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-300 stroke-[2.5]" /> 100% Official Links
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-700/60 border border-blue-400/40 rounded-md text-xs font-extrabold text-blue-100">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-cyan-300 stroke-[2.5]" /> Custom Keywords
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-700/60 border-2 border-white/20 rounded-full text-xs font-extrabold text-blue-100">
+              <SlidersHorizontal className="w-3.5 h-3.5 text-blue-100 stroke-[2.5]" /> Custom Keywords
             </div>
           </div>
 
           {/* FORM AREA */}
           {status === "success" ? (
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-6 text-slate-900 max-w-md mx-auto shadow-[4px_4px_0px_0px_#0F172A] flex items-center justify-center gap-3">
+            <div className="bg-white border-2 border-slate-900 rounded-xl p-6 text-slate-900 max-w-md mx-auto shadow-brutal flex items-center justify-center gap-3">
               <div className="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 border-2 border-slate-900">
                 <Check className="w-5 h-5 stroke-[3]" />
               </div>
@@ -90,12 +90,12 @@ export default function SubscribeSection() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email (e.g. you@email.com)"
-                  className="flex-1 bg-white border-2 border-slate-900 text-slate-900 font-bold text-sm rounded-xl px-4 py-3 shadow-[3px_3px_0px_0px_#0F172A] focus:shadow-[5px_5px_0px_0px_#0F172A] outline-none placeholder:text-slate-400 transition-all"
+                  className="flex-1 bg-white border-2 border-slate-900 text-slate-900 font-bold text-sm rounded-xl px-4 py-3 shadow-brutal-sm focus:shadow-brutal outline-none placeholder:text-slate-400 transition-all"
                 />
                 <button
                   type="submit"
                   disabled={status === "loading"}
-                  className="bg-white text-blue-700 hover:bg-blue-50 font-black rounded-xl px-6 py-3 text-sm border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:shadow-[5px_5px_0px_0px_#0F172A] hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-center gap-2 shrink-0"
+                  className="bg-white text-blue-700 hover:bg-blue-50 font-black rounded-xl px-6 py-3 text-sm border-2 border-slate-900 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-center gap-2 shrink-0"
                 >
                   {status === "loading" ? (
                     <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
