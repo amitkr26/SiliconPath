@@ -31,7 +31,7 @@
 | `T:server` | backend/server tests (46: auth 4, admin 2, health 3, opportunities 4, profiles 3, parity 14, hardening 16) |
 | `T:api` | backend/api tests (97) |
 | `T:ai` | backend/ai-gateway tests (15) |
-| `T:worker` | backend/worker tests (17) |
+| `T:worker` | backend/worker tests (30: 17 news + 13 ISRO incl. frontend-vs-replica parity on frozen HTML) |
 | `L` | live smoke on deployed replica (2026-08-20, read-only / auth-rejection only) |
 | `E2E` | production E2E 9/9 (2026-08-20) — proves the production contract the replica mirrors |
 
@@ -161,12 +161,13 @@
 | `health` | `GET /health` + `GET /health/ready` | **REPLICATED** | none | db1 (ready) | T:server + L | Docker HEALTHCHECK uses /health |
 | `cron-health` | — | **FRONTEND-INTERNAL** | — | — | — | Vercel cron canary |
 
-### Cron / scrapers (production scheduler surface — stays on Vercel)
+### Cron / scrapers (production scheduler surface — stays on Vercel; worker commands for replica-only paths)
 
 | Production Next.js API | Replica API | Status | Auth / Role | DB | Test | Notes |
 |---|---|---|---|---|---|---|
 | `cron/scrape-opportunities` (00:00), `cron/scrape-news`, `cron/scrape-india`, `cron/scrape-global`, `cron/digest`, `cron/check-links` (08:00), `cron/cleanup` | — (replica has `GET /api/v1/cron/news-sync` only) | **CRON/WORKER — NOT REPLICATED (out of scope)** | requireCron | db1 | E2E (production) | Production owner = Vercel cron + `scripts/auto-daily-scraper.js`; opportunity/ATS scraper fleet migration explicitly deferred (Phase 7 §16) |
 | `scrapers/*` (14 routes), `scrape`, `scrape-sources`, `send-digest`, `sync-replica`, `archive-news`, `cleanup-news`, `scrapers/run-all` | — | **CRON/WORKER — NOT REPLICATED (out of scope)** | requireCron / verifyAdmin | db1/db2/neon | — | See `project-bible/09-scrapers/REPLICA-MIGRATION-MATRIX.md` |
+| ISRO scraper (`frontend/src/lib/scrapers/isro-scraper.ts` + `api/scrapers/isro`) | worker command `node backend/worker/dist/index.js isro` (`npm run start:isro`) | **REPLICATED (WORKER, Phase 8)** | none (manual, on-demand) | db1 | T:worker (13 ISRO incl. frontend-vs-replica parity on frozen HTML) + L (2026-08-20: × 2 runs, 18 fetched / 0 inserted / 0 dupes, exit 0) | Production normalization/dedup contract ported verbatim (`opportunity-utils.ts`, `org-resolve.ts`); insert `verification_status:"pending"` — the only live-CHECK-valid status (KNOWN_ISSUES #16); org resolved via host-label rule to db1 ISRO org `2b23230a-…`; health persisted to `scrape_sources`/`scrape_runs` with the real source_id; **deliberate divergences:** TLS verification ON (frontend's `NODE_TLS_REJECT_UNAUTHORIZED=0` dropped — site serves valid certs), fail-loud on HTTP non-ok, insert `pending`. Live 0 inserts = honest parity (KNOWN_ISSUES #17/#18 — the frontend's own ISRO output is 0 rows today). Never scheduled (Vercel cron stays production owner). |
 
 ### Frontend-internal / N/A
 
@@ -181,6 +182,7 @@
 - **PARTIALLY REPLICATED: 5** (news list live-merge; applications PATCH status whitelist; profiles me PATCH; profiles [userId] UUID/PATCH/view-increment; admin CRUD).
 - **CRON/WORKER (production, on Vercel): 28** (cron/* 7 + scrapers/* 14 + scrape, scrape-sources, send-digest, sync-replica, archive-news, cleanup-news).
 - **FRONTEND-INTERNAL / NOT APPLICABLE / NOT REPLICATED (in-scope-frontend): ~55**.
+- **Worker scraper replicas (not routes): news RSS (`backend/worker … news`) + ISRO (`backend/worker … isro`, Phase 8)** — never scheduled on Render; Vercel cron stays the production owner.
 - No production route is deleted or rerouted; the replica is purely additive.
 
 ## Verified differences (evidence-based, not aspirational)
@@ -191,6 +193,7 @@
 4. Replica admin surface = `GET /stats` only (production admin CRUD is frontend-only).
 5. Replica news ingestion is the shared module (`backend/api/src/content/news-sync.ts`, same write contract as production `/api/news/sync`); production execution stays on the Vercel cron.
 6. Rate limiting: replica uses the same in-memory bucket implementation (`backend/api/src/rate-limit`) as the frontend middleware on auth/search/AI/admin; no Redis (explicitly out of scope).
+7. **Worker ISRO scraper divergences (Phase 8, deliberate):** TLS verification ON (frontend's `NODE_TLS_REJECT_UNAUTHORIZED=0` dropped — the site serves valid certs), fail-loud on HTTP non-ok (worker exit-1 contract vs the frontend's `[]`), insert `verification_status:"pending"` (the only live-CHECK-valid status — the frontend's `unverified` violates the CHECK and silently inserts nothing, KNOWN_ISSUES #16), health rows use the real `scrape_sources` uuid (the frontend passes the source NAME string into a uuid column — also silently broken). Dedup: `source_url` in (orig, normalized) OR title ilike (same as production); never sets `verified=true`; 20-row cap.
 
 ## Backend independence (Phase 7 §4)
 

@@ -1,11 +1,11 @@
 # Multi-Agent Handoff Document (Antigravity ⇋ OpenCode)
 
 ```text
-HANDOFF_VERSION: 1.6.0
+HANDOFF_VERSION: 1.7.0
 TIMESTAMP: 2026-08-20
 CURRENT_AGENT: OpenCode
 NEXT_AGENT: OpenCode / Antigravity (shared continuation contract)
-TASK_STATUS: Phase 7 PASS — Backend replica validation complete. Vercel remains production (Next.js APIs + Vercel cron intact; no Vercel→Render dependency anywhere). Render is an independently deployed FREE-tier replica: `plan: free` web service only — the `crons:` section was REMOVED from render.yaml and KNOWN_ISSUES #14 is CLOSED as NOT REQUIRED / OUT OF SCOPE (Render cron is not part of the architecture; the 402 billing wall is moot). Deliverables: `backend/docs/BACKEND-PARITY-MATRIX.md` (136 production routes → 48 REPLICATED, 5 PARTIALLY REPLICATED, 28 CRON/WORKER on Vercel, ~55 frontend-internal — supersedes the stale FRONTEND-BACKEND-MAP.md) and `project-bible/09-scrapers/REPLICA-MIGRATION-MATRIX.md` (news RSS replicated; opportunity/ATS/govt fleet inventoried, porting explicitly deferred per owner mandate). Backend independence re-verified (no frontend runtime imports; Docker COPY frontend/package.json is build-time workspace resolution only). Full regression green: server 46/46, api 97/97, ai 15/15, worker 17/17, tsc × 4, backend builds, frontend build (exit 0). Production E2E 9/9 — root-caused the 2 flaky connection specs: a stale ACCEPTED connection left by the social-workflow spec (terminal state = connected, no spec cleans it; reset-test-social.mjs is unusable while #1's stale local key is unrotated) — deleted via the Management API pre-run and cleaned post-run. Live replica smoke: /health 200 (cold start 22.1s free-tier idle boot), /health/ready 200 (warm 1.7s), 10 protected endpoints → 401, cron news-sync → 403 (missing + wrong secret), public reads (news list + :slug, opportunities, organizations, search people/global, profiles/:username) all 200. Known differences documented: news list no live-RSS merge, applications PATCH no employer-status whitelist, profiles/:username username-only (no UUID/PATCH/view-increment), admin = stats only. Next phase candidate: port the first government/institutional opportunity scraper into backend/worker per the migration matrix priorities.
+TASK_STATUS: Phase 8 COMPLETE - First government scraper replica (ISRO) landed in backend/worker. Vercel remains production (Next.js APIs + Vercel cron intact, untouched); Render stays an independent FREE-tier replica (no cron). Deliverables: backend/worker/src/scrapers/isro.ts (pure parser + deps-injected runner, production normalization/dedup contract ported verbatim via opportunity-utils.ts + org-resolve.ts), run-isro-scrape.ts orchestrator (dedup source_url orig+normalized OR title ilike; insert verification_status:pending - the ONLY live-CHECK-valid status), dist/index.js isro command, cheerio from the existing root lockfile (no new third-party dep), tests/isro.test.ts (13 tests incl. frontend-vs-replica parity on frozen HTML). PRODUCTION BUGS SURFACED (documented, do NOT touch frontend per mandate): #16 Vercel cron writes verification_status:unverified which violates the live CHECK - the cron has silently inserted ZERO opportunity rows since 2026-08-02 (max(created_at) across opportunities = 2026-08-02; 3240 verified / 29 link_unavailable / 3 expired / 0 pending / 0 unverified); #17 live ISRO page anchors now end in ' Read More' so the garbage filter rejects all 18 live rows (production ISRO scraper outputs 0 rows today); #18 GARBAGE_TITLE_PATTERNS 'search' token matches inside 'Research' so Research roles are always dropped. Replica mirrors all of this (honest parity: live smoke run 1 + run 2 both exit 0, fetched 18 / inserted 0 / duplicates 0 / skipped 18); insert path proven by the live CHECK probe (pending accepted, rolled back, zero residue) + deterministic tests. Health persisted: scrape_sources ISRO row bcd8749d-... (consecutive_failures 0) + 2 success scrape_runs (results_count 18) with the real source_id (frontend passes the source NAME into the uuid column - also broken there). Deliberate divergences: TLS verification ON (frontend NODE_TLS_REJECT_UNAUTHORIZED=0 hack dropped), fail-loud on HTTP non-ok, real source_id. Full regression green: worker 30/30 (17 news + 13 ISRO), server 46/46, api 97/97, ai 15/15, tsc x 4, server build, frontend build exit 0, production E2E 9/9 (zero residue pre-run). Next phase candidates: DRDO + CSIR (live-verified 200) via the ISRO recipe; then fix #16/#17/#18 in the frontend (owner decision).
 ```
 
 ---
@@ -109,20 +109,26 @@ TASK_STATUS: Phase 7 PASS — Backend replica validation complete. Vercel remain
   SIGTERM/SIGINT drain + 10s force-exit. `.env.example` categorized
   REQUIRED/OPTIONAL/DEPLOYMENT.
 - `backend/worker` = Phase 6 scheduled process workspace (`@berojgardegreewala/worker`):
-  `node --import tsx dist/index.js news` — CLI subcommand, exit 0 (≥1 feed ok) / 1 (all
+  `node --import tsx dist/index.js news|isro` — CLI subcommand, exit 0 (≥1 feed ok) / 1 (all
   failed or DB write failed / missing env, fail-closed) / 2 (usage). Shares ALL
   ingestion via `backend/api/src/content/news-sync.ts` (12 feeds, concurrency 4, retry
   1+2 network/5xx/429 backoff, run-level URL dedup, `news_articles` upsert onConflict
   `url` ignoreDuplicates, is_active true, null-url never written — the exact frontend
-  `/api/news/sync` contract). Persists `scrape_runs` + `scrape_sources` health
-  (name-keyed read-then-write; no schema changes). 17 node:test. No fabricated-data
-  path. NOT scheduled on Render (Phase 7 — no Render cron; render.yaml is a free web
-  service only); independently runnable on demand for testing/future use.
+  `/api/news/sync` contract). Phase 8: `isro` command = ISRO government scraper replica
+  (`src/scrapers/isro.ts` pure parser + deps-injected runner; `opportunity-utils.ts` +
+  `org-resolve.ts` ported verbatim from the frontend; orchestrator `run-isro-scrape.ts`;
+  insert `verification_status:"pending"`, dedup source_url orig+normalized OR title
+  ilike, org via host-label rule → db1 ISRO org `2b23230a-…`; health persisted with the
+  REAL `scrape_sources` uuid). 30 node:test (17 news + 13 ISRO, incl. frontend-vs-replica
+  parity on frozen HTML). No fabricated-data path. NOT scheduled on Render (Phase 7 — no
+  Render cron; render.yaml is a free web service only); independently runnable on demand
+  for testing/future use. Live evidence 2026-08-20: isro × 2 runs, 18 fetched / 0
+  inserted / 0 duplicates (honest parity — KNOWN_ISSUES #17/#18), `pending` CHECK probe
+  accepted (rolled back).
 - **Remaining parity gaps** (tracked in `backend/docs/BACKEND-PARITY-MATRIX.md`,
-  Phase 7): scraper fleet port beyond news RSS — inventory in
-  `project-bible/09-scrapers/REPLICA-MIGRATION-MATRIX.md`, porting explicitly DEFERRED
-  by owner mandate (next candidate: govt/institutional opportunity scrapers into the
-  worker), PATCH `/profiles/me`, `supabase2Admin` DB2 client unused, admin breadth
+  Phase 7/8): scraper fleet port beyond news RSS + ISRO — inventory in
+  `project-bible/09-scrapers/REPLICA-MIGRATION-MATRIX.md` (DRDO/CSIR = next live-verified
+  candidates), PATCH `/profiles/me`, `supabase2Admin` DB2 client unused, admin breadth
   beyond /stats, academy/misc.
 - Server tests use node:test + a Proxy fake (`backend/server/tests/fake.ts`) — keep
   that pattern for new route tests. AI route tests stub global.fetch + GROQ_API_KEY
@@ -132,13 +138,13 @@ TASK_STATUS: Phase 7 PASS — Backend replica validation complete. Vercel remain
 
 ### Documentation source of truth (post-reconciliation)
 - `project-bible/ARCHITECTURE.md` (CURRENT/TRANSITION/TARGET), `MASTER_INDEX.md`,
-  `IMPLEMENTATION_STATUS.md` (full feature matrix), `KNOWN_ISSUES.md` (15 issues),
+  `IMPLEMENTATION_STATUS.md` (full feature matrix), `KNOWN_ISSUES.md` (18 issues),
   `backend/docs/BACKEND-PARITY-MATRIX.md` (Phase 7 — authoritative; supersedes
   FRONTEND-BACKEND-MAP.md) + `API-PARITY.md` — reconciled 2026-08-19/20.
 - Section READMEs (04–23) were rewritten 2026-08-19 by subagents with verified counts:
   138 API route files, 3 scheduled crons, 9 AI providers, 18 scraper modules, 4 DBs
   (2 Supabase + 2 Neon), 7 academy tracks, 104 frontend jest / 97 api jest / 15
-  ai-gateway jest / 46 server node:test.
+  ai-gateway jest / 46 server node:test / 30 worker node:test.
 - Historical docs (master-specification, CONTENT_UPGRADE_PLAN, deploy-stack.txt,
   19-prompts files, ADR-001) carry DEPRECATED/HISTORICAL status headers — do not edit
   their bodies to "modernize" them.
@@ -152,4 +158,8 @@ TASK_STATUS: Phase 7 PASS — Backend replica validation complete. Vercel remain
 - #12 worker production-run evidence — CLOSED 2026-08-20 (worker entrypoint executed in production mode: insert 5, re-run exit 0 / 0 duplicates).
 - #13 backend news-sync wrote to `news_archive` onConflict `slug` — FIXED 2026-08-19 (shared `content/news-sync.ts` → `news_articles` onConflict `url`).
 - #14 Render cron — CLOSED 2026-08-20 as NOT REQUIRED / OUT OF SCOPE (Phase 7: no Render cron in the architecture; Vercel cron owns production).
+- #15 Groq model retired — FIXED 2026-08-20 (b32f3d7 → `qwen/qwen3.6-27b`; live-verified).
+- #16 production cron writes `unverified` → live CHECK violation → ZERO opportunity inserts since 2026-08-02 (P1, owner fix in `run-opportunity-scrape.ts` → `pending`; replica already writes `pending`).
+- #17 ISRO page anchors end in " Read More" → garbage filter drops every row (P1, owner fix in `isro-scraper.ts`; replica mirrors until then).
+- #18 GARBAGE_TITLE_PATTERNS `search` matches "Research" → Research roles always dropped (P2, owner fix in `utils.ts`).
 - #15 Groq retired llama-3.1-8b-instant — FIXED 2026-08-20 (model → qwen/qwen3.6-27b, commit b32f3d7; verified live).

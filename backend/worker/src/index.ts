@@ -1,9 +1,11 @@
 import { runNewsSync } from "./run-news-sync.js";
+import { runIsroScrape } from "./run-isro-scrape.js";
 
 // CLI entry for the scraper worker. Invoked by the deployment cron job, e.g.:
 //   node --import tsx dist/index.js news
-// Exit code: 0 when at least one feed succeeded, 1 when every feed failed
-// (or the DB write failed), 2 for unknown commands.
+//   node --import tsx dist/index.js isro
+// Exit code: 0 when the run succeeded, 1 on fatal error (fetch/DB), 2 for
+// unknown commands.
 
 async function main(): Promise<void> {
   const [, , command] = process.argv;
@@ -16,7 +18,12 @@ async function main(): Promise<void> {
     process.stdout.write(JSON.stringify(summary, null, 2) + "\n", () => process.exit(code));
     return;
   }
-  process.stderr.write("usage: node dist/index.js news\n", () => process.exit(2));
+  if (command === "isro") {
+    const summary = await runIsroScrape();
+    process.stdout.write(JSON.stringify(summary, null, 2) + "\n", () => process.exit(0));
+    return;
+  }
+  process.stderr.write("usage: node dist/index.js news|isro\n", () => process.exit(2));
 }
 
 main().catch((err: unknown) => {

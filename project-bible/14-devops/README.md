@@ -13,7 +13,7 @@ KNOWN_ISSUES #14 CLOSED). Vercel remains production; the frontend does not call 
 |---------|----------|---------|
 | Frontend + API routes | Vercel (Hobby, git integration) | Next.js 14 app; all `/api/*` routes run as serverless functions |
 | Backend API (LIVE) | Render web service (Docker, `backend/server/Dockerfile`) | Standalone Express REST API — https://berojgardegreewala-backend.onrender.com; `/health` + `/health/ready` verified 200; graceful SIGTERM shutdown; auto-deploy on push to main |
-| Scraper worker (NOT SCHEDULED) | none (image only; `backend/worker`) | News RSS sync process (`node --import tsx backend/worker/dist/index.js news`) — Phase 7: NOT scheduled anywhere (Render cron removed from the architecture, #14 CLOSED); Vercel cron owns production news sync. Worker entrypoint verified in production mode (exit 0, idempotent — KNOWN_ISSUES #12). |
+| Scraper worker (NOT SCHEDULED) | none (image only; `backend/worker`) | News RSS sync (`node --import tsx backend/worker/dist/index.js news`) + ISRO government scraper replica (`… dist/index.js isro`, Phase 8) — Phase 7: NOT scheduled anywhere (Render cron removed from the architecture, #14 CLOSED); Vercel cron owns production news sync. Worker entrypoint verified in production mode (news: exit 0, idempotent — KNOWN_ISSUES #12; isro: × 2 runs exit 0, 18 fetched / 0 inserted / 0 dupes — honest parity, KNOWN_ISSUES #17/#18). |
 | DB1 | Supabase | Core platform data |
 | DB2 | Supabase | Social + user data |
 | Analytics | Neon (2 databases) | Analytics, logs, search cache |
@@ -45,10 +45,14 @@ slug/website mapping fixed (commit 3edceff). **Phase 7 (2026-08-20):** Render cr
 is NOT REQUIRED / OUT OF SCOPE (#14 CLOSED) — `render.yaml` is a free web service
 only; the worker stays in the image, independently runnable on demand.
 
-**Worker architecture (Phase 6, Phase 7):** `backend/worker` (workspace
-`@berojgardegreewala/worker`) is an independently runnable process; all ingestion
-logic lives in the shared library `backend/api/src/content/news-sync.ts` (also used
-by the server cron route). Vercel stays the production cron owner for the frontend
+**Worker architecture (Phase 6, Phase 7, Phase 8):** `backend/worker` (workspace
+`@berojgardegreewala/worker`) is an independently runnable process; all news
+ingestion logic lives in the shared library `backend/api/src/content/news-sync.ts`
+(also used by the server cron route). Phase 8 adds a second, independent command —
+`isro` — the ISRO government scraper replica (`src/scrapers/isro.ts` + utils +
+`run-isro-scrape.ts`; production normalization/dedup contract ported verbatim;
+inserts `verification_status:"pending"` — the only live-CHECK-valid status,
+KNOWN_ISSUES #16). Vercel stays the production cron owner for the frontend
 routes; the backend cron route (`/api/v1/cron/news-sync`, CRON_SECRET-guarded) is a
 manual/parity trigger — idempotent (upsert `news_articles` onConflict `url`). No
 queue/Redis/microservices and no Render cron — nothing proven necessary for one
