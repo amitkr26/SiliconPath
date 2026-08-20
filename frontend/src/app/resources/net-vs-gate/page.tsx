@@ -1,7 +1,8 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
-import { ArrowRight, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowRight, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
+import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
   title: "UGC-NET vs GATE for Electronics Research — Complete Comparison 2026",

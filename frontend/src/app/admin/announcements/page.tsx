@@ -52,46 +52,46 @@ export default function AdminAnnouncementsPage() {
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <Megaphone className="w-6 h-6 text-accent" />
-          <h1 className="font-display text-2xl font-bold text-text-primary">Announcements</h1>
+          <Megaphone className="w-6 h-6 text-blue-400" />
+          <h1 className="font-display text-2xl font-bold text-white">Announcements</h1>
         </div>
         <button onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 bg-accent text-navy px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent/90 transition-colors">
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
           <Plus className="w-4 h-4" /> {showForm ? "Cancel" : "New"}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-surface border border-border rounded-xl p-4 mb-6">
+        <form onSubmit={handleCreate} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-6 space-y-3">
           <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title"
-            className="w-full bg-navy border border-border rounded-lg px-3 py-2 text-sm text-text-primary mb-2" required />
+            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" required />
           <textarea value={body} onChange={e => setBody(e.target.value)} placeholder="Body"
-            className="w-full bg-navy border border-border rounded-lg px-3 py-2 text-sm text-text-primary min-h-[100px] mb-3" required />
-          <button type="submit" className="bg-accent text-navy px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent/90">
+            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 min-h-[100px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" required />
+          <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
             Publish
           </button>
         </form>
       )}
 
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 text-accent animate-spin" /></div>
+        <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 text-blue-400 animate-spin" /></div>
       ) : announcements.length === 0 ? (
-        <div className="text-center py-16 bg-surface border border-border rounded-xl">
-          <Megaphone className="w-10 h-10 text-text-muted mx-auto mb-2" />
-          <p className="text-text-secondary">No announcements yet</p>
+        <div className="text-center py-16 bg-slate-900 border border-slate-800 rounded-2xl">
+          <Megaphone className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+          <p className="text-slate-400">No announcements yet</p>
         </div>
       ) : (
         <div className="space-y-3">
           {announcements.map(a => (
-            <div key={a.id} className="bg-surface border border-border rounded-xl p-4">
+            <div key={a.id} className="bg-slate-900 border border-slate-800 rounded-xl p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-text-primary font-medium">{a.title}</h3>
-                  <p className="text-text-secondary text-sm mt-1 whitespace-pre-wrap">{a.body}</p>
-                  <p className="text-text-muted text-xs mt-2">{new Date(a.created_at).toLocaleDateString()}</p>
+                  <h3 className="text-slate-100 font-medium">{a.title}</h3>
+                  <p className="text-slate-300 text-sm mt-1 whitespace-pre-wrap">{a.body}</p>
+                  <p className="text-slate-500 text-xs mt-2">{new Date(a.created_at).toLocaleDateString()}</p>
                 </div>
                 <button onClick={() => handleDelete(a.id)}
-                  className="text-text-muted hover:text-danger p-1"><Trash2 className="w-4 h-4" /></button>
+                  className="text-slate-500 hover:text-red-400 p-1"><Trash2 className="w-4 h-4" /></button>
               </div>
             </div>
           ))}

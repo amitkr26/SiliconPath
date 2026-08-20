@@ -193,12 +193,12 @@ export default function AdminPage() {
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
+        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-lg space-y-6">
           <div className="text-center space-y-2">
             <div className="w-14 h-14 bg-blue-600/10 border border-blue-500/30 rounded-2xl flex items-center justify-center text-blue-400 mx-auto">
               <Shield className="w-7 h-7" />
             </div>
-            <h1 className="text-2xl font-black text-white tracking-tight">Admin Console</h1>
+            <h1 className="text-2xl font-bold text-white tracking-tight">Admin Console</h1>
             <p className="text-slate-400 text-xs font-semibold">BerojgarDegreeWala Management Engine</p>
           </div>
 
@@ -217,7 +217,7 @@ export default function AdminPage() {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter admin username"
                 required
-                className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -229,13 +229,13 @@ export default function AdminPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter admin password"
                 required
-                className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-blue-600/20"
+              className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-sm transition-all shadow-sm"
             >
               Authenticate &amp; Access Admin Console
             </button>
@@ -261,11 +261,11 @@ export default function AdminPage() {
         {/* BRAND HEADER */}
         <div className="p-5 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/30">
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white">
               <Cpu className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-black text-sm text-white leading-tight">Admin Portal</h2>
+              <h2 className="font-bold text-sm text-white leading-tight">Admin Portal</h2>
               <span className="text-[10px] text-emerald-400 font-bold tracking-wider uppercase flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live Healthy
               </span>
@@ -290,7 +290,7 @@ export default function AdminPage() {
                 onClick={() => setActiveTab(item.id as typeof activeTab)}
                 className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl transition-all ${
                   active
-                    ? "bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/20"
+                    ? "bg-blue-600 text-white font-bold shadow-sm"
                     : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"
                 }`}
               >
@@ -334,7 +334,7 @@ export default function AdminPage() {
           <div className="flex items-center gap-3">
             <Server className="w-5 h-5 text-blue-400" />
             <div>
-              <h1 className="text-lg font-black text-white capitalize">{activeTab} Management Engine</h1>
+              <h1 className="text-lg font-bold text-white capitalize">{activeTab} Management Engine</h1>
               <p className="text-slate-400 text-xs font-semibold">Real-time control panel for database, scrapers, and AI services</p>
             </div>
           </div>
@@ -343,7 +343,7 @@ export default function AdminPage() {
             <button
               onClick={runAllScrapers}
               disabled={scrapingAll}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center gap-2"
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-2"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${scrapingAll ? "animate-spin" : ""}`} />
               <span>{scrapingAll ? "Syncing Sources..." : "Run All Scrapers & RSS Sync"}</span>
@@ -355,25 +355,25 @@ export default function AdminPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-1">
             <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Scraped Portals</p>
-            <p className="text-2xl font-black text-white">25 Sources</p>
+            <p className="text-2xl font-bold text-white">25 Sources</p>
             <p className="text-[10px] font-bold text-emerald-400">100% Verified Live</p>
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-1">
             <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Active Opportunities</p>
-            <p className="text-2xl font-black text-blue-400">{opportunities.length || 362}+</p>
+            <p className="text-2xl font-bold text-blue-400">{opportunities.length || 362}+</p>
             <p className="text-[10px] font-bold text-slate-400">Aggregated Daily</p>
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-1">
             <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">RSS News Feeds</p>
-            <p className="text-2xl font-black text-purple-400">8 Feeds</p>
-            <p className="text-[10px] font-bold text-purple-300">IEEE, EE Times &amp; SemiEng</p>
+            <p className="text-2xl font-bold text-blue-400">8 Feeds</p>
+            <p className="text-[10px] font-bold text-blue-300">IEEE, EE Times &amp; SemiEng</p>
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-1">
             <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Database Status</p>
-            <p className="text-2xl font-black text-emerald-400">Healthy</p>
+            <p className="text-2xl font-bold text-emerald-400">Healthy</p>
             <p className="text-[10px] font-bold text-emerald-300">Supabase PostgreSQL Live</p>
           </div>
         </div>
@@ -383,7 +383,7 @@ export default function AdminPage() {
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-black text-white">Automated Scraper Stream Logs</h3>
+                <h3 className="text-base font-bold text-white">Automated Scraper Stream Logs</h3>
                 <p className="text-xs text-slate-400">Daily automated ingestion logs from official portals &amp; RSS feeds</p>
               </div>
               <button
@@ -436,7 +436,7 @@ export default function AdminPage() {
         {activeTab === "sources" && (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
             <div>
-              <h3 className="text-base font-black text-white">Monitored Web Portals &amp; RSS Feeds ({MONITORED_SCRAPER_SOURCES.length})</h3>
+              <h3 className="text-base font-bold text-white">Monitored Web Portals &amp; RSS Feeds ({MONITORED_SCRAPER_SOURCES.length})</h3>
               <p className="text-xs text-slate-400">List of official government, academic, RSS news, and enterprise portals scraped daily</p>
             </div>
 
@@ -446,9 +446,7 @@ export default function AdminPage() {
                   <div className="space-y-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="font-bold text-white text-xs truncate">{src.name}</h4>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        src.type === "RSS Feed" ? "bg-purple-900/40 text-purple-300 border border-purple-500/30" : "bg-blue-900/40 text-blue-300 border border-blue-500/30"
-                      }`}>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-900/40 text-blue-300 border border-blue-500/30">
                         {src.type}
                       </span>
                       <span className="px-2 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-500/30 rounded text-[10px] font-bold">
@@ -479,7 +477,7 @@ export default function AdminPage() {
         {activeTab === "opportunities" && (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-black text-white">Opportunities Directory ({opportunities.length})</h3>
+              <h3 className="text-base font-bold text-white">Opportunities Directory ({opportunities.length})</h3>
               <button onClick={fetchOpportunities} className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition">
                 Refresh Directory
               </button>
@@ -504,7 +502,7 @@ export default function AdminPage() {
         {activeTab === "subscribers" && (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-black text-white">Email Digest Subscribers ({subscribers.length})</h3>
+              <h3 className="text-base font-bold text-white">Email Digest Subscribers ({subscribers.length})</h3>
               <button onClick={fetchSubscribers} className="px-3.5 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-xl">
                 Refresh Subscribers
               </button>

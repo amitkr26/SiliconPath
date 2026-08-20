@@ -3,13 +3,17 @@
 import React, { Suspense, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { 
-  Zap, Loader2, Eye, EyeOff, User, Building2, ShieldCheck, 
-  CheckCircle2, XCircle, ArrowRight, Sparkles, UserCheck 
+import {
+  Zap, Loader2, Eye, EyeOff, User, Building2,
+  CheckCircle2, XCircle, ArrowRight
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getURL } from "@/lib/utils";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Input, Select } from "@/components/ui/Input";
 
 type AccountType = "seeker" | "provider";
 
@@ -27,9 +31,9 @@ function SignupPageInner() {
   const initialRoleParam = searchParams.get("role");
 
   // Determine initial account type from URL
-  const initialType: AccountType = 
-    initialRoleParam === "employer" || initialRoleParam === "provider" 
-      ? "provider" 
+  const initialType: AccountType =
+    initialRoleParam === "employer" || initialRoleParam === "provider"
+      ? "provider"
       : "seeker";
 
   const [accountType, setAccountType] = useState<AccountType>(initialType);
@@ -126,13 +130,13 @@ function SignupPageInner() {
         // Auto-login user with created credentials
         const supabase = createClient();
         const { error: loginErr } = await supabase.auth.signInWithPassword({ email, password });
-        
+
         if (!loginErr) {
           toast.success("Account created successfully! Welcome to BerojgarDegreeWala.");
           router.push(accountType === "provider" ? "/employer/post-job" : "/onboarding");
           return;
         }
-        
+
         toast.success("Account created! Please sign in with your credentials.");
         router.push("/login");
         return;
@@ -181,22 +185,19 @@ function SignupPageInner() {
 
   if (confirmSent) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] text-center space-y-5">
-          <div className="w-16 h-16 bg-emerald-500 border-3 border-slate-900 rounded-2xl flex items-center justify-center text-slate-900 mx-auto shadow-[4px_4px_0px_0px_#0F172A]">
+      <div className="min-h-screen bg-bg-primary flex items-center justify-center py-12 px-4">
+        <Card className="max-w-md w-full p-8 text-center space-y-5">
+          <div className="w-16 h-16 bg-emerald-500 border-2 border-slate-900 rounded-2xl flex items-center justify-center text-slate-900 mx-auto shadow-brutal">
             <CheckCircle2 className="w-9 h-9 stroke-[2.5]" />
           </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Check Your Inbox</h1>
-          <p className="text-slate-600 text-xs font-extrabold leading-relaxed">
+          <p className="text-slate-600 text-sm font-medium leading-relaxed">
             We sent a verification link to <span className="text-blue-600 underline font-mono">{email}</span>. Click the link to complete your account setup.
           </p>
-          <Link
-            href="/login"
-            className="inline-flex items-center justify-center w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] transition"
-          >
+          <Button href="/login" className="w-full">
             Go to Sign In
-          </Link>
-        </div>
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -220,19 +221,19 @@ function SignupPageInner() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 py-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
+    <div className="min-h-screen bg-bg-primary text-slate-900 py-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
       <div className="max-w-lg w-full space-y-6">
-        
+
         {/* BRAND HEADER */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full shadow-[3px_3px_0px_0px_#0F172A]">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full shadow-brutal-sm">
             <Zap className="w-4 h-4 text-blue-600 fill-blue-600" />
             <span className="text-xs font-black text-slate-900 uppercase tracking-wider">BerojgarDegreeWala</span>
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">
             {isSeeker ? "Join as Candidate / Researcher" : "Join as Employer & Research Lab"}
           </h1>
-          <p className="text-slate-600 text-xs font-extrabold">
+          <p className="text-slate-600 text-sm font-medium">
             {isSeeker
               ? "Build your hardware profile, access verified DRDO/ISRO openings, & learn VLSI."
               : "Post verified JRF, PhD, & microelectronics roles to recruit top IIT talent."}
@@ -240,45 +241,39 @@ function SignupPageInner() {
         </div>
 
         {/* ROLE SWITCHER TABS */}
-        <div className="grid grid-cols-2 gap-3 bg-white p-2 border-3 border-slate-900 rounded-2xl shadow-[5px_5px_0px_0px_#0F172A]">
-          <button
+        <Card className="p-2 grid grid-cols-2 gap-3">
+          <Button
             type="button"
+            variant={isSeeker ? "primary" : "ghost"}
             onClick={() => setAccountType("seeker")}
-            className={`py-3 px-3 rounded-xl font-black text-xs border-2 transition-all flex items-center justify-center gap-2 ${
-              isSeeker
-                ? "bg-blue-600 text-white border-slate-900 shadow-[3px_3px_0px_0px_#0F172A]"
-                : "bg-transparent text-slate-700 border-transparent hover:bg-slate-100"
-            }`}
+            className="w-full py-3"
           >
             <User className="w-4 h-4 stroke-[2.5]" />
             <span>Job Seeker / Researcher</span>
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
+            variant={!isSeeker ? "primary" : "ghost"}
             onClick={() => setAccountType("provider")}
-            className={`py-3 px-3 rounded-xl font-black text-xs border-2 transition-all flex items-center justify-center gap-2 ${
-              !isSeeker
-                ? "bg-emerald-600 text-slate-900 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A]"
-                : "bg-transparent text-slate-700 border-transparent hover:bg-slate-100"
-            }`}
+            className="w-full py-3"
           >
             <Building2 className="w-4 h-4 stroke-[2.5]" />
             <span>Employer / Research Lab</span>
-          </button>
-        </div>
+          </Button>
+        </Card>
 
         {/* REGISTRATION FORM CARD */}
-        <div
-          className={`bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] relative overflow-hidden transition-all ${
-            isSeeker ? "border-t-8 border-t-blue-600" : "border-t-8 border-t-emerald-600"
-          }`}
-        >
+        <Card className="p-8 relative overflow-hidden">
+          <div className="absolute top-0 inset-x-0 h-1.5 bg-blue-600" />
+
           {/* DIRECT GOOGLE OAUTH SIGNUP BUTTON */}
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="lg"
             onClick={handleGoogleSignup}
-            className="w-full py-3.5 px-4 bg-white border-3 border-slate-900 rounded-xl font-black text-xs text-slate-900 shadow-[4px_4px_0px_0px_#0F172A] hover:bg-slate-50 transition flex items-center justify-center gap-3 mb-5"
+            className="w-full mb-5"
           >
             <svg
               width="20"
@@ -292,11 +287,11 @@ function SignupPageInner() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
-            <span>Sign up with Google (Direct 1-Click)</span>
-          </button>
+            Sign up with Google
+          </Button>
 
           <div className="relative flex justify-center text-xs mb-6">
-            <span className="bg-white px-3 font-extrabold text-slate-400 z-10 uppercase tracking-wider">or sign up with email</span>
+            <span className="bg-white px-3 font-medium text-slate-500 z-10 uppercase tracking-wider">or sign up with email</span>
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t-2 border-slate-900" />
             </div>
@@ -307,54 +302,44 @@ function SignupPageInner() {
               {isSeeker ? (
                 <User className="w-5 h-5 text-blue-600 stroke-[2.5]" />
               ) : (
-                <Building2 className="w-5 h-5 text-emerald-600 stroke-[2.5]" />
+                <Building2 className="w-5 h-5 text-blue-600 stroke-[2.5]" />
               )}
               <span className="font-black text-slate-900 text-sm uppercase tracking-wide">
                 {isSeeker ? "Candidate Account Details" : "Organization Credentials"}
               </span>
             </div>
-            <span className={`px-2.5 py-1 rounded-md text-[10px] font-black border border-slate-900 ${isSeeker ? "bg-blue-100 text-blue-900" : "bg-emerald-100 text-emerald-900"}`}>
+            <Badge tone="accent" className="shrink-0">
               {isSeeker ? "Seeker Role" : "Employer Role"}
-            </span>
+            </Badge>
           </div>
 
           <form onSubmit={handleSignup} className="space-y-5">
             {/* FULL NAME / REPRESENTATIVE NAME */}
-            <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1.5">
-                {isSeeker ? "Full Name" : "Official Representative Name"}
-              </label>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder={isSeeker ? "e.g. Ananya Sharma" : "e.g. Dr. Rajesh Verma"}
-                required
-                className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
-              />
-            </div>
+            <Input
+              label={isSeeker ? "Full Name" : "Official Representative Name"}
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder={isSeeker ? "e.g. Ananya Sharma" : "e.g. Dr. Rajesh Verma"}
+              required
+            />
 
             {/* ORGANIZATION NAME (IF EMPLOYER) */}
             {!isSeeker && (
-              <div>
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1.5">
-                  Organization / Laboratory Name
-                </label>
-                <input
-                  type="text"
-                  value={orgName}
-                  onChange={(e) => setOrgName(e.target.value)}
-                  placeholder="e.g. DRDO RAC, IIT Bombay Microelectronics, Qualcomm India"
-                  required
-                  className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
-                />
-              </div>
+              <Input
+                label="Organization / Laboratory Name"
+                type="text"
+                value={orgName}
+                onChange={(e) => setOrgName(e.target.value)}
+                placeholder="e.g. DRDO RAC, IIT Bombay Microelectronics, Qualcomm India"
+                required
+              />
             )}
 
             {/* UNIQUE USERNAME (REQUIREMENT) */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-800">
                   {isSeeker ? "Unique Hardware Username" : "Organization Handle"}
                 </label>
                 {usernameStatus === "checking" && (
@@ -365,20 +350,20 @@ function SignupPageInner() {
               </div>
 
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-slate-400 text-sm">@</span>
-                <input
+                <span className="absolute left-3.5 bottom-3 font-black text-slate-400 text-sm">@</span>
+                <Input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
                   placeholder={isSeeker ? "ananyasharma_vlsi" : "drdo_rac_careers"}
                   required
-                  className="w-full pl-8 pr-10 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
+                  className="pl-8 pr-10"
                 />
                 {usernameStatus === "available" && (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 absolute right-3 top-1/2 -translate-y-1/2 stroke-[2.5]" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 absolute right-3 bottom-3.5 stroke-[2.5]" />
                 )}
                 {usernameStatus === "unavailable" && (
-                  <XCircle className="w-4 h-4 text-red-600 absolute right-3 top-1/2 -translate-y-1/2 stroke-[2.5]" />
+                  <XCircle className="w-4 h-4 text-red-600 absolute right-3 bottom-3.5 stroke-[2.5]" />
                 )}
               </div>
 
@@ -397,7 +382,7 @@ function SignupPageInner() {
                         key={sug}
                         type="button"
                         onClick={() => setUsername(sug)}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 hover:border-blue-600 text-slate-900 font-extrabold text-[10px] rounded-lg border border-slate-300 transition-all"
+                        className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 border-2 border-slate-900 text-slate-900 font-bold text-[10px] rounded-lg shadow-brutal-sm transition-all"
                       >
                         @{sug}
                       </button>
@@ -409,90 +394,68 @@ function SignupPageInner() {
 
             {/* SPECIALIZATION / ORG TYPE */}
             {isSeeker ? (
-              <div>
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1.5">
-                  Primary VLSI / Hardware Interest
-                </label>
-                <select
-                  value={specialization}
-                  onChange={(e) => setSpecialization(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
-                >
-                  <option value="VLSI ASIC Design">VLSI &amp; ASIC Design</option>
-                  <option value="SystemVerilog Verification">SystemVerilog &amp; UVM Verification</option>
-                  <option value="Physical Design & STA">Physical Design, Synthesis &amp; STA</option>
-                  <option value="Embedded Systems & Firmware">Embedded Systems &amp; Firmware</option>
-                  <option value="RF & Microwave Microelectronics">RF &amp; Microwave Microelectronics</option>
-                  <option value="Govt JRF/SRF Research (DRDO/ISRO)">Govt JRF/SRF Research (DRDO / ISRO / CSIR)</option>
-                </select>
-              </div>
+              <Select
+                label="Primary VLSI / Hardware Interest"
+                value={specialization}
+                onChange={(e) => setSpecialization(e.target.value)}
+              >
+                <option value="VLSI ASIC Design">VLSI &amp; ASIC Design</option>
+                <option value="SystemVerilog Verification">SystemVerilog &amp; UVM Verification</option>
+                <option value="Physical Design & STA">Physical Design, Synthesis &amp; STA</option>
+                <option value="Embedded Systems & Firmware">Embedded Systems &amp; Firmware</option>
+                <option value="RF & Microwave Microelectronics">RF &amp; Microwave Microelectronics</option>
+                <option value="Govt JRF/SRF Research (DRDO/ISRO)">Govt JRF/SRF Research (DRDO / ISRO / CSIR)</option>
+              </Select>
             ) : (
-              <div>
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1.5">
-                  Organization Sector
-                </label>
-                <select
-                  value={orgType}
-                  onChange={(e) => setOrgType(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
-                >
-                  <option value="Government Research Lab (DRDO / ISRO / CSIR)">Government Research Lab (DRDO / ISRO / CSIR)</option>
-                  <option value="Academic Institution (IIT / NIT / IISc)">Academic Institution (IIT / NIT / IISc)</option>
-                  <option value="Semiconductor Enterprise (Intel / Qualcomm / AMD)">Semiconductor Enterprise (Intel / Qualcomm / AMD)</option>
-                  <option value="Deeptech / Hardware Startup">Deeptech / Hardware Startup</option>
-                </select>
-              </div>
+              <Select
+                label="Organization Sector"
+                value={orgType}
+                onChange={(e) => setOrgType(e.target.value)}
+              >
+                <option value="Government Research Lab (DRDO / ISRO / CSIR)">Government Research Lab (DRDO / ISRO / CSIR)</option>
+                <option value="Academic Institution (IIT / NIT / IISc)">Academic Institution (IIT / NIT / IISc)</option>
+                <option value="Semiconductor Enterprise (Intel / Qualcomm / AMD)">Semiconductor Enterprise (Intel / Qualcomm / AMD)</option>
+                <option value="Deeptech / Hardware Startup">Deeptech / Hardware Startup</option>
+              </Select>
             )}
 
             {/* EMAIL ADDRESS */}
-            <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1.5">
-                {isSeeker ? "Email Address" : "Official Work Email"}
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={isSeeker ? "ananya@example.com" : "recruitment@drdo.gov.in"}
-                required
-                className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
-              />
-            </div>
+            <Input
+              label={isSeeker ? "Email Address" : "Official Work Email"}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={isSeeker ? "ananya@example.com" : "recruitment@drdo.gov.in"}
+              required
+            />
 
             {/* PASSWORD */}
-            <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Create password (min 6 chars)"
-                  minLength={6}
-                  required
-                  className="w-full pl-4 pr-10 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-900"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
+            <div className="relative">
+              <Input
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Create password (min 6 chars)"
+                minLength={6}
+                required
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-3 bottom-3.5 text-slate-600 hover:text-slate-900"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
 
             {/* SUBMIT BUTTON */}
-            <button
+            <Button
               type="submit"
               disabled={loading || (isSeeker && usernameStatus === "unavailable")}
-              className={`w-full py-3.5 rounded-xl font-black text-xs border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 ${
-                isSeeker
-                  ? "bg-blue-600 hover:bg-blue-700 text-white"
-                  : "bg-emerald-500 hover:bg-emerald-600 text-slate-900"
-              }`}
+              className="w-full py-3.5"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -507,18 +470,18 @@ function SignupPageInner() {
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
-            </button>
+            </Button>
           </form>
 
           <div className="mt-6 pt-4 border-t-2 border-slate-900 text-center">
-            <p className="text-xs font-bold text-slate-600">
+            <p className="text-xs font-medium text-slate-600">
               Already have an account?{" "}
-              <Link href="/login" className="font-black text-blue-600 hover:underline">
+              <Link href="/login" className="font-bold text-blue-600 hover:underline">
                 Sign In
               </Link>
             </p>
           </div>
-        </div>
+        </Card>
 
       </div>
     </div>
@@ -528,19 +491,19 @@ function SignupPageInner() {
 // Rendered server-side (and as hydration fallback) so the page always ships an <h1>.
 function SignupFallback() {
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 py-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
+    <div className="min-h-screen bg-bg-primary text-slate-900 py-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
       <div className="max-w-lg w-full space-y-6">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full shadow-[3px_3px_0px_0px_#0F172A]">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full shadow-brutal-sm">
             <Zap className="w-4 h-4 text-blue-600 fill-blue-600" />
             <span className="text-xs font-black text-slate-900 uppercase tracking-wider">BerojgarDegreeWala</span>
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Join as Candidate / Researcher</h1>
-          <p className="text-slate-600 text-xs font-extrabold">Create your BerojgarDegreeWala account</p>
+          <p className="text-slate-600 text-sm font-medium">Create your BerojgarDegreeWala account</p>
         </div>
-        <div className="bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] flex items-center justify-center py-16">
+        <Card className="p-8 flex items-center justify-center py-16">
           <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-        </div>
+        </Card>
       </div>
     </div>
   );

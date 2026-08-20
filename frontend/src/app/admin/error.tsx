@@ -24,13 +24,13 @@ export default function AdminError({
         <div className="flex gap-3 justify-center pt-2">
           <button
             onClick={reset}
-            className="px-5 py-2.5 bg-cyan text-navy font-semibold rounded-lg text-sm hover:bg-cyan/90 transition-colors"
+            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg text-sm transition-colors"
           >
             Try again
           </button>
           <Link
             href="/admin"
-            className="px-5 py-2.5 border border-gray-700 text-gray-300 font-medium rounded-lg text-sm hover:border-gray-600 transition-colors"
+            className="px-5 py-2.5 border border-slate-700 text-slate-300 font-medium rounded-lg text-sm hover:border-slate-500 transition-colors"
           >
             Reload
           </Link>
