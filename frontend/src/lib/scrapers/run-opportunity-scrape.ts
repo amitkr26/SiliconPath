@@ -161,7 +161,7 @@ export async function runOpportunityScrape(): Promise<OpportunityScrapeResult> {
           apply_url: opp.apply_link || normalizedUrl,  // renamed: apply_link → apply_url
           source_url: normalizedUrl,
           tags: opp.tags,
-          verification_status: "unverified", // P0.2: never fabricate `verified`; link-check pipeline verifies
+          verification_status: "pending", // FIX #16: "unverified" violates live CHECK constraint (only pending/verified/rejected/expired/link_unavailable are valid); the verification pipeline should move pending → verified
           is_active: true,
           source_type: "scraped",
         },

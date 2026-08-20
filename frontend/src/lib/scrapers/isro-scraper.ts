@@ -101,7 +101,7 @@ export async function scrapeISRO(): Promise<ScrapedOpportunity[]> {
       const href = linkEl.attr("href") || "";
       const linkText = linkEl.text().trim();
 
-      const title = (linkText || text.split("\n")[0].trim()).replace(/\s+/g, " ").trim();
+      const title = (linkText || text.split("\n")[0].trim()).replace(/\s+/g, " ").replace(/\s*Read More\s*$/i, "").trim(); // FIX #17: ISRO page redesign appends " Read More" to every title
       if (!title || title.length < 15) return;
       if (title.includes("Home") || title.includes("Contact") || title.includes("Sitemap")) return;
       if (isResultOrNotice(title)) return;
