@@ -14,10 +14,15 @@ Verified against the live setup 2026-08-19.
   https://berojgardegreewala-backend.onrender.com (Render web service, auto-deploy
   on push to main; currently `free` plan — sleeps after ~15 min idle, first request
   after idle can take a few seconds).
+- AI (LIVE since 2026-08-20, Phase 6.6): `POST /api/v1/ai/summarize` (Bearer JWT) →
+  200, provider groq / model `qwen/qwen3.6-27b`; telemetry in db1 `ai_usage_log`.
+  Frontend `/api/ai/summarize` verified 200 on the production site.
 - Cron: Vercel cron log for `/api/cron/scrape-opportunities`, `/api/cron/check-links`, `/api/news/sync`.
-- Render cron `news-sync` (06:00 UTC): NOT created — blocked on billing card
-  (KNOWN_ISSUES #14). Manual fallback: `GET /api/v1/cron/news-sync` with the
-  `CRON_SECRET` bearer.
+- Render cron `news-sync` (06:00 UTC): NOT created — re-verified 2026-08-20 still
+  blocked on billing (KNOWN_ISSUES #14: workspace has no payment info; create →
+  402). Manual fallback: `GET /api/v1/cron/news-sync` with the `CRON_SECRET`
+  bearer. Worker entrypoint verified in production mode (2026-08-20): exit 0,
+  idempotent (0 inserts / 0 duplicates on re-run), news_articles stable at 285.
 
 ### Dashboards & Alerting
 - Vercel dashboard + runtime logs for the deployed app; Supabase dashboard for DB1/DB2.
@@ -50,15 +55,18 @@ Verified against the live setup 2026-08-19.
 4. **Communicate**: Status page / in-app notice
 5. **Post-mortem**: Document root cause and prevention (CHANGELOG entry)
 
-### Render deployment (backend/server) — owner steps to finish (2026-08-20)
-1. Add a billing card: https://dashboard.render.com/billing (unblocks the cron job
-   and the `starter` plan upgrade; web service currently runs on `free`).
+### Render deployment (backend/server) — owner steps to finish (2026-08-20, re-verified Phase 6.6)
+1. Add a billing card to the **Amitkr26** workspace: https://dashboard.render.com/billing
+   (still missing as of the 2026-08-20 re-verify — `GET /v1/owners` shows no payment
+   info; unblocks the cron job and the `starter` plan upgrade; web service currently
+   runs on `free`).
 2. Create the `news-sync` cron job from `render.yaml` (schedule `0 6 * * *`,
    command `node --import tsx backend/worker/dist/index.js news`) — or re-run the
-   blueprint; the API path is `POST /v1/services` with `type: cron_job`.
+   blueprint; the API path is `POST /v1/services` with `type: cron_job` (this exact
+   payload returned 402 while billing is missing — the config itself is valid).
 3. Optional: bump the web service to `starter` to match render.yaml.
 4. Re-verify: `/health`, `/health/ready`, one cron run (idempotent — re-runs
-   insert 0).
+   insert 0; the worker entrypoint already exits 0 in production mode).
 
 ## Backup Recovery
 
@@ -87,9 +95,10 @@ Verified against the live setup 2026-08-19.
   `vercel deploy --prod` races the git deploy and must not be used
 
 ### Backend (backend/server)
-- Not deployed (production-ready since 2026-08-19 — Phase 5). Self-host via Docker
-  (`backend/server/Dockerfile`, non-root + HEALTHCHECK) if needed; the API boots with
-  empty env, DB routes return 503 until keys are set. Deployment decision: KNOWN_ISSUES #0.
+- LIVE since 2026-08-20 (Phase 6.5) on Render — https://berojgardegreewala-backend.onrender.com,
+  auto-deploy on push to main, `free` plan. Docker (`backend/server/Dockerfile`,
+  non-root + HEALTHCHECK); the API boots with empty env, DB routes return 503 until
+  keys are set. AI route verified 200 (Phase 6.6). Deployment decision: KNOWN_ISSUES #0 (closed).
 
 ### Deployment Checklist
 - [ ] All tests passing (104 frontend jest + 97 api jest + 15 ai-gateway jest + 46 server node:test + 9/9 Playwright)

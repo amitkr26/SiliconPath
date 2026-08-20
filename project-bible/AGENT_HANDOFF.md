@@ -1,11 +1,11 @@
 # Multi-Agent Handoff Document (Antigravity ⇋ OpenCode)
 
 ```text
-HANDOFF_VERSION: 1.4.0
+HANDOFF_VERSION: 1.5.0
 TIMESTAMP: 2026-08-20
 CURRENT_AGENT: OpenCode
 NEXT_AGENT: OpenCode / Antigravity (shared continuation contract)
-TASK_STATUS: Phase 6.5 PARTIAL — backend DEPLOYED to Render (web service live at https://berojgardegreewala-backend.onrender.com, auto-deploy on push; `free` plan — `starter` rejected 402, workspace lacks a billing card). Production verification: /health + /health/ready 200; smoke suite (opportunities/news/organizations/search/404-envelope/CORS/admin-guard/JWT-auth) green after fixing db1 schema drift (commit 37ce7cc: organizations.website, news_articles source_name/url, news/[slug] → news_articles); cron news-sync production run: 12 feeds attempted, 8 OK, 58 rows inserted, re-runs insert 0 (news_articles stable at 280); Vercel cron unchanged (production owner); production E2E 9/9 (residue cleaned). BLOCKED: Render cron job (billing, KNOWN_ISSUES #14 — owner adds card then creates cron from render.yaml) and AI smoke (502 AI_UNAVAILABLE — Groq retired llama-3.1-8b-instant; KNOWN_ISSUES #15, one-line shared-gateway fix awaiting owner approval). Remote 500955d (parallel phase 6a) integrated 2026-08-19: OpenAPI re-scoped to backend /api/v1, redundant worker-local files removed.
+TASK_STATUS: Phase 6.6 PARTIAL — AI FIXED + verified (Groq model → qwen/qwen3.6-27b, commit b32f3d7; backend /api/v1/ai/summarize 200 provider=groq model=qwen/qwen3.6-27b; telemetry row success=true, no credentials; frontend /api/ai/summarize 200 with real summary). Worker exit-hang FIXED (root cause: TLSSocket keep-alive from aborted feed bodies held the process open after the summary printed; fix: flush + process.exit(code), commit c7928ed — exit-code contract 0/1/2 preserved) and the worker entrypoint executed in production mode: Run A inserted 5 rows (news_articles 280 → 285, created_at 05:55 UTC, is_active=true), Run B exit 0, fetched 92 / inserted 0 / duplicates 0 (idempotent; scrape_runs + scrape_sources persisted in db1) — KNOWN_ISSUES #12 CLOSED with the caveat that the Render cron itself has not run yet. Opportunity embed mapRow dropped slug/website (name-only) — FIXED commit 3edceff (live). Full regression: server 46/46, api 97/97, ai 15/15, worker 17/17, tsc × 4, backend builds, frontend build; production E2E 9/9 (residue cleaned). STILL BLOCKED: Render cron job (KNOWN_ISSUES #14) — re-verified 2026-08-20: POST /v1/services type cron_job → 402 Payment Required; GET /v1/owners/tea-d91n0jeq1p3s73c8k1vg → billingCheckState/paymentType/availablePlans all empty; only one workspace under the API key. The card has NOT landed on the Amitkr26 workspace. Vercel cron remains production owner (unchanged).
 ```
 
 ---
