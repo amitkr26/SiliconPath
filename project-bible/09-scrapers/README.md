@@ -96,8 +96,18 @@ first run ingested **58 new `news_articles` rows** (12 feeds attempted, 8
 succeeded — Chip Design Magazine, The Electronics Media, The Register - Hardware,
 Science Daily - Electronics failed at feed level), second and third runs
 scraped 92 items each and inserted **0** (idempotent upsert, no duplicates);
-`news_articles` total stable at 280. The **worker process itself** has not run in
-production — the Render cron job is blocked on workspace billing (KNOWN_ISSUES
-#14). Vercel cron `/api/news/sync` (06:00 UTC) remains the production owner;
-DB evidence of its daily runs: 08-14 (43 rows), 08-15 (31), 08-16 (1); none on
-08-17/18/19 (all-duplicate or missed runs — unverified).
+`news_articles` total stable at 280.
+
+**Worker production evidence (2026-08-20, Phase 6.6):** the worker entrypoint
+itself (`backend/worker/dist/index.js news` — the exact command render.yaml
+configures for the cron) executed twice in production mode against the live DB:
+Run A inserted **5 rows** (280 → 285; `created_at` 05:55 UTC, `is_active` true,
+Electronics Weekly items), Run B exited **0** with fetched 92 / parsed 92 /
+accepted 92 / inserted 0 / duplicates 0 / failed 4 — count stable at 285 across
+3+ re-runs (URL-uniqueness idempotency proven). Run health persisted to
+`scrape_runs` + `scrape_sources` (db1). Same 4 feeds fail at feed level as in
+Phase 6.5. KNOWN_ISSUES #12 closed with this evidence; caveat: the Render cron
+itself is still pending billing (#14). Vercel cron `/api/news/sync` (06:00 UTC)
+remains the production owner; DB evidence of its daily runs: 08-14 (43 rows),
+08-15 (31), 08-16 (1); none on 08-17/18/19 (all-duplicate or missed runs —
+unverified).

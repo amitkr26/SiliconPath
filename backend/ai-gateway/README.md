@@ -8,7 +8,7 @@ Centralized AI Provider Abstraction Layer & Fallback Engine for BerojgarDegreeWa
 ## Optimal AI Provider Fallback Chain
 
 ```text
-1. Groq (llama-3.1-8b-instant / ~800 tokens/sec ultra-fast)
+1. Groq (qwen/qwen3.6-27b — 2026-08-20; was llama-3.1-8b-instant, retired by Groq) / ~800 tokens/sec ultra-fast)
    └─► 2. Gemini 1.5 Flash (Google AI Studio)
          └─► 3. OpenRouter (Meta Llama 3.1 8B Instruct / Free)
                └─► 4. NVIDIA NIM (meta/llama-3.1-8b-instruct)

@@ -1,6 +1,6 @@
 # AI Architecture
 
-> Last reconciled: 2026-08-19
+> Last reconciled: 2026-08-20 (groq model updated to qwen/qwen3.6-27b, verified live)
 
 ## Overview
 
@@ -12,7 +12,7 @@ All AI calls pass through a single gateway: workspace package `@berojgardegreewa
 
 | Provider | Model | Env |
 |---|---|---|
-| groq | llama-3.1-8b-instant | GROQ_API_KEY |
+| groq | qwen/qwen3.6-27b (2026-08-20; was llama-3.1-8b-instant — retired by Groq) | GROQ_API_KEY |
 | gemini | gemini-1.5-flash | GEMINI_API_KEY |
 | openrouter | meta-llama/llama-3.1-8b-instruct:free | OPENROUTER_API_KEY |
 | nvidia | meta/llama-3.1-8b-instruct | NVIDIA_NIM_API_KEY |

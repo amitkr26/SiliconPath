@@ -97,15 +97,23 @@ skip, preferred-model reorder, systemPrompt, generateAdvanced, telemetry success
 suite caught: a throwing usage-logger was treated as a provider failure — telemetry
 now runs through `safeLog` (best-effort, never breaks the response).
 
-## 12. No verified recent scraper production run (P3, evidence gap)
+## 12. No verified recent scraper production run (P3, evidence gap) — CLOSED 2026-08-20
 Scheduled Vercel crons exist (3: scrape-opportunities 00:00, check-links 08:00,
 news/sync 06:00) but the 2026-08-19 audit found no evidence of a recent successful
 run (no log/health confirmation in docs). Verify from Vercel cron logs or
 `/api/admin/scrape-health` and record the result.
 Partial evidence 2026-08-20: the backend production sync (`GET /api/v1/cron/news-sync`
 on the deployed Render service — same shared module as the worker) ingested 58 new
-`news_articles` rows and re-runs insert 0 (idempotent). The **worker process itself**
-has still not run in production — the Render cron job is blocked on billing (#14).
+`news_articles` rows and re-runs insert 0 (idempotent). **CLOSED 2026-08-20 (Phase
+6.6):** the worker entrypoint itself (`backend/worker/dist/index.js news` — the exact
+command render.yaml configures for the cron) executed twice in production mode against
+the live DB: Run A inserted 5 rows (news_articles 280 → 285, `created_at` 05:55 UTC,
+`is_active=true`), Run B exited **0** with fetched=92 / inserted=0 / duplicates=0
+(stable count at 285 across 3+ re-runs — URL-uniqueness idempotency proven). Run health
+persisted to `scrape_runs` + `scrape_sources` in db1. Caveat: executed locally in
+production mode, not via the Render cron — the cron itself is still blocked on billing
+(#14), so the run evidence is "worker executed + valid production data", not "Render
+cron executed".
 
 ## 13. Backend news-sync wrote to the wrong table (P1, FIXED 2026-08-19)
 `backend/server` cron route upserted into `news_archive` onConflict `slug` — that
@@ -117,18 +125,25 @@ onConflict `url` (unique in db1, verified), `ignoreDuplicates`, `is_active: true
 null-url rows never written. Covered by the worker suite
 (`backend/worker/tests/news-sync.test.ts`, 17 tests).
 
-## 14. Render cron job blocked — no billing card on the workspace (P2, owner action)
+## 14. Render cron job blocked — no billing card on the workspace (P2, owner action) — OPEN
 Creating the `news-sync` cron job fails with **402 Payment Required**: cron jobs
 require a paid plan and the Render workspace (`tea-d91n0jeq1p3s73c8k1vg`) has no
 payment method. Same 402 blocked the web service's `starter` plan — deployed on
-`free` instead (documented deviation from render.yaml). **Owner action:** add a
-card at https://dashboard.render.com/billing, then create the cron from
-`render.yaml` (or re-run the blueprint). Until then, daily news ingestion keeps
-running on the Vercel cron (`/api/news/sync`, 06:00 UTC — unchanged production
-owner) and the backend's `/api/v1/cron/news-sync` endpoint works as a manual
-fallback (verified 2026-08-20).
+`free` instead (documented deviation from render.yaml). **Re-verified 2026-08-20
+(Phase 6.6):** still blocked — `POST /v1/services` (type `cron_job`, runtime docker,
+schedule `0 6 * * *`, plan `starter`, command `node --import tsx backend/worker/dist/index.js news`,
+dockerfile `./backend/server/Dockerfile`, env SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY)
+returned 402; `GET /v1/owners/tea-d91n0jeq1p3s73c8k1vg` shows `billingCheckState`/
+`paymentType`/`availablePlans` all empty; the API key sees only this one workspace.
+The card has not landed on this workspace yet. **Owner action (unchanged):** add a
+card at https://dashboard.render.com/billing **to the Amitkr26 workspace**, then
+create the cron from `render.yaml` (or re-run the blueprint). Until then, daily news
+ingestion keeps running on the Vercel cron (`/api/news/sync`, 06:00 UTC — unchanged
+production owner); the backend `/api/v1/cron/news-sync` endpoint works as a manual
+fallback (verified 2026-08-20) and the worker entrypoint was additionally verified
+in production mode (see #12).
 
-## 15. AI 502 on Render backend — Groq retired `llama-3.1-8b-instant` (P2, config drift)
+## 15. AI 502 on Render backend — Groq retired `llama-3.1-8b-instant` (P2, config drift) — FIXED 2026-08-20
 Production AI smoke test on the deployed backend returns 502 `AI_UNAVAILABLE`
 (clean envelope, no leak). Root cause isolated: the GROQ key provisioned is
 **valid** (GET /models 200), but `backend/ai-gateway/src/gateway/index.ts`
@@ -136,6 +151,13 @@ Production AI smoke test on the deployed backend returns 502 `AI_UNAVAILABLE`
 (current: `qwen/qwen3.6-27b`, `openai/gpt-oss-120b`, `groq/compound`, ...) → the
 call 404s and the fallback chain exhausts. The frontend imports the same shared
 gateway (`frontend/src/lib/ai/providers.ts`), so frontend AI is affected too once
-it re-deploys. Fix (small, owner-approved): update the groq model id in
-`backend/ai-gateway` `PROVIDER_CONFIG` (e.g. `qwen/qwen3.6-27b`) and re-verify.
-Not changed during Phase 6.5 (out of the deployment-verification scope).
+it re-deploys. **FIXED 2026-08-20 (Phase 6.6, commit b32f3d7):** groq model id
+updated to `qwen/qwen3.6-27b` (verified present in the live Groq /v1/models list;
+same OpenAI-style chat-completions contract — model id only, no gateway/fallback
+changes; gateway tests updated). Verified live: backend `POST /api/v1/ai/summarize`
+→ **200** `{provider: "groq", model: "qwen/qwen3.6-27b"}`; telemetry row in db1
+`ai_usage_log` (`api-ai-summarize`, success=true, prompt_len 304 / resp_len 2698,
+no credentials in the row); frontend production `/api/ai/summarize` → **200** with a
+real summary (Vercel build includes the fixed gateway). Fallback chain unchanged
+(unit-covered: first-provider failure falls through; all-fail → controlled
+`AI_UNAVAILABLE`).

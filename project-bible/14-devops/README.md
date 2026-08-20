@@ -13,7 +13,7 @@ excluded).
 |---------|----------|---------|
 | Frontend + API routes | Vercel (Hobby, git integration) | Next.js 14 app; all `/api/*` routes run as serverless functions |
 | Backend API (LIVE) | Render web service (Docker, `backend/server/Dockerfile`) | Standalone Express REST API — https://berojgardegreewala-backend.onrender.com; `/health` + `/health/ready` verified 200; graceful SIGTERM shutdown; auto-deploy on push to main |
-| Scraper worker (BLOCKED) | Render cron job (same image, `node --import tsx backend/worker/dist/index.js news`) | Daily news RSS sync (06:00 UTC, mirrors the Vercel cron) — creation rejected (402, no billing card on the workspace; cron plans are paid). Owner action: add a card at https://dashboard.render.com/billing, then create the cron from render.yaml (KNOWN_ISSUES #14). |
+| Scraper worker (BLOCKED) | Render cron job (same image, `node --import tsx backend/worker/dist/index.js news`) | Daily news RSS sync (06:00 UTC, mirrors the Vercel cron) — creation rejected (402, re-verified 2026-08-20: workspace `tea-d91n0jeq1p3s73c8k1vg` still has NO payment info; cron plans are paid). Owner action: add a card to the **Amitkr26** workspace at https://dashboard.render.com/billing, then create the cron from render.yaml (KNOWN_ISSUES #14). The worker entrypoint itself is verified in production mode (exit 0, idempotent — KNOWN_ISSUES #12 closed with that evidence). |
 | DB1 | Supabase | Core platform data |
 | DB2 | Supabase | Social + user data |
 | Analytics | Neon (2 databases) | Analytics, logs, search cache |
@@ -22,9 +22,9 @@ excluded).
 | Error Tracking | Sentry | Error monitoring (`NEXT_PUBLIC_SENTRY_DSN`) |
 | Analytics | Plausible | Privacy-first analytics (CSP allowlist) |
 
-**Deployment notes (2026-08-20):** services were created via the Render API
-(`POST /v1/services`; the blueprint API has no create endpoint — 405). The
-committed `render.yaml` specifies `plan: starter`; Render rejected it with 402
+**Deployment notes (2026-08-20, Phase 6.5 + 6.6):** services were created via the
+Render API (`POST /v1/services`; the blueprint API has no create endpoint — 405).
+The committed `render.yaml` specifies `plan: starter`; Render rejected it with 402
 Payment Required because the workspace has no billing card, so the web service
 runs on `plan: free` (documented deviation — render.yaml keeps `starter`).
 Env vars were provisioned via the API with `secret: true` for the sensitive
@@ -32,8 +32,21 @@ values (service-role keys, admin/cron secrets, AI keys). Verified: `/health` and
 `/health/ready` 200; CORS (Vercel origin allowed, foreign blocked); admin
 `X-Admin-Password` guard 403/200; user JWT auth 200/401; `/api/v1/cron/news-sync`
 production run inserted 58 `news_articles` rows, subsequent runs insert 0
-(duplicate safety); production E2E 9/9. AI smoke test: 502 `AI_UNAVAILABLE` —
-Groq retired `llama-3.1-8b-instant` (KNOWN_ISSUES #15).
+(duplicate safety); production E2E 9/9. **Phase 6.6 (2026-08-20):** AI unblocked —
+`PROVIDER_CONFIG.groq.model` `llama-3.1-8b-instant` (retired by Groq) → `qwen/qwen3.6-27b`
+(verified in the live /v1/models list; commit b32f3d7); backend `/api/v1/ai/summarize`
+200 (provider=groq, model=qwen/qwen3.6-27b), telemetry row in db1 `ai_usage_log`
+(success, no credentials), frontend `/api/ai/summarize` 200. Worker entrypoint
+hang root-caused (keep-alive TLSSockets from aborted feed bodies) + fixed
+(force-exit after flush, commit c7928ed); production-mode runs: Run A +5 rows
+(280 → 285), Run B exit 0 / 0 inserts / 0 duplicates. Opportunity embed
+slug/website mapping fixed (commit 3edceff). **Render cron `news-sync` re-verified
+STILL BLOCKED** (KNOWN_ISSUES #14): `POST /v1/services` (`type: cron_job`, runtime
+docker, schedule `0 6 * * *`, plan `starter`, command `node --import tsx
+backend/worker/dist/index.js news`, dockerfile `./backend/server/Dockerfile`, env
+SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY) → **402**; `GET /v1/owners/tea-d91n0jeq1p3s73c8k1vg`
+→ `billingCheckState`/`paymentType`/`availablePlans` all empty (the card has not
+landed on the Amitkr26 workspace).
 
 **Worker architecture (Phase 6):** `backend/worker` (workspace
 `@berojgardegreewala/worker`) runs as its own process on a schedule; all ingestion
