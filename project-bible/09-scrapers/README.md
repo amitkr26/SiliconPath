@@ -60,7 +60,7 @@ All scraping runs inside the Next.js app: `frontend/src/lib/scrapers` (24 files,
 | `/api/scrapers/*` (14 handlers incl. run-all, [slug], per-scraper) | requireCronOrAdmin | individual scrapers / run-all |
 | `/api/scrape-sources` | verifyAdmin | source registry; `isSafePublicUrl` SSRF guard |
 
-## Backend worker (Phase 6, 2026-08-19) — news RSS migrated, rest deferred
+## Backend worker (Phase 6, 2026-08-19) — news RSS migrated, rest inventoried + deferred
 
 The first backend workload was extracted WITHOUT touching the frontend scrapers
 (replicate-never-move):
@@ -74,13 +74,17 @@ The first backend workload was extracted WITHOUT touching the frontend scrapers
   `node --import tsx dist/index.js news`. Writes per-run `scrape_runs` rows +
   `scrape_sources` health (name-keyed read-then-write, same contract as the
   frontend pipeline; no schema changes). Exit 0 when ≥1 feed succeeded, 1 when all
-  failed or the DB write failed. Structured JSON summary on stdout.
+  failed or the DB write failed. Structured JSON summary on stdout. NOT scheduled
+  anywhere (Phase 7 — no Render cron; independently runnable for testing/future use).
 - The backend cron route `/api/v1/cron/news-sync` now uses the same module (this
   FIXED a parity bug: it previously upserted `news_archive` onConflict `slug`).
-- **Not migrated (deliberate):** opportunity scrapers, ATS adapters, Scholarship
-  Roar feed, fabricated-postings path, deep-scraper — all stay in the frontend.
-  Vercel remains the production cron owner. The worker has no fabricated-data
-  path at all (all-feeds-fail ⇒ zero rows, covered by test).
+- **Full fleet inventory (Phase 7):** `project-bible/09-scrapers/REPLICA-MIGRATION-MATRIX.md`
+  — 21 modules + 14 API surfaces by type (RSS/custom HTTP/ATS/government/
+  institutional/search/other). News RSS = REPLICATED; opportunity scrapers, ATS
+  adapters, Scholarship Roar feed, fabricated-postings path, deep-scraper all stay
+  in the frontend — **do NOT copy them yet** (owner mandate Phase 7 §16; porting
+  deferred to a later phase). Vercel remains the production cron owner. The worker
+  has no fabricated-data path at all (all-feeds-fail ⇒ zero rows, covered by test).
 
 ## Scheduling
 
@@ -106,8 +110,9 @@ Electronics Weekly items), Run B exited **0** with fetched 92 / parsed 92 /
 accepted 92 / inserted 0 / duplicates 0 / failed 4 — count stable at 285 across
 3+ re-runs (URL-uniqueness idempotency proven). Run health persisted to
 `scrape_runs` + `scrape_sources` (db1). Same 4 feeds fail at feed level as in
-Phase 6.5. KNOWN_ISSUES #12 closed with this evidence; caveat: the Render cron
-itself is still pending billing (#14). Vercel cron `/api/news/sync` (06:00 UTC)
-remains the production owner; DB evidence of its daily runs: 08-14 (43 rows),
-08-15 (31), 08-16 (1); none on 08-17/18/19 (all-duplicate or missed runs —
-unverified).
+Phase 6.5. KNOWN_ISSUES #12 closed with this evidence. **Phase 7 (2026-08-20):**
+Render cron is NOT part of the architecture (#14 CLOSED as NOT REQUIRED/OUT OF
+SCOPE) — the worker is independently runnable, never scheduled on Render; Vercel
+cron `/api/news/sync` (06:00 UTC) remains the production owner; DB evidence of
+its daily runs: 08-14 (43 rows), 08-15 (31), 08-16 (1); none on 08-17/18/19
+(all-duplicate or missed runs — unverified).

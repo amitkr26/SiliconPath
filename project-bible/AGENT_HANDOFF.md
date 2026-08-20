@@ -1,11 +1,11 @@
 # Multi-Agent Handoff Document (Antigravity ⇋ OpenCode)
 
 ```text
-HANDOFF_VERSION: 1.5.0
+HANDOFF_VERSION: 1.6.0
 TIMESTAMP: 2026-08-20
 CURRENT_AGENT: OpenCode
 NEXT_AGENT: OpenCode / Antigravity (shared continuation contract)
-TASK_STATUS: Phase 6.6 PARTIAL — AI FIXED + verified (Groq model → qwen/qwen3.6-27b, commit b32f3d7; backend /api/v1/ai/summarize 200 provider=groq model=qwen/qwen3.6-27b; telemetry row success=true, no credentials; frontend /api/ai/summarize 200 with real summary). Worker exit-hang FIXED (root cause: TLSSocket keep-alive from aborted feed bodies held the process open after the summary printed; fix: flush + process.exit(code), commit c7928ed — exit-code contract 0/1/2 preserved) and the worker entrypoint executed in production mode: Run A inserted 5 rows (news_articles 280 → 285, created_at 05:55 UTC, is_active=true), Run B exit 0, fetched 92 / inserted 0 / duplicates 0 (idempotent; scrape_runs + scrape_sources persisted in db1) — KNOWN_ISSUES #12 CLOSED with the caveat that the Render cron itself has not run yet. Opportunity embed mapRow dropped slug/website (name-only) — FIXED commit 3edceff (live). Full regression: server 46/46, api 97/97, ai 15/15, worker 17/17, tsc × 4, backend builds, frontend build; production E2E 9/9 (residue cleaned). STILL BLOCKED: Render cron job (KNOWN_ISSUES #14) — re-verified 2026-08-20: POST /v1/services type cron_job → 402 Payment Required; GET /v1/owners/tea-d91n0jeq1p3s73c8k1vg → billingCheckState/paymentType/availablePlans all empty; only one workspace under the API key. The card has NOT landed on the Amitkr26 workspace. Vercel cron remains production owner (unchanged).
+TASK_STATUS: Phase 7 PASS — Backend replica validation complete. Vercel remains production (Next.js APIs + Vercel cron intact; no Vercel→Render dependency anywhere). Render is an independently deployed FREE-tier replica: `plan: free` web service only — the `crons:` section was REMOVED from render.yaml and KNOWN_ISSUES #14 is CLOSED as NOT REQUIRED / OUT OF SCOPE (Render cron is not part of the architecture; the 402 billing wall is moot). Deliverables: `backend/docs/BACKEND-PARITY-MATRIX.md` (136 production routes → 48 REPLICATED, 5 PARTIALLY REPLICATED, 28 CRON/WORKER on Vercel, ~55 frontend-internal — supersedes the stale FRONTEND-BACKEND-MAP.md) and `project-bible/09-scrapers/REPLICA-MIGRATION-MATRIX.md` (news RSS replicated; opportunity/ATS/govt fleet inventoried, porting explicitly deferred per owner mandate). Backend independence re-verified (no frontend runtime imports; Docker COPY frontend/package.json is build-time workspace resolution only). Full regression green: server 46/46, api 97/97, ai 15/15, worker 17/17, tsc × 4, backend builds, frontend build (exit 0). Production E2E 9/9 — root-caused the 2 flaky connection specs: a stale ACCEPTED connection left by the social-workflow spec (terminal state = connected, no spec cleans it; reset-test-social.mjs is unusable while #1's stale local key is unrotated) — deleted via the Management API pre-run and cleaned post-run. Live replica smoke: /health 200 (cold start 22.1s free-tier idle boot), /health/ready 200 (warm 1.7s), 10 protected endpoints → 401, cron news-sync → 403 (missing + wrong secret), public reads (news list + :slug, opportunities, organizations, search people/global, profiles/:username) all 200. Known differences documented: news list no live-RSS merge, applications PATCH no employer-status whitelist, profiles/:username username-only (no UUID/PATCH/view-increment), admin = stats only. Next phase candidate: port the first government/institutional opportunity scraper into backend/worker per the migration matrix priorities.
 ```
 
 ---
@@ -94,7 +94,7 @@ TASK_STATUS: Phase 6.6 PARTIAL — AI FIXED + verified (Groq model → qwen/qwen
   agentrouter→omnirouter→cloudflare→bedrock→huggingface, 10-min cooldown). Both jest;
   ai-gateway now has 15 tests (KNOWN_ISSUES #11 CLOSED). Note: omnirouter is
   env-guard-EXEMPT (localhost:20128 default) — always attempted; documented, keep.
-- `backend/server` = Express 4 on :8080, production-ready, NOT deployed. Full surface:
+- `backend/server` = Express 4 on :8080, production-ready, DEPLOYED (Render free web service). Full surface:
   /health + /health/ready, opportunities(+/:idOrSlug), profiles(me/:username),
   organizations(+/:slug), news(+/:slug), applications CRUD, saved-opportunities CRUD,
   ai/{chat,match,search,summarize,insights} (usage-logged, 502 AI_UNAVAILABLE on
@@ -116,11 +116,14 @@ TASK_STATUS: Phase 6.6 PARTIAL — AI FIXED + verified (Groq model → qwen/qwen
   `url` ignoreDuplicates, is_active true, null-url never written — the exact frontend
   `/api/news/sync` contract). Persists `scrape_runs` + `scrape_sources` health
   (name-keyed read-then-write; no schema changes). 17 node:test. No fabricated-data
-  path. Deployed as a Render cron job running the same Docker image (`render.yaml`).
-- **Remaining parity gaps**: scraper fleet port beyond news RSS (Phase 7 candidate:
-  opportunity scrapers via the worker + scrape_sources registry, DEFERRED — port news
-  only, then STOP), PATCH `/profiles/me`, `supabase2Admin` DB2 client unused, admin
-  breadth beyond /stats, academy/misc.
+  path. NOT scheduled on Render (Phase 7 — no Render cron; render.yaml is a free web
+  service only); independently runnable on demand for testing/future use.
+- **Remaining parity gaps** (tracked in `backend/docs/BACKEND-PARITY-MATRIX.md`,
+  Phase 7): scraper fleet port beyond news RSS — inventory in
+  `project-bible/09-scrapers/REPLICA-MIGRATION-MATRIX.md`, porting explicitly DEFERRED
+  by owner mandate (next candidate: govt/institutional opportunity scrapers into the
+  worker), PATCH `/profiles/me`, `supabase2Admin` DB2 client unused, admin breadth
+  beyond /stats, academy/misc.
 - Server tests use node:test + a Proxy fake (`backend/server/tests/fake.ts`) — keep
   that pattern for new route tests. AI route tests stub global.fetch + GROQ_API_KEY
   with a 127.0.0.1 passthrough (never stub the test server's own requests). Worker
@@ -129,8 +132,9 @@ TASK_STATUS: Phase 6.6 PARTIAL — AI FIXED + verified (Groq model → qwen/qwen
 
 ### Documentation source of truth (post-reconciliation)
 - `project-bible/ARCHITECTURE.md` (CURRENT/TRANSITION/TARGET), `MASTER_INDEX.md`,
-  `IMPLEMENTATION_STATUS.md` (full feature matrix), `KNOWN_ISSUES.md` (13 issues),
-  `backend/docs/FRONTEND-BACKEND-MAP.md` + `API-PARITY.md` — reconciled 2026-08-19.
+  `IMPLEMENTATION_STATUS.md` (full feature matrix), `KNOWN_ISSUES.md` (15 issues),
+  `backend/docs/BACKEND-PARITY-MATRIX.md` (Phase 7 — authoritative; supersedes
+  FRONTEND-BACKEND-MAP.md) + `API-PARITY.md` — reconciled 2026-08-19/20.
 - Section READMEs (04–23) were rewritten 2026-08-19 by subagents with verified counts:
   138 API route files, 3 scheduled crons, 9 AI providers, 18 scraper modules, 4 DBs
   (2 Supabase + 2 Neon), 7 academy tracks, 104 frontend jest / 97 api jest / 15
@@ -139,11 +143,13 @@ TASK_STATUS: Phase 6.6 PARTIAL — AI FIXED + verified (Groq model → qwen/qwen
   19-prompts files, ADR-001) carry DEPRECATED/HISTORICAL status headers — do not edit
   their bodies to "modernize" them.
 
-### Known issues (2026-08-19)
-- #0 backend deployment DECISION MADE (Render Docker web + cron job, render.yaml, 2026-08-19) — deployment itself is an owner action (create service, set secrets, flip domain). NOT deployed.
-- #1 stale local Project 1 service-role key (owner action, 2 min fix; production unaffected).
+### Known issues (2026-08-19/20)
+- #0 backend deployment — DEPLOYED 2026-08-20 (Render free web service, Phase 6.5; render.yaml `plan: free` since Phase 7).
+- #1 stale local Project 1 service-role key (owner action, 2 min fix; production unaffected; also blocks reset-test-social.mjs).
 - #9 ci.yml rewritten (workspace names, backend job, node 22) — FIXED in code; close after first green CI run on the next push.
 - #10 `backend/api` `npm run openapi` — FIXED 2026-08-19 (generate-openapi.ts; spec re-scoped to backend `/api/v1` surface in 500955d).
 - #11 ai-gateway zero tests — CLOSED 2026-08-19 (15 tests; also fixed logFn-throw bug via safeLog).
-- #12 no verified recent production scraper run — verify via `/api/admin/scrape-health` or Vercel cron logs before claiming scrapers work (owner can also watch the Render cron's first run once deployed).
+- #12 worker production-run evidence — CLOSED 2026-08-20 (worker entrypoint executed in production mode: insert 5, re-run exit 0 / 0 duplicates).
 - #13 backend news-sync wrote to `news_archive` onConflict `slug` — FIXED 2026-08-19 (shared `content/news-sync.ts` → `news_articles` onConflict `url`).
+- #14 Render cron — CLOSED 2026-08-20 as NOT REQUIRED / OUT OF SCOPE (Phase 7: no Render cron in the architecture; Vercel cron owns production).
+- #15 Groq retired llama-3.1-8b-instant — FIXED 2026-08-20 (model → qwen/qwen3.6-27b, commit b32f3d7; verified live).

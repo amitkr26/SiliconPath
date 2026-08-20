@@ -5,9 +5,9 @@ Render web service **deployed and verified** on 2026-08-20 (Phase 6.5):
 `https://berojgardegreewala-backend.onrender.com` (auto-deploy on push to main).
 Evidence: `/health` 200, `/health/ready` 200, CORS Vercel/foreign, admin guard
 403/200, user JWT 200/401, `/api/v1/cron/news-sync` inserted 58 rows then 0 on
-re-run, production E2E 9/9. Two caveats tracked separately: created on `plan: free`
-(committed render.yaml says `starter` — rejected 402, no billing card; see #14) and
-the Render cron job does not exist yet (#14).
+re-run, production E2E 9/9. Caveat: created on `plan: free` — `render.yaml` says
+`free` since Phase 7; the earlier `starter` attempt was rejected 402 (no billing
+card) and is moot (#14 CLOSED — no paid Render infrastructure is required).
 
 ## 1. Stale Project 1 service-role key in credentials (P1, local-dev only)
 `siliconpath-credentials.txt` → `SUPABASE_SECRET_KEY` (Project 1 section) 401s
@@ -51,10 +51,19 @@ product decision, not a bug fix).
 Follows/connections/messages/feed posts between the canonical test accounts
 `amittest1@berojgardegreewala.com` (`56b47f8e-...`) and
 `amittest2@berojgardegreewala.com` (`9e55b282-...`) accumulate with each E2E run.
-(The legacy A/B accounts were deleted 2026-08-18 by `frontend/scripts/reset-users.mjs`
-— that script also deletes ALL auth users, so run it only when you intend to wipe
-everything.) Cleanup SQL in `E2E_TEST_STATUS.md`; `frontend/scripts/reset-test-social.mjs`
-does the same via the service-role key; re-run before any fresh verification.
+**2026-08-20 (Phase 7) root-cause confirmed:** the social-workflow spec leaves an
+**accepted** connection behind (A connects → B accepts → both connected is the
+test's terminal state) and no spec/suite hook removes it; a leftover accepted
+connection then makes the next run's `/network` suggestion cards and B's profile
+show no "Connect" button (two E2E specs fail with `element not found`). Fixed per
+run by deleting the rows via the Supabase Management API (db1-sql helper) before
+and after the suite. `frontend/scripts/reset-test-social.mjs` exists for this but
+is **currently unusable**: it builds its admin client from
+`frontend/.env.local`, whose `SUPABASE_SERVICE_ROLE_KEY` is the stale key from
+KNOWN_ISSUES #1 → the lookup silently returns zero users. Fix #1 (rotate the
+local key) un-breaks the script. Cleanup SQL: delete from `connections`
+(requester/addressee IN the two ids), `messages` (sender_id), `conversations`
+(participant_a/b), `feed_posts` (author_id).
 
 ## 7. Feed page has no comment UI (product gap, not a regression)
 Likes/comments counts render; comments are only POSTable via API. E2E covers the API
@@ -125,23 +134,16 @@ onConflict `url` (unique in db1, verified), `ignoreDuplicates`, `is_active: true
 null-url rows never written. Covered by the worker suite
 (`backend/worker/tests/news-sync.test.ts`, 17 tests).
 
-## 14. Render cron job blocked — no billing card on the workspace (P2, owner action) — OPEN
-Creating the `news-sync` cron job fails with **402 Payment Required**: cron jobs
-require a paid plan and the Render workspace (`tea-d91n0jeq1p3s73c8k1vg`) has no
-payment method. Same 402 blocked the web service's `starter` plan — deployed on
-`free` instead (documented deviation from render.yaml). **Re-verified 2026-08-20
-(Phase 6.6):** still blocked — `POST /v1/services` (type `cron_job`, runtime docker,
-schedule `0 6 * * *`, plan `starter`, command `node --import tsx backend/worker/dist/index.js news`,
-dockerfile `./backend/server/Dockerfile`, env SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY)
-returned 402; `GET /v1/owners/tea-d91n0jeq1p3s73c8k1vg` shows `billingCheckState`/
-`paymentType`/`availablePlans` all empty; the API key sees only this one workspace.
-The card has not landed on this workspace yet. **Owner action (unchanged):** add a
-card at https://dashboard.render.com/billing **to the Amitkr26 workspace**, then
-create the cron from `render.yaml` (or re-run the blueprint). Until then, daily news
-ingestion keeps running on the Vercel cron (`/api/news/sync`, 06:00 UTC — unchanged
-production owner); the backend `/api/v1/cron/news-sync` endpoint works as a manual
-fallback (verified 2026-08-20) and the worker entrypoint was additionally verified
-in production mode (see #12).
+## 14. Render cron job — NOT REQUIRED / OUT OF SCOPE (P2 → CLOSED 2026-08-20, Phase 7)
+Phase 7 decision: the project **does not require Render Cron**. Render is the
+standalone backend **replica**; Vercel remains production (Next.js APIs + Vercel
+cron own all production traffic). `render.yaml` no longer defines a `crons` section
+and its web service is `plan: free` — no billing card is needed on the workspace
+(`tea-d91n0jeq1p3s73c8k1vg`; the 402 from Phase 6.5/6.6 is moot — nothing on Render
+is paid). The replica's guarded `GET /api/v1/cron/news-sync` stays as a manual/parity
+trigger; the worker entrypoint (`backend/worker/dist/index.js news`) stays in the
+image, independently runnable for testing/future use (production-mode evidence: #12).
+**Status: CLOSED as NOT REQUIRED / OUT OF SCOPE — not a production blocker.**
 
 ## 15. AI 502 on Render backend — Groq retired `llama-3.1-8b-instant` (P2, config drift) — FIXED 2026-08-20
 Production AI smoke test on the deployed backend returns 502 `AI_UNAVAILABLE`
