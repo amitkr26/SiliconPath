@@ -15,7 +15,7 @@ export interface Opportunity {
   source_url: string | null;
   source_type: string | null;
   tags: string[] | null;
-  organization: { name: string } | null;
+  organization: { name: string; slug: string | null; website: string | null } | null;
   is_expired: boolean;
   created_at: string | null;
 }
@@ -46,7 +46,13 @@ function mapRow(row: any): Opportunity {
     source_url: row.source_url || null,
     source_type: row.source_type || null,
     tags: row.tags || null,
-    organization: row.organizations ? { name: row.organizations.name || row.organization } : null,
+    organization: row.organizations
+      ? {
+          name: row.organizations.name || row.organization,
+          slug: row.organizations.slug || null,
+          website: row.organizations.website || null,
+        }
+      : null,
     is_expired: !!deadline && !isNaN(Date.parse(deadline)) && new Date(deadline) < new Date(),
     created_at: row.created_at || null,
   };
