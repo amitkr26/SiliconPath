@@ -16,7 +16,7 @@ export type AIProvider = "bedrock" | "groq" | "nvidia" | "gemini" | "openrouter"
 
 export const PROVIDER_CONFIG: Record<AIProvider, { model: string; envKey: string; extraEnv?: string; costPer1kTokens?: number }> = {
   bedrock:     { model: "openai.gpt-oss-120b",              envKey: "AWS_BEARER_TOKEN_BEDROCK", costPer1kTokens: 0.003 },
-  groq:        { model: "llama-3.1-8b-instant",             envKey: "GROQ_API_KEY",              costPer1kTokens: 0 },
+  groq:        { model: "qwen/qwen3.6-27b",                 envKey: "GROQ_API_KEY",              costPer1kTokens: 0 },
   nvidia:      { model: "meta/llama-3.1-8b-instruct",       envKey: "NVIDIA_NIM_API_KEY",        costPer1kTokens: 0 },
   gemini:      { model: "gemini-1.5-flash",                 envKey: "GEMINI_API_KEY",            costPer1kTokens: 0.000075 },
   openrouter:  { model: "meta-llama/llama-3.1-8b-instruct:free", envKey: "OPENROUTER_API_KEY",  costPer1kTokens: 0 },
