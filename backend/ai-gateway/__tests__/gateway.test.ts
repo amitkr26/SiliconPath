@@ -94,7 +94,7 @@ describe("AI gateway — success path", () => {
     const gateway = freshGateway();
 
     const result = await gateway.generate({ messages: [MSG] }, "test-feature");
-    expect(result).toEqual({ text: "hello", provider: "groq", model: "llama-3.1-8b-instant" });
+    expect(result).toEqual({ text: "hello", provider: "groq", model: "qwen/qwen3.6-27b" });
     expect(calls[0]).toBe(URLS.groq);
     expect(calls).toHaveLength(1);
   });
@@ -127,7 +127,7 @@ describe("AI gateway — success path", () => {
     const gateway = freshGateway();
 
     const result = await gateway.generate({ messages: [MSG] }, "test-feature");
-    expect(result).toEqual({ text: "", provider: "groq", model: "llama-3.1-8b-instant" });
+    expect(result).toEqual({ text: "", provider: "groq", model: "qwen/qwen3.6-27b" });
   });
 });
 
