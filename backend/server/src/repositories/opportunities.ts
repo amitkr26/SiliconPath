@@ -52,7 +52,7 @@ function mapRow(row: any): Opportunity {
   };
 }
 
-const SELECT = "*, organizations(name, slug, website_url)";
+const SELECT = "*, organizations(name, slug, website)";
 
 export async function listOpportunities(
   client: SupabaseClient,

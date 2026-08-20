@@ -257,3 +257,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Express.js backend scraping service
 - Basic opportunity listing
 - Category filtering
+### Changed
+- **2026-08-20 -- Render deployment + deployed-schema fixes (Phase 6.5, part 1).** Backend deployed to Render as a web service (https://berojgardegreewala-backend.onrender.com, commit 45ed89f). Blueprint API does not support create (405); services created via POST /v1/services. starter plan rejected (402 -- workspace has no billing card): web service created on ree (documented deviation from render.yaml); Render cron job 
+ews-sync (06:00 UTC) BLOCKED on billing -- owner action: add card at https://dashboard.render.com/billing, then create the cron from render.yaml (or re-run the blueprint). Vercel cron remains the production owner (unchanged). Production smoke tests exposed real schema mismatches between the committed queries and db1 (all 500s, root cause column-name drift): ackend/server/src/repositories/opportunities.ts embedded organizations(name, slug, website_url) -- db1 column is website; ackend/server/src/repositories/content.ts selected website_url (same fix) and source, source_url from 
+ews_articles -- db1 has source_name, url (rows now mapped to the client shape source/source_url like the frontend); ackend/server/src/routes/content.ts GET /api/v1/news/:slug queried 
+ews_archive (db2-only table) -- now 
+ews_articles (parity with frontend /api/news/[slug]). Test updated: ackend/server/tests/parity.test.ts news-slug mock moved to 
+ews_articles. Server 46/46 green; re-deployed (auto-deploy) and re-verified.

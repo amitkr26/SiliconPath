@@ -56,13 +56,13 @@ export function newsRouter(deps: Deps): Router {
     try {
       if (!deps.supabaseAdmin) throw new AppError("Database not configured", 503, "DB_UNAVAILABLE");
       const { data, error } = await deps.supabaseAdmin
-        .from("news_archive")
-        .select("*")
+        .from("news_articles")
+        .select("id, slug, title, summary, source_name, url, image_url, published_at, tags")
         .eq("slug", req.params.slug)
         .maybeSingle();
       if (error) throw error;
       if (!data) throw new NotFoundError("Article not found");
-      res.json({ success: true, data });
+      res.json({ success: true, data: { ...data, source: data.source_name || "Official Source", source_url: data.url || "#" } });
     } catch (err) {
       next(err);
     }
