@@ -3,13 +3,16 @@
 ## Deployment
 
 Production is a single deployment: the Next.js frontend on Vercel, driven by git
-integration (push to `main` triggers an auto-deploy; ~15 min build). There is no
-Render deployment and the standalone backend (`backend/server`) is not deployed
-anywhere.
+integration (push to `main` triggers an auto-deploy; ~15 min build). The standalone
+backend (`backend/server`) is **ready to deploy, not yet deployed** — Phase 6
+decision (2026-08-19): **Render**, API as a Docker web service + the scraper worker
+as a Render cron job running the same image (`render.yaml`, secrets excluded).
 
 | Service | Provider | Purpose |
 |---------|----------|---------|
 | Frontend + API routes | Vercel (Hobby, git integration) | Next.js 14 app; all `/api/*` routes run as serverless functions |
+| Backend API (planned) | Render web service (Docker, `backend/server/Dockerfile`) | Standalone Express REST API; `/health` + `/health/ready`; graceful SIGTERM shutdown |
+| Scraper worker (planned) | Render cron job (same image, `node --import tsx backend/worker/dist/index.js news`) | Daily news RSS sync (06:00 UTC, mirrors the Vercel cron) |
 | DB1 | Supabase | Core platform data |
 | DB2 | Supabase | Social + user data |
 | Analytics | Neon (2 databases) | Analytics, logs, search cache |
@@ -18,14 +21,27 @@ anywhere.
 | Error Tracking | Sentry | Error monitoring (`NEXT_PUBLIC_SENTRY_DSN`) |
 | Analytics | Plausible | Privacy-first analytics (CSP allowlist) |
 
+**Worker architecture (Phase 6):** `backend/worker` (workspace
+`@berojgardegreewala/worker`) runs as its own process on a schedule; all ingestion
+logic lives in the shared library `backend/api/src/content/news-sync.ts` (also used
+by the server cron route). Vercel stays the production cron owner for the frontend
+routes; the backend cron route (`/api/v1/cron/news-sync`, CRON_SECRET-guarded) and
+the Render cron job are parallel, idempotent paths (upsert `news_articles` onConflict
+`url`). No queue/Redis/microservices — nothing proven necessary for one daily job.
+
 ## CI/CD
 
 - **Vercel** (`vercel.json`): buildCommand `cd frontend && npm run build`, output
   `frontend/.next`, framework nextjs. Three cron routes (UTC): `/api/cron/scrape-opportunities`
   (00:00), `/api/cron/check-links` (08:00), `/api/news/sync` (06:00).
-- **GitHub Actions** (`.github/workflows/`): `ci.yml` (typecheck + tests on push/PR to
-  main) and `security-scan.yml` (gitleaks). Note: `ci.yml` references legacy paths
-  (`packages/ai-gateway`, `berojgardegreewala/`) that no longer exist in this repo.
+- **GitHub Actions** (`.github/workflows/`): `ci.yml` (ai-gateway + backend
+  api/server/worker + frontend typecheck/test/build on push/PR to main — paths
+  FIXED 2026-08-19) and `security-scan.yml` (gitleaks).
+- **Docker** (2026-08-19): `.dockerignore` added (the build was copying the host's
+  node_modules — Windows junctions/win32 binaries broke the linux image);
+  base image `node:22-alpine` (supabase-js ≥2.110 needs native WebSocket; node:20
+  crashed at boot); `npm ci` must name the worker workspace explicitly (only
+  dependee workspaces get linked otherwise).
 - `[vercel skip]` in a commit message does NOT skip deploys (no Ignored Build Step
   configured on the Vercel project).
 - CLI `vercel deploy --prod` races the git-integration deploy and must not be used.

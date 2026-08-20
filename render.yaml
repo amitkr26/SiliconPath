@@ -1,17 +1,32 @@
-# render.yaml — Render Blueprint for SiliconPath backend
-# Deploy: https://dashboard.render.com/new?type=blueprint&repo=https://github.com/amitkr26/BerojgarDegreeWala
-# Or: render blueprint apply render.yaml
+# Render deployment for the standalone backend (Phase 6 deployment decision).
+#
+# Architecture (simplest option that meets the requirements — no queue, no
+# microservices, no Redis):
+#   - web service: the Express API, built from backend/server/Dockerfile.
+#     Health checks hit /health; Render sends SIGTERM on deploys, which the
+#     server handles gracefully (drain + exit).
+#   - cron job: the SAME Docker image runs the news worker entrypoint on a
+#     schedule (06:00 UTC daily, matching the frontend vercel.json schedule).
+#     The worker is its own process — it does not need CRON_SECRET (it IS the
+#     executor); the guarded server endpoint stays for Vercel-style triggers.
+#
+# Secrets are NOT committed here. Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
+# SUPABASE_2_URL, SUPABASE_2_SERVICE_ROLE_KEY, ADMIN_PASSWORD,
+# ADMIN_HMAC_SECRET, CRON_SECRET, ALLOWED_ORIGINS in the Render dashboard
+# (sync: false below).
 
 services:
   - type: web
-    name: siliconpath-api
-    runtime: node
-    plan: free
+    name: berojgardegreewala-backend
+    runtime: docker
     repo: https://github.com/amitkr26/BerojgarDegreeWala
-    branch: main
-    rootDir: .
+    dockerfilePath: ./backend/server/Dockerfile
+    dockerContext: .
+    plan: starter
     healthCheckPath: /health
     envVars:
+      - key: PORT
+        value: 8080
       - key: NODE_ENV
         value: production
       - key: SUPABASE_URL
@@ -24,15 +39,23 @@ services:
         sync: false
       - key: SUPABASE_2_SERVICE_ROLE_KEY
         sync: false
-      - key: ALLOWED_ORIGINS
-        value: "http://localhost:3000,https://berojgardegreewala.vercel.app,https://electrobridge.vercel.app"
       - key: ADMIN_PASSWORD
         sync: false
       - key: ADMIN_HMAC_SECRET
         sync: false
       - key: CRON_SECRET
         sync: false
-      - key: RATE_LIMIT_MAX
-        value: "120"
-    buildCommand: npm ci --workspace @berojgardegreewala/server --include-workspace-root && npm run build --workspace @berojgardegreewala/server
-    startCommand: node --import tsx backend/server/dist/server.js
+      - key: ALLOWED_ORIGINS
+        value: "http://localhost:3000,https://berojgardegreewala.vercel.app,https://electrobridge.vercel.app"
+
+crons:
+  - name: news-sync
+    schedule: "0 6 * * *"
+    dockerCommand: node --import tsx backend/worker/dist/index.js news
+    dockerfilePath: ./backend/server/Dockerfile
+    dockerContext: .
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false

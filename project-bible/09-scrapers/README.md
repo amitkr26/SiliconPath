@@ -60,6 +60,28 @@ All scraping runs inside the Next.js app: `frontend/src/lib/scrapers` (24 files,
 | `/api/scrapers/*` (14 handlers incl. run-all, [slug], per-scraper) | requireCronOrAdmin | individual scrapers / run-all |
 | `/api/scrape-sources` | verifyAdmin | source registry; `isSafePublicUrl` SSRF guard |
 
+## Backend worker (Phase 6, 2026-08-19) — news RSS migrated, rest deferred
+
+The first backend workload was extracted WITHOUT touching the frontend scrapers
+(replicate-never-move):
+
+- Shared ingestion logic now lives in **`backend/api/src/content/news-sync.ts`**
+  (12 news feeds, relevance filter, bounded fetch concurrency 4, retry policy 1+2
+  on network/5xx/429, run-level URL dedup, per-source execution contract,
+  `news_articles` upsert onConflict `url` ignoreDuplicates, `is_active: true`,
+  null-url rows never written — the exact frontend `/api/news/sync` contract).
+- **`backend/worker`** (`@berojgardegreewala/worker`) runs it as a process:
+  `node --import tsx dist/index.js news`. Writes per-run `scrape_runs` rows +
+  `scrape_sources` health (name-keyed read-then-write, same contract as the
+  frontend pipeline; no schema changes). Exit 0 when ≥1 feed succeeded, 1 when all
+  failed or the DB write failed. Structured JSON summary on stdout.
+- The backend cron route `/api/v1/cron/news-sync` now uses the same module (this
+  FIXED a parity bug: it previously upserted `news_archive` onConflict `slug`).
+- **Not migrated (deliberate):** opportunity scrapers, ATS adapters, Scholarship
+  Roar feed, fabricated-postings path, deep-scraper — all stay in the frontend.
+  Vercel remains the production cron owner. The worker has no fabricated-data
+  path at all (all-feeds-fail ⇒ zero rows, covered by test).
+
 ## Scheduling
 
 Only `/api/cron/scrape-opportunities` (daily 00:00 UTC) is scheduled in `vercel.json`; news sync via `/api/news/sync` (daily 06:00 UTC) — see `project-bible/07-api/README.md`. `cron/scrape-news`, `cron/scrape-india`, `cron/scrape-global`, `cron/digest`, `cron/cleanup`, `send-digest`, `sync-replica`, `archive-news`, `cleanup-news` exist as routes but are **not** scheduled.

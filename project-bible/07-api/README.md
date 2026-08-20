@@ -6,7 +6,7 @@
 
 The entire product API surface is the Next.js App Router under `frontend/src/app/api`. Measured 2026-08-19: **138 route handlers** (136 `route.ts` + 2 `route.tsx`). There is no separate backend API service; shared helpers (rate limiting, admin/cron auth guards, Zod validation, error/response helpers) live in the workspace package `@berojgardegreewala/api` (`backend/api/src`).
 
-The OpenAPI spec at `backend/api/openapi.json` documents a subset of this surface: **51 paths, 60 operations, 19 tags**, security schemes `BearerAuth` / `AdminAuth` / `CronAuth`. The runtime surface (138 handlers) is larger than the spec covers.
+The OpenAPI spec at `backend/api/openapi.json` documents the backend `/api/v1` surface (mirror of the frontend routes): **51 paths, 60 operations, 19 tags**, security schemes `BearerAuth` / `AdminAuth` / `CronAuth`; servers point at the Render backend, the Vercel frontend, and local. The runtime frontend surface (138 handlers) is larger than the spec covers. Regenerate with `npm run openapi --workspace @berojgardegreewala/api`.
 
 ## Route Inventory (measured 2026-08-19)
 

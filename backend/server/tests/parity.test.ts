@@ -1,5 +1,5 @@
 import { test, assert, testApp, withServer } from "./helpers.js";
-import { slugify } from "../src/services/news-sync.js";
+import { slugify } from "@berojgardegreewala/api/src/content/news-sync";
 
 const AUTH = { Authorization: "Bearer good-token" };
 

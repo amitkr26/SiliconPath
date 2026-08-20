@@ -4,6 +4,14 @@ import type { GatewayRequest, GatewayResponse } from "../types/gateway";
 const COOLDOWN_MS = 10 * 60 * 1000;
 const providerCooldowns: Record<string, number> = {};
 
+// Provider payloads are third-party JSON; undici's Response.json() returns
+// unknown. Accessors stay optional-chained (defensive) below.
+// ponytail: loose `any` cast — the strict alternative (per-provider zod
+// schemas) is a real upgrade path if provider payloads ever need validation.
+async function json(res: Response): Promise<any> {
+  return (await res.json()) as any;
+}
+
 export type AIProvider = "bedrock" | "groq" | "nvidia" | "gemini" | "openrouter" | "cloudflare" | "huggingface" | "agentrouter" | "omnirouter";
 
 export const PROVIDER_CONFIG: Record<AIProvider, { model: string; envKey: string; extraEnv?: string; costPer1kTokens?: number }> = {
@@ -134,7 +142,7 @@ export class AIGateway {
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) throw new Error(`AgentRouter error ${res.status}: ${await res.text()}`);
-    const data = await res.json();
+    const data = await json(res);
     return data.choices?.[0]?.message?.content || "";
   }
 
@@ -146,7 +154,7 @@ export class AIGateway {
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) throw new Error(`Bedrock error ${res.status}: ${await res.text()}`);
-    const data = await res.json();
+    const data = await json(res);
     return data.choices?.[0]?.message?.content ?? "";
   }
 
@@ -157,7 +165,7 @@ export class AIGateway {
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) throw new Error(`Gemini error: ${res.status}`);
-    const data = await res.json();
+    const data = await json(res);
     return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
   }
 
@@ -169,7 +177,7 @@ export class AIGateway {
       signal: AbortSignal.timeout(4000),
     });
     if (!res.ok) throw new Error(`Groq error: ${res.status}`);
-    const data = await res.json();
+    const data = await json(res);
     return data.choices?.[0]?.message?.content || "";
   }
 
@@ -181,7 +189,7 @@ export class AIGateway {
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) throw new Error(`NVIDIA NIM error ${res.status}: ${await res.text()}`);
-    const data = await res.json();
+    const data = await json(res);
     if (!data.choices?.[0]?.message?.content) throw new Error("NVIDIA NIM: empty response");
     return data.choices[0].message.content;
   }
@@ -194,7 +202,7 @@ export class AIGateway {
       signal: AbortSignal.timeout(4000),
     });
     if (!res.ok) throw new Error(`OpenRouter error: ${res.status}`);
-    const data = await res.json();
+    const data = await json(res);
     return data.choices?.[0]?.message?.content || "";
   }
 
@@ -206,7 +214,7 @@ export class AIGateway {
       signal: AbortSignal.timeout(4000),
     });
     if (!res.ok) throw new Error(`Cloudflare error: ${res.status}`);
-    const data = await res.json();
+    const data = await json(res);
     return data.result?.response || "";
   }
 
@@ -218,7 +226,7 @@ export class AIGateway {
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) throw new Error(`HuggingFace error: ${res.status}`);
-    const data = await res.json();
+    const data = await json(res);
     return Array.isArray(data) ? data[0]?.generated_text || "" : data.generated_text || "";
   }
 
@@ -237,7 +245,7 @@ export class AIGateway {
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) throw new Error(`OmniRouter error: ${res.status}`);
-    const data = await res.json();
+    const data = await json(res);
     return data.choices?.[0]?.message?.content || "";
   }
 }

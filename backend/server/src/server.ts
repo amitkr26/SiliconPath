@@ -23,18 +23,24 @@ const server = app.listen(env.port, "0.0.0.0", () => {
   console.log(`[server] ${env.nodeEnv} listening on :${env.port}`);
 });
 
-// Graceful shutdown — Render/K8s/Docker send SIGTERM before SIGKILL.
-// Drain in-flight requests before exiting.
-function shutdown(signal: string) {
+// Graceful shutdown (Render sends SIGTERM on deploy/restart): stop taking
+// new connections, finish in-flight requests, exit. Force-exit after 10s so
+// a stuck request can't hang a deploy.
+function shutdown(signal: string): void {
   // eslint-disable-next-line no-console
-  console.log(`[server] ${signal} received — shutting down`);
+  console.log(`[server] ${signal} received — draining connections`);
+  const force = setTimeout(() => {
+    // eslint-disable-next-line no-console
+    console.error("[server] forced exit after 10s");
+    process.exit(1);
+  }, 10_000);
+  force.unref();
   server.close(() => {
     // eslint-disable-next-line no-console
-    console.log("[server] closed");
+    console.log("[server] connections drained — exiting");
     process.exit(0);
   });
-  // Force-kill after 10 s if connections hang.
-  setTimeout(() => process.exit(1), 10_000).unref();
 }
+
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 process.on("SIGINT", () => shutdown("SIGINT"));
