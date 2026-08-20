@@ -10,7 +10,7 @@ export async function listOrganizations(
   const rangeFrom = (page - 1) * limit;
   const { data, error, count } = await client
     .from("organizations")
-    .select("id, name, slug, description, website_url, logo_url, location, is_verified", { count: "exact" })
+    .select("id, name, slug, description, website, logo_url, location, is_verified", { count: "exact" })
     .order("created_at", { ascending: false })
     .range(rangeFrom, rangeFrom + limit - 1);
   if (error) throw error;
@@ -23,7 +23,7 @@ export async function getOrganizationBySlug(
 ): Promise<any | null> {
   const { data, error } = await client
     .from("organizations")
-    .select("id, name, slug, description, website_url, logo_url, location, is_verified")
+    .select("id, name, slug, description, website, logo_url, location, is_verified")
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw error;
@@ -38,10 +38,16 @@ export async function listNews(
   const rangeFrom = (page - 1) * limit;
   const { data, error, count } = await client
     .from("news_articles")
-    .select("id, slug, title, summary, source, source_url, image_url, published_at, tags", { count: "exact" })
+    .select("id, slug, title, summary, source_name, url, image_url, published_at, tags", { count: "exact" })
     .eq("is_active", true)
     .order("published_at", { ascending: false })
     .range(rangeFrom, rangeFrom + limit - 1);
   if (error) throw error;
-  return { data: data || [], count: count ?? 0 };
+  // Map to the client shape the frontend uses (source/source_url aliases).
+  const rows = (data || []).map((row: any) => ({
+    ...row,
+    source: row.source_name || "Official Source",
+    source_url: row.url || "#",
+  }));
+  return { data: rows, count: count ?? 0 };
 }

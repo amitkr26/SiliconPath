@@ -154,13 +154,13 @@ test("parity: search finds opportunities and people", async () => {
 test("parity: news slug route returns 404 and resolves existing slugs", async () => {
   // NOTE: the fake client does not filter by .eq() — it returns the canned
   // rows, so "missing" is simulated with an empty table.
-  const empty = testApp({ news_archive: [] });
+  const empty = testApp({ news_articles: [] });
   await withServer(empty, async (base) => {
     const missing = await fetch(`${base}/api/v1/news/nope`);
     assert.equal(missing.status, 404);
   });
 
-  const app = testApp({ news_archive: [{ slug: "chip-news", title: "Chip News", summary: "s", source_name: "IEEE", url: "https://x.com", published_at: "2026-01-01T00:00:00Z", image_url: null, tags: ["chip"] }] });
+  const app = testApp({ news_articles: [{ slug: "chip-news", title: "Chip News", summary: "s", source_name: "IEEE", url: "https://x.com", published_at: "2026-01-01T00:00:00Z", image_url: null, tags: ["chip"] }] });
   await withServer(app, async (base) => {
     const found = await fetch(`${base}/api/v1/news/chip-news`);
     assert.equal(found.status, 200);
