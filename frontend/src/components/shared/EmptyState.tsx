@@ -20,13 +20,13 @@ export default function EmptyState({
     <div
       className={`flex flex-col items-center justify-center gap-4 py-16 px-6 text-center ${className}`}
     >
-      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[var(--surface-raised)] text-[var(--text-tertiary)]">
+      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-slate-100 border-2 border-slate-200 text-slate-500">
         {icon ?? <AlertCircle size={28} />}
       </div>
       <div className="space-y-1.5">
-        <h3 className="font-semibold text-[var(--text)] text-base">{title}</h3>
+        <h3 className="font-bold text-slate-900 text-base">{title}</h3>
         {description && (
-          <p className="text-sm text-[var(--text-secondary)] max-w-xs mx-auto">
+          <p className="text-sm text-slate-600 font-medium max-w-xs mx-auto">
             {description}
           </p>
         )}

@@ -11,6 +11,7 @@ import MessageThread from "@/components/MessageThread";
 import EmptyState from "@/components/shared/EmptyState";
 import { formatDistanceToNow } from "date-fns";
 import { supabase } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
 
 interface OtherUser {
   id: string;
@@ -126,28 +127,28 @@ export default function MessagesPage() {
 
   if (userLoading || convLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F6]">
+      <div className="min-h-screen flex items-center justify-center bg-bg-primary">
         <Loader2 size={32} className="animate-spin text-blue-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] py-6 px-4">
+    <div className="min-h-screen bg-bg-primary py-6 px-4">
       <div className="max-w-5xl mx-auto space-y-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white shadow-[2.5px_2.5px_0px_0px_#0F172A]">
+          <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white shadow-brutal-sm">
             <MessageCircle className="w-5 h-5 stroke-[2.5]" />
           </div>
           <div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">Direct Messages</h1>
-            <p className="text-xs text-slate-600 font-bold">Private messaging with hardware engineers &amp; researchers</p>
+            <p className="text-xs text-slate-600 font-medium">Private messaging with hardware engineers &amp; researchers</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4" style={{ height: "72vh" }}>
           {/* CONVERSATION LIST */}
-          <div className={`bg-white border-3 border-slate-900 rounded-2xl flex flex-col overflow-hidden shadow-[5px_5px_0px_0px_#0F172A] ${activeConv || targetUser ? "hidden md:flex" : "flex"}`}>
+          <div className={`bg-white border-2 border-slate-900 rounded-2xl flex flex-col overflow-hidden shadow-brutal ${activeConv || targetUser ? "hidden md:flex" : "flex"}`}>
             {/* SEARCH BAR */}
             <div className="p-3 border-b-2 border-slate-900 bg-slate-50">
               <div className="relative">
@@ -156,7 +157,7 @@ export default function MessagesPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search conversations..."
-                  className="w-full bg-white border-2 border-slate-900 text-slate-900 text-xs font-bold rounded-xl pl-9 pr-3 py-2 outline-none focus:shadow-[2px_2px_0px_0px_#0F172A] transition"
+                  className="w-full bg-white border-2 border-slate-900 text-slate-900 text-xs font-medium rounded-xl pl-9 pr-3 py-2 outline-none shadow-brutal-sm focus:border-accent focus:shadow-brutal transition"
                 />
               </div>
             </div>
@@ -173,7 +174,7 @@ export default function MessagesPage() {
                 <>
                   {targetUser && !activeConv && (
                     <div className="p-3 bg-blue-50 border-b-2 border-slate-900 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black text-xs flex items-center justify-center border border-slate-900">
+                      <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black text-xs flex items-center justify-center border-2 border-slate-900 shadow-brutal-sm">
                         {initials(targetUser.display_name)}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -190,11 +191,12 @@ export default function MessagesPage() {
                         setActiveConv(c.id);
                         setTargetUser(null);
                       }}
-                      className={`w-full flex items-start gap-3 p-3.5 text-left transition-colors ${
-                        activeConv === c.id ? "bg-blue-50 font-black border-l-4 border-blue-600" : "hover:bg-slate-50"
-                      }`}
+                      className={cn(
+                        "w-full flex items-start gap-3 p-3.5 text-left transition-colors",
+                        activeConv === c.id ? "bg-blue-50 font-black border-l-4 border-blue-600" : "hover:bg-slate-50",
+                      )}
                     >
-                      <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shrink-0 border border-slate-900 shadow-[1.5px_1.5px_0px_0px_#0F172A]">
+                      <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shrink-0 border-2 border-slate-900 shadow-brutal-sm">
                         {c.other_user?.avatar_url ? (
                           <Image src={c.other_user.avatar_url} alt="" width={40} height={40} className="w-10 h-10 rounded-xl object-cover" unoptimized />
                         ) : (
@@ -212,10 +214,10 @@ export default function MessagesPage() {
                               : ""}
                           </span>
                         </div>
-                        <p className="text-[11px] font-semibold text-slate-600 truncate mt-0.5">{c.last_message_preview}</p>
+                        <p className="text-[11px] font-medium text-slate-600 truncate mt-0.5">{c.last_message_preview}</p>
                       </div>
                       {c.unread_count > 0 && (
-                        <span className="bg-blue-600 text-white text-[10px] font-black rounded-full px-2 py-0.5 shrink-0 border border-slate-900">
+                        <span className="bg-blue-600 text-white text-[10px] font-black rounded-full px-2 py-0.5 shrink-0 border-2 border-slate-900">
                           {c.unread_count}
                         </span>
                       )}
@@ -227,7 +229,7 @@ export default function MessagesPage() {
           </div>
 
           {/* CHAT AREA */}
-          <div className={`bg-white border-3 border-slate-900 rounded-2xl flex flex-col overflow-hidden shadow-[5px_5px_0px_0px_#0F172A] ${activeConv || targetUser ? "flex" : "hidden md:flex"}`}>
+          <div className={`bg-white border-2 border-slate-900 rounded-2xl flex flex-col overflow-hidden shadow-brutal ${activeConv || targetUser ? "flex" : "hidden md:flex"}`}>
             {activeOtherUser ? (
               <>
                 {/* CHAT HEADER */}
@@ -242,7 +244,7 @@ export default function MessagesPage() {
                   >
                     <ArrowLeft size={18} />
                   </button>
-                  <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shrink-0 border border-slate-900 shadow-[1.5px_1.5px_0px_0px_#0F172A]">
+                  <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shrink-0 border-2 border-slate-900 shadow-brutal-sm">
                     {activeOtherUser.avatar_url ? (
                       <Image src={activeOtherUser.avatar_url} alt="" width={36} height={36} className="w-9 h-9 rounded-xl object-cover" unoptimized />
                     ) : (

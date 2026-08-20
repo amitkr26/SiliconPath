@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, Building2, MapPin, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
+import { Card } from "@/components/ui/Card";
+import OrganizationsClient from "./OrganizationsClient";
 
 export const metadata: Metadata = {
   title: "Organizations — BerojgarDegreeWala",
@@ -66,8 +67,6 @@ async function getOrganizations(): Promise<OrgItem[]> {
   return fetched.length > 0 ? fetched : FEATURED_ORGS;
 }
 
-import OrganizationsClient from "./OrganizationsClient";
-
 export default async function OrganizationsPage() {
   const organizations = await getOrganizations();
 
@@ -76,9 +75,9 @@ export default async function OrganizationsPage() {
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* HEADER */}
-        <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 sm:p-8 shadow-[6px_6px_0px_0px_#0F172A] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <Card className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-black uppercase text-blue-600 mb-1 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg shadow-[2px_2px_0px_0px_#0F172A]">
+            <div className="inline-flex items-center gap-2 text-xs font-black uppercase text-blue-600 mb-1 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg shadow-brutal-sm">
               <Sparkles className="w-4 h-4 stroke-[2.5]" />
               <span>OFFICIAL DIRECTORY</span>
             </div>
@@ -89,7 +88,7 @@ export default async function OrganizationsPage() {
               Explore active research labs, defense establishments (DRDO, ISRO, CSIR), IIT microelectronics centres, and global fabless/IDM giants.
             </p>
           </div>
-        </div>
+        </Card>
 
         {/* INTERACTIVE ORGANIZATIONS CLIENT */}
         <OrganizationsClient initialOrganizations={organizations} />

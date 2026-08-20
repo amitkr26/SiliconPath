@@ -15,6 +15,8 @@ import OpportunityDisclaimer from "@/components/OpportunityDisclaimer";
 import AIOpportunitySummary from "@/components/AIOpportunitySummary";
 import OpenToWorkBanner from "@/components/OpenToWorkBanner";
 import SaveShareBar from "@/components/opportunities/SaveShareBar";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 
 export const revalidate = 3600;
 
@@ -195,13 +197,13 @@ export default async function OpportunityDetailPage({ params }: Props) {
           )}
 
           {/* HEADER CARD */}
-          <div className="bg-surface border border-border rounded-xl p-6">
+          <Card className="p-6">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-accent text-sm font-bold">{getInitials(orgName || "BDW")}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <h1 className="font-display text-xl sm:text-2xl font-bold text-text-primary">{opportunity.title}</h1>
+                <h1 className="font-display text-xl sm:text-2xl font-black text-text-primary">{opportunity.title}</h1>
                 <p className="text-text-secondary text-sm mt-0.5">{orgName || "BerojgarDegreeWala"}</p>
                 <div className="flex items-center gap-2 mt-3 flex-wrap">
                   <CategoryBadge category={opportunity.category} />
@@ -224,7 +226,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
                 <LinkTypeIndicator type={opportunity.apply_link_type} />
               </div>
             )}
-          </div>
+          </Card>
 
           {/* DESCRIPTION */}
           {opportunity.description && (
@@ -232,7 +234,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
               <div className="flex items-start gap-3">
                 <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <h2 className="font-display text-lg font-bold text-text-primary mb-2">Description</h2>
+                  <h2 className="font-display text-lg font-black text-text-primary mb-2">Description</h2>
                   <p className="text-text-secondary text-sm leading-relaxed whitespace-pre-wrap">{opportunity.description}</p>
                 </div>
               </div>
@@ -245,7 +247,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
               <div className="flex items-start gap-3">
                 <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <h2 className="font-display text-lg font-bold text-text-primary mb-2">Eligibility</h2>
+                  <h2 className="font-display text-lg font-black text-text-primary mb-2">Eligibility</h2>
                   <ul className="space-y-2">
                     {eligibilityItems.map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-2 text-text-secondary text-sm">
@@ -317,7 +319,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
               <div className="flex items-start gap-3">
                 <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <h2 className="font-display text-lg font-bold text-text-primary mb-2">Key Responsibilities</h2>
+                  <h2 className="font-display text-lg font-black text-text-primary mb-2">Key Responsibilities</h2>
                   <ul className="space-y-2">
                     {opportunity.responsibilities.map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-2 text-text-secondary text-sm">
@@ -337,7 +339,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
               <div className="flex items-start gap-3">
                 <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <h2 className="font-display text-lg font-bold text-text-primary mb-2">Specific Requirements</h2>
+                  <h2 className="font-display text-lg font-black text-text-primary mb-2">Specific Requirements</h2>
                   <ul className="space-y-2">
                     {opportunity.requirements.map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-2 text-text-secondary text-sm">
@@ -357,12 +359,12 @@ export default async function OpportunityDetailPage({ params }: Props) {
               <div className="flex items-start gap-3">
                 <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <h2 className="font-display text-lg font-bold text-text-primary mb-2">Required Skills</h2>
+                  <h2 className="font-display text-lg font-black text-text-primary mb-2">Required Skills</h2>
                   <div className="flex flex-wrap gap-2">
                     {opportunity.skills_required.map((skill: string, i: number) => (
-                      <span key={i} className="px-2.5 py-1 bg-surface-elevated border border-border rounded-md text-text-secondary text-xs font-medium shadow-sm">
+                      <Badge key={i} tone="neutral">
                         {skill}
-                      </span>
+                      </Badge>
                     ))}
                   </div>
                 </div>
@@ -379,7 +381,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
                   <Link
                     key={tag}
                     href={`/opportunities?search=${tag}`}
-                    className="px-3 py-1 bg-surface border border-border rounded-full text-text-secondary text-xs hover:border-accent/50 hover:text-accent transition-colors"
+                    className="px-3 py-1 bg-white border-2 border-slate-900 rounded-full text-xs font-medium text-slate-700 hover:bg-blue-600 hover:text-white shadow-brutal-sm transition-colors"
                   >
                     {tag}
                   </Link>
@@ -407,7 +409,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
               href={opportunity.official_page_url || opportunity.apply_link || "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 border border-accent/40 text-accent bg-accent/5 font-semibold rounded-lg px-4 py-3 text-sm hover:bg-accent hover:text-bg-primary transition-all w-full shadow-sm"
+              className="inline-flex items-center justify-center gap-2 bg-white text-slate-900 border-2 border-slate-900 shadow-brutal hover:bg-blue-50 hover:text-accent hover:shadow-brutal-lg hover:-translate-y-0.5 font-black uppercase tracking-wide text-sm rounded-xl px-4 py-3 w-full transition-all"
             >
               <ExternalLink className="w-4 h-4" />
               Visit Official Organization Website
@@ -426,7 +428,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
             <OpenToWorkBanner />
 
             {/* Quick Facts Card */}
-            <div className="bg-surface-elevated border border-border rounded-xl p-4">
+            <Card tone="flat" className="p-4">
               <h3 className="font-display text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Quick Facts</h3>
               <div className="space-y-2.5">
                 {opportunity.location && (
@@ -458,7 +460,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
                   <span className="text-text-primary text-sm font-medium">{orgType}</span>
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
         </div>
       </div>
@@ -492,7 +494,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
             <Share2 className="w-4 h-4" /> Share
           </span>
         </div>
-        <div className="bg-surface-elevated border border-border rounded-xl p-4">
+        <div className="bg-white border-2 border-slate-900 rounded-2xl shadow-brutal p-4">
           <h3 className="font-display text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Quick Facts</h3>
           <div className="grid grid-cols-2 gap-3 text-xs">
             {opportunity.location && (

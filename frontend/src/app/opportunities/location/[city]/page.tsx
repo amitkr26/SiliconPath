@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowLeft, MapPin, Briefcase } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
 import OpportunityCard from "@/components/OpportunityCard";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
 interface Props {
   params: { city: string };
@@ -63,20 +65,20 @@ export default async function LocationPage({ params }: Props) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
 
-      <Link href="/opportunities" className="inline-flex items-center gap-1 text-[#94A3B8] hover:text-white transition-colors text-sm mb-6">
+      <Link href="/opportunities" className="inline-flex items-center gap-1 text-text-secondary hover:text-accent transition-colors text-sm mb-6 font-medium">
         <ArrowLeft className="w-4 h-4" />
         All Opportunities
       </Link>
 
       <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold text-white flex items-center gap-2">
-          <MapPin className="w-6 h-6 text-[#00E5FF]" />
+        <h1 className="font-display text-3xl font-black text-slate-900 flex items-center gap-2">
+          <MapPin className="w-6 h-6 text-blue-600" />
           Jobs in {cityName}
         </h1>
-        <p className="text-[#94A3B8] mt-2 text-sm">
+        <p className="text-slate-600 mt-2 text-sm font-medium">
           Semiconductor, VLSI, and Electronics Research positions located in {cityName}.
         </p>
-        <p className="text-[#00E5FF] text-sm mt-1 font-medium">
+        <p className="text-accent text-sm mt-1 font-bold">
           {opportunities.length} active {opportunities.length === 1 ? 'position' : 'positions'}
         </p>
       </div>
@@ -88,14 +90,16 @@ export default async function LocationPage({ params }: Props) {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 bg-[#1A2438] border border-[#1F2937] rounded-xl mb-12">
-          <Briefcase className="w-12 h-12 text-[#00E5FF]/30 mx-auto mb-3" />
-          <p className="text-[#94A3B8] text-lg mb-1">No active positions in {cityName} right now.</p>
-          <p className="text-[#94A3B8] text-sm">New positions are added daily. Check back soon.</p>
-          <Link href="/opportunities" className="inline-flex items-center gap-2 mt-4 bg-[#00E5FF] text-[#0B1120] font-semibold rounded-lg px-4 py-2 text-sm hover:bg-[#00E5FF]/90 transition-colors">
-            Browse All Locations
-          </Link>
-        </div>
+        <Card className="text-center py-12 mb-12">
+          <Briefcase className="w-12 h-12 text-blue-600/30 mx-auto mb-3" />
+          <p className="text-slate-900 text-lg font-bold mb-1">No active positions in {cityName} right now.</p>
+          <p className="text-slate-500 text-sm font-medium">New positions are added daily. Check back soon.</p>
+          <div className="mt-4 flex justify-center">
+            <Button href="/opportunities" variant="secondary">
+              Browse All Locations
+            </Button>
+          </div>
+        </Card>
       )}
     </div>
   );

@@ -6,7 +6,7 @@ import type { Opportunity } from "@/types";
 import nextDynamic from "next/dynamic";
 
 const OpportunityCard = nextDynamic(() => import("@/components/OpportunityCard"), {
-  loading: () => <div className="h-64 bg-white border-3 border-slate-900 rounded-2xl animate-pulse" />,
+  loading: () => <div className="h-64 bg-white border-2 border-slate-900 rounded-2xl animate-pulse" />,
 });
 
 const OpportunityRow = nextDynamic(() => import("@/components/OpportunityRow"), {
@@ -20,7 +20,10 @@ const FilterBar = nextDynamic(() => import("@/components/FilterBar"), {
 const SearchBar = nextDynamic(() => import("@/components/SearchBar"), {
   loading: () => <div className="h-12 bg-white border-2 border-slate-900 rounded-xl animate-pulse" />,
 });
-import { Loader2, ShieldCheck, EyeOff, Sparkles, X, Filter, LayoutGrid, List } from "lucide-react";
+import { Loader2, Sparkles, X, Filter, LayoutGrid, List } from "lucide-react";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 
 export default function OpportunitiesClient({ initialData }: { initialData: Opportunity[] }) {
   const searchParams = useSearchParams();
@@ -145,7 +148,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   }, [page, fetchOpportunities]);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8">
+    <div className="min-h-screen bg-bg-primary py-8">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* HEADER SECTION */}
@@ -155,14 +158,14 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
             <span>Verified Semiconductor &amp; VLSI Opportunities</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Jobs &amp; Opportunities</h1>
-          <p className="text-slate-600 mt-1 text-xs sm:text-sm font-bold">Browse 100% verified JRF, SRF, PhD admissions, DRDO, ISRO, CSIR, and premier VLSI industry roles.</p>
+          <p className="text-slate-600 mt-1 text-xs sm:text-sm font-medium">Browse 100% verified JRF, SRF, PhD admissions, DRDO, ISRO, CSIR, and premier VLSI industry roles.</p>
         </div>
 
         <div className="flex gap-8">
           
           {/* DESKTOP SIDEBAR FILTERS */}
           <aside className="hidden lg:block w-[280px] flex-shrink-0">
-            <div className="glass-premium rounded-2xl p-6 sticky top-20 z-10 border border-slate-200">
+            <div className="sticky top-20 z-10">
               <FilterBar
                 selectedCategory={category}
                 selectedEligibility={eligibility}
@@ -180,8 +183,8 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
           {showMobileFilters && (
             <div className="fixed inset-0 z-50 lg:hidden">
               <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={() => setShowMobileFilters(false)} />
-              <div className="absolute inset-y-0 right-0 w-[300px] bg-white border-l border-slate-200 shadow-2xl flex flex-col">
-                <div className="flex items-center justify-between p-4 border-b border-slate-200">
+              <div className="absolute inset-y-0 right-0 w-[300px] bg-white border-l-2 border-slate-900 shadow-brutal-lg flex flex-col">
+                <div className="flex items-center justify-between p-4 border-b-2 border-slate-900">
                   <h2 className="text-slate-900 font-bold text-base">Filter Opportunities</h2>
                   <button onClick={() => setShowMobileFilters(false)} className="text-slate-500 hover:text-slate-900">
                     <X className="w-5 h-5" />
@@ -199,10 +202,10 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                     onDeadlineChange={setDeadline}
                   />
                 </div>
-                <div className="p-4 border-t border-slate-200">
-                  <button onClick={() => setShowMobileFilters(false)} className="w-full py-2.5 btn-glow font-semibold rounded-xl text-sm">
+                <div className="p-4 border-t-2 border-slate-900">
+                  <Button onClick={() => setShowMobileFilters(false)} className="w-full">
                     Apply Filters
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -225,14 +228,14 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowMobileFilters(true)}
-                  className="lg:hidden inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors flex-1 justify-center shadow-2xs"
+                  className="lg:hidden inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl border-2 border-slate-900 bg-white text-slate-700 hover:bg-slate-50 transition-colors flex-1 justify-center shadow-brutal-sm"
                 >
                   <Filter className="w-4 h-4 text-blue-600" />
                   Filters
                 </button>
                 <button
                   onClick={() => setViewMode(viewMode === "card" ? "row" : "card")}
-                  className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs"
+                  className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border-2 border-slate-900 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-brutal-sm"
                   title="Toggle Grid / List View"
                 >
                   {viewMode === "card" ? <List className="w-4 h-4 text-blue-600" /> : <LayoutGrid className="w-4 h-4 text-blue-600" />}
@@ -244,20 +247,20 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
             {Object.keys(aiChips).length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
                 {Object.entries(aiChips).map(([key, value]) => (
-                  <span key={key} className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium border border-blue-200">
+                  <Badge key={key} tone="accent" className="pr-1">
                     <Sparkles className="w-3.5 h-3.5" />
                     {key}: {value}
-                    <button onClick={() => { const newChips = { ...aiChips }; delete newChips[key]; setAiChips(newChips); }} className="hover:text-blue-900 ml-1">
+                    <button onClick={() => { const newChips = { ...aiChips }; delete newChips[key]; setAiChips(newChips); }} className="hover:text-blue-100 ml-1">
                       <X className="w-3.5 h-3.5" />
                     </button>
-                  </span>
+                  </Badge>
                 ))}
               </div>
             )}
 
             {/* RELEVANT MATCH BANNER */}
             {search && matchInfo.type === "relevant" && (
-              <div className="mb-4 p-3.5 bg-blue-50 border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 flex items-center gap-2.5 shadow-[2px_2px_0px_0px_#0F172A]">
+              <div className="mb-4 p-3.5 bg-blue-50 border-2 border-slate-900 rounded-xl text-xs font-medium text-slate-900 flex items-center gap-2.5 shadow-brutal-sm">
                 <Sparkles className="w-4 h-4 text-blue-600 flex-shrink-0 stroke-[2.5]" />
                 <span>Showing relevant postings for <strong>&quot;{matchInfo.query}&quot;</strong> matching your search <strong>&quot;{search}&quot;</strong>.</span>
               </div>
@@ -272,21 +275,22 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
 
             {/* CONTENT GRID / LIST */}
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-200">
+              <Card tone="flat" className="flex flex-col items-center justify-center py-20">
                 <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
                 <p className="text-sm text-slate-600 font-medium">Loading live postings...</p>
-              </div>
+              </Card>
             ) : opportunities.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8">
+              <Card tone="flat" className="text-center py-16 p-8">
                 <p className="text-slate-900 font-bold text-lg mb-2">No matching opportunities found</p>
                 <p className="text-slate-500 text-sm max-w-md mx-auto mb-6">Try broadening your filter criteria or searching for different keywords.</p>
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => { setCategory("All"); setEligibility("All"); setLocation("All"); setDeadline("All"); setSearch(""); }}
-                  className="px-6 py-2.5 btn-glow text-xs font-semibold rounded-full"
+                  className="px-6 rounded-full"
                 >
                   Reset All Filters
-                </button>
-              </div>
+                </Button>
+              </Card>
             ) : viewMode === "card" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {opportunities.map((opp) => (
@@ -304,15 +308,15 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
             {/* LOAD MORE / PAGINATION */}
             {!loading && page < totalPages && (
               <div className="flex flex-col items-center gap-3 mt-10">
-                <button
+                <Button
                   onClick={() => setPage((p) => p + 1)}
                   disabled={loadingMore}
-                  className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black border-2 border-slate-900 rounded-xl shadow-[3px_3px_0px_0px_#0F172A] hover:-translate-y-0.5 transition-all disabled:opacity-60"
+                  size="lg"
                 >
                   {loadingMore ? <Loader2 className="w-4 h-4 animate-spin stroke-[2.5]" /> : <Sparkles className="w-4 h-4 stroke-[2.5]" />}
                   {loadingMore ? "Loading more..." : "Load More Opportunities"}
-                </button>
-                <p className="text-xs font-bold text-slate-500">
+                </Button>
+                <p className="text-xs font-semibold text-slate-500">
                   Showing page {page} of {totalPages} — {totalCount} verified opportunities
                 </p>
               </div>

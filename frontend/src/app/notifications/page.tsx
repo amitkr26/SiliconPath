@@ -14,6 +14,10 @@ import { ComingSoon } from "@/components/shared/ComingSoon";
 import { api } from "@/lib/api-client";
 import { useUser } from "@/hooks/useUser";
 import { useNotifications, useMarkNotificationsRead } from "@/hooks/useNotifications";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+import { cn } from "@/lib/utils";
 
 function getInitials(name: string): string {
   return name.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase();
@@ -66,7 +70,7 @@ export default function NotificationsPage() {
   });
 
   if (userLoading || notificationsLoading) {
-    return <div className="flex items-center justify-center min-h-[80vh]"><Loader2 className="w-8 h-8 text-accent animate-spin" /></div>;
+    return <div className="flex items-center justify-center min-h-[80vh] bg-bg-primary"><Loader2 className="w-8 h-8 text-accent animate-spin" /></div>;
   }
 
   if (!user) {
@@ -100,25 +104,26 @@ export default function NotificationsPage() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <Bell className="w-6 h-6 text-text-primary" />
-          <h1 className="font-display text-2xl font-bold text-text-primary">Notifications</h1>
+          <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white shadow-brutal-sm">
+            <Bell className="w-5 h-5" />
+          </div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Notifications</h1>
           {unreadCount > 0 && (
-            <span className="bg-accent text-text-inverted text-xs font-bold px-2 py-0.5 rounded-full">
-              {unreadCount}
-            </span>
+            <Badge tone="accent">{unreadCount}</Badge>
           )}
         </div>
         {unreadCount > 0 && (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => markAllRead.mutate()}
-            className="flex items-center gap-1 text-accent text-sm font-medium hover:underline"
           >
             <CheckCheck className="w-4 h-4" /> Mark all read
-          </button>
+          </Button>
         )}
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-2">
         {notifications.map((n: any) => {
           const Icon = TYPE_ICONS[n.type] || Bell;
           return (
@@ -126,39 +131,43 @@ export default function NotificationsPage() {
               key={n.id}
               href={getEntityLink(n)}
               onClick={() => !n.is_read && markOneRead.mutate(n.id)}
-              className={`flex items-start gap-3 p-4 rounded-xl transition-colors ${
-                n.is_read ? "opacity-60" : "bg-accent/5 border border-accent/10"
-              } hover:bg-surface`}
+              className={cn(
+                "flex items-start gap-3 p-4 rounded-2xl border-2 transition-all",
+                n.is_read
+                  ? "bg-white border-slate-200"
+                  : "bg-white border-slate-900 shadow-brutal-sm hover:shadow-brutal",
+                "hover:bg-slate-50",
+              )}
             >
               <div className="relative flex-shrink-0">
-                <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
-                  <span className="text-xs font-bold text-accent">
+                <div className="w-10 h-10 rounded-full bg-blue-50 border-2 border-slate-900 flex items-center justify-center">
+                  <span className="text-xs font-black text-blue-600">
                     {n.actor ? getInitials(n.actor.display_name || "") : "?"}
                   </span>
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-surface border border-border flex items-center justify-center">
-                  <Icon className="w-3 h-3 text-accent" />
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white border-2 border-slate-900 flex items-center justify-center">
+                  <Icon className="w-3 h-3 text-blue-600" />
                 </div>
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-text-primary text-sm">
-                  <span className="font-semibold">{n.actor?.display_name || "Someone"}</span>{" "}
+                <p className="text-slate-900 text-sm font-medium">
+                  <span className="font-bold">{n.actor?.display_name || "Someone"}</span>{" "}
                   {n.message || TYPE_LABELS[n.type] || "interacted with you"}
                 </p>
-                <p className="text-text-muted text-xs mt-0.5">
+                <p className="text-slate-500 text-xs mt-0.5 font-medium">
                   {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
                 </p>
               </div>
-              {!n.is_read && <div className="w-2 h-2 rounded-full bg-accent flex-shrink-0 mt-2" />}
+              {!n.is_read && <div className="w-2 h-2 rounded-full bg-blue-600 flex-shrink-0 mt-2" />}
             </Link>
           );
         })}
         {notifications.length === 0 && (
-          <div className="text-center py-16 text-text-secondary">
-            <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="font-medium">No notifications yet</p>
-            <p className="text-sm mt-1">When someone interacts with you, it will show up here</p>
-          </div>
+          <Card className="text-center py-16">
+            <Bell className="w-12 h-12 text-slate-400 mx-auto mb-3 opacity-40" />
+            <p className="text-slate-900 font-bold">No notifications yet</p>
+            <p className="text-slate-600 text-sm mt-1 font-medium">When someone interacts with you, it will show up here</p>
+          </Card>
         )}
       </div>
     </div>

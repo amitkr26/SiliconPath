@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Bookmark, Search, Trash2, ExternalLink, Loader2, ArrowLeft, Briefcase } from "lucide-react";
+import { Bookmark, Search, Trash2, ExternalLink, Loader2, Briefcase } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { toast } from "sonner";
 import Link from "next/link";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 
 interface SavedItem {
   id: string;
@@ -95,9 +98,9 @@ export default function SavedOpportunitiesPage() {
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* HEADER */}
-        <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 sm:p-8 shadow-[6px_6px_0px_0px_#0F172A] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <Card className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-400 text-slate-900 text-xs font-black rounded-lg border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-400 text-slate-900 text-xs font-black rounded-lg border-2 border-slate-900 shadow-brutal-sm">
               <Bookmark className="w-4 h-4 fill-slate-900 stroke-[2]" />
               <span>SAVED BOOKMARKS</span>
             </div>
@@ -109,13 +112,10 @@ export default function SavedOpportunitiesPage() {
             </p>
           </div>
 
-          <Link
-            href="/opportunities"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] transition-all flex items-center gap-1.5"
-          >
+          <Button href="/opportunities" size="sm" className="shrink-0">
             <Briefcase className="w-4 h-4" /> Explore All Opportunities
-          </Link>
-        </div>
+          </Button>
+        </Card>
 
         {/* SEARCH BAR */}
         {savedItems.length > 0 && (
@@ -126,45 +126,43 @@ export default function SavedOpportunitiesPage() {
               placeholder="Search saved opportunities by title or keyword..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-white border-3 border-slate-900 rounded-2xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 shadow-[4px_4px_0px_0px_#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full pl-11 pr-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 shadow-brutal-sm focus:outline-none focus:border-accent"
             />
           </div>
         )}
 
         {/* CONTENT GRID */}
         {savedItems.length === 0 ? (
-          <div className="bg-white border-3 border-slate-900 rounded-2xl p-12 text-center shadow-[6px_6px_0px_0px_#0F172A]">
+          <Card className="p-12 text-center">
             <Bookmark className="w-12 h-12 text-slate-300 mx-auto mb-3" />
             <h3 className="text-lg font-black text-slate-900">No saved opportunities yet</h3>
             <p className="text-slate-600 text-xs mt-1 mb-6">
               When you bookmark positions in the aggregator, they will appear here for easy reference and tracking.
             </p>
-            <Link
-              href="/opportunities"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] transition-all"
-            >
+            <Button href="/opportunities" size="md">
               <Search className="w-4 h-4" /> Browse Verified Opportunities
-            </Link>
-          </div>
+            </Button>
+          </Card>
         ) : filtered.length === 0 ? (
-          <div className="bg-white border-3 border-slate-900 rounded-2xl p-8 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+          <Card className="p-8 text-center">
             <p className="text-slate-600 text-xs font-semibold">No saved opportunities match your search query &apos;{searchQuery}&apos;.</p>
-          </div>
+          </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filtered.map((item) => {
               const opp = item.opportunities!;
               return (
-                <div
+                <Card
                   key={item.id}
-                  className="bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[5px_5px_0px_0px_#0F172A] flex flex-col justify-between space-y-4 hover:shadow-[7px_7px_0px_0px_#0F172A] transition-all"
+                  hover
+                  className="p-6 flex flex-col justify-between space-y-4"
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <span className="inline-block px-2.5 py-0.5 bg-blue-100 text-blue-800 text-[10px] font-black uppercase tracking-wider border border-blue-300 rounded-md mb-1.5">
+                        <Badge tone="accent" className="mb-1.5">
                           {opp.category || "JRF / Research"}
-                        </span>
+                        </Badge>
                         <h3 className="font-black text-base text-slate-900 leading-snug">{opp.title}</h3>
                         <p className="text-xs font-bold text-slate-600">{opp.organization || "India Semiconductor Initiative"}</p>
                       </div>
@@ -182,9 +180,9 @@ export default function SavedOpportunitiesPage() {
                     </p>
 
                     {opp.salary_range && (
-                      <p className="text-xs font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 inline-block">
+                      <Badge tone="success">
                         💰 {opp.salary_range}
-                      </p>
+                      </Badge>
                     )}
                   </div>
 
@@ -197,13 +195,13 @@ export default function SavedOpportunitiesPage() {
                       href={opp.apply_url || `/opportunities/${opp.slug || opp.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A] transition-all flex items-center gap-1.5"
+                      className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black border-2 border-slate-900 shadow-brutal-sm transition-all flex items-center gap-1.5"
                     >
                       <span>Apply Now</span>
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>

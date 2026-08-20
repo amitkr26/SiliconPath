@@ -9,6 +9,10 @@ import {
   Loader2, ArrowLeft, ArrowUp, MessageCircle, Send, ArrowUp as ArrowUpIcon
 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { cn } from "@/lib/utils";
 
 interface Comment {
   id: string;
@@ -97,7 +101,7 @@ export default function PostDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex items-center justify-center min-h-[60vh] bg-bg-primary">
         <Loader2 className="w-6 h-6 text-accent animate-spin" />
       </div>
     );
@@ -106,103 +110,111 @@ export default function PostDetailPage() {
   if (!post) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20 text-center">
-        <h1 className="font-display text-2xl font-bold text-text-primary mb-4">Post not found</h1>
-        <Link href="/community" className="text-accent hover:underline">Back to Community</Link>
+        <h1 className="text-2xl font-black text-slate-900 mb-4">Post not found</h1>
+        <Link href="/community" className="text-accent font-bold hover:underline">Back to Community</Link>
       </div>
     );
   }
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Link href="/community" className="inline-flex items-center gap-1 text-text-secondary hover:text-text-primary text-sm font-medium mb-6 transition-colors">
+      <Link href="/community" className="inline-flex items-center gap-1 text-slate-600 hover:text-slate-900 text-sm font-medium mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Community
       </Link>
 
-      <div className="bg-surface border border-border rounded-xl p-6 mb-6">
+      <Card className="p-6 mb-6">
         <div className="flex items-start gap-4">
           <button
             onClick={handleVote}
-            className={`flex flex-col items-center gap-0.5 min-w-[40px] pt-1 ${userVoted ? "text-accent" : "text-text-muted hover:text-accent"}`}
+            className={cn(
+              "flex flex-col items-center gap-0.5 min-w-[48px] py-2 border-2 rounded-xl transition-all",
+              userVoted
+                ? "bg-blue-600 text-white border-slate-900 shadow-brutal-sm"
+                : "bg-white text-slate-500 border-slate-900 hover:text-blue-600 hover:shadow-brutal-sm",
+            )}
           >
-            <ArrowUpIcon className={`w-6 h-6 ${userVoted ? "fill-accent" : ""}`} />
-            <span className="text-sm font-bold">{post.upvotes}</span>
+            <ArrowUpIcon className={`w-6 h-6 ${userVoted ? "fill-current" : ""}`} />
+            <span className="text-sm font-black">{post.upvotes}</span>
           </button>
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-7 h-7 rounded-full bg-accent/20 flex items-center justify-center">
-                <span className="text-accent text-xs font-bold">{getInitials(post.user_profiles?.display_name)}</span>
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <div className="w-7 h-7 rounded-full bg-blue-50 border-2 border-slate-900 flex items-center justify-center">
+                <span className="text-blue-600 text-xs font-black">{getInitials(post.user_profiles?.display_name)}</span>
               </div>
-              <span className="text-text-secondary text-sm">{post.user_profiles?.display_name || "Anonymous"}</span>
-              <span className="text-text-muted text-xs">·</span>
-              <span className="text-text-muted text-xs">{formatTimeAgo(post.created_at)}</span>
-              <span className="px-2 py-0.5 bg-accent/10 text-accent rounded text-xs border border-accent/30">{post.category}</span>
+              <span className="text-slate-600 text-sm font-semibold">{post.user_profiles?.display_name || "Anonymous"}</span>
+              <span className="text-slate-400 text-xs font-medium">·</span>
+              <span className="text-slate-400 text-xs font-medium">{formatTimeAgo(post.created_at)}</span>
+              <span className="px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-full border-2 border-slate-900 text-xs font-bold">
+                {post.category}
+              </span>
             </div>
-            <h1 className="font-display text-xl sm:text-2xl font-bold text-text-primary mb-3">{post.title}</h1>
-            <p className="text-text-secondary text-sm leading-relaxed whitespace-pre-wrap">{post.content}</p>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 mb-3">{post.title}</h1>
+            <p className="text-slate-700 text-sm font-medium leading-relaxed whitespace-pre-wrap">{post.content}</p>
             {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-4">
                 {post.tags.map(tag => (
-                  <span key={tag} className="px-2 py-0.5 bg-accent/5 text-accent rounded text-xs border border-accent/20">#{tag}</span>
+                  <span key={tag} className="px-2.5 py-0.5 bg-white text-slate-700 rounded-full border-2 border-slate-300 text-xs font-semibold">#{tag}</span>
                 ))}
               </div>
             )}
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Comments */}
-      <div className="bg-surface border border-border rounded-xl p-6">
-        <h2 className="font-display text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
-          <MessageCircle className="w-5 h-5 text-accent" />
+      <Card className="p-6">
+        <h2 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
+          <MessageCircle className="w-5 h-5 text-blue-600" />
           Comments ({post.comment_count})
         </h2>
 
         {/* Comment input */}
         {user ? (
           <div className="flex gap-2 mb-6">
-            <input
+            <Input
               value={commentText}
               onChange={e => setCommentText(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") handleComment(); }}
               placeholder="Write a comment..."
-              className="flex-1 bg-surface-elevated border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none"
+              className="flex-1"
             />
-            <button
+            <Button
               onClick={handleComment}
               disabled={commenting || !commentText.trim()}
-              className="flex items-center gap-1 bg-accent text-bg-primary rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent-hover disabled:opacity-50 transition-colors"
+              className="shrink-0"
+              ariaLabel="Post comment"
             >
               {commenting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            </button>
+            </Button>
           </div>
         ) : (
-          <div className="mb-6 p-3 bg-surface-elevated border border-border rounded-lg text-center">
-            <Link href="/login" className="text-accent text-sm hover:underline">Login to comment</Link>
+          <div className="mb-6 p-3 bg-slate-50 border-2 border-slate-900 rounded-xl text-center">
+            <Link href="/login" className="text-accent text-sm font-bold hover:underline">Login to comment</Link>
           </div>
         )}
 
         {/* Comment list */}
         {post.comments.length === 0 ? (
-          <p className="text-text-muted text-sm text-center py-6">No comments yet. Be the first to respond!</p>
+          <p className="text-slate-500 text-sm font-medium text-center py-6">No comments yet. Be the first to respond!</p>
         ) : (
           <div className="space-y-4">
             {post.comments.map(comment => (
-              <div key={comment.id} className="flex items-start gap-3 pb-4 border-b border-border/50 last:border-0">
-                <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-accent text-[10px] font-bold">{getInitials(comment.user_profiles?.display_name)}</span>
+              <div key={comment.id} className="flex items-start gap-3 pb-4 border-b-2 border-slate-100 last:border-0">
+                <div className="w-6 h-6 rounded-full bg-blue-50 border-2 border-slate-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-blue-600 text-[10px] font-black">{getInitials(comment.user_profiles?.display_name)}</span>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-text-primary text-xs font-medium">{comment.user_profiles?.display_name || "Anonymous"}</span>
-                    <span className="text-text-muted text-xs">{formatTimeAgo(comment.created_at)}</span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="text-slate-900 text-xs font-bold">{comment.user_profiles?.display_name || "Anonymous"}</span>
+                    <span className="text-slate-400 text-xs font-medium">{formatTimeAgo(comment.created_at)}</span>
                   </div>
-                  <p className="text-text-secondary text-sm">{comment.content}</p>
+                  <p className="text-slate-700 text-sm font-medium">{comment.content}</p>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }
