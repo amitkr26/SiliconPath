@@ -4,15 +4,16 @@
 
 Production is a single deployment: the Next.js frontend on Vercel, driven by git
 integration (push to `main` triggers an auto-deploy; ~15 min build). The standalone
-backend (`backend/server`) is **ready to deploy, not yet deployed** — Phase 6
-decision (2026-08-19): **Render**, API as a Docker web service + the scraper worker
-as a Render cron job running the same image (`render.yaml`, secrets excluded).
+backend (`backend/server`) is **DEPLOYED 2026-08-20 (Phase 6.5)** on Render:
+Phase 6 decision (2026-08-19) was **Render**, API as a Docker web service + the
+scraper worker as a Render cron job running the same image (`render.yaml`, secrets
+excluded).
 
 | Service | Provider | Purpose |
 |---------|----------|---------|
 | Frontend + API routes | Vercel (Hobby, git integration) | Next.js 14 app; all `/api/*` routes run as serverless functions |
-| Backend API (planned) | Render web service (Docker, `backend/server/Dockerfile`) | Standalone Express REST API; `/health` + `/health/ready`; graceful SIGTERM shutdown |
-| Scraper worker (planned) | Render cron job (same image, `node --import tsx backend/worker/dist/index.js news`) | Daily news RSS sync (06:00 UTC, mirrors the Vercel cron) |
+| Backend API (LIVE) | Render web service (Docker, `backend/server/Dockerfile`) | Standalone Express REST API — https://berojgardegreewala-backend.onrender.com; `/health` + `/health/ready` verified 200; graceful SIGTERM shutdown; auto-deploy on push to main |
+| Scraper worker (BLOCKED) | Render cron job (same image, `node --import tsx backend/worker/dist/index.js news`) | Daily news RSS sync (06:00 UTC, mirrors the Vercel cron) — creation rejected (402, no billing card on the workspace; cron plans are paid). Owner action: add a card at https://dashboard.render.com/billing, then create the cron from render.yaml (KNOWN_ISSUES #14). |
 | DB1 | Supabase | Core platform data |
 | DB2 | Supabase | Social + user data |
 | Analytics | Neon (2 databases) | Analytics, logs, search cache |
@@ -20,6 +21,19 @@ as a Render cron job running the same image (`render.yaml`, secrets excluded).
 | AI Providers | Groq, Gemini, NVIDIA, OpenRouter, Bedrock, Cloudflare, HuggingFace, AgentRouter, OmniRouter | LLM inference (`backend/ai-gateway`) |
 | Error Tracking | Sentry | Error monitoring (`NEXT_PUBLIC_SENTRY_DSN`) |
 | Analytics | Plausible | Privacy-first analytics (CSP allowlist) |
+
+**Deployment notes (2026-08-20):** services were created via the Render API
+(`POST /v1/services`; the blueprint API has no create endpoint — 405). The
+committed `render.yaml` specifies `plan: starter`; Render rejected it with 402
+Payment Required because the workspace has no billing card, so the web service
+runs on `plan: free` (documented deviation — render.yaml keeps `starter`).
+Env vars were provisioned via the API with `secret: true` for the sensitive
+values (service-role keys, admin/cron secrets, AI keys). Verified: `/health` and
+`/health/ready` 200; CORS (Vercel origin allowed, foreign blocked); admin
+`X-Admin-Password` guard 403/200; user JWT auth 200/401; `/api/v1/cron/news-sync`
+production run inserted 58 `news_articles` rows, subsequent runs insert 0
+(duplicate safety); production E2E 9/9. AI smoke test: 502 `AI_UNAVAILABLE` —
+Groq retired `llama-3.1-8b-instant` (KNOWN_ISSUES #15).
 
 **Worker architecture (Phase 6):** `backend/worker` (workspace
 `@berojgardegreewala/worker`) runs as its own process on a schedule; all ingestion

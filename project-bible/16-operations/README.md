@@ -10,8 +10,14 @@ Verified against the live setup 2026-08-19.
 
 ### Health Checks
 - Frontend: `GET /api/health` — checks db1/db2 (Supabase) and neon1/neon2 (Neon).
-- Backend: `GET /health` (backend/server) — no DB dependency, returns `{ status: "ok" }`.
+- Backend (LIVE since 2026-08-20): `GET /health` and `GET /health/ready` on
+  https://berojgardegreewala-backend.onrender.com (Render web service, auto-deploy
+  on push to main; currently `free` plan — sleeps after ~15 min idle, first request
+  after idle can take a few seconds).
 - Cron: Vercel cron log for `/api/cron/scrape-opportunities`, `/api/cron/check-links`, `/api/news/sync`.
+- Render cron `news-sync` (06:00 UTC): NOT created — blocked on billing card
+  (KNOWN_ISSUES #14). Manual fallback: `GET /api/v1/cron/news-sync` with the
+  `CRON_SECRET` bearer.
 
 ### Dashboards & Alerting
 - Vercel dashboard + runtime logs for the deployed app; Supabase dashboard for DB1/DB2.
@@ -43,6 +49,16 @@ Verified against the live setup 2026-08-19.
 3. **Respond**: Apply fix or roll back (Vercel dashboard, previous deployment)
 4. **Communicate**: Status page / in-app notice
 5. **Post-mortem**: Document root cause and prevention (CHANGELOG entry)
+
+### Render deployment (backend/server) — owner steps to finish (2026-08-20)
+1. Add a billing card: https://dashboard.render.com/billing (unblocks the cron job
+   and the `starter` plan upgrade; web service currently runs on `free`).
+2. Create the `news-sync` cron job from `render.yaml` (schedule `0 6 * * *`,
+   command `node --import tsx backend/worker/dist/index.js news`) — or re-run the
+   blueprint; the API path is `POST /v1/services` with `type: cron_job`.
+3. Optional: bump the web service to `starter` to match render.yaml.
+4. Re-verify: `/health`, `/health/ready`, one cron run (idempotent — re-runs
+   insert 0).
 
 ## Backup Recovery
 

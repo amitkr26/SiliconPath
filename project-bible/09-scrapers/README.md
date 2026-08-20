@@ -1,6 +1,6 @@
 # Scraper Architecture
 
-> Last reconciled: 2026-08-19
+> Last reconciled: 2026-08-20
 
 ## Overview
 
@@ -89,3 +89,15 @@ Only `/api/cron/scrape-opportunities` (daily 00:00 UTC) is scheduled in `vercel.
 ## Verification note
 
 A recent successful production scrape run was **not** verified during the 2026-08-19 audit (no evidence found). Daily-run status: UNKNOWN.
+
+**Production evidence (2026-08-20, Phase 6.5):** the deployed backend's
+`GET /api/v1/cron/news-sync` (Render, same shared module) ran successfully:
+first run ingested **58 new `news_articles` rows** (12 feeds attempted, 8
+succeeded — Chip Design Magazine, The Electronics Media, The Register - Hardware,
+Science Daily - Electronics failed at feed level), second and third runs
+scraped 92 items each and inserted **0** (idempotent upsert, no duplicates);
+`news_articles` total stable at 280. The **worker process itself** has not run in
+production — the Render cron job is blocked on workspace billing (KNOWN_ISSUES
+#14). Vercel cron `/api/news/sync` (06:00 UTC) remains the production owner;
+DB evidence of its daily runs: 08-14 (43 rows), 08-15 (31), 08-16 (1); none on
+08-17/18/19 (all-duplicate or missed runs — unverified).
