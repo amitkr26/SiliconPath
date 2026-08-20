@@ -163,3 +163,46 @@ no credentials in the row); frontend production `/api/ai/summarize` → **200** 
 real summary (Vercel build includes the fixed gateway). Fallback chain unchanged
 (unit-covered: first-provider failure falls through; all-fail → controlled
 `AI_UNAVAILABLE`).
+
+## 16. Production opportunity scraper silently inserts ZERO rows — `verification_status: "unverified"` violates the live CHECK constraint (P1, production, discovered Phase 8)
+The live `opportunities` table has `opportunities_verification_status_check`
+(`pending/verified/rejected/expired/link_unavailable`) — **`unverified` is NOT in
+the list**. The production pipeline `frontend/src/lib/scrapers/run-opportunity-scrape.ts`
+inserts `verification_status: "unverified"` for every scraped row, so **every insert
+fails the CHECK** and is silently counted as skipped. Evidence (db1, 2026-08-20):
+`max(created_at)` across the whole `opportunities` table = **2026-08-02** (18 days
+of zero inserts); verification_status distribution = 3240 verified / 29
+link_unavailable / 3 expired / **0 pending / 0 unverified**; a transaction-probe
+insert with `unverified` returns `23514 opportunities_verification_status_check`
+violation (rolled back, zero residue); the same probe with `pending` is **accepted**
+by the live CHECK. The Vercel cron `/api/cron/scrape-opportunities` (00:00) and the
+admin `/api/scrape` trigger are both affected. **Owner action required:** change
+`run-opportunity-scrape.ts` to write `pending` (the CONTENT_UPGRADE rename; the
+verification/link-check pipeline should then move `pending → verified`). **The Phase 8
+replica already writes `pending`** (the only CHECK-valid status) and is currently the
+only working opportunity-ingestion path.
+
+## 17. ISRO careers page redesign appends " Read More" to every title anchor — production ISRO scraper outputs 0 rows (P1, production, discovered Phase 8)
+Live probe of `https://www.isro.gov.in/Careers.html` (2026-08-20): every listing
+anchor's text ends with " Read More" (e.g. "…and Stenographers Read More"). The
+production scraper `frontend/src/lib/scrapers/isro-scraper.ts` sets `title =
+linkText` verbatim and then applies `GARBAGE_TITLE_PATTERNS` (which contains
+`read more`) — so **every row is filtered** and the ISRO source contributes 0
+opportunities. Consistent with #16's evidence (no new rows since Aug 2). **Owner
+action required:** strip the trailing " Read More" (or pick the title node, not the
+anchor text) in the frontend scraper. The Phase 8 replica mirrors this behavior
+exactly (parity — the title/normalization contract must not diverge unilaterally),
+so it also yields 0 insertable rows on the live page until the frontend fix lands;
+its insert/dedup/verification lifecycle is proven by deterministic tests and the
+live smoke (run 1 and run 2 both exit 0, 18 fetched / 0 inserted / 18 skipped, 0
+duplicates).
+
+## 18. GARBAGE_TITLE_PATTERNS `search` token matches inside "Research" — every Research listing is dropped (P2, production, discovered Phase 8)
+`GARBAGE_TITLE_PATTERNS` (shared `frontend/src/lib/scrapers/utils.ts`) contains
+the unanchored token `search`; the substring `search` appears inside **"Research"**,
+so any title containing "Research" (e.g. "Temporary Research Personnel",
+"Research Scientist/Research Assistant", "Project Associate - I" no, but Research
+roles yes) is garbage-filtered and skipped by the production pipeline. The Phase 8
+replica mirrors this exactly (parity, covered by test); fixing the regex (e.g.
+`\bsearch\b` or removing the token) is an owner/product decision on the frontend —
+the replica follows whatever the frontend ships.

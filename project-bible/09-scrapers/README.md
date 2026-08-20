@@ -86,6 +86,37 @@ The first backend workload was extracted WITHOUT touching the frontend scrapers
   deferred to a later phase). Vercel remains the production cron owner. The worker
   has no fabricated-data path at all (all-feeds-fail ⇒ zero rows, covered by test).
 
+## Phase 8 — first government scraper replica (ISRO)
+
+- **`backend/worker/src/scrapers/isro.ts`** replicates the production ISRO scraper
+  (`frontend/src/lib/scrapers/isro-scraper.ts`) as a pure parser
+  (`parseISROCareersHtml`) + dependency-injectable runner (`scrapeISRO`), with
+  the production normalization/dedup contract ported byte-identically
+  (`opportunity-utils.ts`, `org-resolve.ts`). Deliberate divergences (documented in
+  `backend/docs/BACKEND-PARITY-MATRIX.md`): TLS verification **on** (the frontend's
+  `NODE_TLS_REJECT_UNAUTHORIZED=0` hack is dropped), fail-loud on HTTP non-ok
+  (worker exit-1 contract), insert `verification_status: "pending"` (the only
+  CHECK-valid status — see KNOWN_ISSUES #16), health persistence uses the real
+  `scrape_sources` uuid (the frontend passes the source NAME string into a uuid
+  column — also silently broken).
+- Run: `npm run start:isro` or `node backend/worker/dist/index.js isro`. Idempotent
+  (dedup on `source_url` (orig + normalized) OR title ilike); inserts never set
+  `verified=true`; org resolved via host-label rule to db1 org `2b23230a-…` (ISRO).
+- **Production evidence (2026-08-20, Phase 8):** two live runs against the real
+  page — each fetched 18 / inserted 0 / duplicates 0 / skipped 18, exit 0.
+  Zero inserts is **honest parity**: the live page's anchors now end in " Read More",
+  which the production garbage filter (and therefore the replica) rejects
+  (KNOWN_ISSUES #17), and the `search` token inside "Research" drops Research roles
+  (KNOWN_ISSUES #18) — the production ISRO scraper also outputs 0 rows today. The
+  insert/dedup/verification lifecycle is proven by deterministic tests
+  (`tests/isro.test.ts`, 13 — incl. a frontend-vs-replica parity test on frozen
+  HTML) and by the live `pending` CHECK-constraint probe (accepted; rolled back,
+  zero residue). Scrape health persisted: `scrape_sources` ISRO row
+  (`bcd8749d-…`, consecutive_failures 0) + 2 success `scrape_runs`
+  (results_count 18 each) with the real source_id.
+- Next candidates (live-verified 200): DRDO (`drdo-scraper.ts`, 12 title/desc
+  pairs parsed), CSIR (`csir-scraper.ts`, sparser) — same porting recipe.
+
 ## Scheduling
 
 Only `/api/cron/scrape-opportunities` (daily 00:00 UTC) is scheduled in `vercel.json`; news sync via `/api/news/sync` (daily 06:00 UTC) — see `project-bible/07-api/README.md`. `cron/scrape-news`, `cron/scrape-india`, `cron/scrape-global`, `cron/digest`, `cron/cleanup`, `send-digest`, `sync-replica`, `archive-news`, `cleanup-news` exist as routes but are **not** scheduled.

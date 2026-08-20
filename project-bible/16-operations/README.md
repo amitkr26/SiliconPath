@@ -18,11 +18,25 @@ Verified against the live setup 2026-08-19.
   200, provider groq / model `qwen/qwen3.6-27b`; telemetry in db1 `ai_usage_log`.
   Frontend `/api/ai/summarize` verified 200 on the production site.
 - Cron: Vercel cron log for `/api/cron/scrape-opportunities`, `/api/cron/check-links`, `/api/news/sync`.
+  - **WATCH (KNOWN_ISSUES #16, Phase 8):** `/api/cron/scrape-opportunities` has
+    silently inserted ZERO opportunity rows since 2026-08-02 — the pipeline writes
+    `verification_status:"unverified"` which violates the live CHECK constraint
+    (3240 verified / 29 link_unavailable / 3 expired / 0 pending / 0 unverified;
+    `max(created_at)` across opportunities = 2026-08-02). Owner fix required in
+    `frontend/src/lib/scrapers/run-opportunity-scrape.ts` (→ `pending`).
 - Render cron: **NOT part of the architecture** (Phase 7 — KNOWN_ISSUES #14 CLOSED
   as NOT REQUIRED/OUT OF SCOPE; no billing card needed). Manual fallback:
   `GET /api/v1/cron/news-sync` with the `CRON_SECRET` bearer. Worker entrypoint
-  verified in production mode (2026-08-20): exit 0, idempotent (0 inserts /
+  verified in production mode (2026-08-20): news — exit 0, idempotent (0 inserts /
   0 duplicates on re-run), news_articles stable at 285.
+- Scraper worker command (Phase 8, on-demand — never scheduled): `node
+  backend/worker/dist/index.js isro` (ISRO government scraper replica). Live runs
+  2026-08-20: fetched 18 / inserted 0 / duplicates 0 / skipped 18, exit 0,
+  idempotent across 2 runs; health persisted to `scrape_sources` (ISRO row
+  `bcd8749d-…`) + `scrape_runs`. Zero inserts is honest parity with the frontend
+  (KNOWN_ISSUES #17/#18); insert path proven by tests + the live `pending` CHECK
+  probe. NOTE: until KNOWN_ISSUES #17/#18 are fixed, this is the only working
+  opportunity-ingestion path (writes valid `pending` rows).
 
 ### Dashboards & Alerting
 - Vercel dashboard + runtime logs for the deployed app; Supabase dashboard for DB1/DB2.

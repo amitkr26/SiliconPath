@@ -9,6 +9,7 @@
     "start": "node --import tsx dist/index.js",
     "start:worker": "node --import tsx dist/index.js news",
     "start:news": "node --import tsx dist/index.js news",
+    "start:isro": "node --import tsx dist/index.js isro",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
     "clean": "rm -rf dist .tsbuildinfo"
@@ -16,6 +17,7 @@
   "dependencies": {
     "@berojgardegreewala/api": "1.0.0",
     "@supabase/supabase-js": "^2.108.2",
+    "cheerio": "^1.2.0",
     "dotenv": "^16.4.5",
     "tsx": "^4.19.0"
   },
