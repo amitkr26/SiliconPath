@@ -131,19 +131,19 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
       onClick={handleCardClick}
       className={`block group cursor-pointer ${linkUnavailable ? "opacity-70" : ""}`}
     >
-      <div className="bg-white border-3 border-slate-900 rounded-2xl p-5 shadow-[4px_4px_0px_0px_#0F172A] hover:shadow-[6px_6px_0px_0px_#0F172A] hover:-translate-y-1 transition-all h-full flex flex-col justify-between">
+      <div className="bg-white border-2 border-slate-900 rounded-2xl p-5 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-1 transition-all h-full flex flex-col justify-between">
         <div className="flex items-start gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center flex-shrink-0 text-white font-black text-sm shadow-[1.5px_1.5px_0px_0px_#0F172A]">
+          <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center flex-shrink-0 text-white font-black text-sm shadow-brutal-sm">
             {getInitials(opportunity.organization)}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <h3 className="text-slate-900 font-extrabold text-sm sm:text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
+                <h3 className="text-slate-900 font-bold text-sm sm:text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
                   {opportunity.title}
                 </h3>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-xs text-slate-700 font-bold">
+                  <span className="text-xs text-slate-600 font-semibold">
                     {opportunity.organization}
                   </span>
                   {opportunity.verification_status && (
@@ -165,13 +165,13 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
             <div className="flex flex-wrap items-center gap-2 mt-3">
               <CategoryBadge category={opportunity.category} />
               {opportunity.location && (
-                <span className="flex items-center gap-1 text-slate-700 text-xs font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-900">
-                  <MapPin className="w-3 h-3 text-slate-900" />
+                <span className="flex items-center gap-1 text-slate-700 text-xs font-semibold bg-slate-100 px-2 py-0.5 rounded border border-slate-900">
+                  <MapPin className="w-3 h-3" />
                   {opportunity.location}
                 </span>
               )}
               {opportunity.stipend && (
-                <span className="flex items-center gap-1 text-slate-900 text-xs font-black bg-blue-100 px-2 py-0.5 rounded border border-slate-900">
+                <span className="flex items-center gap-1 text-slate-900 text-xs font-bold bg-blue-100 px-2 py-0.5 rounded border border-slate-900">
                   <IndianRupee className="w-3 h-3 text-blue-700" />
                   {opportunity.stipend}
                 </span>
@@ -183,7 +183,7 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
                 {opportunity.eligibility.split(",").map((e) => (
                   <span
                     key={e.trim()}
-                    className="px-2 py-0.5 bg-slate-50 border border-slate-300 rounded text-slate-700 text-[10px] font-extrabold"
+                    className="px-2 py-0.5 bg-slate-50 border border-slate-300 rounded text-slate-600 text-[10px] font-bold"
                   >
                     {e.trim()}
                   </span>
@@ -197,10 +197,10 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
           {opportunity.deadline ? (
             <DeadlineCountdown deadline={opportunity.deadline} />
           ) : (
-            <span className="text-[10px] font-bold text-slate-400">Regular Listing</span>
+            <span className="text-[10px] font-semibold text-slate-400">Regular Listing</span>
           )}
-          <span className="text-blue-600 text-xs font-black flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-            Apply <ExternalLink className="w-3.5 h-3.5 stroke-[2.5]" />
+          <span className="text-blue-600 text-xs font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+            Apply <ExternalLink className="w-3.5 h-3.5" />
           </span>
         </div>
       </div>

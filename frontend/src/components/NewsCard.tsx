@@ -42,10 +42,10 @@ export default function NewsCard({ article }: NewsCardProps) {
 
   return (
     <>
-      <div className="bg-white rounded-2xl p-5 border-3 border-slate-900 shadow-[5px_5px_0px_0px_#0F172A] hover:shadow-[7px_7px_0px_0px_#0F172A] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group h-full">
+      <div className="bg-white rounded-2xl p-5 border-2 border-slate-900 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group h-full">
         <div>
           {/* TOP BANNER IMAGE */}
-          <div className="w-full h-36 rounded-xl overflow-hidden border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] mb-4 relative bg-slate-100">
+          <div className="w-full h-36 rounded-xl overflow-hidden border-2 border-slate-900 shadow-brutal-sm mb-4 relative bg-slate-100">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={!imgError && article.image_url ? article.image_url : "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80"}
@@ -53,7 +53,7 @@ export default function NewsCard({ article }: NewsCardProps) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={() => setImgError(true)}
             />
-            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border-2 border-slate-900 rounded-lg text-[11px] font-black text-slate-900 shadow-[2px_2px_0px_0px_#0F172A]">
+            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border-2 border-slate-900 rounded-lg text-[11px] font-bold text-slate-900 shadow-brutal-sm">
               <span className={`w-2 h-2 rounded-full ${sourceDotColor}`} />
               {sourceName}
             </span>
@@ -64,7 +64,7 @@ export default function NewsCard({ article }: NewsCardProps) {
               onClick={() => setShowModal(true)}
               className="text-left w-full focus:outline-none"
             >
-              <h3 className="text-slate-900 text-base font-black line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
+              <h3 className="text-slate-900 text-base font-bold line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
                 {article.title}
               </h3>
             </button>
@@ -72,7 +72,7 @@ export default function NewsCard({ article }: NewsCardProps) {
             <div className="flex items-center gap-2.5 mt-2 flex-wrap text-xs">
               {article.published_at && (
                 <span className="flex items-center gap-1 text-slate-600 text-[11px] font-bold">
-                  <Clock size={12} className="stroke-[2.5]" />
+                  <Clock size={12} className="" />
                   {timeAgo(article.published_at)}
                 </span>
               )}
@@ -92,7 +92,7 @@ export default function NewsCard({ article }: NewsCardProps) {
               {tags.slice(0, 3).map((tag: string) => (
                 <span
                   key={tag}
-                  className="px-2 py-0.5 bg-blue-50 text-blue-900 rounded-md text-[10px] font-black border border-slate-900 shadow-[1px_1px_0px_0px_#0F172A]"
+                  className="px-2 py-0.5 bg-blue-50 text-blue-900 rounded-md text-[10px] font-bold border border-slate-900 shadow-[1px_1px_0px_0px_#0F172A]"
                 >
                   #{tag}
                 </span>
@@ -105,20 +105,20 @@ export default function NewsCard({ article }: NewsCardProps) {
         <div className="flex items-center justify-between pt-4 mt-4 border-t-2 border-slate-900">
           <button
             onClick={() => setShowModal(true)}
-            className="text-xs font-black text-slate-900 hover:text-blue-600 transition flex items-center gap-1"
+            className="text-xs font-bold text-slate-900 hover:text-blue-600 transition flex items-center gap-1"
           >
             <span>Read Summary</span>
-            <ArrowRight size={13} className="stroke-[3]" />
+            <ArrowRight size={13} className="" />
           </button>
 
           <a
             href={sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-xl border-2 border-slate-900 transition shadow-[2px_2px_0px_0px_#0F172A]"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-xl border-2 border-slate-900 transition shadow-brutal-sm"
           >
             <span>Official Source</span>
-            <ExternalLink size={13} className="stroke-[2.5]" />
+            <ExternalLink size={13} className="" />
           </a>
         </div>
       </div>
@@ -126,34 +126,34 @@ export default function NewsCard({ article }: NewsCardProps) {
       {/* MODAL VIEW */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl border-3 border-slate-900 shadow-[8px_8px_0px_0px_#0F172A] max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 relative">
+          <div className="bg-white rounded-2xl border-2 border-slate-900 shadow-brutal-lg max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 relative">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-xl border-2 border-slate-900 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold transition shadow-[2px_2px_0px_0px_#0F172A]"
+              className="absolute top-4 right-4 p-1.5 rounded-xl border-2 border-slate-900 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold transition shadow-brutal-sm"
               aria-label="Close modal"
             >
-              <X size={18} className="stroke-[3]" />
+              <X size={18} className="" />
             </button>
 
             <div className="flex items-center gap-2 mb-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg text-xs font-black text-slate-900 shadow-[2px_2px_0px_0px_#0F172A]">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg text-xs font-bold text-slate-900 shadow-brutal-sm">
                 <span className={`w-2 h-2 rounded-full ${sourceDotColor}`} />
                 {sourceName}
               </span>
               {article.published_at && (
                 <span className="text-slate-600 text-xs font-bold flex items-center gap-1">
-                  <Clock size={12} className="stroke-[2.5]" />
+                  <Clock size={12} className="" />
                   {timeAgo(article.published_at)}
                 </span>
               )}
             </div>
 
-            <h2 className="text-xl font-black text-slate-900 mb-4 leading-snug">
+            <h2 className="text-xl font-bold text-slate-900 mb-4 leading-snug">
               {article.title}
             </h2>
 
             {/* Modal Image */}
-            <div className="w-full h-56 rounded-xl overflow-hidden border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] mb-5">
+            <div className="w-full h-56 rounded-xl overflow-hidden border-2 border-slate-900 shadow-brutal mb-5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={!imgError && article.image_url ? article.image_url : "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"}
@@ -171,14 +171,14 @@ export default function NewsCard({ article }: NewsCardProps) {
                 href={sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] transition"
+                className="inline-flex items-center gap-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] transition"
               >
                 <span>Read Full Article on {sourceName}</span>
-                <ExternalLink size={14} className="stroke-[2.5]" />
+                <ExternalLink size={14} className="" />
               </a>
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-xs font-black text-slate-900 border-2 border-slate-900 rounded-xl hover:bg-slate-100 transition shadow-[2px_2px_0px_0px_#0F172A]"
+                className="px-4 py-2 text-xs font-bold text-slate-900 border-2 border-slate-900 rounded-xl hover:bg-slate-100 transition shadow-brutal-sm"
               >
                 Close
               </button>
