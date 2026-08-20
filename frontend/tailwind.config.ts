@@ -8,17 +8,22 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // border-3 is used in 90+ components but was never in the default scale (0/2/4/8).
+      // Without this it silently renders as a 0px border. Single source of truth.
+      borderWidth: {
+        3: "3px",
+      },
       colors: {
+        // ---- Semantic core (new code uses these; do not add aliases) ----
         "bg-primary": "#FAF9F6",
-        "bg-secondary": "#FEF9C3",
+        "bg-secondary": "#F1F5F9",
         surface: "#FFFFFF",
         "surface-elevated": "#FFFFFF",
         border: "#0F172A",
         "border-hover": "#000000",
         accent: "#2563EB",
         "accent-hover": "#1D4ED8",
-        "accent-yellow": "#FACC15",
-        "accent-glow": "rgba(15, 23, 42, 0.08)",
+        "accent-glow": "rgba(37, 99, 235, 0.08)",
         success: "#059669",
         warning: "#D97706",
         danger: "#DC2626",
@@ -31,6 +36,7 @@ const config: Config = {
         "org-tata": "#4A8C6F",
         "org-drdo": "#B85450",
 
+        // ---- Tailwind ecosystem compatibility (shadcn-style consumers) ----
         background: "#FAF9F6",
         foreground: "#0F172A",
         card: "#FFFFFF",
@@ -39,7 +45,7 @@ const config: Config = {
         "popover-foreground": "#0F172A",
         primary: "#2563EB",
         "primary-foreground": "#FFFFFF",
-        secondary: "#FEF9C3",
+        secondary: "#F1F5F9",
         "secondary-foreground": "#0F172A",
         muted: "#E2E8F0",
         "muted-foreground": "#64748B",
@@ -48,9 +54,14 @@ const config: Config = {
         "destructive-foreground": "#FFFFFF",
         input: "#FFFFFF",
         ring: "#2563EB",
-        navy: "#FAF9F6",
-        "navy-light": "#FEF9C3",
-        cyan: "#2563EB",
+
+        // ---- Legacy dark-era aliases (pre-redesign) ----
+        // KEYS KEPT ONLY so pages written against the old dark-cyber spec still
+        // resolve to a readable color. Do NOT use in new code — use the semantic
+        // core above. Page agents migrate these pages off the aliases.
+        navy: "#FAF9F6", // legacy: was "dark navy" in design-tokens.json, resolves to page bg
+        "navy-light": "#F1F5F9", // legacy: was dark elevated surface, now muted bg
+        cyan: "#2563EB", // legacy: was "#22D3EE" cyan, now the blue accent
       },
       fontFamily: {
         display: ["var(--font-space-grotesk)", "sans-serif"],
@@ -78,10 +89,8 @@ const config: Config = {
         "card-hover": "6px 6px 0px 0px #0F172A",
       },
       backgroundImage: {
-        "gradient-hero": "linear-gradient(to right, #22D3EE, #3B82F6)",
+        "gradient-hero": "linear-gradient(to right, #2563EB, #3B82F6)",
         "gradient-deadline": "linear-gradient(to right, #F59E0B, #EF4444)",
-        "gradient-card-border": "linear-gradient(to right, transparent, rgba(34, 211, 238, 0.2), transparent)",
-        "gradient-radial-cyan": "radial-gradient(ellipse at center, rgba(34, 211, 238, 0.05) 0%, transparent 70%)",
       },
     },
   },

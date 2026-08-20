@@ -5,25 +5,30 @@
 /* ==========================================================================
    BerojgarDegreeWala - Neo-Brutalist ("Brutalish") Design System
    High-contrast, bold borders, hard offset shadows, zero glassmorphism.
+
+   Single source of truth for tokens: frontend/tailwind.config.ts.
+   These :root vars MUST mirror the config values exactly — used only by
+   components that reference var(--...) directly (AskAIModal, MessageThread,
+   shared/*). New components must use Tailwind classes, not raw vars.
    ========================================================================== */
 
 :root {
   --bg:               #FAF9F6;
   --surface:          #FFFFFF;
-  --surface-raised:   #DBEAFE;
+  --surface-raised:   #F1F5F9;
   --surface-sunken:   #F1F5F9;
   --text:             #0F172A;
   --text-secondary:   #334155;
   --text-tertiary:    #64748B;
   --border:           #0F172A;
-  --border-subtle:    #0F172A;
+  --border-subtle:    #E2E8F0;
   --border-hover:     #000000;
 
   --primary:          #2563EB;
   --primary-hover:    #1D4ED8;
   --primary-light:    #DBEAFE;
 
-  --accent-yellow:    #2563EB;
+  --accent-yellow:    #FACC15;
   --accent-blue:      #3B82F6;
   --accent-cyan:      #06B6D4;
   --accent-emerald:   #10B981;
@@ -32,7 +37,7 @@
   --accent-orange:    #F97316;
 
   --success:          #059669;
-  --warning:          #2563EB;
+  --warning:          #D97706;
   --error:            #DC2626;
 
   --shadow-brutal:    4px 4px 0px 0px #0F172A;
@@ -59,161 +64,81 @@ body {
   overflow-x: hidden;
 }
 
-html, body, * {
-  scrollbar-color: #2563EB #0F172A !important;
-  scrollbar-width: auto !important;
-}
-
 /* ==========================================================================
-   Custom Neo-Brutalist Electric Blue Scrollbar
+   Scrollbar — single rule (previously two competing blocks; second silently
+   overrode the first). Electric blue thumb on dark track, brutal 2px inset.
    ========================================================================== */
-::-webkit-scrollbar,
-html::-webkit-scrollbar,
-body::-webkit-scrollbar,
-*::-webkit-scrollbar {
-  width: 12px !important;
-  height: 12px !important;
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2563EB #0F172A;
 }
 
-::-webkit-scrollbar-track,
-html::-webkit-scrollbar-track,
-body::-webkit-scrollbar-track,
-*::-webkit-scrollbar-track {
-  background: #0F172A !important;
-  border-left: 2px solid #0F172A !important;
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
 }
 
-::-webkit-scrollbar-thumb,
-html::-webkit-scrollbar-thumb,
-body::-webkit-scrollbar-thumb,
-*::-webkit-scrollbar-thumb {
-  background: #2563EB !important;
-  border: 2px solid #0F172A !important;
-  border-radius: 6px !important;
+::-webkit-scrollbar-track {
+  background: #0F172A;
 }
 
-::-webkit-scrollbar-thumb:hover,
-html::-webkit-scrollbar-thumb:hover,
-body::-webkit-scrollbar-thumb:hover,
-*::-webkit-scrollbar-thumb:hover {
-  background: #1D4ED8 !important;
+::-webkit-scrollbar-thumb {
+  background: #2563EB;
+  border: 2px solid #0F172A;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1D4ED8;
 }
 
 /* ==========================================================================
    Neo-Brutalist Component Classes
    ========================================================================== */
 
-/* Brutal Card (Replaces glass-premium) */
-.glass-premium, .brutal-card {
+/* Brutal Card */
+.brutal-card {
   background: #FFFFFF;
   border: 2px solid #0F172A;
   box-shadow: 4px 4px 0px 0px #0F172A;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 
-.glass-premium:hover, .brutal-card:hover {
+.brutal-card:hover {
   transform: translate(-2px, -2px);
   box-shadow: 6px 6px 0px 0px #0F172A;
   border-color: #000000;
 }
 
-.glass-premium:active, .brutal-card:active {
+.brutal-card:active {
   transform: translate(2px, 2px);
   box-shadow: 1px 1px 0px 0px #0F172A;
 }
 
-/* Brutal Navbar (Replaces glass-nav) */
-.glass-nav, .brutal-nav {
+/* Legacy aliases kept for pre-redesign components still referencing them.
+   They map onto the brutal styles so nothing breaks until page agents
+   migrate off (audit §6). Remove once migrated. */
+.glass-premium,
+.brutal-card,
+.glass-nav,
+.btn-glow,
+.btn-brutal {
   background: #FFFFFF;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-bottom: 3px solid #0F172A;
-  box-shadow: 0 4px 0px 0px rgba(15, 23, 42, 0.05);
-}
-
-/* Brutal Buttons */
-.btn-glow, .btn-brutal {
-  background: #2563EB;
-  color: #FFFFFF;
-  font-weight: 700;
   border: 2px solid #0F172A;
   box-shadow: 4px 4px 0px 0px #0F172A;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.btn-glow:hover, .btn-brutal:hover {
+.btn-glow,
+.btn-brutal {
+  background: #2563EB;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.btn-glow:hover,
+.btn-brutal:hover {
   background: #1D4ED8;
   transform: translate(-2px, -2px);
   box-shadow: 6px 6px 0px 0px #0F172A;
 }
-
-.btn-glow:active, .btn-brutal:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px 0px #0F172A;
-}
-
-.btn-brutal-primary {
-  background: #2563EB;
-  color: #FFFFFF;
-  font-weight: 700;
-  border: 2px solid #0F172A;
-  box-shadow: 4px 4px 0px 0px #0F172A;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.btn-brutal-primary:hover {
-  background: #1D4ED8;
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px #0F172A;
-}
-
-.btn-brutal-primary:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px 0px #0F172A;
-}
-
-/* Brutal Badge */
-.badge-live, .badge-brutal {
-  background: #2563EB;
-  color: #FFFFFF;
-  border: 2px solid #0F172A;
-  color: #0F172A;
-  font-weight: 700;
-  box-shadow: 2px 2px 0px 0px #0F172A;
-}
-
-/* Brutal Inputs & Forms */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-textarea,
-select {
-  border: 2px solid #0F172A !important;
-  box-shadow: 2px 2px 0px 0px #0F172A;
-  border-radius: 8px;
-  background-color: #FFFFFF;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-textarea:focus,
-select:focus {
-  outline: none;
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px 0px #0F172A;
-  border-color: #2563EB !important;
-}
-
-/* Scrollbar Styling */
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #FAF9F6; border-left: 2px solid #0F172A; }
-::-webkit-scrollbar-thumb {
-  background: #FACC15;
-  border: 2px solid #0F172A;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover { background: #EAB308; }
