@@ -9,15 +9,16 @@ async function main(): Promise<void> {
   const [, , command] = process.argv;
   if (command === "news") {
     const summary = await runNewsSync();
-    console.log(JSON.stringify(summary, null, 2));
-    process.exitCode = summary.sources.length > 0 && summary.total_failed >= summary.sources.length ? 1 : 0;
+    const code = summary.sources.length > 0 && summary.total_failed >= summary.sources.length ? 1 : 0;
+    // Batch CLI: force-exit after flushing so keep-alive sockets from
+    // aborted feed bodies can't hold the event loop open and turn a
+    // successful cron run into a timeout (exit code is the contract).
+    process.stdout.write(JSON.stringify(summary, null, 2) + "\n", () => process.exit(code));
     return;
   }
-  console.error("usage: node dist/index.js news");
-  process.exitCode = 2;
+  process.stderr.write("usage: node dist/index.js news\n", () => process.exit(2));
 }
 
 main().catch((err: unknown) => {
-  console.error("[worker] fatal:", err instanceof Error ? err.message : String(err));
-  process.exitCode = 1;
+  process.stderr.write(`[worker] fatal: ${err instanceof Error ? err.message : String(err)}\n`, () => process.exit(1));
 });
