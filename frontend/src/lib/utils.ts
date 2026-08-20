@@ -1,9 +1,10 @@
 import { clsx } from "clsx";
 import type { ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 import { resolveOrganization } from "@/lib/organizations/resolve";
 
 export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs);
+  return twMerge(clsx(inputs));
 }
 
 export function getURL() {
