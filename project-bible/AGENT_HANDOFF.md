@@ -1,11 +1,11 @@
 # Multi-Agent Handoff Document (Antigravity ⇋ OpenCode)
 
 ```text
-HANDOFF_VERSION: 1.3.0
-TIMESTAMP: 2026-08-19
+HANDOFF_VERSION: 1.4.0
+TIMESTAMP: 2026-08-20
 CURRENT_AGENT: OpenCode
 NEXT_AGENT: OpenCode / Antigravity (shared continuation contract)
-TASK_STATUS: Phase 6 COMPLETE — deployment decision (Render Docker web + cron job, render.yaml) + scraper worker shipped (backend/worker, 17 tests, shared content/news-sync fixes the news_archive parity bug #13) + Docker/CI/OpenAPI infra fixed and verified; 46 server / 15 gateway / 97 api / 17 worker tests green; backend NOT deployed (owner action, KNOWN_ISSUES #0). Remote 500955d (parallel phase 6a) integrated 2026-08-19: OpenAPI re-scoped to the backend /api/v1 surface, redundant worker-local implementation removed in favor of the shared module.
+TASK_STATUS: Phase 6.5 PARTIAL — backend DEPLOYED to Render (web service live at https://berojgardegreewala-backend.onrender.com, auto-deploy on push; `free` plan — `starter` rejected 402, workspace lacks a billing card). Production verification: /health + /health/ready 200; smoke suite (opportunities/news/organizations/search/404-envelope/CORS/admin-guard/JWT-auth) green after fixing db1 schema drift (commit 37ce7cc: organizations.website, news_articles source_name/url, news/[slug] → news_articles); cron news-sync production run: 12 feeds attempted, 8 OK, 58 rows inserted, re-runs insert 0 (news_articles stable at 280); Vercel cron unchanged (production owner); production E2E 9/9 (residue cleaned). BLOCKED: Render cron job (billing, KNOWN_ISSUES #14 — owner adds card then creates cron from render.yaml) and AI smoke (502 AI_UNAVAILABLE — Groq retired llama-3.1-8b-instant; KNOWN_ISSUES #15, one-line shared-gateway fix awaiting owner approval). Remote 500955d (parallel phase 6a) integrated 2026-08-19: OpenAPI re-scoped to backend /api/v1, redundant worker-local files removed.
 ```
 
 ---

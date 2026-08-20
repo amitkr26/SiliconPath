@@ -1,12 +1,13 @@
-# KNOWN ISSUES — 2026-08-19 (reconciled)
+# KNOWN ISSUES — 2026-08-20 (reconciled)
 
-## 0. Backend deployment decision made — not yet deployed (P1, owner action)
-Decision (2026-08-19, Phase 6): **Render — Docker web service for the API +
-Render cron job for the worker**, both from `backend/server/Dockerfile`
-(`render.yaml` committed, secrets excluded). Not deployed yet: an owner must
-create the Render service (blueprint or dashboard), set the env vars, and flip
-the domain. Backend is not a second system of record — it reads the same
-Supabase DBs the frontend uses.
+## 0. Backend deployment — DONE (2026-08-20, P1 → CLOSED)
+Render web service **deployed and verified** on 2026-08-20 (Phase 6.5):
+`https://berojgardegreewala-backend.onrender.com` (auto-deploy on push to main).
+Evidence: `/health` 200, `/health/ready` 200, CORS Vercel/foreign, admin guard
+403/200, user JWT 200/401, `/api/v1/cron/news-sync` inserted 58 rows then 0 on
+re-run, production E2E 9/9. Two caveats tracked separately: created on `plan: free`
+(committed render.yaml says `starter` — rejected 402, no billing card; see #14) and
+the Render cron job does not exist yet (#14).
 
 ## 1. Stale Project 1 service-role key in credentials (P1, local-dev only)
 `siliconpath-credentials.txt` → `SUPABASE_SECRET_KEY` (Project 1 section) 401s
@@ -20,6 +21,10 @@ Fix (owner action, 2 min): Supabase dashboard → Project 1 (`aqauempuwmbizqoaol
 Settings → API → copy `secret key` (sb_secret_...) → update
 `siliconpath-credentials.txt` (Project 1 section) + `frontend/.env.local`
 (`SUPABASE_SERVICE_ROLE_KEY=`). Alternatively rotate in dashboard and paste the new one.
+Note 2026-08-20: for the Render deployment the current **legacy `service_role`
+JWT** (fetched via the Supabase Management API `GET /v1/projects/{ref}/api-keys`
+list) was used — verified valid against PostgREST; the file's `sb_secret_...`
+value is still the stale one.
 
 ## 2. Vercel env values unrecoverable from CLI (info)
 `vercel env pull` returns `[SENSITIVE]` placeholders (values stored encrypted).
@@ -69,8 +74,9 @@ CI job paths `packages/ai-gateway` and working-directory `berojgardegreewala\` d
 not exist (workspaces live at `backend/ai-gateway` and root). **FIXED 2026-08-19:**
 rewritten — ai-gateway job points at `@berojgardegreewala/ai-gateway`, a new
 `backend` job runs typecheck/test/build for api+server+worker, frontend job drops
-the bogus working-directory and uses `--workspace frontend`. First run on the next
-push; close this entry once it's green.
+the bogus working-directory and uses `--workspace frontend`. Runs triggered by the
+2026-08-20 pushes (45ed89f, 37ce7cc); **close status pending** — CI results cannot
+be read from this environment (private repo, no gh CLI).
 
 ## 10. `backend/api` `openapi` npm script was broken (P2, FIXED 2026-08-19)
 `package.json` referenced `scripts/generate-openapi.ts` which did not exist.
@@ -96,6 +102,10 @@ Scheduled Vercel crons exist (3: scrape-opportunities 00:00, check-links 08:00,
 news/sync 06:00) but the 2026-08-19 audit found no evidence of a recent successful
 run (no log/health confirmation in docs). Verify from Vercel cron logs or
 `/api/admin/scrape-health` and record the result.
+Partial evidence 2026-08-20: the backend production sync (`GET /api/v1/cron/news-sync`
+on the deployed Render service — same shared module as the worker) ingested 58 new
+`news_articles` rows and re-runs insert 0 (idempotent). The **worker process itself**
+has still not run in production — the Render cron job is blocked on billing (#14).
 
 ## 13. Backend news-sync wrote to the wrong table (P1, FIXED 2026-08-19)
 `backend/server` cron route upserted into `news_archive` onConflict `slug` — that
@@ -106,3 +116,26 @@ production write contract of the frontend `/api/news/sync`: `news_articles`,
 onConflict `url` (unique in db1, verified), `ignoreDuplicates`, `is_active: true`,
 null-url rows never written. Covered by the worker suite
 (`backend/worker/tests/news-sync.test.ts`, 17 tests).
+
+## 14. Render cron job blocked — no billing card on the workspace (P2, owner action)
+Creating the `news-sync` cron job fails with **402 Payment Required**: cron jobs
+require a paid plan and the Render workspace (`tea-d91n0jeq1p3s73c8k1vg`) has no
+payment method. Same 402 blocked the web service's `starter` plan — deployed on
+`free` instead (documented deviation from render.yaml). **Owner action:** add a
+card at https://dashboard.render.com/billing, then create the cron from
+`render.yaml` (or re-run the blueprint). Until then, daily news ingestion keeps
+running on the Vercel cron (`/api/news/sync`, 06:00 UTC — unchanged production
+owner) and the backend's `/api/v1/cron/news-sync` endpoint works as a manual
+fallback (verified 2026-08-20).
+
+## 15. AI 502 on Render backend — Groq retired `llama-3.1-8b-instant` (P2, config drift)
+Production AI smoke test on the deployed backend returns 502 `AI_UNAVAILABLE`
+(clean envelope, no leak). Root cause isolated: the GROQ key provisioned is
+**valid** (GET /models 200), but `backend/ai-gateway/src/gateway/index.ts`
+`PROVIDER_CONFIG.groq.model = "llama-3.1-8b-instant"` no longer exists on Groq
+(current: `qwen/qwen3.6-27b`, `openai/gpt-oss-120b`, `groq/compound`, ...) → the
+call 404s and the fallback chain exhausts. The frontend imports the same shared
+gateway (`frontend/src/lib/ai/providers.ts`), so frontend AI is affected too once
+it re-deploys. Fix (small, owner-approved): update the groq model id in
+`backend/ai-gateway` `PROVIDER_CONFIG` (e.g. `qwen/qwen3.6-27b`) and re-verify.
+Not changed during Phase 6.5 (out of the deployment-verification scope).

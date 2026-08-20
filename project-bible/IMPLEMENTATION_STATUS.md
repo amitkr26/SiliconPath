@@ -43,7 +43,7 @@ Feature matrix across the whole platform. Status vocabulary: **IMPLEMENTED** (in
 |---|---|---|
 | `backend/api` shared library (response/error/auth/validation/rate-limit/cache/openapi/content) | IMPLEMENTED | consumed by frontend + server; 97 jest tests |
 | `backend/ai-gateway` (9-provider chain) | IMPLEMENTED | zero runtime deps; 15 jest tests (`__tests__/gateway.test.ts`) |
-| `backend/server` Express API on :8080 | IMPLEMENTED (production-ready, NOT deployed) | 46 node:test (30 parity + 16 hardening); full route surface incl. social/AI/auth/search/news-cron; 502 `AI_UNAVAILABLE`, `/health/ready`, admin rate-limit, timing-safe admin+cron guards; graceful SIGTERM shutdown (verified in Docker) |
+| `backend/server` Express API on :8080 | IMPLEMENTED (DEPLOYED 2026-08-20, Render `free` plan; cron pending billing) | 46 node:test (30 parity + 16 hardening); full route surface incl. social/AI/auth/search/news-cron; 502 `AI_UNAVAILABLE`, `/health/ready`, admin rate-limit, timing-safe admin+cron guards; graceful SIGTERM shutdown (verified in Docker); live: /health + /health/ready 200, auth 200/401, cron news-sync inserted 58 / duplicates 0 |
 | `backend/worker` (Phase 6) | IMPLEMENTED | `@berojgardegreewala/worker`: `node --import tsx dist/index.js news` — news RSS sync via shared `content/news-sync`; 17 node:test; run health → `scrape_runs`/`scrape_sources`; structured JSON output; fail-closed env; exit codes 0/1/2 |
 | Shared news ingestion (`backend/api/src/content/news-sync.ts`) | IMPLEMENTED | 12 feeds, bounded concurrency 4, retry 1+2 (network/5xx/429), run-level URL dedup, `news_articles` upsert onConflict `url` ignoreDuplicates + `is_active: true`; used by server cron route AND worker (single implementation) |
 | Parity docs (FRONTEND-BACKEND-MAP, API-PARITY) | IMPLEMENTED | `backend/docs/` (2026-08-19) |
@@ -66,7 +66,7 @@ Feature matrix across the whole platform. Status vocabulary: **IMPLEMENTED** (in
 | backend/server node:test | 46 | `backend/server/tests` (parity 30 + hardening 16) |
 | backend/worker node:test | 17 | `backend/worker/tests/news-sync.test.ts` (Phase 6: retry/timeout/5xx/dedup/invalid-url/filter/slug-collision/DB-failure/partial-failure/idempotency/fabricated-guard) |
 | Docker build + runtime | VERIFIED | `docker build` PASS; `/health` ok; `/health/ready` 500 with unreachable DB (correct error path); SIGTERM → drain → exit; worker entrypoint fail-closed (exit 1 no env) — node:22-alpine, `.dockerignore`, worker workspace in `npm ci` (2026-08-19) |
-| Deployment | DECISION MADE, NOT DEPLOYED | Render Docker web + cron job (`render.yaml`, secrets excluded) — owner action pending (KNOWN_ISSUES #0) |
+| Deployment | PARTIAL (2026-08-20) | Render web service deployed (`free` plan — `starter` blocked by missing billing card) at https://berojgardegreewala-backend.onrender.com; health/readiness green; auto-deploy verified; Render cron job pending billing (KNOWN_ISSUES #14); Vercel remains production cron owner |
 | RLS (DB1 social tables) | VERIFIED LIVE | v2 policies; do NOT re-apply `20260817000001_fix_social_rls_v2.sql` |
 | Secrets | PARTIAL | stale Project 1 service-role key in local credentials (KNOWN_ISSUES #1); production keys fine |
 | Rate limiting | IMPLEMENTED (frontend) | middleware buckets (api 120/min, auth 10/min, search 30/min, scrape 5/min, ai 20/min); Upstash optional for contact/subscribe |
