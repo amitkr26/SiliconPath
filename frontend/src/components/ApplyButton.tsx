@@ -40,12 +40,12 @@ export default function ApplyButton({ applyLink, opportunityId, verificationStat
           href={officialPageUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold rounded-lg px-6 py-3 hover:bg-amber-500/30 transition-colors"
+          className="inline-flex items-center gap-2 bg-amber-400 text-slate-900 border-2 border-slate-900 font-black rounded-xl px-6 py-3 hover:bg-amber-300 shadow-brutal-sm transition-all"
         >
           <ShieldAlert className="w-4 h-4" />
           Visit Official Site →
         </a>
-        <p className="text-amber-400/60 text-[10px]">Direct link unavailable. Visit organization&apos;s official website.</p>
+        <p className="text-amber-700 text-[10px] font-semibold">Direct link unavailable. Visit organization&apos;s official website.</p>
       </div>
     );
   }
@@ -58,7 +58,7 @@ export default function ApplyButton({ applyLink, opportunityId, verificationStat
       target="_blank"
       rel="noopener noreferrer"
       onClick={trackClick}
-      className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-cyan to-cyan/80 text-navy font-semibold rounded-lg px-6 py-3 hover:from-cyan/90 hover:to-cyan/70 transition-all w-full"
+      className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl px-6 py-3 border-2 border-slate-900 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-0.5 transition-all w-full"
     >
       Apply Now
       <ExternalLink className="w-4 h-4" />

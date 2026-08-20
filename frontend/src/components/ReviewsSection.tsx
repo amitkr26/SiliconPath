@@ -48,7 +48,7 @@ const REVIEWS: Review[] = [
 
 export default function ReviewsSection() {
   return (
-    <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 sm:p-10 shadow-[6px_6px_0px_0px_#0F172A]">
+    <div className="bg-white border-2 border-slate-900 rounded-2xl p-6 sm:p-10 shadow-brutal-lg">
       <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
         <div>
           <div className="flex items-center gap-2 text-xs font-black uppercase text-blue-600 mb-1">
@@ -62,7 +62,7 @@ export default function ReviewsSection() {
             See how candidates landed JRF positions, PhD admissions, and VLSI industry roles.
           </p>
         </div>
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border-2 border-slate-900 rounded-xl shadow-[2.5px_2.5px_0px_0px_#0F172A]">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border-2 border-slate-900 rounded-xl shadow-brutal-sm">
           <div className="flex text-amber-500">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="w-4 h-4 fill-amber-400 text-slate-900 stroke-[1.5]" />
@@ -76,7 +76,7 @@ export default function ReviewsSection() {
         {REVIEWS.map((rev) => (
           <div
             key={rev.id}
-            className="bg-slate-50 border-2 border-slate-900 rounded-xl p-6 shadow-[3px_3px_0px_0px_#0F172A] flex flex-col justify-between hover:-translate-y-1 transition-all"
+            className="bg-slate-50 border-2 border-slate-900 rounded-xl p-6 shadow-brutal flex flex-col justify-between hover:-translate-y-1 transition-all"
           >
             <div>
               <div className="flex items-center justify-between mb-3">
@@ -85,7 +85,7 @@ export default function ReviewsSection() {
                     <Star key={i} className="w-4 h-4 fill-amber-400 text-slate-900 stroke-[1.5]" />
                   ))}
                 </div>
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-slate-900">
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800 border-2 border-slate-900">
                   {rev.tag}
                 </span>
               </div>
@@ -96,7 +96,7 @@ export default function ReviewsSection() {
             </div>
 
             <div className="flex items-center gap-3 pt-4 border-t-2 border-slate-200">
-              <div className={`w-10 h-10 rounded-xl font-black text-sm flex items-center justify-center border-2 border-slate-900 shadow-[1.5px_1.5px_0px_0px_#0F172A] ${rev.avatarBg}`}>
+              <div className={`w-10 h-10 rounded-xl font-black text-sm flex items-center justify-center border-2 border-slate-900 shadow-brutal-sm ${rev.avatarBg}`}>
                 {rev.name.split(" ").map((n) => n[0]).join("")}
               </div>
               <div>

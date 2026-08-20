@@ -14,12 +14,12 @@ export default function OpportunityDisclaimer({ opportunityId, officialPageUrl }
 
   return (
     <>
-      <div className="bg-gray-800/40 border border-gray-700/50 rounded-xl p-5">
+      <div className="bg-slate-50 border-2 border-slate-900 rounded-2xl p-5 shadow-brutal-sm">
         <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-cyan mt-0.5 flex-shrink-0" />
+          <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
           <div className="flex-1 min-w-0">
-            <h3 className="text-text-primary text-sm font-semibold mb-2">Before you apply</h3>
-            <ul className="space-y-1.5 text-xs text-text-muted">
+            <h3 className="text-slate-900 text-sm font-black mb-2">Before you apply</h3>
+            <ul className="space-y-1.5 text-xs text-slate-600 font-medium">
               <li>• Always verify details on the official website</li>
               <li>• Check for any updates or changes to the advertisement</li>
               <li>• Deadlines and eligibility criteria may have changed</li>
@@ -31,7 +31,7 @@ export default function OpportunityDisclaimer({ opportunityId, officialPageUrl }
                   href={officialPageUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-cyan text-xs font-medium hover:underline"
+                  className="inline-flex items-center gap-1.5 text-blue-600 text-xs font-bold hover:underline"
                 >
                   Visit Official Website
                   <ExternalLink className="w-3 h-3" />
@@ -39,7 +39,7 @@ export default function OpportunityDisclaimer({ opportunityId, officialPageUrl }
               )}
               <button
                 onClick={() => setShowReport(true)}
-                className="inline-flex items-center gap-1.5 text-text-muted text-xs hover:text-amber-400 transition-colors"
+                className="inline-flex items-center gap-1.5 text-slate-600 text-xs font-bold hover:text-amber-600 transition-colors"
               >
                 <Flag className="w-3 h-3" />
                 Report an Issue
