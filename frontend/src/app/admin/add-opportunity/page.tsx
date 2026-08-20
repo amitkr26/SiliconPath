@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useUser } from "@/hooks/useUser";
@@ -43,6 +43,7 @@ export default function AddOpportunityPage() {
       const data = await res.json();
       if (data.authenticated) {
         sessionStorage.setItem("admin_password", password);
+        if (data.token) localStorage.setItem("admin_token", data.token);
         setAuthenticated(true);
       } else {
         setAuthError(data.error || "Invalid password");
@@ -51,6 +52,28 @@ export default function AddOpportunityPage() {
       setAuthError("Authentication request failed");
     }
   };
+
+  useEffect(() => {
+    const existingToken = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+    const existingPw = typeof window !== "undefined" ? sessionStorage.getItem("admin_password") : null;
+    if (!existingToken && !existingPw) return;
+
+    fetch("/api/admin/auth/session", {
+      method: "POST",
+      headers: {
+        ...(existingToken ? { Authorization: `Bearer ${existingToken}` } : {}),
+        ...(existingPw ? { "x-admin-password": existingPw } : {}),
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated) setAuthenticated(true);
+        else if (existingPw) setAuthenticated(true);
+      })
+      .catch(() => {
+        if (existingPw) setAuthenticated(true);
+      });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, Plus, Building2, Trash2, ExternalLink } from "lucide-react";
+import { Loader2, Plus, Building2, Trash2, ExternalLink, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { api } from "@/lib/api-client";
 
 function getInitials(name: string): string {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
@@ -19,10 +20,11 @@ export default function AdminCompaniesPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/companies");
-      const data = await res.json();
-      setCompanies(data.companies || []);
-    } catch { setCompanies([]); }
+      const data = await api.get<{ companies?: any[] }>("/api/admin/companies");
+      setCompanies(data?.companies || []);
+    } catch {
+      setCompanies([]);
+    }
     setLoading(false);
   };
 
@@ -32,30 +34,26 @@ export default function AdminCompaniesPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch("/api/admin/companies", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (res.ok) {
-        toast.success("Company created");
-        setShowForm(false);
-        setForm({ name: "", description: "", website: "", industry: "", location: "", size: "" });
-        load();
-      } else {
-        const err = await res.json();
-        toast.error(err.error || "Failed");
-      }
-    } catch { toast.error("Something went wrong"); }
+      await api.post("/api/admin/companies", form);
+      toast.success("Company created");
+      setShowForm(false);
+      setForm({ name: "", description: "", website: "", industry: "", location: "", size: "" });
+      load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to create company");
+    }
     setSaving(false);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this company?")) return;
     try {
-      await fetch(`/api/admin/companies/${id}`, { method: "DELETE" });
+      await api.delete(`/api/admin/companies/${id}`);
       toast.success("Deleted");
       load();
-    } catch { toast.error("Delete failed"); }
+    } catch {
+      toast.error("Delete failed");
+    }
   };
 
   return (

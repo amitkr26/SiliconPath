@@ -56,13 +56,16 @@ async function request<T>(
   if (!headers.has("Content-Type") && method !== "GET") {
     headers.set("Content-Type", "application/json");
   }
-  // Admin APIs authenticate via x-admin-password (server-side requireAdmin).
-  // Central guard: the password is stored in sessionStorage right after a
-  // successful /api/admin/auth login; the admin UI otherwise 401s silently.
-  if (path.startsWith("/api/admin") || path.startsWith("/api/scrapers")) {
+  // Admin APIs authenticate via x-admin-password or Authorization Bearer token (server-side requireAdmin).
+  // Central guard: credentials stored upon /api/admin/auth login.
+  if (path.startsWith("/api/admin") || path.startsWith("/api/scrapers") || path.startsWith("/api/cron")) {
     if (!headers.has("x-admin-password")) {
-      const adminPassword = sessionStorage.getItem("admin_password");
+      const adminPassword = typeof window !== "undefined" ? sessionStorage.getItem("admin_password") : null;
       if (adminPassword) headers.set("x-admin-password", adminPassword);
+    }
+    if (!headers.has("Authorization")) {
+      const adminToken = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+      if (adminToken) headers.set("Authorization", `Bearer ${adminToken}`);
     }
   }
 

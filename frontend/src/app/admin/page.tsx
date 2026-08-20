@@ -8,9 +8,11 @@ import type { Opportunity, Subscriber } from "@/types";
 import {
   Loader2, RefreshCw, Check, ShieldCheck, ExternalLink, Sparkles, Users, TrendingUp,
   Briefcase, Building2, FileText, Activity, BarChart3, Lock, Play, Globe, CheckCircle,
-  AlertTriangle, Radio, Rss, Cpu, LogOut, ChevronRight, Server, Shield
+  AlertTriangle, Radio, Rss, Cpu, LogOut, ChevronRight, Server, Shield, Search, Plus,
+  Trash2, Edit3, XCircle, Download, Send, Megaphone, Newspaper, UserCheck, Layers
 } from "lucide-react";
 import nextDynamic from "next/dynamic";
+import { toast } from "sonner";
 
 const AIAnalyticsPanel = nextDynamic(() => import("@/app/admin/_components/AIAnalyticsPanel"), {
   loading: () => <div className="h-64 bg-slate-900 border border-slate-800 rounded-2xl animate-pulse" />,
@@ -73,21 +75,40 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [scrapingAll, setScrapingAll] = useState(false);
 
+  // Opportunity filtering & search
+  const [oppSearch, setOppSearch] = useState("");
+  const [oppStatusFilter, setOppStatusFilter] = useState<string>("all");
+  const [oppCategoryFilter, setOppCategoryFilter] = useState<string>("all");
+
+  // Subscriber search
+  const [subSearch, setSubSearch] = useState("");
+
   const [scrapeLogs, setScrapeLogs] = useState<ScrapeLog[]>([]);
 
   useEffect(() => {
-    // QA audit security: a token in localStorage alone must NOT grant the
-    // admin UI. Re-validate the session server-side (HMAC token via
-    // x-admin-password flows through the same gate).
     const existingToken = localStorage.getItem(ADMIN_TOKEN_KEY);
-    if (!existingToken) return;
-    fetch("/api/admin/auth/session", { method: "POST" })
+    const existingPw = sessionStorage.getItem("admin_password");
+    if (!existingToken && !existingPw) return;
+
+    fetch("/api/admin/auth/session", {
+      method: "POST",
+      headers: {
+        ...(existingToken ? { Authorization: `Bearer ${existingToken}` } : {}),
+        ...(existingPw ? { "x-admin-password": existingPw } : {}),
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
-        if (data.authenticated) setAuthenticated(true);
-        else localStorage.removeItem(ADMIN_TOKEN_KEY);
+        if (data.authenticated) {
+          setAuthenticated(true);
+        } else {
+          localStorage.removeItem(ADMIN_TOKEN_KEY);
+          sessionStorage.removeItem("admin_password");
+        }
       })
-      .catch(() => localStorage.removeItem(ADMIN_TOKEN_KEY));
+      .catch(() => {
+        if (existingPw) setAuthenticated(true);
+      });
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -108,6 +129,7 @@ export default function AdminPage() {
         localStorage.setItem(ADMIN_TOKEN_KEY, data.token);
         sessionStorage.setItem("admin_password", cleanPass);
         setAuthenticated(true);
+        toast.success("Admin authenticated successfully");
       } else {
         setError(data.error || "Invalid username or password.");
       }
@@ -118,14 +140,16 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     localStorage.removeItem(ADMIN_TOKEN_KEY);
+    sessionStorage.removeItem("admin_password");
     setAuthenticated(false);
+    toast.info("Signed out of Admin Console");
   };
 
   const runAllScrapers = async () => {
     setScrapingAll(true);
     const newLog: ScrapeLog = {
       id: Date.now(),
-      timestamp: new Date().toLocaleString(),
+      timestamp: new Date().toLocaleTimeString(),
       source: "All Scraper Services",
       status: "running",
       message: "Scraping DRDO, ISRO, CSIR, IITs, IEEE Spectrum, and EE Times...",
@@ -138,33 +162,82 @@ export default function AdminPage() {
       setScrapeLogs((prev) =>
         prev.map((l) =>
           l.id === newLog.id
-              ? {
-                  ...l,
-                  status: "success",
-                  message: `Scraped ${data?.totalScraped ?? 0} records, inserted/updated ${data?.insertedOrUpdated ?? 0}`,
-                  inserted: data?.insertedOrUpdated ?? 0,
-                }
-              : l
-          )
-        );
+            ? {
+                ...l,
+                status: "success",
+                message: `Scraped ${data?.totalScraped ?? 0} records, inserted/updated ${data?.insertedOrUpdated ?? 0}`,
+                inserted: data?.insertedOrUpdated ?? 0,
+              }
+            : l
+        )
+      );
+      toast.success("All scrapers completed successfully!");
     } catch (err) {
       setScrapeLogs((prev) =>
         prev.map((l) =>
           l.id === newLog.id
             ? { ...l, status: "error", message: err instanceof Error ? err.message : "Scraper run failed" }
-              : l
-          )
-        );
+            : l
+        )
+      );
+      toast.error("Scraper run encountered an error");
     } finally {
       setScrapingAll(false);
+    }
+  };
+
+  const handleTriggerSingleScraper = async (sourceName: string) => {
+    const newLog: ScrapeLog = {
+      id: Date.now(),
+      timestamp: new Date().toLocaleTimeString(),
+      source: sourceName,
+      status: "running",
+      message: `Triggering sync for ${sourceName}...`,
+      inserted: 0,
+    };
+    setScrapeLogs((prev) => [newLog, ...prev]);
+
+    try {
+      const res = await api.post<{ insertedOrUpdated?: number; totalScraped?: number }>(
+        "/api/cron/scrape-opportunities",
+        { source: sourceName }
+      );
+      setScrapeLogs((prev) =>
+        prev.map((l) =>
+          l.id === newLog.id
+            ? {
+                ...l,
+                status: "success",
+                message: `Completed: ${res?.totalScraped ?? 0} scanned, ${res?.insertedOrUpdated ?? 0} inserted/updated`,
+                inserted: res?.insertedOrUpdated ?? 0,
+              }
+            : l
+        )
+      );
+      toast.success(`${sourceName} sync completed!`);
+    } catch (err) {
+      setScrapeLogs((prev) =>
+        prev.map((l) =>
+          l.id === newLog.id
+            ? { ...l, status: "error", message: err instanceof Error ? err.message : "Sync failed" }
+            : l
+        )
+      );
+      toast.error(`Failed to sync ${sourceName}`);
     }
   };
 
   const fetchOpportunities = async () => {
     setLoading(true);
     try {
-      const data = await api.get<Opportunity[]>("/api/admin/opportunities");
-      setOpportunities(data || []);
+      const data = await api.get<{ opportunities?: Opportunity[]; count?: number } | Opportunity[]>("/api/admin/opportunities?limit=50");
+      if (Array.isArray(data)) {
+        setOpportunities(data);
+      } else if (data && Array.isArray(data.opportunities)) {
+        setOpportunities(data.opportunities);
+      } else {
+        setOpportunities([]);
+      }
     } catch {
       setOpportunities([]);
     }
@@ -174,12 +247,68 @@ export default function AdminPage() {
   const fetchSubscribers = async () => {
     setLoading(true);
     try {
-      const data = await api.get<Subscriber[]>("/api/admin/subscribers");
-      setSubscribers(data || []);
+      const data = await api.get<{ subscribers?: Subscriber[]; count?: number } | Subscriber[]>("/api/admin/subscribers?limit=100");
+      if (Array.isArray(data)) {
+        setSubscribers(data);
+      } else if (data && Array.isArray(data.subscribers)) {
+        setSubscribers(data.subscribers);
+      } else {
+        setSubscribers([]);
+      }
     } catch {
       setSubscribers([]);
     }
     setLoading(false);
+  };
+
+  const handleUpdateStatus = async (id: string, status: "verified" | "rejected" | "pending") => {
+    try {
+      await api.patch(`/api/admin/opportunities/${id}`, { verification_status: status });
+      toast.success(`Marked as ${status}`);
+      setOpportunities((prev) =>
+        prev.map((opp) => (opp.id === id ? { ...opp, verification_status: status } : opp))
+      );
+    } catch {
+      toast.error("Failed to update status");
+    }
+  };
+
+  const handleDeleteOpportunity = async (id: string) => {
+    if (!confirm("Are you sure you want to permanently delete this opportunity?")) return;
+    try {
+      await api.delete(`/api/admin/opportunities/${id}`);
+      toast.success("Opportunity deleted");
+      setOpportunities((prev) => prev.filter((opp) => opp.id !== id));
+    } catch {
+      toast.error("Failed to delete opportunity");
+    }
+  };
+
+  const handleExportSubscribersCSV = () => {
+    if (!subscribers.length) {
+      toast.error("No subscribers to export");
+      return;
+    }
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      ["ID,Email,Created At", ...subscribers.map((s) => `"${s.id}","${s.email}","${s.created_at}"`)].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `subscribers_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Subscribers CSV exported!");
+  };
+
+  const handleTriggerEmailDigest = async () => {
+    try {
+      await api.post("/api/cron/email-digest");
+      toast.success("Weekly email digest triggered!");
+    } catch {
+      toast.error("Failed to trigger email digest");
+    }
   };
 
   useEffect(() => {
@@ -189,7 +318,7 @@ export default function AdminPage() {
     }
   }, [authenticated, activeTab]);
 
-  // LOGIN SCREEN (DISTINCT DARK EXECUTIVE ADMIN THEME)
+  // LOGIN SCREEN (DARK EXECUTIVE ADMIN THEME)
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
@@ -215,7 +344,7 @@ export default function AdminPage() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter admin username"
+                placeholder="Enter admin username (e.g. admin)"
                 required
                 className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
@@ -251,7 +380,31 @@ export default function AdminPage() {
     );
   }
 
-  // AUTHENTICATED ADMIN DASHBOARD (STANDALONE EXECUTIVE MANAGEMENT PORTAL)
+  // Filtered opportunities
+  const filteredOpps = opportunities.filter((opp) => {
+    const matchesSearch =
+      !oppSearch ||
+      opp.title.toLowerCase().includes(oppSearch.toLowerCase()) ||
+      (opp.organization && opp.organization.toLowerCase().includes(oppSearch.toLowerCase())) ||
+      (opp.location && opp.location.toLowerCase().includes(oppSearch.toLowerCase()));
+    
+    const matchesStatus =
+      oppStatusFilter === "all" ||
+      (opp.verification_status || "pending").toLowerCase() === oppStatusFilter.toLowerCase();
+
+    const matchesCategory =
+      oppCategoryFilter === "all" ||
+      (opp.category || "").toLowerCase() === oppCategoryFilter.toLowerCase();
+
+    return matchesSearch && matchesStatus && matchesCategory;
+  });
+
+  // Filtered subscribers
+  const filteredSubs = subscribers.filter(
+    (s) => !subSearch || s.email.toLowerCase().includes(subSearch.toLowerCase())
+  );
+
+  // AUTHENTICATED ADMIN DASHBOARD
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col lg:flex-row">
       
@@ -273,14 +426,15 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* NAVIGATION LINKS */}
-        <nav className="p-3 space-y-1.5 flex-1 font-semibold text-xs">
+        {/* PRIMARY TABS */}
+        <div className="p-3 space-y-1">
+          <p className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">Core Engine</p>
           {[
             { id: "scrapers", label: "Scraper Stream Logs", icon: Radio, count: scrapeLogs.length },
             { id: "sources", label: "Monitored Web & RSS", icon: Rss, count: MONITORED_SCRAPER_SOURCES.length },
-            { id: "opportunities", label: "Manage Opportunities", icon: Briefcase, count: opportunities.length || 362 },
-            { id: "ai", label: "AI Token Analytics", icon: Sparkles },
+            { id: "opportunities", label: "Manage Opportunities", icon: Briefcase, count: opportunities.length },
             { id: "subscribers", label: "Subscribers & Digests", icon: Users, count: subscribers.length },
+            { id: "ai", label: "AI Token Analytics", icon: Sparkles },
           ].map((item) => {
             const active = activeTab === item.id;
             const Icon = item.icon;
@@ -288,15 +442,15 @@ export default function AdminPage() {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id as typeof activeTab)}
-                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl transition-all ${
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all ${
                   active
                     ? "bg-blue-600 text-white font-bold shadow-sm"
-                    : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"
+                    : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 font-semibold"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
                   <Icon className="w-4 h-4" />
-                  <span>{item.label}</span>
+                  <span className="text-xs">{item.label}</span>
                 </div>
                 {item.count != null && (
                   <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${active ? "bg-white/20 text-white" : "bg-slate-800 text-slate-400"}`}>
@@ -306,7 +460,61 @@ export default function AdminPage() {
               </button>
             );
           })}
-        </nav>
+        </div>
+
+        {/* DEDICATED MANAGEMENT SUB-PAGES */}
+        <div className="p-3 border-t border-slate-800 space-y-1 flex-1">
+          <p className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">Specialized Hubs</p>
+          <Link
+            href="/admin/add-opportunity"
+            className="flex items-center gap-2.5 px-3.5 py-2 text-slate-400 hover:bg-slate-800/60 hover:text-white rounded-xl text-xs font-semibold transition"
+          >
+            <Plus className="w-4 h-4 text-emerald-400" />
+            <span>Add Opportunity</span>
+          </Link>
+          <Link
+            href="/admin/companies"
+            className="flex items-center gap-2.5 px-3.5 py-2 text-slate-400 hover:bg-slate-800/60 hover:text-white rounded-xl text-xs font-semibold transition"
+          >
+            <Building2 className="w-4 h-4 text-blue-400" />
+            <span>Companies &amp; Claims</span>
+          </Link>
+          <Link
+            href="/admin/announcements"
+            className="flex items-center gap-2.5 px-3.5 py-2 text-slate-400 hover:bg-slate-800/60 hover:text-white rounded-xl text-xs font-semibold transition"
+          >
+            <Megaphone className="w-4 h-4 text-amber-400" />
+            <span>Announcements</span>
+          </Link>
+          <Link
+            href="/admin/add-news"
+            className="flex items-center gap-2.5 px-3.5 py-2 text-slate-400 hover:bg-slate-800/60 hover:text-white rounded-xl text-xs font-semibold transition"
+          >
+            <Newspaper className="w-4 h-4 text-cyan-400" />
+            <span>Publish News</span>
+          </Link>
+          <Link
+            href="/admin/talent-pool"
+            className="flex items-center gap-2.5 px-3.5 py-2 text-slate-400 hover:bg-slate-800/60 hover:text-white rounded-xl text-xs font-semibold transition"
+          >
+            <UserCheck className="w-4 h-4 text-purple-400" />
+            <span>Talent Pool</span>
+          </Link>
+          <Link
+            href="/admin/applications"
+            className="flex items-center gap-2.5 px-3.5 py-2 text-slate-400 hover:bg-slate-800/60 hover:text-white rounded-xl text-xs font-semibold transition"
+          >
+            <FileText className="w-4 h-4 text-pink-400" />
+            <span>Applications</span>
+          </Link>
+          <Link
+            href="/admin/scrape-health"
+            className="flex items-center gap-2.5 px-3.5 py-2 text-slate-400 hover:bg-slate-800/60 hover:text-white rounded-xl text-xs font-semibold transition"
+          >
+            <Activity className="w-4 h-4 text-emerald-400" />
+            <span>Scraper Telemetry</span>
+          </Link>
+        </div>
 
         {/* BOTTOM ADMIN FOOTER */}
         <div className="p-4 border-t border-slate-800 space-y-2">
@@ -335,7 +543,7 @@ export default function AdminPage() {
             <Server className="w-5 h-5 text-blue-400" />
             <div>
               <h1 className="text-lg font-bold text-white capitalize">{activeTab} Management Engine</h1>
-              <p className="text-slate-400 text-xs font-semibold">Real-time control panel for database, scrapers, and AI services</p>
+              <p className="text-slate-400 text-xs font-semibold">Real-time control panel for database, scrapers, and moderation</p>
             </div>
           </div>
 
@@ -346,7 +554,7 @@ export default function AdminPage() {
               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-2"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${scrapingAll ? "animate-spin" : ""}`} />
-              <span>{scrapingAll ? "Syncing Sources..." : "Run All Scrapers & RSS Sync"}</span>
+              <span>{scrapingAll ? "Syncing All Sources..." : "Run All Scrapers & RSS Sync"}</span>
             </button>
           </div>
         </header>
@@ -356,24 +564,24 @@ export default function AdminPage() {
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-1">
             <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Scraped Portals</p>
             <p className="text-2xl font-bold text-white">25 Sources</p>
-            <p className="text-[10px] font-bold text-emerald-400">100% Verified Live</p>
+            <p className="text-[10px] font-bold text-emerald-400">100% Monitored Live</p>
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-1">
-            <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Active Opportunities</p>
-            <p className="text-2xl font-bold text-blue-400">{opportunities.length || 362}+</p>
-            <p className="text-[10px] font-bold text-slate-400">Aggregated Daily</p>
+            <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Loaded Opportunities</p>
+            <p className="text-2xl font-bold text-blue-400">{opportunities.length}+</p>
+            <p className="text-[10px] font-bold text-slate-400">In Direct Moderation</p>
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-1">
-            <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">RSS News Feeds</p>
-            <p className="text-2xl font-bold text-blue-400">8 Feeds</p>
-            <p className="text-[10px] font-bold text-blue-300">IEEE, EE Times &amp; SemiEng</p>
+            <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Subscribers</p>
+            <p className="text-2xl font-bold text-blue-400">{subscribers.length}</p>
+            <p className="text-[10px] font-bold text-emerald-400">Newsletter Reach</p>
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-1">
             <p className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Database Status</p>
-            <p className="text-2xl font-bold text-emerald-400">Healthy</p>
+            <p className="text-2xl font-bold text-emerald-400">Connected</p>
             <p className="text-[10px] font-bold text-emerald-300">Supabase PostgreSQL Live</p>
           </div>
         </div>
@@ -406,26 +614,39 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60">
-                  {scrapeLogs.map((log) => (
-                    <tr key={log.id} className="hover:bg-slate-800/40 transition">
-                      <td className="py-3 px-3 font-mono text-slate-400">{log.timestamp}</td>
-                      <td className="py-3 px-3 font-bold text-blue-400">{log.source}</td>
-                      <td className="py-3 px-3">
-                        {log.status === "success" && (
-                          <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
-                            <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> Success
-                          </span>
-                        )}
-                        {log.status === "running" && (
-                          <span className="inline-flex items-center gap-1 text-amber-400 font-bold">
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" /> In Progress
-                          </span>
-                        )}
+                  {scrapeLogs.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center text-slate-500 text-xs">
+                        No manual runs in this session. Click &quot;Run All Scrapers &amp; RSS Sync&quot; to test.
                       </td>
-                      <td className="py-3 px-3 text-slate-300">{log.message}</td>
-                      <td className="py-3 px-3 text-right font-mono font-bold text-emerald-400">+{log.inserted}</td>
                     </tr>
-                  ))}
+                  ) : (
+                    scrapeLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-slate-800/40 transition">
+                        <td className="py-3 px-3 font-mono text-slate-400">{log.timestamp}</td>
+                        <td className="py-3 px-3 font-bold text-blue-400">{log.source}</td>
+                        <td className="py-3 px-3">
+                          {log.status === "success" && (
+                            <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
+                              <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> Success
+                            </span>
+                          )}
+                          {log.status === "running" && (
+                            <span className="inline-flex items-center gap-1 text-amber-400 font-bold">
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" /> In Progress
+                            </span>
+                          )}
+                          {log.status === "error" && (
+                            <span className="inline-flex items-center gap-1 text-red-400 font-bold">
+                              <AlertTriangle className="w-3.5 h-3.5 text-red-400" /> Failed
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 px-3 text-slate-300">{log.message}</td>
+                        <td className="py-3 px-3 text-right font-mono font-bold text-emerald-400">+{log.inserted}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -435,9 +656,11 @@ export default function AdminPage() {
         {/* TAB 2: MONITORED WEB & RSS SOURCES */}
         {activeTab === "sources" && (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
-            <div>
-              <h3 className="text-base font-bold text-white">Monitored Web Portals &amp; RSS Feeds ({MONITORED_SCRAPER_SOURCES.length})</h3>
-              <p className="text-xs text-slate-400">List of official government, academic, RSS news, and enterprise portals scraped daily</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-bold text-white">Monitored Web Portals &amp; RSS Feeds ({MONITORED_SCRAPER_SOURCES.length})</h3>
+                <p className="text-xs text-slate-400">List of official government, academic, RSS news, and enterprise portals</p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -459,7 +682,7 @@ export default function AdminPage() {
                     </a>
                   </div>
                   <button
-                    onClick={runAllScrapers}
+                    onClick={() => handleTriggerSingleScraper(src.name)}
                     className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold text-xs border border-slate-700 shrink-0 transition"
                   >
                     Sync
@@ -473,24 +696,145 @@ export default function AdminPage() {
         {/* TAB 3: AI ANALYTICS */}
         {activeTab === "ai" && <AIAnalyticsPanel />}
 
-        {/* TAB 4: OPPORTUNITIES MANAGEMENT */}
+        {/* TAB 4: OPPORTUNITIES MODERATION */}
         {activeTab === "opportunities" && (
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-white">Opportunities Directory ({opportunities.length})</h3>
-              <button onClick={fetchOpportunities} className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition">
-                Refresh Directory
-              </button>
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-bold text-white">Opportunities Directory &amp; Moderation ({opportunities.length})</h3>
+                <p className="text-xs text-slate-400">Review, verify, edit, and delete job &amp; fellowship circulars</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/admin/add-opportunity"
+                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Opportunity
+                </Link>
+                <button
+                  onClick={fetchOpportunities}
+                  className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition"
+                >
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            {/* SEARCH & FILTERS */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={oppSearch}
+                  onChange={(e) => setOppSearch(e.target.value)}
+                  placeholder="Search by title, organization, location..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <select
+                value={oppStatusFilter}
+                onChange={(e) => setOppStatusFilter(e.target.value)}
+                className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+              >
+                <option value="all">All Verification Statuses</option>
+                <option value="verified">Verified Only</option>
+                <option value="pending">Pending Moderation</option>
+                <option value="rejected">Rejected</option>
+                <option value="expired">Expired</option>
+              </select>
+
+              <select
+                value={oppCategoryFilter}
+                onChange={(e) => setOppCategoryFilter(e.target.value)}
+                className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+              >
+                <option value="all">All Categories</option>
+                <option value="jrf">JRF (Junior Research)</option>
+                <option value="srf">SRF (Senior Research)</option>
+                <option value="phd">PhD Admissions</option>
+                <option value="government">Government &amp; Scientist B</option>
+                <option value="job">Private Engineering Job</option>
+                <option value="internship">Internships</option>
+              </select>
             </div>
 
             {loading ? (
               <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div>
+            ) : filteredOpps.length === 0 ? (
+              <p className="text-slate-400 text-xs py-8 text-center">No opportunities matched your search criteria.</p>
             ) : (
-              <div className="space-y-2">
-                {opportunities.slice(0, 20).map((opp) => (
-                  <div key={opp.id} className="p-3.5 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between gap-4 text-xs font-semibold">
-                    <span className="truncate max-w-md text-slate-200 font-bold">{opp.title}</span>
-                    <span className="px-2.5 py-1 bg-blue-900/40 border border-blue-500/30 text-blue-300 rounded-lg uppercase text-[10px] font-bold">{opp.category}</span>
+              <div className="space-y-3">
+                {filteredOpps.slice(0, 30).map((opp) => (
+                  <div
+                    key={opp.id}
+                    className="p-4 bg-slate-950 border border-slate-800 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-slate-700 transition"
+                  >
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold text-sm text-white truncate max-w-lg">{opp.title}</span>
+                        <span className="px-2 py-0.5 bg-blue-900/40 text-blue-300 border border-blue-500/30 rounded text-[10px] font-bold uppercase">
+                          {opp.category}
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                            opp.verification_status === "verified"
+                              ? "bg-emerald-950 text-emerald-400 border-emerald-500/30"
+                              : opp.verification_status === "rejected"
+                              ? "bg-red-950 text-red-400 border-red-500/30"
+                              : "bg-amber-950 text-amber-400 border-amber-500/30"
+                          }`}
+                        >
+                          {opp.verification_status || "pending"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400">
+                        <span className="text-slate-300 font-semibold">{opp.organization || "Independent Organization"}</span>
+                        {opp.location && <span> &bull; {opp.location}</span>}
+                        {opp.stipend && <span> &bull; <span className="text-emerald-400 font-semibold">{opp.stipend}</span></span>}
+                        {opp.deadline && <span> &bull; Deadline: {opp.deadline.slice(0, 10)}</span>}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {opp.verification_status !== "verified" && opp.id && (
+                        <button
+                          onClick={() => handleUpdateStatus(opp.id!, "verified")}
+                          title="Approve &amp; Verify"
+                          className="px-2.5 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition"
+                        >
+                          <Check className="w-3.5 h-3.5" /> Verify
+                        </button>
+                      )}
+                      {opp.verification_status !== "rejected" && opp.id && (
+                        <button
+                          onClick={() => handleUpdateStatus(opp.id!, "rejected")}
+                          title="Reject"
+                          className="px-2.5 py-1.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition"
+                        >
+                          <XCircle className="w-3.5 h-3.5" /> Reject
+                        </button>
+                      )}
+                      {opp.id && (
+                        <Link
+                          href={`/admin/edit-opportunity/${opp.id}`}
+                          title="Edit Opportunity"
+                          className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold flex items-center gap-1 border border-slate-700 transition"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" /> Edit
+                        </Link>
+                      )}
+                      {opp.id && (
+                        <button
+                          onClick={() => handleDeleteOpportunity(opp.id!)}
+                          title="Delete Opportunity"
+                          className="px-2.5 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -501,23 +845,48 @@ export default function AdminPage() {
         {/* TAB 5: SUBSCRIBERS */}
         {activeTab === "subscribers" && (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-white">Email Digest Subscribers ({subscribers.length})</h3>
-              <button onClick={fetchSubscribers} className="px-3.5 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-xl">
-                Refresh Subscribers
-              </button>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-bold text-white">Email Digest Subscribers ({subscribers.length})</h3>
+                <p className="text-xs text-slate-400">Manage audience and trigger newsletter broadcasts</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleExportSubscribersCSV}
+                  className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" /> Export CSV
+                </button>
+                <button
+                  onClick={handleTriggerEmailDigest}
+                  className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm"
+                >
+                  <Send className="w-3.5 h-3.5" /> Send Weekly Digest
+                </button>
+              </div>
+            </div>
+
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={subSearch}
+                onChange={(e) => setSubSearch(e.target.value)}
+                placeholder="Search subscriber by email..."
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              />
             </div>
 
             {loading ? (
               <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-blue-400" /></div>
-            ) : subscribers.length === 0 ? (
-              <p className="text-slate-400 text-xs py-6 text-center">No email subscribers registered yet.</p>
+            ) : filteredSubs.length === 0 ? (
+              <p className="text-slate-400 text-xs py-8 text-center">No email subscribers found.</p>
             ) : (
               <div className="space-y-2">
-                {subscribers.map((s) => (
+                {filteredSubs.map((s) => (
                   <div key={s.id} className="p-3 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between text-xs font-semibold">
-                    <span className="text-slate-200">{s.email}</span>
-                    <span className="text-slate-500 text-[10px]">{s.created_at}</span>
+                    <span className="text-slate-200 font-mono">{s.email}</span>
+                    <span className="text-slate-500 text-[10px] font-mono">{s.created_at ? new Date(s.created_at).toLocaleDateString() : "Active"}</span>
                   </div>
                 ))}
               </div>

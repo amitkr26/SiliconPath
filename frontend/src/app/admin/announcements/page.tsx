@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, Plus, Trash2, Megaphone } from "lucide-react";
+import { Loader2, Plus, Trash2, Megaphone, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
+import { api } from "@/lib/api-client";
 
 interface Announcement {
   id: string;
@@ -20,38 +22,41 @@ export default function AdminAnnouncementsPage() {
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/announcements")
-      .then(r => r.json())
-      .then(d => { setAnnouncements(d.announcements || []); setLoading(false); })
+    api.get<{ announcements?: Announcement[] }>("/api/admin/announcements")
+      .then((d) => { setAnnouncements(d?.announcements || []); setLoading(false); })
       .catch(() => { setLoading(false); toast.error("Failed to load announcements"); });
   }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("/api/admin/announcements", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, body }),
-    });
-    if (!res.ok) { toast.error("Failed to create"); return; }
-    const created = await res.json();
-    setAnnouncements(prev => [created, ...prev]);
-    setTitle(""); setBody(""); setShowForm(false);
-    toast.success("Announcement created");
+    try {
+      const created = await api.post<Announcement>("/api/admin/announcements", { title, body });
+      setAnnouncements((prev) => [created, ...prev]);
+      setTitle(""); setBody(""); setShowForm(false);
+      toast.success("Announcement created");
+    } catch {
+      toast.error("Failed to create announcement");
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this announcement?")) return;
-    const res = await fetch(`/api/admin/announcements?id=${id}`, { method: "DELETE" });
-    if (!res.ok) { toast.error("Failed to delete"); return; }
-    setAnnouncements(prev => prev.filter(a => a.id !== id));
-    toast.success("Announcement deleted");
+    try {
+      await api.delete(`/api/admin/announcements?id=${id}`);
+      setAnnouncements((prev) => prev.filter((a) => a.id !== id));
+      toast.success("Announcement deleted");
+    } catch {
+      toast.error("Failed to delete announcement");
+    }
   };
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
+          <Link href="/admin" className="text-slate-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <Megaphone className="w-6 h-6 text-blue-400" />
           <h1 className="font-display text-2xl font-bold text-white">Announcements</h1>
         </div>
