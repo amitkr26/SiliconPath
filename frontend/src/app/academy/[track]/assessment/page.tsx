@@ -4,13 +4,18 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { 
-  ArrowLeft, Award, CheckCircle2, XCircle, Trophy, 
-  HelpCircle, RefreshCw, ChevronRight, Check, X, AlertTriangle 
+import {
+  ArrowLeft, Award, Trophy,
+  HelpCircle, RefreshCw, ChevronRight, Check, X, AlertTriangle
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
-import { LearningTrack, TrackAssessment, AssessmentQuestion } from "@/lib/academy/types";
+import { LearningTrack, TrackAssessment } from "@/lib/academy/types";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { cn } from "@/lib/utils";
 import { Toaster, toast } from "sonner";
 
 export default function TrackAssessmentPage() {
@@ -77,7 +82,7 @@ export default function TrackAssessmentPage() {
     return (
       <div className="min-h-screen bg-[#FAF9F6] text-slate-900 flex flex-col items-center justify-center">
         <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-slate-600 font-semibold text-sm">Opening testing terminal...</p>
+        <p className="mt-4 text-slate-600 font-medium text-sm">Opening testing terminal...</p>
       </div>
     );
   }
@@ -128,7 +133,7 @@ export default function TrackAssessmentPage() {
         status: hasPassed ? "completed" : "in_progress",
         score: finalScore,
       });
-      
+
       if (hasPassed) {
         toast.success(`Congratulations! You passed the ${track.title} assessment!`);
       } else {
@@ -148,38 +153,34 @@ export default function TrackAssessmentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div className="max-w-3xl mx-auto relative z-10 space-y-8">
+    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto space-y-8">
         {/* Navigation */}
-        <Link 
-          href={`/academy/${track.slug}`} 
-          className="inline-flex items-center gap-2 text-sm font-extrabold text-blue-600 hover:underline transition-colors"
+        <Link
+          href={`/academy/${track.slug}`}
+          className="inline-flex items-center gap-2 text-sm font-black text-blue-600 hover:underline transition-colors"
         >
           <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
           Cancel and return to Track
         </Link>
 
         {/* Header Panel */}
-        <div className="bg-white p-8 rounded-2xl border-3 border-slate-900 shadow-[6px_6px_0px_0px_#0F172A] text-center space-y-3">
-          <div className="inline-flex p-4 rounded-2xl bg-blue-100 text-blue-900 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] mb-2">
-            <Trophy className="w-8 h-8 text-blue-600 stroke-[2.5]" />
+        <Card className="p-8 text-center space-y-3">
+          <div className="inline-flex p-4 rounded-2xl bg-blue-600 text-white border-2 border-slate-900 shadow-brutal-sm mb-2">
+            <Trophy className="w-8 h-8 stroke-[2.5]" />
           </div>
-          <h1 className="text-3xl font-black text-slate-900">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
             {track.title} Gating Assessment
           </h1>
-          <p className="text-sm font-semibold text-slate-600 max-w-xl mx-auto leading-relaxed">
-            Verify your understanding of all materials in this track. Scoring <strong className="text-slate-900 font-extrabold">{assessment.passing_score_percent}%</strong> or higher unlocks the next course in the VLSI curriculum.
+          <p className="text-sm font-medium text-slate-600 max-w-xl mx-auto leading-relaxed">
+            Verify your understanding of all materials in this track. Scoring <strong className="text-slate-900 font-black">{assessment.passing_score_percent}%</strong> or higher unlocks the next course in the VLSI curriculum.
           </p>
-        </div>
+        </Card>
 
         {/* Gating Status / Result Cards */}
         {isSubmitted && (
-          <div className={`p-8 rounded-2xl border-3 border-slate-900 text-center space-y-4 shadow-[6px_6px_0px_0px_#0F172A] ${
-            passed 
-              ? "bg-emerald-50" 
-              : "bg-red-50"
-          }`}>
-            <div className="inline-flex p-4 rounded-full bg-white border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]">
+          <Card className={cn("p-8 text-center space-y-4 shadow-brutal-lg", passed ? "bg-emerald-50" : "bg-red-50")}>
+            <div className="inline-flex p-4 rounded-full bg-white border-2 border-slate-900 shadow-brutal-sm">
               {passed ? (
                 <Award className="w-12 h-12 text-emerald-600" />
               ) : (
@@ -192,38 +193,28 @@ export default function TrackAssessmentPage() {
                 {passed ? "Assessment Passed!" : "Assessment Failed"}
               </h3>
               <p className="text-sm font-semibold text-slate-700">
-                You scored <strong className="text-slate-900 font-extrabold text-base">{scorePercent}%</strong>. Required passing score: {assessment.passing_score_percent}%.
+                You scored <strong className="text-slate-900 font-black text-base">{scorePercent}%</strong>. Required passing score: {assessment.passing_score_percent}%.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               {passed ? (
-                <Link
-                  href="/academy"
-                  className="px-6 py-3 rounded-xl text-sm font-black bg-blue-600 text-white border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-blue-700 transition-all"
-                >
+                <Button href="/academy" size="lg">
                   Return to Academy Dashboard
-                </Link>
+                </Button>
               ) : (
                 <>
-                  <button
-                    type="button"
-                    onClick={handleRetry}
-                    className="px-6 py-3 rounded-xl text-sm font-black bg-red-600 text-white border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-red-700 transition-all flex items-center gap-2"
-                  >
+                  <Button variant="danger" size="lg" onClick={handleRetry}>
                     <RefreshCw className="w-4 h-4 stroke-[2.5]" />
                     Retry Assessment
-                  </button>
-                  <Link
-                    href={`/academy/${track.slug}`}
-                    className="px-6 py-3 rounded-xl text-sm font-black bg-white text-slate-900 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-blue-50 transition-all"
-                  >
+                  </Button>
+                  <Button variant="secondary" size="lg" href={`/academy/${track.slug}`}>
                     Review Curriculum Days
-                  </Link>
+                  </Button>
                 </>
               )}
             </div>
-          </div>
+          </Card>
         )}
 
         {/* Questions Terminal */}
@@ -233,15 +224,9 @@ export default function TrackAssessmentPage() {
             const isCorrect = userAns.trim().toLowerCase() === q.correct.trim().toLowerCase();
 
             return (
-              <div 
+              <Card
                 key={idx}
-                className={`p-6 rounded-2xl border-3 border-slate-900 transition-all duration-300 shadow-[4px_4px_0px_0px_#0F172A] ${
-                  isSubmitted
-                    ? isCorrect
-                      ? "bg-emerald-50"
-                      : "bg-red-50"
-                    : "bg-white"
-                }`}
+                className={cn("p-6 transition-all duration-300", isSubmitted && (isCorrect ? "bg-emerald-50" : "bg-red-50"))}
               >
                 {/* Question Header */}
                 <div className="flex justify-between items-center gap-4 border-b-2 border-slate-900 pb-3 mb-4">
@@ -249,23 +234,19 @@ export default function TrackAssessmentPage() {
                     Question {idx + 1}
                   </span>
                   {isSubmitted && (
-                    <span className={`flex items-center gap-1 text-xs font-black ${
-                      isCorrect ? "text-emerald-700" : "text-red-700"
-                    }`}>
-                      {isCorrect ? (
-                        <>
-                          <Check className="w-4 h-4 stroke-[3]" /> Correct
-                        </>
-                      ) : (
-                        <>
-                          <X className="w-4 h-4 stroke-[3]" /> Incorrect
-                        </>
-                      )}
-                    </span>
+                    isCorrect ? (
+                      <Badge tone="success">
+                        <Check className="w-3 h-3 stroke-[3]" /> Correct
+                      </Badge>
+                    ) : (
+                      <Badge tone="danger">
+                        <X className="w-3 h-3 stroke-[3]" /> Incorrect
+                      </Badge>
+                    )
                   )}
                 </div>
 
-                <p className="text-base text-slate-900 font-extrabold mb-4 leading-relaxed">
+                <p className="text-base text-slate-900 font-bold mb-4 leading-relaxed">
                   {q.q}
                 </p>
 
@@ -275,19 +256,19 @@ export default function TrackAssessmentPage() {
                     {q.options.map((opt) => {
                       const isSelected = userAns === opt;
                       const isCorrectOption = opt === q.correct;
-                      
-                      let btnStyle = "bg-white border-2 border-slate-900 text-slate-900 hover:bg-blue-50 font-bold shadow-[2px_2px_0px_0px_#0F172A]";
-                      
+
+                      let btnStyle = "bg-white border-2 border-slate-900 text-slate-900 hover:bg-blue-50 font-bold shadow-brutal-sm";
+
                       if (isSubmitted) {
                         if (isCorrectOption) {
-                          btnStyle = "bg-emerald-100 border-2 border-slate-900 text-emerald-950 font-black shadow-[2px_2px_0px_0px_#0F172A]";
+                          btnStyle = "bg-emerald-100 border-2 border-slate-900 text-emerald-950 font-black shadow-brutal-sm";
                         } else if (isSelected) {
-                          btnStyle = "bg-red-100 border-2 border-slate-900 text-red-950 font-black shadow-[2px_2px_0px_0px_#0F172A]";
+                          btnStyle = "bg-red-100 border-2 border-slate-900 text-red-950 font-black shadow-brutal-sm";
                         } else {
-                          btnStyle = "bg-slate-100 border-2 border-slate-300 text-slate-400 opacity-60";
+                          btnStyle = "bg-slate-100 border-2 border-slate-300 text-slate-400 opacity-60 shadow-none";
                         }
                       } else if (isSelected) {
-                        btnStyle = "bg-blue-600 border-2 border-slate-900 text-white font-black shadow-[3px_3px_0px_0px_#0F172A]";
+                        btnStyle = "bg-blue-600 border-2 border-slate-900 text-white font-black shadow-brutal";
                       }
 
                       return (
@@ -307,13 +288,12 @@ export default function TrackAssessmentPage() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <input
+                    <Input
                       type="text"
                       disabled={isSubmitted}
                       value={userAns}
                       onChange={(e) => handleTextChange(idx, e.target.value)}
                       placeholder="Type your answer here..."
-                      className="w-full bg-white border-2 border-slate-900 rounded-xl px-4 py-3.5 text-slate-900 font-bold placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-[2px_2px_0px_0px_#0F172A]"
                     />
                     {isSubmitted && (
                       <div className="flex items-center gap-2 text-sm pt-1 font-bold">
@@ -328,37 +308,33 @@ export default function TrackAssessmentPage() {
 
                 {/* Explanation */}
                 {isSubmitted && q.exp && (
-                  <div className="mt-4 p-4 bg-blue-50 border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_#0F172A]">
+                  <div className="mt-4 p-4 bg-blue-50 border-2 border-slate-900 rounded-xl shadow-brutal-sm">
                     <p className="text-xs text-blue-700 font-black uppercase tracking-wider mb-1 flex items-center gap-1.5">
                       <HelpCircle className="w-4 h-4 text-blue-600 stroke-[2.5]" /> Explanation
                     </p>
-                    <p className="text-xs md:text-sm text-slate-900 font-semibold leading-relaxed">
+                    <p className="text-xs md:text-sm text-slate-900 font-medium leading-relaxed">
                       {q.exp}
                     </p>
                   </div>
                 )}
-              </div>
+              </Card>
             );
           })}
         </div>
 
         {/* Submit Panel */}
         {!isSubmitted && (
-          <div className="p-6 bg-white border-3 border-slate-900 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[6px_6px_0px_0px_#0F172A]">
+          <Card className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-center sm:text-left space-y-1">
               <h4 className="text-sm font-black text-slate-900">Ready to submit?</h4>
-              <p className="text-xs font-semibold text-slate-600">Ensure you have answered all questions. You can retry if you don&apos;t pass.</p>
+              <p className="text-xs font-medium text-slate-600">Ensure you have answered all questions. You can retry if you don&apos;t pass.</p>
             </div>
 
-            <button
-              type="button"
-              onClick={handleSubmitQuiz}
-              className="w-full sm:w-auto px-8 py-3 rounded-xl text-sm font-black bg-blue-600 text-white border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
-            >
+            <Button size="lg" onClick={handleSubmitQuiz} className="w-full sm:w-auto">
               Submit Assessment
               <ChevronRight className="w-4 h-4 stroke-[2.5]" />
-            </button>
-          </div>
+            </Button>
+          </Card>
         )}
       </div>
       <Toaster position="bottom-right" theme="light" />

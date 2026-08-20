@@ -24,8 +24,8 @@ export interface ButtonProps {
   href?: string;
   className?: string;
   children: React.ReactNode;
-  type?: "button" | "submit";
-  onClick?: () => void;
+  type?: "button" | "submit" | "reset";
+  onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
   disabled?: boolean;
   ariaLabel?: string;
 }

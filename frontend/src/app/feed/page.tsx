@@ -11,6 +11,9 @@ import { useFeed, useCreatePost, useLikePost } from "@/hooks/useFeed";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 import type { FeedPost } from "@/types";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { cn } from "@/lib/utils";
 
 interface Opp {
   id: string;
@@ -115,9 +118,9 @@ export default function FeedPage() {
         {/* Main column */}
         <div className="space-y-4 min-w-0">
           {/* Composer */}
-          <div className="bg-bg-secondary border border-border rounded-xl p-4">
+          <Card className="p-4 sm:p-5">
             <div className="flex gap-3">
-              <div className="w-10 h-10 rounded-full bg-accent/15 text-accent flex items-center justify-center text-sm font-bold flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 text-white flex items-center justify-center text-sm font-black flex-shrink-0 shadow-brutal-sm">
                 {initials(displayName)}
               </div>
               <div className="flex-1 min-w-0">
@@ -126,54 +129,54 @@ export default function FeedPage() {
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Share something with your network..."
                   rows={2}
-                  className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none resize-none"
+                  className="w-full bg-white border-2 border-slate-900 text-slate-900 text-sm font-medium rounded-xl px-3.5 py-2.5 placeholder:text-slate-400 shadow-brutal-sm focus:outline-none focus:border-accent focus:shadow-brutal resize-none transition-all"
                 />
-                <div className="flex justify-end mt-2">
-                  <button
+                <div className="flex justify-end mt-2.5">
+                  <Button
                     onClick={handleSubmit}
                     disabled={createPost.isPending || !content.trim()}
-                    className="inline-flex items-center gap-1.5 bg-accent text-white text-sm font-semibold rounded-lg px-4 py-2 disabled:opacity-50"
+                    size="sm"
                   >
                     {createPost.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                     Post
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* Posts */}
           {posts.length === 0 ? (
-            <div className="bg-bg-secondary border border-border rounded-xl p-10 text-center">
-              <Users className="w-10 h-10 text-text-muted mx-auto mb-3" />
-              <p className="text-text-primary font-medium">No posts yet</p>
-              <p className="text-text-secondary text-sm mt-1">
+            <Card className="p-10 text-center">
+              <Users className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+              <p className="text-slate-900 font-bold">No posts yet</p>
+              <p className="text-slate-600 text-sm mt-1 font-medium">
                 Connect with people to see their posts here.
               </p>
-              <Link href="/network" className="inline-block mt-4 text-accent text-sm font-medium">
+              <Link href="/network" className="inline-block mt-4 text-accent text-sm font-bold">
                 Find people to follow
               </Link>
-            </div>
+            </Card>
           ) : (
             <div className="space-y-4">
               {posts.map((post: FeedPost) => (
-                <div key={post.id} className="bg-bg-secondary border border-border rounded-xl p-4">
+                <Card key={post.id} className="p-4 sm:p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-full bg-accent/15 text-accent flex items-center justify-center text-sm font-bold flex-shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 text-white flex items-center justify-center text-sm font-black flex-shrink-0 shadow-brutal-sm">
                         {initials(post.author?.display_name)}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-text-primary truncate">
+                        <p className="text-sm font-bold text-slate-900 truncate">
                           {post.author?.display_name || "Member"}
                         </p>
-                        <p className="text-xs text-text-muted">{timeAgo(post.created_at)}</p>
+                        <p className="text-xs text-slate-500 font-medium">{timeAgo(post.created_at)}</p>
                       </div>
                     </div>
                     {post.user_id === user?.id && (
                       <button
                         onClick={() => remove(post.id)}
-                        className="text-text-muted hover:text-danger transition-colors"
+                        className="text-slate-400 hover:text-red-600 transition-colors"
                         aria-label="Delete post"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -181,29 +184,30 @@ export default function FeedPage() {
                     )}
                   </div>
 
-                  <p className="text-sm text-text-primary mt-3 whitespace-pre-wrap break-words">
+                  <p className="text-sm text-slate-800 mt-3 whitespace-pre-wrap break-words font-medium">
                     {post.content}
                   </p>
 
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t-2 border-slate-200">
                     <button
                       onClick={() => like(post.id)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      className={cn(
+                        "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 text-xs font-bold transition-all",
                         post.user_reaction
-                          ? "bg-accent/15 text-accent"
-                          : "text-text-secondary hover:bg-bg-primary hover:text-text-primary"
-                      }`}
+                          ? "bg-blue-600 text-white border-slate-900 shadow-brutal-sm"
+                          : "bg-white text-slate-600 border-slate-900 hover:bg-slate-100 hover:text-slate-900",
+                      )}
                     >
-                      <ThumbsUp className="w-4 h-4" /> {post.likes_count || 0}
+                      <ThumbsUp className="w-3.5 h-3.5" /> {post.likes_count || 0}
                     </button>
-                    <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-text-secondary">
-                      <MessageCircle className="w-4 h-4" /> {post.comments_count || 0}
+                    <span className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-slate-900 text-xs font-semibold text-slate-600 bg-white">
+                      <MessageCircle className="w-3.5 h-3.5" /> {post.comments_count || 0}
                     </span>
-                    <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-text-secondary">
-                      <Repeat2 className="w-4 h-4" />
+                    <span className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border-2 border-slate-900 text-xs font-semibold text-slate-600 bg-white">
+                      <Repeat2 className="w-3.5 h-3.5" />
                     </span>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           )}
@@ -211,29 +215,29 @@ export default function FeedPage() {
 
         {/* Sidebar */}
         <aside className="hidden lg:block space-y-4">
-          <div className="bg-bg-secondary border border-border rounded-xl p-4">
-            <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-accent" /> Latest Opportunities
+          <Card className="p-5">
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-blue-600" /> Latest Opportunities
             </h3>
             <div className="space-y-3">
-              {opps.length === 0 && <p className="text-xs text-text-muted">No opportunities yet</p>}
+              {opps.length === 0 && <p className="text-xs text-slate-500 font-medium">No opportunities yet</p>}
               {opps.map((o) => (
                 <Link
                   key={o.id}
                   href={o.slug ? `/opportunities/${o.slug}` : "/opportunities"}
                   className="block group"
                 >
-                  <p className="text-sm font-medium text-text-primary group-hover:text-accent transition-colors line-clamp-2">
+                  <p className="text-sm font-medium text-slate-900 group-hover:text-accent transition-colors line-clamp-2">
                     {o.title}
                   </p>
-                  <p className="text-xs text-text-muted">{o.organizations?.name || ""}</p>
+                  <p className="text-xs text-slate-500 font-medium">{o.organizations?.name || ""}</p>
                 </Link>
               ))}
             </div>
-            <Link href="/opportunities" className="inline-block mt-3 text-xs text-accent font-medium">
+            <Link href="/opportunities" className="inline-block mt-3 text-xs font-bold text-accent">
               View all
             </Link>
-          </div>
+          </Card>
         </aside>
       </div>
     </div>

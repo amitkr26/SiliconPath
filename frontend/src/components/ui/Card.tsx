@@ -14,11 +14,13 @@ export interface CardProps {
   hover?: boolean;
   className?: string;
   children: React.ReactNode;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-export function Card({ tone = "default", hover = false, className, children }: CardProps) {
+export function Card({ tone = "default", hover = false, className, children, onClick }: CardProps) {
   return (
     <div
+      onClick={onClick}
       className={cn(
         "rounded-2xl",
         toneClasses[tone],

@@ -2,19 +2,30 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Users, Search, UserPlus, Sparkles, MessageSquare } from "lucide-react";
+import { Loader2, Users, UserPlus, Sparkles, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/hooks/useUser";
 import { useConnections, useConnectionSuggestions } from "@/hooks/useNetwork";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import nextDynamic from "next/dynamic";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { cn } from "@/lib/utils";
 
 const ConnectionCard = nextDynamic(() => import("@/components/ConnectionCard"), {
-  loading: () => <div className="h-32 bg-white border-3 border-slate-900 rounded-2xl animate-pulse" />,
+  loading: () => <div className="h-32 bg-white border-2 border-slate-900 rounded-2xl animate-pulse" />,
 });
 
 type TabKey = "suggestions" | "received" | "sent" | "connections";
+
+const TAB_LABELS: Record<TabKey, string> = {
+  suggestions: "Suggested Connections",
+  received: "Received Requests",
+  sent: "Sent Requests",
+  connections: "My Connections",
+};
 
 interface Request {
   id: string;
@@ -23,6 +34,8 @@ interface Request {
   requester?: { id: string; username?: string | null; display_name?: string | null; headline?: string | null; avatar_url?: string | null } | null;
   addressee?: { id: string; username?: string | null; display_name?: string | null; headline?: string | null; avatar_url?: string | null } | null;
 }
+
+const FALLBACK_AVATAR = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80";
 
 export default function NetworkPage() {
   const router = useRouter();
@@ -108,27 +121,27 @@ export default function NetworkPage() {
 
   if (userLoading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center bg-[#FAF9F6]">
+      <div className="min-h-[60vh] flex items-center justify-center bg-bg-primary">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-bg-primary py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        
+
         {/* HEADER */}
-        <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 sm:p-8 shadow-[6px_6px_0px_0px_#0F172A] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <Card className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 text-white text-xs font-black rounded-lg border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]">
-              <Users className="w-4 h-4 stroke-[2.5]" />
-              <span>SEMICONDUCTOR &amp; HARDWARE NETWORK</span>
-            </div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight mt-2">
+            <Badge tone="accent" className="mb-3">
+              <Users className="w-3.5 h-3.5" />
+              Semiconductor &amp; Hardware Network
+            </Badge>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">
               Professional VLSI Network
             </h1>
-            <p className="text-slate-600 text-xs font-semibold mt-1">
+            <p className="text-slate-600 text-sm font-medium mt-1.5">
               Connect with DRDO scientists, ISRO engineers, IIT researchers, and global fabless microelectronics leaders.
             </p>
           </div>
@@ -138,17 +151,18 @@ export default function NetworkPage() {
               <button
                 key={k}
                 onClick={() => setTab(k)}
-                className={`px-4 py-2 rounded-xl text-xs font-black border-2 border-slate-900 transition-all ${
+                className={cn(
+                  "px-4 py-2 rounded-full text-xs font-black border-2 border-slate-900 transition-all",
                   tab === k
-                    ? "bg-blue-600 text-white shadow-[3px_3px_0px_0px_#0F172A]"
-                    : "bg-white text-slate-900 hover:bg-slate-100 shadow-[2px_2px_0px_0px_#0F172A]"
-                }`}
+                    ? "bg-blue-600 text-white shadow-brutal-sm"
+                    : "bg-white text-slate-900 hover:bg-slate-100",
+                )}
               >
-                {k === "suggestions" ? "Suggested Connections" : k === "received" ? "Received Requests" : k === "sent" ? "Sent Requests" : "My Connections"}
+                {TAB_LABELS[k]}
               </button>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* TAB CONTENT */}
         {tab === "suggestions" && (
@@ -159,61 +173,65 @@ export default function NetworkPage() {
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
               </div>
             ) : suggestions.length === 0 ? (
-              <div className="bg-white border-3 border-slate-900 rounded-2xl p-12 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+              <Card className="p-12 text-center">
                 <Users className="w-12 h-12 text-slate-400 mx-auto mb-3" />
                 <h3 className="text-lg font-black text-slate-900">No suggestions right now</h3>
-                <p className="text-slate-600 text-xs mt-1">Check back soon as more engineers join the network.</p>
-              </div>
+                <p className="text-slate-600 text-xs mt-1 font-medium">Check back soon as more engineers join the network.</p>
+              </Card>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {suggestions.map((person: any) => (
-                  <div
+                  <Card
                     key={person.id}
+                    hover
+                    className="p-6 flex flex-col justify-between cursor-pointer"
                     onClick={() => router.push(`/profile/${person.username || person.id}`)}
-                    className="bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[5px_5px_0px_0px_#0F172A] hover:shadow-[7px_7px_0px_0px_#0F172A] hover:-translate-y-0.5 transition-all flex flex-col justify-between cursor-pointer"
                   >
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                        <Link href={`/profile/${person.username || person.id}`} className="shrink-0">
+                        <Link href={`/profile/${person.username || person.id}`} className="shrink-0" onClick={(e) => e.stopPropagation()}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={person.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
+                            src={person.avatar_url || FALLBACK_AVATAR}
                             alt={person.display_name || "Engineer"}
-                            className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A] hover:ring-2 hover:ring-blue-500 transition-all"
+                            className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 shadow-brutal-sm hover:ring-2 hover:ring-blue-500 transition-all"
                           />
                         </Link>
                         <div>
-                          <Link href={`/profile/${person.username || person.id}`} className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors">
+                          <Link href={`/profile/${person.username || person.id}`} className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors" onClick={(e) => e.stopPropagation()}>
                             {person.display_name || "Berojgar Member"}
                           </Link>
                           {(person.headline || person.current_company) && (
-                            <p className="text-[11px] font-bold text-slate-600 line-clamp-1">{person.headline || person.current_company}</p>
+                            <p className="text-[11px] font-semibold text-slate-600 line-clamp-1">{person.headline || person.current_company}</p>
                           )}
                         </div>
                       </div>
                       {person.bio && (
-                        <p className="text-xs text-slate-700 font-semibold leading-relaxed line-clamp-2">
+                        <p className="text-xs text-slate-700 font-medium leading-relaxed line-clamp-2">
                           {person.bio}
                         </p>
                       )}
                     </div>
 
                     <div className="pt-4 flex items-center gap-2">
-                      <button
+                      <Button
+                        size="sm"
+                        className="flex-1"
                         onClick={(e) => { e.stopPropagation(); connect(person.id); }}
-                        className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] transition-all flex items-center justify-center gap-1.5"
                       >
                         <UserPlus className="w-3.5 h-3.5" /> Connect
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="px-2.5"
+                        ariaLabel="Send Message"
                         onClick={(e) => { e.stopPropagation(); router.push(`/messages?user=${person.id}`); }}
-                        className="p-2 bg-white hover:bg-slate-100 text-slate-900 rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A] transition-all"
-                        title="Send Message"
                       >
                         <MessageSquare className="w-4 h-4 text-blue-600" />
-                      </button>
+                      </Button>
                     </div>
-                  </div>
+                  </Card>
                 ))}
               </div>
             )}
@@ -227,12 +245,12 @@ export default function NetworkPage() {
               <div className="py-12 flex justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
               </div>
-            ) : requests.length === 0 ? (
-              <div className="bg-white border-3 border-slate-900 rounded-2xl p-12 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+            ) : requests.filter((req) => req.direction === "incoming").length === 0 ? (
+              <Card className="p-12 text-center">
                 <Users className="w-12 h-12 text-slate-400 mx-auto mb-3" />
                 <h3 className="text-lg font-black text-slate-900">No pending connection requests</h3>
-                <p className="text-slate-600 text-xs mt-1">When engineers send you connection requests, they will appear here.</p>
-              </div>
+                <p className="text-slate-600 text-xs mt-1 font-medium">When engineers send you connection requests, they will appear here.</p>
+              </Card>
             ) : (
               <div className="space-y-4">
                 {requests.filter((req) => req.direction === "incoming").map((req) => {
@@ -241,42 +259,45 @@ export default function NetworkPage() {
                   const otherHeadline = req.requester?.headline || "Hardware Engineer";
                   const otherProfile = `/profile/${req.requester?.username || req.requester?.id || "#"}`;
                   return (
-                    <div
+                    <Card
                       key={req.id}
+                      hover
+                      className="p-5 flex items-center justify-between gap-4 cursor-pointer"
                       onClick={() => otherProfile !== "#" && router.push(otherProfile)}
-                      className="bg-white border-3 border-slate-900 rounded-2xl p-5 shadow-[4px_4px_0px_0px_#0F172A] flex items-center justify-between gap-4 cursor-pointer hover:shadow-[6px_6px_0px_0px_#0F172A] transition-all"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
                         <Link href={otherProfile} className="shrink-0" onClick={(e) => e.stopPropagation()}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={otherAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
+                            src={otherAvatar || FALLBACK_AVATAR}
                             alt={otherName}
-                            className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 hover:ring-2 hover:ring-blue-500 transition-all"
+                            className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 shadow-brutal-sm hover:ring-2 hover:ring-blue-500 transition-all"
                           />
                         </Link>
-                        <div>
-                          <Link href={otherProfile} className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors" onClick={(e) => e.stopPropagation()}>
+                        <div className="min-w-0">
+                          <Link href={otherProfile} className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors block truncate" onClick={(e) => e.stopPropagation()}>
                             {otherName}
                           </Link>
-                          <p className="text-xs text-slate-600 font-semibold">{otherHeadline}</p>
+                          <p className="text-xs text-slate-600 font-medium">{otherHeadline}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Button
+                          variant="primary"
+                          size="sm"
                           onClick={(e) => { e.stopPropagation(); respond(req.id, "accepted"); }}
-                          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_#0F172A]"
                         >
                           Accept
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
                           onClick={(e) => { e.stopPropagation(); respond(req.id, "rejected"); }}
-                          className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl"
                         >
                           Decline
-                        </button>
+                        </Button>
                       </div>
-                    </div>
+                    </Card>
                   );
                 })}
               </div>
@@ -292,46 +313,49 @@ export default function NetworkPage() {
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
               </div>
             ) : requests.filter((req) => req.direction === "outgoing").length === 0 ? (
-              <div className="bg-white border-3 border-slate-900 rounded-2xl p-12 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+              <Card className="p-12 text-center">
                 <Users className="w-12 h-12 text-slate-400 mx-auto mb-3" />
                 <h3 className="text-lg font-black text-slate-900">No sent requests</h3>
-                <p className="text-slate-600 text-xs mt-1">Connection requests you send will appear here until the recipient responds.</p>
-              </div>
+                <p className="text-slate-600 text-xs mt-1 font-medium">Connection requests you send will appear here until the recipient responds.</p>
+              </Card>
             ) : (
               <div className="space-y-4">
                 {requests.filter((req) => req.direction === "outgoing").map((req) => {
                   const otherProfile = `/profile/${req.addressee?.username || req.addressee?.id || "#"}`;
                   return (
-                    <div
+                    <Card
                       key={req.id}
+                      hover
+                      className="p-5 flex items-center justify-between gap-4 cursor-pointer"
                       onClick={() => otherProfile !== "#" && router.push(otherProfile)}
-                      className="bg-white border-3 border-slate-900 rounded-2xl p-5 shadow-[4px_4px_0px_0px_#0F172A] flex items-center justify-between gap-4 cursor-pointer hover:shadow-[6px_6px_0px_0px_#0F172A] transition-all"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
                         <Link href={otherProfile} className="shrink-0" onClick={(e) => e.stopPropagation()}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={req.addressee?.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
+                            src={req.addressee?.avatar_url || FALLBACK_AVATAR}
                             alt={req.addressee?.display_name || "Engineer"}
-                            className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 hover:ring-2 hover:ring-blue-500 transition-all"
+                            className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 shadow-brutal-sm hover:ring-2 hover:ring-blue-500 transition-all"
                           />
                         </Link>
-                        <div>
-                          <Link href={otherProfile} className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors" onClick={(e) => e.stopPropagation()}>
+                        <div className="min-w-0">
+                          <Link href={otherProfile} className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors block truncate" onClick={(e) => e.stopPropagation()}>
                             {req.addressee?.display_name || "Engineer"}
                           </Link>
-                          <p className="text-xs text-slate-600 font-semibold">
+                          <p className="text-xs text-slate-600 font-medium">
                             {req.addressee?.headline || "Hardware Engineer"} — awaiting response
                           </p>
                         </div>
                       </div>
-                      <button
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="shrink-0"
                         onClick={(e) => { e.stopPropagation(); respond(req.id, "withdrawn"); }}
-                        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-black border-2 border-slate-900 rounded-xl"
                       >
                         Cancel Request
-                      </button>
-                    </div>
+                      </Button>
+                    </Card>
                   );
                 })}
               </div>
@@ -347,11 +371,11 @@ export default function NetworkPage() {
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
               </div>
             ) : connections.length === 0 ? (
-              <div className="bg-white border-3 border-slate-900 rounded-2xl p-12 text-center shadow-[4px_4px_0px_0px_#0F172A]">
+              <Card className="p-12 text-center">
                 <Users className="w-12 h-12 text-slate-400 mx-auto mb-3" />
                 <h3 className="text-lg font-black text-slate-900">No active connections yet</h3>
-                <p className="text-slate-600 text-xs mt-1">Connect with candidate engineers and employers under &apos;Suggested Connections&apos;.</p>
-              </div>
+                <p className="text-slate-600 text-xs mt-1 font-medium">Connect with candidate engineers and employers under &apos;Suggested Connections&apos;.</p>
+              </Card>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {connections.map((c: any) => (

@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Briefcase, Loader2 } from "lucide-react";
 import CategoryBadge from "@/components/CategoryBadge";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
 const CATEGORY_CONFIG: Record<string, {
   title: string;
@@ -121,14 +123,14 @@ export default function CategoryPage({ params }: { params: { category: string } 
       </Link>
 
       <div className="mb-6">
-        <h1 className="font-display text-3xl font-bold text-text-primary">{config.h1}</h1>
-        <p className="text-text-secondary mt-1 text-sm">{config.subline}</p>
-        <p className="text-accent text-sm mt-2 font-semibold">{opportunities.length} Active Positions Verified</p>
+        <h1 className="font-display text-3xl font-black text-text-primary">{config.h1}</h1>
+        <p className="text-text-secondary mt-1 text-sm font-medium">{config.subline}</p>
+        <p className="text-accent text-sm mt-2 font-bold">{opportunities.length} Active Positions Verified</p>
       </div>
 
-      <div className="bg-surface border border-border rounded-xl p-5 mb-8">
-        <p className="text-text-secondary text-sm leading-relaxed">{config.description}</p>
-      </div>
+      <Card tone="flat" className="p-5 mb-8">
+        <p className="text-text-secondary text-sm font-medium leading-relaxed">{config.description}</p>
+      </Card>
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
@@ -140,37 +142,41 @@ export default function CategoryPage({ params }: { params: { category: string } 
             <Link
               key={opp.id || opp.slug}
               href={`/opportunities/${opp.slug || opp.id}`}
-              className="bg-surface border border-border rounded-xl p-5 hover:border-accent/40 transition-all hover:-translate-y-0.5 block shadow-sm"
+              className="block h-full"
             >
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <CategoryBadge category={opp.category || config.slugLabel} />
-                {opp.deadline && (
-                  <span className="text-xs text-text-muted">
-                    {new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-                  </span>
+              <Card hover className="p-5 h-full">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <CategoryBadge category={opp.category || config.slugLabel} />
+                  {opp.deadline && (
+                    <span className="text-xs text-text-muted font-semibold">
+                      {new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-text-primary text-base font-bold line-clamp-2 leading-snug">{opp.title}</h3>
+                <p className="text-text-secondary text-sm mt-1 font-medium">{opp.organization}</p>
+                {(opp.stipend || opp.location) && (
+                  <p className="text-text-muted text-xs mt-2 flex items-center gap-2">
+                    {opp.stipend && <span className="text-accent font-bold">{opp.stipend}</span>}
+                    {opp.stipend && opp.location && <span>•</span>}
+                    {opp.location && <span>{opp.location}</span>}
+                  </p>
                 )}
-              </div>
-              <h3 className="text-text-primary text-base font-bold line-clamp-2 leading-snug">{opp.title}</h3>
-              <p className="text-text-secondary text-sm mt-1 font-medium">{opp.organization}</p>
-              {(opp.stipend || opp.location) && (
-                <p className="text-text-muted text-xs mt-2 flex items-center gap-2">
-                  {opp.stipend && <span className="text-accent font-semibold">{opp.stipend}</span>}
-                  {opp.stipend && opp.location && <span>•</span>}
-                  {opp.location && <span>{opp.location}</span>}
-                </p>
-              )}
+              </Card>
             </Link>
           ))}
         </div>
       ) : (
-        <div className="text-center py-14 bg-surface border border-border rounded-xl mb-12">
+        <Card className="text-center py-14 mb-12">
           <Briefcase className="w-12 h-12 text-text-muted mx-auto mb-3" />
-          <p className="text-text-primary text-lg font-semibold mb-1">No active positions under this tag right now.</p>
-          <p className="text-text-secondary text-sm max-w-md mx-auto mb-4">New verified opportunities are added daily. Browse all open roles across 88 semiconductor organizations.</p>
-          <Link href="/opportunities" className="inline-flex items-center gap-2 bg-accent text-[#0F172A] font-semibold rounded-lg px-5 py-2.5 text-sm hover:bg-accent-hover transition-colors">
-            Browse All Opportunities
-          </Link>
-        </div>
+          <p className="text-text-primary text-lg font-bold mb-1">No active positions under this tag right now.</p>
+          <p className="text-text-secondary text-sm font-medium max-w-md mx-auto mb-4">New verified opportunities are added daily. Browse all open roles across 88 semiconductor organizations.</p>
+          <div className="flex justify-center">
+            <Button href="/opportunities">
+              Browse All Opportunities
+            </Button>
+          </div>
+        </Card>
       )}
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { X, Check } from "lucide-react";
+import { Card } from "@/components/ui/Card";
 
 interface FilterBarProps {
   selectedCategory: string;
@@ -62,16 +63,23 @@ export default function FilterBar({
     onDeadlineChange("All");
   };
 
+  const filterButton = (active: boolean) =>
+    `w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold border-2 transition-all ${
+      active
+        ? "bg-accent text-white border-slate-900 shadow-brutal-sm"
+        : "bg-white text-slate-800 border-slate-300 hover:border-slate-900 hover:bg-blue-50"
+    }`;
+
   return (
-    <div className="space-y-6 bg-white p-5 rounded-2xl border-3 border-slate-900 shadow-[5px_5px_0px_0px_#0F172A]">
+    <Card className="p-5 space-y-6">
       
       {/* FILTER HEADER */}
       <div className="flex items-center justify-between pb-3 border-b-2 border-slate-900">
-        <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">Search Filters</h3>
+        <h3 className="text-sm font-bold text-slate-900">Search Filters</h3>
         {hasFilters && (
           <button
             onClick={handleClearAll}
-            className="inline-flex items-center gap-1 text-xs font-black text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg border border-red-300 transition-colors"
+            className="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg border-2 border-red-300 transition-colors"
           >
             <X className="w-3 h-3 stroke-[3]" /> Clear All
           </button>
@@ -80,10 +88,10 @@ export default function FilterBar({
 
       {/* 1. JOB CATEGORY FILTER */}
       <div>
-        <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+        <h4 className="text-xs font-bold text-slate-900 mb-2.5 flex items-center justify-between">
           <span>Job Category</span>
           {selectedCategory !== "All" && (
-            <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded font-black">Active</span>
+            <span className="text-[10px] bg-accent text-white px-2 py-0.5 rounded font-bold">Active</span>
           )}
         </h4>
         <div className="space-y-1.5">
@@ -93,11 +101,7 @@ export default function FilterBar({
               <button
                 key={item.value}
                 onClick={() => onCategoryChange(active ? "All" : item.value)}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black border-2 transition-all ${
-                  active
-                    ? "bg-blue-600 text-white border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
-                    : "bg-white text-slate-800 border-slate-300 hover:border-slate-900 hover:bg-blue-50"
-                }`}
+                className={filterButton(active)}
               >
                 <span>{item.label}</span>
                 {active && <Check className="w-3.5 h-3.5 stroke-[3] text-white" />}
@@ -109,10 +113,10 @@ export default function FilterBar({
 
       {/* 2. REQUIRED QUALIFICATION FILTER */}
       <div>
-        <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+        <h4 className="text-xs font-bold text-slate-900 mb-2.5 flex items-center justify-between">
           <span>Required Qualification</span>
           {selectedEligibility !== "All" && (
-            <span className="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-black">Active</span>
+            <span className="text-[10px] bg-accent text-white px-2 py-0.5 rounded font-bold">Active</span>
           )}
         </h4>
         <div className="space-y-1.5">
@@ -122,14 +126,10 @@ export default function FilterBar({
               <button
                 key={item.value}
                 onClick={() => onEligibilityChange(active ? "All" : item.value)}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-black border-2 transition-all ${
-                  active
-                    ? "bg-emerald-500 text-slate-900 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
-                    : "bg-white text-slate-800 border-slate-300 hover:border-slate-900 hover:bg-emerald-50"
-                }`}
+                className={filterButton(active)}
               >
                 <span>{item.label}</span>
-                {active && <Check className="w-3.5 h-3.5 stroke-[3] text-slate-900" />}
+                {active && <Check className="w-3.5 h-3.5 stroke-[3] text-white" />}
               </button>
             );
           })}
@@ -138,10 +138,10 @@ export default function FilterBar({
 
       {/* 3. LOCATION FILTER */}
       <div>
-        <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+        <h4 className="text-xs font-bold text-slate-900 mb-2.5 flex items-center justify-between">
           <span>Location</span>
           {selectedLocation !== "All" && (
-            <span className="text-[10px] bg-purple-600 text-white px-2 py-0.5 rounded font-black">Active</span>
+            <span className="text-[10px] bg-accent text-white px-2 py-0.5 rounded font-bold">Active</span>
           )}
         </h4>
         <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
@@ -151,11 +151,7 @@ export default function FilterBar({
               <button
                 key={loc}
                 onClick={() => onLocationChange(active ? "All" : loc)}
-                className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-black border-2 transition-all ${
-                  active
-                    ? "bg-purple-600 text-white border-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
-                    : "bg-white text-slate-800 border-slate-200 hover:border-slate-900 hover:bg-purple-50"
-                }`}
+                className={filterButton(active)}
               >
                 <span>{loc}</span>
                 {active && <Check className="w-3.5 h-3.5 stroke-[3] text-white" />}
@@ -165,6 +161,6 @@ export default function FilterBar({
         </div>
       </div>
 
-    </div>
+    </Card>
   );
 }
