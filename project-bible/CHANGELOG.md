@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - clean/main branch
 
+- **2026-08-20 — Footer Redesign & 5-Column Navigation + Admin Portal Authentication Setup.**
+  - **Footer Redesign (`frontend/src/components/Footer.tsx`):** Elevated footer to a 5-column layout with top trust badge banner (100% official links, zero fees, free public aggregator), quick government filter pills (ISRO, DRDO, CSIR, IITs), comprehensive categorised links (Opportunities, Guides & Academy, Portals & Tools), Admin console link, copyright & live scrapers sync indicator.
+  - **Admin Authentication Verification:** Verified HMAC session login flow via `POST /api/admin/auth` with constant-time equality checks and configured local `ADMIN_PASSWORD` and `ADMIN_HMAC_SECRET` in `frontend/.env.local`. Verified successful authentication token issuance.
+
+
 - **2026-08-20 — UI/UX Overhaul & Premier Research Spotlight (ISRO, DRDO, CSIR, IITs) + Content Depth Expansion.**
   - **Homepage & Premier Spotlight (`frontend/src/app/page.tsx`):** Added dedicated interactive spotlight for top government & research institutions (ISRO, DRDO, CSIR CEERI, IIT Bombay/Madras, C-DAC/BEL, Intel, Qualcomm, AMD, Arm) featuring live badges, direct search filter links, and research domain scope.
   - **Click-to-Filter Organization Integration (`OpportunityCard.tsx`, `OpportunityRow.tsx`, `OrganizationsClient.tsx`):** Made organization names everywhere clickable, navigating directly to `/opportunities?search=${encodeURIComponent(orgName)}` with event propagation guards. Fixed category filter tabs in `OrganizationsClient.tsx`.

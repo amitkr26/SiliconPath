@@ -92,7 +92,7 @@ export default function AddNewsPage() {
         </div>
         <div>
           <label className="block text-slate-400 text-xs font-semibold mb-1">Slug</label>
-          <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="w-full bg-gray-800 border border-gray-700 text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-cyan focus:border-cyan outline-none font-mono text-xs" />
+          <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="w-full bg-slate-800 border border-slate-700 text-slate-100 placeholder:text-slate-500 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono text-xs" />
           <p className="text-slate-500 text-[10px] mt-1">Auto-generated from title. Edit if needed.</p>
         </div>
         <div>
