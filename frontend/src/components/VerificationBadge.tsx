@@ -1,7 +1,7 @@
 import { ShieldCheck, ShieldAlert, ShieldQuestion, ShieldX, Clock } from "lucide-react";
 
 interface VerificationBadgeProps {
-  status: "verified" | "unverified" | "link_unavailable" | "expired";
+  status: "verified" | "unverified" | "link_unavailable" | "expired" | "pending" | "rejected" | string;
   compact?: boolean;
 }
 

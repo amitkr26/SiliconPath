@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Activity, AlertTriangle, CheckCircle2, Lock } from "lucide-react";
+import { Loader2, Activity, AlertTriangle, CheckCircle2, Lock, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 interface Summary {
   total_sources: number;
@@ -44,12 +45,18 @@ export default function ScrapeHealthPage() {
   const [sources, setSources] = useState<Source[]>([]);
   const [opps, setOpps] = useState<Opp[]>([]);
 
-  const load = async (pw: string) => {
+  const load = async (pw?: string) => {
     setLoading(true);
     setError(null);
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+    const adminPw = pw || (typeof window !== "undefined" ? sessionStorage.getItem("admin_password") : null);
+
     try {
       const res = await fetch("/api/admin/scrape-health", {
-        headers: { "x-admin-password": pw },
+        headers: {
+          ...(adminPw ? { "x-admin-password": adminPw } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
       if (res.status === 401) {
         setError("Wrong admin password.");
@@ -74,26 +81,30 @@ export default function ScrapeHealthPage() {
   };
 
   useEffect(() => {
-    const saved = sessionStorage.getItem("sp_admin_pw");
-    if (saved) {
-      setPassword(saved);
-      load(saved);
+    const saved = sessionStorage.getItem("admin_password") || sessionStorage.getItem("sp_admin_pw");
+    const token = localStorage.getItem("admin_token");
+    if (saved || token) {
+      if (saved) setPassword(saved);
+      load(saved || undefined);
     }
   }, []);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    sessionStorage.setItem("sp_admin_pw", password);
+    sessionStorage.setItem("admin_password", password);
     load(password);
   };
 
   if (!authed) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-        <form onSubmit={submit} className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+      <div className="max-w-md mx-auto px-4 py-20">
+        <form onSubmit={submit} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
           <div className="flex items-center gap-2">
+            <Link href="/admin" className="text-slate-400 hover:text-white transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
             <Lock className="w-5 h-5 text-blue-400" />
-            <h1 className="text-lg font-bold text-white">Scrape Health Monitor</h1>
+            <h1 className="font-display text-lg font-bold text-white">Scrape Health &amp; Telemetry</h1>
           </div>
           <p className="text-sm text-slate-400">Admin access required.</p>
           <input

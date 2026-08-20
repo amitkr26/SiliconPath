@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - clean/main branch
 
-- **2026-08-20 — Footer Redesign & 5-Column Navigation + Admin Portal Authentication Setup.**
-  - **Footer Redesign (`frontend/src/components/Footer.tsx`):** Elevated footer to a 5-column layout with top trust badge banner (100% official links, zero fees, free public aggregator), quick government filter pills (ISRO, DRDO, CSIR, IITs), comprehensive categorised links (Opportunities, Guides & Academy, Portals & Tools), Admin console link, copyright & live scrapers sync indicator.
-  - **Admin Authentication Verification:** Verified HMAC session login flow via `POST /api/admin/auth` with constant-time equality checks and configured local `ADMIN_PASSWORD` and `ADMIN_HMAC_SECRET` in `frontend/.env.local`. Verified successful authentication token issuance.
+- **2026-08-20 — Admin Portal Full Control & Moderation Suite + Footer Redesign Refinement.**
+  - **Admin Portal Full Control (`frontend/src/app/admin/page.tsx`):** Upgraded main Admin cockpit to a full-featured management console. Added complete Opportunity CRUD & Moderation (Search, Filter by Verification Status & Category, 1-click Approve/Verify, 1-click Reject, Delete with confirmation, direct link to Edit), Scraper Stream Logs with per-source manual sync buttons, Subscriber Management with CSV export and weekly email digest trigger, embedded AI Token Telemetry, and comprehensive sidebar navigation to all specialized admin hubs.
+  - **Admin Sub-pages Session Persistence & API Client Integration (`add-opportunity`, `edit-opportunity/[id]`, `companies`, `announcements`, `applications`, `talent-pool`, `scrape-health`):** Integrated automatic session verification on mount across all sub-pages using `localStorage.getItem("admin_token")` and `sessionStorage.getItem("admin_password")`, eliminated raw unauthenticated `fetch` calls in favor of `@/lib/api-client`, and added unified back navigation.
+  - **Footer Refinement (`frontend/src/components/Footer.tsx`):** Cleaned up unnatural parenthetical text (`@username`) and awkward color mismatches from footer navigation. Streamlined categorized links for Opportunities, Guides & Academy, Portals & Tools, and added live scraper sync indicator.
+  - **Verification:** `npx tsc --noEmit` exit code 0 across entire frontend.
 
 
 - **2026-08-20 — UI/UX Overhaul & Premier Research Spotlight (ISRO, DRDO, CSIR, IITs) + Content Depth Expansion.**

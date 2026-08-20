@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Loader2, FileText, ExternalLink } from "lucide-react";
+import { Loader2, FileText, ExternalLink, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { api } from "@/lib/api-client";
 
 const STATUS_FLOW = ["submitted", "reviewed", "shortlisted", "accepted", "rejected"];
 
@@ -23,24 +24,24 @@ export default function AdminApplicationsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/applications${filter ? `?opportunity_id=${filter}` : ""}`);
-      const data = await res.json();
-      setApplications(data.applications || []);
-    } catch { setApplications([]); }
+      const data = await api.get<{ applications?: any[] }>(`/api/admin/applications${filter ? `?opportunity_id=${filter}` : ""}`);
+      setApplications(data?.applications || []);
+    } catch {
+      setApplications([]);
+    }
     setLoading(false);
   }, [filter]);
 
   useEffect(() => { load(); }, [load]);
 
   const updateStatus = async (id: string, status: string) => {
-    const res = await fetch(`/api/admin/applications/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    if (!res.ok) { toast.error("Failed to update status"); return; }
-    setApplications(prev => prev.map(a => a.id === id ? { ...a, status } : a));
-    toast.success("Status updated");
+    try {
+      await api.patch(`/api/admin/applications/${id}`, { status });
+      setApplications((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+      toast.success("Status updated");
+    } catch {
+      toast.error("Failed to update status");
+    }
   };
 
   const grouped = applications.reduce((acc: Record<string, any>, app: any) => {
@@ -53,6 +54,9 @@ export default function AdminApplicationsPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center gap-3 mb-6">
+        <Link href="/admin" className="text-slate-400 hover:text-white transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
         <FileText className="w-6 h-6 text-blue-400" />
         <div>
           <h1 className="font-display text-2xl font-bold text-white">Applications</h1>

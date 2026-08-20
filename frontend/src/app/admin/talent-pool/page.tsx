@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Search, MapPin, Briefcase, Check, ExternalLink } from "lucide-react";
+import { Loader2, Search, MapPin, Briefcase, Check, ExternalLink, ArrowLeft } from "lucide-react";
 
 function getInitials(name: string): string {
   return name.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase();
@@ -30,6 +30,9 @@ export default function TalentPoolPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center gap-3 mb-6">
+        <Link href="/admin" className="text-slate-400 hover:text-white transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
         <Briefcase className="w-6 h-6 text-blue-400" />
         <div>
           <h1 className="font-display text-2xl font-bold text-white">Talent Pool</h1>
