@@ -130,57 +130,55 @@ export default function EmployerDashboard() {
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Posted Jobs Section */}
-          <div className="lg:col-span-1 bg-surface border border-border rounded-xl p-5">
-            <h2 className="font-display font-bold text-text-primary text-lg mb-4 flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-accent" /> Your Posted Jobs
-            </h2>
-            {jobs.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-text-secondary text-sm">No jobs posted yet</p>
-                <Link
-                  href="/employer/post-job"
-                  className="inline-block mt-4 text-accent text-sm font-semibold hover:underline"
-                >
-                  Create your first listing
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {jobs.map((job) => (
-                  <button
-                    key={job.id}
-                    onClick={() => setSelectedJobId(job.id)}
-                    className={`w-full text-left p-3.5 rounded-lg border transition-all ${
-                      selectedJobId === job.id
-                        ? "bg-accent/10 border-accent text-text-primary shadow-sm"
-                        : "bg-bg-primary/50 border-border hover:border-accent/40 text-text-secondary"
-                    }`}
+          <div className="lg:col-span-1">
+            <Card className="p-5">
+              <h2 className="font-display font-bold text-text-primary text-lg mb-4 flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-accent" /> Your Posted Jobs
+              </h2>
+              {jobs.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-text-secondary text-sm">No jobs posted yet</p>
+                  <Link
+                    href="/employer/post-job"
+                    className="inline-block mt-4 text-accent text-sm font-semibold hover:underline"
                   >
-                    <p className="font-semibold text-sm line-clamp-1">{job.title}</p>
-                    <p className="text-xs text-text-muted mt-1">{job.location || "Remote"}</p>
-                    <div className="flex items-center justify-between mt-2.5">
-                      <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface border border-border">
-                        {job.category}
-                      </span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                        job.verification_status === "verified"
-                          ? "bg-success/15 text-success"
-                          : "bg-warning/15 text-warning"
-                      }`}>
-                        {job.verification_status === "verified" ? "Live" : "Pending Verification"}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+                    Create your first listing
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {jobs.map((job) => (
+                    <button
+                      key={job.id}
+                      onClick={() => setSelectedJobId(job.id)}
+                      className={`w-full text-left p-3.5 rounded-xl border-2 transition-all ${
+                        selectedJobId === job.id
+                          ? "bg-blue-50 border-blue-600 text-text-primary shadow-sm"
+                          : "bg-white border-slate-200 hover:border-blue-400 text-text-secondary"
+                      }`}
+                    >
+                      <p className="font-semibold text-sm line-clamp-1">{job.title}</p>
+                      <p className="text-xs text-text-muted mt-1">{job.location || "Remote"}</p>
+                      <div className="flex items-center justify-between mt-2.5">
+                        <Badge tone="neutral" className="shadow-none">{job.category}</Badge>
+                        {job.verification_status === "verified" ? (
+                          <Badge tone="success" className="shadow-none">Live</Badge>
+                        ) : (
+                          <Badge tone="warning" className="shadow-none">Pending Verification</Badge>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </Card>
           </div>
 
           {/* Sourcing & Application Pipeline */}
           <div className="lg:col-span-2 space-y-8">
             {/* AI Sourced Talent Panel */}
             {selectedJobId && (
-              <div className="bg-surface border border-border rounded-xl p-6">
+              <Card className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-display font-bold text-text-primary text-lg flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-accent animate-pulse" />
@@ -202,9 +200,9 @@ export default function EmployerDashboard() {
                     {recommendations.map((rec) => (
                       <div
                         key={rec.id}
-                        className="flex items-start gap-4 p-4 bg-bg-primary/50 border border-border/80 rounded-xl"
+                        className="flex items-start gap-4 p-4 bg-slate-50 border border-slate-200 rounded-xl"
                       >
-                        <div className="w-11 h-11 rounded-full bg-accent/15 text-accent flex items-center justify-center font-bold flex-shrink-0">
+                        <div className="w-11 h-11 rounded-full bg-blue-600/10 text-blue-600 flex items-center justify-center font-bold flex-shrink-0">
                           {rec.display_name ? rec.display_name[0].toUpperCase() : "C"}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -218,7 +216,7 @@ export default function EmployerDashboard() {
                               </Link>
                               <p className="text-xs text-text-secondary line-clamp-1 mt-0.5">{rec.headline}</p>
                             </div>
-                            <span className="inline-flex px-2 py-0.5 bg-accent text-bg-primary text-[10px] font-bold rounded-full">
+                            <span className="inline-flex px-2 py-0.5 bg-blue-600 text-white text-[10px] font-bold rounded-full">
                               {rec.matchScore} matching skills
                             </span>
                           </div>
@@ -226,7 +224,7 @@ export default function EmployerDashboard() {
                             {rec.matchingSkills.map((s: string) => (
                               <span
                                 key={s}
-                                className="px-2 py-0.5 bg-accent/10 border border-accent/20 text-accent text-[10px] font-semibold rounded"
+                                className="px-2 py-0.5 bg-blue-600/10 border border-blue-600/20 text-blue-700 text-[10px] font-semibold rounded"
                               >
                                 {s}
                               </span>
@@ -237,11 +235,11 @@ export default function EmployerDashboard() {
                     ))}
                   </div>
                 )}
-              </div>
+              </Card>
             )}
 
             {/* Applications List */}
-            <div className="bg-surface border border-border rounded-xl p-6">
+            <Card className="p-6">
               <h2 className="font-display font-bold text-text-primary text-lg mb-4 flex items-center gap-2">
                 <Users className="w-5 h-5 text-accent" /> Job Applications
               </h2>
@@ -254,7 +252,7 @@ export default function EmployerDashboard() {
                   {applications.map((app) => (
                     <div
                       key={app.id}
-                      className="flex items-center justify-between gap-4 p-3 bg-bg-primary/50 border border-border/80 rounded-lg"
+                      className="flex items-center justify-between gap-4 p-3 bg-slate-50 border border-slate-200 rounded-xl"
                     >
                       <div>
                         <p className="font-semibold text-sm text-text-primary">
@@ -265,14 +263,14 @@ export default function EmployerDashboard() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleStatusChange(app.id, "shortlisted")}
-                          className="p-1.5 bg-success/10 border border-success/20 text-success rounded-lg hover:bg-success/20 transition-colors"
+                          className="p-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 rounded-lg hover:bg-emerald-500/20 transition-colors"
                           title="Shortlist"
                         >
                           <Check className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleStatusChange(app.id, "rejected")}
-                          className="p-1.5 bg-danger/10 border border-danger/20 text-danger rounded-lg hover:bg-danger/20 transition-colors"
+                          className="p-1.5 bg-red-500/10 border border-red-500/20 text-red-600 rounded-lg hover:bg-red-500/20 transition-colors"
                           title="Reject"
                         >
                           <X className="w-4 h-4" />
@@ -282,7 +280,7 @@ export default function EmployerDashboard() {
                   ))}
                 </div>
               )}
-            </div>
+            </Card>
           </div>
         </div>
       </div>

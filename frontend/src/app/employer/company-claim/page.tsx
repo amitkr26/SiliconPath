@@ -6,6 +6,9 @@ import { Building, ArrowLeft, Loader2 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Input, Select } from "@/components/ui/Input";
 
 export default function CompanyClaimPage() {
   const router = useRouter();
@@ -81,7 +84,7 @@ export default function CompanyClaimPage() {
           <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </button>
 
-        <div className="bg-surface border border-border rounded-xl p-6 sm:p-8">
+        <Card className="p-6 sm:p-8">
           <h1 className="font-display text-2xl font-bold text-text-primary flex items-center gap-2 mb-2">
             <Building className="w-6 h-6 text-accent" /> Claim Company Profile
           </h1>
@@ -90,54 +93,48 @@ export default function CompanyClaimPage() {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Select Organization *</label>
-              <select
-                value={formData.organizationId}
-                onChange={(e) => setFormData({ ...formData, organizationId: e.target.value })}
-                className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent"
-              >
-                {organizations.map((org) => (
-                  <option key={org.id} value={org.id}>
-                    {org.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <Select
+              label="Select Organization *"
+              value={formData.organizationId}
+              onChange={(e) => setFormData({ ...formData, organizationId: e.target.value })}
+            >
+              {organizations.map((org) => (
+                <option key={org.id} value={org.id}>
+                  {org.name}
+                </option>
+              ))}
+            </Select>
+
+            <Input
+              label="Business Email Address *"
+              type="email"
+              required
+              value={formData.businessEmail}
+              onChange={(e) => setFormData({ ...formData, businessEmail: e.target.value })}
+              placeholder="e.g. hr@ceeri.res.in"
+            />
 
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Business Email Address *</label>
-              <input
-                type="email"
-                required
-                value={formData.businessEmail}
-                onChange={(e) => setFormData({ ...formData, businessEmail: e.target.value })}
-                placeholder="e.g. hr@ceeri.res.in"
-                className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Verification Details *</label>
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Verification Details *</label>
               <textarea
                 required
                 value={formData.verificationDetails}
                 onChange={(e) => setFormData({ ...formData, verificationDetails: e.target.value })}
                 placeholder="Provide details proving your association, such as your position, employee ID, or verification code..."
                 rows={4}
-                className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent resize-none"
+                className="w-full bg-white border-2 border-slate-900 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-brutal-sm focus:outline-none focus:border-accent resize-none"
               />
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-accent text-bg-primary hover:bg-accent-hover py-3 rounded-lg font-semibold shadow-glow-btn transition-colors disabled:opacity-50"
+              className="w-full justify-center"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Submit Claim Request"}
-            </button>
+            </Button>
           </form>
-        </div>
+        </Card>
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
+import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
   title: "Complete JRF Guide 2026 — Electronics Science",
@@ -41,18 +43,18 @@ export default async function JRFGuidePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: "Complete JRF Guide 2026 — Electronics Science", description: "Everything about Junior Research Fellowship for electronics researchers", author: { "@type": "Organization", name: "BerojgarDegreeWala" } }) }} />
 
-      <Link href="/resources" className="text-cyan text-sm hover:underline mb-4 inline-block">&larr; Back to Resources</Link>
-      <h1 className="font-display text-3xl font-bold text-text-primary mb-8">Junior Research Fellowship (JRF) Complete Guide 2026 — Electronics Science</h1>
+      <Link href="/resources" className="inline-flex items-center gap-1 text-slate-600 hover:text-blue-600 text-sm font-semibold mb-4 transition-colors"><ArrowLeft className="w-4 h-4" /> Back to Resources</Link>
+      <h1 className="font-display text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-8">Junior Research Fellowship (JRF) Complete Guide 2026 — Electronics Science</h1>
 
-      <div className="space-y-8 text-text-muted text-sm leading-relaxed">
+      <div className="space-y-10 text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
         <section>
-          <h2 className="font-display text-xl font-bold text-text-primary mb-3">What is JRF in Electronics?</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">What is JRF in Electronics?</h2>
           <p>Junior Research Fellowship (JRF) is a prestigious research position for postgraduate students holding MSc in Electronics, Physics, or related fields. JRFs work on funded research projects at premier institutions like DRDO labs, CSIR institutes, IITs, and NITs while pursuing their PhD. The fellowship provides a monthly stipend of ₹37,000 with HRA, enabling researchers to focus entirely on their work without financial concerns.</p>
           <p className="mt-2">Types of JRF include UGC-JRF (via NET), CSIR-JRF (via GATE), and institutional JRFs offered directly by research organizations for specific projects.</p>
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-bold text-text-primary mb-3">JRF Eligibility Criteria 2026</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">JRF Eligibility Criteria 2026</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>Educational: MSc Electronics/Physics/Materials Science with 55% marks (50% for SC/ST/OBC/PwD)</li>
             <li>Age: Maximum 28 years for General, 33 years for SC/ST/PwD/Women</li>
@@ -62,38 +64,38 @@ export default async function JRFGuidePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-bold text-text-primary mb-3">JRF Stipend 2026 — How Much Will You Earn?</h2>
-          <div className="overflow-x-auto">
+          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">JRF Stipend 2026 — How Much Will You Earn?</h2>
+          <div className="overflow-x-auto bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-sm">
             <table className="w-full text-sm border-collapse">
-              <thead><tr className="border-b border-gray-700"><th className="text-left py-2 px-3 text-text-primary">Component</th><th className="text-left py-2 px-3 text-text-primary">Amount</th></tr></thead>
+              <thead><tr className="border-b-2 border-slate-900 bg-slate-100"><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Component</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Amount</th></tr></thead>
               <tbody>
-                <tr className="border-b border-gray-800"><td className="py-2 px-3">JRF Stipend (Year 1-2)</td><td className="py-2 px-3 text-cyan font-semibold">₹37,000/month</td></tr>
-                <tr className="border-b border-gray-800"><td className="py-2 px-3">SRF Stipend (Year 3-5)</td><td className="py-2 px-3 text-cyan font-semibold">₹42,000/month</td></tr>
-                <tr className="border-b border-gray-800"><td className="py-2 px-3">HRA (House Rent Allowance)</td><td className="py-2 px-3">10-30% of stipend (city dependent)</td></tr>
-                <tr className="border-b border-gray-800"><td className="py-2 px-3">Annual Contingency</td><td className="py-2 px-3">₹20,000 (science stream)</td></tr>
-                <tr><td className="py-2 px-3">Total Package (approx)</td><td className="py-2 px-3 text-cyan font-semibold">₹5.5-6.5 LPA</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3">JRF Stipend (Year 1-2)</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹37,000/month</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3">SRF Stipend (Year 3-5)</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹42,000/month</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3">HRA (House Rent Allowance)</td><td className="py-2.5 px-3">10-30% of stipend (city dependent)</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3">Annual Contingency</td><td className="py-2.5 px-3">₹20,000 (science stream)</td></tr>
+                <tr><td className="py-2.5 px-3 font-semibold text-slate-900">Total Package (approx)</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹5.5-6.5 LPA</td></tr>
               </tbody>
             </table>
           </div>
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-bold text-text-primary mb-3">Types of JRF in Electronics</h2>
-          <div className="overflow-x-auto">
+          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Types of JRF in Electronics</h2>
+          <div className="overflow-x-auto bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-sm">
             <table className="w-full text-sm border-collapse">
-              <thead><tr className="border-b border-gray-700"><th className="text-left py-2 px-3 text-text-primary">Type</th><th className="text-left py-2 px-3 text-text-primary">Conducting Body</th><th className="text-left py-2 px-3 text-text-primary">Tenable At</th></tr></thead>
+              <thead><tr className="border-b-2 border-slate-900 bg-slate-100"><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Type</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Conducting Body</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Tenable At</th></tr></thead>
               <tbody>
-                <tr className="border-b border-gray-800"><td className="py-2 px-3">UGC-NET JRF</td><td className="py-2 px-3">UGC / NTA</td><td className="py-2 px-3">Any recognized university/college</td></tr>
-                <tr className="border-b border-gray-800"><td className="py-2 px-3">CSIR-JRF (GATE)</td><td className="py-2 px-3">CSIR HRDG</td><td className="py-2 px-3">CSIR labs only (AcSIR PhD)</td></tr>
-                <tr className="border-b border-gray-800"><td className="py-2 px-3">DST-INSPIRE</td><td className="py-2 px-3">DST</td><td className="py-2 px-3">Any recognized institution</td></tr>
-                <tr className="border-b border-gray-800"><td className="py-2 px-3">Institutional JRF</td><td className="py-2 px-3">DRDO/ISRO/IITs</td><td className="py-2 px-3">Specific to the institution</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">UGC-NET JRF</td><td className="py-2.5 px-3">UGC / NTA</td><td className="py-2.5 px-3">Any recognized university/college</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">CSIR-JRF (GATE)</td><td className="py-2.5 px-3">CSIR HRDG</td><td className="py-2.5 px-3">CSIR labs only (AcSIR PhD)</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">DST-INSPIRE</td><td className="py-2.5 px-3">DST</td><td className="py-2.5 px-3">Any recognized institution</td></tr>
+                <tr><td className="py-2.5 px-3 font-semibold text-slate-900">Institutional JRF</td><td className="py-2.5 px-3">DRDO/ISRO/IITs</td><td className="py-2.5 px-3">Specific to the institution</td></tr>
               </tbody>
             </table>
           </div>
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-bold text-text-primary mb-3">Documents Required for JRF Application</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Documents Required for JRF Application</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>Updated CV (2-4 pages)</li>
             <li>MSc marksheets (semester-wise) and degree certificate</li>
@@ -107,12 +109,12 @@ export default async function JRFGuidePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-bold text-text-primary mb-3">JRF Interview Process — What to Expect</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">JRF Interview Process — What to Expect</h2>
           <p>The JRF selection process typically involves a written test followed by an interview. The written test covers subject knowledge in electronics (electronic devices, circuit theory, analog/digital electronics, VLSI basics). The interview panel assesses your research aptitude, academic background, and motivation. Be prepared to discuss your MSc project, research interests, and why you want to pursue this specific JRF.</p>
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-bold text-text-primary mb-3">Common Mistakes in JRF Applications</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Common Mistakes in JRF Applications</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>Applying without checking eligibility criteria (age, qualification, NET/GATE validity)</li>
             <li>Submitting incomplete documents (missing marksheets, certificates)</li>
@@ -122,22 +124,22 @@ export default async function JRFGuidePage() {
           </ul>
         </section>
 
-        <section className="bg-navy-light border border-cyan/20 rounded-xl p-6">
-          <h2 className="font-display text-xl font-bold text-text-primary mb-4">Current Open JRF Positions</h2>
+        <Card className="p-6">
+          <h2 className="font-display text-xl font-black text-slate-900 mb-4">Current Open JRF Positions</h2>
           {jrfOpps.length > 0 ? (
             <div className="space-y-3">
               {jrfOpps.map((opp: any) => (
-                <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-gray-800/50 border border-gray-700 rounded-lg p-3 hover:border-cyan/30 transition-colors">
-                  <h3 className="text-text-primary text-sm font-medium">{opp.title}</h3>
-                  <p className="text-text-muted text-xs mt-0.5">{opp.organization} {opp.deadline ? `• Deadline: ${new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""} {opp.stipend ? `• ${opp.stipend}` : ""}</p>
+                <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border-2 border-slate-900 rounded-xl p-3.5 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all">
+                  <h3 className="text-slate-900 text-sm font-semibold">{opp.title}</h3>
+                  <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization} {opp.deadline ? `• Deadline: ${new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""} {opp.stipend ? `• ${opp.stipend}` : ""}</p>
                 </Link>
               ))}
             </div>
           ) : (
-            <p className="text-text-muted text-sm">No JRF positions currently listed. Check back soon.</p>
+            <p className="text-slate-600 text-sm font-medium">No JRF positions currently listed. Check back soon.</p>
           )}
-          <Link href="/opportunities?category=JRF" className="inline-flex items-center gap-1 text-cyan text-sm font-medium mt-4 hover:underline">View all JRF positions →</Link>
-        </section>
+          <Link href="/opportunities?category=JRF" className="inline-flex items-center gap-1 text-blue-600 text-sm font-bold mt-4 hover:underline">View all JRF positions →</Link>
+        </Card>
       </div>
     </div>
   );

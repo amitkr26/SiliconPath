@@ -6,6 +6,9 @@ import { Briefcase, ArrowLeft, Loader2 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Input, Select } from "@/components/ui/Input";
 
 export default function PostJobPage() {
   const router = useRouter();
@@ -89,7 +92,7 @@ export default function PostJobPage() {
           <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </button>
 
-        <div className="bg-surface border border-border rounded-xl p-6 sm:p-8">
+        <Card className="p-6 sm:p-8">
           <h1 className="font-display text-2xl font-bold text-text-primary flex items-center gap-2 mb-2">
             <Briefcase className="w-6 h-6 text-accent" /> Post an Opportunity
           </h1>
@@ -99,135 +102,111 @@ export default function PostJobPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">Job Title *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g. Junior Research Fellow (JRF)"
-                  className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">Organization *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.organization}
-                  onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                  placeholder="e.g. CEERI Pilani"
-                  className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">Category *</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent"
-                >
-                  <option value="JRF">JRF</option>
-                  <option value="PhD">PhD</option>
-                  <option value="Govt Job">Govt Job</option>
-                  <option value="Private Job">Private Job</option>
-                  <option value="Fellowship">Fellowship</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">Location</label>
-                <input
-                  type="text"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="e.g. Pilani, Rajasthan"
-                  className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">Stipend / Salary</label>
-                <input
-                  type="text"
-                  value={formData.stipend}
-                  onChange={(e) => setFormData({ ...formData, stipend: e.target.value })}
-                  placeholder="e.g. ₹37,000 + HRA"
-                  className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">Application Link (URL)</label>
-                <input
-                  type="url"
-                  value={formData.apply_link}
-                  onChange={(e) => setFormData({ ...formData, apply_link: e.target.value })}
-                  placeholder="https://example.com/apply"
-                  className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1.5">Deadline Date</label>
-                <input
-                  type="date"
-                  value={formData.deadline}
-                  onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                  className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Key Tags (comma separated)</label>
-              <input
+              <Input
+                label="Job Title *"
                 type="text"
-                value={formData.tagsInput}
-                onChange={(e) => setFormData({ ...formData, tagsInput: e.target.value })}
-                placeholder="e.g. VLSI, FPGA, Verilog, Digital Electronics"
-                className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent"
+                required
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="e.g. Junior Research Fellow (JRF)"
+              />
+
+              <Input
+                label="Organization *"
+                type="text"
+                required
+                value={formData.organization}
+                onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
+                placeholder="e.g. CEERI Pilani"
               />
             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <Select
+                label="Category *"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              >
+                <option value="JRF">JRF</option>
+                <option value="PhD">PhD</option>
+                <option value="Govt Job">Govt Job</option>
+                  <option value="Private Job">Private Job</option>
+                <option value="Fellowship">Fellowship</option>
+              </Select>
+
+              <Input
+                label="Location"
+                type="text"
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                placeholder="e.g. Pilani, Rajasthan"
+              />
+
+              <Input
+                label="Stipend / Salary"
+                type="text"
+                value={formData.stipend}
+                onChange={(e) => setFormData({ ...formData, stipend: e.target.value })}
+                placeholder="e.g. ₹37,000 + HRA"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <Input
+                label="Application Link (URL)"
+                type="url"
+                value={formData.apply_link}
+                onChange={(e) => setFormData({ ...formData, apply_link: e.target.value })}
+                placeholder="https://example.com/apply"
+              />
+
+              <Input
+                label="Deadline Date"
+                type="date"
+                value={formData.deadline}
+                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+              />
+            </div>
+
+            <Input
+              label="Key Tags (comma separated)"
+              type="text"
+              value={formData.tagsInput}
+              onChange={(e) => setFormData({ ...formData, tagsInput: e.target.value })}
+              placeholder="e.g. VLSI, FPGA, Verilog, Digital Electronics"
+            />
+
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Eligibility Criteria</label>
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Eligibility Criteria</label>
               <textarea
                 value={formData.eligibility}
                 onChange={(e) => setFormData({ ...formData, eligibility: e.target.value })}
                 placeholder="M.Tech/M.E. in Microelectronics/VLSI with qualified GATE score..."
                 rows={2}
-                className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent resize-none"
+                className="w-full bg-white border-2 border-slate-900 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-brutal-sm focus:outline-none focus:border-accent resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Job Description</label>
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Job Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Provide details about the research project, requirements, or duties..."
                 rows={5}
-                className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 outline-none focus:border-accent resize-none"
+                className="w-full bg-white border-2 border-slate-900 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-brutal-sm focus:outline-none focus:border-accent resize-none"
               />
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-accent text-bg-primary hover:bg-accent-hover py-3 rounded-lg font-semibold shadow-glow-btn transition-colors disabled:opacity-50"
+              className="w-full justify-center"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Post Opportunity"}
-            </button>
+            </Button>
           </form>
-        </div>
+        </Card>
       </div>
     </div>
   );
