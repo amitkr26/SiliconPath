@@ -3,10 +3,13 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Zap, Loader2, Eye, EyeOff, Lock, User, Building2 } from "lucide-react";
+import { Zap, Loader2, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getURL } from "@/lib/utils";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
 
 export default function LoginPage() {
   return (
@@ -83,25 +86,27 @@ function LoginPageInner() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 py-12 px-4 flex items-center justify-center">
+    <div className="min-h-screen bg-bg-primary text-slate-900 py-12 px-4 flex items-center justify-center">
       <div className="max-w-md w-full space-y-6">
-        
+
         {/* BRAND HEADER */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full shadow-[3px_3px_0px_0px_#0F172A]">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full shadow-brutal-sm">
             <Zap className="w-4 h-4 text-blue-600 fill-blue-600" />
             <span className="text-xs font-black text-slate-900 uppercase tracking-wider">BerojgarDegreeWala</span>
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Welcome Back</h1>
-          <p className="text-slate-600 text-xs font-extrabold">Sign in to your candidate or employer account</p>
+          <p className="text-slate-600 text-sm font-medium">Sign in to your candidate or employer account</p>
         </div>
 
         {/* LOGIN CARD */}
-        <div className="bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] space-y-5">
-          <button
+        <Card className="p-8 space-y-5">
+          <Button
+            variant="secondary"
+            size="lg"
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full py-3 px-4 bg-white border-2 border-slate-900 rounded-xl font-black text-xs text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] hover:bg-slate-50 transition flex items-center justify-center gap-3"
+            className="w-full"
           >
             <svg
               width="20"
@@ -115,78 +120,66 @@ function LoginPageInner() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
-            <span>Sign in with Google</span>
-          </button>
+            Sign in with Google
+          </Button>
 
-          <div className="relative flex justify-center text-xs my-2">
-            <span className="bg-white px-3 font-extrabold text-slate-400 z-10 uppercase tracking-wider">or continue with email or username</span>
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-white px-3 font-medium text-slate-500 z-10 uppercase tracking-wider">or continue with email or username</span>
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t-2 border-slate-900" />
             </div>
           </div>
 
           <form onSubmit={handleEmailLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1.5">
-                Email Address or Username
-              </label>
-              <input
-                type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com or @username"
+            <Input
+              label="Email Address or Username"
+              type="text"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com or @username"
+              required
+            />
+
+            <div className="relative">
+              <Input
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
                 required
-                className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
+                className="pr-10"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-3 bottom-3.5 text-slate-600 hover:text-slate-900"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
 
-            <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                  className="w-full pl-4 pr-10 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-900"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs border-3 border-slate-900 shadow-[4px_4px_0px_0px_#0F172A] transition flex items-center justify-center gap-2"
-            >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>Sign In</span>}
-            </button>
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In"}
+            </Button>
           </form>
 
-          <div className="mt-6 pt-4 border-t-2 border-slate-900 text-center space-y-2">
-            <p className="text-xs font-bold text-slate-600">
+          <div className="pt-4 border-t-2 border-slate-900 text-center space-y-2">
+            <p className="text-xs font-medium text-slate-600">
               Don&apos;t have an account?
             </p>
-            <div className="flex items-center justify-center gap-4 text-xs font-black">
+            <div className="flex items-center justify-center gap-4 text-xs font-bold">
               <Link href="/signup?role=candidate" className="text-blue-600 hover:underline">
                 Join as Candidate
               </Link>
               <span className="text-slate-400">•</span>
-              <Link href="/signup?role=employer" className="text-emerald-700 hover:underline">
+              <Link href="/signup?role=employer" className="text-blue-600 hover:underline">
                 Join as Employer
               </Link>
             </div>
           </div>
-        </div>
+        </Card>
 
       </div>
     </div>
@@ -196,19 +189,19 @@ function LoginPageInner() {
 // Rendered server-side (and as hydration fallback) so the page always ships an <h1>.
 function LoginFallback() {
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 py-12 px-4 flex items-center justify-center">
+    <div className="min-h-screen bg-bg-primary text-slate-900 py-12 px-4 flex items-center justify-center">
       <div className="max-w-md w-full space-y-6">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full shadow-[3px_3px_0px_0px_#0F172A]">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full shadow-brutal-sm">
             <Zap className="w-4 h-4 text-blue-600 fill-blue-600" />
             <span className="text-xs font-black text-slate-900 uppercase tracking-wider">BerojgarDegreeWala</span>
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Welcome Back</h1>
-          <p className="text-slate-600 text-xs font-extrabold">Sign in to your candidate or employer account</p>
+          <p className="text-slate-600 text-sm font-medium">Sign in to your candidate or employer account</p>
         </div>
-        <div className="bg-white border-4 border-slate-900 rounded-2xl p-8 shadow-[8px_8px_0px_0px_#0F172A] flex items-center justify-center py-16">
+        <Card className="p-8 flex items-center justify-center py-16">
           <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-        </div>
+        </Card>
       </div>
     </div>
   );

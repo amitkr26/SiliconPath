@@ -6,6 +6,9 @@ import { Loader2, Briefcase, Building2 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Input, Select } from "@/components/ui/Input";
 
 type AccountType = "seeker" | "provider";
 
@@ -93,7 +96,7 @@ export default function OnboardingPage() {
   if (authLoading || !ready) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-primary">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
@@ -101,82 +104,64 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-bg-primary py-10 px-4">
       <div className="max-w-lg mx-auto">
-        <div className="flex items-center gap-2 mb-6">
-          <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
             {accountType === "provider" ? (
-              <Building2 className="w-5 h-5 text-accent" />
+              <Building2 className="w-5 h-5 text-blue-600" />
             ) : (
-              <Briefcase className="w-5 h-5 text-accent" />
+              <Briefcase className="w-5 h-5 text-blue-600" />
             )}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-text-primary">
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
               {accountType === "provider" ? "Set up your organization" : "Set up your profile"}
             </h1>
-            <p className="text-sm text-text-secondary">This takes less than a minute.</p>
+            <p className="text-sm font-medium text-slate-600">This takes less than a minute.</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-text-primary mb-1">
-              {accountType === "provider" ? "Your name" : "Full name"}
-            </label>
-            <input
+        <Card className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label={accountType === "provider" ? "Your name" : "Full name"}
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
-              className="w-full bg-bg-secondary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none"
             />
-          </div>
 
-          {accountType === "seeker" ? (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1">Headline</label>
-                <input
+            {accountType === "seeker" ? (
+              <>
+                <Input
+                  label="Headline"
                   value={headline}
                   onChange={(e) => setHeadline(e.target.value)}
                   placeholder="VLSI Design Engineer | RTL & Verification"
-                  className="w-full bg-bg-secondary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none placeholder:text-text-muted"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1">Current role</label>
-                <input
+                <Input
+                  label="Current role"
                   value={jobTitle}
                   onChange={(e) => setJobTitle(e.target.value)}
                   placeholder="e.g. M.Tech student, RTL Engineer"
-                  className="w-full bg-bg-secondary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none placeholder:text-text-muted"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1">Skills (comma separated)</label>
-                <input
+                <Input
+                  label="Skills (comma separated)"
                   value={skills}
                   onChange={(e) => setSkills(e.target.value)}
                   placeholder="Verilog, SystemVerilog, UVM, Physical Design"
-                  className="w-full bg-bg-secondary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none placeholder:text-text-muted"
                 />
-              </div>
-            </>
-          ) : (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1">Organization name</label>
-                <input
+              </>
+            ) : (
+              <>
+                <Input
+                  label="Organization name"
                   value={orgName}
                   onChange={(e) => setOrgName(e.target.value)}
                   required
-                  className="w-full bg-bg-secondary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1">Organization type</label>
-                <select
+                <Select
+                  label="Organization type"
                   value={orgKind}
                   onChange={(e) => setOrgKind(e.target.value)}
-                  className="w-full bg-bg-secondary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none"
                 >
                   <option value="company">Company</option>
                   <option value="startup">Startup</option>
@@ -184,50 +169,37 @@ export default function OnboardingPage() {
                   <option value="institution">Institution</option>
                   <option value="government">Government</option>
                   <option value="research_lab">Research Lab</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1">Website</label>
-                <input
+                </Select>
+                <Input
+                  label="Website"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
                   placeholder="https://"
-                  className="w-full bg-bg-secondary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none placeholder:text-text-muted"
                 />
-              </div>
-            </>
-          )}
+              </>
+            )}
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">Location</label>
-              <input
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label="Location"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Bangalore"
-                className="w-full bg-bg-secondary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none placeholder:text-text-muted"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">Country</label>
-              <input
+              <Input
+                label="Country"
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
                 placeholder="India"
-                className="w-full bg-bg-secondary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-accent/30 focus:border-accent outline-none placeholder:text-text-muted"
               />
             </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full py-2.5 rounded-lg bg-accent text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60"
-          >
-            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-            {saving ? "Saving..." : "Finish setup"}
-          </button>
-        </form>
+            <Button type="submit" disabled={saving} className="w-full">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {saving ? "Saving..." : "Finish setup"}
+            </Button>
+          </form>
+        </Card>
       </div>
     </div>
   );

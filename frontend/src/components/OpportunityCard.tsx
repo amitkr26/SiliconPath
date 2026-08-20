@@ -139,13 +139,24 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <h3 className="text-slate-900 font-bold text-sm sm:text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
+                <h3 className="text-slate-900 font-bold text-sm sm:text-base leading-snug group-hover:text-accent transition-colors line-clamp-2">
                   {opportunity.title}
                 </h3>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-xs text-slate-600 font-semibold">
-                    {opportunity.organization}
-                  </span>
+                  {opportunity.organization ? (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        router.push(`/opportunities?search=${encodeURIComponent(opportunity.organization!)}`);
+                      }}
+                      className="text-xs text-slate-700 hover:text-accent font-black hover:underline transition-colors text-left"
+                      title={`View all opportunities from ${opportunity.organization}`}
+                    >
+                      {opportunity.organization}
+                    </button>
+                  ) : null}
                   {opportunity.verification_status && (
                     <VerificationBadge status={opportunity.verification_status} compact />
                   )}
@@ -153,7 +164,7 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
               </div>
               <button
                 onClick={handleBookmark}
-                className={`transition-colors flex-shrink-0 p-1.5 rounded-lg border border-slate-900 ${
+                className={`transition-colors flex-shrink-0 p-1.5 rounded-lg border-2 border-slate-900 shadow-brutal-sm ${
                   isBookmarked ? "bg-red-500 text-white" : "bg-slate-100 text-slate-600 hover:text-red-500"
                 }`}
                 title={isBookmarked ? "Remove bookmark" : "Bookmark"}

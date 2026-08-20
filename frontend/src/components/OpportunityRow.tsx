@@ -85,48 +85,58 @@ export default function OpportunityRow({ opportunity }: OpportunityRowProps) {
       onClick={handleRowClick}
       className="block group cursor-pointer"
     >
-      <div className="flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-surface/30 hover:bg-surface/70 hover:border-accent/30 transition-all duration-200">
-        <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-          <span className="text-xs font-bold text-accent">
+      <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 border-slate-900 bg-white shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all duration-200">
+        <div className="w-9 h-9 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center flex-shrink-0">
+          <span className="text-xs font-black text-accent">
             {getInitials(opportunity.organization)}
           </span>
         </div>
 
-        <div className="flex-1 min-w-0 grid grid-cols-12 gap-2 items-center">
+        <div className="flex-1 min-w-0 grid grid-cols-12 gap-3 items-center">
           <div className="col-span-4 min-w-0">
-            <h3 className="text-text-primary text-sm font-medium leading-snug truncate group-hover:text-accent transition-colors">
+            <h3 className="text-slate-900 text-sm font-bold leading-snug truncate group-hover:text-accent transition-colors">
               {opportunity.title}
             </h3>
-            <span className="text-[11px] text-text-muted font-medium truncate block">
-              {opportunity.organization}
-            </span>
+            {opportunity.organization ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  router.push(`/opportunities?search=${encodeURIComponent(opportunity.organization!)}`);
+                }}
+                className="text-[11px] text-slate-600 hover:text-accent font-bold truncate block text-left hover:underline"
+              >
+                {opportunity.organization}
+              </button>
+            ) : null}
           </div>
 
           <div className="col-span-2">
             <CategoryBadge category={opportunity.category} />
           </div>
 
-          <div className="col-span-2 flex items-center gap-1 text-text-muted text-xs truncate">
-            <MapPin className="w-3 h-3 flex-shrink-0" />
-            <span className="truncate">{opportunity.location || "—"}</span>
+          <div className="col-span-2 flex items-center gap-1 text-slate-600 text-xs font-semibold truncate">
+            <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
+            <span className="truncate">{opportunity.location || "India"}</span>
           </div>
 
-          <div className="col-span-1 flex items-center gap-1 text-text-muted text-xs">
+          <div className="col-span-2 flex items-center gap-1 text-slate-900 text-xs font-bold">
             {opportunity.stipend ? (
               <>
-                <IndianRupee className="w-3 h-3 flex-shrink-0" />
+                <IndianRupee className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
                 <span className="truncate">{opportunity.stipend}</span>
               </>
             ) : (
-              <span className="text-text-muted/50">—</span>
+              <span className="text-slate-400 text-xs font-medium">—</span>
             )}
           </div>
 
-          <div className="col-span-2 flex items-center gap-1.5">
+          <div className="col-span-2 flex items-center gap-1.5 justify-end">
             {opportunity.deadline ? (
               <DeadlineCountdown deadline={opportunity.deadline} />
             ) : (
-              <span className="text-text-muted text-xs">No deadline</span>
+              <span className="text-slate-400 text-xs font-medium">Regular</span>
             )}
           </div>
         </div>

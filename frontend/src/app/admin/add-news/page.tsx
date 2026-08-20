@@ -79,34 +79,34 @@ export default function AddNewsPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="text-text-muted hover:text-text-primary transition-colors">
+        <Link href="/admin" className="text-slate-400 hover:text-slate-200 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="font-display text-2xl font-bold text-text-primary">Add News Article</h1>
+        <h1 className="font-display text-2xl font-bold text-white">Add News Article</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-text-muted text-xs font-medium mb-1">Title *</label>
-          <input required value={form.title} onChange={(e) => handleTitleChange(e.target.value)} className="w-full bg-gray-800 border border-gray-700 text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-cyan focus:border-cyan outline-none" />
+          <label className="block text-slate-400 text-xs font-semibold mb-1">Title *</label>
+          <input required value={form.title} onChange={(e) => handleTitleChange(e.target.value)} className="w-full bg-slate-800 border border-slate-700 text-slate-100 placeholder:text-slate-500 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
         </div>
         <div>
-          <label className="block text-text-muted text-xs font-medium mb-1">Slug</label>
+          <label className="block text-slate-400 text-xs font-semibold mb-1">Slug</label>
           <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="w-full bg-gray-800 border border-gray-700 text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-cyan focus:border-cyan outline-none font-mono text-xs" />
-          <p className="text-text-muted text-[10px] mt-1">Auto-generated from title. Edit if needed.</p>
+          <p className="text-slate-500 text-[10px] mt-1">Auto-generated from title. Edit if needed.</p>
         </div>
         <div>
-          <label className="block text-text-muted text-xs font-medium mb-1">Description *</label>
-          <textarea required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full bg-gray-800 border border-gray-700 text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-cyan focus:border-cyan outline-none" />
+          <label className="block text-slate-400 text-xs font-semibold mb-1">Description *</label>
+          <textarea required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full bg-slate-800 border border-slate-700 text-slate-100 placeholder:text-slate-500 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-text-muted text-xs font-medium mb-1">Source Name</label>
-            <input value={form.source_name} onChange={(e) => setForm({ ...form, source_name: e.target.value })} placeholder="IEEE Spectrum" className="w-full bg-gray-800 border border-gray-700 text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-cyan focus:border-cyan outline-none" />
+            <label className="block text-slate-400 text-xs font-semibold mb-1">Source Name</label>
+            <input value={form.source_name} onChange={(e) => setForm({ ...form, source_name: e.target.value })} placeholder="IEEE Spectrum" className="w-full bg-slate-800 border border-slate-700 text-slate-100 placeholder:text-slate-500 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
           </div>
           <div>
-            <label className="block text-text-muted text-xs font-medium mb-1">Category</label>
-            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-gray-800 border border-gray-700 text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-cyan focus:border-cyan outline-none">
+            <label className="block text-slate-400 text-xs font-semibold mb-1">Category</label>
+            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-slate-800 border border-slate-700 text-slate-100 placeholder:text-slate-500 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
               <option>Semiconductor</option>
               <option>VLSI</option>
               <option>Embedded</option>
@@ -118,30 +118,30 @@ export default function AddNewsPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-text-muted text-xs font-medium mb-1">Source URL</label>
-            <input type="url" value={form.source_url} onChange={(e) => setForm({ ...form, source_url: e.target.value })} className="w-full bg-gray-800 border border-gray-700 text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-cyan focus:border-cyan outline-none" />
+            <label className="block text-slate-400 text-xs font-semibold mb-1">Source URL</label>
+            <input type="url" value={form.source_url} onChange={(e) => setForm({ ...form, source_url: e.target.value })} className="w-full bg-slate-800 border border-slate-700 text-slate-100 placeholder:text-slate-500 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
           </div>
           <div>
-            <label className="block text-text-muted text-xs font-medium mb-1">Image URL</label>
-            <input type="url" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className="w-full bg-gray-800 border border-gray-700 text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-cyan focus:border-cyan outline-none" />
+            <label className="block text-slate-400 text-xs font-semibold mb-1">Image URL</label>
+            <input type="url" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className="w-full bg-slate-800 border border-slate-700 text-slate-100 placeholder:text-slate-500 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-text-muted text-xs font-medium mb-1">Tags (comma-separated)</label>
-            <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="2nm, TSMC, semiconductor" className="w-full bg-gray-800 border border-gray-700 text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-cyan focus:border-cyan outline-none" />
+            <label className="block text-slate-400 text-xs font-semibold mb-1">Tags (comma-separated)</label>
+            <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="2nm, TSMC, semiconductor" className="w-full bg-slate-800 border border-slate-700 text-slate-100 placeholder:text-slate-500 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
           </div>
           <div>
-            <label className="block text-text-muted text-xs font-medium mb-1">Published At</label>
-            <input type="datetime-local" value={form.published_at} onChange={(e) => setForm({ ...form, published_at: e.target.value })} className="w-full bg-gray-800 border border-gray-700 text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-cyan focus:border-cyan outline-none" />
+            <label className="block text-slate-400 text-xs font-semibold mb-1">Published At</label>
+            <input type="datetime-local" value={form.published_at} onChange={(e) => setForm({ ...form, published_at: e.target.value })} className="w-full bg-slate-800 border border-slate-700 text-slate-100 placeholder:text-slate-500 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
           </div>
         </div>
         <div className="flex gap-3 pt-2">
-          <button type="submit" disabled={saving} className="flex items-center gap-2 bg-cyan text-navy font-semibold rounded-lg px-6 py-2.5 text-sm hover:bg-cyan/90 transition-colors disabled:opacity-50">
+          <button type="submit" disabled={saving} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg px-6 py-2.5 text-sm transition-colors disabled:opacity-50">
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Add Article
           </button>
-          <Link href="/admin" className="border border-gray-700 text-text-muted font-medium rounded-lg px-6 py-2.5 text-sm hover:border-gray-600 transition-colors">
+          <Link href="/admin" className="border border-slate-700 text-slate-300 font-medium rounded-lg px-6 py-2.5 text-sm hover:border-slate-500 transition-colors">
             Cancel
           </Link>
         </div>

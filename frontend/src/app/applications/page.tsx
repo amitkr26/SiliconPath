@@ -6,15 +6,21 @@ import Link from "next/link";
 import { useUser } from "@/hooks/useUser";
 import { Loader2, FileText, ExternalLink, Clock, Calendar, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
-const STATUS_STYLES: Record<string, string> = {
-  applied: "bg-blue-500/10 text-blue-600 border-blue-200",
-  submitted: "bg-yellow-400/10 text-yellow-500 border-yellow-300",
-  reviewed: "bg-blue-400/10 text-blue-500 border-blue-300",
-  shortlisted: "bg-purple-400/10 text-purple-600 border-purple-300",
-  interview: "bg-amber-400/10 text-amber-600 border-amber-300",
-  accepted: "bg-emerald-400/10 text-emerald-600 border-emerald-300",
-  rejected: "bg-rose-400/10 text-rose-600 border-rose-300",
+type BadgeTone = "accent" | "neutral" | "warning" | "purple" | "success" | "danger";
+
+const STATUS_TONES: Record<string, BadgeTone> = {
+  applied: "accent",
+  submitted: "neutral",
+  reviewed: "accent",
+  shortlisted: "purple",
+  interview: "warning",
+  accepted: "success",
+  rejected: "danger",
 };
 
 export default function ApplicationsPage() {
@@ -52,74 +58,78 @@ export default function ApplicationsPage() {
 
   if (userLoading || loading) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-20 flex justify-center">
-        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+      <div className="min-h-[calc(100vh-4rem)] bg-bg-primary flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center gap-3 mb-6">
-        <FileText className="w-6 h-6 text-accent" />
-        <h1 className="font-display text-2xl font-bold text-text-primary">My Applications</h1>
-      </div>
+    <div className="min-h-[calc(100vh-4rem)] bg-bg-primary py-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <SectionHeader
+          eyebrow="Application Tracking"
+          title="My Applications"
+          description="Track the status of every opportunity you have applied to."
+        />
 
-      {applications.length === 0 ? (
-        <div className="text-center py-16 bg-surface border border-border rounded-xl">
-          <FileText className="w-12 h-12 text-text-muted mx-auto mb-3" />
-          <p className="text-text-secondary">No applications yet</p>
-          <Link href="/opportunities" className="text-accent text-sm mt-2 inline-block hover:underline">
-            Browse opportunities
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {applications.map(app => (
-            <div key={app.id} className="bg-surface border border-border rounded-xl p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <Link href={`/opportunities/${app.opportunity?.slug || app.opportunity_id}`}
-                    className="text-text-primary font-medium hover:text-accent">
-                    {app.opportunity?.title || "Opportunity"}
-                  </Link>
-                  <div className="flex items-center gap-3 text-text-muted text-xs mt-1">
-                    {app.opportunity?.organization && (
-                      <span>{app.opportunity.organization}</span>
-                    )}
-                    {app.opportunity?.location && (
-                      <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{app.opportunity.location}</span>
-                    )}
-                    {app.opportunity?.deadline && (
-                      <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(app.opportunity.deadline).toLocaleDateString()}</span>
+        {applications.length === 0 ? (
+          <Card tone="flat" className="text-center py-16 p-8">
+            <FileText className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+            <p className="text-slate-900 font-bold text-lg mb-1">No applications yet</p>
+            <p className="text-slate-500 text-sm mb-6">Browse verified opportunities and start applying.</p>
+            <Button href="/opportunities">Browse opportunities</Button>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {applications.map(app => (
+              <Card key={app.id} className="p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <Link
+                      href={`/opportunities/${app.opportunity?.slug || app.opportunity_id}`}
+                      className="text-slate-900 font-bold hover:text-blue-600"
+                    >
+                      {app.opportunity?.title || "Opportunity"}
+                    </Link>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-medium text-slate-500 mt-1">
+                      {app.opportunity?.organization && (
+                        <span>{app.opportunity.organization}</span>
+                      )}
+                      {app.opportunity?.location && (
+                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{app.opportunity.location}</span>
+                      )}
+                      {app.opportunity?.deadline && (
+                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(app.opportunity.deadline).toLocaleDateString()}</span>
+                      )}
+                    </div>
+                  </div>
+                  <Badge tone={STATUS_TONES[app.status] || "neutral"} className="shrink-0 capitalize">
+                    {app.status}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between mt-4 pt-4 border-t-2 border-slate-900">
+                  <span className="text-slate-500 text-xs font-medium flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> Applied {new Date(app.applied_at || app.created_at).toLocaleDateString()}
+                  </span>
+                  <div className="flex gap-3">
+                    <button onClick={() => handleWithdraw(app.id)}
+                      className="text-xs font-semibold text-slate-500 hover:text-red-600 px-2 py-1">
+                      Withdraw
+                    </button>
+                    {app.opportunity?.slug && (
+                      <Link href={`/opportunities/${app.opportunity.slug}`}
+                        className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1">
+                        View <ExternalLink className="w-3 h-3" />
+                      </Link>
                     )}
                   </div>
                 </div>
-                <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${STATUS_STYLES[app.status] || "bg-surface text-text-secondary border-border"}`}>
-                  {app.status}
-                </span>
-              </div>
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
-                <span className="text-text-muted text-xs flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> Applied {new Date(app.applied_at || app.created_at).toLocaleDateString()}
-                </span>
-                <div className="flex gap-2">
-                  <button onClick={() => handleWithdraw(app.id)}
-                    className="text-xs text-text-muted hover:text-danger px-2 py-1">
-                    Withdraw
-                  </button>
-                  {app.opportunity?.slug && (
-                    <Link href={`/opportunities/${app.opportunity.slug}`}
-                      className="text-xs text-accent hover:underline flex items-center gap-1">
-                      View <ExternalLink className="w-3 h-3" />
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

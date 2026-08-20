@@ -12,6 +12,7 @@ import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 import { FEATURES } from "@/lib/feature-flags";
 import { ComingSoon } from "@/components/shared/ComingSoon";
+import { Card } from "@/components/ui/Card";
 
 function getInitials(name: string): string {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
@@ -114,46 +115,46 @@ export default function CompanyDetailPage() {
   if (!company) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12 text-center">
-        <Building2 className="w-16 h-16 text-text-muted mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-text-primary mb-2">Company not found</h2>
-        <Link href="/companies" className="text-accent text-sm hover:underline">Back to companies</Link>
+        <Building2 className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+        <h2 className="text-xl font-black text-slate-900 mb-2">Company not found</h2>
+        <Link href="/companies" className="text-blue-600 text-sm font-semibold hover:underline">Back to companies</Link>
       </div>
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Link href="/companies" className="inline-flex items-center gap-1 text-text-secondary text-sm hover:text-accent mb-6">
+      <Link href="/companies" className="inline-flex items-center gap-1 text-slate-600 text-sm font-semibold hover:text-blue-600 mb-6">
         <ArrowLeft className="w-4 h-4" /> All Companies
       </Link>
 
-      <div className="bg-surface border border-border rounded-xl overflow-hidden">
+      <Card className="overflow-hidden">
         {/* Banner */}
-        <div className="h-32 sm:h-48 bg-gradient-to-r from-accent/30 to-accent/10" />
+        <div className="h-32 sm:h-48 bg-gradient-to-r from-blue-600 to-blue-400" />
 
         {/* Company header */}
         <div className="px-6 pb-6">
           <div className="flex items-end -mt-12 mb-4">
-            <div className="w-20 h-20 rounded-xl bg-accent/20 border-4 border-surface flex items-center justify-center">
-              <span className="text-2xl font-bold text-accent">{getInitials(company.name)}</span>
+            <div className="w-20 h-20 rounded-xl bg-blue-50 border-4 border-white flex items-center justify-center shadow-brutal">
+              <span className="text-2xl font-black text-blue-700">{getInitials(company.name)}</span>
             </div>
             <div className="ml-4 pb-1">
-              <h1 className="text-2xl font-bold text-text-primary">{company.name}</h1>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{company.name}</h1>
               {company.industry && (
-                <p className="text-text-secondary flex items-center gap-1 text-sm">
+                <p className="text-slate-600 font-medium flex items-center gap-1 text-sm">
                   <Building2 className="w-4 h-4" /> {company.industry}
                 </p>
               )}
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-sm text-text-muted mb-4">
+          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 font-medium mb-4">
             {company.location && (
               <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {company.location}</span>
             )}
             {company.website && (
               <a href={company.website} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1 text-accent hover:underline">
+                className="flex items-center gap-1 text-blue-600 font-semibold hover:underline">
                 <Globe className="w-4 h-4" /> Website <ExternalLink className="w-3 h-3" />
               </a>
             )}
@@ -162,23 +163,23 @@ export default function CompanyDetailPage() {
 
           <button
             onClick={handleFollow}
-            className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors border ${
+            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all border-2 border-slate-900 shadow-brutal-sm hover:shadow-brutal ${
               isFollowing
-                ? "bg-surface border-border text-text-secondary"
-                : "bg-accent/20 border-accent/30 text-accent hover:bg-accent/30"
+                ? "bg-white text-slate-700 hover:bg-slate-50"
+                : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
           >
             {isFollowing ? "Following" : "Follow"}
           </button>
         </div>
-      </div>
+      </Card>
 
       {/* About */}
       {company.description && (
-        <div className="bg-surface border border-border rounded-xl p-6 mt-4">
-          <h2 className="font-display text-lg font-bold text-text-primary mb-3">About</h2>
-          <p className="text-text-secondary text-sm leading-relaxed whitespace-pre-line">{company.description}</p>
-        </div>
+        <Card className="p-6 mt-4">
+          <h2 className="font-display text-xl font-black text-slate-900 mb-3">About</h2>
+          <p className="text-slate-600 text-sm font-medium leading-relaxed whitespace-pre-line">{company.description}</p>
+        </Card>
       )}
     </div>
   );

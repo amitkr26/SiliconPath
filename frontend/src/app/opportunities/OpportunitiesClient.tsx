@@ -243,6 +243,43 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
               </div>
             </div>
 
+            {/* QUICK PREMIER ORG PILLS */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+              <span className="text-[11px] font-black uppercase text-slate-500 shrink-0 mr-1">
+                Top Labs:
+              </span>
+              {[
+                { name: "All Labs", val: "" },
+                { name: "🚀 ISRO", val: "ISRO" },
+                { name: "🛡️ DRDO", val: "DRDO" },
+                { name: "🔬 CSIR", val: "CSIR" },
+                { name: "🎓 IIT Bombay", val: "IIT Bombay" },
+                { name: "⚡ Qualcomm", val: "Qualcomm" },
+                { name: "💻 Intel", val: "Intel" },
+                { name: "📐 ARM", val: "ARM" },
+                { name: "🖥️ AMD", val: "AMD" },
+              ].map((org) => {
+                const isActive = (search.toLowerCase() === org.val.toLowerCase()) || (!search && !org.val);
+                return (
+                  <button
+                    key={org.name}
+                    type="button"
+                    onClick={() => {
+                      setSearch(org.val);
+                      handleSearch(org.val);
+                    }}
+                    className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border-2 border-slate-900 transition-all ${
+                      isActive
+                        ? "bg-accent text-white shadow-brutal-sm scale-105"
+                        : "bg-white text-slate-700 hover:bg-slate-100 hover:-translate-y-0.5"
+                    }`}
+                  >
+                    {org.name}
+                  </button>
+                );
+              })}
+            </div>
+
             {/* AI FILTER CHIPS */}
             {Object.keys(aiChips).length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">

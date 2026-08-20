@@ -118,21 +118,21 @@ export default function AIAnalyticsPanel() {
     <div className="space-y-6">
       {/* STATS CARDS */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white border-3 border-slate-900 rounded-2xl p-4 shadow-[4px_4px_0px_0px_#0F172A]">
-          <p className="text-slate-600 text-xs font-extrabold uppercase tracking-wider">Total AI Requests</p>
-          <p className="text-3xl font-black text-slate-900 mt-1">{stats.total.toLocaleString()}</p>
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Total AI Requests</p>
+          <p className="text-3xl font-bold text-white mt-1">{stats.total.toLocaleString()}</p>
         </div>
-        <div className="bg-white border-3 border-slate-900 rounded-2xl p-4 shadow-[4px_4px_0px_0px_#0F172A]">
-          <p className="text-slate-600 text-xs font-extrabold uppercase tracking-wider">Requests Today</p>
-          <p className="text-3xl font-black text-blue-600 mt-1">{stats.today}</p>
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Requests Today</p>
+          <p className="text-3xl font-bold text-blue-400 mt-1">{stats.today}</p>
         </div>
-        <div className="bg-white border-3 border-slate-900 rounded-2xl p-4 shadow-[4px_4px_0px_0px_#0F172A]">
-          <p className="text-slate-600 text-xs font-extrabold uppercase tracking-wider">Requests This Week</p>
-          <p className="text-3xl font-black text-indigo-600 mt-1">{stats.thisWeek}</p>
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Requests This Week</p>
+          <p className="text-3xl font-bold text-blue-400 mt-1">{stats.thisWeek}</p>
         </div>
-        <div className="bg-white border-3 border-slate-900 rounded-2xl p-4 shadow-[4px_4px_0px_0px_#0F172A]">
-          <p className="text-slate-600 text-xs font-extrabold uppercase tracking-wider">AI Health &amp; Accuracy</p>
-          <p className="text-3xl font-black text-emerald-600 mt-1">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">AI Health &amp; Accuracy</p>
+          <p className="text-3xl font-bold text-emerald-400 mt-1">
             {total > 0 ? Math.round((stats.success / total) * 100) : 99}%
           </p>
         </div>
@@ -140,9 +140,9 @@ export default function AIAnalyticsPanel() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* PROVIDER BREAKDOWN */}
-        <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[5px_5px_0px_0px_#0F172A]">
-          <h3 className="text-base font-black text-slate-900 mb-4 flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-blue-600 stroke-[2.5]" />
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+          <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-blue-400" />
             AI Provider Distribution
           </h3>
           <div className="space-y-3">
@@ -150,13 +150,13 @@ export default function AIAnalyticsPanel() {
               .sort(([, a], [, b]) => b - a)
               .map(([provider, count]) => (
                 <div key={provider} className="space-y-1">
-                  <div className="flex justify-between text-xs font-bold text-slate-900">
+                  <div className="flex justify-between text-xs font-semibold text-slate-200">
                     <span className="uppercase tracking-wider">{provider.replace("_", " ")}</span>
-                    <span>
+                    <span className="text-slate-300">
                       {count} calls ({Math.round((count / total) * 100)}%)
                     </span>
                   </div>
-                  <div className="w-full bg-slate-100 border-2 border-slate-900 rounded-full h-3 overflow-hidden">
+                  <div className="w-full bg-slate-800 border border-slate-700 rounded-full h-2.5 overflow-hidden">
                     <div
                       className={`h-full ${providerColors[provider] || "bg-blue-600"}`}
                       style={{
@@ -170,9 +170,9 @@ export default function AIAnalyticsPanel() {
         </div>
 
         {/* FEATURE BREAKDOWN */}
-        <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[5px_5px_0px_0px_#0F172A]">
-          <h3 className="text-base font-black text-slate-900 mb-4 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-blue-600 stroke-[2.5]" />
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+          <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
+            <Zap className="w-5 h-5 text-blue-400" />
             Feature Execution Volume
           </h3>
           <div className="space-y-3">
@@ -180,11 +180,11 @@ export default function AIAnalyticsPanel() {
               .sort(([, a], [, b]) => b - a)
               .map(([feature, count]) => (
                 <div key={feature} className="space-y-1">
-                  <div className="flex justify-between text-xs font-bold text-slate-900">
+                  <div className="flex justify-between text-xs font-semibold text-slate-200">
                     <span>{feature}</span>
-                    <span>{count}</span>
+                    <span className="text-slate-300">{count}</span>
                   </div>
-                  <div className="w-full bg-slate-100 border-2 border-slate-900 rounded-full h-3 overflow-hidden">
+                  <div className="w-full bg-slate-800 border border-slate-700 rounded-full h-2.5 overflow-hidden">
                     <div
                       className="h-full bg-blue-600"
                       style={{
@@ -199,51 +199,51 @@ export default function AIAnalyticsPanel() {
       </div>
 
       {/* RECENT LOGS TABLE */}
-      <div className="bg-white border-3 border-slate-900 rounded-2xl p-6 shadow-[5px_5px_0px_0px_#0F172A]">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-blue-600 stroke-[2.5]" />
+          <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <Activity className="w-5 h-5 text-blue-400" />
             Real-time AI Inference Log Stream
           </h3>
           <button
             onClick={fetchStats}
-            className="text-xs font-black bg-blue-600 text-white px-3 py-1.5 rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0F172A] hover:bg-blue-700 transition"
+            className="text-xs font-semibold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-500 transition"
           >
             {loading ? "Refreshing..." : "Refresh Logs"}
           </button>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs font-bold text-slate-900">
+          <table className="w-full text-xs font-semibold text-slate-200">
             <thead>
-              <tr className="border-b-2 border-slate-900 bg-slate-100 text-slate-900">
-                <th className="text-left py-2.5 px-3 uppercase">Timestamp</th>
-                <th className="text-left py-2.5 px-3 uppercase">Feature</th>
-                <th className="text-left py-2.5 px-3 uppercase">Provider</th>
-                <th className="text-left py-2.5 px-3 uppercase">Status</th>
-                <th className="text-right py-2.5 px-3 uppercase">Tokens Processed</th>
+              <tr className="border-b border-slate-700 bg-slate-800/50 text-slate-400">
+                <th className="text-left py-2.5 px-3 uppercase tracking-wider font-semibold">Timestamp</th>
+                <th className="text-left py-2.5 px-3 uppercase tracking-wider font-semibold">Feature</th>
+                <th className="text-left py-2.5 px-3 uppercase tracking-wider font-semibold">Provider</th>
+                <th className="text-left py-2.5 px-3 uppercase tracking-wider font-semibold">Status</th>
+                <th className="text-right py-2.5 px-3 uppercase tracking-wider font-semibold">Tokens Processed</th>
               </tr>
             </thead>
             <tbody>
               {logs.map((log) => (
-                <tr key={log.id} className="border-b border-slate-200 hover:bg-blue-50 transition-colors">
-                  <td className="py-2.5 px-3 text-slate-600 font-mono">
+                <tr key={log.id} className="border-b border-slate-800 hover:bg-slate-800/40 transition-colors">
+                  <td className="py-2.5 px-3 text-slate-400 font-mono">
                     {new Date(log.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
                   </td>
-                  <td className="py-2.5 px-3 font-extrabold">{log.feature}</td>
-                  <td className="py-2.5 px-3 uppercase text-blue-600 font-black">{log.provider.replace("_", " ")}</td>
+                  <td className="py-2.5 px-3 font-bold">{log.feature}</td>
+                  <td className="py-2.5 px-3 uppercase text-blue-400 font-bold">{log.provider.replace("_", " ")}</td>
                   <td className="py-2.5 px-3">
                     {log.success ? (
-                      <span className="inline-flex items-center gap-1 text-emerald-700 font-black">
-                        <CheckCircle className="w-4 h-4 text-emerald-600 stroke-[2.5]" /> Success
+                      <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
+                        <CheckCircle className="w-4 h-4 text-emerald-400" /> Success
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-red-600 font-black">
-                        <XCircle className="w-4 h-4 text-red-600 stroke-[2.5]" /> Failed
+                      <span className="inline-flex items-center gap-1 text-red-400 font-bold">
+                        <XCircle className="w-4 h-4 text-red-400" /> Failed
                       </span>
                     )}
                   </td>
-                  <td className="py-2.5 px-3 text-right font-mono text-slate-900">
+                  <td className="py-2.5 px-3 text-right font-mono text-slate-200">
                     {(log.prompt_length + (log.response_length || 0)).toLocaleString()} tokens
                   </td>
                 </tr>

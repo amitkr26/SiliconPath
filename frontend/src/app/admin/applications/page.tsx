@@ -53,50 +53,50 @@ export default function AdminApplicationsPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center gap-3 mb-6">
-        <FileText className="w-6 h-6 text-accent" />
+        <FileText className="w-6 h-6 text-blue-400" />
         <div>
-          <h1 className="font-display text-2xl font-bold text-text-primary">Applications</h1>
-          <p className="text-text-muted text-sm">Review applications from candidates</p>
+          <h1 className="font-display text-2xl font-bold text-white">Applications</h1>
+          <p className="text-slate-400 text-sm">Review applications from candidates</p>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 text-accent animate-spin" /></div>
+        <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 text-blue-400 animate-spin" /></div>
       ) : Object.entries(grouped).length === 0 ? (
-        <div className="text-center py-12 text-text-secondary">No applications yet</div>
+        <div className="text-center py-12 text-slate-400">No applications yet</div>
       ) : (
         <div className="space-y-6">
           {Object.entries(grouped).map(([oppId, group]: [string, any]) => (
-            <div key={oppId} className="bg-surface border border-border rounded-xl p-4">
+            <div key={oppId} className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-3">
-                <Link href={`/opportunities/${group.opportunity?.slug || oppId}`} className="text-text-primary font-medium text-sm hover:text-accent flex items-center gap-1">
+                <Link href={`/opportunities/${group.opportunity?.slug || oppId}`} className="text-slate-100 font-medium text-sm hover:text-blue-400 flex items-center gap-1">
                   {group.opportunity?.title || "Unknown Opportunity"} <ExternalLink className="w-3 h-3" />
                 </Link>
-                <span className="text-text-muted text-xs">{group.apps.length} applicant{group.apps.length !== 1 ? "s" : ""}</span>
+                <span className="text-slate-400 text-xs">{group.apps.length} applicant{group.apps.length !== 1 ? "s" : ""}</span>
               </div>
               <div className="space-y-2">
                 {group.apps.map((app: any) => (
-                  <div key={app.id} className="flex items-center justify-between bg-bg-primary rounded-lg p-3">
+                  <div key={app.id} className="flex items-center justify-between bg-slate-950 rounded-lg p-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-                        <span className="text-xs font-bold text-accent">
+                      <div className="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center">
+                        <span className="text-xs font-bold text-blue-400">
                           {(app.user?.display_name || "?").split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2)}
                         </span>
                       </div>
                       <div>
-                        <div className="text-text-primary text-sm font-medium">{app.user?.display_name || "Anonymous"}</div>
-                        {app.user?.headline && <div className="text-text-muted text-xs">{app.user.headline}</div>}
+                        <div className="text-slate-100 text-sm font-medium">{app.user?.display_name || "Anonymous"}</div>
+                        {app.user?.headline && <div className="text-slate-400 text-xs">{app.user.headline}</div>}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <select value={app.status} onChange={e => updateStatus(app.id, e.target.value)}
-                        className={`text-xs px-2 py-1 rounded border bg-navy ${STATUS_COLORS[app.status] || "text-text-muted"}`}>
+                        className={`text-xs px-2 py-1 rounded border bg-slate-950 ${STATUS_COLORS[app.status] || "text-slate-400"}`}>
                         {STATUS_FLOW.map(s => (
                           <option key={s} value={s}>{s}</option>
                         ))}
                       </select>
                       {app.resume_url && (
-                        <a href={app.resume_url} target="_blank" className="text-accent text-xs hover:underline">Resume</a>
+                        <a href={app.resume_url} target="_blank" className="text-blue-400 text-xs hover:underline">Resume</a>
                       )}
                     </div>
                   </div>

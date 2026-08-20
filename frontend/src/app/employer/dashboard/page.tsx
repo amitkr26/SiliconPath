@@ -10,6 +10,9 @@ import {
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 
 export default function EmployerDashboard() {
   const router = useRouter();
@@ -115,18 +118,12 @@ export default function EmployerDashboard() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Link
-              href="/employer/company-claim"
-              className="inline-flex items-center gap-2 border border-border bg-surface text-text-secondary hover:text-text-primary px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
-            >
+            <Button variant="secondary" href="/employer/company-claim">
               <Building className="w-4 h-4" /> Claim Company
-            </Link>
-            <Link
-              href="/employer/post-job"
-              className="inline-flex items-center gap-2 bg-accent text-bg-primary hover:bg-accent-hover px-4 py-2.5 rounded-lg text-sm font-semibold shadow-glow-btn transition-colors"
-            >
+            </Button>
+            <Button href="/employer/post-job">
               <Plus className="w-4 h-4" /> Post a Job
-            </Link>
+            </Button>
           </div>
         </div>
 

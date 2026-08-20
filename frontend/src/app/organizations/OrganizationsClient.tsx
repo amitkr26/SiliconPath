@@ -41,41 +41,42 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
         (org.description && org.description.toLowerCase().includes(search.toLowerCase()));
 
       let matchesCat = true;
-      if (selectedCategory === "Research Labs") {
+      if (selectedCategory === "Government Defence & Space") {
         matchesCat =
-          org.type?.toLowerCase().includes("research") ||
-          org.name.toLowerCase().includes("csir") ||
+          org.type?.toLowerCase().includes("defence") ||
+          org.type?.toLowerCase().includes("space") ||
+          org.type?.toLowerCase().includes("government") ||
+          org.name.toLowerCase().includes("isro") ||
           org.name.toLowerCase().includes("drdo") ||
-          org.name.toLowerCase().includes("isro");
-      } else if (selectedCategory === "Academia & IITs") {
+          org.name.toLowerCase().includes("bel") ||
+          org.name.toLowerCase().includes("cdac");
+      } else if (selectedCategory === "Premier Academic Institution") {
         matchesCat =
           org.type?.toLowerCase().includes("academic") ||
           org.type?.toLowerCase().includes("university") ||
           org.name.toLowerCase().includes("iit") ||
           org.name.toLowerCase().includes("iisc") ||
-          org.name.toLowerCase().includes("iiit");
-      } else if (selectedCategory === "Semiconductor IP / Design") {
+          org.name.toLowerCase().includes("iiit") ||
+          org.name.toLowerCase().includes("nit");
+      } else if (selectedCategory === "Semiconductor IDM & Fabless") {
         matchesCat =
-          org.type?.toLowerCase().includes("ip") ||
+          org.type?.toLowerCase().includes("semiconductor") ||
           org.type?.toLowerCase().includes("fabless") ||
-          org.name.toLowerCase().includes("arm") ||
+          org.type?.toLowerCase().includes("idm") ||
+          org.name.toLowerCase().includes("intel") ||
           org.name.toLowerCase().includes("qualcomm") ||
           org.name.toLowerCase().includes("amd") ||
-          org.name.toLowerCase().includes("nvidia");
-      } else if (selectedCategory === "IDM / Foundries") {
+          org.name.toLowerCase().includes("arm") ||
+          org.name.toLowerCase().includes("micron") ||
+          org.name.toLowerCase().includes("nvidia") ||
+          org.name.toLowerCase().includes("texas");
+      } else if (selectedCategory === "National Research Institute") {
         matchesCat =
-          org.type?.toLowerCase().includes("idm") ||
-          org.type?.toLowerCase().includes("foundry") ||
-          org.name.toLowerCase().includes("intel") ||
-          org.name.toLowerCase().includes("tsmc") ||
-          org.name.toLowerCase().includes("micron");
-      } else if (selectedCategory === "Government / PSU") {
-        matchesCat =
-          org.type?.toLowerCase().includes("government") ||
-          org.type?.toLowerCase().includes("defence") ||
-          org.type?.toLowerCase().includes("psu") ||
-          org.name.toLowerCase().includes("bel") ||
-          org.name.toLowerCase().includes("bhel");
+          org.type?.toLowerCase().includes("research") ||
+          org.type?.toLowerCase().includes("institute") ||
+          org.name.toLowerCase().includes("csir") ||
+          org.name.toLowerCase().includes("tifr") ||
+          org.name.toLowerCase().includes("iisc");
       }
 
       return matchesSearch && matchesCat;
