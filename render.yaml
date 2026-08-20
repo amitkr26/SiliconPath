@@ -1,14 +1,23 @@
-# Render deployment for the standalone backend (Phase 6 deployment decision).
+# Render deployment for the standalone backend replica (Phase 6/7 deployment
+# decision).
 #
 # Architecture (simplest option that meets the requirements — no queue, no
-# microservices, no Redis):
+# microservices, no Redis, no paid infrastructure):
 #   - web service: the Express API, built from backend/server/Dockerfile.
 #     Health checks hit /health; Render sends SIGTERM on deploys, which the
 #     server handles gracefully (drain + exit).
-#   - cron job: the SAME Docker image runs the news worker entrypoint on a
-#     schedule (06:00 UTC daily, matching the frontend vercel.json schedule).
-#     The worker is its own process — it does not need CRON_SECRET (it IS the
-#     executor); the guarded server endpoint stays for Vercel-style triggers.
+#
+# Render is an INDEPENDENT backend replica — Vercel remains the production
+# platform (Next.js APIs + Vercel cron own all production traffic). The
+# frontend does not call Render. Render Free only: no Render Cron Job, no
+# Background Worker, no paid plan (cron creation on this workspace was
+# attempted and rejected by billing — the replica needs none of it).
+#
+# The backend/worker entrypoint is NOT scheduled on Render. It stays in the
+# image and is independently runnable on demand (node --import tsx
+# backend/worker/dist/index.js news) for testing/future use — it is the same
+# ingestion logic as the replica's guarded GET /api/v1/cron/news-sync, which
+# exists for manual/parity use only.
 #
 # Secrets are NOT committed here. Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
 # SUPABASE_2_URL, SUPABASE_2_SERVICE_ROLE_KEY, ADMIN_PASSWORD,
@@ -22,7 +31,7 @@ services:
     repo: https://github.com/amitkr26/BerojgarDegreeWala
     dockerfilePath: ./backend/server/Dockerfile
     dockerContext: .
-    plan: starter
+    plan: free
     healthCheckPath: /health
     envVars:
       - key: PORT
@@ -47,15 +56,3 @@ services:
         sync: false
       - key: ALLOWED_ORIGINS
         value: "http://localhost:3000,https://berojgardegreewala.vercel.app,https://electrobridge.vercel.app"
-
-crons:
-  - name: news-sync
-    schedule: "0 6 * * *"
-    dockerCommand: node --import tsx backend/worker/dist/index.js news
-    dockerfilePath: ./backend/server/Dockerfile
-    dockerContext: .
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false

@@ -1,8 +1,13 @@
 // Cleanly reset connections, conversations, and messages between test users
 import { createClient } from "@supabase/supabase-js";
-import { readFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 
-const envLines = readFileSync("D:\\Tinkerscape\\SiliconPath\\frontend\\.env.local", "utf8")
+// Resolve .env.local relative to the repo root (works from any cwd; the old
+// hardcoded D:\Tinkerscape path broke after the machine move).
+const candidates = ["frontend/.env.local", ".env.local", process.env.SOCIAL_RESET_ENV].filter(Boolean);
+const envPath = candidates.find((p) => existsSync(p));
+if (!envPath) throw new Error("No .env.local found — run from the repo root or set SOCIAL_RESET_ENV");
+const envLines = readFileSync(envPath, "utf8")
   .split("\n").reduce((a, l) => { const m = l.match(/^([A-Z_]+)=(.*)/); if (m) a[m[1]] = m[2].trim(); return a; }, {});
 
 const admin = createClient(envLines.NEXT_PUBLIC_SUPABASE_URL, envLines.SUPABASE_SERVICE_ROLE_KEY);
