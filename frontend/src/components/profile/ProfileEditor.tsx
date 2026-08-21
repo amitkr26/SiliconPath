@@ -134,7 +134,7 @@ export default function ProfileEditor({ userId, initialProfile, authName }: Prop
           {/* CARD 1: PROFILE HEADER & BANNER */}
           <Card className="relative overflow-hidden">
             {/* COVER */}
-            <div className="h-40 bg-gradient-to-r from-blue-700 via-blue-600 to-slate-900" />
+            <div className="h-40 bg-blue-600 border-b-2 border-slate-900" />
 
             {/* AVATAR & QUICK ACTIONS */}
             <div className="px-6 pb-6 relative">

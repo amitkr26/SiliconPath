@@ -250,14 +250,14 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
               </span>
               {[
                 { name: "All Labs", val: "" },
-                { name: "🚀 ISRO", val: "ISRO" },
-                { name: "🛡️ DRDO", val: "DRDO" },
-                { name: "🔬 CSIR", val: "CSIR" },
-                { name: "🎓 IIT Bombay", val: "IIT Bombay" },
-                { name: "⚡ Qualcomm", val: "Qualcomm" },
-                { name: "💻 Intel", val: "Intel" },
-                { name: "📐 ARM", val: "ARM" },
-                { name: "🖥️ AMD", val: "AMD" },
+                { name: "ISRO", val: "ISRO" },
+                { name: "DRDO", val: "DRDO" },
+                { name: "CSIR", val: "CSIR" },
+                { name: "IIT Bombay", val: "IIT Bombay" },
+                { name: "Qualcomm", val: "Qualcomm" },
+                { name: "Intel", val: "Intel" },
+                { name: "ARM", val: "ARM" },
+                { name: "AMD", val: "AMD" },
               ].map((org) => {
                 const isActive = (search.toLowerCase() === org.val.toLowerCase()) || (!search && !org.val);
                 return (

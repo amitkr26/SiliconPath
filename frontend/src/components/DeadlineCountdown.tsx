@@ -45,10 +45,10 @@ export default function DeadlineCountdown({
               expired
                 ? "bg-danger"
                 : days <= 3
-                ? "bg-gradient-deadline"
+                ? "bg-danger"
                 : days <= 7
                 ? "bg-warning"
-                : "bg-accent/50"
+                : "bg-accent/40"
             )}
             style={{ width: `${expired ? 100 : Math.max(5, progress)}%` }}
           />

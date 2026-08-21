@@ -48,10 +48,7 @@ export default function AIOpportunitySummary({ slug }: { slug: string }) {
         : "text-success bg-success/10 border-success/20";
 
   return (
-    <div className="mt-8 bg-surface-elevated border border-accent/20 rounded-xl relative shadow-lg shadow-accent/5 overflow-hidden">
-      {/* Decorative top border glow */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent/20 via-accent to-accent/20" />
-      
+    <div className="mt-8 bg-surface-elevated border border-accent/20 border-t-4 border-t-accent rounded-xl relative shadow-card overflow-hidden">
       <div className="p-5 border-b border-border flex items-center justify-between bg-surface/50">
         <h3 className="font-display text-lg font-bold text-text-primary flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-accent" />

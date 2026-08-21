@@ -249,14 +249,14 @@ export default async function HomePage() {
               <Search className="w-3.5 h-3.5 text-accent" /> Direct Filter:
             </span>
             {[
-              { label: "🚀 ISRO Careers", q: "ISRO" },
-              { label: "🛡️ DRDO JRF", q: "DRDO" },
-              { label: "🔬 CSIR CEERI", q: "CSIR" },
-              { label: "🎓 IIT Bombay PhD", q: "IIT Bombay" },
-              { label: "⚡ Qualcomm RTL", q: "Qualcomm" },
-              { label: "💻 Intel Physical Design", q: "Intel" },
-              { label: "📐 SystemVerilog UVM", q: "Verification" },
-              { label: "📡 Analog RFIC", q: "Analog" },
+              { label: "ISRO Careers", q: "ISRO" },
+              { label: "DRDO JRF", q: "DRDO" },
+              { label: "CSIR CEERI", q: "CSIR" },
+              { label: "IIT Bombay PhD", q: "IIT Bombay" },
+              { label: "Qualcomm RTL", q: "Qualcomm" },
+              { label: "Intel Physical Design", q: "Intel" },
+              { label: "SystemVerilog UVM", q: "Verification" },
+              { label: "Analog RFIC", q: "Analog" },
             ].map((tag) => (
               <Link
                 key={tag.label}

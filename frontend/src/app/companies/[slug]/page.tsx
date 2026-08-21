@@ -130,7 +130,7 @@ export default function CompanyDetailPage() {
 
       <Card className="overflow-hidden">
         {/* Banner */}
-        <div className="h-32 sm:h-48 bg-gradient-to-r from-blue-600 to-blue-400" />
+        <div className="h-32 sm:h-48 bg-blue-600 border-b-2 border-slate-900" />
 
         {/* Company header */}
         <div className="px-6 pb-6">

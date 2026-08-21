@@ -82,7 +82,7 @@ export default function AskAIModal({ isOpen, onClose }: AskAIModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)] bg-[var(--surface-raised)]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white shadow-brutal-sm">
               <Sparkles size={20} />
             </div>
             <div>
@@ -160,7 +160,7 @@ export default function AskAIModal({ isOpen, onClose }: AskAIModalProps) {
                 onClick={() => handleSend(q)}
                 className="text-xs whitespace-nowrap bg-[var(--surface)] hover:bg-[var(--primary-light)] hover:text-[var(--primary)] border border-[var(--border)] rounded-full px-3 py-1.5 transition text-[var(--text-secondary)]"
               >
-                💡 {q}
+                {q}
               </button>
             ))}
           </div>
@@ -185,7 +185,7 @@ export default function AskAIModal({ isOpen, onClose }: AskAIModalProps) {
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white p-3 rounded-xl disabled:opacity-50 transition shadow-md flex items-center justify-center"
+              className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl border-2 border-slate-900 disabled:opacity-50 transition shadow-brutal-sm flex items-center justify-center"
             >
               <Send size={18} />
             </button>

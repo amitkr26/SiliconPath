@@ -8,15 +8,6 @@ interface NewsCardProps {
   article: NewsArticle;
 }
 
-const SOURCE_COLORS: Record<string, string> = {
-  "IEEE Spectrum": "bg-blue-600",
-  "EE Times": "bg-emerald-600",
-  "Semiconductor Engineering": "bg-purple-600",
-  "India Semiconductor Mission": "bg-orange-600",
-  "Electronics Weekly": "bg-red-600",
-  "AnandTech": "bg-indigo-600",
-};
-
 function timeAgo(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
@@ -37,7 +28,6 @@ export default function NewsCard({ article }: NewsCardProps) {
   const tags = article.tags || [];
   const sourceName = article.source || (article as any).source_name || "Official Source";
   const sourceUrl = article.source_url || (article as any).url || "https://semiengineering.com/";
-  const sourceDotColor = SOURCE_COLORS[sourceName] || "bg-blue-600";
   const articleContent = article.summary || (article as any).content || "Detailed research summary available on official publisher portal.";
 
   return (
@@ -54,7 +44,7 @@ export default function NewsCard({ article }: NewsCardProps) {
               onError={() => setImgError(true)}
             />
             <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border-2 border-slate-900 rounded-lg text-[11px] font-bold text-slate-900 shadow-brutal-sm">
-              <span className={`w-2 h-2 rounded-full ${sourceDotColor}`} />
+              <Newspaper size={11} className="text-blue-600" />
               {sourceName}
             </span>
           </div>
@@ -137,7 +127,7 @@ export default function NewsCard({ article }: NewsCardProps) {
 
             <div className="flex items-center gap-2 mb-3">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg text-xs font-bold text-slate-900 shadow-brutal-sm">
-                <span className={`w-2 h-2 rounded-full ${sourceDotColor}`} />
+                <Newspaper size={12} className="text-blue-600" />
                 {sourceName}
               </span>
               {article.published_at && (
