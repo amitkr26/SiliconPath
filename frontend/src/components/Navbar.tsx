@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   Briefcase, Menu, X, User, LogOut, CircuitBoard, Building2, ChevronDown,
-  GraduationCap, Users, MessageSquare, PlusCircle, Bookmark, FileText, LayoutDashboard, LogIn
+  GraduationCap, Users, MessageSquare, PlusCircle, Bookmark, FileText, LayoutDashboard, LogIn, Settings
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
@@ -44,10 +44,12 @@ export default function Navbar() {
     : isEmployer
     ? [
         { href: "/employer/dashboard", label: "Dashboard", icon: LayoutDashboard },
-        { href: "/employer/jobs", label: "Job Postings", icon: Briefcase },
+        { href: "/employer/jobs", label: "Jobs", icon: Briefcase },
         { href: "/employer/applicants", label: "Applicants", icon: Users },
-        { href: "/employer/talent", label: "Talent Search", icon: Users },
-        { href: "/employer/company", label: "Company Profile", icon: Building2 },
+        { href: "/employer/talent", label: "Talent", icon: Users },
+        { href: "/employer/messages", label: "Messages", icon: MessageSquare },
+        { href: "/employer/analytics", label: "Analytics", icon: LayoutDashboard },
+        { href: "/employer/company", label: "Company", icon: Building2 },
       ]
     : [
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
@@ -166,21 +168,35 @@ export default function Navbar() {
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
                       >
-                        <Briefcase className="w-3.5 h-3.5 text-blue-600" /> Manage Job Postings
+                        <Briefcase className="w-3.5 h-3.5 text-blue-600" /> Manage Jobs
                       </Link>
                       <Link
                         href="/employer/applicants"
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
                       >
-                        <Users className="w-3.5 h-3.5 text-blue-600" /> Applicant Pipeline (ATS)
+                        <Users className="w-3.5 h-3.5 text-blue-600" /> Applicant ATS
                       </Link>
                       <Link
                         href="/employer/talent"
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
                       >
-                        <Users className="w-3.5 h-3.5 text-blue-600" /> Talent Sourcing Pool
+                        <Users className="w-3.5 h-3.5 text-blue-600" /> Talent Sourcing
+                      </Link>
+                      <Link
+                        href="/employer/messages"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 text-blue-600" /> Candidate Messages
+                      </Link>
+                      <Link
+                        href="/employer/analytics"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <LayoutDashboard className="w-3.5 h-3.5 text-blue-600" /> Recruitment Analytics
                       </Link>
                       <Link
                         href="/employer/company"
@@ -188,6 +204,20 @@ export default function Navbar() {
                         className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
                       >
                         <Building2 className="w-3.5 h-3.5 text-blue-600" /> Company &amp; Lab Profile
+                      </Link>
+                      <Link
+                        href="/employer/team"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <Users className="w-3.5 h-3.5 text-blue-600" /> Team &amp; Workspace Seats
+                      </Link>
+                      <Link
+                        href="/employer/settings"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <Settings className="w-3.5 h-3.5 text-blue-600" /> Preferences &amp; Alerts
                       </Link>
                       <div className="my-1 border-t border-slate-100" />
                       <Link
