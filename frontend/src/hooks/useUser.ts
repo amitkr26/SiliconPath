@@ -9,52 +9,61 @@ export type UserRole = "candidate" | "employer" | "admin";
 
 export function useUser() {
   const [user, setUser] = useState<User | null>(null);
+  const [username, setUsername] = useState<string>("");
+  const [displayName, setDisplayName] = useState<string>("");
   const [role, setRole] = useState<UserRole>("candidate");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const fetchRole = useCallback(async (authUser: User | null) => {
+  const fetchProfileAndRole = useCallback(async (authUser: User | null) => {
     if (!authUser) {
       setRole("candidate");
+      setUsername("");
+      setDisplayName("");
       return;
     }
 
-    // 1. Check user_metadata
+    // 1. Initial resolution from user_metadata
     const metaRole = authUser.user_metadata?.role || authUser.user_metadata?.account_type;
+    const metaUsername = authUser.user_metadata?.username || authUser.email?.split("@")[0] || "";
+    const metaDisplayName = authUser.user_metadata?.full_name || metaUsername;
+
+    let determinedRole: UserRole = "candidate";
     if (metaRole === "employer" || metaRole === "provider") {
-      setRole("employer");
-      return;
-    }
-    if (metaRole === "admin") {
-      setRole("admin");
-      return;
+      determinedRole = "employer";
+    } else if (metaRole === "admin") {
+      determinedRole = "admin";
     }
 
-    // 2. Fallback check user_profiles database table
+    setRole(determinedRole);
+    setUsername(metaUsername);
+    setDisplayName(metaDisplayName);
+
+    // 2. Fetch from user_profiles table for active database sync
     try {
       const supabase = createClient();
       const { data: profile } = await supabase
         .from("user_profiles")
-        .select("account_type")
+        .select("account_type, username, display_name")
         .eq("id", authUser.id)
         .maybeSingle();
 
-      if (profile?.account_type) {
-        const pRole = profile.account_type.toLowerCase();
-        if (pRole === "employer" || pRole === "provider") {
-          setRole("employer");
-          return;
-        }
-        if (pRole === "admin") {
-          setRole("admin");
-          return;
+      if (profile) {
+        if (profile.username) setUsername(profile.username);
+        if (profile.display_name) setDisplayName(profile.display_name);
+
+        if (profile.account_type) {
+          const pRole = profile.account_type.toLowerCase();
+          if (pRole === "employer" || pRole === "provider") {
+            setRole("employer");
+          } else if (pRole === "admin") {
+            setRole("admin");
+          }
         }
       }
     } catch {
-      // Default to candidate
+      // Fallback already set from metadata
     }
-
-    setRole("candidate");
   }, []);
 
   useEffect(() => {
@@ -62,24 +71,26 @@ export function useUser() {
     supabase.auth.getUser().then(({ data }) => {
       const currentUser = data?.user ?? null;
       setUser(currentUser);
-      fetchRole(currentUser).then(() => setLoading(false));
+      fetchProfileAndRole(currentUser).then(() => setLoading(false));
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
-      fetchRole(currentUser);
+      fetchProfileAndRole(currentUser);
     });
 
     return () => {
       listener?.subscription.unsubscribe();
     };
-  }, [fetchRole]);
+  }, [fetchProfileAndRole]);
 
   const signOut = useCallback(async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
+    setUsername("");
+    setDisplayName("");
     setRole("candidate");
     router.push("/");
     router.refresh();
@@ -87,6 +98,8 @@ export function useUser() {
 
   return {
     user,
+    username,
+    displayName,
     role,
     isCandidate: role === "candidate",
     isEmployer: role === "employer",
