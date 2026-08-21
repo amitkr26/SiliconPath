@@ -61,16 +61,16 @@ export default function Navbar() {
       ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b-2 border-slate-900 shadow-[0_3px_0px_0px_rgba(15,23,42,0.08)]">
+    <header className="sticky top-0 z-50 bg-white border-b-2 border-slate-900 shadow-brutal">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
 
         {/* BRAND LOGO */}
         <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center shadow-[2px_2px_0px_0px_#0F172A] group-hover:-translate-y-0.5 transition-all">
+          <div className="w-9 h-9 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
             <CircuitBoard className="w-5 h-5 text-white stroke-[2.5]" />
           </div>
           <div className="flex flex-col">
-            <span className="font-black text-base sm:text-lg tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors leading-none">
+            <span className="font-bold text-base sm:text-lg tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors leading-none">
               Berojgar<span className="text-blue-600">DegreeWala</span>
             </span>
             <span className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 font-semibold tracking-wider uppercase">
@@ -88,13 +88,13 @@ export default function Navbar() {
                 key={href}
                 href={href}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-bold transition-colors",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors",
                   active
-                    ? "bg-slate-900 text-white"
-                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-900",
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-blue-600",
                 )}
               >
-                <Icon className={cn("w-4 h-4", active ? "text-blue-400" : "text-slate-500")} />
+                <Icon className={cn("w-4 h-4", active ? "text-white" : "text-slate-500")} />
                 <span>{label}</span>
               </Link>
             );
@@ -107,13 +107,13 @@ export default function Navbar() {
             <div className="relative" ref={userRef}>
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 p-1.5 bg-white border-2 border-slate-900 rounded-xl shadow-brutal-sm hover:bg-slate-50 transition-all font-bold text-xs text-slate-900"
+                className="flex items-center gap-2 p-1.5 bg-white border-2 border-slate-900 rounded-full shadow-brutal-sm hover:bg-slate-50 transition-all font-semibold text-xs text-slate-900"
               >
-                <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-xs border border-slate-900">
+                <div className="w-7 h-7 rounded-full border-2 border-slate-900 bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-brutal-sm">
                   {user.email?.[0].toUpperCase() || "U"}
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="max-w-[100px] truncate leading-none text-slate-900">{user.email?.split("@")[0]}</span>
+                  <span className="max-w-[100px] truncate leading-none text-slate-900 font-bold">{user.email?.split("@")[0]}</span>
                   <span className="text-[9px] font-bold uppercase text-blue-700 leading-none mt-0.5">
                     {isEmployer ? "Employer" : "Candidate"}
                   </span>
@@ -122,7 +122,7 @@ export default function Navbar() {
               </button>
 
               {userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-52 bg-white border-2 border-slate-900 rounded-xl shadow-brutal py-2 z-50">
+                <div className="absolute right-0 mt-2 w-52 bg-white border-2 border-slate-900 rounded-xl shadow-brutal-lg py-2 z-50">
                   <div className="px-4 py-2 border-b border-slate-200 bg-slate-50">
                     <p className="text-xs font-bold text-slate-900 truncate">{user.email}</p>
                     <p className="text-[10px] font-bold uppercase text-blue-600">
