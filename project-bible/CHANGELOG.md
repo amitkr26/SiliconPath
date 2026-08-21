@@ -9,16 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - clean/main branch
 
-- **2026-08-21 — Dedicated Employer & Recruiter Portal Suite (COMPLETE).**
-  - **Recruiter App Shell & Navigation (`frontend/src/components/Navbar.tsx`):** Designed dedicated Employer Suite header when `isEmployer` is active, with dedicated Recruiter branding badge, enterprise links (Dashboard, Job Postings, Applicants ATS, Talent Sourcing, Company Profile), direct `+ Post Position` CTA, and 1-click `Preview Candidate Job Board` toggle in the user dropdown.
-  - **Login Auto-Routing (`frontend/src/app/login/page.tsx`):** Added role-aware login redirection so employer accounts (e.g. `amit@excompany.in`) are routed directly to `/employer/dashboard` upon sign in.
-  - **Employer Cockpit (`frontend/src/app/employer/dashboard/page.tsx`):** Overhauled dashboard with 4 metric cards (Active Postings, Total Applicants, Pipeline count, Talent Pool size), recent applicant stream with instant stage advancement, active job postings table, and AI recommended talent suggestions.
-  - **Job Postings Management (`frontend/src/app/employer/jobs/page.tsx`):** Built dedicated posting manager with status filters (All, Active, Paused), 1-click Pause/Resume toggle, shareable link copy, direct applicant view, and deletion controls.
-  - **Applicant Tracking System ATS (`frontend/src/app/employer/applicants/page.tsx`):** Built full multi-stage ATS pipeline (Applied, Screening, Shortlisted, Interview, Offered/Hired, Rejected) with candidate skill badges, resume preview, and direct messaging links.
-  - **Talent Sourcing Engine (`frontend/src/app/employer/talent/page.tsx`):** Built candidate search engine across open-to-work scholars with hardware domain filters (RTL, UVM, Physical Design, Analog, FPGA, RISC-V), experience filters, and direct candidate invitation modal.
-  - **Company & Research Lab Profile (`frontend/src/app/employer/company/page.tsx`):** Added organization management suite for logo, lab description, research domains, cleanroom EDA facilities, and verification status.
-  - **Post Position Studio (`frontend/src/app/employer/post-job/page.tsx`):** Added quick-fill templates for standard semiconductor roles (DST JRF ₹37k/mo, SRF ₹42k/mo, Digital RTL, UVM Verification, VLSI Intern) and custom eligibility/GATE criteria.
-  - **Backend API Suite (`/api/employer/applicants`, `/api/employer/talent`, `/api/employer/jobs`, `/api/employer/stats`):** Implemented comprehensive REST API routes for employer job CRUD, applicant stage mutation, talent search, and aggregated analytics.
+- **2026-08-21 — Employer / Recruiter Portal Re-Architecture & Complete Rebuild (COMPLETE).**
+  - **Surfaces Separation:** Fully established the platform's 4 authoritative surfaces: Public, Candidate, Employer/Recruiter, and Admin. Employer experience operates within a dedicated Employer Suite shell (`BerojgarDegreeWala | Employer Suite`) with distinct branding, navigation, and zero exposure of candidate-only routes.
+  - **Full Routing Matrix:**
+    - `/employer` & `/employer/dashboard`: Recruiter cockpit with live DB metric cards, hiring stream, and active postings.
+    - `/employer/jobs`: Comprehensive job postings manager with status toggles (All, Active, Paused), 1-click pause/resume, share URL, and direct applicant views.
+    - `/employer/jobs/[id]`: Single job performance and scope inspector with direct applicant counts.
+    - `/employer/jobs/[id]/edit`: Dedicated position editor.
+    - `/employer/jobs/[id]/applicants`: Single position applicant review list.
+    - `/employer/post-job` & `/employer/jobs/new`: Multi-step Post Position Studio with standard DST JRF/SRF/VLSI quick presets.
+    - `/employer/applicants`: Multi-stage Applicant Tracking System (ATS) pipeline (Applied, Screening, Shortlisted, Interview, Accepted, Rejected) with candidate skill badges and resume preview.
+    - `/employer/applicants/[id]`: Full candidate application dossier with verified skills, stage advancement dropdown, and private recruiter notes.
+    - `/employer/talent`: Candidate Talent Sourcing search engine with domain and experience filters across verified `user_profiles`.
+    - `/employer/talent/[username]`: Talent profile view with Direct Reachout / Invitation modal.
+    - `/employer/messages`: Real-time candidate messaging interface backed by shared `conversations` and `messages` tables.
+    - `/employer/analytics`: Database-calculated recruitment funnel, conversion velocities, and per-job performance breakdown.
+    - `/employer/company` & `/employer/company/edit`: Company & Research Lab workspace profile backed by `company_pages` and `organizations`.
+    - `/employer/team`: Team & Recruiter seat management (Owner, Admin, Recruiter, Hiring Manager).
+    - `/employer/settings`: Recruiter alert preferences and security controls.
+  - **Backend API Suite (`/api/employer/*`):**
+    - `/api/employer/jobs` & `/api/employer/jobs/[id]`: Full CRUD with strict IDOR ownership authorization.
+    - `/api/employer/applicants` & `/api/employer/applicants/[id]`: Stage mutations and notes with applicant authorization.
+    - `/api/employer/talent` & `/api/employer/talent/[username]`: Talent sourcing search endpoints.
+    - `/api/employer/analytics`: Dynamic SQL/PostgREST pipeline stage aggregation.
+    - `/api/employer/stats`: Cockpit summary metrics.
+  - **Global Username Uniqueness:** Guaranteed unique `@username` handles for all accounts (candidates and employers alike) across registration, navigation badge, and public routing.
+  - **Candidate Experience Preservation:** Added 1-click "Preview Candidate Board" switcher to navigate public listings without terminating the recruiter session.
   - **Verification:** Unit tests 117/117 passed, `npx tsc --noEmit` exit code 0.
 
 - **2026-08-21 — Phase 7.8: Product UI Refinement & Mature Design System Application across all surfaces (COMPLETE).**
