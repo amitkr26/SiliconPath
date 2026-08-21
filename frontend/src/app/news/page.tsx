@@ -164,8 +164,27 @@ export default function NewsPage() {
             </div>
           </div>
 
-          {/* CATEGORY TABS */}
-          <div className="flex gap-2.5 mt-6 overflow-x-auto pb-2 scrollbar-hide">
+          {/* MOBILE CATEGORY SELECT */}
+          <div className="mt-5 sm:hidden">
+            <label htmlFor="news-category-select" className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
+              Filter by Category
+            </label>
+            <select
+              id="news-category-select"
+              value={activeTag}
+              onChange={(e) => setActiveTag(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-brutal-sm outline-none"
+            >
+              {CATEGORY_TABS.map((tab) => (
+                <option key={tab.value} value={tab.value}>
+                  {tab.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* DESKTOP CATEGORY TABS */}
+          <div className="hidden sm:flex gap-2.5 mt-6 overflow-x-auto pb-1 scrollbar-hide">
             {CATEGORY_TABS.map((tab) => (
               <button
                 key={tab.value}

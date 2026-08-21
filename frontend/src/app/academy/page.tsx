@@ -146,14 +146,14 @@ export default function AcademyDashboard() {
                 <Card
                   key={t.id}
                   hover={!isLocked}
-                  className={cn("p-6 flex flex-col justify-between", isLocked && "opacity-60 bg-slate-100")}
+                  className={cn("p-6 flex flex-col justify-between", isLocked && "bg-slate-50 border-slate-300")}
                 >
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <Badge tone="inverse">Track {idx + 1}</Badge>
                       {isPassed ? (
                         <Badge tone="success">
-                          <CheckCircle2 className="w-3 h-3" /> Passed
+                          <CheckCircle2 className="w-3 h-3" /> Completed
                         </Badge>
                       ) : isLocked ? (
                         <Badge tone="neutral">
@@ -161,15 +161,24 @@ export default function AcademyDashboard() {
                         </Badge>
                       ) : (
                         <Badge tone="accent">
-                          <Zap className="w-3 h-3" /> Active
+                          <Zap className="w-3 h-3" /> In Progress
                         </Badge>
                       )}
                     </div>
 
                     <h3 className="font-black text-slate-900 text-lg mb-2">{t.title || t.name}</h3>
-                    <p className="text-slate-600 text-xs leading-relaxed font-medium mb-6">
+                    <p className="text-slate-600 text-xs leading-relaxed font-medium mb-4">
                       {t.description}
                     </p>
+
+                    {isLocked && (
+                      <div className="mb-4 p-2.5 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+                        <Lock className="w-3.5 h-3.5 text-amber-700 shrink-0 mt-0.5" />
+                        <p className="text-[11px] text-amber-900 font-semibold leading-tight">
+                          Prerequisite: Pass Track {idx} ({tracks[idx - 1]?.title || tracks[idx - 1]?.name || "Previous Track"}) checkpoint to unlock.
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="pt-4 border-t-2 border-slate-100 flex items-center justify-between">
@@ -177,11 +186,12 @@ export default function AcademyDashboard() {
                     <Button
                       href={`/academy/${t.slug}`}
                       size="sm"
+                      variant={isLocked ? "ghost" : isPassed ? "secondary" : "primary"}
                       disabled={isLocked}
-                      className={cn(isLocked && "cursor-not-allowed")}
+                      className={cn(isLocked && "cursor-not-allowed text-slate-400 border-slate-300")}
                     >
-                      {isPassed ? "Review Track" : "Start Track"}
-                      <Play className="w-3 h-3 fill-current" />
+                      {isPassed ? "Review Track" : isLocked ? "Locked" : "Start Track"}
+                      {!isLocked && <Play className="w-3 h-3 fill-current ml-1" />}
                     </Button>
                   </div>
                 </Card>
