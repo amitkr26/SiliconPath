@@ -1,4 +1,7 @@
-export const GARBAGE_TITLE_PATTERNS = /home|contact|sitemap|about|privacy|terms|login|sign in|register|apply now|download|click here|read more|view all|payment gateway|at a glance|departments|reference designs|quick links|useful links|important links|all rights reserved|copyright|disclaimer|help|faq|\bsearch\b|skip to main content|breadcrumb|you are here|news & events|photo gallery|tender|archive|annual report|right to information/i; // FIX #18: \bsearch\b prevents false-positive match inside "Research"
+// ponytail: all single-word tokens are word-bounded to avoid false-positive matches inside
+// legitimate titles (bare `search` matched "Research", bare `register` could match "Transistor
+// Register Design", etc.). Multi-word phrases ("read more", "sign in") are phrase-anchored.
+export const GARBAGE_TITLE_PATTERNS = /\bhome\b|\bcontact\b|\bsitemap\b|\babout\b|\bprivacy\b|\bterms\b|\blogin\b|sign in|\bregister\b|apply now|\bdownload\b|click here|read more|view all|payment gateway|at a glance|\bdepartments\b|reference designs|quick links|useful links|important links|all rights reserved|\bcopyright\b|\bdisclaimer\b|\bhelp\b|\bfaq\b|\bsearch\b|skip to main content|\bbreadcrumb\b|you are here|news & events|photo gallery|\btender\b|\barchive\b|annual report|right to information/i;
 
 export const SCRAPED_TITLE_MIN_LENGTH = 15;
 
