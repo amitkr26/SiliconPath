@@ -26,6 +26,7 @@ export default function EmployerCompanyProfilePage() {
     facilities: "Cleanroom Class 1000, Cadence Virtuoso, Synopsys Design Compiler, Ansys RedHawk",
     contactEmail: "",
   });
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -36,24 +37,49 @@ export default function EmployerCompanyProfilePage() {
     if (!authLoading && user && !isEmployer && !isAdmin) {
       router.push("/dashboard");
     }
-    if (user) {
-      setForm((prev) => ({
-        ...prev,
-        name: prev.name || user.email?.split("@")[1]?.split(".")[0]?.toUpperCase() || "Silicon Innovation Lab",
-        contactEmail: prev.contactEmail || user.email || "",
-      }));
-    }
   }, [user, isEmployer, isAdmin, authLoading, router]);
+
+  useEffect(() => {
+    if (!user) return;
+    async function loadCompanyData() {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/employer/company");
+        const data = await res.json();
+        if (data.company) {
+          setForm({
+            name: data.company.name || "",
+            website: data.company.website || "",
+            location: data.company.headquarters || data.company.location || "Bengaluru, Karnataka, India",
+            description: data.company.description || "",
+            researchDomains: (data.company.specialties || []).join(", ") || "Digital RTL Design, UVM Verification, Physical Design",
+            facilities: "Cleanroom Class 1000, Cadence Virtuoso, Synopsys Design Compiler, Ansys RedHawk",
+            contactEmail: user?.email || "",
+          });
+        }
+      } catch {
+        // Keep initial defaults
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadCompanyData();
+  }, [user]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      // Simulate save or store in local state/database
-      await new Promise((r) => setTimeout(r, 600));
-      toast.success("Company profile updated successfully!");
-    } catch {
-      toast.error("Failed to save profile");
+      const res = await fetch("/api/employer/company", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update profile");
+      toast.success("Company profile saved and published successfully!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save profile");
     } finally {
       setSaving(false);
     }

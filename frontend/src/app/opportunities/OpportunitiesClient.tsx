@@ -3,23 +3,10 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Opportunity } from "@/types";
-import nextDynamic from "next/dynamic";
-
-const OpportunityCard = nextDynamic(() => import("@/components/OpportunityCard"), {
-  loading: () => <div className="h-64 bg-white border-2 border-slate-900 rounded-2xl animate-pulse" />,
-});
-
-const OpportunityRow = nextDynamic(() => import("@/components/OpportunityRow"), {
-  loading: () => <div className="h-20 bg-white border-2 border-slate-900 rounded-xl animate-pulse" />,
-});
-
-const FilterBar = nextDynamic(() => import("@/components/FilterBar"), {
-  loading: () => <div className="h-12 bg-white border-2 border-slate-900 rounded-xl animate-pulse" />,
-});
-
-const SearchBar = nextDynamic(() => import("@/components/SearchBar"), {
-  loading: () => <div className="h-12 bg-white border-2 border-slate-900 rounded-xl animate-pulse" />,
-});
+import OpportunityCard from "@/components/OpportunityCard";
+import OpportunityRow from "@/components/OpportunityRow";
+import FilterBar from "@/components/FilterBar";
+import SearchBar from "@/components/SearchBar";
 import { Loader2, Sparkles, X, Filter, LayoutGrid, List } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";

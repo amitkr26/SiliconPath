@@ -30,14 +30,42 @@ export default function EmployerSettingsPage() {
     }
   }, [user, isEmployer, isAdmin, authLoading, router]);
 
+  useEffect(() => {
+    if (!user) return;
+    async function loadSettings() {
+      try {
+        const res = await fetch("/api/employer/settings");
+        const data = await res.json();
+        if (data.settings) {
+          setEmailAlerts(data.settings.emailAlerts ?? true);
+          setInstantApplicantAlert(data.settings.instantApplicantAlert ?? true);
+          setWeeklyDigest(data.settings.weeklyDigest ?? true);
+        }
+      } catch {
+        // Keep defaults
+      }
+    }
+    loadSettings();
+  }, [user]);
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setSaving(true);
-      await new Promise((r) => setTimeout(r, 500));
-      toast.success("Settings saved successfully!");
-    } catch {
-      toast.error("Failed to save settings");
+      const res = await fetch("/api/employer/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          emailAlerts,
+          instantApplicantAlert,
+          weeklyDigest,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to save settings");
+      toast.success("Settings saved and updated successfully!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save settings");
     } finally {
       setSaving(false);
     }
