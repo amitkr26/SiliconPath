@@ -4,6 +4,7 @@ import Link from "next/link";
 import { UserCheck, UserPlus, MessageCircle, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
 interface ConnectionCardProps {
   id: string;
@@ -46,7 +47,9 @@ export default function ConnectionCard({
   return (
     <div
       onClick={() => onOpen?.()}
-      className="bg-white border-2 border-slate-900 rounded-2xl p-4 shadow-brutal flex items-start justify-between gap-3 hover:shadow-brutal-lg hover:-translate-y-0.5 transition-all cursor-pointer"
+      className={cn(
+        "bg-white border-2 border-slate-900 rounded-2xl p-4 shadow-card flex items-start justify-between gap-3 hover:shadow-elevated hover:-translate-y-0.5 transition-all cursor-pointer",
+      )}
     >
       {/* Avatar & Info */}
       <div className="flex items-start gap-3 min-w-0 flex-1">
@@ -56,10 +59,13 @@ export default function ConnectionCard({
             <img
               src={avatarUrl}
               alt={name}
-              className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 shadow-brutal-sm"
+              className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 shadow-card-sm"
             />
           ) : (
-            <span className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white font-black text-sm border-2 border-slate-900 shadow-brutal-sm">
+            <span className={cn(
+              "flex items-center justify-center w-12 h-12 rounded-xl border-2 border-slate-900 shadow-card-sm",
+              "bg-primary text-inverted text-sm"
+            )}>
               {initials}
             </span>
           )}
@@ -68,7 +74,7 @@ export default function ConnectionCard({
         <div className="min-w-0 flex-1 space-y-0.5">
           <Link
             href={username ? `/profile/${username}` : "#"}
-            className="font-black text-sm text-slate-900 hover:text-blue-600 transition-colors truncate block"
+            className="font-semibold text-sm text-slate-900 hover:text-primary transition-colors truncate block"
           >
             {name}
           </Link>

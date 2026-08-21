@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { radius, shadow, color } from "@/styles/design-tokens";
 
 type CardTone = "default" | "flat" | "inverse" | "accent";
 
@@ -22,9 +23,9 @@ export function Card({ tone = "default", hover = false, className, children, onC
     <div
       onClick={onClick}
       className={cn(
-        "rounded-2xl",
+        "rounded-card",
         toneClasses[tone],
-        hover && "transition-all hover:-translate-y-1 hover:shadow-brutal-lg",
+        hover && "transition-all hover:-translate-y-1 hover:shadow-elevated",
         className,
       )}
     >

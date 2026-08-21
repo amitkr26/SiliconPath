@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { radius, shadow, color, typography } from "@/styles/design-tokens";
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -10,20 +11,20 @@ export function Input({ label, error, className, id, ...props }: InputProps) {
   return (
     <div className="space-y-1.5">
       {label && (
-        <label htmlFor={inputId} className="block text-xs font-black uppercase tracking-wider text-slate-800">
+        <label htmlFor={inputId} className={cn("block text-xs font-semibold uppercase tracking-wider text-slate-800")}>
           {label}
         </label>
       )}
       <input
         id={inputId}
         className={cn(
-          "w-full px-3.5 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-brutal-sm focus:outline-none focus:border-accent focus:shadow-brutal transition-all",
+          "w-full px-3.5 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-brutal-sm focus:outline-none focus:border-blue-600 focus:shadow-brutal transition-all",
           error && "border-red-600 shadow-[2px_2px_0px_0px_#DC2626]",
           className,
         )}
         {...props}
       />
-      {error && <p className="text-xs font-semibold text-red-600">{error}</p>}
+      {error && <p className={cn("text-xs font-semibold text-red-600")}>{error}</p>}
     </div>
   );
 }
@@ -37,14 +38,14 @@ export function Select({ label, className, id, children, ...props }: SelectProps
   return (
     <div className="space-y-1.5">
       {label && (
-        <label htmlFor={selectId} className="block text-xs font-black uppercase tracking-wider text-slate-800">
+        <label htmlFor={selectId} className={cn("block text-xs font-semibold uppercase tracking-wider text-slate-800")}>
           {label}
         </label>
       )}
       <select
         id={selectId}
         className={cn(
-          "w-full px-3.5 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-sm font-medium text-slate-900 shadow-brutal-sm focus:outline-none focus:border-accent focus:shadow-brutal transition-all",
+          "w-full px-3.5 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-sm font-medium text-slate-900 shadow-brutal-sm focus:outline-none focus:border-blue-600 focus:shadow-brutal transition-all",
           className,
         )}
         {...props}
