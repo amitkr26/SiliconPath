@@ -6,7 +6,7 @@ import {
   typography as typographyTokens,
   spacing as spacingTokens,
   icon as iconTokens,
-} from "@/styles/design-tokens";
+} from "./src/styles/design-tokens";
 
 const config: Config = {
   content: [
