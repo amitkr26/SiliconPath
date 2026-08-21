@@ -197,12 +197,11 @@ its insert/dedup/verification lifecycle is proven by deterministic tests and the
 live smoke (run 1 and run 2 both exit 0, 18 fetched / 0 inserted / 18 skipped, 0
 duplicates).
 
-## 18. GARBAGE_TITLE_PATTERNS `search` token matches inside "Research" — every Research listing is dropped (P2, production, discovered Phase 8)
-`GARBAGE_TITLE_PATTERNS` (shared `frontend/src/lib/scrapers/utils.ts`) contains
-the unanchored token `search`; the substring `search` appears inside **"Research"**,
-so any title containing "Research" (e.g. "Temporary Research Personnel",
-"Research Scientist/Research Assistant", "Project Associate - I" no, but Research
-roles yes) is garbage-filtered and skipped by the production pipeline. The Phase 8
-replica mirrors this exactly (parity, covered by test); fixing the regex (e.g.
-`\bsearch\b` or removing the token) is an owner/product decision on the frontend —
-the replica follows whatever the frontend ships.
+## 18. GARBAGE_TITLE_PATTERNS `search` token matches inside "Research" — every Research listing is dropped (P2, production, FIXED 2026-08-21)
+`GARBAGE_TITLE_PATTERNS` (shared `frontend/src/lib/scrapers/utils.ts`) contained
+unanchored single-word tokens; the substring `search` appears inside **"Research"**,
+so any title containing "Research" (e.g. "Temporary Research Personnel", "Research
+Scientist/Research Assistant") was garbage-filtered and skipped. **FIXED 2026-08-21
+(commit 1b17172):** all single-word tokens are now word-bounded with `\b…\b` so bare
+navigation words match only as standalone words, not as substrings inside legitimate
+academic/government job titles. Verified by 10-case real-world self-check (all pass).
