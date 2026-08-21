@@ -85,16 +85,17 @@ export default function OpportunityRow({ opportunity }: OpportunityRowProps) {
       onClick={handleRowClick}
       className="block group cursor-pointer"
     >
-      <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 border-slate-900 bg-white shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all duration-200">
-        <div className="w-9 h-9 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center flex-shrink-0">
-          <span className="text-xs font-black text-accent">
-            {getInitials(opportunity.organization)}
-          </span>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3.5 rounded-xl border-2 border-slate-900 bg-white shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all duration-200">
+        {/* Left: Organization Avatar + Title & Org */}
+        <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-0">
+            <span className="text-xs font-black text-blue-600">
+              {getInitials(opportunity.organization)}
+            </span>
+          </div>
 
-        <div className="flex-1 min-w-0 grid grid-cols-12 gap-3 items-center">
-          <div className="col-span-4 min-w-0">
-            <h3 className="text-slate-900 text-sm font-bold leading-snug truncate group-hover:text-accent transition-colors">
+          <div className="min-w-0 flex-1">
+            <h3 className="text-slate-900 text-sm font-bold leading-snug line-clamp-1 group-hover:text-blue-600 transition-colors">
               {opportunity.title}
             </h3>
             {opportunity.organization ? (
@@ -105,38 +106,41 @@ export default function OpportunityRow({ opportunity }: OpportunityRowProps) {
                   e.stopPropagation();
                   router.push(`/opportunities?search=${encodeURIComponent(opportunity.organization!)}`);
                 }}
-                className="text-[11px] text-slate-600 hover:text-accent font-bold truncate block text-left hover:underline"
+                className="text-[11px] text-slate-600 hover:text-blue-600 font-bold truncate block text-left hover:underline"
               >
                 {opportunity.organization}
               </button>
             ) : null}
           </div>
+        </div>
 
-          <div className="col-span-2">
-            <CategoryBadge category={opportunity.category} />
-          </div>
+        {/* Right: Metadata Pills & Action */}
+        <div className="flex items-center flex-wrap sm:flex-nowrap gap-2.5 sm:gap-4 justify-between sm:justify-end text-xs shrink-0">
+          <CategoryBadge category={opportunity.category} />
 
-          <div className="col-span-2 flex items-center gap-1 text-slate-600 text-xs font-semibold truncate">
-            <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
-            <span className="truncate">{opportunity.location || "India"}</span>
-          </div>
+          {opportunity.location && (
+            <div className="flex items-center gap-1 text-slate-600 font-medium">
+              <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" />
+              <span className="truncate max-w-[120px]">{opportunity.location}</span>
+            </div>
+          )}
 
-          <div className="col-span-2 flex items-center gap-1 text-slate-900 text-xs font-bold">
+          <div className="flex items-center gap-1 font-bold text-slate-900">
             {opportunity.stipend ? (
               <>
                 <IndianRupee className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
                 <span className="truncate">{opportunity.stipend}</span>
               </>
             ) : (
-              <span className="text-slate-400 text-xs font-medium">—</span>
+              <span className="text-slate-400 font-normal">—</span>
             )}
           </div>
 
-          <div className="col-span-2 flex items-center gap-1.5 justify-end">
+          <div>
             {opportunity.deadline ? (
               <DeadlineCountdown deadline={opportunity.deadline} />
             ) : (
-              <span className="text-slate-400 text-xs font-medium">Regular</span>
+              <span className="text-slate-400 font-medium text-[11px]">Regular</span>
             )}
           </div>
         </div>

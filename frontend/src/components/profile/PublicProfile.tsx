@@ -204,9 +204,9 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
   if (!profile) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold text-text-primary">Profile Not Found</h1>
-        <p className="text-text-secondary mt-2">This user hasn&apos;t set up their profile yet.</p>
-        <Link href={notFoundBackHref} className="text-accent text-sm mt-4 inline-block hover:underline">
+        <h1 className="text-2xl font-black text-slate-900">Profile Not Found</h1>
+        <p className="text-slate-600 text-sm mt-2">This user hasn&apos;t set up their profile yet.</p>
+        <Link href={notFoundBackHref} className="text-blue-600 font-bold text-sm mt-4 inline-block hover:underline">
           Back to Opportunities
         </Link>
       </div>
@@ -220,119 +220,163 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
   });
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Banner */}
-      <div className="h-48 sm:h-56 rounded-xl bg-gradient-to-r from-accent/30 via-accent/20 to-accent/5 mb-16 relative overflow-hidden" />
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* Profile Container Card */}
+      <div className="bg-white border-2 border-slate-900 rounded-2xl shadow-brutal overflow-hidden">
+        {/* Solid Cover Banner */}
+        <div className="h-36 sm:h-44 bg-slate-900 border-b-2 border-slate-900 relative">
+          <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
+        </div>
 
-      {/* Header */}
-      <div className="relative -mt-24 mb-8 flex flex-col sm:flex-row items-start sm:items-end gap-4 px-4">
-        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-surface border-4 border-bg-primary overflow-hidden flex items-center justify-center bg-gradient-to-br from-accent/30 to-accent/5 flex-shrink-0">
-          {profile.avatar_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-3xl font-bold text-accent">{getInitials(profile.display_name || "")}</span>
-          )}
+        {/* Identity Header */}
+        <div className="px-5 sm:px-8 pb-6 relative">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 -mt-14 sm:-mt-16 mb-4">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white border-3 border-slate-900 shadow-brutal flex items-center justify-center overflow-hidden flex-shrink-0">
+              {profile.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-2xl sm:text-3xl font-black text-slate-900">{getInitials(profile.display_name || "")}</span>
+              )}
+            </div>
+
+            {/* Profile Action Buttons */}
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto justify-start sm:justify-end">
+              {!isOwnProfile && (
+                <>
+                  {!isConnected && connectionStatus !== "pending" && (
+                    <button
+                      onClick={handleConnect}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs border-2 border-slate-900 shadow-brutal-sm hover:shadow-brutal transition-all"
+                    >
+                      <UserPlus className="w-4 h-4" /> Connect
+                    </button>
+                  )}
+                  {connectionStatus === "pending" && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-50 text-amber-900 border-2 border-slate-900 rounded-xl text-xs font-bold shadow-brutal-sm">
+                      <UserCheck className="w-4 h-4 text-amber-600" /> Pending
+                    </span>
+                  )}
+                  {isConnected && (
+                    <Link
+                      href="/messages"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-slate-900 border-2 border-slate-900 rounded-xl text-xs font-bold shadow-brutal-sm hover:bg-slate-50 transition-all"
+                    >
+                      <MessageCircle className="w-4 h-4 text-blue-600" /> Message
+                    </Link>
+                  )}
+                  <button
+                    onClick={handleFollow}
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border-2 border-slate-900 shadow-brutal-sm transition-all ${
+                      isFollowing
+                        ? "bg-slate-100 text-slate-700 hover:text-red-600"
+                        : "bg-white text-slate-900 hover:bg-slate-50"
+                    }`}
+                  >
+                    {isFollowing ? "Following" : "Follow"}
+                  </button>
+                </>
+              )}
+
+              {isOwnProfile && (
+                <>
+                  <button
+                    onClick={handleShare}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-slate-900 border-2 border-slate-900 rounded-xl text-xs font-bold shadow-brutal-sm hover:bg-slate-50 transition-all"
+                  >
+                    <Share2 className="w-4 h-4 text-slate-600" /> Share
+                  </button>
+                  <button
+                    onClick={() => setShowEditModal(true)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs border-2 border-slate-900 shadow-brutal-sm hover:shadow-brutal transition-all"
+                  >
+                    <Pencil className="w-4 h-4" /> Edit Profile
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Core Identity */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl font-black text-slate-900">{profile.display_name}</h1>
+              {profile.username && (
+                <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                  @{profile.username}
+                </span>
+              )}
+            </div>
+            {profile.headline && (
+              <p className="text-slate-700 text-sm font-medium leading-relaxed">{profile.headline}</p>
+            )}
+
+            {/* Metadata Tags */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-2 text-xs text-slate-600 font-semibold">
+              {(profile.job_title || profile.current_company) && (
+                <span className="flex items-center gap-1.5">
+                  <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+                  {profile.job_title}{profile.job_title && profile.current_company ? " at " : ""}{profile.current_company}
+                </span>
+              )}
+              {(profile.location || profile.country) && (
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                  {[profile.location, profile.country].filter(Boolean).join(", ")}
+                </span>
+              )}
+              {profile.experience_years != null && profile.experience_years > 0 && (
+                <span className="flex items-center gap-1.5">
+                  <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+                  {profile.experience_years}+ yrs experience
+                </span>
+              )}
+              {profile.connection_count !== undefined && (
+                <span className="font-bold text-slate-900">{profile.connection_count} connections</span>
+              )}
+              {profile.follower_count !== undefined && (
+                <span className="font-bold text-slate-900">{profile.follower_count} followers</span>
+              )}
+            </div>
+
+            {profile.is_open_to_work && (
+              <div className="pt-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-900 text-xs font-bold rounded-lg border-2 border-slate-900 shadow-brutal-sm">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" /> Open to {profile.open_to_work_types?.join(", ") || "work"}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="flex-1 min-w-0 pt-2 sm:pt-0">
-          <h1 className="text-2xl font-bold text-text-primary">{profile.display_name}</h1>
-          {profile.headline && <p className="text-text-secondary text-sm mt-0.5">{profile.headline}</p>}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-text-secondary">
-            {(profile.job_title || profile.current_company) && (
-              <span className="flex items-center gap-1">
-                <Briefcase className="w-3 h-3" />
-                {profile.job_title}{profile.job_title && profile.current_company ? " at " : ""}{profile.current_company}
-              </span>
-            )}
-            {(profile.location || profile.country) && (
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {[profile.location, profile.country].filter(Boolean).join(", ")}
-              </span>
-            )}
-            {profile.experience_years != null && profile.experience_years > 0 && (
-              <span className="flex items-center gap-1">
-                <Briefcase className="w-3 h-3" />
-                {profile.experience_years}+ years experience
-              </span>
-            )}
-            {profile.connection_count !== undefined && <span>{profile.connection_count} connections</span>}
-            {profile.follower_count !== undefined && <span>{profile.follower_count} followers</span>}
-          </div>
-          {profile.is_open_to_work && (
-            <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-success/20 text-success text-xs font-medium rounded-full border border-success/30">
-              <Check className="w-3 h-3" /> Open to {profile.open_to_work_types?.join(", ") || "work"}
-            </span>
-          )}
-        </div>
-        {!isOwnProfile && (
-          <div className="flex gap-2 flex-shrink-0">
-            {!isConnected && connectionStatus !== "pending" && (
-              <button onClick={handleConnect} className="flex items-center gap-2 bg-accent text-bg-primary font-semibold rounded-lg px-4 py-2 text-sm hover:bg-accent-hover transition-colors">
-                <UserPlus className="w-4 h-4" /> Connect
-              </button>
-            )}
-            {connectionStatus === "pending" && (
-              <span className="flex items-center gap-2 bg-warning/20 text-warning rounded-lg px-4 py-2 text-sm font-medium">
-                <UserCheck className="w-4 h-4" /> Pending
-              </span>
-            )}
-            {isConnected && (
-              <Link href="/messages" className="flex items-center gap-2 bg-surface border border-border text-text-secondary rounded-lg px-4 py-2 text-sm hover:text-text-primary transition-colors">
-                <MessageCircle className="w-4 h-4" /> Message
-              </Link>
-            )}
-            <button onClick={handleFollow} className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              isFollowing
-                ? "bg-surface border border-border text-text-secondary hover:text-danger"
-                : "bg-accent/20 text-accent border border-accent/30 hover:bg-accent/30"
-            }`}>
-              {isFollowing ? "Following" : "Follow"}
-            </button>
-          </div>
-        )}
-        {isOwnProfile && (
-          <div className="flex gap-2 flex-shrink-0">
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-2 bg-surface border border-border text-text-secondary rounded-lg px-4 py-2 text-sm hover:text-text-primary transition-colors"
-            >
-              <Share2 className="w-4 h-4" /> Share Profile
-            </button>
-            <button
-              onClick={() => setShowEditModal(true)}
-              className="flex items-center gap-2 bg-accent text-bg-primary font-semibold rounded-lg px-4 py-2 text-sm hover:bg-accent-hover transition-colors"
-            >
-              <Pencil className="w-4 h-4" /> Edit Profile
-            </button>
-          </div>
-        )}
       </div>
 
       {/* About */}
       {profile.bio && (
-        <section className="bg-surface border border-border rounded-xl p-6 mb-6">
-          <h2 className="font-display text-lg font-bold text-text-primary mb-3">About</h2>
-          <p className="text-text-secondary text-sm whitespace-pre-wrap">{profile.bio}</p>
+        <section className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal-sm">
+          <h2 className="text-base font-black text-slate-900 mb-3">About</h2>
+          <p className="text-slate-700 text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-wrap">{profile.bio}</p>
         </section>
       )}
 
       {/* Skills */}
-      <section className="bg-surface border border-border rounded-xl p-6 mb-6">
-        <h2 className="font-display text-lg font-bold text-text-primary mb-4">Skills</h2>
+      <section className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal-sm">
+        <h2 className="text-base font-black text-slate-900 mb-4">Skills &amp; Methodologies</h2>
         <div className="flex flex-wrap gap-2">
           {(profile.skills || []).length === 0 ? (
-            <p className="text-text-muted text-sm">No skills added yet.</p>
+            <p className="text-slate-400 text-xs font-medium">No skills added yet.</p>
           ) : (
             (profile.skills || []).map((skill) => {
               const count = endorsedSkills.get(skill) || 0;
               return (
-                <span key={skill} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 text-accent border border-accent/20 rounded-full text-xs font-medium">
+                <span
+                  key={skill}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-slate-900 border-2 border-slate-900 rounded-lg text-xs font-bold shadow-brutal-sm"
+                >
                   {skill}
-                  {count > 0 && <span className="text-text-secondary text-[10px]">· {count}</span>}
+                  {count > 0 && <span className="text-blue-700 font-black text-[10px]">· {count}</span>}
                   {!isOwnProfile && isConnected && (
-                    <button onClick={() => handleEndorse(skill)} className="text-text-muted hover:text-accent transition-colors ml-0.5" title="Endorse">
-                      <Star className="w-3 h-3" />
+                    <button onClick={() => handleEndorse(skill)} className="text-slate-400 hover:text-amber-500 transition-colors ml-0.5" title="Endorse">
+                      <Star className="w-3 h-3 fill-current" />
                     </button>
                   )}
                 </span>
@@ -344,11 +388,14 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
 
       {/* Interests */}
       {(profile.interests || []).length > 0 && (
-        <section className="bg-surface border border-border rounded-xl p-6 mb-6">
-          <h2 className="font-display text-lg font-bold text-text-primary mb-4">Interests</h2>
+        <section className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal-sm">
+          <h2 className="text-base font-black text-slate-900 mb-4">Research &amp; Engineering Interests</h2>
           <div className="flex flex-wrap gap-2">
             {(profile.interests || []).map((interest) => (
-              <span key={interest} className="px-3 py-1.5 bg-bg-primary border border-border rounded-full text-xs font-medium text-text-secondary">
+              <span
+                key={interest}
+                className="px-3 py-1 bg-slate-50 text-slate-800 border-2 border-slate-900 rounded-lg text-xs font-bold shadow-brutal-sm"
+              >
                 {interest}
               </span>
             ))}
@@ -358,22 +405,37 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
 
       {/* Profile links */}
       {(profile.linkedin_url || profile.github_url || profile.website_url) && (
-        <section className="bg-surface border border-border rounded-xl p-6 mb-6">
-          <h2 className="font-display text-lg font-bold text-text-primary mb-4">Links</h2>
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+        <section className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal-sm">
+          <h2 className="text-base font-black text-slate-900 mb-4">Verified Links</h2>
+          <div className="flex flex-wrap gap-3 text-xs font-bold">
             {profile.linkedin_url && (
-              <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+              <a
+                href={profile.linkedin_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-slate-900 rounded-lg text-slate-900 hover:bg-blue-50 shadow-brutal-sm transition-all"
+              >
                 LinkedIn ↗
               </a>
             )}
             {profile.github_url && (
-              <a href={profile.github_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+              <a
+                href={profile.github_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-slate-900 rounded-lg text-slate-900 hover:bg-slate-50 shadow-brutal-sm transition-all"
+              >
                 GitHub ↗
               </a>
             )}
             {profile.website_url && (
-              <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
-                Website ↗
+              <a
+                href={profile.website_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-slate-900 rounded-lg text-slate-900 hover:bg-slate-50 shadow-brutal-sm transition-all"
+              >
+                Portfolio ↗
               </a>
             )}
           </div>
@@ -381,29 +443,29 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
       )}
 
       {/* Recommendations */}
-      <section className="bg-surface border border-border rounded-xl p-6 mb-6">
+      <section className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal-sm">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-lg font-bold text-text-primary">Recommendations ({recommendations.length})</h2>
+          <h2 className="text-base font-black text-slate-900">Recommendations ({recommendations.length})</h2>
           {!isOwnProfile && isConnected && (
-            <button onClick={() => setShowRecommendModal(true)} className="flex items-center gap-1 text-accent text-sm font-medium hover:underline">
-              <Star className="w-4 h-4" /> Write a recommendation
+            <button onClick={() => setShowRecommendModal(true)} className="flex items-center gap-1 text-blue-600 text-xs font-bold hover:underline">
+              <Star className="w-3.5 h-3.5" /> Write recommendation
             </button>
           )}
         </div>
         {recommendations.length === 0 ? (
-          <p className="text-text-muted text-sm">No recommendations yet.</p>
+          <p className="text-slate-400 text-xs font-medium">No recommendations yet.</p>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {recommendations.filter((r) => r.is_visible || isOwnProfile).map((rec) => (
-              <div key={rec.id} className="bg-bg-primary rounded-lg p-4 border border-border/50">
+              <div key={rec.id} className="bg-slate-50 rounded-xl p-4 border-2 border-slate-900 shadow-brutal-sm">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                    <span className="text-accent text-xs font-bold">{getInitials(rec.author?.display_name || "")}</span>
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center flex-shrink-0">
+                    <span className="text-blue-700 text-xs font-bold">{getInitials(rec.author?.display_name || "")}</span>
                   </div>
                   <div>
-                    <p className="text-text-primary text-sm font-medium">{rec.author?.display_name}</p>
-                    {rec.relationship && <p className="text-text-muted text-xs">{rec.relationship}</p>}
-                    <p className="text-text-secondary text-sm mt-2">{rec.content}</p>
+                    <p className="text-slate-900 text-xs font-bold">{rec.author?.display_name}</p>
+                    {rec.relationship && <p className="text-slate-500 text-[11px] font-medium">{rec.relationship}</p>}
+                    <p className="text-slate-700 text-xs font-medium mt-1.5 leading-relaxed">{rec.content}</p>
                   </div>
                 </div>
               </div>
@@ -415,33 +477,37 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
       {/* Recommend Modal */}
       {showRecommendModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={() => setShowRecommendModal(false)}>
-          <div className="bg-surface border border-border rounded-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-display text-lg font-bold text-text-primary mb-4">Write a Recommendation</h3>
+          <div className="bg-white border-2 border-slate-900 rounded-2xl p-6 w-full max-w-md shadow-brutal-lg" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-base font-black text-slate-900 mb-4">Write a Recommendation</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-text-secondary text-xs font-medium mb-1">Your relationship</label>
+                <label className="block text-slate-800 text-xs font-bold mb-1">Your relationship</label>
                 <input
                   value={recRelationship}
                   onChange={(e) => setRecRelationship(e.target.value)}
                   placeholder="Worked together at DRDO, PhD supervisor..."
-                  className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none"
+                  className="w-full bg-white border-2 border-slate-900 text-slate-900 text-xs font-medium rounded-xl px-3 py-2.5 shadow-brutal-sm focus:outline-none focus:border-blue-600"
                 />
               </div>
               <div>
-                <label className="block text-text-secondary text-xs font-medium mb-1">Recommendation</label>
+                <label className="block text-slate-800 text-xs font-bold mb-1">Recommendation</label>
                 <textarea
                   value={recContent}
                   onChange={(e) => setRecContent(e.target.value)}
                   rows={4}
                   placeholder="What's it like working with this person?"
-                  className="w-full bg-bg-primary border border-border text-text-primary text-sm rounded-lg px-3 py-2.5 focus:ring-accent focus:border-accent outline-none resize-none"
+                  className="w-full bg-white border-2 border-slate-900 text-slate-900 text-xs font-medium rounded-xl px-3 py-2.5 shadow-brutal-sm focus:outline-none focus:border-blue-600 resize-none"
                 />
               </div>
               <div className="flex gap-2 justify-end">
-                <button onClick={() => setShowRecommendModal(false)} className="px-4 py-2 text-sm text-text-secondary hover:text-text-primary">Cancel</button>
-                <button onClick={handleSubmitRecommendation} disabled={!recContent || submitting} className="flex items-center gap-2 bg-accent text-bg-primary rounded-lg px-4 py-2 text-sm font-medium hover:bg-accent-hover disabled:opacity-50">
+                <button onClick={() => setShowRecommendModal(false)} className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900">Cancel</button>
+                <button
+                  onClick={handleSubmitRecommendation}
+                  disabled={!recContent || submitting}
+                  className="flex items-center gap-2 bg-blue-600 text-white rounded-xl px-4 py-2 text-xs font-bold border-2 border-slate-900 shadow-brutal-sm hover:shadow-brutal disabled:opacity-50"
+                >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                  Send
+                  Send Recommendation
                 </button>
               </div>
             </div>

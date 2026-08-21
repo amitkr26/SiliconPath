@@ -133,48 +133,45 @@ export default function DashboardPage() {
           }
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
-                <Bookmark className="w-5 h-5 text-blue-600" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
+          <Card className="p-4 sm:p-5">
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
+                <Bookmark className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               </div>
-              <span className="text-3xl font-black text-slate-900">{savedCount}</span>
+              <span className="text-2xl sm:text-3xl font-black text-slate-900">{savedCount}</span>
             </div>
-            <p className="text-sm font-medium text-slate-600">Saved Opportunities</p>
+            <p className="text-xs sm:text-sm font-bold text-slate-600">Saved</p>
           </Card>
 
-          <Card className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
-                <FileText className="w-5 h-5 text-blue-600" />
+          <Card className="p-4 sm:p-5">
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
+                <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               </div>
-              <span className="text-3xl font-black text-slate-900">{appCount}</span>
+              <span className="text-2xl sm:text-3xl font-black text-slate-900">{appCount}</span>
             </div>
-            <p className="text-sm font-medium text-slate-600">Applications</p>
+            <p className="text-xs sm:text-sm font-bold text-slate-600">Applications</p>
           </Card>
 
-          <Card className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
-                <Target className="w-5 h-5 text-blue-600" />
+          <Card className="p-4 sm:p-5">
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
+                <Target className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               </div>
-              <span className="text-3xl font-black text-slate-900">{resumeScore}</span>
+              <span className="text-2xl sm:text-3xl font-black text-slate-900">{resumeScore}</span>
             </div>
-            <p className="text-sm font-medium text-slate-600">Resume ATS Score</p>
-            {resumeScore === 0 && !profileLoading && (
-              <p className="text-xs font-medium text-slate-400 mt-1">Build your resume to get scored</p>
-            )}
+            <p className="text-xs sm:text-sm font-bold text-slate-600">ATS Score</p>
           </Card>
 
-          <Card className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
-                <Bell className="w-5 h-5 text-blue-600" />
+          <Card className="p-4 sm:p-5">
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
+                <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               </div>
-              <span className="text-3xl font-black text-slate-900">{alertCount}</span>
+              <span className="text-2xl sm:text-3xl font-black text-slate-900">{alertCount}</span>
             </div>
-            <p className="text-sm font-medium text-slate-600">Active Alerts</p>
+            <p className="text-xs sm:text-sm font-bold text-slate-600">Alerts</p>
           </Card>
         </div>
 
@@ -194,37 +191,39 @@ export default function DashboardPage() {
               ) : (
                 <div className="space-y-3">
                   {applications.map((app) => (
-                    <div key={app.id} className="flex items-start sm:items-center gap-3 p-3 bg-bg-primary border-2 border-slate-900 rounded-xl">
-                      <div className="w-9 h-9 rounded-full bg-blue-50 border-2 border-slate-900 flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-0">
-                        <span className="text-blue-700 text-xs font-bold">{getInitials(app.opportunity?.organization || "")}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <Link
-                          href={`/opportunities/${app.opportunity?.slug}`}
-                          className="text-slate-900 text-sm font-bold hover:text-blue-600 line-clamp-1"
-                        >
-                          {app.opportunity?.title}
-                        </Link>
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-0.5">
+                    <div key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-bg-primary border-2 border-slate-900 rounded-xl shadow-brutal-sm">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center flex-shrink-0">
+                          <span className="text-blue-700 text-xs font-black">{getInitials(app.opportunity?.organization || "")}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
                           <Link
-                            href={`/organizations/${orgSlug(app.opportunity?.organization || "")}`}
-                            className="text-slate-500 text-xs font-medium hover:text-blue-600"
+                            href={`/opportunities/${app.opportunity?.slug}`}
+                            className="text-slate-900 text-sm font-bold hover:text-blue-600 line-clamp-1"
                           >
-                            {app.opportunity?.organization}
+                            {app.opportunity?.title}
                           </Link>
-                          {app.opportunity?.location && (
-                            <span className="text-slate-500 text-xs flex items-center gap-0.5">
-                              <MapPin className="w-3 h-3" />
-                              {app.opportunity.location}
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
+                            <Link
+                              href={`/organizations/${orgSlug(app.opportunity?.organization || "")}`}
+                              className="font-semibold hover:text-blue-600 truncate"
+                            >
+                              {app.opportunity?.organization}
+                            </Link>
+                            {app.opportunity?.location && (
+                              <span className="flex items-center gap-0.5 truncate">
+                                <MapPin className="w-3 h-3" />
+                                {app.opportunity.location}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <select
                         value={app.status}
                         onChange={(e) => handleStatusChange(app.id, e.target.value)}
                         disabled={updateStatus.isPending}
-                        className={`px-2 py-0.5 rounded-lg text-xs font-bold border-2 border-slate-900 shadow-brutal-sm outline-none cursor-pointer ${STATUS_STYLES[app.status] || STATUS_STYLES.applied}`}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border-2 border-slate-900 shadow-brutal-sm outline-none cursor-pointer min-h-[38px] ${STATUS_STYLES[app.status] || STATUS_STYLES.applied}`}
                       >
                         {Object.entries(STATUS_LABELS).map(([key, label]) => (
                           <option key={key} value={key} className="bg-white text-slate-900">{label}</option>

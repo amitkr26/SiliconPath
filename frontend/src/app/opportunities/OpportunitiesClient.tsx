@@ -45,7 +45,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
     setCategory(c);
   }, [searchParams]);
   const [showUnverified, setShowUnverified] = useState(false);
-  const [viewMode, setViewMode] = useState<"card" | "row">("card");
+  const [viewMode, setViewMode] = useState<"card" | "row">("row");
   const [aiChips, setAiChips] = useState<Record<string, string>>({});
   const [aiSearching, setAiSearching] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
