@@ -10,11 +10,13 @@ export default function EmployersTabRedirect() {
 
   useEffect(() => {
     if (tab === "postings") {
-      router.replace("/employer/dashboard");
+      router.replace("/employer/jobs");
     } else if (tab === "applicants") {
-      router.replace("/employer/dashboard?tab=applicants");
+      router.replace("/employer/applicants");
     } else if (tab === "profile") {
-      router.replace("/employer/dashboard?tab=profile");
+      router.replace("/employer/company");
+    } else if (tab === "talent") {
+      router.replace("/employer/talent");
     } else {
       router.replace("/employer/dashboard");
     }

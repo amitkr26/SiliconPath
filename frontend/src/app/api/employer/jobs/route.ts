@@ -147,3 +147,86 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: err.message || "Failed to post opportunity" }, { status: 400 });
   }
 }
+
+export async function PATCH(request: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (!isAdminConfigured || !supabaseAdmin) {
+    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+  }
+
+  const allowed = await isEmployerUser(user.id, user.user_metadata);
+  if (!allowed) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  try {
+    const body = await request.json();
+    const { id, is_active, title, stipend, deadline, location, eligibility, description } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: "Opportunity ID is required" }, { status: 400 });
+    }
+
+    const updates: Record<string, any> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (typeof is_active === "boolean") updates.is_active = is_active;
+    if (title) updates.title = title;
+    if (stipend !== undefined) updates.salary_range = stipend;
+    if (deadline !== undefined) updates.deadline = deadline;
+    if (location !== undefined) updates.location = location;
+    if (eligibility !== undefined) updates.eligibility = eligibility;
+    if (description !== undefined) updates.description = description;
+
+    const { data, error } = await supabaseAdmin
+      .from("opportunities")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, opportunity: data });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || "Failed to update opportunity" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (!isAdminConfigured || !supabaseAdmin) {
+    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+  }
+
+  const allowed = await isEmployerUser(user.id, user.user_metadata);
+  if (!allowed) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Opportunity ID is required" }, { status: 400 });
+    }
+
+    const { error } = await supabaseAdmin
+      .from("opportunities")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, message: "Opportunity deleted successfully" });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || "Failed to delete opportunity" }, { status: 500 });
+  }
+}

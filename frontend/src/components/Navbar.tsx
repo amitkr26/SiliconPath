@@ -43,12 +43,11 @@ export default function Navbar() {
       ]
     : isEmployer
     ? [
-        { href: "/post-job", label: "Post Position", icon: PlusCircle },
-        { href: "/employers/postings", label: "My Postings", icon: Building2 },
-        { href: "/employers/applicants", label: "Applicants", icon: Users },
-        { href: "/employers/profile", label: "Company Profile", icon: Building2 },
-        { href: "/opportunities", label: "Opportunities", icon: Briefcase },
-        { href: "/about", label: "About", icon: Building2 },
+        { href: "/employer/dashboard", label: "Dashboard", icon: LayoutDashboard },
+        { href: "/employer/jobs", label: "Job Postings", icon: Briefcase },
+        { href: "/employer/applicants", label: "Applicants", icon: Users },
+        { href: "/employer/talent", label: "Talent Search", icon: Users },
+        { href: "/employer/company", label: "Company Profile", icon: Building2 },
       ]
     : [
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
@@ -65,16 +64,23 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
 
         {/* BRAND LOGO */}
-        <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+        <Link href={isEmployer ? "/employer/dashboard" : "/"} className="flex items-center gap-2.5 group shrink-0">
           <div className="w-9 h-9 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
             <CircuitBoard className="w-5 h-5 text-white stroke-[2.5]" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-base sm:text-lg tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors leading-none">
-              Berojgar<span className="text-blue-600">DegreeWala</span>
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-base sm:text-lg tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors leading-none">
+                Berojgar<span className="text-blue-600">DegreeWala</span>
+              </span>
+              {isEmployer && (
+                <span className="px-1.5 py-0.5 rounded bg-blue-50 border border-blue-600 text-[9px] font-black text-blue-700 uppercase tracking-wider">
+                  Employer
+                </span>
+              )}
+            </div>
             <span className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 font-semibold tracking-wider uppercase">
-              Semiconductor &amp; VLSI Portal
+              {isEmployer ? "Recruiter & Hiring Portal" : "Semiconductor & VLSI Portal"}
             </span>
           </div>
         </Link>
@@ -103,6 +109,15 @@ export default function Navbar() {
 
         {/* RIGHT ACTION BUTTON (USER PROFILE OR SIGN IN / JOIN) */}
         <div className="hidden sm:flex items-center gap-3">
+          {isEmployer && (
+            <Link
+              href="/employer/post-job"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold border-2 border-slate-900 shadow-brutal-sm hover:shadow-brutal transition-all"
+            >
+              <PlusCircle className="w-3.5 h-3.5" /> Post Position
+            </Link>
+          )}
+
           {user ? (
             <div className="relative" ref={userRef}>
               <button
@@ -122,7 +137,7 @@ export default function Navbar() {
               </button>
 
               {userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-52 bg-white border-2 border-slate-900 rounded-xl shadow-brutal-lg py-2 z-50">
+                <div className="absolute right-0 mt-2 w-56 bg-white border-2 border-slate-900 rounded-xl shadow-brutal-lg py-2 z-50">
                   <div className="px-4 py-2 border-b border-slate-200 bg-slate-50">
                     <p className="text-xs font-bold text-slate-900 truncate">{user.email}</p>
                     <p className="text-[10px] font-bold uppercase text-blue-600">
@@ -133,18 +148,47 @@ export default function Navbar() {
                   {isEmployer ? (
                     <>
                       <Link
-                        href="/employers/dashboard"
+                        href="/employer/dashboard"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-emerald-50 hover:text-emerald-700"
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
                       >
-                        <LayoutDashboard className="w-3.5 h-3.5" /> Employer Dashboard
+                        <LayoutDashboard className="w-3.5 h-3.5 text-blue-600" /> Employer Cockpit
                       </Link>
                       <Link
-                        href="/employers/profile"
+                        href="/employer/jobs"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-emerald-50 hover:text-emerald-700"
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
                       >
-                        <Building2 className="w-3.5 h-3.5" /> Company Profile
+                        <Briefcase className="w-3.5 h-3.5 text-blue-600" /> Manage Job Postings
+                      </Link>
+                      <Link
+                        href="/employer/applicants"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <Users className="w-3.5 h-3.5 text-blue-600" /> Applicant Pipeline (ATS)
+                      </Link>
+                      <Link
+                        href="/employer/talent"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <Users className="w-3.5 h-3.5 text-blue-600" /> Talent Sourcing Pool
+                      </Link>
+                      <Link
+                        href="/employer/company"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <Building2 className="w-3.5 h-3.5 text-blue-600" /> Company &amp; Lab Profile
+                      </Link>
+                      <div className="my-1 border-t border-slate-100" />
+                      <Link
+                        href="/opportunities"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      >
+                        <Briefcase className="w-3.5 h-3.5 text-slate-400" /> 👁️ Preview Candidate Board
                       </Link>
                     </>
                   ) : (
