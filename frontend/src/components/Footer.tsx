@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CircuitBoard, ShieldCheck, CheckCircle2, Lock } from "lucide-react";
+import { CircuitBoard, ShieldCheck, CheckCircle2 } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -27,7 +27,7 @@ export default function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           
           {/* BRAND COLUMN */}
           <div className="lg:col-span-2 space-y-4">
@@ -59,37 +59,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* COLUMN 1: OPPORTUNITIES */}
-          <div className="space-y-3.5">
-            <h4 className="text-xs font-black text-white tracking-widest uppercase pb-1 border-b-2 border-accent inline-block">
-              Opportunities
-            </h4>
-            <div className="flex flex-col gap-2 font-semibold text-xs">
-              <Link href="/opportunities?category=jrf" className="text-slate-400 hover:text-white transition-colors">
-                Junior Research Fellow (JRF)
-              </Link>
-              <Link href="/opportunities?category=srf" className="text-slate-400 hover:text-white transition-colors">
-                Senior Research Fellow (SRF)
-              </Link>
-              <Link href="/opportunities?category=phd" className="text-slate-400 hover:text-white transition-colors">
-                PhD &amp; Doctoral Admissions
-              </Link>
-              <Link href="/opportunities?category=government" className="text-slate-400 hover:text-white transition-colors">
-                Scientist &apos;B&apos; Government Posts
-              </Link>
-              <Link href="/opportunities?category=job" className="text-slate-400 hover:text-white transition-colors">
-                Private VLSI Engineering Jobs
-              </Link>
-              <Link href="/opportunities?category=internship" className="text-slate-400 hover:text-white transition-colors">
-                Semiconductor Internships
-              </Link>
-              <Link href="/opportunities" className="text-accent hover:underline font-bold pt-1">
-                Explore All Opportunities &rarr;
-              </Link>
-            </div>
-          </div>
-
-          {/* COLUMN 2: GUIDES & ACADEMY */}
+          {/* COLUMN 1: GUIDES & ACADEMY */}
           <div className="space-y-3.5">
             <h4 className="text-xs font-black text-white tracking-widest uppercase pb-1 border-b-2 border-accent inline-block">
               Guides &amp; Academy
@@ -119,18 +89,12 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* COLUMN 3: PLATFORMS & PORTALS */}
+          {/* COLUMN 2: PLATFORMS & TOOLS */}
           <div className="space-y-3.5">
             <h4 className="text-xs font-black text-white tracking-widest uppercase pb-1 border-b-2 border-accent inline-block">
               Portals &amp; Tools
             </h4>
             <div className="flex flex-col gap-2 font-semibold text-xs">
-              <Link href="/signup?role=candidate" className="text-slate-400 hover:text-white transition-colors">
-                Candidate Registration
-              </Link>
-              <Link href="/signup?role=employer" className="text-slate-400 hover:text-white transition-colors">
-                Employer &amp; Lab Portal
-              </Link>
               <Link href="/organizations" className="text-slate-400 hover:text-white transition-colors">
                 Organizations Directory
               </Link>
@@ -142,9 +106,6 @@ export default function Footer() {
               </Link>
               <Link href="/news" className="text-slate-400 hover:text-white transition-colors">
                 Daily Industry News
-              </Link>
-              <Link href="/admin" className="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-slate-500" /> Admin Console
               </Link>
               <Link href="/contact" className="text-slate-400 hover:text-white transition-colors">
                 Contact &amp; Support
@@ -162,8 +123,6 @@ export default function Footer() {
               <Link href="/about" className="hover:text-slate-300 transition-colors">About</Link>
               <span>&bull;</span>
               <Link href="/contact" className="hover:text-slate-300 transition-colors">Contact</Link>
-              <span>&bull;</span>
-              <Link href="/admin" className="hover:text-slate-300 transition-colors">Admin Login</Link>
             </div>
           </div>
 

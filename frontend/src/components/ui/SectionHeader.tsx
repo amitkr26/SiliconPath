@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
+import { radius, shadow, color, typography } from "@/styles/design-tokens";
 
 export interface SectionHeaderProps {
   eyebrow?: string;
-  eyebrowTone?: "accent" | "success" | "purple" | "neutral";
+  eyebrowTone?: "accent" | "success" | "warning" | "neutral";
   title: string;
   description?: string;
   action?: React.ReactNode;
@@ -10,14 +11,10 @@ export interface SectionHeaderProps {
   className?: string;
 }
 
-const eyebrowTones = {
-  accent: "bg-blue-600 text-white border-slate-900",
-  success: "bg-emerald-500 text-slate-900 border-slate-900",
-  purple: "bg-purple-600 text-white border-slate-900",
-  neutral: "bg-white text-slate-700 border-slate-300",
-};
-
 export function SectionHeader({ eyebrow, eyebrowTone = "accent", title, description, action, align = "left", className }: SectionHeaderProps) {
+  const eyebrowBg = eyebrowTone === "accent" ? color.primary : eyebrowTone === "success" ? color.success : eyebrowTone === "warning" ? color.warning : color.neutral;
+  const eyebrowFg = eyebrowTone === "accent" ? color.textInverted : eyebrowTone === "success" ? color.textSecondary : eyebrowTone === "warning" ? color.textSecondary : color.textSecondary;
+
   return (
     <div
       className={cn(
@@ -28,12 +25,20 @@ export function SectionHeader({ eyebrow, eyebrowTone = "accent", title, descript
     >
       <div className={cn(align === "center" && "mx-auto")}>
         {eyebrow && (
-          <span className={cn("inline-flex items-center px-3 py-1 rounded-lg border-2 text-xs font-black uppercase shadow-brutal-sm", eyebrowTones[eyebrowTone])}>
+          <span
+            className={cn(
+              "inline-flex items-center px-3 py-1 rounded-lg border-2 border-slate-900 text-xs font-bold uppercase shadow-brutal-sm",
+              eyebrowTone === "accent" && "bg-blue-600 text-white",
+              eyebrowTone === "success" && "bg-emerald-400 text-slate-900",
+              eyebrowTone === "warning" && "bg-amber-400 text-slate-900",
+              eyebrowTone === "neutral" && "bg-slate-100 text-slate-700"
+            )}
+          >
             {eyebrow}
           </span>
         )}
-        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-3">{title}</h2>
-        {description && <p className="text-sm font-medium text-slate-600 mt-1.5 max-w-2xl">{description}</p>}
+        <h2 className={cn("text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-3")}>{title}</h2>
+        {description && <p className={cn("text-sm font-medium text-slate-600 mt-1.5 max-w-2xl")}>{description}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>

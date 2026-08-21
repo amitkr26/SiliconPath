@@ -1,4 +1,12 @@
 import type { Config } from "tailwindcss";
+import {
+  shadow as shadowTokens,
+  radius as radiusTokens,
+  color as colorTokens,
+  typography as typographyTokens,
+  spacing as spacingTokens,
+  icon as iconTokens,
+} from "@/styles/design-tokens";
 
 const config: Config = {
   content: [
@@ -8,89 +16,83 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      // border-3 is used in 90+ components but was never in the default scale (0/2/4/8).
-      // Without this it silently renders as a 0px border. Single source of truth.
+      // --- Border width: single source of truth ---
       borderWidth: {
         3: "3px",
       },
+
+      // --- Colors: derive from centralized tokens ---
       colors: {
-        // ---- Semantic core (new code uses these; do not add aliases) ----
-        "bg-primary": "#FAF9F6",
-        "bg-secondary": "#F1F5F9",
-        surface: "#FFFFFF",
-        "surface-elevated": "#FFFFFF",
-        border: "#0F172A",
-        "border-hover": "#000000",
-        accent: "#2563EB",
-        "accent-hover": "#1D4ED8",
-        "accent-glow": "rgba(37, 99, 235, 0.08)",
-        success: "#059669",
-        warning: "#D97706",
-        danger: "#DC2626",
-        "text-primary": "#0F172A",
-        "text-secondary": "#334155",
-        "text-muted": "#64748B",
-        "org-isro": "#A0784C",
-        "org-intel": "#5B7DB1",
-        "org-tifr": "#8B6CB4",
-        "org-tata": "#4A8C6F",
-        "org-drdo": "#B85450",
+        // Semantic core (derived from design-tokens.ts)
+        "bg-primary": colorTokens.bg,
+        "bg-secondary": colorTokens.surfaceElevated,
+        surface: colorTokens.surface,
+        "surface-elevated": colorTokens.surfaceElevated,
+        border: colorTokens.border,
+        "border-hover": colorTokens.borderHover,
+        primary: colorTokens.primary,
+        "primary-foreground": colorTokens.textInverted,
+        secondary: colorTokens.surfaceElevated,
+        "secondary-foreground": colorTokens.text,
+        muted: colorTokens.borderSubtle,
+        "muted-foreground": colorTokens.textMuted,
+        accent: colorTokens.primary,
+        "accent-foreground": colorTokens.textInverted,
+        "accent-hover": colorTokens.primaryHover,
+        "accent-glow": colorTokens.primarySubtle,
+        success: colorTokens.success,
+        warning: colorTokens.warning,
+        danger: colorTokens.danger,
+        destructive: colorTokens.danger,
+        "destructive-foreground": colorTokens.textInverted,
+        input: colorTokens.surface,
+        ring: colorTokens.primary,
 
-        // ---- Tailwind ecosystem compatibility (shadcn-style consumers) ----
-        background: "#FAF9F6",
-        foreground: "#0F172A",
-        card: "#FFFFFF",
-        "card-foreground": "#0F172A",
-        popover: "#FFFFFF",
-        "popover-foreground": "#0F172A",
-        primary: "#2563EB",
-        "primary-foreground": "#FFFFFF",
-        secondary: "#F1F5F9",
-        "secondary-foreground": "#0F172A",
-        muted: "#E2E8F0",
-        "muted-foreground": "#64748B",
-        "accent-foreground": "#FFFFFF",
-        destructive: "#DC2626",
-        "destructive-foreground": "#FFFFFF",
-        input: "#FFFFFF",
-        ring: "#2563EB",
+        // Org colors — preserve as semantic keys (no ad-hoc blue/cyan flattening)
+        "org-isro": colorTokens.orgIsro,
+        "org-intel": colorTokens.orgIntel,
+        "org-tifr": colorTokens.orgTifr,
+        "org-tata": colorTokens.orgTata,
+        "org-drdo": colorTokens.orgDrdo,
 
-        // ---- Legacy dark-era aliases (pre-redesign) ----
-        // KEYS KEPT ONLY so pages written against the old dark-cyber spec still
-        // resolve to a readable color. Do NOT use in new code — use the semantic
-        // core above. Page agents migrate these pages off the aliases.
-        navy: "#FAF9F6", // legacy: was "dark navy" in design-tokens.json, resolves to page bg
-        "navy-light": "#F1F5F9", // legacy: was dark elevated surface, now muted bg
-        cyan: "#2563EB", // legacy: was "#22D3EE" cyan, now the blue accent
+        // Legacy dark-era aliases — kept for migration only
+        navy: colorTokens.bg, // resolves to page bg
+        "navy-light": colorTokens.surfaceElevated,
+        cyan: colorTokens.primary,
       },
+
+      // --- Font family ---
       fontFamily: {
         display: ["var(--font-space-grotesk)", "sans-serif"],
         body: ["var(--font-inter)", "sans-serif"],
         mono: ["Geist Mono", "monospace"],
       },
-      fontSize: {
-        xxs: "0.625rem",
-      },
+
+      // --- Border radius: derive from unified radius tokens ---
       borderRadius: {
-        sm: "6px",
+        sm: radiusTokens.card, // 6px → mapped to card radius from tokens
         md: "8px",
-        lg: "12px",
+        lg: radiusTokens.card, // 12px → card radius
         xl: "14px",
         "2xl": "18px",
         full: "9999px",
-        card: "12px",
-        pill: "9999px",
+        card: radiusTokens.card, // ← single source of truth
+        pill: radiusTokens.pill,
       },
+
+      // --- Box shadow: derive from unified shadow tokens ---
       boxShadow: {
-        brutal: "4px 4px 0px 0px #0F172A",
-        "brutal-lg": "6px 6px 0px 0px #0F172A",
-        "brutal-sm": "2px 2px 0px 0px #0F172A",
-        card: "4px 4px 0px 0px #0F172A",
-        "card-hover": "6px 6px 0px 0px #0F172A",
+        brutal: shadowTokens.card,
+        "brutal-lg": shadowTokens.elevated,
+        "brutal-sm": shadowTokens.card, // alias to card
+        card: shadowTokens.card,
+        "card-hover": shadowTokens.elevated,
       },
+
+      // --- backgroundImage: remove decorative gradients ---
       backgroundImage: {
-        "gradient-hero": "linear-gradient(to right, #2563EB, #3B82F6)",
-        "gradient-deadline": "linear-gradient(to right, #F59E0B, #EF4444)",
+        // Deliberately empty — decorative gradients removed in Phase 7.7.
+        // Re-add only if a genuine illustration pattern is needed.
       },
     },
   },
