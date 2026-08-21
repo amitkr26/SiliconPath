@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { radius, shadow, color, typography } from "@/styles/design-tokens";
 
 type BadgeTone = "accent" | "success" | "warning" | "danger" | "neutral" | "inverse" | "purple";
 

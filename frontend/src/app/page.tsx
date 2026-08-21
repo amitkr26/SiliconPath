@@ -208,45 +208,45 @@ export default async function HomePage() {
   return (
     <div className="space-y-20 pb-20">
 
-      {/* 1. HERO SECTION — Professional, Content-Rich & Clear 3-Portal Architecture */}
-      <section className="relative overflow-hidden bg-[#FAF9F6] border-b-2 border-slate-900 py-16 sm:py-20 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      {/* 1. HERO SECTION — Editorial, Focused & Restrained */}
+      <section className="relative bg-[#FAF9F6] border-b-2 border-slate-900 py-14 sm:py-18 lg:py-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
 
-          {/* TOP ANNOUNCEMENT BADGE */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border-2 border-slate-900 shadow-brutal-sm mb-6">
-            <ShieldCheck className="w-4 h-4 text-accent" />
-            <span className="text-xs font-black uppercase tracking-wide text-slate-800">
-              Official Hub for ISRO, DRDO, CSIR, IITs, Intel, Qualcomm, AMD &amp; Arm Opportunities
+          {/* TOP BADGE */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border-2 border-slate-900 shadow-brutal-sm mb-6">
+            <ShieldCheck className="w-4 h-4 text-blue-600" />
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              Official Aggregator for ISRO, DRDO, CSIR, IITs &amp; Chipmakers
             </span>
           </div>
 
           {/* MAIN HERO HEADLINE */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.06] max-w-5xl mx-auto">
-            India&apos;s Dedicated Gateway for{" "}
-            <span className="text-accent">Semiconductor, VLSI &amp; Deep-Tech</span> Careers
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.08] max-w-4xl mx-auto">
+            India&apos;s Career &amp; Research Gateway for{" "}
+            <span className="text-blue-600">Semiconductor &amp; VLSI</span> Engineering
           </h1>
 
-          <p className="mt-6 text-base sm:text-lg lg:text-xl text-slate-700 max-w-3xl mx-auto leading-relaxed font-medium">
-            Explore verified government JRF/SRF fellowships (₹37,000–₹42,000/mo), DRDO &amp; ISRO Scientist posts, IIT microelectronics research admissions, and global fabless chip design roles.
+          <p className="mt-5 text-sm sm:text-base lg:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium">
+            Explore verified government JRF/SRF fellowships, DRDO &amp; ISRO Scientist posts, IIT microelectronics admissions, and fabless silicon design openings.
           </p>
 
-          {/* HERO CALL TO ACTIONS */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Button href="/opportunities" size="lg">
-              Browse All Opportunities <ArrowRight className="w-4 h-4" />
+          {/* PRIMARY & SECONDARY ACTIONS */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Button href="/opportunities" size="lg" className="shadow-brutal hover:shadow-brutal-lg">
+              Explore All Opportunities <ArrowRight className="w-4 h-4" />
             </Button>
             <Button href="/organizations" variant="secondary" size="lg">
-              <Building2 className="w-5 h-5 text-accent" /> Browse by Organization
+              <Building2 className="w-4 h-4 text-slate-700" /> Browse by Organization
             </Button>
-            <Button href="/academy" variant="success" size="lg">
-              <GraduationCap className="w-5 h-5" /> Free VLSI Courses
+            <Button href="/academy" variant="ghost" size="lg">
+              <GraduationCap className="w-4 h-4 text-slate-700" /> VLSI Academy
             </Button>
           </div>
 
-          {/* POPULAR ORGANIZATION & SEARCH PILLS */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-900 max-w-4xl mx-auto">
-            <span className="font-bold uppercase text-slate-500 flex items-center gap-1">
-              <Search className="w-3.5 h-3.5 text-accent" /> Direct Filter:
+          {/* SEARCH PILLS */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-900 max-w-3xl mx-auto">
+            <span className="font-bold text-slate-500 uppercase flex items-center gap-1">
+              <Search className="w-3.5 h-3.5 text-blue-600" /> Direct Filter:
             </span>
             {[
               { label: "ISRO Careers", q: "ISRO" },
@@ -256,12 +256,11 @@ export default async function HomePage() {
               { label: "Qualcomm RTL", q: "Qualcomm" },
               { label: "Intel Physical Design", q: "Intel" },
               { label: "SystemVerilog UVM", q: "Verification" },
-              { label: "Analog RFIC", q: "Analog" },
             ].map((tag) => (
               <Link
                 key={tag.label}
                 href={`/opportunities?search=${encodeURIComponent(tag.q)}`}
-                className="px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full font-bold text-slate-900 hover:bg-accent hover:text-white transition-all shadow-brutal-sm hover:-translate-y-0.5"
+                className="px-3 py-1 bg-white border-2 border-slate-900 rounded-full font-bold text-slate-800 hover:bg-blue-600 hover:text-white transition-all shadow-brutal-sm"
               >
                 {tag.label}
               </Link>
@@ -272,36 +271,78 @@ export default async function HomePage() {
       </section>
 
       {/* 2. REAL-TIME STATS COUNTER STRIP */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-14 relative z-20">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {[
             { value: `${stats.total}+`, label: "Active Opportunities", sub: "Government & Industry" },
             { value: `${stats.verified}+`, label: "Verified Postings", sub: "Direct Circular URLs" },
-            { value: `${stats.jrf}+`, label: "JRF & Research Grants", sub: "DST / CSIR Norms" },
-            { value: `${stats.phd}+`, label: "PhD & Fellowship Seats", sub: "IITs, IISc & NITs" },
+            { value: `${stats.jrf}+`, label: "JRF Fellowships", sub: "DST / CSIR Norms" },
+            { value: `${stats.phd}+`, label: "PhD Seats", sub: "IITs, IISc & NITs" },
           ].map((s) => (
-            <Card key={s.label} className="p-6 text-center">
-              <p className="text-3xl sm:text-4xl font-black text-accent tracking-tight">{s.value}</p>
-              <p className="text-slate-900 text-xs font-black uppercase tracking-wider mt-1.5">{s.label}</p>
-              <p className="text-slate-500 text-[11px] font-semibold mt-0.5">{s.sub}</p>
+            <Card key={s.label} className="p-5 text-center">
+              <p className="text-2xl sm:text-3xl font-black text-blue-600 tracking-tight">{s.value}</p>
+              <p className="text-slate-900 text-xs font-bold uppercase tracking-wider mt-1">{s.label}</p>
+              <p className="text-slate-500 text-[11px] font-medium mt-0.5">{s.sub}</p>
             </Card>
           ))}
         </div>
       </section>
 
-      {/* 3. PREMIER GOVERNMENT & RESEARCH ORGANIZATIONS SPOTLIGHT (KEY USER MANDATE) */}
+      {/* 3. 3-STEP "HOW IT WORKS" SECTION */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeader
+          eyebrow="Workflow"
+          title="How BerojgarDegreeWala Works"
+          description="A transparent, direct gateway connecting engineers and researchers with official opportunities."
+          align="center"
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="p-6 space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center text-blue-600 font-black shadow-brutal-sm text-sm">
+              01
+            </div>
+            <h3 className="text-base font-black text-slate-900">Discover Verified Circulars</h3>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
+              We aggregate and index government research fellowship circulars, PSU recruitment notices, and private hardware engineering posts daily.
+            </p>
+          </Card>
+
+          <Card className="p-6 space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center text-blue-600 font-black shadow-brutal-sm text-sm">
+              02
+            </div>
+            <h3 className="text-base font-black text-slate-900">Learn &amp; Prepare</h3>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
+              Access DST/CSIR stipend guides, GATE/NET eligibility criteria, curated NPTEL lectures, and auto-graded VLSI practice modules.
+            </p>
+          </Card>
+
+          <Card className="p-6 space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center text-blue-600 font-black shadow-brutal-sm text-sm">
+              03
+            </div>
+            <h3 className="text-base font-black text-slate-900">Apply Directly</h3>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
+              Every listing connects directly to the official recruitment portal or PDF circular. Zero intermediary fees, zero redirected application walls.
+            </p>
+          </Card>
+        </div>
+      </section>
+
+      {/* 4. PREMIER GOVERNMENT & RESEARCH ORGANIZATIONS SPOTLIGHT */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-black uppercase text-accent mb-2 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg shadow-brutal-sm">
-              <Sparkles className="w-4 h-4 stroke-[2.5]" />
-              <span>PREMIER GOVERNMENT &amp; RESEARCH INSTITUTIONS</span>
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase text-blue-600 mb-2 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg shadow-brutal-sm">
+              <Sparkles className="w-4 h-4" />
+              <span>RESEARCH INSTITUTIONS &amp; LABS</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
               Top Research Labs &amp; Organizations
             </h2>
             <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1 max-w-2xl">
-              Click any organization below to immediately view all active JRF, SRF, Scientist and engineering openings verified from official circulars.
+              Click any organization below to immediately view active JRF, SRF, Scientist and engineering openings verified from official circulars.
             </p>
           </div>
 
@@ -317,34 +358,34 @@ export default async function HomePage() {
               <Link
                 key={org.name}
                 href={`/opportunities?search=${encodeURIComponent(org.searchQuery)}`}
-                className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-1 transition-all duration-300 group block flex flex-col justify-between"
+                className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-0.5 transition-all duration-200 group block flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-4">
-                    <div className={`w-12 h-12 rounded-xl ${org.color} border-2 border-slate-900 flex items-center justify-center text-white shadow-brutal-sm`}>
-                      <IconComponent className="w-6 h-6" />
+                    <div className="w-11 h-11 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center text-blue-600 shadow-brutal-sm">
+                      <IconComponent className="w-5 h-5" />
                     </div>
                     <Badge tone="neutral">
                       {org.badge}
                     </Badge>
                   </div>
 
-                  <h3 className="text-xl font-black text-slate-900 group-hover:text-accent transition-colors">
+                  <h3 className="text-lg font-black text-slate-900 group-hover:text-blue-600 transition-colors">
                     {org.name}
                   </h3>
                   <p className="text-xs font-bold text-slate-500 mt-0.5">
                     {org.fullName}
                   </p>
-                  <p className="text-xs text-slate-700 font-medium mt-3 leading-relaxed">
+                  <p className="text-xs text-slate-600 font-medium mt-3 leading-relaxed">
                     {org.scope}
                   </p>
                 </div>
 
                 <div className="pt-4 mt-4 border-t-2 border-slate-100 flex items-center justify-between">
-                  <span className="text-xs font-bold text-accent group-hover:underline flex items-center gap-1">
+                  <span className="text-xs font-bold text-blue-600 group-hover:underline flex items-center gap-1">
                     Explore verified openings <ChevronRight className="w-3.5 h-3.5" />
                   </span>
-                  <span className="text-[10px] font-black uppercase text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
+                  <span className="text-[10px] font-bold uppercase text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                     Live
                   </span>
                 </div>
@@ -354,7 +395,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 4. LATEST VERIFIED OPPORTUNITIES (DIRECT ACCESS) */}
+      {/* 5. LATEST VERIFIED OPPORTUNITIES (DIRECT ACCESS) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
           eyebrow="Direct Verified Feeds"
@@ -374,12 +415,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 5. AUTHORITATIVE RESEARCH FELLOWSHIP GUIDE (SUBSTANTIAL CONTENT EXPANSION) */}
+      {/* 6. AUTHORITATIVE RESEARCH FELLOWSHIP GUIDE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Card className="p-8 sm:p-10 space-y-8">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-black uppercase text-accent mb-2 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg shadow-brutal-sm">
-              <Award className="w-4 h-4 stroke-[2.5]" />
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase text-blue-600 mb-2 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg shadow-brutal-sm">
+              <Award className="w-4 h-4" />
               <span>FELLOWSHIP &amp; STIPEND SCALE REFERENCE</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -392,7 +433,7 @@ export default async function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-slate-50 border-2 border-slate-900 rounded-xl p-5 space-y-2">
-              <span className="text-[10px] font-black uppercase text-blue-700 bg-blue-100 px-2 py-0.5 rounded border border-blue-300">
+              <span className="text-[10px] font-bold uppercase text-blue-700 bg-blue-100 px-2 py-0.5 rounded border border-blue-300">
                 Junior Research Fellow (JRF)
               </span>
               <p className="text-2xl font-black text-slate-900">₹37,000 / mo</p>
@@ -402,7 +443,7 @@ export default async function HomePage() {
             </div>
 
             <div className="bg-slate-50 border-2 border-slate-900 rounded-xl p-5 space-y-2">
-              <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+              <span className="text-[10px] font-bold uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
                 Senior Research Fellow (SRF)
               </span>
               <p className="text-2xl font-black text-slate-900">₹42,000 / mo</p>
@@ -412,7 +453,7 @@ export default async function HomePage() {
             </div>
 
             <div className="bg-slate-50 border-2 border-slate-900 rounded-xl p-5 space-y-2">
-              <span className="text-[10px] font-black uppercase text-purple-700 bg-purple-100 px-2 py-0.5 rounded border border-purple-300">
+              <span className="text-[10px] font-bold uppercase text-purple-700 bg-purple-100 px-2 py-0.5 rounded border border-purple-300">
                 Research Associate (RA-I to III)
               </span>
               <p className="text-2xl font-black text-slate-900">₹58,000–₹67,000</p>
@@ -422,7 +463,7 @@ export default async function HomePage() {
             </div>
 
             <div className="bg-slate-50 border-2 border-slate-900 rounded-xl p-5 space-y-2">
-              <span className="text-[10px] font-black uppercase text-red-700 bg-red-100 px-2 py-0.5 rounded border border-red-300">
+              <span className="text-[10px] font-bold uppercase text-slate-800 bg-slate-200 px-2 py-0.5 rounded border border-slate-400">
                 Scientist &apos;B&apos; (DRDO / ISRO)
               </span>
               <p className="text-2xl font-black text-slate-900">Level 10 Matrix</p>
@@ -439,15 +480,15 @@ export default async function HomePage() {
               </h4>
               <ul className="space-y-2 text-xs text-slate-700 font-medium">
                 <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <span><strong>GATE Score Validity:</strong> Valid GATE in Electronics &amp; Comm (EC), Electrical (EE), Computer Science (CS), or Instrumentation (IN).</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <span><strong>Educational Background:</strong> First-class B.E./B.Tech (60%+ or 6.75 CGPA) or M.E./M.Tech in Microelectronics/VLSI.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <span><strong>Age Limits &amp; Relaxations:</strong> Upper age 28 years for JRF (relaxable by 5 years for SC/ST/PwD, 3 years for OBC-NCL).</span>
                 </li>
               </ul>
@@ -459,15 +500,15 @@ export default async function HomePage() {
               </h4>
               <ul className="space-y-2 text-xs text-slate-700 font-medium">
                 <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <span><strong>Official Application Form:</strong> Downloaded directly from DRDO RAC, ISRO Careers, or CSIR lab portal.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <span><strong>Academic Proofs:</strong> Consolidated marksheets, provisional/original degree certificates, and GATE scorecard.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                   <span><strong>No-Objection Certificate (NOC):</strong> Required if currently employed in government/PSU/autonomous bodies.</span>
                 </li>
               </ul>
@@ -476,7 +517,7 @@ export default async function HomePage() {
         </Card>
       </section>
 
-      {/* 6. SEMICONDUCTOR DOMAIN SPECIALIZATION HUB */}
+      {/* 7. SEMICONDUCTOR DOMAIN SPECIALIZATION HUB */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
           eyebrow="Specialization Tracks"
@@ -490,10 +531,10 @@ export default async function HomePage() {
             <Link
               key={domain.title}
               href={domain.path}
-              className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-1 transition-all duration-300 group block flex flex-col justify-between"
+              className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-0.5 transition-all duration-200 group block flex flex-col justify-between"
             >
               <div className="space-y-3">
-                <h3 className="text-lg font-black text-slate-900 group-hover:text-accent transition-colors">
+                <h3 className="text-lg font-black text-slate-900 group-hover:text-blue-600 transition-colors">
                   {domain.title}
                 </h3>
                 <p className="text-xs text-slate-600 font-medium leading-relaxed">
@@ -509,7 +550,7 @@ export default async function HomePage() {
               </div>
 
               <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs font-bold text-accent group-hover:underline">
+                <span className="text-xs font-bold text-blue-600 group-hover:underline">
                   Browse {domain.title.split(" ")[0]} Jobs &rarr;
                 </span>
               </div>
@@ -518,109 +559,77 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 7. DUAL PLATFORM PORTALS SECTION */}
+      {/* 8. DUAL PLATFORM PORTALS SECTION (DISCIPLINED & RESTRAINED) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          eyebrow="Three Integrated Portals"
-          title="Built for Candidates, Employers &amp; Public Research"
-          description="A dedicated ecosystem tailored for hardware engineers, recruiters, and scholars."
+          eyebrow="Portals"
+          title="Tailored for Candidates, Labs &amp; Industry"
+          description="Dedicated workflows for students, research scholars, and lab recruiters."
           align="center"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {/* CANDIDATE PORTAL */}
-          <Card className="p-7 flex flex-col justify-between space-y-6">
+          <Card className="p-6 sm:p-8 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              <div className="w-12 h-12 bg-accent border-2 border-slate-900 rounded-xl flex items-center justify-center text-white shadow-brutal-sm">
-                <UserCheck className="w-6 h-6" />
+              <div className="w-11 h-11 bg-blue-50 border-2 border-slate-900 rounded-xl flex items-center justify-center text-blue-600 shadow-brutal-sm">
+                <UserCheck className="w-5 h-5" />
               </div>
               <h3 className="text-xl font-black text-slate-900">Job Seekers &amp; Scholars</h3>
-              <p className="text-slate-700 text-xs font-medium leading-relaxed">
-                Claim your verified @username profile, build your VLSI portfolio, and apply directly to government fellowships and top tech companies.
+              <p className="text-slate-600 text-xs font-medium leading-relaxed">
+                Build your verified VLSI portfolio, bookmark circular deadlines, and apply directly to government fellowships and tech companies.
               </p>
 
-              <ul className="space-y-2 text-xs font-medium text-slate-800 pt-1">
+              <ul className="space-y-2 text-xs font-medium text-slate-700 pt-1">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
-                  <span>Unique handle profile (e.g. @ananya_vlsi).</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>Verified candidate profile and skills showcase.</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
-                  <span>Direct apply to DRDO, ISRO &amp; IITs.</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>Direct links to DRDO, ISRO &amp; IIT application forms.</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
-                  <span>Peer networking &amp; direct messaging.</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>Application tracker and deadline reminders.</span>
                 </li>
               </ul>
             </div>
 
             <Button href="/signup?role=candidate" className="w-full" size="sm">
-              Candidate Registration (@username)
+              Candidate Registration
             </Button>
           </Card>
 
           {/* EMPLOYER PORTAL */}
-          <Card className="p-7 flex flex-col justify-between space-y-6">
+          <Card className="p-6 sm:p-8 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              <div className="w-12 h-12 bg-emerald-500 border-2 border-slate-900 rounded-xl flex items-center justify-center text-slate-900 shadow-brutal-sm">
-                <Building2 className="w-6 h-6" />
+              <div className="w-11 h-11 bg-blue-50 border-2 border-slate-900 rounded-xl flex items-center justify-center text-blue-600 shadow-brutal-sm">
+                <Building2 className="w-5 h-5" />
               </div>
               <h3 className="text-xl font-black text-slate-900">Employers &amp; Research Labs</h3>
-              <p className="text-slate-700 text-xs font-medium leading-relaxed">
-                Post research fellowship circulars, hire specialized hardware graduates, and claim official organization directory pages.
+              <p className="text-slate-600 text-xs font-medium leading-relaxed">
+                Post research fellowship circulars, reach specialized hardware graduates, and claim official organization directory pages.
               </p>
 
-              <ul className="space-y-2 text-xs font-medium text-slate-800 pt-1">
+              <ul className="space-y-2 text-xs font-medium text-slate-700 pt-1">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Claim official org page (e.g. @drdo_rac).</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>Claim and manage official organization profile.</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Post verified JRF, PhD &amp; design posts.</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>Publish verified JRF, PhD &amp; design openings.</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Direct talent search across IITs/NITs.</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>Connect with top microelectronics talent.</span>
                 </li>
               </ul>
             </div>
 
-            <Button href="/signup?role=employer" variant="success" className="w-full" size="sm">
-              Employer / Lab Registration
-            </Button>
-          </Card>
-
-          {/* OPEN PUBLIC AGGREGATOR */}
-          <Card className="p-7 flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
-              <div className="w-12 h-12 bg-amber-400 border-2 border-slate-900 rounded-xl flex items-center justify-center text-slate-900 shadow-brutal-sm">
-                <Globe2 className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-black text-slate-900">Open Public Aggregator</h3>
-              <p className="text-slate-700 text-xs font-medium leading-relaxed">
-                Zero-friction open portal: anyone can browse opportunities, read daily semiconductor news, and access academy tutorials without signup.
-              </p>
-
-              <ul className="space-y-2 text-xs font-medium text-slate-800 pt-1">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>100% free open access without account.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>Daily RSS news updates &amp; circulars.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>Direct links to official career portals.</span>
-                </li>
-              </ul>
-            </div>
-
-            <Button href="/opportunities" variant="secondary" className="w-full" size="sm">
-              Explore Open Aggregator
+            <Button href="/signup?role=employer" variant="secondary" className="w-full" size="sm">
+              Employer / Lab Portal
             </Button>
           </Card>
         </div>
