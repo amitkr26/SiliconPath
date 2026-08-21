@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { radius, shadow, color, typography } from "@/styles/design-tokens";
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;

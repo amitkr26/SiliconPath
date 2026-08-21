@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { radius, shadow, color, typography } from "@/styles/design-tokens";
+import { color } from "@/styles/design-tokens";
 
 export interface SectionHeaderProps {
   eyebrow?: string;

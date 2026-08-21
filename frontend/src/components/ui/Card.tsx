@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { radius, shadow, color } from "@/styles/design-tokens";
 
 type CardTone = "default" | "flat" | "inverse" | "accent";
 

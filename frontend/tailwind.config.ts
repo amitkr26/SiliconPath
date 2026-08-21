@@ -3,9 +3,6 @@ import {
   shadow as shadowTokens,
   radius as radiusTokens,
   color as colorTokens,
-  typography as typographyTokens,
-  spacing as spacingTokens,
-  icon as iconTokens,
 } from "./src/styles/design-tokens";
 
 const config: Config = {
@@ -70,7 +67,7 @@ const config: Config = {
 
       // --- Border radius: derive from unified radius tokens ---
       borderRadius: {
-        sm: radiusTokens.card, // 6px → mapped to card radius from tokens
+        sm: "6px",
         md: "8px",
         lg: radiusTokens.card, // 12px → card radius
         xl: "14px",
@@ -86,7 +83,9 @@ const config: Config = {
         "brutal-lg": shadowTokens.elevated,
         "brutal-sm": shadowTokens.card, // alias to card
         card: shadowTokens.card,
+        "card-sm": "2px 2px 0px 0px #0F172A", // 2px elevation for badges, avatars
         "card-hover": shadowTokens.elevated,
+        elevated: shadowTokens.elevated,
       },
 
       // --- backgroundImage: remove decorative gradients ---
