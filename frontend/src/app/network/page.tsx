@@ -110,7 +110,7 @@ export default function NetworkPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(status === "accepted" ? "Connected! 🎉" : status === "withdrawn" ? "Request cancelled" : "Request declined");
+        toast.success(status === "accepted" ? "Connected successfully" : status === "withdrawn" ? "Request cancelled" : "Request declined");
         queryClient.invalidateQueries({ queryKey: ["connections"] });
         loadRequests();
       } else {

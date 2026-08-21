@@ -45,16 +45,16 @@ export default function Footer() {
 
             <div className="pt-2 flex flex-wrap gap-2 text-[11px] font-bold">
               <Link href="/opportunities?search=ISRO" className="px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-accent text-slate-300 hover:text-white rounded-xl transition-all">
-                🚀 ISRO Careers
+                ISRO Careers
               </Link>
               <Link href="/opportunities?search=DRDO" className="px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-accent text-slate-300 hover:text-white rounded-xl transition-all">
-                🛡️ DRDO JRF
+                DRDO JRF
               </Link>
               <Link href="/opportunities?search=CSIR" className="px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-accent text-slate-300 hover:text-white rounded-xl transition-all">
-                🔬 CSIR Labs
+                CSIR Labs
               </Link>
               <Link href="/opportunities?search=IIT" className="px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-accent text-slate-300 hover:text-white rounded-xl transition-all">
-                🎓 IIT Microelectronics
+                IIT Microelectronics
               </Link>
             </div>
           </div>
