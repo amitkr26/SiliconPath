@@ -55,12 +55,17 @@ function LoginPageInner() {
         }
       }
 
-      const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
       if (error) {
         toast.error(error.message);
       } else {
         toast.success("Logged in successfully!");
-        router.push(redirectTo);
+        const role = signInData.user?.user_metadata?.role || signInData.user?.user_metadata?.account_type;
+        let target = redirectTo;
+        if (redirectTo === "/dashboard" || !redirectTo || redirectTo === "/") {
+          target = (role === "employer" || role === "provider") ? "/employer/dashboard" : "/dashboard";
+        }
+        router.push(target);
         router.refresh();
       }
     } catch (err: unknown) {

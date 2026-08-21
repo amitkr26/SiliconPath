@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - clean/main branch
 
+- **2026-08-21 — Dedicated Employer & Recruiter Portal Suite (COMPLETE).**
+  - **Recruiter App Shell & Navigation (`frontend/src/components/Navbar.tsx`):** Designed dedicated Employer Suite header when `isEmployer` is active, with dedicated Recruiter branding badge, enterprise links (Dashboard, Job Postings, Applicants ATS, Talent Sourcing, Company Profile), direct `+ Post Position` CTA, and 1-click `Preview Candidate Job Board` toggle in the user dropdown.
+  - **Login Auto-Routing (`frontend/src/app/login/page.tsx`):** Added role-aware login redirection so employer accounts (e.g. `amit@excompany.in`) are routed directly to `/employer/dashboard` upon sign in.
+  - **Employer Cockpit (`frontend/src/app/employer/dashboard/page.tsx`):** Overhauled dashboard with 4 metric cards (Active Postings, Total Applicants, Pipeline count, Talent Pool size), recent applicant stream with instant stage advancement, active job postings table, and AI recommended talent suggestions.
+  - **Job Postings Management (`frontend/src/app/employer/jobs/page.tsx`):** Built dedicated posting manager with status filters (All, Active, Paused), 1-click Pause/Resume toggle, shareable link copy, direct applicant view, and deletion controls.
+  - **Applicant Tracking System ATS (`frontend/src/app/employer/applicants/page.tsx`):** Built full multi-stage ATS pipeline (Applied, Screening, Shortlisted, Interview, Offered/Hired, Rejected) with candidate skill badges, resume preview, and direct messaging links.
+  - **Talent Sourcing Engine (`frontend/src/app/employer/talent/page.tsx`):** Built candidate search engine across open-to-work scholars with hardware domain filters (RTL, UVM, Physical Design, Analog, FPGA, RISC-V), experience filters, and direct candidate invitation modal.
+  - **Company & Research Lab Profile (`frontend/src/app/employer/company/page.tsx`):** Added organization management suite for logo, lab description, research domains, cleanroom EDA facilities, and verification status.
+  - **Post Position Studio (`frontend/src/app/employer/post-job/page.tsx`):** Added quick-fill templates for standard semiconductor roles (DST JRF ₹37k/mo, SRF ₹42k/mo, Digital RTL, UVM Verification, VLSI Intern) and custom eligibility/GATE criteria.
+  - **Backend API Suite (`/api/employer/applicants`, `/api/employer/talent`, `/api/employer/jobs`, `/api/employer/stats`):** Implemented comprehensive REST API routes for employer job CRUD, applicant stage mutation, talent search, and aggregated analytics.
+  - **Verification:** Unit tests 117/117 passed, `npx tsc --noEmit` exit code 0.
+
 - **2026-08-21 — Phase 7.8: Product UI Refinement & Mature Design System Application across all surfaces (COMPLETE).**
   - **Homepage (`frontend/src/app/page.tsx`):** Implemented editorial, restrained hero with solid surface (`#FAF9F6`), single dominant primary CTA, subordinate secondary actions, compact 3-step "How It Works" workflow, unified monochrome organization spotlight styling with live count indicators, and disciplined 2-card candidate vs employer portal.
   - **Profile (`frontend/src/components/profile/PublicProfile.tsx`):** Replaced legacy dark tokens and decorative gradient banner with solid dark slate cover (`bg-slate-900` + subtle grid texture), clean scannable identity hierarchy (name, `@username` handle, role, location, open-to-work badge), and responsive mobile layout.
