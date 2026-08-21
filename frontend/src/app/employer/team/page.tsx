@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Users, ArrowLeft, Shield, Mail, Plus, UserCheck,
-  ShieldCheck, Loader2
+  ShieldCheck, Loader2, Trash2
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { toast } from "sonner";
@@ -16,6 +16,8 @@ import { Badge } from "@/components/ui/Badge";
 export default function EmployerTeamPage() {
   const router = useRouter();
   const { user, username, displayName, isEmployer, isAdmin, loading: authLoading } = useUser();
+  const [members, setMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("recruiter");
   const [inviting, setInviting] = useState(false);
@@ -30,22 +32,47 @@ export default function EmployerTeamPage() {
     }
   }, [user, isEmployer, isAdmin, authLoading, router]);
 
+  const loadTeam = useCallback(async () => {
+    if (!user) return;
+    try {
+      setLoading(true);
+      const res = await fetch("/api/employer/team");
+      const data = await res.json();
+      if (data.members) setMembers(data.members);
+    } catch {
+      // Fallback
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadTeam();
+  }, [loadTeam]);
+
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inviteEmail) return;
     try {
       setInviting(true);
-      await new Promise((r) => setTimeout(r, 600));
-      toast.success(`Team invitation sent to ${inviteEmail} as ${inviteRole}!`);
+      const res = await fetch("/api/employer/team", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send invitation");
+      toast.success(data.message || `Team invitation sent to ${inviteEmail}!`);
       setInviteEmail("");
-    } catch {
-      toast.error("Failed to send invitation");
+      loadTeam();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send invitation");
     } finally {
       setInviting(false);
     }
   };
 
-  if (authLoading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center bg-bg-primary">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-2" />
@@ -77,32 +104,38 @@ export default function EmployerTeamPage() {
         <Card className="p-6 sm:p-8 space-y-6">
           <div className="flex items-center justify-between border-b-2 border-slate-900 pb-4">
             <h2 className="text-base font-black text-slate-900">Active Workspace Members</h2>
-            <Badge tone="accent">1 of 5 Seats Active</Badge>
+            <Badge tone="accent">{members.length} of 5 Seats Active</Badge>
           </div>
 
           <div className="space-y-3">
-            <div className="p-4 bg-slate-50 border-2 border-slate-900 rounded-xl flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full border-2 border-slate-900 bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-brutal-sm">
-                  {user?.email?.[0].toUpperCase() || "E"}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-black text-slate-900">{displayName || user?.email?.split("@")[0]}</p>
-                    {username && (
-                      <span className="text-xs font-bold text-blue-700">@{username}</span>
-                    )}
+            {members.map((m) => (
+              <div key={m.id || m.email} className="p-4 bg-slate-50 border-2 border-slate-900 rounded-xl flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full border-2 border-slate-900 bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-brutal-sm">
+                    {(m.display_name?.[0] || m.email?.[0] || "U").toUpperCase()}
                   </div>
-                  <p className="text-xs text-slate-500 font-medium">{user?.email}</p>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-black text-slate-900">{m.display_name || m.email?.split("@")[0]}</p>
+                      {m.username && (
+                        <span className="text-xs font-bold text-blue-700">@{m.username}</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 font-medium">{m.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className={`px-3 py-1 border text-xs font-black rounded-lg ${
+                    m.is_owner
+                      ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                      : "bg-blue-50 border-blue-200 text-blue-800"
+                  }`}>
+                    {m.role || "Recruiter"}
+                  </span>
                 </div>
               </div>
-
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-black rounded-lg">
-                  Primary Owner / Lead Recruiter
-                </span>
-              </div>
-            </div>
+            ))}
           </div>
         </Card>
 

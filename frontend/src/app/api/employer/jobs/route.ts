@@ -65,12 +65,11 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await supabaseAdmin
     .from("opportunities")
-    .select("*")
-    .eq("is_active", true)
+    .select("*, organization:organizations(*)")
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ opportunities: data || [] });
+  return NextResponse.json({ jobs: data || [], opportunities: data || [] });
 }
 
 export async function POST(request: NextRequest) {
@@ -127,6 +126,8 @@ export async function POST(request: NextRequest) {
       tags: body.tags,
       slug: oppSlug,
       source_type: "employer_posted",
+      created_by: user.id,
+      employer_id: user.id,
       // P0.2: employer posts start unverified; only the admin verification queue promotes
       is_active: true,
     };

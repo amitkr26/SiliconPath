@@ -72,12 +72,25 @@ export default function EmployerTalentCandidatePage() {
 
     try {
       setSending(true);
-      // Create message / notification reachout
-      await new Promise((r) => setTimeout(r, 600));
-      toast.success(`Application invitation sent to @${candidate.username}!`);
+      const res = await fetch("/api/employer/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          candidateId: candidate.id,
+          candidateUsername: candidate.username,
+          jobId: selectedJob,
+          message: inviteNote,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send invitation");
+
+      toast.success(`Application invitation sent directly to @${candidate.username}!`);
       setInviteModalOpen(false);
-    } catch {
-      toast.error("Failed to send invitation");
+      setInviteNote("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send invitation");
     } finally {
       setSending(false);
     }
