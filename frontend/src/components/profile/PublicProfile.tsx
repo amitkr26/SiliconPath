@@ -222,7 +222,7 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Profile Container Card */}
-      <div className="bg-white border-2 border-slate-900 rounded-2xl shadow-brutal overflow-hidden">
+      <div className="bg-white border-2 border-slate-900 rounded-2xl shadow-card overflow-hidden">
         {/* Solid Cover Banner */}
         <div className="h-36 sm:h-44 bg-slate-900 border-b-2 border-slate-900 relative">
           <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />

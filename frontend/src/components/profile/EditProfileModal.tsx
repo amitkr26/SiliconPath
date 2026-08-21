@@ -112,7 +112,7 @@ export default function EditProfileModal({ userId, profile, onClose, onSaved }: 
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white border-4 border-slate-900 rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-[10px_10px_0px_0px_#0F172A] space-y-5">
+      <div className="bg-white border-4 border-slate-900 rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-elevated space-y-5">
         <div className="flex justify-between items-center border-b-2 border-slate-900 pb-3">
           <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
             <Pencil className="w-5 h-5 text-blue-600" /> Edit LinkedIn Intro & Handle
@@ -132,7 +132,7 @@ export default function EditProfileModal({ userId, profile, onClose, onSaved }: 
               value={form.display_name || ""}
               onChange={(e) => setField("display_name", e.target.value)}
               required
-              className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
+              className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-card focus:outline-none"
             />
           </div>
 
@@ -147,7 +147,7 @@ export default function EditProfileModal({ userId, profile, onClose, onSaved }: 
                 value={form.username || ""}
                 onChange={(e) => handleUsernameChange(e.target.value)}
                 required
-                className="w-full pl-8 pr-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
+                className="w-full pl-8 pr-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-card focus:outline-none"
               />
             </div>
             {usernameError && <p className="text-[11px] font-bold text-red-600 mt-1">{usernameError}</p>}
@@ -167,7 +167,7 @@ export default function EditProfileModal({ userId, profile, onClose, onSaved }: 
               value={form.headline || ""}
               onChange={(e) => setField("headline", e.target.value)}
               placeholder="e.g. M.Tech VLSI @ IIT Bombay | RISC-V & ASIC Design Lead"
-              className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
+              className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-card focus:outline-none"
             />
           </div>
 
@@ -180,7 +180,7 @@ export default function EditProfileModal({ userId, profile, onClose, onSaved }: 
               value={form.location || ""}
               onChange={(e) => setField("location", e.target.value)}
               placeholder="e.g. Bengaluru, Karnataka, India"
-              className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none"
+              className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-card focus:outline-none"
             />
           </div>
 
@@ -193,7 +193,7 @@ export default function EditProfileModal({ userId, profile, onClose, onSaved }: 
               value={form.bio || ""}
               onChange={(e) => setField("bio", e.target.value)}
               placeholder="Write a brief overview of your background, research interests, & hardware skills..."
-              className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[3px_3px_0px_0px_#0F172A] focus:outline-none resize-none"
+              className="w-full px-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-card focus:outline-none resize-none"
             />
           </div>
 
@@ -208,7 +208,7 @@ export default function EditProfileModal({ userId, profile, onClose, onSaved }: 
               {skills.map((sk) => (
                 <span
                   key={sk}
-                  className="px-3 py-1.5 bg-slate-100 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] flex items-center gap-2"
+                  className="px-3 py-1.5 bg-slate-100 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-card-sm flex items-center gap-2"
                 >
                   {sk}
                   <button type="button" onClick={() => removeSkill(sk)} className="hover:text-red-600 transition">
@@ -224,12 +224,12 @@ export default function EditProfileModal({ userId, profile, onClose, onSaved }: 
                 onChange={(e) => setNewSkill(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSkill())}
                 placeholder="Add hardware skill (e.g. Verilog, UVM, STA)..."
-                className="flex-1 px-4 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-[2px_2px_0px_0px_#0F172A] focus:outline-none"
+                className="flex-1 px-4 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-card-sm focus:outline-none"
               />
               <button
                 type="button"
                 onClick={addSkill}
-                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_#0F172A] flex items-center gap-1 transition"
+                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs border-2 border-slate-900 rounded-xl shadow-card-sm flex items-center gap-1 transition"
               >
                 <Plus className="w-4 h-4 stroke-[3]" /> Add
               </button>
@@ -267,14 +267,14 @@ export default function EditProfileModal({ userId, profile, onClose, onSaved }: 
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-[2px_2px_0px_0px_#0F172A]"
+              className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-card-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white border-2 border-slate-900 rounded-xl text-xs font-black shadow-[3px_3px_0px_0px_#0F172A] flex items-center gap-2 transition disabled:opacity-50"
+              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white border-2 border-slate-900 rounded-xl text-xs font-black shadow-card flex items-center gap-2 transition disabled:opacity-50"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
             </button>
