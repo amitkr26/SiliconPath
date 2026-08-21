@@ -101,7 +101,11 @@ function SignupPageInner() {
     e.preventDefault();
 
     const cleanUser = username.trim().toLowerCase().replace(/^@/, "");
-    if (accountType === "seeker" && usernameStatus === "unavailable") {
+    if (!cleanUser || cleanUser.length < 3) {
+      toast.error("Please choose a username of at least 3 characters.");
+      return;
+    }
+    if (usernameStatus === "unavailable") {
       toast.error("Please choose an available username.");
       return;
     }

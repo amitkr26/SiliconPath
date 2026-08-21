@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/Badge";
 
 export default function EmployerCompanyProfilePage() {
   const router = useRouter();
-  const { user, isEmployer, isAdmin, loading: authLoading } = useUser();
+  const { user, username, displayName, isEmployer, isAdmin, loading: authLoading } = useUser();
   const [form, setForm] = useState({
     name: "",
     website: "",
@@ -98,7 +98,14 @@ export default function EmployerCompanyProfilePage() {
                   {form.name ? form.name[0] : "C"}
                 </div>
                 <div>
-                  <h2 className="text-lg font-black text-slate-900">{form.name || "Company / Lab Name"}</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-black text-slate-900">{form.name || "Company / Lab Name"}</h2>
+                    {username && (
+                      <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                        @{username}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs font-semibold text-slate-500">{form.contactEmail}</p>
                 </div>
               </div>

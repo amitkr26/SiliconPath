@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/Button";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { user, isCandidate, isEmployer, signOut: signOutUser } = useUser();
+  const { user, username, displayName, isCandidate, isEmployer, signOut: signOutUser } = useUser();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [joinDropdownOpen, setJoinDropdownOpen] = useState(false);
@@ -128,7 +128,9 @@ export default function Navbar() {
                   {user.email?.[0].toUpperCase() || "U"}
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="max-w-[100px] truncate leading-none text-slate-900 font-bold">{user.email?.split("@")[0]}</span>
+                  <span className="max-w-[100px] truncate leading-none text-slate-900 font-bold">
+                    {username ? `@${username}` : (displayName || user.email?.split("@")[0])}
+                  </span>
                   <span className="text-[9px] font-bold uppercase text-blue-700 leading-none mt-0.5">
                     {isEmployer ? "Employer" : "Candidate"}
                   </span>
@@ -139,8 +141,13 @@ export default function Navbar() {
               {userDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-white border-2 border-slate-900 rounded-xl shadow-brutal-lg py-2 z-50">
                   <div className="px-4 py-2 border-b border-slate-200 bg-slate-50">
-                    <p className="text-xs font-bold text-slate-900 truncate">{user.email}</p>
-                    <p className="text-[10px] font-bold uppercase text-blue-600">
+                    <p className="text-xs font-black text-slate-900 truncate">
+                      {displayName || user.email?.split("@")[0]}
+                    </p>
+                    {username && (
+                      <p className="text-[11px] font-bold text-blue-700">@{username}</p>
+                    )}
+                    <p className="text-[10px] font-bold uppercase text-slate-500 mt-0.5">
                       {isEmployer ? "Employer Account" : "Job Seeker Account"}
                     </p>
                   </div>
