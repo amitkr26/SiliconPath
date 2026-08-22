@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { z } from "zod";
+
+export const dynamic = "force-dynamic";
 
 const claimSchema = z.object({
   organizationId: z.string().uuid(),
@@ -9,13 +11,56 @@ const claimSchema = z.object({
   verificationDetails: z.string().min(10).max(2000),
 });
 
+export async function GET(request: NextRequest) {
+  const user = await getAuthenticatedEmployerUser(request);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (!isAdminConfigured || !supabaseAdmin) {
+    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+  }
+
+  try {
+    const role = user.user_metadata?.role;
+    let query = supabaseAdmin
+      .from("company_claims")
+      .select(`
+        id,
+        organization_id,
+        claimed_by,
+        status,
+        message,
+        reviewed_by,
+        reviewed_at,
+        created_at,
+        organization:organizations(id, name, slug, logo_url, website)
+      `)
+      .order("created_at", { ascending: false });
+
+    if (role !== "admin") {
+      query = query.eq("claimed_by", user.id);
+    }
+
+    const { data: claims, error } = await query;
+    if (error) {
+      const { data: rawClaims } = await supabaseAdmin
+        .from("company_claims")
+        .select("*")
+        .eq("claimed_by", user.id);
+      return NextResponse.json({ claims: rawClaims || [] });
+    }
+
+    return NextResponse.json({ claims: claims || [] });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || "Failed to fetch company claims" }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const role = user.user_metadata?.role;
-  if (role !== "employer" && role !== "admin") {
+  if (role !== "employer" && role !== "provider" && role !== "admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -27,25 +72,71 @@ export async function POST(request: NextRequest) {
     const raw = await request.json();
     const body = claimSchema.parse(raw);
 
-    // ponytail: store claim requests in user_alerts or similar table if dedicated claims table is missing.
-    // Let's create a notification to admins about the claim, or insert to user_profiles as metadata.
-    // We'll write to notifications or log it to console as a mockup since a dedicated claims table is not in migrations.
-    console.log(`Claim request received for org ${body.organizationId} by user ${user.id} (${body.businessEmail})`);
+    // 1. Insert into real company_claims table
+    const { data: claim, error: claimErr } = await supabaseAdmin
+      .from("company_claims")
+      .insert({
+        organization_id: body.organizationId,
+        claimed_by: user.id,
+        status: "pending",
+        message: `Email: ${body.businessEmail} | Details: ${body.verificationDetails}`,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
 
-    // Let's also insert a notification record to the user that their claim is pending review.
-    const { error: notifError } = await supabase
+    if (claimErr) throw claimErr;
+
+    // 2. Insert notification record for the user
+    await supabaseAdmin
       .from("notifications")
       .insert([{
         user_id: user.id,
         type: "system",
-        message: `Your request to claim organization ID ${body.organizationId} has been submitted successfully and is pending verification.`,
+        message: `Your claim request for organization ${body.organizationId} has been submitted for verification.`,
         is_read: false,
       }]);
 
-    if (notifError) throw notifError;
-
-    return NextResponse.json({ success: true, message: "Claim submitted successfully" });
+    return NextResponse.json({ success: true, claim, message: "Claim submitted successfully" }, { status: 201 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to submit claim" }, { status: 400 });
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  const user = await getAuthenticatedEmployerUser(request);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const role = user.user_metadata?.role;
+  if (role !== "admin") {
+    return NextResponse.json({ error: "Forbidden: Admin access required to review claims" }, { status: 403 });
+  }
+
+  try {
+    const body = await request.json();
+    const { claimId, status } = body;
+
+    if (!claimId || !["pending", "approved", "rejected"].includes(status)) {
+      return NextResponse.json({ error: "Valid claimId and status ('approved'|'rejected') required" }, { status: 400 });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("company_claims")
+      .update({
+        status,
+        reviewed_by: user.id,
+        reviewed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", claimId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, claim: data });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || "Failed to review claim" }, { status: 500 });
   }
 }

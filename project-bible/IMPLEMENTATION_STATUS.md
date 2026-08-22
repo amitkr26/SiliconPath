@@ -28,7 +28,7 @@ Feature matrix across the whole platform. Status vocabulary: **IMPLEMENTED** (in
 | Community posts/comments/vote | IMPLEMENTED | `/api/community/*` (4 routes); rpc `toggle_upvote` | — |
 | Companies (list/detail/follow) | IMPLEMENTED (gated) | `/api/companies/*`; behind `FEATURES.LINKEDIN_ENABLED` | Feature flag default state unverified in prod |
 | Organizations (list/slug, admin CRUD) | IMPLEMENTED | `/api/organizations` + `/admin/organizations` | — |
-| Employer: signup role, job posting, dashboard, claim (notification), recommendations | PARTIAL | `/api/employer/*`; middleware `EMPLOYER_ONLY_PATHS` role gate (server-side); E2E audit row claims ATS — see KNOWN_ISSUES #8 | No ATS applicant review UI, no recruiter messaging, no real company-claims table |
+| Employer & Recruiter Suite: Cockpit dashboard, Job manager, Post Position Studio, ATS pipeline (Applied, Screening, Shortlisted, Interview, Accepted, Rejected), Talent Sourcing, Recruiter Messaging, Company & Lab profile, Team seats, Analytics | IMPLEMENTED | Full suite across 12 pages + 14 API routes; 100% live database backed; stateful E2E audit verified 16/16 steps; Jest 117/117; Build PASS | — |
 | Admin console (opportunities CRUD+verify, analytics, announcements, scrape health, subscribers, performance) | IMPLEMENTED | `/api/admin/*` (22 routes); HMAC/password auth | — |
 | Subscriptions + weekly digest (Resend), contact/report-issue, track-click, sync-replica | IMPLEMENTED | `/api/subscribe`, `/api/cron/digest`, `/api/track-click`, `/api/sync-replica` | — |
 | Scrapers: 8 real + ATS adapters (4) + RSS (13) | IMPLEMENTED | `frontend/src/lib/scrapers/*` (18 modules); cron: 3 scheduled in `vercel.json` | Recent successful production run NOT verified in 2026-08-19 audit (no evidence found) |

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -14,55 +13,52 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch profile
-    const { data: profile } = await supabaseAdmin
-      .from("user_profiles")
-      .select("id, email, display_name, username, avatar_url, current_company, account_type")
-      .eq("id", user.id)
-      .single();
+    const { data: dbMembers, error } = await supabaseAdmin
+      .from("workspace_members")
+      .select("id, employer_id, email, role, status, created_at, updated_at")
+      .eq("employer_id", user.id)
+      .order("created_at", { ascending: true });
 
-    // Query other members with same organization/company if available
-    let members: any[] = [
-      {
-        id: user.id,
-        email: user.email,
-        display_name: profile?.display_name || user.email?.split("@")[0],
-        username: profile?.username,
-        role: "Primary Owner / Lead Recruiter",
-        is_owner: true,
-      },
+    if (error) throw error;
+
+    // Build complete list including the owner
+    const ownerRecord = {
+      id: `owner-${user.id}`,
+      email: user.email || "recruiter@workspace.internal",
+      role: "owner",
+      status: "active",
+      display_name: user.user_metadata?.display_name || user.user_metadata?.full_name || "Workspace Lead",
+      is_owner: true,
+      created_at: user.created_at || new Date().toISOString(),
+    };
+
+    const teamList = [
+      ownerRecord,
+      ...(dbMembers || []).map((m: any) => ({
+        id: m.id,
+        email: m.email,
+        role: m.role,
+        status: m.status,
+        display_name: m.email.split("@")[0],
+        is_owner: false,
+        created_at: m.created_at,
+      })),
     ];
 
-    if (profile?.current_company) {
-      const { data: colleagues } = await supabaseAdmin
-        .from("user_profiles")
-        .select("id, email, display_name, username, account_type")
-        .eq("current_company", profile.current_company)
-        .neq("id", user.id);
-
-      if (colleagues && colleagues.length > 0) {
-        members = members.concat(
-          colleagues.map((c: { id: string; email: string; display_name?: string; username?: string; account_type?: string }) => ({
-            id: c.id,
-            email: c.email,
-            display_name: c.display_name,
-            username: c.username,
-            role: "Co-Recruiter",
-            is_owner: false,
-          }))
-        );
-      }
-    }
-
-    return NextResponse.json({ members });
+    return NextResponse.json({
+      team: teamList,
+      members: teamList,
+      total: teamList.length,
+      seatsUsed: teamList.length,
+      maxSeats: 10,
+    });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to fetch team" }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -73,33 +69,77 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, role } = body;
 
-    if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    if (!email || !email.includes("@")) {
+      return NextResponse.json({ error: "Valid email is required" }, { status: 400 });
     }
 
-    // Check if user already exists on platform
-    const { data: targetUser } = await supabaseAdmin
-      .from("user_profiles")
-      .select("id, display_name, email")
-      .eq("email", email.trim().toLowerCase())
-      .maybeSingle();
+    const validRoles = ["admin", "recruiter", "hiring_manager", "interviewer"] as const;
+    const validatedRole = role && validRoles.includes(role as any) ? role : "recruiter";
 
-    if (targetUser) {
-      // Send notification to existing user
-      await supabaseAdmin.from("notifications").insert({
-        user_id: targetUser.id,
-        type: "system",
-        message: `You have been invited to join the recruitment team as a ${role || "Recruiter"}!`,
-        is_read: false,
-        created_at: new Date().toISOString(),
-      });
-    }
+    const { data: member, error } = await supabaseAdmin
+      .from("workspace_members")
+      .upsert(
+        {
+          employer_id: user.id,
+          email: email.trim().toLowerCase(),
+          role: validatedRole,
+          status: "active",
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "employer_id,email" }
+      )
+      .select()
+      .single();
+
+    if (error) throw error;
 
     return NextResponse.json({
       success: true,
-      message: `Workspace invite dispatched to ${email}`,
-    });
+      member: {
+        id: member.id,
+        email: member.email,
+        role: member.role,
+        status: member.status,
+        display_name: member.email.split("@")[0],
+        is_owner: false,
+      },
+    }, { status: 201 });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to invite team member" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Failed to add team member" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const user = await getAuthenticatedEmployerUser(request);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (!isAdminConfigured || !supabaseAdmin) {
+    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const memberId = searchParams.get("id");
+    const email = searchParams.get("email");
+
+    let query = supabaseAdmin
+      .from("workspace_members")
+      .delete()
+      .eq("employer_id", user.id);
+
+    if (memberId) {
+      query = query.eq("id", memberId);
+    } else if (email) {
+      query = query.eq("email", email.trim().toLowerCase());
+    } else {
+      return NextResponse.json({ error: "Member ID or email is required" }, { status: 400 });
+    }
+
+    const { error } = await query;
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, message: "Team member removed" });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || "Failed to remove team member" }, { status: 500 });
   }
 }

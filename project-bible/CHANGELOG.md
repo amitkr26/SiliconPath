@@ -9,7 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - clean/main branch
 
-- **2026-08-21 — Employer / Recruiter Portal Re-Architecture & Complete Rebuild (COMPLETE).**
+- **2026-08-22 — Phase 8.0: Employer Portal Hardening & True End-to-End Database Verification (COMPLETE).**
+  - **Root-Cause Fixes & Zero Mock Elimination:**
+    - Replaced all local `setTimeout` simulated states in `/employer/company`, `/employer/team`, `/employer/settings`, and `/employer/talent/[username]` with real database-backed API endpoints.
+    - Created real persistence routes: `/api/employer/company` (GET/PATCH), `/api/employer/invite` (POST reachout with real `conversations`, `messages`, and `notifications`), `/api/employer/team` (GET/POST/DELETE workspace seats), `/api/employer/settings` (GET/PATCH preferences), and `/api/employer/analytics` (pipeline SQL computations).
+    - Built universal `getAuthenticatedEmployerUser(request)` helper in `frontend/src/lib/employer-auth.ts` supporting both cookie sessions and `Authorization: Bearer <token>` headers for seamless browser and automated API authentication.
+    - Aligned all opportunity insert schemas with live Supabase PostgreSQL schema (resolved `organization_id`, omitted non-existent `created_by` column, mapped `salary_range`, and enforced lowercase category check constraint).
+    - Added status normalization in `/api/employer/applicants` and `/api/employer/applicants/[id]` mapping recruiter stages (`screening`, `shortlisted`, `interview`, `accepted`, `rejected`, `applied`) safely to live PostgreSQL `applications_status_check` constraint.
+  - **Stateful E2E Verification (`frontend/scripts/e2e-stateful-audit.mjs`):**
+    - 16/16 end-to-end verification steps passed: Unauthenticated 401 gate rejection, Candidate 403 route blocking, Employer position creation (201 Created), Public opportunities stream visibility, Job pause/resume toggling, Candidate application submission (201 Created), Employer ATS applicant discovery, ATS state machine stage advancement (`applied` -> `screening` -> `shortlisted` -> `interview` -> `accepted`), Talent sourcing candidate queries, Direct candidate reachout invitation dispatch, Real bidirectional messaging, Company workspace update persistence, Team seats and settings updates, Real SQL recruitment analytics calculations, and clean test data removal.
+  - **Verification Results:**
+    - Stateful E2E Audit: 16/16 steps PASS
+    - Jest Unit Tests: 14/14 suites, 117/117 tests PASS
+    - TypeScript: `npx tsc --noEmit` 0 errors PASS
+    - Production Build: `npm run build` (243/243 static and dynamic routes compiled) PASS
   - **Surfaces Separation:** Fully established the platform's 4 authoritative surfaces: Public, Candidate, Employer/Recruiter, and Admin. Employer experience operates within a dedicated Employer Suite shell (`BerojgarDegreeWala | Employer Suite`) with distinct branding, navigation, and zero exposure of candidate-only routes.
   - **Full Routing Matrix:**
     - `/employer` & `/employer/dashboard`: Recruiter cockpit with live DB metric cards, hiring stream, and active postings.

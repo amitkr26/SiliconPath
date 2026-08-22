@@ -1,35 +1,63 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const role = user.user_metadata?.role;
+  if (role !== "employer" && role !== "provider" && role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   if (!isAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
   try {
-    const [
-      { count: activeJobsCount },
-      { count: totalAppsCount },
-      { count: shortlistedAppsCount },
-      { count: candidateCount },
-    ] = await Promise.all([
-      supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("is_active", true),
-      supabaseAdmin.from("applications").select("*", { count: "exact", head: true }),
-      supabaseAdmin.from("applications").select("*", { count: "exact", head: true }).in("status", ["shortlisted", "interview", "accepted"]),
-      supabaseAdmin.from("user_profiles").select("*", { count: "exact", head: true }),
-    ]);
+    // 1. Fetch employer-scoped jobs
+    let jobQuery = supabaseAdmin
+      .from("opportunities")
+      .select("id, is_active");
+
+    if (role !== "admin") {
+      jobQuery = jobQuery.or(`created_by.eq.${user.id},employer_id.eq.${user.id}`);
+    }
+
+    const { data: myJobs } = await jobQuery;
+    const jobsList = myJobs || [];
+    const activeJobsCount = jobsList.filter((j: { is_active: boolean }) => j.is_active).length;
+    const myJobIds = jobsList.map((j: { id: string }) => j.id);
+
+    // 2. Fetch applications for employer's jobs
+    let totalAppsCount = 0;
+    let shortlistedAppsCount = 0;
+
+    if (myJobIds.length > 0) {
+      const { data: myApps } = await supabaseAdmin
+        .from("applications")
+        .select("id, status")
+        .in("opportunity_id", myJobIds);
+
+      const appsList = myApps || [];
+      totalAppsCount = appsList.length;
+      shortlistedAppsCount = appsList.filter((a: { status: string }) =>
+        a.status === "shortlisted" || a.status === "interview" || a.status === "accepted"
+      ).length;
+    }
+
+    // 3. Overall verified talent pool count
+    const { count: candidateCount } = await supabaseAdmin
+      .from("user_profiles")
+      .select("*", { count: "exact", head: true });
 
     return NextResponse.json({
-      activeJobs: activeJobsCount || 0,
-      totalApplications: totalAppsCount || 0,
-      shortlistedApplications: shortlistedAppsCount || 0,
+      activeJobs: activeJobsCount,
+      totalApplications: totalAppsCount,
+      shortlistedApplications: shortlistedAppsCount,
       totalTalentPool: candidateCount || 0,
     });
   } catch (err: any) {

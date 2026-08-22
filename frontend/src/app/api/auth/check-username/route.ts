@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     const { data: existingUser } = await supabaseAdmin
       .from("user_profiles")
       .select("username")
-      .eq("username", username)
+      .ilike("username", username)
       .maybeSingle();
 
     if (existingUser) {

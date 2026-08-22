@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -9,25 +9,34 @@ async function isEmployerAuthorized(userId: string, userMetadata: any, oppId: st
   if (role === "admin") return true;
   if (role !== "employer" && role !== "provider") return false;
 
-  // Check ownership of opportunity (IDOR security check)
   const { data: opp } = await supabaseAdmin
     .from("opportunities")
-    .select("created_by, employer_id")
+    .select("id, organization_id, created_by")
     .eq("id", oppId)
     .maybeSingle();
 
   if (!opp) return false;
-  // If created_by is unset or matches user
-  if (!opp.created_by && !opp.employer_id) return true;
-  return opp.created_by === userId || opp.employer_id === userId;
+
+  // P0.6: Employer must be the creator of the opportunity OR an admin
+  const isOwner = opp.created_by === userId;
+  if (!isOwner) {
+    // Also check if the organization belongs to this employer
+    const { data: org } = await supabaseAdmin
+      .from("organizations")
+      .select("id, created_by")
+      .eq("id", opp.organization_id)
+      .maybeSingle();
+    if (!org || org.created_by !== userId) return false;
+  }
+
+  return true;
 }
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -74,8 +83,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -125,8 +133,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {

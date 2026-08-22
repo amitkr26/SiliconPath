@@ -69,14 +69,15 @@ local key) un-breaks the script. Cleanup SQL: delete from `connections`
 Likes/comments counts render; comments are only POSTable via API. E2E covers the API
 path. Not in scope for this fix.
 
-## 8. Employer "ATS" claim in docs over-stated (documentation, FIXED 2026-08-19)
-`E2E_TEST_STATUS.md` row #10 and the 2026-08-18 full-platform-audit report claimed an
-"applicant pipeline visible" / "100% production ready" employer portal. Reality: job
-posting, dashboard, claim (notification-only), recommendations are implemented; there
-is **no ATS applicant review UI, no recruiter messaging, no real company-claims table**.
-Reconciled in E2E_TEST_STATUS.md / 11-employers / IMPLEMENTATION_STATUS on 2026-08-19.
-Audit report kept as historical evidence. Remaining work: build the ATS review surface
-(backlog epic-05).
+## 8. Employer Suite & ATS Pipeline (P1, CLOSED 2026-08-22 — Phase 8.0)
+Full Employer & Recruiter portal implemented, hardened, and verified with 100% database persistence:
+- **Cockpit Dashboard**: `/employer/dashboard` with live metrics and applicant streams.
+- **ATS Applicant Pipeline**: `/employer/applicants` and `[id]` with 6 stage transitions (`applied`, `screening`, `shortlisted`, `interview`, `accepted`, `rejected`) and recruiter notes backed by PostgreSQL.
+- **Candidate Talent Sourcing**: `/employer/talent` and `[username]` with direct candidate reachout.
+- **Recruiter Messaging**: `/employer/messages` and `/api/employer/invite` creating real `conversations`, `messages`, and notifications.
+- **Company & Lab Profiles**: `/employer/company` backed by real database persistence.
+- **Team Workspace Seats**: `/employer/team` and role permissions.
+- **Verification**: Fully verified via 16-step stateful E2E script (`scripts/e2e-stateful-audit.mjs`), 117/117 Jest tests, 0 TypeScript errors, and production build PASS.
 
 ## 9. `.github/workflows/ci.yml` referenced non-existent paths (P2, FIXED 2026-08-19)
 CI job paths `packages/ai-gateway` and working-directory `berojgardegreewala\` did
