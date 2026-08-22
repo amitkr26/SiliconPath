@@ -4,34 +4,35 @@
 
 ## Purpose
 
-This directory is the single source of truth for all engineering knowledge about BerojgarDegreeWala. Every architectural decision, every contract, every workflow, and every specification lives here. Any AI agent cloning this repository can read this documentation and continue development without requiring additional explanation from the owner.
+This directory is the single source of truth for all engineering knowledge about BerojgarDegreeWala / SiliconPath. Every architectural decision, every contract, every workflow, and every specification lives here. Any AI agent cloning this repository can read this documentation and continue development without requiring additional explanation from the owner.
 
 ## How to Use This Document
 
 1. Read `MASTER_INDEX.md` for the complete map of all documentation.
 2. Read `00-ai-operating-manual/` first if you are an AI agent — it contains the operating instructions for how to work within this repository.
-3. Navigate to the specific section relevant to your task.
+3. Read `FINAL_PLATFORM_AUDIT.md` for the latest verified forensic evidence gate results.
+4. Navigate to the specific section relevant to your task.
 
 ## Repository Map
 
 | Path | Content |
 |------|---------|
-| `frontend/` | Next.js 14 frontend + API (Vercel) |
-| `backend/` | Workspaces: `api` (validation), `ai-gateway` (LLM gateway), `server` (Express mirror) |
+| `frontend/` | Next.js 14 frontend + API + Employer Suite + Candidate Portal (Vercel) |
+| `backend/` | Workspaces: `api` (validation), `ai-gateway` (LLM gateway), `server` (Express mirror), `worker` (scrapers) |
 | `neon/` | Neon analytics database schema |
 | `project-bible/` | **You are here** — complete engineering documentation |
 | `scripts/` | Utility and setup scripts |
-| `docs/audit-reports/` | All audit & validation reports (moved here from `project-bible/reports/` on 2026-08-16) |
+| `docs/audit-reports/` | All audit & validation reports |
 | `docs/session-reports/` | Per-session work reports |
 
 ## Principles
 
 1. **AI-first**: Every document is written to be read and understood by AI agents as a primary audience.
-2. **Complete**: No placeholder content, no TODOs, no lorem ipsum.
+2. **Complete & Zero Mocks**: No placeholder content, no TODOs, no simulated `setTimeout` delays in production logic.
 3. **Justified**: Every architectural decision includes the rationale, tradeoffs, and alternatives considered.
 4. **Machine-readable**: Specifications are available in OpenAPI, JSON Schema, and other machine-parseable formats.
 5. **Free-tier by default**: The platform runs on free-tier services. Cloud credits may only supplement optional workloads.
 
 ---
 
-*Last updated: 2026-08-16*
+*Last updated: August 22, 2026 — Phase 8.1 Production Certified.*

@@ -1,4 +1,4 @@
-# MASTER INDEX — BerojgarDegreeWala Project Bible (v2, reconciled 2026-08-19)
+# MASTER INDEX — BerojgarDegreeWala Project Bible (v2, reconciled 2026-08-22)
 
 Navigation map for the entire project bible. All links point to real files. Statuses: `current` = describes live state · `historical` = dated/planning artifact, preserved as evidence.
 
@@ -7,7 +7,8 @@ Navigation map for the entire project bible. All links point to real files. Stat
 | Document | Purpose | Status |
 |----------|---------|--------|
 | [README.md](./README.md) | Repo map / entry point | current |
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | Authoritative architecture: CURRENT / TRANSITION / TARGET | current |
+| [FINAL_PLATFORM_AUDIT.md](./FINAL_PLATFORM_AUDIT.md) | Certified forensic evidence gate & live DB audit (15/15 PASS) | current |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Authoritative architecture: 4-Surface Monolith + Backend Replica | current |
 | [MASTER_INDEX.md](./MASTER_INDEX.md) | This index | current |
 | [CHANGELOG.md](./CHANGELOG.md) | Dated change log (most recent at top) | current |
 | [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) | Honest feature matrix with evidence | current |
