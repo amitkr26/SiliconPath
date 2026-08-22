@@ -99,6 +99,26 @@ export async function PATCH(
       updates.status = validStatus;
     }
 
+    // IDOR check: Verify the user is an admin OR owns the opportunity
+    const { data: existingApp, error: fetchErr } = await supabaseAdmin
+      .from("applications")
+      .select("id, opportunity_id, opportunity:opportunities(created_by, employer_id)")
+      .eq("id", id)
+      .single();
+
+    if (fetchErr || !existingApp) {
+      return NextResponse.json({ error: "Application not found" }, { status: 404 });
+    }
+
+    const role = user.user_metadata?.role || user.user_metadata?.account_type;
+    const opp = existingApp.opportunity as any;
+    if (role !== "admin" && opp) {
+      const isOwner = (opp.created_by && opp.created_by === user.id) || (opp.employer_id && opp.employer_id === user.id);
+      if (!isOwner && (opp.created_by || opp.employer_id)) {
+        return NextResponse.json({ error: "Forbidden: You do not have permission to mutate this applicant." }, { status: 403 });
+      }
+    }
+
     if (notes !== undefined) updates.notes = notes;
 
     const { data: updatedApp, error } = await supabaseAdmin

@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - clean/main branch
 
+- **2026-08-22 — Phase 8.1: Final Platform Forensic Evidence Gate & IDOR Hardening (COMPLETE).**
+  - **Live Database Source of Truth Inspection:**
+    - Verified all 5 additive PostgreSQL tables (`opportunities.created_by`, `opportunities.employer_id`, `opportunities.job_status`, `opportunities.screening_questions`, `company_claims`, `recruiter_saved_candidates`, `employer_settings`, `workspace_members`) and unique indexes (`user_profiles_username_lower_key`, `recruiter_saved_candidates_pkey`, `workspace_members_pkey`, `employer_settings_pkey`) directly against live Supabase PostgreSQL.
+  - **Multi-Employer IDOR Attack Matrix:**
+    - Executed 7 active cross-employer attack attempts using Employer A (`amit@excompany.in`), Employer B (`employer_b_audit@siliconpath.test`), and Candidate (`amittest1@berojgardegreewala.com`).
+    - Verified strict HTTP 403 Forbidden on unowned job reads, job updates, job deletes, applicant list queries, applicant status mutations, and unauthorized job invites.
+    - Verified strict HTTP 401 on unauthenticated access and HTTP 403 on candidate access to recruiter routes.
+  - **Forensic E2E Gate Suite (`frontend/scripts/forensic-full-suite.mjs`):**
+    - 15/15 gates passed including settings persistence lifecycle, team seat mutations and cross-employer isolation, dual-employer analytics scoping against direct SQL queries, full ATS stage progression, candidate saved list lifecycle, company claims submission and admin approval, case-insensitive username uniqueness (`audit_user_2026`, `Audit_User_2026`, `AUDIT_USER_2026`), and live HTTP security response headers (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Content-Security-Policy`, `Strict-Transport-Security`).
+  - **Verification:** `npx tsc --noEmit` (0 errors), `npx jest` (117/117 passing), `npm run build` (241/241 routes compiled). Verdict: READY.
+
 - **2026-08-22 — Phase 8.0: Employer Portal Hardening & True End-to-End Database Verification (COMPLETE).**
   - **Root-Cause Fixes & Zero Mock Elimination:**
     - Replaced all local `setTimeout` simulated states in `/employer/company`, `/employer/team`, `/employer/settings`, and `/employer/talent/[username]` with real database-backed API endpoints.

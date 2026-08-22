@@ -145,8 +145,10 @@ export async function POST(request: NextRequest) {
       slug: oppSlug,
       source_type: "employer_posted",
       is_active: true,
+      job_status: "active",
       posted_date: new Date().toISOString(),
       created_by: user.id,
+      employer_id: user.id,
     };
 
     const { data, error } = await supabaseAdmin
