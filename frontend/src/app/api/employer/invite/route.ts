@@ -25,26 +25,22 @@ export async function POST(request: NextRequest) {
     if (jobId) {
       const { data: opp } = await supabaseAdmin
         .from("opportunities")
-        .select("id, organization_id, created_by")
+        .select("id, organization_id, created_by, employer_id")
         .eq("id", jobId)
         .maybeSingle();
 
-      const role = user.user_metadata?.role;
-      if (role !== "admin" && opp) {
-        const isOwner = opp.created_by === user.id;
-        if (!isOwner) {
-          const { data: org } = await supabaseAdmin
-            .from("organizations")
-            .select("id, created_by")
-            .eq("id", opp.organization_id)
-            .maybeSingle();
+      if (!opp) {
+        return NextResponse.json({ error: "Job not found" }, { status: 404 });
+      }
 
-          if (org && org.created_by && org.created_by !== user.id) {
-            return NextResponse.json(
-              { error: "Candidate invitation forbidden for unowned job" },
-              { status: 403 }
-            );
-          }
+      const role = user.user_metadata?.role;
+      if (role !== "admin") {
+        const isOwner = (opp.created_by && opp.created_by === user.id) || (opp.employer_id && opp.employer_id === user.id);
+        if (!isOwner && (opp.created_by || opp.employer_id)) {
+          return NextResponse.json(
+            { error: "Forbidden: Candidate invitation forbidden for unowned job" },
+            { status: 403 }
+          );
         }
       }
     }

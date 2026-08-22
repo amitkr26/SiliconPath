@@ -11,14 +11,14 @@ async function isEmployerAuthorized(userId: string, userMetadata: any, oppId: st
 
   const { data: opp } = await supabaseAdmin
     .from("opportunities")
-    .select("id, organization_id, created_by")
+    .select("id, organization_id, created_by, employer_id")
     .eq("id", oppId)
     .maybeSingle();
 
   if (!opp) return false;
 
-  // P0.6: Employer must be the creator of the opportunity OR an admin
-  const isOwner = opp.created_by === userId;
+  // P0.6: Employer must be the creator/owner of the opportunity OR an admin
+  const isOwner = (opp.created_by && opp.created_by === userId) || (opp.employer_id && opp.employer_id === userId);
   if (!isOwner) {
     // Also check if the organization belongs to this employer
     const { data: org } = await supabaseAdmin

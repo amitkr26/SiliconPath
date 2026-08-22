@@ -53,16 +53,24 @@ export async function GET(request: NextRequest) {
       `)
       .order("applied_at", { ascending: false });
 
-    // Filter by employer's jobs only (prevents IDOR across employers)
-    if (jobId && jobId !== "all") {
-      // If requesting a specific job, verify ownership unless admin
-      const role = user.user_metadata?.role;
-      if (role !== "admin" && jobIds.length > 0 && !jobIds.includes(jobId)) {
-        return NextResponse.json({ error: "Forbidden: You do not own this job" }, { status: 403 });
+    // Filter by employer's jobs only (strictly prevents IDOR across employers)
+    const role = user.user_metadata?.role;
+    if (role !== "admin") {
+      if (jobId && jobId !== "all") {
+        if (!jobIds.includes(jobId)) {
+          return NextResponse.json({ error: "Forbidden: You do not own this job" }, { status: 403 });
+        }
+        appsQuery = appsQuery.eq("opportunity_id", jobId);
+      } else {
+        if (jobIds.length === 0) {
+          return NextResponse.json({ applicants: [], applications: [], total: 0 });
+        }
+        appsQuery = appsQuery.in("opportunity_id", jobIds);
       }
-      appsQuery = appsQuery.eq("opportunity_id", jobId);
-    } else if (jobIds.length > 0) {
-      appsQuery = appsQuery.in("opportunity_id", jobIds);
+    } else {
+      if (jobId && jobId !== "all") {
+        appsQuery = appsQuery.eq("opportunity_id", jobId);
+      }
     }
 
     if (stage && stage !== "all") {
