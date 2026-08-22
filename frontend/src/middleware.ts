@@ -134,8 +134,12 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  const directPassword = request.headers.get("x-admin-password");
+  const isAdminRequest = Boolean(adminPassword && directPassword && directPassword === adminPassword);
+
   // Auth gate check
-  if ((isGated || isEmployerOnly) && !user) {
+  if ((isGated || isEmployerOnly) && !user && !isAdminRequest) {
     if (path.startsWith('/api/')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -151,7 +155,7 @@ export async function middleware(request: NextRequest) {
   // "admin"). Admin APIs are NOT gated here — the admin console authenticates
   // via x-admin-password/HMAC tokens (no Supabase session), enforced
   // fail-closed by requireAdmin at every /api/admin route.
-  if (isEmployerOnly && user) {
+  if (isEmployerOnly && user && !isAdminRequest) {
     // Same role source the app's own checks use (useUser.ts falls back to
     // account_type — legacy signups predate the `role` metadata field).
     const role = user.user_metadata?.role as string | undefined;

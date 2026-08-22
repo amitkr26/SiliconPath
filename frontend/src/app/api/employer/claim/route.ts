@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { z } from "zod";
 
@@ -12,15 +13,16 @@ const claimSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const isAdmin = verifyAdmin(request);
   const user = await getAuthenticatedEmployerUser(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isAdmin && !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
   try {
-    const role = user.user_metadata?.role;
+    const role = user?.user_metadata?.role;
     let query = supabaseAdmin
       .from("company_claims")
       .select(`
@@ -36,8 +38,8 @@ export async function GET(request: NextRequest) {
       `)
       .order("created_at", { ascending: false });
 
-    if (role !== "admin") {
-      query = query.eq("claimed_by", user.id);
+    if (!isAdmin && role !== "admin") {
+      query = query.eq("claimed_by", user!.id);
     }
 
     const { data: claims, error } = await query;
@@ -105,11 +107,10 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const isAdmin = verifyAdmin(request);
   const user = await getAuthenticatedEmployerUser(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const role = user.user_metadata?.role;
-  if (role !== "admin") {
+  if (!isAdmin && user?.user_metadata?.role !== "admin") {
     return NextResponse.json({ error: "Forbidden: Admin access required to review claims" }, { status: 403 });
   }
 
@@ -125,7 +126,7 @@ export async function PATCH(request: NextRequest) {
       .from("company_claims")
       .update({
         status,
-        reviewed_by: user.id,
+        reviewed_by: user?.id || null,
         reviewed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
