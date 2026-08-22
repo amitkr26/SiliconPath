@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -8,8 +8,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -28,7 +27,7 @@ export async function GET(
         notes,
         opportunity_id,
         user_id,
-        opportunity:opportunities(id, title, category, location, stipend, slug, organization_id, created_by, employer_id),
+        opportunity:opportunities(id, title, category, location, salary_range, slug, organization_id, created_by, employer_id),
         user_profile:user_profiles!applications_user_id_fkey(
           id,
           display_name,
@@ -57,7 +56,8 @@ export async function GET(
     const role = user.user_metadata?.role || user.user_metadata?.account_type;
     const opp = application.opportunity as any;
     if (role !== "admin" && opp) {
-      if (opp.created_by && opp.created_by !== user.id && opp.employer_id && opp.employer_id !== user.id) {
+      const isOwner = (opp.created_by && opp.created_by === user.id) || (opp.employer_id && opp.employer_id === user.id);
+      if (!isOwner && (opp.created_by || opp.employer_id)) {
         return NextResponse.json({ error: "Forbidden: You do not have access to this applicant." }, { status: 403 });
       }
     }
@@ -72,8 +72,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -89,7 +88,17 @@ export async function PATCH(
     const updates: Record<string, any> = {
       updated_at: new Date().toISOString(),
     };
-    if (status) updates.status = status;
+
+    if (status) {
+      const validStatus =
+        status === "accepted" || status === "rejected" || status === "shortlisted" || status === "applied"
+          ? status
+          : status === "screening" || status === "interview"
+          ? "shortlisted"
+          : "applied";
+      updates.status = validStatus;
+    }
+
     if (notes !== undefined) updates.notes = notes;
 
     const { data: updatedApp, error } = await supabaseAdmin
@@ -103,6 +112,6 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, application: updatedApp });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to update application" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Failed to update applicant" }, { status: 500 });
   }
 }

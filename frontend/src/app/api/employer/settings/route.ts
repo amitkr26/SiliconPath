@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 
-export const dynamic = "force-dynamic";
-
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -14,28 +11,37 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { data: profile } = await supabaseAdmin
-      .from("user_profiles")
+    // Fetch employer settings from the employer_settings table
+    const { data, error } = await supabaseAdmin
+      .from("employer_settings")
       .select("*")
-      .eq("id", user.id)
+      .eq("employer_id", user.id)
       .single();
 
-    return NextResponse.json({
-      settings: {
-        emailAlerts: true,
-        instantApplicantAlert: true,
-        weeklyDigest: true,
-        isProfilePublic: profile?.is_profile_public ?? true,
-      },
-    });
+    if (error && error.code !== "PGRST116") { // PGRST116 = no rows returned
+      console.error("Employer settings fetch error:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // Return defaults if no settings exist yet
+    const settings = data ? {
+      emailAlerts: data.email_alerts ?? true,
+      instantApplicantAlert: data.instant_applicant_alert ?? true,
+      weeklyDigest: data.weekly_digest ?? true,
+    } : {
+      emailAlerts: true,
+      instantApplicantAlert: true,
+      weeklyDigest: true,
+    };
+
+    return NextResponse.json({ settings });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to fetch settings" }, { status: 500 });
   }
 }
 
 export async function PATCH(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -44,20 +50,30 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { isProfilePublic } = body;
+    const { emailAlerts, instantApplicantAlert, weeklyDigest } = body;
 
-    if (isProfilePublic !== undefined) {
-      await supabaseAdmin
-        .from("user_profiles")
-        .update({
-          is_profile_public: isProfilePublic,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", user.id);
-    }
+    const updates: Record<string, any> = {
+      updated_at: new Date().toISOString(),
+    };
 
-    return NextResponse.json({ success: true, message: "Settings saved successfully" });
+    if (typeof emailAlerts === "boolean") updates.email_alerts = emailAlerts;
+    if (typeof instantApplicantAlert === "boolean") updates.instant_applicant_alert = instantApplicantAlert;
+    if (typeof weeklyDigest === "boolean") updates.weekly_digest = weeklyDigest;
+
+    // Upsert: insert if not exists, update if exists
+    const { error } = await supabaseAdmin
+      .from("employer_settings")
+      .upsert({
+        employer_id: user.id,
+        ...updates,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, settings: updates });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to update settings" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Failed to save settings" }, { status: 500 });
   }
 }

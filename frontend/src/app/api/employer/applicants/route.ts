@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -18,20 +17,15 @@ export async function GET(request: NextRequest) {
   const stage = searchParams.get("stage");
 
   try {
-    // 1. Get opportunities posted by this employer (or all active if employer is admin)
-    let jobsQuery = supabaseAdmin
+    // P0.7: First, get all jobs posted by this employer
+    // Note: migration adds created_by; employer_id not yet in schema
+    const { data: employerJobs } = await supabaseAdmin
       .from("opportunities")
-      .select("id, title, category, location, stipend");
+      .select("id")
+      .eq("created_by", user.id);
 
-    const role = user.user_metadata?.role;
-    if (role !== "admin") {
-      jobsQuery = jobsQuery.or(`created_by.eq.${user.id},employer_id.eq.${user.id}`);
-    }
+    const jobIds: string[] = (employerJobs || []).map((j: any) => j.id);
 
-    const { data: myJobs } = await jobsQuery;
-    const jobIds = (myJobs || []).map((j: any) => j.id);
-
-    // If employer has specific jobs, filter applications by them
     let appsQuery = supabaseAdmin
       .from("applications")
       .select(`
@@ -41,7 +35,7 @@ export async function GET(request: NextRequest) {
         notes,
         opportunity_id,
         user_id,
-        opportunity:opportunities(id, title, category, location, stipend, slug),
+        opportunity:opportunities(id, title, category, location, salary_range, slug),
         user_profile:user_profiles!applications_user_id_fkey(
           id,
           display_name,
@@ -59,9 +53,15 @@ export async function GET(request: NextRequest) {
       `)
       .order("applied_at", { ascending: false });
 
+    // Filter by employer's jobs only (prevents IDOR across employers)
     if (jobId && jobId !== "all") {
+      // If requesting a specific job, verify ownership unless admin
+      const role = user.user_metadata?.role;
+      if (role !== "admin" && jobIds.length > 0 && !jobIds.includes(jobId)) {
+        return NextResponse.json({ error: "Forbidden: You do not own this job" }, { status: 403 });
+      }
       appsQuery = appsQuery.eq("opportunity_id", jobId);
-    } else if (jobIds.length > 0 && role !== "admin") {
+    } else if (jobIds.length > 0) {
       appsQuery = appsQuery.in("opportunity_id", jobIds);
     }
 
@@ -72,20 +72,28 @@ export async function GET(request: NextRequest) {
     const { data: applications, error } = await appsQuery;
 
     if (error) {
-      // Fallback: if foreign key fails or empty, fetch basic applications
-      const { data: fallbackApps } = await supabaseAdmin
+      let fallbackQuery = supabaseAdmin
         .from("applications")
         .select("*, opportunity:opportunities(*)")
-        .order("applied_at", { ascending: false })
-        .limit(50);
+        .order("applied_at", { ascending: false });
+
+      if (jobId && jobId !== "all") {
+        fallbackQuery = fallbackQuery.eq("opportunity_id", jobId);
+      } else if (jobIds.length > 0) {
+        fallbackQuery = fallbackQuery.in("opportunity_id", jobIds);
+      }
+
+      const { data: fallbackApps } = await fallbackQuery;
 
       return NextResponse.json({
+        applicants: fallbackApps || [],
         applications: fallbackApps || [],
         total: (fallbackApps || []).length,
       });
     }
 
     return NextResponse.json({
+      applicants: applications || [],
       applications: applications || [],
       total: (applications || []).length,
     });
@@ -95,8 +103,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -111,23 +118,37 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Application ID is required" }, { status: 400 });
     }
 
-    const updates: Record<string, any> = {
+    const validStatus = status === "accepted" || status === "rejected" || status === "shortlisted" || status === "applied"
+      ? status
+      : (status === "screening" || status === "interview")
+      ? "shortlisted"
+      : "applied";
+
+    const updatePayload: Record<string, any> = {
+      status: validStatus,
       updated_at: new Date().toISOString(),
     };
-    if (status) updates.status = status;
-    if (notes !== undefined) updates.notes = notes;
+
+    if (notes !== undefined) {
+      updatePayload.notes = notes;
+    }
 
     const { data, error } = await supabaseAdmin
       .from("applications")
-      .update(updates)
+      .update(updatePayload)
       .eq("id", id)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
-    return NextResponse.json({ success: true, application: data });
+    return NextResponse.json({
+      success: true,
+      application: data,
+    });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to update application" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Failed to update applicant" }, { status: 500 });
   }
 }

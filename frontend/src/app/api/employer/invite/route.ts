@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -15,13 +14,41 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { candidateId, candidateUsername, jobId, message } = body;
+    const { candidateId, candidateUsername, message } = body;
+    const jobId = body.jobId || body.opportunityId;
 
     if (!jobId || (!candidateId && !candidateUsername)) {
       return NextResponse.json({ error: "Candidate and Job ID are required" }, { status: 400 });
     }
 
-    // 1. Resolve candidate ID if username passed
+    // 0. Verify employer ownership of the job
+    if (jobId) {
+      const { data: opp } = await supabaseAdmin
+        .from("opportunities")
+        .select("id, organization_id, created_by")
+        .eq("id", jobId)
+        .maybeSingle();
+
+      const role = user.user_metadata?.role;
+      if (role !== "admin" && opp) {
+        const isOwner = opp.created_by === user.id;
+        if (!isOwner) {
+          const { data: org } = await supabaseAdmin
+            .from("organizations")
+            .select("id, created_by")
+            .eq("id", opp.organization_id)
+            .maybeSingle();
+
+          if (org && org.created_by && org.created_by !== user.id) {
+            return NextResponse.json(
+              { error: "Candidate invitation forbidden for unowned job" },
+              { status: 403 }
+            );
+          }
+        }
+      }
+    }
+
     let resolvedCandidateId = candidateId;
     if (!resolvedCandidateId && candidateUsername) {
       const { data: cand } = await supabaseAdmin
@@ -36,70 +63,79 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Candidate not found" }, { status: 404 });
     }
 
-    // 2. Fetch opportunity details
-    const { data: opp } = await supabaseAdmin
-      .from("opportunities")
-      .select("id, title, slug")
-      .eq("id", jobId)
-      .single();
+    // 1. Fetch or create direct conversation between employer and candidate (canonical ordering)
+    const a = user.id < resolvedCandidateId ? user.id : resolvedCandidateId;
+    const b = user.id < resolvedCandidateId ? resolvedCandidateId : user.id;
 
-    if (!opp) {
-      return NextResponse.json({ error: "Job opportunity not found" }, { status: 404 });
-    }
-
-    // 3. Find or create conversation in conversations table
+    let conversationId: string | null = null;
     const { data: existingConv } = await supabaseAdmin
       .from("conversations")
       .select("id")
-      .or(`and(participant_a.eq.${user.id},participant_b.eq.${resolvedCandidateId}),and(participant_a.eq.${resolvedCandidateId},participant_b.eq.${user.id})`)
+      .eq("participant_a", a)
+      .eq("participant_b", b)
       .maybeSingle();
 
-    let convId = existingConv?.id;
-    if (!convId) {
-      const { data: newConv, error: convErr } = await supabaseAdmin
+    if (existingConv) {
+      conversationId = existingConv.id;
+    } else {
+      const { data: newConv, error: convError } = await supabaseAdmin
         .from("conversations")
         .insert({
-          participant_a: user.id,
-          participant_b: resolvedCandidateId,
+          participant_a: a,
+          participant_b: b,
           last_message_at: new Date().toISOString(),
         })
         .select("id")
         .single();
-      if (convErr) throw convErr;
-      convId = newConv.id;
+
+      if (convError) {
+        // Fallback search if race occurred
+        const { data: racedConv } = await supabaseAdmin
+          .from("conversations")
+          .select("id")
+          .eq("participant_a", a)
+          .eq("participant_b", b)
+          .maybeSingle();
+        if (racedConv) conversationId = racedConv.id;
+        else throw convError;
+      } else {
+        conversationId = newConv.id;
+      }
     }
 
-    // 4. Send message in messages table
-    const invitationBody = message
-      ? `${message}\n\n👉 Position Details: /opportunities/${opp.slug || opp.id}`
-      : `Hello! We reviewed your hardware profile and would like to invite you to apply for our position: "${opp.title}".\n\n👉 Review & Apply: /opportunities/${opp.slug || opp.id}`;
+    // 2. Insert invitation reachout message
+    const invitationText = message
+      ? `[Direct Opportunity Invitation] ${message}`
+      : "Hello! We reviewed your profile on SiliconPath and would like to invite you to apply for our open position.";
 
-    await supabaseAdmin.from("messages").insert({
-      conversation_id: convId,
-      sender_id: user.id,
-      body: invitationBody,
-      created_at: new Date().toISOString(),
-    });
+    const { data: messageRecord, error: msgError } = await supabaseAdmin
+      .from("messages")
+      .insert({
+        conversation_id: conversationId,
+        sender_id: user.id,
+        body: invitationText,
+        created_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
 
-    // 5. Create real notification for candidate
+    if (msgError) throw msgError;
+
+    // 3. Create persistent notification for candidate
     await supabaseAdmin.from("notifications").insert({
       user_id: resolvedCandidateId,
-      type: "opportunity",
-      message: `You were invited to apply for "${opp.title}"! Check your messages.`,
+      type: "invitation",
+      message: `You received a direct recruitment invitation from @${user.user_metadata?.username || "recruiter"}!`,
       is_read: false,
-      created_at: new Date().toISOString(),
-      metadata: {
-        opportunity_id: opp.id,
-        conversation_id: convId,
-      },
     });
 
     return NextResponse.json({
       success: true,
-      message: "Invitation sent successfully!",
-      conversationId: convId,
+      conversationId,
+      message: messageRecord,
     });
   } catch (err: any) {
+    console.error("Employer Invite API Error:", err);
     return NextResponse.json({ error: err.message || "Failed to send invitation" }, { status: 500 });
   }
 }

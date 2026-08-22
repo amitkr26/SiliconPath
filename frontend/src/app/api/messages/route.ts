@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin } from "@/lib/supabase";
+
+export const dynamic = "force-dynamic";
 
 interface ConvRow {
   id: string;
@@ -16,12 +18,9 @@ interface OtherProfile {
   headline: string | null;
 }
 
-// GET: conversations for the current user (v2: participant_a/b, messages.body).
-export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+// GET: conversations for the current user
+export async function GET(request: NextRequest) {
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { data: convs, error } = await supabaseAdmin
@@ -58,10 +57,17 @@ export async function GET() {
 
       return {
         id: c.id,
-        last_message_at: c.last_message_at,
-        other_user: (profile || null) as OtherProfile | null,
-        last_message_preview: last?.body || "No messages yet",
-        unread_count: unread || 0,
+        updated_at: c.last_message_at,
+        last_message: last ? { content: last.body, created_at: last.created_at } : null,
+        unread_count: unread ?? 0,
+        other_user: profile
+          ? {
+              id: profile.id,
+              display_name: profile.display_name,
+              avatar_url: profile.avatar_url,
+              headline: profile.headline,
+            }
+          : { id: otherId, display_name: "Member" },
       };
     })
   );
@@ -69,12 +75,9 @@ export async function GET() {
   return NextResponse.json({ conversations: enriched });
 }
 
-// POST: start a conversation + send first message (v2 schema).
+// POST: send message to a conversation or recipient
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   let raw: Record<string, unknown>;
@@ -84,41 +87,56 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const participantId = String(raw.participantId || raw.recipientId || raw.recipient_id || raw.participant_id || "");
+  let conversationId = String(raw.conversationId || raw.conversation_id || "");
+  let participantId = String(raw.participantId || raw.recipientId || raw.recipient_id || raw.participant_id || "");
   const content = String(raw.content || raw.body || raw.message || "");
 
-  if (!participantId || !participantId.includes("-")) {
-    return NextResponse.json({ error: "recipientId is required" }, { status: 400 });
-  }
   if (!content.trim()) {
     return NextResponse.json({ error: "content is required" }, { status: 400 });
+  }
+
+  if (conversationId && !participantId) {
+    const { data: conv } = await supabaseAdmin
+      .from("conversations")
+      .select("participant_a, participant_b")
+      .eq("id", conversationId)
+      .maybeSingle();
+
+    if (conv) {
+      participantId = conv.participant_a === user.id ? conv.participant_b : conv.participant_a;
+    }
+  }
+
+  if (!conversationId && (!participantId || !participantId.includes("-"))) {
+    return NextResponse.json({ error: "recipientId or conversationId is required" }, { status: 400 });
   }
 
   if (participantId === user.id) {
     return NextResponse.json({ error: "Cannot message yourself" }, { status: 400 });
   }
 
-  const a = user.id < participantId ? user.id : participantId;
-  const b = user.id < participantId ? participantId : user.id;
+  if (!conversationId && participantId) {
+    const a = user.id < participantId ? user.id : participantId;
+    const b = user.id < participantId ? participantId : user.id;
 
-  const { data: existing } = await supabaseAdmin
-    .from("conversations")
-    .select("id")
-    .eq("participant_a", a)
-    .eq("participant_b", b)
-    .maybeSingle();
-
-  let conversationId: string;
-  if (existing) {
-    conversationId = existing.id;
-  } else {
-    const { data: created, error: createErr } = await supabaseAdmin
+    const { data: existing } = await supabaseAdmin
       .from("conversations")
-      .insert({ participant_a: a, participant_b: b })
       .select("id")
-      .single();
-    if (createErr) return NextResponse.json({ error: createErr.message }, { status: 500 });
-    conversationId = created.id;
+      .eq("participant_a", a)
+      .eq("participant_b", b)
+      .maybeSingle();
+
+    if (existing) {
+      conversationId = existing.id;
+    } else {
+      const { data: created, error: createErr } = await supabaseAdmin
+        .from("conversations")
+        .insert({ participant_a: a, participant_b: b, last_message_at: new Date().toISOString() })
+        .select("id")
+        .single();
+      if (createErr) return NextResponse.json({ error: createErr.message }, { status: 500 });
+      conversationId = created.id;
+    }
   }
 
   const { data: message, error: msgErr } = await supabaseAdmin

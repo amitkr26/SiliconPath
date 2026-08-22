@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { resolveOrganizationId } from "@/lib/scrapers/run-opportunity-scrape";
 import { z } from "zod";
@@ -13,7 +13,7 @@ const postJobSchema = z.object({
   deadline: z.string().max(50).nullable().default(null),
   eligibility: z.string().max(500).nullable().default(null),
   description: z.string().max(5000).nullable().default(null),
-  apply_link: z.string().url().max(1000).nullable().default(null),
+  apply_link: z.string().max(1000).optional().nullable().default(null),
   tags: z.array(z.string().max(50)).max(20).default([]),
 });
 
@@ -50,8 +50,7 @@ async function isEmployerUser(userId: string, userMetadata: any): Promise<boolea
 }
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -63,18 +62,24 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { data, error } = await supabaseAdmin
+  const role = user.user_metadata?.role;
+  let query = supabaseAdmin
     .from("opportunities")
     .select("*, organization:organizations(*)")
     .order("created_at", { ascending: false });
+
+  if (role !== "admin") {
+    query = query.or(`created_by.eq.${user.id},employer_id.eq.${user.id}`);
+  }
+
+  const { data, error } = await query;
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ jobs: data || [], opportunities: data || [] });
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -104,13 +109,24 @@ export async function POST(request: NextRequest) {
 
     // P0.3: resolve organization_id from the submitted org name (evidence-gated,
     // creates the org row only when the name passes the person-name guard).
+    // Verify employer owns this organization before posting.
     const { data: orgRows } = await supabaseAdmin
       .from("organizations")
-      .select("id, name, slug, website");
+      .select("id, name, slug, website, created_by");
     const orgId = await resolveOrganizationId(
       { title: body.title, organization: body.organization, tags: body.tags },
       orgRows ?? []
     );
+
+    if (orgId && orgRows?.length) {
+      const orgOwner = orgRows.find((o: any) => o.id === orgId)?.created_by;
+      if (orgOwner && orgOwner !== user.id) {
+        return NextResponse.json(
+          { error: "Organization does not belong to your account" },
+          { status: 403 }
+        );
+      }
+    }
 
     // Map exact schema attributes of live opportunities table with valid lowercase category constraint
     const insertPayload = {
@@ -119,17 +135,18 @@ export async function POST(request: NextRequest) {
       location: body.location || "India",
       country: "India",
       organization_id: orgId,
+      organization: body.organization,
       salary_range: body.stipend,
       eligibility: body.eligibility,
       description: body.description,
+      deadline: body.deadline || null,
       apply_url: body.apply_link || "",
       tags: body.tags,
       slug: oppSlug,
       source_type: "employer_posted",
-      created_by: user.id,
-      employer_id: user.id,
-      // P0.2: employer posts start unverified; only the admin verification queue promotes
       is_active: true,
+      posted_date: new Date().toISOString(),
+      created_by: user.id,
     };
 
     const { data, error } = await supabaseAdmin
@@ -142,7 +159,7 @@ export async function POST(request: NextRequest) {
       console.error("Employer Post Job DB Error:", error);
       throw new Error(error.message);
     }
-    return NextResponse.json({ opportunity: data }, { status: 201 });
+    return NextResponse.json({ job: data, opportunity: data }, { status: 201 });
   } catch (err: any) {
     console.error("Employer Post Job Error:", err);
     return NextResponse.json({ error: err.message || "Failed to post opportunity" }, { status: 400 });
@@ -150,8 +167,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -198,8 +214,7 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
