@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { searchOpportunities } from "@/lib/opportunities-query";
 import { mapDbOpportunityToClient } from "@/lib/utils";
+import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 import type { Opportunity, NewsArticle } from "@/types";
 
 import PublicHome from "@/components/home/PublicHome";
@@ -17,7 +18,8 @@ async function getPublicStats() {
     return { total: 3571, jrf: 345, phd: 218, govt: 180, verified: 3241 };
   }
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = computeIstToday();
+  const availFilter = buildAvailabilityDbFilter(today);
 
   const [
     { count: totalActive },
@@ -32,34 +34,42 @@ async function getPublicStats() {
       .eq("is_active", true)
       .neq("verification_status", "rejected")
       .neq("verification_status", "expired")
-      .or(`deadline.gte.${today},deadline.is.null`),
+      .neq("verification_status", "link_unavailable")
+      .or(availFilter),
     supabaseAdmin
       .from("opportunities")
       .select("*", { count: "exact", head: true })
       .eq("is_active", true)
       .neq("verification_status", "rejected")
       .neq("verification_status", "expired")
-      .ilike("category", "%jrf%"),
+      .neq("verification_status", "link_unavailable")
+      .ilike("category", "%jrf%")
+      .or(availFilter),
     supabaseAdmin
       .from("opportunities")
       .select("*", { count: "exact", head: true })
       .eq("is_active", true)
       .neq("verification_status", "rejected")
       .neq("verification_status", "expired")
-      .ilike("category", "%phd%"),
+      .neq("verification_status", "link_unavailable")
+      .ilike("category", "%phd%")
+      .or(availFilter),
     supabaseAdmin
       .from("opportunities")
       .select("*", { count: "exact", head: true })
       .eq("is_active", true)
       .neq("verification_status", "rejected")
       .neq("verification_status", "expired")
-      .ilike("category", "%govt%"),
+      .neq("verification_status", "link_unavailable")
+      .ilike("category", "%govt%")
+      .or(availFilter),
     supabaseAdmin
       .from("opportunities")
       .select("*", { count: "exact", head: true })
       .eq("is_active", true)
       .eq("verification_status", "verified")
-      .or(`deadline.gte.${today},deadline.is.null`),
+      .neq("verification_status", "link_unavailable")
+      .or(availFilter),
   ]);
 
   return {
@@ -194,7 +204,7 @@ export default async function HomePage() {
   // B. ADMIN / GOVERNANCE HOME
   // -------------------------------------------------------------
   if (role === "admin") {
-    const today = new Date().toISOString().split("T")[0];
+    const today = computeIstToday();
     let totalOpp = 3595;
     let activeOpp = 3571;
     let expiredOpp = 23;
@@ -210,8 +220,12 @@ export default async function HomePage() {
         { count: cUsers },
       ] = await Promise.all([
         supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }),
-        supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("is_active", true).neq("verification_status", "rejected").neq("verification_status", "expired"),
-        supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).or(`verification_status.eq.expired,deadline.lt.${today}`),
+        supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true })
+          .eq("is_active", true).neq("verification_status", "rejected")
+          .neq("verification_status", "expired").neq("verification_status", "link_unavailable")
+          .or(buildAvailabilityDbFilter(today)),
+        supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true })
+          .or(`verification_status.eq.expired,deadline.lt.${today}`),
         supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("verification_status", "pending"),
         supabaseAdmin.from("user_profiles").select("*", { count: "exact", head: true }),
       ]);

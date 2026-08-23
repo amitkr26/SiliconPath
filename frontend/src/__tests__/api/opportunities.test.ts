@@ -34,7 +34,7 @@ jest.mock('next/server', () => {
 });
 
 const INSERT_RESULT = { data: [{ id: '1', title: 'Test', organization: 'Test Org' }], error: null };
-const SELECT_RESULT = { data: [{ id: '1', title: 'JRF at IIT', category: 'jrf' }], error: null };
+const SELECT_RESULT = { data: [{ id: '1', title: 'JRF at IIT', category: 'jrf', is_active: true, deadline: '2026-12-31', verification_status: 'verified', created_at: '2026-08-20T00:00:00Z' }], error: null };
 
 function makeChain(finalResult: typeof SELECT_RESULT) {
   const chain: any = (...args: any[]) => chain;

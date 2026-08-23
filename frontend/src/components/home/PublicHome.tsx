@@ -15,17 +15,9 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 
-const ReviewsSection = nextDynamic(() => import("@/components/ReviewsSection"), {
-  loading: () => <div className="h-64 bg-white border-2 border-slate-900 rounded-2xl animate-pulse" />,
-});
-
-const FaqSection = nextDynamic(() => import("@/components/FaqSection"), {
-  loading: () => <div className="h-64 bg-white border-2 border-slate-900 rounded-2xl animate-pulse" />,
-});
-
-const SubscribeSection = nextDynamic(() => import("@/components/SubscribeSection"), {
-  loading: () => <div className="h-48 bg-blue-600 border-2 border-slate-900 rounded-2xl animate-pulse" />,
-});
+import ReviewsSection from "@/components/ReviewsSection";
+import FaqSection from "@/components/FaqSection";
+import SubscribeSection from "@/components/SubscribeSection";
 
 const PREMIER_ORGS = [
   {

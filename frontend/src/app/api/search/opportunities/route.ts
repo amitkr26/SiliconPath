@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { apiError } from "@/lib/api-utils";
+import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -11,10 +12,7 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
   const offset = parseInt(searchParams.get("offset") || "0");
 
-  // Canonical IST date for expiry filtering (consistent with opportunities-query.ts)
-  const now = new Date();
-  const istDate = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
-  const today = istDate.toISOString().split("T")[0];
+  const today = computeIstToday();
 
   let query = supabase
     .from("opportunities")
@@ -22,7 +20,8 @@ export async function GET(request: NextRequest) {
     .eq("is_active", true)
     .neq("verification_status", "rejected")
     .neq("verification_status", "expired")
-    .or(`deadline.gte.${today},deadline.is.null`);
+    .neq("verification_status", "link_unavailable")
+    .or(buildAvailabilityDbFilter(today));
 
   if (q) {
     const { data: orgMatches } = await supabase
@@ -48,10 +47,12 @@ export async function GET(request: NextRequest) {
     .range(offset, offset + limit - 1);
 
   if (error) return apiError(error, "search-opportunities");
+  // Post-filter: canonical availability
+  const filtered = (data || []).filter((opp: any) => isCurrentlyAvailable(opp, today));
   // Preserve the wire contract: legacy `organization` text rendered as the embedded org name.
-  const opportunities = (data || []).map((opp: any) => ({
+  const opportunities = filtered.map((opp: any) => ({
     ...opp,
     organization: opp.organization?.name ?? null,
   }));
-  return NextResponse.json({ opportunities, count: count || 0 });
+  return NextResponse.json({ opportunities, count: opportunities.length });
 }

@@ -1,5 +1,6 @@
 ﻿import { MetadataRoute } from "next";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 
 const STATIC_PAGES: { url: string; freq: "daily" | "hourly" | "weekly" | "monthly"; priority: number }[] = [
   { url: "https://berojgardegreewala.vercel.app", freq: "daily", priority: 1 },
@@ -56,21 +57,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   if (isAdminConfigured && supabaseAdmin?.from) {
-    // Canonical IST date for expiry filtering
-    const now = new Date();
-    const istDate = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
-    const today = istDate.toISOString().split("T")[0];
+    const today = computeIstToday();
 
-    // Opportunity detail pages — only active, verified, non-expired
+    // Opportunity detail pages — only active, verified, currently available
     const { data: opportunities } = await supabaseAdmin
       .from("opportunities")
-      .select("slug, created_at")
+      .select("slug, created_at, category, deadline, verification_status, posted_at, last_link_checked")
       .eq("is_active", true)
       .eq("verification_status", "verified")
-      .or(`deadline.gte.${today},deadline.is.null`);
+      .or(buildAvailabilityDbFilter(today));
 
     if (opportunities) {
-      for (const opp of opportunities as Array<{ slug: string; created_at?: string }>) {
+      const available = opportunities.filter((opp: any) => isCurrentlyAvailable(opp, today));
+      for (const opp of available as Array<{ slug: string; created_at?: string }>) {
         urls.push({
           url: `https://berojgardegreewala.vercel.app/opportunities/${opp.slug}`,
           lastModified: new Date(opp.created_at || Date.now()),

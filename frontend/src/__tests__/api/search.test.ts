@@ -51,13 +51,15 @@ function makeChain(finalResult: any) {
   return chain;
 }
 
-const ROWS = Array.from({ length: 30 }, (_, i) => ({
+const ROWS = Array.from({ length: 25 }, (_, i) => ({
   id: `o${i}`,
   title: `DRDO Scientist ${i}`,
   organization: "DRDO",
   slug: `drdo-scientist-${i}`,
   is_active: true,
   verification_status: "verified",
+  category: "government",
+  deadline: "2026-12-31",
   created_at: `2026-08-0${(i % 9) + 1}T00:00:00Z`,
 }));
 

@@ -4,6 +4,7 @@
 // routes stay thin, filters keep working everywhere.
 
 import { supabaseAdmin } from "@/lib/supabase";
+import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 
 export interface OpportunityQueryParams {
   page?: number;
@@ -52,6 +53,8 @@ export async function searchOpportunities(
   const today = istDate.toISOString().split("T")[0];
 
   // Base query: STRICT 100% VERIFIED AND CURRENT ACTIVE OPENINGS ONLY
+  // ponytail: DB-level filter uses buildAvailabilityDbFilter() for best-effort
+  // pre-filter. isCurrentlyAvailable() post-filter handles the full logic.
   let supabaseQuery = supabaseAdmin
     .from("opportunities")
     .select("*, organizations(*)", { count: "exact" })
@@ -61,7 +64,7 @@ export async function searchOpportunities(
   if (!includeExpired) {
     supabaseQuery = supabaseQuery
       .neq("verification_status", "expired")
-      .or(`deadline.gte.${today},deadline.is.null`);
+      .or(buildAvailabilityDbFilter(today));
   }
 
   // 1. SMART CATEGORY FILTER
@@ -228,5 +231,10 @@ export async function searchOpportunities(
     return { data: [], count: 0 };
   }
 
-  return { data: data || [], count: count !== null ? count : (data || []).length };
+  // Post-filter: canonical availability logic
+  const filtered = includeExpired
+    ? (data || [])
+    : (data || []).filter((opp: any) => isCurrentlyAvailable(opp, today));
+
+  return { data: filtered, count: includeExpired ? (count !== null ? count : (data || []).length) : filtered.length };
 }

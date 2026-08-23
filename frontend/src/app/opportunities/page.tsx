@@ -3,16 +3,7 @@ import type { Metadata } from "next";
 import { supabaseAdmin } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
 import { GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
-import nextDynamic from "next/dynamic";
-
-const OpportunitiesClient = nextDynamic(() => import("./OpportunitiesClient"), {
-  loading: () => (
-    <div className="min-h-screen bg-bg-primary p-8 flex flex-col items-center justify-center">
-      <div className="w-10 h-10 border-2 border-slate-900 border-t-blue-600 rounded-full animate-spin" />
-      <p className="mt-4 text-xs font-bold text-slate-900">Loading 362+ Verified Semiconductor &amp; VLSI Opportunities...</p>
-    </div>
-  ),
-});
+import OpportunitiesClient from "./OpportunitiesClient";
 
 export const metadata: Metadata = {
   title: "All Opportunities",
