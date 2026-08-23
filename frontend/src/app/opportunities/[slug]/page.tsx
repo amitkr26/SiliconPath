@@ -22,10 +22,17 @@ export const revalidate = 3600;
 
 export async function generateStaticParams() {
   if (!supabaseAdmin?.from) return [];
+  // Canonical IST date for expiry filtering
+  const now = new Date();
+  const istDate = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const today = istDate.toISOString().split("T")[0];
+
   const { data } = await supabaseAdmin
     .from("opportunities")
     .select("slug")
     .eq("is_active", true)
+    .neq("verification_status", "expired")
+    .or(`deadline.gte.${today},deadline.is.null`)
     .not("slug", "is", null)
     .limit(100);
   return (data || [])
@@ -120,7 +127,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
         }
       : undefined,
     employmentType: opportunity.category === "Private Job" ? "FULL_TIME" : opportunity.category === "JRF" || opportunity.category === "SRF" ? "CONTRACTOR" : undefined,
-    validThrough: opportunity.deadline,
+    validThrough: opportunity.deadline && !isExpired(opportunity.deadline) ? opportunity.deadline : undefined,
     baseSalary: opportunity.stipend
       ? {
           "@type": "MonetaryAmount",
@@ -179,7 +186,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
           )}
 
           {/* Unverified banner */}
-          {opportunity.verification_status === "unverified" && (
+          {(opportunity.verification_status === "unverified" || opportunity.verification_status === "pending") && (
             <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 mb-4">
               <p className="text-warning text-xs">
                 ⚠️ This opportunity was auto-scraped and is pending manual verification. Always confirm details on the official website before applying.
@@ -401,6 +408,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
                 opportunityId={opportunity.id!}
                 verificationStatus={opportunity.verification_status}
                 officialPageUrl={opportunity.official_page_url}
+                deadline={opportunity.deadline}
               />
             )}
 
@@ -473,6 +481,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
             opportunityId={opportunity.id!}
             verificationStatus={opportunity.verification_status}
             officialPageUrl={opportunity.official_page_url}
+            deadline={opportunity.deadline}
           />
         )}
         {opportunity.official_page_url && opportunity.apply_link !== opportunity.official_page_url && (

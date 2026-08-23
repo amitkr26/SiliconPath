@@ -92,8 +92,8 @@ export async function POST(request: NextRequest) {
       .insert({
         ...columns,
         ...(orgId ? { organization_id: orgId } : {}),
-        // P0.2: new inserts are unverified (live CHECK: verified|unverified|link_unavailable|expired)
-        verification_status: "unverified",
+        // P0.2: new inserts are pending verification (live CHECK: pending|verified|rejected|link_unavailable|expired)
+        verification_status: "pending",
         is_active: true,
       })
       .select()

@@ -8,10 +8,12 @@ interface FilterBarProps {
   selectedEligibility: string;
   selectedLocation: string;
   selectedDeadline: string;
+  selectedExperience?: string;
   onCategoryChange: (value: string) => void;
   onEligibilityChange: (value: string) => void;
   onLocationChange: (value: string) => void;
   onDeadlineChange: (value: string) => void;
+  onExperienceChange?: (value: string) => void;
 }
 
 const JOB_TYPES = [
@@ -21,6 +23,13 @@ const JOB_TYPES = [
   { label: "Government Research Jobs", value: "government" },
   { label: "Private VLSI Engineering Jobs", value: "job" },
   { label: "Internships & Fellowships", value: "internship" },
+];
+
+const EXPERIENCE_LEVELS = [
+  { label: "Fresher / Entry-Level", value: "Fresher" },
+  { label: "0–1 Years Experience", value: "0–1 Years" },
+  { label: "0–2 Years Experience", value: "0–2 Years" },
+  { label: "2+ Years / Experienced", value: "2+ Years" },
 ];
 
 const DEGREES = [
@@ -45,28 +54,32 @@ export default function FilterBar({
   selectedEligibility,
   selectedLocation,
   selectedDeadline,
+  selectedExperience = "All",
   onCategoryChange,
   onEligibilityChange,
   onLocationChange,
   onDeadlineChange,
+  onExperienceChange,
 }: FilterBarProps) {
   const hasFilters =
     selectedCategory !== "All" ||
     selectedEligibility !== "All" ||
     selectedLocation !== "All" ||
-    selectedDeadline !== "All";
+    selectedDeadline !== "All" ||
+    selectedExperience !== "All";
 
   const handleClearAll = () => {
     onCategoryChange("All");
     onEligibilityChange("All");
     onLocationChange("All");
     onDeadlineChange("All");
+    if (onExperienceChange) onExperienceChange("All");
   };
 
   const filterButton = (active: boolean) =>
     `w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold border-2 transition-all ${
       active
-        ? "bg-accent text-white border-slate-900 shadow-brutal-sm"
+        ? "bg-blue-600 text-white border-slate-900 shadow-brutal-sm"
         : "bg-white text-slate-800 border-slate-300 hover:border-slate-900 hover:bg-blue-50"
     }`;
 
@@ -86,15 +99,56 @@ export default function FilterBar({
         )}
       </div>
 
-      {/* 1. JOB CATEGORY FILTER */}
+      {/* 1. EXPERIENCE / FRESHER FILTER (Phase 2 Requirement) */}
+      {onExperienceChange && (
+        <div>
+          <h4 className="text-xs font-bold text-slate-900 mb-2.5 flex items-center justify-between">
+            <span>Experience Level</span>
+            {selectedExperience !== "All" && (
+              <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded font-bold">Active</span>
+            )}
+          </h4>
+          <div className="space-y-1.5">
+            <button
+              onClick={() => onExperienceChange("All")}
+              className={filterButton(selectedExperience === "All")}
+            >
+              <span>All Experience Levels</span>
+              {selectedExperience === "All" && <Check className="w-3.5 h-3.5" />}
+            </button>
+            {EXPERIENCE_LEVELS.map((item) => {
+              const active = selectedExperience === item.value;
+              return (
+                <button
+                  key={item.value}
+                  onClick={() => onExperienceChange(active ? "All" : item.value)}
+                  className={filterButton(active)}
+                >
+                  <span className="truncate">{item.label}</span>
+                  {active && <Check className="w-3.5 h-3.5" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 2. JOB CATEGORY FILTER */}
       <div>
         <h4 className="text-xs font-bold text-slate-900 mb-2.5 flex items-center justify-between">
           <span>Job Category</span>
           {selectedCategory !== "All" && (
-            <span className="text-[10px] bg-accent text-white px-2 py-0.5 rounded font-bold">Active</span>
+            <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded font-bold">Active</span>
           )}
         </h4>
         <div className="space-y-1.5">
+          <button
+            onClick={() => onCategoryChange("All")}
+            className={filterButton(selectedCategory === "All")}
+          >
+            <span>All Categories</span>
+            {selectedCategory === "All" && <Check className="w-3.5 h-3.5" />}
+          </button>
           {JOB_TYPES.map((item) => {
             const active = selectedCategory === item.value;
             return (
@@ -103,23 +157,30 @@ export default function FilterBar({
                 onClick={() => onCategoryChange(active ? "All" : item.value)}
                 className={filterButton(active)}
               >
-                <span>{item.label}</span>
-                {active && <Check className="w-3.5 h-3.5 stroke-[3] text-white" />}
+                <span className="truncate">{item.label}</span>
+                {active && <Check className="w-3.5 h-3.5" />}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* 2. REQUIRED QUALIFICATION FILTER */}
+      {/* 3. DEGREE / ELIGIBILITY */}
       <div>
         <h4 className="text-xs font-bold text-slate-900 mb-2.5 flex items-center justify-between">
-          <span>Required Qualification</span>
+          <span>Degree Required</span>
           {selectedEligibility !== "All" && (
-            <span className="text-[10px] bg-accent text-white px-2 py-0.5 rounded font-bold">Active</span>
+            <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded font-bold">Active</span>
           )}
         </h4>
         <div className="space-y-1.5">
+          <button
+            onClick={() => onEligibilityChange("All")}
+            className={filterButton(selectedEligibility === "All")}
+          >
+            <span>All Degrees</span>
+            {selectedEligibility === "All" && <Check className="w-3.5 h-3.5" />}
+          </button>
           {DEGREES.map((item) => {
             const active = selectedEligibility === item.value;
             return (
@@ -129,32 +190,61 @@ export default function FilterBar({
                 className={filterButton(active)}
               >
                 <span>{item.label}</span>
-                {active && <Check className="w-3.5 h-3.5 stroke-[3] text-white" />}
+                {active && <Check className="w-3.5 h-3.5" />}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* 3. LOCATION FILTER */}
+      {/* 4. DEADLINE WINDOW */}
+      <div>
+        <h4 className="text-xs font-bold text-slate-900 mb-2.5 flex items-center justify-between">
+          <span>Closing Deadline</span>
+          {selectedDeadline !== "All" && (
+            <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded font-bold">Active</span>
+          )}
+        </h4>
+        <div className="space-y-1.5">
+          {[
+            { label: "All Active Deadlines", value: "All" },
+            { label: "Closing This Week (≤ 7 Days)", value: "This Week" },
+            { label: "Closing This Month (≤ 30 Days)", value: "This Month" },
+          ].map((d) => {
+            const active = selectedDeadline === d.value;
+            return (
+              <button
+                key={d.value}
+                onClick={() => onDeadlineChange(d.value)}
+                className={filterButton(active)}
+              >
+                <span>{d.label}</span>
+                {active && <Check className="w-3.5 h-3.5" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 5. LOCATION */}
       <div>
         <h4 className="text-xs font-bold text-slate-900 mb-2.5 flex items-center justify-between">
           <span>Location</span>
           {selectedLocation !== "All" && (
-            <span className="text-[10px] bg-accent text-white px-2 py-0.5 rounded font-bold">Active</span>
+            <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded font-bold">Active</span>
           )}
         </h4>
-        <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+        <div className="space-y-1.5">
           {FILTER_LOCATIONS.map((loc) => {
-            const active = selectedLocation === loc;
+            const active = (loc === "All India" && selectedLocation === "All") || selectedLocation === loc;
             return (
               <button
                 key={loc}
-                onClick={() => onLocationChange(active ? "All" : loc)}
+                onClick={() => onLocationChange(loc === "All India" ? "All" : loc)}
                 className={filterButton(active)}
               >
                 <span>{loc}</span>
-                {active && <Check className="w-3.5 h-3.5 stroke-[3] text-white" />}
+                {active && <Check className="w-3.5 h-3.5" />}
               </button>
             );
           })}

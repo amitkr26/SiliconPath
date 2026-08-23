@@ -131,14 +131,41 @@ export const DEADLINE_FILTERS = [
 ];
 
 export function getDaysUntilDeadline(deadline: string): number {
+  if (!deadline) return 999;
   const now = new Date();
-  const deadlineDate = new Date(deadline);
-  const diff = deadlineDate.getTime() - now.getTime();
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  const d = new Date(deadline);
+  if (isNaN(d.getTime())) return 999;
+
+  // For date-only strings (e.g. 2026-08-23), treat deadline as end of that day
+  let targetTime = d.getTime();
+  if (deadline.length <= 10) {
+    const endOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+    targetTime = endOfDay.getTime();
+  }
+
+  const diffMs = targetTime - now.getTime();
+  if (diffMs < 0) {
+    return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  }
+  return Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 }
 
-export function isExpired(deadline: string): boolean {
+export function isExpired(deadline?: string | null): boolean {
+  if (!deadline) return false;
   return getDaysUntilDeadline(deadline) < 0;
+}
+
+export function formatDeadline(deadline?: string | null): string {
+  if (!deadline) return "Open for Applications";
+  const days = getDaysUntilDeadline(deadline);
+  const formatted = formatDate(deadline);
+
+  if (days < 0) return `Application Closed (${formatted})`;
+  if (days === 0) return `Closes Today (${formatted})`;
+  if (days === 1) return `Closes Tomorrow (${formatted})`;
+  if (days <= 3) return `Closes in ${days} days (${formatted})`;
+  if (days <= 7) return `Closes this week (${formatted})`;
+  return `Apply by ${formatted}`;
 }
 
 export function getDaysAgo(date: string): string {
@@ -163,7 +190,9 @@ export function isNew(date: string, thresholdDays = 7): boolean {
 }
 
 export function formatDate(dateStr: string): string {
+  if (!dateStr) return "";
   const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return String(dateStr);
   return date.toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
@@ -231,7 +260,7 @@ export function mapDbOpportunityToClient(dbRow: any): any {
     stipend: dbRow.salary_range || dbRow.stipend || null,
     apply_link: dbRow.apply_url || dbRow.apply_link || dbRow.source_url || "#",
     posted_at: dbRow.created_at || dbRow.posted_at || null,
-    verification_status: dbRow.verification_status ?? "unverified",
+    verification_status: dbRow.verification_status ?? "pending",
   };
 }
 

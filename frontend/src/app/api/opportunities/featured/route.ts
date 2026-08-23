@@ -14,11 +14,17 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Canonical IST date for expiry filtering
+    const now = new Date();
+    const istDate = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+    const today = istDate.toISOString().split("T")[0];
+
     const { data, error } = await supabaseAdmin
       .from("opportunities")
       .select("*")
       .eq("is_active", true)
       .eq("verification_status", "verified")
+      .or(`deadline.gte.${today},deadline.is.null`)
       .order("created_at", { ascending: false })
       .limit(10);
 

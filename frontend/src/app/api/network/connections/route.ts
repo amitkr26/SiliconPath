@@ -85,3 +85,40 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ connections: result });
 }
+
+// DELETE: disconnect / remove connection with a user
+export async function DELETE(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const body = await request.json().catch(() => ({}));
+  const { searchParams } = new URL(request.url);
+  const targetUserId = body.targetUserId || body.userId || searchParams.get("targetUserId") || searchParams.get("userId");
+
+  if (!targetUserId) {
+    return NextResponse.json({ error: "Target user ID required" }, { status: 400 });
+  }
+
+  // Delete connections where user is either requester or addressee
+  const { error: err1 } = await supabaseAdmin
+    .from("connections")
+    .delete()
+    .eq("requester_id", user.id)
+    .eq("addressee_id", targetUserId);
+
+  const { error: err2 } = await supabaseAdmin
+    .from("connections")
+    .delete()
+    .eq("requester_id", targetUserId)
+    .eq("addressee_id", user.id);
+
+  if (err1 && err2) {
+    return NextResponse.json({ error: err1.message || err2.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true, disconnected: true });
+}
+

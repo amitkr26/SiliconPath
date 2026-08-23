@@ -17,7 +17,8 @@ export interface Opportunity {
   tags: string[];
   slug?: string;
   org_slug?: string;
-  verification_status?: "verified" | "pending" | "rejected" | "expired" | "link_unavailable" | "unverified";
+  experience_required?: string | null;
+  verification_status?: "verified" | "pending" | "rejected" | "expired" | "link_unavailable";
   verified_at?: string;
   official_page_url?: string;
   apply_link_type?: "direct" | "homepage" | "pdf" | "email" | "portal";

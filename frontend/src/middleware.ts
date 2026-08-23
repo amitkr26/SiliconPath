@@ -106,8 +106,10 @@ export async function middleware(request: NextRequest) {
     if (rateLimitResponse) return rateLimitResponse;
   }
 
+  const EMPLOYER_AUTH_PATHS = ['/employer/login', '/employer/signup', '/employer/register'];
+  const isEmployerAuth = EMPLOYER_AUTH_PATHS.some(p => path === p || path.startsWith(p + '/'));
   const isGated = GATED_PATHS.some(p => path === p || path.startsWith(p + '/'));
-  const isEmployerOnly = EMPLOYER_ONLY_PATHS.some(p => path === p || path.startsWith(p + '/'));
+  const isEmployerOnly = EMPLOYER_ONLY_PATHS.some(p => path === p || path.startsWith(p + '/')) && !isEmployerAuth;
 
   const authHeader = request.headers.get('authorization');
   let supabaseResponse = NextResponse.next({ request });

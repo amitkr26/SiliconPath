@@ -43,6 +43,13 @@ Verified live August 22, 2026. Sources: `frontend/src/lib/db/index.ts`, `fronten
 - **Columns**: `id` (UUID PK), `username` (TEXT), `display_name`, `headline`, `bio`, `location`, `country`, `skills` (TEXT[]), `experience_years`, `resume_url`, `linkedin_url`, `github_url`, `website_url`, `avatar_url`, `account_type`, `is_profile_public`, `follower_count`, `following_count`, `connection_count`.
 - **Unique Handle Index**: `CREATE UNIQUE INDEX user_profiles_username_lower_key ON public.user_profiles USING btree (lower(username))`.
 
+### Candidate Sub-Resource Tables (DB1 — Phase 9 Verified)
+- **`candidate_experiences`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `company_name`, `role_title`, `employment_type` ('Full-time', 'Part-time', 'Internship', 'Contract', 'Research', 'Apprenticeship'), `location`, `start_date`, `end_date`, `is_current`, `description`, `skills_used` (TEXT[]), `created_at`, `updated_at`. RLS: Public Read (if public), Owner CRUD.
+- **`candidate_educations`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `institution`, `degree`, `field_of_study`, `start_year`, `end_year`, `grade`, `description`, `created_at`, `updated_at`. RLS: Public Read (if public), Owner CRUD.
+- **`candidate_projects`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `title`, `description`, `technologies` (TEXT[]), `project_url`, `github_url`, `start_date`, `end_date`, `created_at`, `updated_at`. RLS: Public Read (if public), Owner CRUD.
+- **`candidate_certifications`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `name`, `issuing_org`, `issue_date`, `expiration_date`, `credential_id`, `credential_url`, `created_at`, `updated_at`. RLS: Public Read (if public), Owner CRUD.
+- **`candidate_achievements`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `title`, `issuer`, `date_awarded`, `description`, `created_at`, `updated_at`. RLS: Public Read (if public), Owner CRUD.
+
 ### `applications` (DB1)
 - **Columns**: `id` (UUID PK), `user_id` (UUID FK → `user_profiles.id`), `opportunity_id` (UUID FK → `opportunities.id`), `status` (TEXT CHECK in ('applied', 'screening', 'shortlisted', 'interview', 'accepted', 'rejected')), `notes` (TEXT), `applied_at`, `updated_at`.
 

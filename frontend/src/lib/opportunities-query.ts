@@ -12,7 +12,10 @@ export interface OpportunityQueryParams {
   eligibility?: string;
   location?: string;
   deadline?: string;
+  experience?: string;
+  sort?: string;
   search?: string;
+  includeExpired?: boolean;
 }
 
 export interface OpportunityQueryResult {
@@ -22,7 +25,7 @@ export interface OpportunityQueryResult {
 
 /**
  * Builds and runs the canonical opportunities query: STRICT verified+active
- * openings, smart category/eligibility/location/deadline filters, safe text
+ * openings, smart category/eligibility/location/deadline/experience filters, safe text
  * search (no text[] columns — see commit c1715d5), org-name lookup via the
  * organizations FK table, newest first, paginated.
  */
@@ -35,17 +38,31 @@ export async function searchOpportunities(
   const eligibility = params.eligibility || "All";
   const location = params.location || "All";
   const deadline = params.deadline || "All";
+  const experience = params.experience || "All";
+  const sort = params.sort || "fresher";
   const search = params.search || "";
+  const includeExpired = Boolean(params.includeExpired);
 
   const start = (page - 1) * limit;
   const end = start + limit - 1;
 
-  // Base query: STRICT 100% VERIFIED AND ACTIVE OPENINGS ONLY
+  // Canonical Indian Standard Time date calculation
+  const now = new Date();
+  const istDate = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const today = istDate.toISOString().split("T")[0];
+
+  // Base query: STRICT 100% VERIFIED AND CURRENT ACTIVE OPENINGS ONLY
   let supabaseQuery = supabaseAdmin
     .from("opportunities")
     .select("*, organizations(*)", { count: "exact" })
     .eq("is_active", true)
     .neq("verification_status", "rejected");
+
+  if (!includeExpired) {
+    supabaseQuery = supabaseQuery
+      .neq("verification_status", "expired")
+      .or(`deadline.gte.${today},deadline.is.null`);
+  }
 
   // 1. SMART CATEGORY FILTER
   if (category && category !== "All") {
@@ -123,22 +140,42 @@ export async function searchOpportunities(
     }
   }
 
-  // 4. DEADLINE WINDOW FILTER
+  // 4. SMART EXPERIENCE LEVEL FILTER (Fresher-First)
+  if (experience && experience !== "All") {
+    if (experience === "Fresher" || experience === "0-1 Years" || experience === "0–1 Years") {
+      supabaseQuery = supabaseQuery.or(
+        "experience_required.ilike.%Fresher%,experience_required.ilike.%0-1%,experience_required.ilike.%0 - 1%,experience_required.ilike.%0 year%,experience_required.ilike.%1 year%,experience_required.is.null,title.ilike.%Fresher%,title.ilike.%Intern%,title.ilike.%Trainee%,title.ilike.%JRF%,title.ilike.%Graduate%"
+      );
+    } else if (experience === "0-2 Years" || experience === "0–2 Years") {
+      supabaseQuery = supabaseQuery.or(
+        "experience_required.ilike.%Fresher%,experience_required.ilike.%0-1%,experience_required.ilike.%0-2%,experience_required.ilike.%0 - 2%,experience_required.ilike.%1-2%,experience_required.ilike.%2 year%,experience_required.is.null,title.ilike.%Fresher%,title.ilike.%Intern%,title.ilike.%Trainee%,title.ilike.%JRF%"
+      );
+    } else if (experience === "2+ Years" || experience === "Experienced") {
+      supabaseQuery = supabaseQuery.or(
+        "experience_required.ilike.%2+%,experience_required.ilike.%3+%,experience_required.ilike.%4+%,experience_required.ilike.%5+%,title.ilike.%Senior%,title.ilike.%Lead%,title.ilike.%Principal%"
+      );
+    }
+  }
+
+  // 5. DEADLINE WINDOW FILTER
   if (deadline && deadline !== "All") {
-    const now = new Date();
     if (deadline === "This Week" || deadline === "Within 7 days") {
-      const weekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      supabaseQuery = supabaseQuery.gte("deadline", now.toISOString().split("T")[0]).lte("deadline", weekLater.toISOString().split("T")[0]);
+      const weekLater = new Date(istDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+      supabaseQuery = supabaseQuery
+        .gte("deadline", today)
+        .lte("deadline", weekLater.toISOString().split("T")[0]);
     } else if (deadline === "This Month" || deadline === "Within 30 days") {
-      const monthLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-      supabaseQuery = supabaseQuery.gte("deadline", now.toISOString().split("T")[0]).lte("deadline", monthLater.toISOString().split("T")[0]);
+      const monthLater = new Date(istDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+      supabaseQuery = supabaseQuery
+        .gte("deadline", today)
+        .lte("deadline", monthLater.toISOString().split("T")[0]);
     } else if (deadline === "Later") {
-      const monthLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      const monthLater = new Date(istDate.getTime() + 30 * 24 * 60 * 60 * 1000);
       supabaseQuery = supabaseQuery.gt("deadline", monthLater.toISOString().split("T")[0]);
     }
   }
 
-  // 5. SMART TEXT SEARCH FILTER
+  // 6. SMART TEXT SEARCH FILTER
   if (search && search.trim().length > 0) {
     const cleanSearch = search.replace(/[{}()"\\,.]/g, "").trim().slice(0, 100);
     const searchTerms = cleanSearch.split(/\s+/).filter((w) => w.length >= 2);
@@ -147,9 +184,13 @@ export async function searchOpportunities(
       // NOTE: only text columns here — ilike on text[] (specialization/tags)
       // throws "operator does not exist: text[] ~~* unknown" and the whole
       // query silently fails. apply_url/source_url carry org names.
-      const conditions = searchTerms.map(term =>
-        `title.ilike.%${term}%,category.ilike.%${term}%,eligibility.ilike.%${term}%,description.ilike.%${term}%,apply_url.ilike.%${term}%,source_url.ilike.%${term}%`
-      ).join(",").split(",");
+      const conditions = searchTerms
+        .map(
+          (term) =>
+            `title.ilike.%${term}%,category.ilike.%${term}%,eligibility.ilike.%${term}%,description.ilike.%${term}%,apply_url.ilike.%${term}%,source_url.ilike.%${term}%`
+        )
+        .join(",")
+        .split(",");
 
       // Match organization names via the organizations table (rows linked by FK)
       const { data: orgs } = await supabaseAdmin
@@ -165,8 +206,21 @@ export async function searchOpportunities(
     }
   }
 
-  // Order by newest first & paginate
-  supabaseQuery = supabaseQuery.order("created_at", { ascending: false }).range(start, end);
+  // 7. ORDERING & SORTING LOGIC
+  if (sort === "closing_soon") {
+    // Closing soon: prioritize deadlines that are closest to today
+    supabaseQuery = supabaseQuery
+      .order("deadline", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: false });
+  } else if (sort === "newest") {
+    supabaseQuery = supabaseQuery.order("created_at", { ascending: false });
+  } else {
+    // Default "fresher" prioritization: newest verified openings
+    supabaseQuery = supabaseQuery.order("created_at", { ascending: false });
+  }
+
+  // Paginate
+  supabaseQuery = supabaseQuery.range(start, end);
 
   const { data, count, error } = await supabaseQuery;
   if (error) {

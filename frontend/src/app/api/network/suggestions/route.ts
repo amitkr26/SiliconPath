@@ -56,6 +56,25 @@ export async function GET(request: NextRequest) {
     .eq("is_profile_public", true)
     .limit(100);
 
+  // 1. Get all accepted connections across all relevant candidates to compute mutual connections
+  const { data: allAccepted } = await supabaseAdmin
+    .from("connections")
+    .select("requester_id, addressee_id")
+    .eq("status", "accepted");
+
+  const myAcceptedSet = new Set<string>();
+  const userToAcceptedMap = new Map<string, Set<string>>();
+
+  (allAccepted || []).forEach((c: { requester_id: string; addressee_id: string }) => {
+    if (!userToAcceptedMap.has(c.requester_id)) userToAcceptedMap.set(c.requester_id, new Set());
+    if (!userToAcceptedMap.has(c.addressee_id)) userToAcceptedMap.set(c.addressee_id, new Set());
+    userToAcceptedMap.get(c.requester_id)!.add(c.addressee_id);
+    userToAcceptedMap.get(c.addressee_id)!.add(c.requester_id);
+
+    if (c.requester_id === user.id) myAcceptedSet.add(c.addressee_id);
+    if (c.addressee_id === user.id) myAcceptedSet.add(c.requester_id);
+  });
+
   const scored = ((candidates || []) as CandidateRow[])
     .filter((c) => !exclude.has(c.id) && !!c.display_name && !isSystemBot(c))
     .map((c) => {
@@ -65,7 +84,21 @@ export async function GET(request: NextRequest) {
       const theirSkills = (c.skills || []) as string[];
       const common = mySkills.filter((s) => theirSkills.includes(s));
       score += common.length * 4;
-      return { ...c, score, mutual_skills: common };
+
+      // Mutual connections
+      const theirAccepted = userToAcceptedMap.get(c.id) || new Set<string>();
+      let mutualCount = 0;
+      for (const friendId of myAcceptedSet) {
+        if (theirAccepted.has(friendId)) mutualCount++;
+      }
+      score += mutualCount * 20;
+
+      return {
+        ...c,
+        score,
+        mutual_skills: common,
+        mutual_connections_count: mutualCount,
+      };
     })
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);

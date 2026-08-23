@@ -11,17 +11,32 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Canonical IST date for expiry filtering
+    const now = new Date();
+    const istDate = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+    const today = istDate.toISOString().split("T")[0];
+
     const [{ count: total }, { count: active }, { count: verified }] = await Promise.all([
       supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }),
-      supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("is_active", true),
-      supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("verification_status", "verified"),
+      supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true })
+        .eq("is_active", true)
+        .neq("verification_status", "rejected")
+        .neq("verification_status", "expired")
+        .or(`deadline.gte.${today},deadline.is.null`),
+      supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true })
+        .eq("is_active", true)
+        .eq("verification_status", "verified")
+        .neq("verification_status", "expired")
+        .or(`deadline.gte.${today},deadline.is.null`),
     ]);
 
     const byCategory = await supabaseAdmin
       .from("opportunities")
       .select("category")
       .eq("is_active", true)
-      .eq("verification_status", "verified");
+      .neq("verification_status", "rejected")
+      .neq("verification_status", "expired")
+      .or(`deadline.gte.${today},deadline.is.null`);
 
     const categoryCounts: Record<string, number> = {};
     (byCategory.data || []).forEach((o: { category: string }) => {

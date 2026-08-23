@@ -199,6 +199,13 @@ export default function Navbar() {
                         <LayoutDashboard className="w-3.5 h-3.5 text-blue-600" /> Recruitment Analytics
                       </Link>
                       <Link
+                        href="/employer/profile"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <User className="w-3.5 h-3.5 text-blue-600" /> Employer Profile Studio
+                      </Link>
+                      <Link
                         href="/employer/company"
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-blue-50 hover:text-blue-600"
