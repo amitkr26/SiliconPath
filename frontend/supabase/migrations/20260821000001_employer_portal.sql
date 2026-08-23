@@ -77,25 +77,21 @@ ALTER TABLE employer_settings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Employer own settings" ON employer_settings FOR ALL USING (employer_id = auth.uid());
 CREATE POLICY "Admin full access on employer_settings" ON employer_settings FOR ALL USING (true);
 
--- 8. Team workspace members persistence
--- Stores organization members with roles (Owner, Admin, Recruiter, Hiring Manager).
--- Linked to opportunities.organization_id for ownership scoping.
-CREATE TABLE IF NOT EXISTS team_workspace_members (
+-- 8. Workspace members persistence (code references workspace_members table)
+-- Stores workspace members with roles (Owner, Admin, Recruiter, Hiring Manager).
+-- Linked to employer for ownership scoping.
+CREATE TABLE IF NOT EXISTS workspace_members (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  organization_id uuid NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  employer_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  email text NOT NULL,
   role text NOT NULL DEFAULT 'recruiter' CHECK (role IN ('owner','admin','recruiter','hiring_manager')),
-  invited_by uuid REFERENCES user_profiles(id) ON DELETE SET NULL,
-  invited_at timestamptz,
-  accepted_at timestamptz,
-  UNIQUE(organization_id, user_id)
+  status text NOT NULL DEFAULT 'active',
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE(employer_id, email)
 );
-ALTER TABLE team_workspace_members ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Organization own team members" ON team_workspace_members FOR ALL USING (
-  EXISTS (
-    SELECT 1 FROM opportunities o WHERE o.organization_id = team_workspace_members.organization_id AND o.created_by = auth.uid()
-  )
-);
-CREATE POLICY "Admin full access on team_workspace_members" ON team_workspace_members FOR ALL USING (true);
+ALTER TABLE workspace_members ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Employer own workspace members" ON workspace_members FOR ALL USING (employer_id = auth.uid());
+CREATE POLICY "Admin full access on workspace_members" ON workspace_members FOR ALL USING (true);
 
 -- End of migration
