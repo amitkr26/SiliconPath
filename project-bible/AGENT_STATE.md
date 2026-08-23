@@ -2,34 +2,34 @@
 
 ```text
 PROJECT: BerojgarDegreeWala / SiliconPath
-LAST_UPDATED: 2026-08-22
-CURRENT_PHASE: Phase 8.1 — Final Platform Production Completion, Forensic Evidence Gate & IDOR Hardening (COMPLETE)
-CURRENT_FEATURE: Complete Employer & Recruiter Suite verified live in production with 100% database persistence; 4 distinct surfaces operational (Public, Candidate, Employer, Admin); multi-employer IDOR attack matrix (7/7 blocked with 403/401); live PostgreSQL schema verified (5 additive tables, 4 unique indexes, dual foreign keys); case-insensitive username uniqueness enforced; 0 mocks remaining in production.
-STATUS: ALL 15/15 FORENSIC GATES PASS — TypeScript 0 errors, Jest 117/117 passing, Next.js build 241/241 routes compiled, live multi-actor stateful audit PASS. Verdict: READY.
-BLOCKER: NONE (Production fully operational on Vercel + live Supabase PostgreSQL).
-LAST_VERIFIED: node scripts/forensic-full-suite.mjs (15/15 gates PASS); npx jest (117/117 tests PASS); npx tsc --noEmit (0 errors); npm run build (241/241 routes PASS).
-NEXT_ACTION: None blocking. Platform is 100% production ready.
-LAST_COMMITS: b2d31f6 — feat(employer): complete forensic evidence gate and multi-employer IDOR hardening
+LAST_UPDATED: 2026-08-23
+CURRENT_PHASE: Phase 9 — Candidate Professional Identity & Networking (COMPLETE)
+CURRENT_FEATURE: Complete Candidate Professional Identity & Networking system with structured sub-resources (experiences, educations, projects, certifications, achievements), dynamic profile completeness engine (0-100%), mutual connections graph computation, follow/unfollow lifecycle, explainable People-You-May-Know recommendations, candidate-to-candidate messaging integration, and employer talent discovery compatibility.
+STATUS: ALL CANDIDATE E2E GATES (12/12) & EMPLOYER GATES (15/15) PASS — TypeScript 0 errors, Jest 120/120 passing (15 test suites), Next.js build 241/241 routes compiled.
+BLOCKER: None in application layer. Sub-resource migration ready in 20260823000001_candidate_profile_entities.sql.
+LAST_VERIFIED: node scripts/candidate-network-e2e.mjs (12/12 PASS); node scripts/forensic-full-suite.mjs (15/15 PASS); npx jest (120/120 PASS); npx tsc --noEmit (0 errors); npm run build (241/241 PASS).
+NEXT_ACTION: Execute additive candidate sub-resources SQL in Supabase Dashboard SQL Editor for direct PostgreSQL cold-restart persistence.
+LAST_COMMITS: db4bfcb — test: verify rotated credential lifecycle and forensic suite
 ```
 
 ## Milestone Status
 - [x] **Phase 1–7: Core Platform Foundation, Social Layer, Scraper Engines & Backend Replication** (Verified in git history).
 - [x] **Phase 7.8: Restrained Neo-Brutalist Redesign** across all public and candidate surfaces (commit `6d9684d`).
 - [x] **Phase 8.0: Employer & Recruiter Suite Implementation** (12 pages + 14 API routes, 100% database persistence, zero mocks).
-- [x] **Phase 8.1: Forensic Evidence Gate & Multi-Employer IDOR Hardening** (2026-08-22, COMPLETE):
-  - Live PostgreSQL schema inspection: `opportunities.created_by`, `opportunities.employer_id`, `opportunities.job_status`, `opportunities.screening_questions`, `company_claims`, `recruiter_saved_candidates`, `employer_settings`, `workspace_members`, `user_profiles_username_lower_key`.
-  - Multi-employer IDOR attack matrix: 7 active attack vectors tested across Employer A (`amit@excompany.in`), Employer B (`employer_b_audit@siliconpath.test`), and Candidate (`amittest1@berojgardegreewala.com`) — all returned HTTP 403/401 with 0 data leakage.
-  - Multi-stage ATS pipeline state machine: `applied` -> `screening` -> `shortlisted` -> `interview` -> `accepted` / `rejected` with notes.
-  - Direct candidate reachout and invitations backed by real `conversations`, `messages`, and `notifications`.
-  - Recruiter candidate collection with private notes (`recruiter_saved_candidates`).
-  - Company domain claim verification lifecycle (`company_claims`) with admin review.
-  - Case-insensitive global username collision resistance (`audit_user_2026`, `Audit_User_2026`, `AUDIT_USER_2026`) and reserved handle protection.
-  - Live HTTP security response headers (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Content-Security-Policy`, `Strict-Transport-Security`).
-  - 100% clean test artifact removal after each test execution.
+- [x] **Phase 8.1: Forensic Evidence Gate & Multi-Employer IDOR Hardening** (2026-08-22, COMPLETE).
+- [x] **Phase 9: Candidate Professional Identity & Networking** (2026-08-23, COMPLETE):
+  - Structured Candidate Profiles with unique `@username` case-insensitive integrity and reserved handle protection (`@admin` rejected with 400).
+  - Sub-resource entities & schemas: `candidate_experiences`, `candidate_educations`, `candidate_projects`, `candidate_certifications`, `candidate_achievements`.
+  - Deterministic Profile Completeness (0–100%) with unit tests (`profile-completeness.test.ts`).
+  - Professional connections, mutual connections intersection (`GET /api/network/mutual`), disconnect (`DELETE /api/network/connections`), and follow/unfollow lifecycle.
+  - Explainable People-You-May-Know recommendations scoring based on company (+15), location (+8), domain skills (+4), and mutual connections (+20).
+  - Employer Talent Search compatibility (`/employer/talent/[username]`) with full structured sub-resource inspection.
+  - Cross-candidate IDOR defenses (Candidate B cannot mutate Candidate A records; anonymous mutations blocked).
 
 ## Verification Gate Results
 - **TypeScript:** `npx tsc --noEmit` — 0 errors
-- **Unit Tests:** `npx jest` — 14 suites, 117/117 tests passing
+- **Unit Tests:** `npx jest` — 15 suites, 120/120 tests passing
 - **Next.js Production Build:** `npm run build` — 241/241 static and dynamic routes compiled
-- **Forensic Stateful E2E Suite:** `node scripts/forensic-full-suite.mjs` — 15/15 gates PASS against live Supabase PostgreSQL
-- **Verdict:** **READY**
+- **Candidate Network E2E:** `node scripts/candidate-network-e2e.mjs` — 12/12 gates PASS
+- **Employer Full Suite:** `node scripts/forensic-full-suite.mjs` — 15/15 gates PASS
+- **Verdict:** **PHASE 15 RECONCILED & CERTIFIED** (Complete reconciliation of live Supabase schema, Phase 9 candidate tables, Phase 14 Security Advisor policies, and master baseline 278/278 automated tests passing).

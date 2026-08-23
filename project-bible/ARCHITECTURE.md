@@ -81,8 +81,12 @@ The live Supabase PostgreSQL database incorporates the following schema structur
 - **`workspace_members`**:
   - `id` (UUID PK), `employer_id` (UUID FK → `user_profiles.id`), `email` (TEXT), `role` (TEXT CHECK in ('owner', 'admin', 'recruiter', 'hiring_manager')), `status` (TEXT DEFAULT 'active'), `created_at`, `updated_at`.
   - Constraint: `UNIQUE(employer_id, email)`.
-- **`user_profiles`**:
-  - Enforces global unique case-insensitive handle via `UNIQUE INDEX user_profiles_username_lower_key ON user_profiles (lower(username))`.
+### Candidate Professional Identity & Networking (Phase 9)
+- **`candidate_experiences`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `company_name`, `role_title`, `employment_type`, `location`, `start_date`, `end_date`, `is_current`, `description`, `skills_used` (TEXT[]), timestamps. Index: `idx_candidate_exp_candidate_id`. RLS: Public Read, Owner CRUD.
+- **`candidate_educations`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `institution`, `degree`, `field_of_study`, `start_year`, `end_year`, `grade`, `description`, timestamps. Index: `idx_candidate_edu_candidate_id`. RLS: Public Read, Owner CRUD.
+- **`candidate_projects`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `title`, `description`, `technologies` (TEXT[]), `project_url`, `github_url`, `start_date`, `end_date`, timestamps. Index: `idx_candidate_proj_candidate_id`. RLS: Public Read, Owner CRUD.
+- **`candidate_certifications`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `name`, `issuing_org`, `issue_date`, `expiration_date`, `credential_id`, `credential_url`, timestamps. Index: `idx_candidate_cert_candidate_id`. RLS: Public Read, Owner CRUD.
+- **`candidate_achievements`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `title`, `issuer`, `date_awarded`, `description`, timestamps. Index: `idx_candidate_achieve_candidate_id`. RLS: Public Read, Owner CRUD.
 
 ---
 
@@ -108,6 +112,9 @@ The live Supabase PostgreSQL database incorporates the following schema structur
 ## 5. Verification Baseline
 
 - **TypeScript Type Safety**: `npx tsc --noEmit` (0 errors)
-- **Unit & Integration Tests**: `npx jest` (14 suites, 117/117 passing)
+- **Unit & Integration Tests**: `npx jest` (15 suites, 120/120 passing)
+- **Backend Test Baseline**: 158/158 passing (46 server + 15 ai-gateway + 97 api)
+- **Total Automated Test Cases**: 278/278 passing (100%)
 - **Production Build**: `npm run build` (241/241 routes compiled)
-- **Forensic Stateful E2E Suite**: `node scripts/forensic-full-suite.mjs` (15/15 gates PASS)
+- **Candidate Network Forensic E2E**: `node scripts/candidate-network-e2e.mjs` (12/12 gates PASS)
+- **Employer Forensic Stateful E2E Suite**: `node scripts/forensic-full-suite.mjs` (15/15 gates PASS)

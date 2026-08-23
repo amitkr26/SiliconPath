@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       .select("id, is_active");
 
     if (role !== "admin") {
-      jobQuery = jobQuery.or(`created_by.eq.${user.id},employer_id.eq.${user.id}`);
+      jobQuery = jobQuery.eq("created_by", user.id);
     }
 
     const { data: myJobs } = await jobQuery;
