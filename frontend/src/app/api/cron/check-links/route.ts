@@ -31,12 +31,11 @@ export async function GET(request: NextRequest) {
     const now = new Date().toISOString();
     const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-    // P0.2: check verified + pending + unverified rows (unverified now included —
-    // new scrapes land as unverified and need evidence before anything promotes).
+    // P0.2: check verified + pending rows (new scrapes land as pending and need evidence before promotion).
     const { data: opportunities } = await supabaseAdmin
       .from("opportunities")
       .select("id, apply_url, verification_status, last_link_checked")
-      .in("verification_status", ["verified", "pending", "unverified"])
+      .in("verification_status", ["verified", "pending"])
       .or(`last_link_checked.is.null,last_link_checked.lt.${dayAgo}`);
 
     if (!opportunities || opportunities.length === 0) {

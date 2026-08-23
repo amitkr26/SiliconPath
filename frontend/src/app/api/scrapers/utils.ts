@@ -44,7 +44,7 @@ export async function runScraperRoute(
           description: item.description || item.title,
           apply_url: applyUrl,
           source_url: applyUrl,
-          verification_status: "unverified", // P0.2: never fabricate `verified`; link-check pipeline verifies
+          verification_status: "pending", // P0.2: never fabricate `verified`; link-check pipeline verifies
           is_active: true,
           slug,
           tags: item.tags || defaultTags,

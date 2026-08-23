@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
         link_check_status: status,
         verification_status: reachable
           ? opp.verification_status === "link_unavailable" || !opp.verification_status
-            ? "unverified"
+            ? "pending"
             : opp.verification_status
           : "link_unavailable",
       })

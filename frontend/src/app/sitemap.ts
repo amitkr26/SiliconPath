@@ -56,12 +56,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   if (isAdminConfigured && supabaseAdmin?.from) {
-    // Opportunity detail pages
+    // Canonical IST date for expiry filtering
+    const now = new Date();
+    const istDate = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+    const today = istDate.toISOString().split("T")[0];
+
+    // Opportunity detail pages — only active, verified, non-expired
     const { data: opportunities } = await supabaseAdmin
       .from("opportunities")
       .select("slug, created_at")
       .eq("is_active", true)
-      .eq("verification_status", "verified");
+      .eq("verification_status", "verified")
+      .or(`deadline.gte.${today},deadline.is.null`);
 
     if (opportunities) {
       for (const opp of opportunities as Array<{ slug: string; created_at?: string }>) {

@@ -6,7 +6,7 @@ import { MapPin, IndianRupee, ExternalLink, Heart } from "lucide-react";
 import type { Opportunity } from "@/types";
 import CategoryBadge from "./CategoryBadge";
 import DeadlineCountdown from "./DeadlineCountdown";
-import { cn, getDaysAgo, isNew } from "@/lib/utils";
+import { cn, getDaysAgo, isNew, isExpired } from "@/lib/utils";
 import ShareButtons from "./ShareButtons";
 import VerificationBadge from "./VerificationBadge";
 import { useUser } from "@/hooks/useUser";
@@ -175,6 +175,15 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
             
             <div className="flex flex-wrap items-center gap-2 mt-3">
               <CategoryBadge category={opportunity.category} />
+              {opportunity.experience_required ? (
+                <span className="flex items-center gap-1 text-slate-800 text-xs font-bold bg-amber-50 px-2 py-0.5 rounded border border-slate-900">
+                  {opportunity.experience_required}
+                </span>
+              ) : opportunity.category === "JRF" || opportunity.category === "Internship" || (opportunity.category as string) === "Trainee" ? (
+                <span className="flex items-center gap-1 text-emerald-800 text-[11px] font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-400">
+                  Fresher Eligible
+                </span>
+              ) : null}
               {opportunity.location && (
                 <span className="flex items-center gap-1 text-slate-700 text-xs font-semibold bg-slate-100 px-2 py-0.5 rounded border border-slate-900">
                   <MapPin className="w-3 h-3" />
@@ -191,7 +200,7 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
 
             {opportunity.eligibility && (
               <div className="flex flex-wrap gap-1.5 mt-2.5">
-                {opportunity.eligibility.split(",").map((e) => (
+                {opportunity.eligibility.split(",").slice(0, 3).map((e) => (
                   <span
                     key={e.trim()}
                     className="px-2 py-0.5 bg-slate-50 border border-slate-300 rounded text-slate-600 text-[10px] font-bold"
@@ -208,11 +217,17 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
           {opportunity.deadline ? (
             <DeadlineCountdown deadline={opportunity.deadline} />
           ) : (
-            <span className="text-[10px] font-semibold text-slate-400">Regular Listing</span>
+            <span className="text-[11px] font-bold text-slate-500">Regular Active Listing</span>
           )}
-          <span className="text-blue-600 text-xs font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-            Apply <ExternalLink className="w-3.5 h-3.5" />
-          </span>
+          {isExpired(opportunity.deadline) || opportunity.verification_status === "expired" ? (
+            <span className="text-slate-400 text-xs font-bold flex items-center gap-1">
+              Closed
+            </span>
+          ) : (
+            <span className="text-blue-600 text-xs font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+              Apply <ExternalLink className="w-3.5 h-3.5" />
+            </span>
+          )}
         </div>
       </div>
     </div>

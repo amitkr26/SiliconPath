@@ -15,7 +15,7 @@ export default function VerificationBadge({ status, compact }: VerificationBadge
     );
   }
 
-  if (status === "unverified") {
+  if (status === "unverified" || status === "pending") {
     return (
       <span className={`inline-flex items-center gap-1 ${compact ? "text-[10px]" : "text-xs"} text-gray-400 font-medium`}>
         <Clock className={`${compact ? "w-3 h-3" : "w-3.5 h-3.5"}`} />

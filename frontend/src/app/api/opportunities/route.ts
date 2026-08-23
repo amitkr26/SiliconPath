@@ -56,6 +56,8 @@ export async function GET(request: NextRequest) {
       eligibility: searchParams.get("eligibility") || "All",
       location: searchParams.get("location") || "All",
       deadline: searchParams.get("deadline") || "All",
+      experience: searchParams.get("experience") || "All",
+      sort: searchParams.get("sort") || "fresher",
       search: searchParams.get("search") || "",
     });
 

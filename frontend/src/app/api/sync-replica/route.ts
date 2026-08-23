@@ -36,7 +36,7 @@ export async function GET(request: Request) {
           ${opp.id}, ${m.title}, ${m.organization}, ${m.category},
           ${opp.location}, ${m.stipend}, ${opp.deadline ? opp.deadline.split('T')[0] : null},
           ${opp.eligibility}, ${m.description}, ${m.apply_link},
-          ${opp.tags}, ${opp.slug}, ${opp.verification_status ?? "unverified"},
+          ${opp.tags}, ${opp.slug}, ${opp.verification_status ?? "pending"},
           ${opp.is_active}, ${opp.apply_clicks || 0}, ${m.posted_at},
           ${opp.created_at}, now()
         )

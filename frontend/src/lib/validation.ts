@@ -16,16 +16,22 @@ export const opportunitySchema = z.object({
 });
 
 export const profileUpdateSchema = z.object({
+  username: z
+    .string()
+    .min(3)
+    .max(30)
+    .regex(/^[a-zA-Z0-9_-]+$/, "Username may only contain letters, numbers, underscores, and hyphens")
+    .optional(),
   display_name: z.string().min(1).max(100).optional(),
   bio: z.string().max(2000).optional(),
   headline: z.string().max(200).optional(),
   location: z.string().max(200).optional(),
   skills: z.array(z.string().max(100)).max(50).optional(),
   interests: z.array(z.string().max(100)).max(20).optional(),
-  linkedin_url: z.string().url().max(500).optional(),
-  github_url: z.string().url().max(500).optional(),
-  website_url: z.string().url().max(500).optional(),
-  avatar_url: z.string().url().max(500).optional(),
+  linkedin_url: z.union([z.string().url(), z.literal(""), z.null()]).optional(),
+  github_url: z.union([z.string().url(), z.literal(""), z.null()]).optional(),
+  website_url: z.union([z.string().url(), z.literal(""), z.null()]).optional(),
+  avatar_url: z.union([z.string().url(), z.literal(""), z.null()]).optional(),
   experience_years: z.number().int().min(0).max(70).optional(),
   job_title: z.string().max(200).optional(),
   current_company: z.string().max(200).optional(),
@@ -100,7 +106,7 @@ export const adminOpportunityUpdateSchema = z.object({
   source_url: z.string().url().max(1000).nullable().optional(),
   apply_link_type: z.enum(["direct", "homepage", "pdf", "email", "portal"]).optional(),
   // P0.5: live CHECK constraint allows only these values (verified 2026-08-16).
-  verification_status: z.enum(["verified", "unverified", "link_unavailable", "expired"]).optional(),
+  verification_status: z.enum(["verified", "pending", "rejected", "link_unavailable", "expired"]).optional(),
   is_active: z.boolean().optional(),
   tags: z.array(z.string().max(50)).max(20).optional(),
   admin_notes: z.string().max(2000).optional(),

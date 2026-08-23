@@ -11,12 +11,23 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Loader2, MapPin, Briefcase, Check, MessageCircle, UserPlus,
-  UserCheck, Pencil, Share2, Star, Send
+  UserCheck, Pencil, Share2, Star, Send, GraduationCap, Code2,
+  Award, Trophy, ExternalLink, Calendar, Sparkles, Users
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { api, ApiError } from "@/lib/api-client";
 import { toast } from "sonner";
-import type { UserProfile, SkillEndorsement, Recommendation } from "@/types";
+import type {
+  UserProfile,
+  SkillEndorsement,
+  Recommendation,
+  CandidateExperience,
+  CandidateEducation,
+  CandidateProject,
+  CandidateCertification,
+  CandidateAchievement,
+  ProfileCompleteness,
+} from "@/types";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 
 function getInitials(name: string): string {
@@ -33,6 +44,13 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
   const { user: currentUser, loading: userLoading } = useUser();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(initialProfile || null);
+  const [experiences, setExperiences] = useState<CandidateExperience[]>([]);
+  const [educations, setEducations] = useState<CandidateEducation[]>([]);
+  const [projects, setProjects] = useState<CandidateProject[]>([]);
+  const [certifications, setCertifications] = useState<CandidateCertification[]>([]);
+  const [achievements, setAchievements] = useState<CandidateAchievement[]>([]);
+  const [completeness, setCompleteness] = useState<ProfileCompleteness | null>(null);
+  const [mutualCount, setMutualCount] = useState<number>(0);
   const [endorsements, setEndorsements] = useState<SkillEndorsement[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -49,14 +67,21 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
 
     const loadData = async () => {
       try {
-        let profileData: UserProfile | null;
+        let profileData: any;
         if (!currentUser && initialProfile) {
           profileData = initialProfile; // server-rendered logged-out view
         } else {
-          profileData = await api.get<UserProfile>(`/api/profile/${username}`);
+          profileData = await api.get<any>(`/api/profile/${username}`);
         }
         if (!profileData) { setLoading(false); return; }
         setProfile(profileData);
+        if (profileData.experiences) setExperiences(profileData.experiences);
+        if (profileData.educations) setEducations(profileData.educations);
+        if (profileData.projects) setProjects(profileData.projects);
+        if (profileData.certifications) setCertifications(profileData.certifications);
+        if (profileData.achievements) setAchievements(profileData.achievements);
+        if (profileData.completeness) setCompleteness(profileData.completeness);
+        if (profileData.mutual_connections_count) setMutualCount(profileData.mutual_connections_count);
 
         if (currentUser) {
           if (currentUser.id !== profileData.id) {
@@ -75,8 +100,6 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
   }, [username, currentUser, userLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadRelationship = async (myId: string, theirId: string) => {
-    // Each call is isolated so a failure in one never blocks the others
-    // (e.g. endorsements/recommendations must still load).
     try {
       const conn = await api.get<any>("/api/network/connections", {
         params: { myId, theirId },
@@ -86,25 +109,42 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
         if (conn.status === "accepted") setIsConnected(true);
       }
     } catch {
-      // relationship state unavailable — buttons default to Connect/Follow
+      // ignore
     }
 
     try {
       const follow = await api.get<{ following: boolean }>(`/api/network/follow/${theirId}`);
       setIsFollowing(!!follow?.following);
     } catch {
-      // follow state unavailable — button defaults to Follow
+      // ignore
+    }
+
+    try {
+      const mutual = await api.get<{ count: number }>("/api/network/mutual", {
+        params: { targetUserId: theirId },
+      });
+      if (mutual?.count) setMutualCount(mutual.count);
+    } catch {
+      // ignore
     }
   };
 
   const loadEndorsements = async (userId: string) => {
-    const data = await api.get<{ endorsements: SkillEndorsement[] }>(`/api/profile/${userId}/endorse`);
-    setEndorsements(data.endorsements || []);
+    try {
+      const data = await api.get<{ endorsements: SkillEndorsement[] }>(`/api/profile/${userId}/endorse`);
+      setEndorsements(data.endorsements || []);
+    } catch {
+      /* ignore */
+    }
   };
 
   const loadRecommendations = async (userId: string) => {
-    const data = await api.get<{ recommendations: Recommendation[] }>(`/api/profile/${userId}/recommendations`);
-    setRecommendations(data.recommendations || []);
+    try {
+      const data = await api.get<{ recommendations: Recommendation[] }>(`/api/profile/${userId}/recommendations`);
+      setRecommendations(data.recommendations || []);
+    } catch {
+      /* ignore */
+    }
   };
 
   const handleEndorse = async (skill: string) => {
@@ -126,7 +166,6 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
       setConnectionStatus("pending");
     } catch (err: any) {
       if (err instanceof ApiError && err.status === 409) {
-        // A request already exists — reflect the REAL relationship state.
         const existing = err.body?.connection as { status?: string } | undefined;
         if (existing?.status === "accepted") {
           setIsConnected(true);
@@ -159,7 +198,7 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
         toast.success("Following!");
       } catch (err: any) {
         if (err instanceof ApiError && err.status === 409) {
-          setIsFollowing(true); // already following — keep the UI truthful
+          setIsFollowing(true);
           toast.info("Already following");
           return;
         }
@@ -196,7 +235,7 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
   if (loading || userLoading) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
   }
@@ -257,14 +296,12 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                       <UserCheck className="w-4 h-4 text-amber-600" /> Pending
                     </span>
                   )}
-                  {isConnected && (
-                    <Link
-                      href="/messages"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-slate-900 border-2 border-slate-900 rounded-xl text-xs font-bold shadow-brutal-sm hover:bg-slate-50 transition-all"
-                    >
-                      <MessageCircle className="w-4 h-4 text-blue-600" /> Message
-                    </Link>
-                  )}
+                  <Link
+                    href={`/messages?userId=${profile.id}`}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-slate-900 border-2 border-slate-900 rounded-xl text-xs font-bold shadow-brutal-sm hover:bg-slate-50 transition-all"
+                  >
+                    <MessageCircle className="w-4 h-4 text-blue-600" /> Message
+                  </Link>
                   <button
                     onClick={handleFollow}
                     className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border-2 border-slate-900 shadow-brutal-sm transition-all ${
@@ -337,18 +374,57 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
               {profile.follower_count !== undefined && (
                 <span className="font-bold text-slate-900">{profile.follower_count} followers</span>
               )}
+              {!isOwnProfile && mutualCount > 0 && (
+                <span className="inline-flex items-center gap-1 text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                  <Users className="w-3 h-3" /> {mutualCount} mutual connection{mutualCount > 1 ? "s" : ""}
+                </span>
+              )}
             </div>
 
             {profile.is_open_to_work && (
               <div className="pt-2">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-900 text-xs font-bold rounded-lg border-2 border-slate-900 shadow-brutal-sm">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" /> Open to {profile.open_to_work_types?.join(", ") || "work"}
+                  <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" /> Open to {profile.open_to_work_types?.join(", ") || "opportunities"}
                 </span>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Profile Completeness Card (own profile only) */}
+      {isOwnProfile && completeness && completeness.percentage < 100 && (
+        <section className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-slate-900 rounded-2xl p-6 shadow-brutal-sm">
+          <div className="flex items-center justify-between gap-4 mb-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-blue-600" />
+              <h2 className="text-sm font-black text-slate-900">Profile Completeness: {completeness.percentage}%</h2>
+            </div>
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="text-xs font-bold text-blue-600 hover:underline"
+            >
+              Complete Profile →
+            </button>
+          </div>
+          <div className="w-full h-3 bg-slate-200 rounded-full border border-slate-400 overflow-hidden mb-3">
+            <div
+              className="h-full bg-blue-600 rounded-full transition-all duration-500"
+              style={{ width: `${completeness.percentage}%` }}
+            />
+          </div>
+          {completeness.missingItems.length > 0 && (
+            <div className="text-xs text-slate-600 space-y-1">
+              <p className="font-bold text-slate-800">Suggested additions:</p>
+              <ul className="list-disc list-inside space-y-0.5 text-slate-600 pl-1">
+                {completeness.missingItems.slice(0, 3).map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* About */}
       {profile.bio && (
@@ -357,6 +433,140 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
           <p className="text-slate-700 text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-wrap">{profile.bio}</p>
         </section>
       )}
+
+      {/* Experience Timeline */}
+      <section className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Briefcase className="w-5 h-5 text-slate-700" />
+            <h2 className="text-base font-black text-slate-900">Experience</h2>
+          </div>
+          {isOwnProfile && (
+            <button onClick={() => setShowEditModal(true)} className="text-xs font-bold text-blue-600 hover:underline">
+              + Add Experience
+            </button>
+          )}
+        </div>
+
+        {experiences.length === 0 ? (
+          <p className="text-slate-400 text-xs font-medium">No experience history added yet.</p>
+        ) : (
+          <div className="space-y-4">
+            {experiences.map((exp) => (
+              <div key={exp.id} className="border-l-2 border-slate-300 pl-4 relative space-y-1">
+                <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-blue-600" />
+                <h3 className="text-sm font-black text-slate-900">{exp.role_title}</h3>
+                <p className="text-xs font-bold text-slate-700">{exp.company_name} {exp.employment_type && `· ${exp.employment_type}`}</p>
+                <p className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  {exp.start_date} – {exp.is_current ? "Present" : exp.end_date || "Present"}
+                  {exp.location && ` · ${exp.location}`}
+                </p>
+                {exp.description && (
+                  <p className="text-xs text-slate-600 pt-1 leading-relaxed whitespace-pre-wrap">{exp.description}</p>
+                )}
+                {exp.skills_used && exp.skills_used.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1.5">
+                    {exp.skills_used.map((s) => (
+                      <span key={s} className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-bold border border-slate-200">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Education */}
+      <section className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="w-5 h-5 text-slate-700" />
+            <h2 className="text-base font-black text-slate-900">Education</h2>
+          </div>
+          {isOwnProfile && (
+            <button onClick={() => setShowEditModal(true)} className="text-xs font-bold text-blue-600 hover:underline">
+              + Add Education
+            </button>
+          )}
+        </div>
+
+        {educations.length === 0 ? (
+          <p className="text-slate-400 text-xs font-medium">No education history added yet.</p>
+        ) : (
+          <div className="space-y-4">
+            {educations.map((edu) => (
+              <div key={edu.id} className="border-l-2 border-slate-300 pl-4 relative space-y-1">
+                <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-indigo-600" />
+                <h3 className="text-sm font-black text-slate-900">{edu.institution}</h3>
+                <p className="text-xs font-bold text-slate-700">
+                  {edu.degree} {edu.field_of_study && `in ${edu.field_of_study}`}
+                </p>
+                <p className="text-[11px] font-semibold text-slate-500">
+                  {edu.start_year && `${edu.start_year} – `}{edu.end_year || "Present"}
+                  {edu.grade && ` · Grade: ${edu.grade}`}
+                </p>
+                {edu.description && (
+                  <p className="text-xs text-slate-600 pt-1 leading-relaxed whitespace-pre-wrap">{edu.description}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Projects Showcase */}
+      <section className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Code2 className="w-5 h-5 text-slate-700" />
+            <h2 className="text-base font-black text-slate-900">Projects &amp; Technical Work</h2>
+          </div>
+          {isOwnProfile && (
+            <button onClick={() => setShowEditModal(true)} className="text-xs font-bold text-blue-600 hover:underline">
+              + Add Project
+            </button>
+          )}
+        </div>
+
+        {projects.length === 0 ? (
+          <p className="text-slate-400 text-xs font-medium">No projects added yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {projects.map((proj) => (
+              <div key={proj.id} className="bg-slate-50 border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm space-y-2 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-sm font-black text-slate-900">{proj.title}</h3>
+                    <div className="flex items-center gap-2">
+                      {proj.github_url && (
+                        <a href={proj.github_url} target="_blank" rel="noopener noreferrer" className="text-slate-700 hover:text-slate-900">
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                  {proj.description && (
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed line-clamp-3">{proj.description}</p>
+                  )}
+                </div>
+                {proj.technologies && proj.technologies.length > 0 && (
+                  <div className="flex flex-wrap gap-1 pt-2">
+                    {proj.technologies.map((t) => (
+                      <span key={t} className="px-2 py-0.5 bg-white border border-slate-300 text-slate-700 rounded text-[10px] font-bold">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* Skills */}
       <section className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal-sm">
@@ -385,6 +595,33 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
           )}
         </div>
       </section>
+
+      {/* Certifications & Achievements */}
+      {(certifications.length > 0 || achievements.length > 0) && (
+        <section className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal-sm space-y-4">
+          <h2 className="text-base font-black text-slate-900">Honors, Certifications &amp; Awards</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {certifications.map((c) => (
+              <div key={c.id} className="flex items-start gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                <Award className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-xs font-black text-slate-900">{c.name}</h3>
+                  <p className="text-[11px] font-semibold text-slate-600">{c.issuing_org} {c.issue_date && `· ${c.issue_date}`}</p>
+                </div>
+              </div>
+            ))}
+            {achievements.map((a) => (
+              <div key={a.id} className="flex items-start gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                <Trophy className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-xs font-black text-slate-900">{a.title}</h3>
+                  <p className="text-[11px] font-semibold text-slate-600">{a.issuer} {a.date_awarded && `· ${a.date_awarded}`}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Interests */}
       {(profile.interests || []).length > 0 && (
@@ -520,9 +757,23 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
         <EditProfileModal
           userId={profile.id}
           profile={profile}
+          initialExperiences={experiences}
+          initialEducations={educations}
+          initialProjects={projects}
+          initialCertifications={certifications}
+          initialAchievements={achievements}
           onClose={() => setShowEditModal(false)}
           onSaved={(updated) => {
             setProfile({ ...profile, ...updated } as UserProfile);
+            // Refresh sub-resources
+            api.get<any>(`/api/profile/${profile.username || profile.id}`).then((res) => {
+              if (res?.experiences) setExperiences(res.experiences);
+              if (res?.educations) setEducations(res.educations);
+              if (res?.projects) setProjects(res.projects);
+              if (res?.certifications) setCertifications(res.certifications);
+              if (res?.achievements) setAchievements(res.achievements);
+              if (res?.completeness) setCompleteness(res.completeness);
+            }).catch(() => {});
             setShowEditModal(false);
           }}
         />

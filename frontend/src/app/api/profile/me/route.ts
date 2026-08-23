@@ -3,6 +3,16 @@ import { createClient } from "@/lib/supabase/server";
 import { profileUpdateSchema } from "@/lib/validation";
 import { validateOrThrow } from "@/lib/validation";
 
+import {
+  getCandidateExperiences,
+  getCandidateEducations,
+  getCandidateProjects,
+  getCandidateCertifications,
+  getCandidateAchievements,
+} from "@/lib/candidate-profile-store";
+import { calculateProfileCompleteness } from "@/lib/profile-completeness";
+import { RESERVED_USERNAMES } from "@/lib/utils";
+
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -17,7 +27,32 @@ export async function GET() {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!data) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
 
-  return NextResponse.json({ profile: data, user: { id: user.id, email: user.email } });
+  const [experiences, educations, projects, certifications, achievements] = await Promise.all([
+    getCandidateExperiences(user.id),
+    getCandidateEducations(user.id),
+    getCandidateProjects(user.id),
+    getCandidateCertifications(user.id),
+    getCandidateAchievements(user.id),
+  ]);
+
+  const completeness = calculateProfileCompleteness({
+    profile: data,
+    experiences,
+    educations,
+    projects,
+  });
+
+  const fullProfile = {
+    ...data,
+    experiences,
+    educations,
+    projects,
+    certifications,
+    achievements,
+    completeness,
+  };
+
+  return NextResponse.json({ profile: fullProfile, user: { id: user.id, email: user.email } });
 }
 
 export async function PATCH(request: NextRequest) {
@@ -42,6 +77,35 @@ export async function PATCH(request: NextRequest) {
   }
 
   const updates = validateOrThrow(profileUpdateSchema, profileUpdates);
+
+  // If username is being updated, perform strict validation & collision checks
+  if (updates.username) {
+    const normalizedUsername = updates.username.trim().toLowerCase();
+    
+    if (RESERVED_USERNAMES.includes(normalizedUsername)) {
+      return NextResponse.json(
+        { error: `The username "${updates.username}" is reserved by the system.` },
+        { status: 400 }
+      );
+    }
+
+    // Check if another profile owns this username
+    const { data: existingUser } = await supabase
+      .from("user_profiles")
+      .select("id")
+      .ilike("username", normalizedUsername)
+      .neq("id", user.id)
+      .maybeSingle();
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: `The username "${updates.username}" is already taken.` },
+        { status: 409 }
+      );
+    }
+
+    updates.username = normalizedUsername;
+  }
 
   const { data, error } = await supabase
     .from("user_profiles")

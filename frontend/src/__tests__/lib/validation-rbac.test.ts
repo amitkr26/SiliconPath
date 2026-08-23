@@ -93,8 +93,13 @@ describe("mapAdminOpportunityColumns", () => {
 
 describe("adminOpportunityUpdateSchema", () => {
   test("rejects verification_status outside the live CHECK values", () => {
-    expect(adminOpportunityUpdateSchema.safeParse({ verification_status: "pending" }).success).toBe(false);
+    expect(adminOpportunityUpdateSchema.safeParse({ verification_status: "pending" }).success).toBe(true);
     expect(adminOpportunityUpdateSchema.safeParse({ verification_status: "verified" }).success).toBe(true);
+    expect(adminOpportunityUpdateSchema.safeParse({ verification_status: "rejected" }).success).toBe(true);
+    expect(adminOpportunityUpdateSchema.safeParse({ verification_status: "expired" }).success).toBe(true);
+    expect(adminOpportunityUpdateSchema.safeParse({ verification_status: "link_unavailable" }).success).toBe(true);
+    expect(adminOpportunityUpdateSchema.safeParse({ verification_status: "bogus_status" }).success).toBe(false);
+    expect(adminOpportunityUpdateSchema.safeParse({ verification_status: "unverified" }).success).toBe(false);
   });
   test("strips unknown keys (mapped path, so tolerated)", () => {
     const parsed = adminOpportunityUpdateSchema.safeParse({ title: "Software Engineer", user_id: "evil" });

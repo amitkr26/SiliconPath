@@ -11,14 +11,20 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
   const offset = parseInt(searchParams.get("offset") || "0");
 
+  // Canonical IST date for expiry filtering (consistent with opportunities-query.ts)
+  const now = new Date();
+  const istDate = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const today = istDate.toISOString().split("T")[0];
+
   let query = supabase
     .from("opportunities")
     .select("*, organization:organizations(name)", { count: "exact" })
-    .eq("is_active", true);
+    .eq("is_active", true)
+    .neq("verification_status", "rejected")
+    .neq("verification_status", "expired")
+    .or(`deadline.gte.${today},deadline.is.null`);
 
   if (q) {
-    // P0.5: no legacy `organization` text filter — match the query against org
-    // names in the (small) organizations table, then filter by organization_id.
     const { data: orgMatches } = await supabase
       .from("organizations")
       .select("id")

@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 import { PUBLIC_PROFILE_FIELDS, RESERVED_USERNAMES } from "@/lib/utils";
+import {
+  getCandidateExperiences,
+  getCandidateEducations,
+  getCandidateProjects,
+  getCandidateCertifications,
+  getCandidateAchievements,
+} from "@/lib/candidate-profile-store";
+import { calculateProfileCompleteness } from "@/lib/profile-completeness";
+
 
 const UPDATABLE_FIELDS = [
   "display_name",
@@ -53,7 +63,58 @@ export async function GET(
     }
   }
 
-  return NextResponse.json(data);
+  // Load candidate structured entities
+  const [experiences, educations, projects, certifications, achievements] = await Promise.all([
+    getCandidateExperiences(data.id),
+    getCandidateEducations(data.id),
+    getCandidateProjects(data.id),
+    getCandidateCertifications(data.id),
+    getCandidateAchievements(data.id),
+  ]);
+
+  const completeness = calculateProfileCompleteness({
+    profile: data,
+    experiences,
+    educations,
+    projects,
+  });
+
+  let mutual_connections_count = 0;
+  if (user.id !== data.id) {
+    try {
+      const { data: allConns } = await supabaseAdmin
+        .from("connections")
+        .select("requester_id, addressee_id")
+        .eq("status", "accepted");
+
+      const myAccepted = new Set<string>();
+      const theirAccepted = new Set<string>();
+
+      (allConns || []).forEach((c: { requester_id: string; addressee_id: string }) => {
+        if (c.requester_id === user.id) myAccepted.add(c.addressee_id);
+        if (c.addressee_id === user.id) myAccepted.add(c.requester_id);
+        if (c.requester_id === data.id) theirAccepted.add(c.addressee_id);
+        if (c.addressee_id === data.id) theirAccepted.add(c.requester_id);
+      });
+
+      for (const friendId of myAccepted) {
+        if (theirAccepted.has(friendId)) mutual_connections_count++;
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  return NextResponse.json({
+    ...data,
+    experiences,
+    educations,
+    projects,
+    certifications,
+    achievements,
+    completeness,
+    mutual_connections_count,
+  });
 }
 
 export async function PATCH(

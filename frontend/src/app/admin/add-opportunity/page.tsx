@@ -90,11 +90,11 @@ export default function AddOpportunityPage() {
         apply_link: form.apply_link || null,
         official_page_url: form.official_page_url || null,
         tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
-        verification_status: "unverified",
+        verification_status: "pending",
         is_active: true,
       });
       toast.success("Opportunity added!");
-      setForm({ title: "", organization: "", category: "JRF", location: "", stipend: "", deadline: "", description: "", apply_link: "", official_page_url: "", tags: "", verification_status: "unverified" });
+      setForm({ title: "", organization: "", category: "JRF", location: "", stipend: "", deadline: "", description: "", apply_link: "", official_page_url: "", tags: "", verification_status: "pending" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to add opportunity");
     }

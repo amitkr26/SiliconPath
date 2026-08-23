@@ -7,7 +7,7 @@ import OpportunityCard from "@/components/OpportunityCard";
 import OpportunityRow from "@/components/OpportunityRow";
 import FilterBar from "@/components/FilterBar";
 import SearchBar from "@/components/SearchBar";
-import { Loader2, Sparkles, X, Filter, LayoutGrid, List } from "lucide-react";
+import { Loader2, Sparkles, X, Filter, LayoutGrid, List, ArrowDownUp } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -16,6 +16,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   const searchParams = useSearchParams();
   const initialSearchParam = searchParams.get("search") || "";
   const initialCategoryParam = searchParams.get("category") || "All";
+  const initialExperienceParam = searchParams.get("experience") || "All";
 
   const [opportunities, setOpportunities] = useState<Opportunity[]>(initialData);
   const [loading, setLoading] = useState(false);
@@ -23,14 +24,19 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   const [eligibility, setEligibility] = useState("All");
   const [location, setLocation] = useState("All");
   const [deadline, setDeadline] = useState("All");
+  const [experience, setExperience] = useState(initialExperienceParam);
+  const [sort, setSort] = useState("fresher");
   const [search, setSearch] = useState(initialSearchParam);
 
   useEffect(() => {
     const s = searchParams.get("search") || "";
     const c = searchParams.get("category") || "All";
+    const e = searchParams.get("experience") || "All";
     setSearch(s);
     setCategory(c);
+    setExperience(e);
   }, [searchParams]);
+
   const [showUnverified, setShowUnverified] = useState(false);
   const [viewMode, setViewMode] = useState<"card" | "row">("row");
   const [aiChips, setAiChips] = useState<Record<string, string>>({});
@@ -59,6 +65,8 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
       if (eligibility && eligibility !== "All") params.set("eligibility", eligibility);
       if (location && location !== "All") params.set("location", location);
       if (deadline && deadline !== "All") params.set("deadline", deadline);
+      if (experience && experience !== "All") params.set("experience", experience);
+      if (sort && sort !== "fresher") params.set("sort", sort);
       if (search) params.set("search", search);
       if (showUnverified) {
         params.set("verified", "all");
@@ -68,12 +76,12 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
       const res = await fetch(`/api/opportunities?${params}`);
       const data = await res.json();
 
-      // Ignore stale responses (filters changed or Load More superseded while in flight)
+      // Ignore stale responses
       if (token !== requestToken.current) return;
 
       if (data.opportunities) {
         setOpportunities((prev) =>
-          append ? Array.from(new Map([...prev, ...data.opportunities].map((o) => [o.id, o])).values()) : data.opportunities
+          append ? Array.from(new Map([...prev, ...data.opportunities].map((o: Opportunity) => [o.id, o])).values()) : data.opportunities
         );
         setTotalPages(data.total_pages || 1);
         setTotalCount(data.total_count || data.opportunities.length);
@@ -95,7 +103,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [category, eligibility, location, deadline, search, showUnverified]);
+  }, [category, eligibility, location, deadline, experience, sort, search, showUnverified]);
 
   const handleSearch = useCallback(async (query: string) => {
     setSearch(query);
@@ -128,7 +136,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
 
   useEffect(() => {
     fetchOpportunities(1);
-  }, [category, eligibility, location, deadline, search, showUnverified, fetchOpportunities]);
+  }, [category, eligibility, location, deadline, experience, sort, search, showUnverified, fetchOpportunities]);
 
   useEffect(() => {
     if (page > 1) fetchOpportunities(page, true);
@@ -140,12 +148,12 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
         
         {/* HEADER SECTION */}
         <div className="mb-8">
-          <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 mb-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-blue-600 mb-2">
             <Sparkles className="w-4 h-4" />
-            <span>Verified Semiconductor &amp; VLSI Opportunities</span>
+            <span>Currently Active &amp; Verified Semiconductor &amp; VLSI Openings</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Jobs &amp; Opportunities</h1>
-          <p className="text-slate-600 mt-1 text-xs sm:text-sm font-medium">Browse 100% verified JRF, SRF, PhD admissions, DRDO, ISRO, CSIR, and premier VLSI industry roles.</p>
+          <p className="text-slate-600 mt-1 text-xs sm:text-sm font-medium">Browse verified JRF, SRF, PhD admissions, DRDO, ISRO, CSIR, and premier VLSI industry roles with active application deadlines.</p>
         </div>
 
         <div className="flex gap-8">
@@ -158,10 +166,12 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                 selectedEligibility={eligibility}
                 selectedLocation={location}
                 selectedDeadline={deadline}
+                selectedExperience={experience}
                 onCategoryChange={setCategory}
                 onEligibilityChange={setEligibility}
                 onLocationChange={setLocation}
                 onDeadlineChange={setDeadline}
+                onExperienceChange={setExperience}
               />
             </div>
           </aside>
@@ -183,10 +193,12 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                     selectedEligibility={eligibility}
                     selectedLocation={location}
                     selectedDeadline={deadline}
+                    selectedExperience={experience}
                     onCategoryChange={setCategory}
                     onEligibilityChange={setEligibility}
                     onLocationChange={setLocation}
                     onDeadlineChange={setDeadline}
+                    onExperienceChange={setExperience}
                   />
                 </div>
                 <div className="p-4 border-t-2 border-slate-900">
@@ -201,8 +213,8 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
           {/* MAIN RESULTS FEED */}
           <div className="flex-1 min-w-0">
             
-            {/* SEARCH & TOGGLES */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+            {/* SEARCH & CONTROLS BAR */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
               <div className="flex-1">
                 <SearchBar value={search} onChange={setSearch} onSearch={handleSearch} />
                 {aiSearching && (
@@ -213,6 +225,21 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                 )}
               </div>
               <div className="flex items-center gap-2">
+                {/* SORT DROPDOWN */}
+                <div className="flex items-center gap-1 bg-white border-2 border-slate-900 rounded-xl px-3 py-1.5 shadow-brutal-sm text-xs font-bold">
+                  <ArrowDownUp className="w-3.5 h-3.5 text-blue-600" />
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                    aria-label="Sort opportunities"
+                    className="bg-transparent text-slate-900 font-bold focus:outline-hidden cursor-pointer"
+                  >
+                    <option value="fresher">Fresher Relevance</option>
+                    <option value="closing_soon">Closing Soon</option>
+                    <option value="newest">Newest First</option>
+                  </select>
+                </div>
+
                 <button
                   onClick={() => setShowMobileFilters(true)}
                   className="lg:hidden inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl border-2 border-slate-900 bg-white text-slate-700 hover:bg-slate-50 transition-colors flex-1 justify-center shadow-brutal-sm"
@@ -230,38 +257,49 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
               </div>
             </div>
 
-            {/* QUICK PREMIER ORG PILLS */}
+            {/* DOMAIN & FRESHER SHORTCUT PILLS */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-hide">
               <span className="text-[11px] font-black uppercase text-slate-500 shrink-0 mr-1">
-                Top Labs:
+                Domain:
               </span>
               {[
-                { name: "All Labs", val: "" },
-                { name: "ISRO", val: "ISRO" },
-                { name: "DRDO", val: "DRDO" },
-                { name: "CSIR", val: "CSIR" },
-                { name: "IIT Bombay", val: "IIT Bombay" },
-                { name: "Qualcomm", val: "Qualcomm" },
-                { name: "Intel", val: "Intel" },
-                { name: "ARM", val: "ARM" },
-                { name: "AMD", val: "AMD" },
-              ].map((org) => {
-                const isActive = (search.toLowerCase() === org.val.toLowerCase()) || (!search && !org.val);
+                { name: "All", searchVal: "", catVal: "All", expVal: "All" },
+                { name: "🎓 Fresher First", searchVal: "", catVal: "All", expVal: "Fresher" },
+                { name: "⚡ VLSI RTL", searchVal: "RTL", catVal: "All", expVal: "All" },
+                { name: "🧪 Verification (UVM)", searchVal: "Verification", catVal: "All", expVal: "All" },
+                { name: "📐 Physical Design", searchVal: "Physical Design", catVal: "All", expVal: "All" },
+                { name: "🔌 Embedded Systems", searchVal: "Embedded", catVal: "All", expVal: "All" },
+                { name: "🔬 JRF / Fellowships", searchVal: "", catVal: "jrf", expVal: "All" },
+                { name: "💼 Internships", searchVal: "", catVal: "internship", expVal: "All" },
+              ].map((pill) => {
+                const isActive =
+                  (pill.name === "🎓 Fresher First" && experience === "Fresher") ||
+                  (pill.name === "🔬 JRF / Fellowships" && category === "jrf") ||
+                  (pill.name === "💼 Internships" && category === "internship") ||
+                  (pill.searchVal && search.toLowerCase() === pill.searchVal.toLowerCase()) ||
+                  (!pill.searchVal && !search && category === "All" && experience === "All" && pill.name === "All");
+
                 return (
                   <button
-                    key={org.name}
+                    key={pill.name}
                     type="button"
                     onClick={() => {
-                      setSearch(org.val);
-                      handleSearch(org.val);
+                      if (pill.expVal !== "All") setExperience(pill.expVal);
+                      if (pill.catVal !== "All") setCategory(pill.catVal);
+                      if (pill.searchVal !== undefined) setSearch(pill.searchVal);
+                      if (pill.name === "All") {
+                        setCategory("All");
+                        setExperience("All");
+                        setSearch("");
+                      }
                     }}
                     className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border-2 border-slate-900 transition-all ${
                       isActive
-                        ? "bg-accent text-white shadow-brutal-sm scale-105"
+                        ? "bg-blue-600 text-white shadow-brutal-sm scale-105"
                         : "bg-white text-slate-700 hover:bg-slate-100 hover:-translate-y-0.5"
                     }`}
                   >
-                    {org.name}
+                    {pill.name}
                   </button>
                 );
               })}
@@ -292,8 +330,8 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
 
             {/* RESULTS STATS HEADER */}
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-semibold text-slate-700">
-                {loading ? "Fetching opportunities..." : `${totalCount} verified opportunities found`}
+              <p className="text-sm font-bold text-slate-800">
+                {loading ? "Fetching active opportunities..." : `Showing ${totalCount} Active & Verified Opportunities`}
               </p>
             </div>
 
@@ -301,15 +339,22 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
             {loading ? (
               <Card tone="flat" className="flex flex-col items-center justify-center py-20">
                 <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
-                <p className="text-sm text-slate-600 font-medium">Loading live postings...</p>
+                <p className="text-sm text-slate-600 font-medium">Loading verified openings...</p>
               </Card>
             ) : opportunities.length === 0 ? (
               <Card tone="flat" className="text-center py-16 p-8">
-                <p className="text-slate-900 font-bold text-lg mb-2">No matching opportunities found</p>
+                <p className="text-slate-900 font-bold text-lg mb-2">No matching active opportunities found</p>
                 <p className="text-slate-500 text-sm max-w-md mx-auto mb-6">Try broadening your filter criteria or searching for different keywords.</p>
                 <Button
                   variant="secondary"
-                  onClick={() => { setCategory("All"); setEligibility("All"); setLocation("All"); setDeadline("All"); setSearch(""); }}
+                  onClick={() => {
+                    setCategory("All");
+                    setEligibility("All");
+                    setLocation("All");
+                    setDeadline("All");
+                    setExperience("All");
+                    setSearch("");
+                  }}
                   className="px-6 rounded-full"
                 >
                   Reset All Filters
@@ -341,7 +386,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                   {loadingMore ? "Loading more..." : "Load More Opportunities"}
                 </Button>
                 <p className="text-xs font-semibold text-slate-500">
-                  Showing page {page} of {totalPages} — {totalCount} verified opportunities
+                  Showing page {page} of {totalPages} — {totalCount} active opportunities
                 </p>
               </div>
             )}
