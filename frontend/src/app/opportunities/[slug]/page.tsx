@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, MapPin, Currency, Calendar, ExternalLink, Clock, Briefcase, GraduationCap, CalendarDays, User, Bookmark, Share2, BookmarkCheck } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase";
 import { formatDate, isExpired, mapDbOpportunityToClient } from "@/lib/utils";
+import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 import CategoryBadge from "@/components/CategoryBadge";
 import DeadlineCountdown from "@/components/DeadlineCountdown";
 import ApplyButton from "@/components/ApplyButton";
@@ -22,20 +23,19 @@ export const revalidate = 3600;
 
 export async function generateStaticParams() {
   if (!supabaseAdmin?.from) return [];
-  // Canonical IST date for expiry filtering
-  const now = new Date();
-  const istDate = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
-  const today = istDate.toISOString().split("T")[0];
+  const today = computeIstToday();
 
   const { data } = await supabaseAdmin
     .from("opportunities")
-    .select("slug")
+    .select("slug, category, deadline, verification_status, posted_at, created_at, last_link_checked, is_active")
     .eq("is_active", true)
-    .neq("verification_status", "expired")
-    .or(`deadline.gte.${today},deadline.is.null`)
+    .or(buildAvailabilityDbFilter(today))
     .not("slug", "is", null)
-    .limit(100);
+    .limit(200);
+
+  // Post-filter: canonical availability + slug validation
   return (data || [])
+    .filter((opp: any) => isCurrentlyAvailable(opp, today))
     .filter((opp: { slug: string }) => opp.slug.length <= 80)
     .map((opp: { slug: string }) => ({ slug: opp.slug }));
 }

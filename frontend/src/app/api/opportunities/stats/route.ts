@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { serverError } from "@berojgardegreewala/api";
+import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 
 export async function GET(request: NextRequest) {
   if (!isAdminConfigured) {
@@ -11,10 +12,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Canonical IST date for expiry filtering
-    const now = new Date();
-    const istDate = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
-    const today = istDate.toISOString().split("T")[0];
+    const today = computeIstToday();
+    const availFilter = buildAvailabilityDbFilter(today);
 
     const [{ count: total }, { count: active }, { count: verified }] = await Promise.all([
       supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }),
@@ -22,26 +21,30 @@ export async function GET(request: NextRequest) {
         .eq("is_active", true)
         .neq("verification_status", "rejected")
         .neq("verification_status", "expired")
-        .or(`deadline.gte.${today},deadline.is.null`),
+        .neq("verification_status", "link_unavailable")
+        .or(availFilter),
       supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true })
         .eq("is_active", true)
         .eq("verification_status", "verified")
         .neq("verification_status", "expired")
-        .or(`deadline.gte.${today},deadline.is.null`),
+        .neq("verification_status", "link_unavailable")
+        .or(availFilter),
     ]);
 
     const byCategory = await supabaseAdmin
       .from("opportunities")
-      .select("category")
+      .select("category, deadline, verification_status, posted_at, created_at, last_link_checked")
       .eq("is_active", true)
       .neq("verification_status", "rejected")
-      .neq("verification_status", "expired")
-      .or(`deadline.gte.${today},deadline.is.null`);
+      .neq("verification_status", "expired");
 
+    // Post-filter: canonical availability for accurate category counts
     const categoryCounts: Record<string, number> = {};
-    (byCategory.data || []).forEach((o: { category: string }) => {
-      categoryCounts[o.category] = (categoryCounts[o.category] || 0) + 1;
-    });
+    (byCategory.data || [])
+      .filter((o: any) => isCurrentlyAvailable(o, today))
+      .forEach((o: { category: string }) => {
+        categoryCounts[o.category] = (categoryCounts[o.category] || 0) + 1;
+      });
 
     return NextResponse.json({
       total: total || 0,

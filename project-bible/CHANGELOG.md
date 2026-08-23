@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - clean/main branch
 
+- **2026-08-23 — Phase 10: Live Opportunity Database Forensic Cleanup & Data Quality Restoration (COMPLETE).**
+  - **Live Database Forensic Audit & Classification (`scripts/deep-opportunity-inspector.mjs`):**
+    - Scanned all 3,595 opportunities directly on live Supabase PostgreSQL (`aqauempuwmbizqoaolop`).
+    - Identified 2,989 duplicate rows (repeated scraper runs of identical titles/URLs), 57 non-tech irrelevant positions (sales/hospitality), 13 placeholder/synthetic records, 11 expired deadlines, 99 broken/unavailable links, and 85 pending moderation rows.
+    - Verified foreign-key dependencies: confirmed 11 candidate applications (across 9 distinct opportunities) and 2 saved bookmarks.
+  - **Audit Snapshots in `project-bible/qa/latest/opportunity-cleanup/`:**
+    - Published 10 comprehensive markdown audit artifacts: `01-BEFORE-SNAPSHOT.md` through `10-CLEANUP-RESULT.md`.
+  - **Non-Destructive Quarantine Execution (`scripts/execute-opportunity-cleanup.mjs`):**
+    - Performed safe batch updates without deleting any rows or breaking foreign-key references:
+      - 431 Active & Verified genuine semiconductor/VLSI/research openings (`is_active = true`, `verification_status = 'verified'`).
+      - 6 Expired openings (`is_active = false`, `verification_status = 'expired'`).
+      - 110 Broken link openings (`is_active = false`, `verification_status = 'link_unavailable'`).
+      - 2,963 Rejected duplicates / non-tech (`is_active = false`, `verification_status = 'rejected'`).
+      - 85 Pending moderation (`is_active = false`, `verification_status = 'pending'`).
+  - **Codebase Hardening:**
+    - `frontend/src/lib/availability.ts`: Updated `isCurrentlyAvailable` to correctly handle `is_active === null` and `is_active === false`.
+    - `frontend/src/app/page.tsx`: Updated fallback and dynamic stats queries to reflect 431 active verified opportunities.
+    - `frontend/src/app/opportunities/page.tsx`: Replaced custom server query with canonical `searchOpportunities` service.
+    - `frontend/next.config.mjs`: Added `serverComponentsExternalPackages: ["@supabase/supabase-js", "@sentry/nextjs", "@opentelemetry/api"]` for stable module resolution on Windows.
+  - **Verification & Zero Regression:**
+    - `node scripts/verify-all-routes-live.mjs`: All 8 public, feed, API, XML, and employer routes return HTTP 200.
+    - `npx tsc --noEmit`: 0 TypeScript errors.
+    - `npm test`: 16/16 test suites, 153/153 unit tests passing.
+    - Final Verdict: READY.
+
 - **2026-08-23 — Phase 9: Candidate Professional Identity & Networking (COMPLETE).**
   - **Relational Candidate Sub-Resources Schema & RLS Policies (`20260823000001_candidate_profile_entities.sql`):**
     - Created relational tables: `candidate_experiences`, `candidate_educations`, `candidate_projects`, `candidate_certifications`, `candidate_achievements` with foreign keys referencing `user_profiles(id)` (`ON DELETE CASCADE`), timestamps, check constraints, and RLS policies enforcing public read (when `is_profile_public = true`) and owner-only mutations (`candidate_id = auth.uid()`).
