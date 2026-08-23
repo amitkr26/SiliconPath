@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     const byCategory = await supabaseAdmin
       .from("opportunities")
-      .select("category, deadline, verification_status, posted_at, created_at, last_link_checked")
+      .select("category, deadline, verification_status, posted_at, created_at, last_link_checked, is_active")
       .eq("is_active", true)
       .neq("verification_status", "rejected")
       .neq("verification_status", "expired");
