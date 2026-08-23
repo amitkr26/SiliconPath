@@ -220,3 +220,98 @@ export interface CompanyPage {
   is_claimed: boolean;
   created_at: string;
 }
+
+export interface CandidateExperience {
+  id: string;
+  candidate_id: string;
+  company_name: string;
+  role_title: string;
+  employment_type: 'Full-time' | 'Part-time' | 'Internship' | 'Contract' | 'Research' | 'Apprenticeship';
+  location: string | null;
+  start_date: string;
+  end_date: string | null;
+  is_current: boolean;
+  description: string | null;
+  skills_used: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CandidateEducation {
+  id: string;
+  candidate_id: string;
+  institution: string;
+  degree: string;
+  field_of_study: string | null;
+  start_year: number | null;
+  end_year: number | null;
+  grade: string | null;
+  description: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CandidateProject {
+  id: string;
+  candidate_id: string;
+  title: string;
+  description: string | null;
+  technologies: string[];
+  project_url: string | null;
+  github_url: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CandidateCertification {
+  id: string;
+  candidate_id: string;
+  name: string;
+  issuing_org: string;
+  issue_date: string | null;
+  expiration_date: string | null;
+  credential_id: string | null;
+  credential_url: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CandidateAchievement {
+  id: string;
+  candidate_id: string;
+  title: string;
+  issuer: string | null;
+  date_awarded: string | null;
+  description: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ProfileCompleteness {
+  score: number;
+  percentage: number;
+  breakdown: {
+    identity: boolean;
+    avatar: boolean;
+    bio: boolean;
+    location: boolean;
+    skills: boolean;
+    experience: boolean;
+    education: boolean;
+    projects: boolean;
+    careerPreferences: boolean;
+  };
+  missingItems: string[];
+}
+
+export interface CandidateFullProfile extends UserProfile {
+  experiences: CandidateExperience[];
+  educations: CandidateEducation[];
+  projects: CandidateProject[];
+  certifications: CandidateCertification[];
+  achievements: CandidateAchievement[];
+  completeness?: ProfileCompleteness;
+  mutual_connections_count?: number;
+}

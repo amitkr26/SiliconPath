@@ -1,6 +1,9 @@
-# KNOWN ISSUES — 2026-08-20 (reconciled)
+# KNOWN ISSUES — 2026-08-23 (reconciled)
 
-## 0. Backend deployment — DONE (2026-08-20, P1 → CLOSED)
+## 0. Phase 9 Candidate Sub-Resources Physical Table Instantiation — DONE (2026-08-23, P1 → CLOSED)
+The 5 candidate sub-resource tables (`candidate_experiences`, `candidate_educations`, `candidate_projects`, `candidate_certifications`, `candidate_achievements`) are physically instantiated in live PostgreSQL (`aqauempuwmbizqoaolop`) via migration `20260823061020_candidate_profile_entities_20260823`, verified live with RLS, foreign keys to `user_profiles(id)`, passing direct PostgreSQL CRUD and 12/12 candidate E2E gates.
+
+## 0.1. Backend deployment — DONE (2026-08-20, P1 → CLOSED)
 Render web service **deployed and verified** on 2026-08-20 (Phase 6.5):
 `https://berojgardegreewala-backend.onrender.com` (auto-deploy on push to main).
 Evidence: `/health` 200, `/health/ready` 200, CORS Vercel/foreign, admin guard

@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - clean/main branch
 
+- **2026-08-23 — Phase 9: Candidate Professional Identity & Networking (COMPLETE).**
+  - **Relational Candidate Sub-Resources Schema & RLS Policies (`20260823000001_candidate_profile_entities.sql`):**
+    - Created relational tables: `candidate_experiences`, `candidate_educations`, `candidate_projects`, `candidate_certifications`, `candidate_achievements` with foreign keys referencing `user_profiles(id)` (`ON DELETE CASCADE`), timestamps, check constraints, and RLS policies enforcing public read (when `is_profile_public = true`) and owner-only mutations (`candidate_id = auth.uid()`).
+  - **Dynamic Profile Completeness Calculator (`lib/profile-completeness.ts`):**
+    - Implemented deterministic, non-simulated 0–100% profile completeness calculation based on real persisted data: Identity (15%) + Avatar (10%) + Bio (10%) + Location (5%) + Skills (15%) + Experience (15%) + Education (15%) + Projects (10%) + Career Preferences (5%).
+    - Added unit test suite `src/__tests__/lib/profile-completeness.test.ts` (100% pass).
+  - **Sub-Resource APIs & Store (`lib/candidate-profile-store.ts`):**
+    - Implemented CRUD API endpoints with IDOR guards:
+      - Experience: `GET /api/profile/[userId]/experience`, `GET/POST /api/profile/me/experience`, `PATCH/DELETE /api/profile/me/experience/[id]`
+      - Education: `GET /api/profile/[userId]/education`, `GET/POST /api/profile/me/education`, `PATCH/DELETE /api/profile/me/education/[id]`
+      - Projects: `GET /api/profile/[userId]/projects`, `GET/POST /api/profile/me/projects`, `PATCH/DELETE /api/profile/me/projects/[id]`
+      - Certifications: `GET /api/profile/[userId]/certifications`, `GET/POST /api/profile/me/certifications`, `DELETE /api/profile/me/certifications/[id]`
+      - Achievements: `GET /api/profile/[userId]/achievements`, `GET/POST /api/profile/me/achievements`, `DELETE /api/profile/me/achievements/[id]`
+  - **Professional Networking, Mutual Connections & Follow System:**
+    - Implemented `GET /api/network/mutual` calculating the real intersection of accepted 1st-degree connections between any two users.
+    - Added `DELETE /api/network/connections` for disconnecting/removing connections.
+    - Enhanced `GET /api/network/suggestions` with explainable scoring (same company +15, same location +8, shared skills +4 per skill, mutual connections +20 per mutual contact).
+    - Added Follow/Unfollow endpoints with self-follow prevention.
+  - **Enhanced UI Surfaces:**
+    - Upgraded `PublicProfile.tsx`: Added Experience timeline, Education history, Projects showcase, Certifications & Honors badges, Dynamic Profile Completeness meter for profile owners, Mutual Connections counter, and direct Message button.
+    - Upgraded `EditProfileModal.tsx`: Tabbed modal interface supporting live creation and deletion of Experience, Education, Projects, Certifications, Achievements, and Skills.
+    - Upgraded `NetworkPage.tsx`: Added tabs for Suggestions (with mutual connection badges), Received Requests, Sent Requests, My Connections (with filter and Disconnect button), Followers, and Following.
+    - Upgraded `/api/employer/talent/[username]`: Enables recruiters to inspect full structured experiences, educations, projects, skills, and completeness scores of candidates.
+  - **Forensic Verification & Zero Regression:**
+    - `candidate-network-e2e.mjs`: 12/12 Phase 9 forensic validation gates pass.
+    - `forensic-full-suite.mjs`: 15/15 release gates pass (dual-employer isolation, settings persistence, ATS pipeline, company claims, security headers).
+    - `npx tsc --noEmit`: 0 errors.
+    - `npx jest`: 120/120 tests passing (15 test suites).
+    - `npm run build`: 241/241 static and dynamic routes compiled. Verdict: READY.
+
 - **2026-08-22 — Phase 8.1: Final Platform Forensic Evidence Gate & IDOR Hardening (COMPLETE).**
   - **Live Database Source of Truth Inspection:**
     - Verified all 5 additive PostgreSQL tables (`opportunities.created_by`, `opportunities.employer_id`, `opportunities.job_status`, `opportunities.screening_questions`, `company_claims`, `recruiter_saved_candidates`, `employer_settings`, `workspace_members`) and unique indexes (`user_profiles_username_lower_key`, `recruiter_saved_candidates_pkey`, `workspace_members_pkey`, `employer_settings_pkey`) directly against live Supabase PostgreSQL.
