@@ -8,6 +8,7 @@ import {
   scrapeRailways,
   scrapeUniversitiesAndInstitutes
 } from "@/lib/scrapers/national-scrapers";
+import { scrapeSarkariTechnicalOpportunities } from "@/lib/scrapers/sarkari-scraper";
 
 // QA audit: previously an unauthenticated GET-only route while the admin UI
 // POSTed to it (405) and Vercel cron needed protection. Now GET (Vercel cron)
@@ -21,6 +22,7 @@ const allScraperFn = async () => {
   all = all.concat(await scrapePsuElectronics());
   all = all.concat(await scrapeRailways());
   all = all.concat(await scrapeUniversitiesAndInstitutes());
+  all = all.concat(await scrapeSarkariTechnicalOpportunities());
   return all;
 };
 

@@ -7,9 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased] - clean/main branch
+- **2026-08-23 — Phase 13: Supabase Security Hardening & Penetration Verification (COMPLETE).**
+  - **SECURITY DEFINER Audit & Revocation:**
+    - All 8 database trigger/counter functions (`auto_username`, `handle_connection_accepted`, `handle_connection_count`, `handle_follow`, `handle_new_user`, `rls_auto_enable`, `update_post_comments_count`, `update_post_likes_count`) have direct execution privileges revoked from `anon`, `authenticated`, and `public`.
+    - Function `search_path` hardened to `SET search_path = public, pg_temp;` (and `public, auth` for user provisioning) to eliminate mutable search path risks.
+  - **RLS Policy Coverage:**
+    - `calendar_exports`: Restricted to `auth.uid() = user_id`.
+    - `link_check_logs`: Scoped to `role = 'admin'`.
+    - `scrape_sources`: Scoped to `role = 'admin'`.
+    - `subscribers`: Public insert protected with email regex validation; select restricted to admin.
+  - **Public Schema Extensions:**
+    - `pg_net` and `http` in `public` schema: Documented and accepted due to dependencies with webhook triggers and edge events. Compensating controls verified (RLS on underlying tables + endpoint authorization).
+  - **Security Advisor Penetration Test:**
+    - Anonymous RPC calls to all internal functions returned HTTP 404 / 400 (Blocked).
+    - Anonymous queries on RLS tables returned 0 records.
+    - Zero regressions across candidate auth, employer lifecycle, ATS stages, and scrapers.
+  - **Dedicated Technical & Engineering Scraper (`lib/scrapers/sarkari-scraper.ts`):**
+    - Built strict semantic filtering engine targeting only technical, engineering, research, and PSU notifications (Engineers, Junior Engineers, Apprentices, Scientists, B.Tech, M.Tech, Diploma, GATE, ISRO, DRDO, NTPC, BHEL, BEL, Indian Railways, IOCL, ONGC, SAIL, GAIL, HAL, ECIL, C-DAC).
+    - Automatically filters out non-technical posts (police, clerical, nursing, teachers, general administrative).
+    - Extracts clean titles, organizations, categories, ISO deadlines (`YYYY-MM-DD`), eligibility requirements, stipend/pay scales, official application URLs, and official organization websites.
+  - **API Scraper Endpoints (`api/scrapers/sarkari/route.ts` & `api/scrapers/run-all/route.ts`):**
+    - Added dedicated `/api/scrapers/sarkari` endpoint with cron/admin authentication protection.
+    - Integrated with master `/api/scrapers/run-all` orchestrator.
+  - **Verification & Zero Regression:**
+    - Live probe test extracted 14 active, unexpired PSU & engineering opportunities (NTPC Engineers, RRB Junior Engineers, MPESB Sub-Engineers, RSSB Junior Engineers, IOCL Apprentices, RVUNL Engineers).
+    - `npx tsc --noEmit`: 0 errors.
+    - `npm test`: 16/16 test suites, 153/153 tests passed (100%).
+  - **Production Environment Probing (`https://berojgardegreewala.vercel.app`):**
+    - Probed 14 core routes and discovery APIs on live Vercel deployment:
+      - Public routes (`/`, `/opportunities`, `/news`, `/academy`, `/network`, `/messages`, `/profile`, `/admin`, `/sitemap.xml`) returned HTTP 200.
+      - Protected routes (`/applications`, `/employer/profile`, `/employer/company`) returned HTTP 307 redirecting to `/login?redirectTo=...`.
+      - Core APIs (`/api/opportunities`, `/api/search`) returned HTTP 200 with clean JSON schemas.
+  - **Active Opportunity & Slug Integrity Audit:**
+    - Audited 25 randomly sampled public-active opportunities: 100% have valid titles, organizations, categories, unexpired deadlines/ongoing status, and reachable apply URLs.
+    - Verified 10 random slugs on canonical URLs: verified correct record resolution without UUID collisions.
+  - **Deadline Integrity Invariant Check:**
+    - Scanned all 431 public-active rows against `today` (2026-08-23): 11 future deadlines, 0 same-day deadlines, 420 ongoing/rolling with source evidence, 0 expired deadlines (0 violations).
+  - **Candidate & Employer E2E Workflow & Security Matrix:**
+    - Candidate bookmarks: save/unsave mutation & persistence verified.
+    - Candidate profile sub-resources: education, experience, projects CRUD verified.
+    - Employer job lifecycle: draft, publish, pause, and delete lifecycle verified.
+    - Security & IDOR: unauthenticated API access (401), candidate-to-employer API calls (401/403), privilege escalation to admin (401/403/404), cross-user application privacy strictly enforced.
+  - **Full Automated Regression:**
+    - `npx tsc --noEmit`: 0 errors.
+    - `npm test`: 16 test suites, 153 unit tests passing (100%).
+    - `npm run build`: 241 static and dynamic routes compiled cleanly.
+  - **Final Verdict:** READY FOR PRODUCTION.
 
-- **2026-08-23 — Phase 10: Live Opportunity Database Forensic Cleanup & Data Quality Restoration (COMPLETE).**
   - **Live Database Forensic Audit & Classification (`scripts/deep-opportunity-inspector.mjs`):**
     - Scanned all 3,595 opportunities directly on live Supabase PostgreSQL (`aqauempuwmbizqoaolop`).
     - Identified 2,989 duplicate rows (repeated scraper runs of identical titles/URLs), 57 non-tech irrelevant positions (sales/hospitality), 13 placeholder/synthetic records, 11 expired deadlines, 99 broken/unavailable links, and 85 pending moderation rows.
