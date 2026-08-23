@@ -30,7 +30,6 @@ const GATED_PATHS = [
 
 const EMPLOYER_ONLY_PATHS = [
   '/post-job',
-  '/employers',
   '/employer',
   '/api/employer',
 ];
