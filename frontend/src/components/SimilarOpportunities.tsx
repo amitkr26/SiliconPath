@@ -2,26 +2,34 @@ import { supabaseAdmin } from "@/lib/supabase";
 import type { Opportunity } from "@/types";
 import OpportunityCard from "./OpportunityCard";
 
+import { mapDbOpportunityToClient } from "@/lib/utils";
+
 interface SimilarOpportunitiesProps {
   currentId: string;
   tags: string[];
 }
 
 async function getSimilar(id: string, tags: string[]): Promise<Opportunity[]> {
-  if (!supabaseAdmin?.from || !tags.length) return [];
+  if (!supabaseAdmin?.from || !tags || !tags.length) return [];
   const today = new Date().toISOString().split("T")[0];
 
-  const { data } = await supabaseAdmin
-    .from("opportunities")
-    .select("*")
-    .eq("is_active", true)
-    .neq("id", id)
-    .or(`deadline.gte.${today},deadline.is.null`)
-    .overlaps("tags", tags)
-    .order("created_at", { ascending: false })
-    .limit(3);
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("opportunities")
+      .select("*")
+      .eq("is_active", true)
+      .neq("id", id)
+      .or(`deadline.gte.${today},deadline.is.null`)
+      .overlaps("tags", tags)
+      .order("created_at", { ascending: false })
+      .limit(3);
 
-  return (data as Opportunity[]) || [];
+    if (error || !data) return [];
+    return data.map((d: any) => mapDbOpportunityToClient(d));
+  } catch (err) {
+    console.error("[Similar Opportunities Error]:", err);
+    return [];
+  }
 }
 
 export default async function SimilarOpportunities({

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-24 — Phase 16: Opportunity Dynamic Route Hardening & Category Realignment (COMPLETE).**
+  - **HTTP 500 Root Cause Resolution (`/opportunities/[slug]`):**
+    - Root Cause: `OpportunityDetailPage` and `generateMetadata` utilized Supabase PostgREST `.single()`, which throws uncaught exceptions when records fall back to dynamic rendering or when joins return missing records.
+    - Fix: Refactored to safe `lookupOpportunity(slug)` using `.maybeSingle()`, wrapped in try/catch blocks, gracefully invoking Next.js `notFound()` (HTTP 404) for non-existent records instead of unhandled 500 crashes.
+    - Wrapped deadline date parsing in try/catch to protect OpenGraph and metadata generators against non-standard string formats.
+  - **Subcomponent Mapping Hardening (`components/SimilarOpportunities.tsx`):**
+    - Transformed raw database rows returned by PostgREST to client-typed models via `mapDbOpportunityToClient` before passing to `OpportunityCard`.
+  - **Corporate Semiconductor Category Alignment (`scripts/realign-corporate-job-categories.mjs`):**
+    - Realigned 377 corporate semiconductor opportunities from legacy `jrf` classification to canonical `industry` category conforming with Postgres check constraints (`opportunities_category_check`).
+    - Restored active availability filtering and populated category breakdown statistics (`/api/opportunities/stats`).
+  - **Automated Verification:**
+    - `npx tsc --noEmit`: 0 errors.
+    - `npm test`: 16/16 test suites, 153/153 tests passed (100%).
+    - `npm run build`: 349 static and dynamic routes compiled cleanly.
+
 - **2026-08-23 — Phase 13: Supabase Security Hardening & Penetration Verification (COMPLETE).**
   - **SECURITY DEFINER Audit & Revocation:**
     - All 8 database trigger/counter functions (`auto_username`, `handle_connection_accepted`, `handle_connection_count`, `handle_follow`, `handle_new_user`, `rls_auto_enable`, `update_post_comments_count`, `update_post_likes_count`) have direct execution privileges revoked from `anon`, `authenticated`, and `public`.
