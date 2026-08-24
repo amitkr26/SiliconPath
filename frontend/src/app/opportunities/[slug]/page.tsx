@@ -27,7 +27,7 @@ export async function generateStaticParams() {
 
   const { data } = await supabaseAdmin
     .from("opportunities")
-    .select("slug, category, deadline, verification_status, posted_at, created_at, last_link_checked, is_active")
+    .select("slug, category, deadline, verification_status, posted_date, created_at, last_link_checked, is_active")
     .eq("is_active", true)
     .or(buildAvailabilityDbFilter(today))
     .not("slug", "is", null)
@@ -44,24 +44,41 @@ interface Props {
   params: { slug: string };
 }
 
+async function lookupOpportunity(slug: string) {
+  if (!supabaseAdmin?.from) return null;
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("opportunities")
+      .select("*, organizations(*)")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return mapDbOpportunityToClient(data);
+  } catch (err) {
+    console.error("[Opportunity Lookup Error]:", err);
+    return null;
+  }
+}
+
 export async function generateMetadata({ params }: Props) {
-  if (!supabaseAdmin?.from) return { title: "Opportunity" };
+  const opportunity = await lookupOpportunity(params.slug);
+  if (!opportunity) return { title: "Opportunity Not Found" };
 
-  const { data: rawOpportunity } = await supabaseAdmin
-    .from("opportunities")
-    .select("*, organizations(*)")
-    .eq("slug", params.slug)
-    .single();
-
-  if (!rawOpportunity) return { title: "Opportunity Not Found" };
-  const opportunity = mapDbOpportunityToClient(rawOpportunity);
-
-  // organization comes from the FK join when the denormalized text column is NULL.
   const orgName = opportunity.organization || "";
 
-  const deadlineStr = opportunity.deadline
-    ? new Date(opportunity.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
-    : "Check website";
+  let deadlineStr = "Check website";
+  if (opportunity.deadline) {
+    try {
+      deadlineStr = new Date(opportunity.deadline).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    } catch {
+      deadlineStr = "Check website";
+    }
+  }
 
   return {
     title: orgName ? `${opportunity.title} — ${orgName}` : opportunity.title,
@@ -92,16 +109,8 @@ function getInitials(name: string): string {
 }
 
 export default async function OpportunityDetailPage({ params }: Props) {
-  if (!supabaseAdmin?.from) notFound();
-
-  const { data: rawOpportunity, error } = await supabaseAdmin
-    .from("opportunities")
-    .select("*, organizations(*)")
-    .eq("slug", params.slug)
-    .single();
-
-  if (error || !rawOpportunity) notFound();
-  const opportunity = mapDbOpportunityToClient(rawOpportunity);
+  const opportunity = await lookupOpportunity(params.slug);
+  if (!opportunity) notFound();
   const orgName = opportunity.organization || "";
 
   const jsonLd = {

@@ -62,7 +62,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Opportunity detail pages — only active, verified, currently available
     const { data: opportunities } = await supabaseAdmin
       .from("opportunities")
-      .select("slug, created_at, category, deadline, verification_status, posted_at, last_link_checked")
+      .select("slug, created_at, category, deadline, verification_status, posted_date, last_link_checked")
       .eq("is_active", true)
       .eq("verification_status", "verified")
       .or(buildAvailabilityDbFilter(today));

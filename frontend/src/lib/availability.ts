@@ -52,6 +52,7 @@ export function isOpenEndedCategory(category: string | null | undefined): boolea
  */
 export function hasRecentEvidence(opp: {
   posted_at?: string | null;
+  posted_date?: string | null;
   created_at?: string | null;
   last_link_checked?: string | null;
   verification_status?: string | null;
@@ -59,7 +60,7 @@ export function hasRecentEvidence(opp: {
   if (opp.verification_status === "verified") return true;
 
   const cutoff = Date.now() - RECENCY_DAYS * 24 * 60 * 60 * 1000;
-  const dates = [opp.posted_at, opp.created_at, opp.last_link_checked]
+  const dates = [opp.posted_at, opp.posted_date, opp.created_at, opp.last_link_checked]
     .filter(Boolean)
     .map((d) => new Date(d!).getTime())
     .filter((t) => !isNaN(t));
@@ -108,6 +109,7 @@ export function isCurrentlyAvailable(
     verification_status?: string | null;
     is_active?: boolean | null;
     posted_at?: string | null;
+    posted_date?: string | null;
     created_at?: string | null;
     last_link_checked?: string | null;
   },
