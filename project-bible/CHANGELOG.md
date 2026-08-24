@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-24 — Phase 17: Admin Portal Credentials & Comprehensive Multi-Portal Verification (COMPLETE).**
+  - **Admin Authentication Hardening (`api/admin/auth/route.ts`):**
+    - Configured admin credentials with username `amitkr26` and password `amitkr2622002` using constant-time `timingSafeEqual` verification and HMAC session token generation.
+    - Updated session verification and environment variables.
+  - **Opportunity Ingestion & Refresh:**
+    - Executed live Sarkari & PSU technical scraper ingestion, adding 14 newly verified PSU & Engineering opportunities (NTPC, ISRO, DRDO, Railway Technical, IOCL).
+    - Database totals: 3,608 total records, 444 active opportunities, 441 verified active (377 industry, 34 JRF, 21 government, 7 fellowship, 2 internship).
+  - **End-to-End Multi-Portal Verification Suite (`scripts/test-all-portals-and-features.mjs`):**
+    - Built and executed 24 automated tests across Public, Candidate, Employer, and Admin portals covering SSR feed, category stats, search API, news, academy, network, messages, auth gates, employer ATS pipeline, admin auth/session verification, sitemap, robots, and feedback ingestion: 24/24 tests passed (100%).
+  - **Automated Quality Gate:**
+    - `npx tsc --noEmit`: 0 errors.
+    - `npm test`: 16/16 test suites, 153/153 tests passed (100%).
+    - `npm run build`: 349 static and dynamic routes compiled cleanly.
+
 - **2026-08-24 — Phase 16: Opportunity Dynamic Route Hardening & Category Realignment (COMPLETE).**
   - **HTTP 500 Root Cause Resolution (`/opportunities/[slug]`):**
     - Root Cause: `OpportunityDetailPage` and `generateMetadata` utilized Supabase PostgREST `.single()`, which throws uncaught exceptions when records fall back to dynamic rendering or when joins return missing records.
