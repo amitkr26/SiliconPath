@@ -9,7 +9,7 @@ const anonOk = supabaseAnonKey.length > 0;
 const serviceOk = supabaseServiceRoleKey.length > 0;
 
 export const isConfigured = urlOk && anonOk;
-export const isAdminConfigured = urlOk && serviceOk;
+export const isAdminConfigured = urlOk && (serviceOk || anonOk);
 
 // ponytail: disable Next.js 14 global fetch caching on Supabase queries
 const clientOptions = {
@@ -28,4 +28,4 @@ export const supabase = urlOk && anonOk
 
 export const supabaseAdmin = urlOk && serviceOk
   ? createClient(supabaseUrl, supabaseServiceRoleKey, clientOptions)
-  : (null as any);
+  : (supabase || (null as any));

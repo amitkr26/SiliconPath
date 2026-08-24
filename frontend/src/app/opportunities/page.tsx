@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { supabaseAdmin } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
 import { GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
+import { searchOpportunities } from "@/lib/opportunities-query";
 import OpportunitiesClient from "./OpportunitiesClient";
 
 export const metadata: Metadata = {
@@ -33,48 +34,22 @@ export default async function OpportunitiesPage({
   let initialData: ReturnType<typeof mapDbOpportunityToClient>[] = [];
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const searchVal = resolvedSearchParams.search || "";
+  const categoryVal = resolvedSearchParams.category || "All";
 
   if (supabaseAdmin?.from) {
-    const today = new Date().toISOString().split("T")[0];
-    let query = supabaseAdmin
-      .from("opportunities")
-      .select("*, organizations(*)")
-      .eq("is_active", true)
-      .or("verification_status.eq.verified,verification_status.is.null,verification_status.eq.auto_verified")
-      .or(`deadline.gte.${today},deadline.is.null`)
-      .order("created_at", { ascending: false });
+    try {
+      const { data } = await searchOpportunities({
+        search: searchVal,
+        category: categoryVal,
+        limit: 30,
+        page: 1,
+      });
 
-    if (searchVal) {
-      const cleanSearch = searchVal.replace(/[{}()"\\,.]/g, "").trim().slice(0, 100);
-      const words = cleanSearch.split(/\s+/).filter((k) => k.length >= 2);
-
-      const conditions: string[] = [];
-
-      for (const w of words) {
-        conditions.push(`title.ilike.%${w}%`);
-        conditions.push(`category.ilike.%${w}%`);
-        conditions.push(`eligibility.ilike.%${w}%`);
+      if (data && data.length > 0) {
+        initialData = data.map(mapDbOpportunityToClient).filter(isDisplayableOpportunity);
       }
-
-      const { data: orgs } = await supabaseAdmin
-        .from("organizations")
-        .select("id")
-        .or(words.map((w) => `name.ilike.%${w}%`).join(","));
-
-      if (orgs && orgs.length > 0) {
-        const orgIds = orgs.map((o: { id: string }) => o.id);
-        conditions.push(`organization_id.in.(${orgIds.join(",")})`);
-      }
-
-      if (conditions.length > 0) {
-        query = query.or(conditions.join(","));
-      }
-    }
-
-    const { data } = await query.limit(30);
-
-    if (data) {
-      initialData = data.map(mapDbOpportunityToClient).filter(isDisplayableOpportunity);
+    } catch (err) {
+      console.error("[Opportunities Feed Error]:", err);
     }
   }
 
