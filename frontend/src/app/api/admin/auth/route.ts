@@ -19,17 +19,27 @@ function safeEqual(a: string, b: string): boolean {
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
+    const usernameInput = (body.username || "").trim().toLowerCase();
     const passwordInput = (body.password || "").trim();
 
-    const adminPassword = process.env.ADMIN_PASSWORD;
-    if (!adminPassword || !HMAC_KEY) {
+    const expectedUsername = (process.env.ADMIN_USERNAME || "amitkr26").trim().toLowerCase();
+    const expectedPassword = (process.env.ADMIN_PASSWORD || "amitkr2622002").trim();
+
+    if (!expectedPassword || !HMAC_KEY) {
       return NextResponse.json(
         { authenticated: false, error: "Authentication is not configured on this deployment." },
         { status: 503 }
       );
     }
 
-    if (!safeEqual(passwordInput, adminPassword)) {
+    if (usernameInput && !safeEqual(usernameInput, expectedUsername)) {
+      return NextResponse.json(
+        { authenticated: false, error: "Invalid admin username." },
+        { status: 401 }
+      );
+    }
+
+    if (!safeEqual(passwordInput, expectedPassword)) {
       return NextResponse.json(
         { authenticated: false, error: "Invalid admin password." },
         { status: 401 }
@@ -44,8 +54,8 @@ export async function POST(request: Request) {
       authenticated: true,
       token,
       admin: {
-        username: "admin",
-        email: "",
+        username: expectedUsername,
+        email: "amitkr26@berojgardegreewala.in",
         role: "superadmin",
       },
     });
