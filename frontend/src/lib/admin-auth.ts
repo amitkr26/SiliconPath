@@ -1,5 +1,14 @@
 import { NextRequest } from "next/server";
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
+
+// ponytail: constant-time comparison for all secret comparisons —
+// prevents timing attacks on admin password, HMAC tokens, and cron secrets.
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
 
 function verifyAdminToken(token: string, secret: string): boolean {
   const parts = token.split(".");
@@ -7,7 +16,7 @@ function verifyAdminToken(token: string, secret: string): boolean {
   const [sessionId, expiry, sig] = parts;
   if (Date.now() > parseInt(expiry, 10)) return false;
   const expected = createHmac("sha256", secret).update(`${sessionId}.${expiry}`).digest("hex");
-  return sig === expected;
+  return safeEqual(sig, expected);
 }
 
 export function verifyAdmin(request: NextRequest | Request): boolean {
@@ -16,7 +25,7 @@ export function verifyAdmin(request: NextRequest | Request): boolean {
   const hmacKey = process.env.ADMIN_HMAC_SECRET || adminPassword;
 
   const directPassword = request.headers.get("x-admin-password");
-  if (adminPassword && directPassword && directPassword === adminPassword) {
+  if (adminPassword && directPassword && safeEqual(directPassword, adminPassword)) {
     return true;
   }
 
@@ -24,9 +33,9 @@ export function verifyAdmin(request: NextRequest | Request): boolean {
   const match = authHeader.match(/^Bearer\s+(.+)$/);
   if (match) {
     const token = match[1];
-    if (adminPassword && token === adminPassword) return true;
+    if (adminPassword && safeEqual(token, adminPassword)) return true;
     if (adminPassword && verifyAdminToken(token, hmacKey!)) return true;
-    if (cronSecret && token === cronSecret) return true;
+    if (cronSecret && safeEqual(token, cronSecret)) return true;
   }
 
   return false;
@@ -37,5 +46,5 @@ export function verifyCron(request: NextRequest | Request): boolean {
   if (!cronSecret) return false;
   const authHeader = request.headers.get("authorization") || "";
   const match = authHeader.match(/^Bearer\s+(.+)$/);
-  return match ? match[1] === cronSecret : false;
+  return match ? safeEqual(match[1], cronSecret) : false;
 }

@@ -22,8 +22,8 @@ export async function POST(request: Request) {
     const usernameInput = (body.username || "").trim().toLowerCase();
     const passwordInput = (body.password || "").trim();
 
-    const expectedUsername = (process.env.ADMIN_USERNAME || "amitkr26").trim().toLowerCase();
-    const expectedPassword = (process.env.ADMIN_PASSWORD || "amitkr2622002").trim();
+    const expectedUsername = (process.env.ADMIN_USERNAME || "").trim().toLowerCase();
+    const expectedPassword = (process.env.ADMIN_PASSWORD || "").trim();
 
     if (!expectedPassword || !HMAC_KEY) {
       return NextResponse.json(
@@ -54,8 +54,8 @@ export async function POST(request: Request) {
       authenticated: true,
       token,
       admin: {
-        username: expectedUsername,
-        email: "amitkr26@berojgardegreewala.in",
+        username: expectedUsername || "admin",
+        email: "",
         role: "superadmin",
       },
     });
