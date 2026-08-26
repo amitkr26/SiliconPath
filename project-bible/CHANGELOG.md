@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-26 — Phase 21: Production Hardening, Scraper Constraint Safety & Documentation Reconciliation (COMPLETE).**
+  - **Scraper Ingestion CHECK Constraint Safety (`api/cron/scrape-global`, `api/cron/scrape-india`):**
+    - Enforced explicit `verification_status: "pending"` insertion across all scraper entrypoints, matching the live Supabase CHECK constraint (`pending`, `verified`, `rejected`, `expired`, `link_unavailable`).
+  - **Rate Limiting Hardening (`middleware.ts`):**
+    - Mapped `/api/admin` directly to the dedicated 20 req/min rate limiter bucket to mitigate brute-force vector on admin surfaces.
+  - **Structured Observability (`lib/logger.ts`):**
+    - Added structured `logAuditEvent` helper for recording mutations (job creates, status transitions, admin actions) with zero secret or PII exposure.
+  - **Documentation & Architecture Reconciliation:**
+    - Reconciled schema references in `ARCHITECTURE.md` confirming `opportunities.created_by` ownership, `workspace_members` table name, and `employer_settings` physical schema.
+  - **Quality Gates:**
+    - `npx tsc --noEmit`: 0 errors.
+    - `npm test`: 16/16 suites, 153/153 tests passing (100%).
+    - `npm run build`: 350 routes compiled cleanly.
+    - Multi-Portal Verification Suite: 24/24 tests passed (100%).
+    - Final Verdict: **GO**.
+
 - **2026-08-26 — Phase 20: Post-Scraper Forensic Audit & Data Hygiene Remediation (COMPLETE).**
   - **Forensic Audit & Invariant Enforcement:**
     - Performed a 100% census audit of all 3,608 opportunities in Supabase.
