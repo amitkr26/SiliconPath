@@ -501,7 +501,7 @@ export default function PublicHome({
           align="center"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* CANDIDATE PORTAL */}
           <Card className="p-6 sm:p-8 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
@@ -596,12 +596,12 @@ export default function PublicHome({
       </section>
 
       {/* 11. FAQ SECTION */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <FaqSection />
       </section>
 
       {/* 12. EMAIL NEWSLETTER & ALERTS CTA */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SubscribeSection />
       </section>
 
