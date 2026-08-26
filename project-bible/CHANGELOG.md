@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-26 — Phase 26: Final Schema/API Contract Audit & Production Release Candidate (COMPLETE).**
+  - **Full Schema Inventory & Contract Scan (`scripts/scan-all-db-references.mjs`, `scripts/live-schema-map.json`):**
+    - Mapped 58 physical PostgreSQL tables from live Supabase OpenAPI spec.
+    - Scanned 100% of source files for `.from()`, `.select()`, `.insert()`, `.update()`, `.eq()`, and filter methods against physical schema columns.
+  - **Remediated Schema & Code Mismatches:**
+    - `frontend/src/app/page.tsx`: Fixed employer applications query to filter by `opportunity_id IN (employerJobIds)` instead of non-existent `applications.employer_id`.
+    - `frontend/src/app/api/employer/saved-candidates/route.ts`: Resolved PostgREST ambiguous relation error on `recruiter_saved_candidates` with clean two-stage candidate profile enrichment.
+    - `frontend/src/app/api/employer/talent/route.ts`: Removed non-existent `open_to_work_types` column from `user_profiles` select query; standardized on `getAuthenticatedEmployerUser`.
+    - `frontend/src/app/api/resume/route.ts`: Rewrote resume CRUD to use live `user_resumes` physical table with complete ATS scoring synchronization.
+    - `frontend/src/lib/email-digest.ts`: Replaced non-existent `subscribers.is_active` with physical column `subscribers.is_verified`.
+    - `frontend/src/app/api/sitemap/route.ts`: Replaced non-existent `news_articles.updated_at` with physical column `created_at`.
+    - `frontend/src/lib/scrapers/opportunity-scraper-impl.ts`: Replaced non-existent `scrape_sources.source_type` with physical column `adapter`.
+    - `frontend/src/lib/academy/queries.ts`: Realigned learning progress and assessment queries with live tables `learning_days`, `user_learning_progress`, and `user_track_assessment_results`.
+    - `frontend/src/app/api/profile/avatar/route.ts`: Added strict file extension (`jpg`, `jpeg`, `png`, `webp`) and MIME type whitelists to avatar upload security.
+  - **Comprehensive Verification Suite (100% PASS):**
+    - Strict TypeScript Typecheck: 0 errors.
+    - Jest Unit Tests: 16 suites, 153/153 tests passed (100%).
+    - Next.js Production Build: 350+ routes compiled with 0 errors.
+    - Runtime Discovery (`scripts/runtime-query-discovery.mjs`): 25/25 endpoints passed.
+    - Manual Feature Verification (`scripts/manual-feature-verification.mjs`): 25/25 passed.
+    - Deep Feature Suite (`scripts/deep-feature-test.mjs`): 30/30 passed.
+    - All Portals Suite (`scripts/test-all-portals-and-features.mjs`): 24/24 passed.
+    - Production Smoke (`scripts/production-smoke-test.mjs`): 14/14 HTTP 200 passed.
+    - Database Integrity (`scripts/database-integrity-check.mjs`): 3,608 opportunities preserved, 0 duplicates.
+  - **Governance Artifacts Generated:**
+    - `project-bible/qa/latest/phase-26-schema-contract-audit.md`
+    - `project-bible/qa/latest/phase-26-api-contract-audit.md`
+    - `project-bible/qa/latest/phase-26-test-integrity.md`
+    - `project-bible/qa/latest/phase-26-final-verdict.md`
+  - Final Verdict: **GO**.
+
 - **2026-08-26 — Phase 25: SEO Overhaul, Schema.org Structured Data, Avatar Profile Customization, Footer Guides & Error Boundary Fix (COMPLETE).**
   - **Runtime Error Boundary Fix (`frontend/src/lib/opportunities-query.ts`):**
     - Resolved PostgreSQL error 42703 by correcting experience level query filters to reference existing `eligibility` and `title` columns instead of the non-existent `experience_required` column, preventing runtime crashes across guest and authenticated feeds.

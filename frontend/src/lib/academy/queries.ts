@@ -104,29 +104,10 @@ export async function getCompletedDays(userId: string | null): Promise<string[]>
   try {
     const { data: progress } = await supabase
       .from("user_learning_progress")
-      .select("track_id, day_number")
-      .eq("user_id", userId)
-      .eq("status", "completed");
+      .select("day_id")
+      .eq("user_id", userId);
     if (!progress || progress.length === 0) return [];
-
-    // Group by track_id to batch day UUID lookups
-    const trackDayMap: Record<string, number[]> = {};
-    for (const p of progress) {
-      if (!trackDayMap[p.track_id]) trackDayMap[p.track_id] = [];
-      trackDayMap[p.track_id].push(p.day_number);
-    }
-
-    const dayIds: string[] = [];
-    for (const [trackId, dayNumbers] of Object.entries(trackDayMap)) {
-      const { data: days } = await supabase
-        .from("academy_days")
-        .select("id")
-        .eq("track_id", trackId)
-        .in("day_number", dayNumbers);
-      if (days) dayIds.push(...days.map((d: any) => d.id));
-    }
-
-    return dayIds;
+    return progress.map((p: any) => p.day_id).filter(Boolean);
   } catch {
     return [];
   }
@@ -136,26 +117,18 @@ export async function getPassedTracks(userId: string | null): Promise<TrackSlug[
   if (!isConfigured || !supabase || !userId) return [];
   try {
     const { data: passedAssessments } = await supabase
-      .from("user_learning_progress")
+      .from("user_track_assessment_results")
       .select("track_id")
       .eq("user_id", userId)
-      .eq("day_number", 999)
-      .eq("status", "completed");
+      .eq("passed", true);
     if (!passedAssessments || passedAssessments.length === 0) return [];
     const trackIds = passedAssessments.map((p: any) => p.track_id);
-    const res1 = await supabase
-      .from("academy_tracks")
-      .select("slug")
-      .in("id", trackIds);
-    if (!res1.error && res1.data && res1.data.length > 0) {
-      return res1.data.map((t: any) => t.slug as TrackSlug);
-    }
-    const res2 = await supabase
+    const { data: tracks } = await supabase
       .from("learning_tracks")
       .select("slug")
       .in("id", trackIds);
-    if (!res2.error && res2.data) {
-      return res2.data.map((t: any) => t.slug as TrackSlug);
+    if (tracks && tracks.length > 0) {
+      return tracks.map((t: any) => t.slug as TrackSlug);
     }
     return [];
   } catch {
@@ -166,12 +139,21 @@ export async function getPassedTracks(userId: string | null): Promise<TrackSlug[
 export async function markDayComplete(userId: string | null, trackId: string, dayId: string, completed: boolean): Promise<boolean> {
   if (!isConfigured || !supabase || !userId) return false;
   try {
-    const { data: day } = await supabase.from("academy_days").select("day_number").eq("id", dayId).single();
-    if (!day) return false;
-    const { error } = await supabase.from("user_learning_progress").upsert([{
-      user_id: userId, track_id: trackId, day_number: day.day_number, status: completed ? "completed" : "in_progress", updated_at: new Date().toISOString()
-    }], { onConflict: "user_id,track_id,day_number" });
-    return !error;
+    if (completed) {
+      const { error } = await supabase.from("user_learning_progress").upsert([{
+        user_id: userId,
+        track_id: trackId,
+        day_id: dayId,
+        completed_at: new Date().toISOString(),
+      }], { onConflict: "user_id,day_id" });
+      return !error;
+    } else {
+      const { error } = await supabase.from("user_learning_progress")
+        .delete()
+        .eq("user_id", userId)
+        .eq("day_id", dayId);
+      return !error;
+    }
   } catch { return false; }
 }
 
@@ -180,7 +162,7 @@ export async function getDayDetails(trackSlug: string, dayNumber: number): Promi
   try {
     const track = await getTrackBySlug(trackSlug);
     if (!track) return null;
-    const { data: day } = await supabase.from("academy_days").select("*").eq("track_id", track.id).eq("day_number", dayNumber).single();
+    const { data: day } = await supabase.from("learning_days").select("*").eq("track_id", track.id).eq("day_number", dayNumber).maybeSingle();
     if (!day) return null;
     return { track, day: { ...day, key_concepts: [], estimated_minutes: 45, practice_links: [] }, resources: [], questions: [] };
   } catch { return null; }
@@ -225,14 +207,27 @@ export async function getUserProgress(userId: string): Promise<UserProgressItem[
 export async function saveUserProgress(userId: string, trackId: string, dayNumber: number, status: string, score?: number, capstoneSubmittedAt?: string): Promise<boolean> {
   if (!isConfigured || !supabase || !userId) return false;
   try {
-    const payload: any = { user_id: userId, track_id: trackId, day_number: dayNumber, status, updated_at: new Date().toISOString() };
-    if (score !== undefined) payload.checkpoint_score = score;
-    const { error } = await supabase.from("user_learning_progress").upsert([payload], { onConflict: "user_id,track_id,day_number" });
-    return !error;
+    const { data: day } = await supabase.from("learning_days").select("id").eq("track_id", trackId).eq("day_number", dayNumber).maybeSingle();
+    if (day) {
+      return markDayComplete(userId, trackId, day.id, status === "completed");
+    }
+    return false;
   } catch { return false; }
 }
 
 export async function saveAssessmentResult(userId: string | null, trackId: string, trackSlug: string, score: number, passed: boolean, answers?: any): Promise<boolean> {
-  if (!userId) return false;
-  return saveUserProgress(userId, trackId, 999, passed ? "completed" : "in_progress", score);
+  if (!userId || !isConfigured || !supabase) return false;
+  try {
+    const { error } = await supabase.from("user_track_assessment_results").upsert([{
+      user_id: userId,
+      track_id: trackId,
+      score_percent: Math.round(score),
+      passed,
+      answers_json: answers || {},
+      attempted_at: new Date().toISOString(),
+    }]);
+    return !error;
+  } catch {
+    return false;
+  }
 }

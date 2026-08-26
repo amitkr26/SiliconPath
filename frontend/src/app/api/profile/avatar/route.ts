@@ -52,8 +52,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Image size must be less than 3MB" }, { status: 400 });
       }
 
+      const rawExt = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const allowedExts = ["jpg", "jpeg", "png", "webp"];
+      const allowedMimes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+
+      if (!allowedExts.includes(rawExt) || !allowedMimes.includes(file.type)) {
+        return NextResponse.json({ error: "Only JPG, PNG, and WebP images are allowed" }, { status: 400 });
+      }
+
+      const ext = rawExt === "jpeg" ? "jpg" : rawExt;
       const buffer = Buffer.from(await file.arrayBuffer());
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
       const filename = `${user.id}/avatar-${Date.now()}.${ext}`;
 
       const { data: uploadData, error: uploadError } = await supabaseAdmin.storage

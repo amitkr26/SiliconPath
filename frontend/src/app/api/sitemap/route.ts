@@ -21,8 +21,8 @@ export async function GET() {
         .limit(1000),
       supabaseAdmin
         .from("news_articles")
-        .select("slug, updated_at")
-        .order("updated_at", { ascending: false })
+        .select("slug, created_at")
+        .order("created_at", { ascending: false })
         .limit(1000),
     ]);
 

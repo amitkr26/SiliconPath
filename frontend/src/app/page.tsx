@@ -160,28 +160,30 @@ export default async function HomePage() {
     let interviewCount = 0;
 
     if (supabaseAdmin?.from) {
-      const [jobsRes, appsRes] = await Promise.all([
-        supabaseAdmin
-          .from("opportunities")
-          .select("id, title, category, location, deadline, created_at")
-          .eq("created_by", user.id)
-          .eq("is_active", true)
-          .order("created_at", { ascending: false })
-          .limit(5),
-        supabaseAdmin
-          .from("applications")
-          .select("id, status")
-          .eq("employer_id", user.id),
-      ]);
+      const { data: allEmployerJobs } = await supabaseAdmin
+        .from("opportunities")
+        .select("id, title, category, location, deadline, created_at")
+        .or(`created_by.eq.${user.id},employer_id.eq.${user.id}`)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
 
-      if (jobsRes.data) {
-        recentJobs = jobsRes.data;
-        activeJobsCount = jobsRes.data.length;
-      }
-      if (appsRes.data) {
-        totalApplicants = appsRes.data.length;
-        screeningCount = appsRes.data.filter((a: any) => a.status === "screening" || a.status === "reviewing").length;
-        interviewCount = appsRes.data.filter((a: any) => a.status === "interview" || a.status === "interviewing").length;
+      if (allEmployerJobs) {
+        recentJobs = allEmployerJobs.slice(0, 5);
+        activeJobsCount = allEmployerJobs.length;
+        const jobIds = allEmployerJobs.map((j: any) => j.id);
+
+        if (jobIds.length > 0) {
+          const { data: appsData } = await supabaseAdmin
+            .from("applications")
+            .select("id, status")
+            .in("opportunity_id", jobIds);
+
+          if (appsData) {
+            totalApplicants = appsData.length;
+            screeningCount = appsData.filter((a: any) => a.status === "screening" || a.status === "reviewing").length;
+            interviewCount = appsData.filter((a: any) => a.status === "interview" || a.status === "interviewing").length;
+          }
+        }
       }
     }
 
