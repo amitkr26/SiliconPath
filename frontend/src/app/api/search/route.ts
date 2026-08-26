@@ -42,23 +42,43 @@ export async function GET(request: NextRequest) {
 
     // People search (network tab) — user_profiles, public profiles only.
     let people: any[] = [];
+    let organizations: any[] = [];
+    let news: any[] = [];
+
     if (q && supabaseAdmin) {
       const cleanQ = q.replace(/[{}()"\\,.]/g, "").slice(0, 100);
-      const { data: peopleData } = await supabaseAdmin
-        .from("user_profiles")
-        .select("id, username, display_name, headline, current_company, location, skills")
-        .eq("is_profile_public", true)
-        .or(`display_name.ilike.%${cleanQ}%,headline.ilike.%${cleanQ}%,current_company.ilike.%${cleanQ}%`)
-        .limit(20);
-      people = (peopleData || []).map((p: any) => ({
+      const [peopleRes, orgsRes, newsRes] = await Promise.all([
+        supabaseAdmin
+          .from("user_profiles")
+          .select("id, username, display_name, headline, current_company, location, skills, avatar_url")
+          .eq("is_profile_public", true)
+          .or(`display_name.ilike.%${cleanQ}%,headline.ilike.%${cleanQ}%,current_company.ilike.%${cleanQ}%`)
+          .limit(20),
+        supabaseAdmin
+          .from("organizations")
+          .select("id, name, slug, location, type, logo_url, is_verified")
+          .ilike("name", `%${cleanQ}%`)
+          .limit(10),
+        supabaseAdmin
+          .from("news_articles")
+          .select("id, title, slug, summary, source_name, published_at, image_url")
+          .ilike("title", `%${cleanQ}%`)
+          .limit(10),
+      ]);
+
+      people = (peopleRes.data || []).map((p: any) => ({
         id: p.id,
         username: p.username,
         display_name: p.display_name,
         headline: p.headline,
         current_org: p.current_company,
         city: p.location,
+        avatar_url: p.avatar_url,
         skills: Array.isArray(p.skills) ? p.skills : [],
       }));
+
+      organizations = orgsRes.data || [];
+      news = newsRes.data || [];
     }
 
     const opportunities = (data ? data.map(mapDbOpportunityToClient) : []).filter(
@@ -71,6 +91,8 @@ export async function GET(request: NextRequest) {
         q,
         opportunities,
         people,
+        organizations,
+        news,
         count,
         total_count: count,
         page,

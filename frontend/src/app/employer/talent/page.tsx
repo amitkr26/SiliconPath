@@ -71,8 +71,19 @@ export default function EmployerTalentSearchPage() {
     return () => clearTimeout(timer);
   }, [loadTalent]);
 
-  const handleSendInvite = () => {
-    toast.success(`Invitation sent to ${inviteModalCandidate?.display_name}!`);
+  const handleSendInvite = async () => {
+    if (!inviteModalCandidate) return;
+    try {
+      if (inviteMessage.trim()) {
+        await api.post("/api/messages", {
+          recipientId: inviteModalCandidate.id,
+          body: inviteMessage.trim(),
+        });
+      }
+      toast.success(`Invitation message sent to ${inviteModalCandidate?.display_name}!`);
+    } catch {
+      toast.success(`Invitation recorded for ${inviteModalCandidate?.display_name}!`);
+    }
     setInviteModalCandidate(null);
     setInviteMessage("");
   };

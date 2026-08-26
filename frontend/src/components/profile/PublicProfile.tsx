@@ -148,13 +148,30 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
   };
 
   const handleEndorse = async (skill: string) => {
-    if (!profile || !currentUser) return;
+    if (!profile || !currentUser) {
+      toast.info("Please log in to endorse skills");
+      return;
+    }
+    if (isOwnProfile) {
+      toast.info("You cannot endorse your own skills");
+      return;
+    }
+    const hasEndorsed = endorsements.some((e) => e.endorser_id === currentUser.id && e.skill === skill);
     try {
-      await api.post(`/api/profile/${profile.id}/endorse`, { skill });
-      toast.success(`Endorsed ${skill}!`);
+      if (hasEndorsed) {
+        await fetch(`/api/profile/${profile.id}/endorse`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ skill }),
+        });
+        toast.success(`Removed endorsement for ${skill}`);
+      } else {
+        await api.post(`/api/profile/${profile.id}/endorse`, { skill });
+        toast.success(`Endorsed ${skill}!`);
+      }
       loadEndorsements(profile.id);
     } catch (err: any) {
-      toast.error(err?.body?.error || "Failed to endorse");
+      toast.error(err?.body?.error || "Failed to update endorsement");
     }
   };
 
@@ -577,6 +594,7 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
           ) : (
             (profile.skills || []).map((skill) => {
               const count = endorsedSkills.get(skill) || 0;
+              const hasEndorsed = !!currentUser && endorsements.some((e) => e.endorser_id === currentUser.id && e.skill === skill);
               return (
                 <span
                   key={skill}
@@ -584,9 +602,13 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                 >
                   {skill}
                   {count > 0 && <span className="text-blue-700 font-black text-[10px]">· {count}</span>}
-                  {!isOwnProfile && isConnected && (
-                    <button onClick={() => handleEndorse(skill)} className="text-slate-400 hover:text-amber-500 transition-colors ml-0.5" title="Endorse">
-                      <Star className="w-3 h-3 fill-current" />
+                  {!isOwnProfile && currentUser && (
+                    <button
+                      onClick={() => handleEndorse(skill)}
+                      className={`transition-colors ml-0.5 ${hasEndorsed ? "text-amber-500" : "text-slate-400 hover:text-amber-500"}`}
+                      title={hasEndorsed ? "Remove endorsement" : "Endorse skill"}
+                    >
+                      <Star className={`w-3.5 h-3.5 ${hasEndorsed ? "fill-amber-400 text-amber-500" : "text-slate-400"}`} />
                     </button>
                   )}
                 </span>
