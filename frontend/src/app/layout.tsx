@@ -76,8 +76,49 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://berojgardegreewala.vercel.app/#website",
+        "url": "https://berojgardegreewala.vercel.app",
+        "name": "BerojgarDegreeWala — Semiconductor & VLSI Career Portal",
+        "description": "India's dedicated career & research gateway for VLSI design, ASIC verification, JRF fellowships, and semiconductor engineering opportunities.",
+        "inLanguage": "en-IN",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://berojgardegreewala.vercel.app/opportunities?search={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://berojgardegreewala.vercel.app/#organization",
+        "name": "BerojgarDegreeWala",
+        "alternateName": "SiliconPath India",
+        "url": "https://berojgardegreewala.vercel.app",
+        "logo": "https://berojgardegreewala.vercel.app/icon.svg",
+        "description": "100% verified circular aggregator for DRDO, ISRO, CSIR, IITs, and fabless semiconductor companies.",
+        "sameAs": [
+          "https://twitter.com/berojgardegreewala",
+          "https://linkedin.com/company/berojgardegreewala"
+        ]
+      }
+    ]
+  };
+
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} font-body bg-[#FAF9F6] text-slate-900 min-h-screen`}
       >

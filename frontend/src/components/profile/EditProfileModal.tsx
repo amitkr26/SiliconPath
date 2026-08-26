@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Pencil, Plus, X, Briefcase, GraduationCap, Code2, Award, Sparkles, Trash2, Check } from "lucide-react";
+import { Loader2, Pencil, Plus, X, Briefcase, GraduationCap, Code2, Award, Sparkles, Trash2, Check, Camera, Upload, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { RESERVED_USERNAMES } from "@/lib/utils";
 import { api } from "@/lib/api-client";
@@ -45,6 +45,17 @@ interface Props {
 
 type TabType = "general" | "experience" | "education" | "projects" | "certifications" | "skills";
 
+const PRESET_AVATARS = [
+  { label: "RTL Verification", url: "https://api.dicebear.com/7.x/bottts/svg?seed=RTLVerification" },
+  { label: "Physical Design", url: "https://api.dicebear.com/7.x/bottts/svg?seed=PhysicalDesign" },
+  { label: "Silicon Architect", url: "https://api.dicebear.com/7.x/bottts/svg?seed=SiliconArchitect" },
+  { label: "Embedded Firmware", url: "https://api.dicebear.com/7.x/bottts/svg?seed=EmbeddedFirmware" },
+  { label: "Analog IC", url: "https://api.dicebear.com/7.x/bottts/svg?seed=AnalogDesign" },
+  { label: "Microelectronics", url: "https://api.dicebear.com/7.x/bottts/svg?seed=MicroResearch" },
+  { label: "Scholar Male", url: "https://api.dicebear.com/7.x/personas/svg?seed=AmitKumar" },
+  { label: "Scholar Female", url: "https://api.dicebear.com/7.x/personas/svg?seed=PriyaSharma" },
+];
+
 export default function EditProfileModal({
   userId,
   profile,
@@ -62,6 +73,36 @@ export default function EditProfileModal({
   const [newSkill, setNewSkill] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error("File size must be under 3MB");
+      return;
+    }
+    setUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+      const res = await fetch("/api/profile/avatar", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.avatar_url) {
+        setField("avatar_url", data.avatar_url);
+        toast.success("Profile photo uploaded successfully!");
+      } else {
+        toast.error(data.error || "Failed to upload photo");
+      }
+    } catch {
+      toast.error("Error uploading photo");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   // Sub-resource lists
   const [experiences, setExperiences] = useState<CandidateExperience[]>(initialExperiences);
@@ -330,6 +371,7 @@ export default function EditProfileModal({
           linkedin_url: form.linkedin_url,
           github_url: form.github_url,
           is_open_to_work: form.is_open_to_work,
+          avatar_url: form.avatar_url,
           skills: skills,
         }),
       });
@@ -344,7 +386,7 @@ export default function EditProfileModal({
         return;
       }
 
-      onSaved({ ...form, skills });
+      onSaved({ ...form, avatar_url: form.avatar_url, skills });
       toast.success("Profile updated successfully!");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to update profile.");
@@ -427,6 +469,81 @@ export default function EditProfileModal({
         {/* Tab 1: General Info */}
         {activeTab === "general" && (
           <form onSubmit={handleSaveGeneral} className="space-y-4">
+            {/* PROFILE AVATAR / PHOTO SECTION */}
+            <div className="bg-slate-50 border-2 border-slate-900 rounded-xl p-4 space-y-3">
+              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider">
+                Profile Photo / Avatar
+              </label>
+
+              <div className="flex items-center gap-4">
+                <div className="relative w-16 h-16 rounded-full border-2 border-slate-900 overflow-hidden bg-white shrink-0 shadow-brutal-sm flex items-center justify-center">
+                  {form.avatar_url ? (
+                    <img
+                      src={form.avatar_url}
+                      alt="Profile Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white font-black text-lg">
+                      {form.display_name?.slice(0, 2).toUpperCase() || "??"}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-lg border-2 border-slate-900 shadow-brutal-sm transition-all">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{uploadingAvatar ? "Uploading..." : "Upload Photo"}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarUpload}
+                        disabled={uploadingAvatar}
+                        className="hidden"
+                      />
+                    </label>
+                    {form.avatar_url && (
+                      <button
+                        type="button"
+                        onClick={() => setField("avatar_url", null)}
+                        className="px-2.5 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg border border-red-200"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Upload PNG, JPG, or WebP (max 3MB), or select a preset avatar below.
+                  </p>
+                </div>
+              </div>
+
+              {/* PRESET AVATARS */}
+              <div className="space-y-1.5 pt-2 border-t border-slate-200">
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  Or choose a free semiconductor / scholar avatar:
+                </span>
+                <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                  {PRESET_AVATARS.map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => setField("avatar_url", preset.url)}
+                      title={preset.label}
+                      className={`w-10 h-10 rounded-full border-2 overflow-hidden shrink-0 transition-all ${
+                        form.avatar_url === preset.url
+                          ? "border-blue-600 ring-2 ring-blue-600 scale-110 shadow-brutal-sm"
+                          : "border-slate-900 hover:border-blue-600 bg-white"
+                      }`}
+                    >
+                      <img src={preset.url} alt={preset.label} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
                 Full Display Name *
