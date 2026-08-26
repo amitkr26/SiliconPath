@@ -147,15 +147,15 @@ export async function searchOpportunities(
   if (experience && experience !== "All") {
     if (experience === "Fresher" || experience === "0-1 Years" || experience === "0–1 Years") {
       supabaseQuery = supabaseQuery.or(
-        "experience_required.ilike.%Fresher%,experience_required.ilike.%0-1%,experience_required.ilike.%0 - 1%,experience_required.ilike.%0 year%,experience_required.ilike.%1 year%,experience_required.is.null,title.ilike.%Fresher%,title.ilike.%Intern%,title.ilike.%Trainee%,title.ilike.%JRF%,title.ilike.%Graduate%"
+        "eligibility.ilike.%Fresher%,eligibility.ilike.%0-1%,eligibility.ilike.%0 - 1%,eligibility.ilike.%0 year%,eligibility.ilike.%1 year%,eligibility.is.null,title.ilike.%Fresher%,title.ilike.%Intern%,title.ilike.%Trainee%,title.ilike.%JRF%,title.ilike.%Graduate%"
       );
     } else if (experience === "0-2 Years" || experience === "0–2 Years") {
       supabaseQuery = supabaseQuery.or(
-        "experience_required.ilike.%Fresher%,experience_required.ilike.%0-1%,experience_required.ilike.%0-2%,experience_required.ilike.%0 - 2%,experience_required.ilike.%1-2%,experience_required.ilike.%2 year%,experience_required.is.null,title.ilike.%Fresher%,title.ilike.%Intern%,title.ilike.%Trainee%,title.ilike.%JRF%"
+        "eligibility.ilike.%Fresher%,eligibility.ilike.%0-1%,eligibility.ilike.%0-2%,eligibility.ilike.%0 - 2%,eligibility.ilike.%1-2%,eligibility.ilike.%2 year%,eligibility.is.null,title.ilike.%Fresher%,title.ilike.%Intern%,title.ilike.%Trainee%,title.ilike.%JRF%"
       );
     } else if (experience === "2+ Years" || experience === "Experienced") {
       supabaseQuery = supabaseQuery.or(
-        "experience_required.ilike.%2+%,experience_required.ilike.%3+%,experience_required.ilike.%4+%,experience_required.ilike.%5+%,title.ilike.%Senior%,title.ilike.%Lead%,title.ilike.%Principal%"
+        "eligibility.ilike.%2+%,eligibility.ilike.%3+%,eligibility.ilike.%4+%,eligibility.ilike.%5+%,title.ilike.%Senior%,title.ilike.%Lead%,title.ilike.%Principal%"
       );
     }
   }

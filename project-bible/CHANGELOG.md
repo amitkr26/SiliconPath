@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-26 — Phase 25: SEO Overhaul, Schema.org Structured Data, Avatar Profile Customization, Footer Guides & Error Boundary Fix (COMPLETE).**
+  - **Runtime Error Boundary Fix (`frontend/src/lib/opportunities-query.ts`):**
+    - Resolved PostgreSQL error 42703 by correcting experience level query filters to reference existing `eligibility` and `title` columns instead of the non-existent `experience_required` column, preventing runtime crashes across guest and authenticated feeds.
+  - **Avatar & Profile Photo System (`frontend/src/components/profile/EditProfileModal.tsx`, `api/profile/avatar`):**
+    - Created public storage bucket `avatars` on Supabase.
+    - Implemented `/api/profile/avatar` route supporting multi-part file uploads (PNG/JPG/WebP up to 3MB) and JSON avatar URL updates.
+    - Added interactive avatar picker modal featuring 8 curated high-resolution free semiconductor/scholar avatars (DiceBear Bottts/Personas SVGs) + custom image upload and removal.
+    - Updated profile PATCH handler to reliably persist `avatar_url` into `user_profiles`.
+  - **Footer & Guide Hub Expansion (`frontend/src/components/Footer.tsx`, `frontend/src/app/resources/page.tsx`):**
+    - Linked all 9 expert research guides (JRF guide, JRF vs SRF vs RA, DRDO recruitment, IIT/IISc PhD, fully-funded PhD abroad, global fellowships, NET vs GATE, VLSI roadmap, VLSI career guide).
+    - Integrated high-intent semiconductor SEO keyword pills (`ISRO Careers`, `DRDO JRF 2026`, `CSIR Labs Fellowships`, `IIT Microelectronics PhD`, `RTL & UVM Verification`, `Physical Design & STA`).
+  - **Schema.org Structured Data & Search Action (`frontend/src/app/layout.tsx`):**
+    - Added JSON-LD `@graph` schema markup for `WebSite` (with `SearchAction`) and `Organization` to boost organic search engine indexing.
+  - **Quality Gates & Comprehensive Verification:**
+    - `scripts/manual-feature-verification.mjs`: 25/25 assertions passed (100%).
+    - `npx tsc --noEmit`: 0 errors.
+    - `npm test`: 16/16 suites, 153/153 tests passing (100%).
+    - `npm run build`: 350 routes compiled cleanly into production bundle.
+    - Final Verdict: **GO**.
+
 - **2026-08-26 — Phase 24: Production Data Contamination Cleanup, Homepage Section Width Alignment & True E2E Acceptance (COMPLETE).**
   - **Homepage Section Container Width Standardization (`frontend/src/components/home/PublicHome.tsx`):**
     - Standardized Portals, FAQ, and Subscribe CTA section widths from restricted `max-w-4xl`/`max-w-5xl` to universal `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`, achieving uniform visual grid alignment across all homepage cards.
