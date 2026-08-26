@@ -1,6 +1,4 @@
-import fetch from "node-fetch";
-
-const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:3001";
 const ADMIN_USER = process.env.ADMIN_USERNAME || "amitkr26";
 const ADMIN_PASS = process.env.ADMIN_PASSWORD || "amitkr2622002";
 

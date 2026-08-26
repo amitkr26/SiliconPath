@@ -1,4 +1,4 @@
-﻿import { supabaseAdmin, isAdminConfigured } from "./supabase";
+import { supabaseAdmin, isAdminConfigured } from "./supabase";
 import type { Opportunity, Subscriber } from "@/types";
 import { generateWeeklyDigest } from "@/lib/ai/newsletter";
 import { logger } from "@/lib/logger";
@@ -47,7 +47,7 @@ async function getActiveSubscribers(): Promise<Subscriber[]> {
   const { data } = await supabaseAdmin
     .from("subscribers")
     .select("*")
-    .eq("is_active", true);
+    .eq("is_verified", true);
   return (data as Subscriber[]) || [];
 }
 

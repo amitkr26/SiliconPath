@@ -1,45 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { resumeSchema, validateOrThrow } from "@/lib/validation";
+import { z } from "zod";
+import { validateOrThrow } from "@/lib/validation";
 
-function calculateAtsScore(resume: any): { score: number; feedback: string[] } {
-  let score = 50;
+export const dynamic = "force-dynamic";
+
+const resumeSchema = z.object({
+  full_name: z.string().optional().default(""),
+  email: z.string().email().optional().or(z.literal("")),
+  phone: z.string().optional().default(""),
+  location: z.string().optional().default(""),
+  linkedin: z.string().optional().default(""),
+  github: z.string().optional().default(""),
+  website: z.string().optional().default(""),
+  headline: z.string().optional().default(""),
+  summary: z.string().optional().default(""),
+  skills: z.array(z.string()).optional().default([]),
+  education: z.array(z.any()).optional().default([]),
+  experience: z.array(z.any()).optional().default([]),
+  projects: z.array(z.any()).optional().default([]),
+  certifications: z.array(z.any()).optional().default([]),
+  publications: z.array(z.any()).optional().default([]),
+  awards: z.array(z.any()).optional().default([]),
+}).passthrough();
+
+function calculateAtsScore(resume: any) {
+  let score = 40;
   const feedback: string[] = [];
 
-  if (resume.full_name && resume.full_name.trim().length > 2) score += 5;
-  if (resume.headline && resume.headline.trim().length > 5) score += 5;
-  if (resume.summary && resume.summary.trim().length > 30) {
-    score += 10;
-  } else {
-    feedback.push("Add a more detailed professional summary highlighting your core hardware expertise.");
-  }
+  if (resume.full_name && resume.full_name.length > 2) score += 5;
+  if (resume.email && resume.email.includes("@")) score += 5;
+  if (resume.phone && resume.phone.length >= 8) score += 5;
+  if (resume.headline && resume.headline.length > 5) score += 5;
+  if (resume.summary && resume.summary.length > 20) score += 5;
 
-  const skills = Array.isArray(resume.skills) ? resume.skills : [];
-  if (skills.length >= 5) {
-    score += 15;
-  } else {
-    feedback.push("Include at least 5-8 relevant technical skills (e.g., Verilog, SystemVerilog, UVM, STA, OpenROAD).");
-  }
+  const skillsCount = Array.isArray(resume.skills) ? resume.skills.length : 0;
+  if (skillsCount >= 5) score += 10;
+  else feedback.push("Add at least 5 key technical semiconductor skills (e.g. Verilog, UVM, STA).");
 
-  const edu = Array.isArray(resume.education) ? resume.education : [];
-  if (edu.length > 0) {
-    score += 10;
-  } else {
-    feedback.push("Add your degree and university education details.");
-  }
+  const expCount = Array.isArray(resume.experience) ? resume.experience.length : 0;
+  if (expCount >= 1) score += 10;
+  else feedback.push("Add detailed internship, research lab, or industry experience.");
 
-  const exp = Array.isArray(resume.experience) ? resume.experience : [];
-  const proj = Array.isArray(resume.projects) ? resume.projects : [];
-  if (exp.length > 0 || proj.length > 0) {
-    score += 10;
-  } else {
-    feedback.push("Add hands-on academic projects or industry experience.");
-  }
+  const eduCount = Array.isArray(resume.education) ? resume.education.length : 0;
+  if (eduCount >= 1) score += 10;
+  else feedback.push("Add your academic background (Degree, University, Graduation Year).");
+
+  const projCount = Array.isArray(resume.projects) ? resume.projects.length : 0;
+  if (projCount >= 1) score += 5;
 
   return {
     score: Math.min(100, Math.max(40, score)),
-    feedback: feedback.length > 0 ? feedback : ["Great profile! Strong alignment with semiconductor industry expectations."],
+    feedback: feedback.length > 0 ? feedback : ["Great profile! Strong alignment with semiconductor industry ATS standards."],
   };
 }
 
@@ -48,25 +61,24 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  // Check user_profiles resume_data first, then fallback to resumes table
-  const { data: profile } = await supabaseAdmin
-    .from("user_profiles")
-    .select("resume_data, display_name, headline, bio, location, email, skills")
-    .eq("id", user.id)
+  // 1. Query physical user_resumes table
+  const { data: resumeRow } = await supabaseAdmin
+    .from("user_resumes")
+    .select("*")
+    .eq("user_id", user.id)
     .maybeSingle();
 
-  let resumeData: any = profile?.resume_data || {};
+  let resumeData: any = resumeRow || null;
 
-  if (!resumeData || Object.keys(resumeData).length === 0) {
-    const { data: resTable } = await supabaseAdmin
-      .from("resumes")
-      .select("*")
-      .eq("user_id", user.id)
+  // 2. Fallback to user_profiles if no user_resumes row exists yet
+  if (!resumeData) {
+    const { data: profile } = await supabaseAdmin
+      .from("user_profiles")
+      .select("display_name, headline, bio, location, email, skills")
+      .eq("id", user.id)
       .maybeSingle();
 
-    if (resTable) {
-      resumeData = resTable;
-    } else if (profile) {
+    if (profile) {
       resumeData = {
         full_name: profile.display_name || "",
         headline: profile.headline || "",
@@ -74,7 +86,14 @@ export async function GET() {
         location: profile.location || "",
         email: profile.email || user.email || "",
         skills: profile.skills || [],
+        education: [],
+        experience: [],
+        projects: [],
+        certifications: [],
+        publications: [],
       };
+    } else {
+      resumeData = {};
     }
   }
 
@@ -83,8 +102,8 @@ export async function GET() {
   return NextResponse.json({
     resume: resumeData,
     ...resumeData,
-    ats_score: score,
-    ats_feedback: feedback,
+    ats_score: resumeData.ats_score || score,
+    ats_feedback: resumeData.ats_feedback || feedback,
   });
 }
 
@@ -101,37 +120,47 @@ export async function PATCH(request: NextRequest) {
   const updates = validateOrThrow(resumeSchema, body);
   const { score, feedback } = calculateAtsScore(updates);
 
-  const payloadWithMeta = {
-    ...updates,
+  const payload = {
+    user_id: user.id,
+    full_name: updates.full_name || "",
+    email: updates.email || user.email || "",
+    phone: updates.phone || "",
+    linkedin: updates.linkedin || "",
+    github: updates.github || "",
+    education: updates.education || [],
+    skills: updates.skills || [],
+    experience: updates.experience || [],
+    projects: updates.projects || [],
+    publications: updates.publications || [],
     ats_score: score,
     ats_feedback: feedback,
     updated_at: new Date().toISOString(),
   };
 
-  // Persist into user_profiles.resume_data (DB1 truth)
+  // Upsert into user_resumes
+  const { error: upsertError } = await supabaseAdmin
+    .from("user_resumes")
+    .upsert(payload, { onConflict: "user_id" });
+
+  if (upsertError) {
+    console.error("user_resumes upsert error:", upsertError);
+  }
+
+  // Sync profile metadata if provided
   await supabaseAdmin
     .from("user_profiles")
     .update({
-      resume_data: payloadWithMeta,
       ...(updates.headline ? { headline: updates.headline } : {}),
       ...(updates.location ? { location: updates.location } : {}),
-      ...(updates.skills ? { skills: updates.skills } : {}),
+      ...(updates.skills && updates.skills.length > 0 ? { skills: updates.skills } : {}),
+      updated_at: new Date().toISOString(),
     })
     .eq("id", user.id);
 
-  // Also upsert into resumes table if present
-  try {
-    await supabaseAdmin
-      .from("resumes")
-      .upsert({ user_id: user.id, ...payloadWithMeta }, { onConflict: "user_id" });
-  } catch {
-    /* ignore if resumes table is omitted */
-  }
-
   return NextResponse.json({
     success: true,
-    resume: payloadWithMeta,
-    ...payloadWithMeta,
+    resume: payload,
+    ...payload,
   });
 }
 
@@ -141,15 +170,9 @@ export async function DELETE() {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   await supabaseAdmin
-    .from("user_profiles")
-    .update({ resume_data: null })
-    .eq("id", user.id);
-
-  try {
-    await supabaseAdmin.from("resumes").delete().eq("user_id", user.id);
-  } catch {
-    /* ignore */
-  }
+    .from("user_resumes")
+    .delete()
+    .eq("user_id", user.id);
 
   return NextResponse.json({ success: true });
 }

@@ -1,0 +1,132 @@
+{
+  "passed": 25,
+  "failed": 0,
+  "total": 25,
+  "results": [
+    {
+      "name": "Public: Opportunities Feed",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Public: Opportunities Filter (Fresher)",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Public: Opportunities Filter (0-2 Yrs)",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Public: Search Opportunities",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Public: Organizations List",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Public: News Articles",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Public: Health Check",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Candidate: Profile Info",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Candidate: Recommendations",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Candidate: Endorsements",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Candidate: Resume GET",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Candidate: Resume POST/PATCH (ATS sync)",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Candidate: Feed Posts",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Candidate: Network Suggestions",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Candidate: Network Followers",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Candidate: Conversations List",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Candidate: Notifications",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Candidate: AI Recommendations",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Security RBAC: Candidate Denied Employer Talent",
+      "status": 403,
+      "ok": true
+    },
+    {
+      "name": "Employer: Talent Pool",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Employer: Saved Candidates",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Employer: Settings",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Admin: Scraper Health",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Admin: Analytics",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "name": "Admin: Opportunities Moderation",
+      "status": 200,
+      "ok": true
+    }
+  ]
+}

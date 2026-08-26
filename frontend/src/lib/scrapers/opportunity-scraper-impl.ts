@@ -87,7 +87,7 @@ async function getTraditionalScrapeSources(): Promise<ScrapedSource[]> {
     .from("scrape_sources")
     .select("*")
     .eq("is_active", true)
-    .in("source_type", ["ats", "html", "api"])
+    .in("adapter", ["ats", "html", "api"])
     .order("priority", { ascending: true });
 
   if (error) {

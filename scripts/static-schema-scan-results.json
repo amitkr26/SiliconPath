@@ -1,0 +1,881 @@
+{
+  "tableMismatches": [
+    {
+      "file": "frontend\\src\\app\\api\\academy\\tracks\\[id]\\days\\route.ts",
+      "table": "academy_tracks",
+      "line": 19
+    },
+    {
+      "file": "frontend\\src\\app\\api\\academy\\tracks\\[id]\\days\\route.ts",
+      "table": "academy_days",
+      "line": 36
+    },
+    {
+      "file": "frontend\\src\\app\\api\\academy\\tracks\\[id]\\days\\route.ts",
+      "table": "academy_days",
+      "line": 43
+    },
+    {
+      "file": "frontend\\src\\app\\api\\academy\\tracks\\[id]\\days\\[day]\\route.ts",
+      "table": "academy_tracks",
+      "line": 134
+    },
+    {
+      "file": "frontend\\src\\app\\api\\academy\\tracks\\[id]\\days\\[day]\\route.ts",
+      "table": "academy_days",
+      "line": 142
+    },
+    {
+      "file": "frontend\\src\\app\\api\\academy\\tracks\\[id]\\route.ts",
+      "table": "academy_tracks",
+      "line": 18
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\announcements\\route.ts",
+      "table": "announcements",
+      "line": 14
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\announcements\\route.ts",
+      "table": "announcements",
+      "line": 28
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\announcements\\route.ts",
+      "table": "announcements",
+      "line": 42
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\auth\\route.ts",
+      "table": "a",
+      "line": 13
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\auth\\route.ts",
+      "table": "b",
+      "line": 14
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\recheck-link\\route.ts",
+      "table": "opportunity_verifications",
+      "line": 62
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\recheck-link\\route.ts",
+      "table": "opportunity_verifications",
+      "line": 63
+    },
+    {
+      "file": "frontend\\src\\app\\api\\archive-news\\route.ts",
+      "table": "news_archive",
+      "line": 36
+    },
+    {
+      "file": "frontend\\src\\app\\api\\cron\\check-links\\route.ts",
+      "table": "opportunity_verifications",
+      "line": 66
+    },
+    {
+      "file": "frontend\\src\\app\\api\\profile\\avatar\\route.ts",
+      "table": "avatars",
+      "line": 60
+    },
+    {
+      "file": "frontend\\src\\app\\api\\profile\\avatar\\route.ts",
+      "table": "avatars",
+      "line": 71
+    },
+    {
+      "file": "frontend\\src\\app\\api\\profile\\parse-resume\\route.ts",
+      "table": "arrayBuffer",
+      "line": 39
+    },
+    {
+      "file": "frontend\\src\\lib\\academy\\queries.ts",
+      "table": "academy_tracks",
+      "line": 32
+    },
+    {
+      "file": "frontend\\src\\lib\\academy\\queries.ts",
+      "table": "academy_days",
+      "line": 80
+    },
+    {
+      "file": "frontend\\src\\lib\\admin-auth.ts",
+      "table": "a",
+      "line": 7
+    },
+    {
+      "file": "frontend\\src\\lib\\admin-auth.ts",
+      "table": "b",
+      "line": 8
+    },
+    {
+      "file": "frontend\\src\\lib\\categories.ts",
+      "table": "CANONICAL_CATEGORIES",
+      "line": 57
+    },
+    {
+      "file": "frontend\\src\\lib\\scrapers\\ats-adapters.ts",
+      "table": "tags",
+      "line": 100
+    },
+    {
+      "file": "frontend\\src\\lib\\scrapers\\news-filter.ts",
+      "table": "matches",
+      "line": 577
+    }
+  ],
+  "columnMismatches": [
+    {
+      "file": "frontend\\src\\app\\api\\academy\\progress\\completed-days\\route.ts",
+      "table": "user_learning_progress",
+      "column": "status",
+      "operation": "eq",
+      "line": 13
+    },
+    {
+      "file": "frontend\\src\\app\\api\\academy\\progress\\passed-tracks\\route.ts",
+      "table": "user_learning_progress",
+      "column": "track_slug",
+      "operation": "select",
+      "line": 13
+    },
+    {
+      "file": "frontend\\src\\app\\api\\academy\\progress\\passed-tracks\\route.ts",
+      "table": "user_learning_progress",
+      "column": "status",
+      "operation": "eq",
+      "line": 13
+    },
+    {
+      "file": "frontend\\src\\app\\api\\academy\\tracks\\[id]\\days\\route.ts",
+      "table": "learning_tracks",
+      "column": "track_id",
+      "operation": "eq",
+      "line": 28
+    },
+    {
+      "file": "frontend\\src\\app\\api\\academy\\tracks\\[id]\\days\\route.ts",
+      "table": "learning_tracks",
+      "column": "day_number",
+      "operation": "order",
+      "line": 28
+    },
+    {
+      "file": "frontend\\src\\app\\api\\academy\\tracks\\[id]\\days\\route.ts",
+      "table": "learning_tracks",
+      "column": "track_id",
+      "operation": "eq",
+      "line": 28
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\analytics\\route.ts",
+      "table": "applications",
+      "column": "created_at",
+      "operation": "gte",
+      "line": 24
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\analytics\\route.ts",
+      "table": "applications",
+      "column": "created_at",
+      "operation": "gte",
+      "line": 24
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\applications\\route.ts",
+      "table": "applications",
+      "column": "title",
+      "operation": "select",
+      "line": 11
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\applications\\route.ts",
+      "table": "applications",
+      "column": "slug)",
+      "operation": "select",
+      "line": 11
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\applications\\route.ts",
+      "table": "applications",
+      "column": "display_name",
+      "operation": "select",
+      "line": 11
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\applications\\route.ts",
+      "table": "applications",
+      "column": "avatar_url",
+      "operation": "select",
+      "line": 11
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\applications\\route.ts",
+      "table": "applications",
+      "column": "headline)",
+      "operation": "select",
+      "line": 11
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\applications\\route.ts",
+      "table": "applications",
+      "column": "created_at",
+      "operation": "order",
+      "line": 11
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\performance\\route.ts",
+      "table": "scrape_runs",
+      "column": "created_at",
+      "operation": "order",
+      "line": 16
+    },
+    {
+      "file": "frontend\\src\\app\\api\\admin\\scrape-health\\route.ts",
+      "table": "scrape_runs",
+      "column": "consecutive_failures",
+      "operation": "order",
+      "line": 14
+    },
+    {
+      "file": "frontend\\src\\app\\api\\ai\\search\\route.ts",
+      "table": "organizations",
+      "column": "organization_id",
+      "operation": "eq",
+      "line": 50
+    },
+    {
+      "file": "frontend\\src\\app\\api\\ai\\search\\route.ts",
+      "table": "organizations",
+      "column": "title",
+      "operation": "ilike",
+      "line": 50
+    },
+    {
+      "file": "frontend\\src\\app\\api\\applications\\route.ts",
+      "table": "applications",
+      "column": "title",
+      "operation": "select",
+      "line": 12
+    },
+    {
+      "file": "frontend\\src\\app\\api\\applications\\route.ts",
+      "table": "applications",
+      "column": "slug",
+      "operation": "select",
+      "line": 12
+    },
+    {
+      "file": "frontend\\src\\app\\api\\applications\\route.ts",
+      "table": "applications",
+      "column": "deadline",
+      "operation": "select",
+      "line": 12
+    },
+    {
+      "file": "frontend\\src\\app\\api\\applications\\route.ts",
+      "table": "applications",
+      "column": "location)",
+      "operation": "select",
+      "line": 12
+    },
+    {
+      "file": "frontend\\src\\app\\api\\applications\\route.ts",
+      "table": "applications",
+      "column": "avatar_url",
+      "operation": "select",
+      "line": 12
+    },
+    {
+      "file": "frontend\\src\\app\\api\\applications\\route.ts",
+      "table": "applications",
+      "column": "headline)",
+      "operation": "select",
+      "line": 12
+    },
+    {
+      "file": "frontend\\src\\app\\api\\cleanup-news\\route.ts",
+      "table": "news_articles",
+      "column": "source_url",
+      "operation": "select",
+      "line": 33
+    },
+    {
+      "file": "frontend\\src\\app\\api\\cleanup-news\\route.ts",
+      "table": "news_articles",
+      "column": "source_url",
+      "operation": "select",
+      "line": 71
+    },
+    {
+      "file": "frontend\\src\\app\\api\\cleanup-news\\route.ts",
+      "table": "news_articles",
+      "column": "source_url",
+      "operation": "select",
+      "line": 81
+    },
+    {
+      "file": "frontend\\src\\app\\api\\community\\posts\\[id]\\route.ts",
+      "table": "community_posts",
+      "column": "post_id",
+      "operation": "eq",
+      "line": 9
+    },
+    {
+      "file": "frontend\\src\\app\\api\\companies\\[id]\\route.ts",
+      "table": "company_pages",
+      "column": "user_id",
+      "operation": "eq",
+      "line": 10
+    },
+    {
+      "file": "frontend\\src\\app\\api\\companies\\[id]\\route.ts",
+      "table": "company_pages",
+      "column": "company_id",
+      "operation": "eq",
+      "line": 10
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "title",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "category",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "location",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "salary_range",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "slug)",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "display_name",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "username",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "avatar_url",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "headline",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "skills",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "experience_years",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "location",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "bio",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "resume_url",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "linkedin_url",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\route.ts",
+      "table": "applications",
+      "column": "github_url\n        )",
+      "operation": "select",
+      "line": 30
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\applicants\\[id]\\route.ts",
+      "table": "applications",
+      "column": "employer_id)",
+      "operation": "select",
+      "line": 104
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\claim\\route.ts",
+      "table": "company_claims",
+      "column": "name",
+      "operation": "select",
+      "line": 27
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\claim\\route.ts",
+      "table": "company_claims",
+      "column": "slug",
+      "operation": "select",
+      "line": 27
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\claim\\route.ts",
+      "table": "company_claims",
+      "column": "logo_url",
+      "operation": "select",
+      "line": 27
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\claim\\route.ts",
+      "table": "company_claims",
+      "column": "website)",
+      "operation": "select",
+      "line": 27
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\company\\route.ts",
+      "table": "user_profiles",
+      "column": "claimed_by",
+      "operation": "eq",
+      "line": 19
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\company\\route.ts",
+      "table": "company_pages",
+      "column": "claimed_by",
+      "operation": "eq",
+      "line": 26
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\jobs\\route.ts",
+      "table": "organizations",
+      "column": "created_by",
+      "operation": "select",
+      "line": 114
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\jobs\\[id]\\route.ts",
+      "table": "organizations",
+      "column": "created_by",
+      "operation": "select",
+      "line": 25
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\jobs\\[id]\\route.ts",
+      "table": "opportunities",
+      "column": "opportunity_id",
+      "operation": "eq",
+      "line": 56
+    },
+    {
+      "file": "frontend\\src\\app\\api\\employer\\recommendations\\route.ts",
+      "table": "opportunities",
+      "column": "is_profile_public",
+      "operation": "eq",
+      "line": 42
+    },
+    {
+      "file": "frontend\\src\\app\\api\\feed\\posts\\[id]\\comment\\route.ts",
+      "table": "feed_post_comments",
+      "column": "username",
+      "operation": "select",
+      "line": 15
+    },
+    {
+      "file": "frontend\\src\\app\\api\\feed\\posts\\[id]\\comment\\route.ts",
+      "table": "feed_post_comments",
+      "column": "avatar_url)",
+      "operation": "select",
+      "line": 15
+    },
+    {
+      "file": "frontend\\src\\app\\api\\feed\\posts\\[id]\\comment\\route.ts",
+      "table": "feed_post_comments",
+      "column": "username",
+      "operation": "select",
+      "line": 53
+    },
+    {
+      "file": "frontend\\src\\app\\api\\feed\\posts\\[id]\\comment\\route.ts",
+      "table": "feed_post_comments",
+      "column": "avatar_url)",
+      "operation": "select",
+      "line": 53
+    },
+    {
+      "file": "frontend\\src\\app\\api\\feed\\posts\\[id]\\repost\\route.ts",
+      "table": "feed_posts",
+      "column": "user_id",
+      "operation": "select",
+      "line": 37
+    },
+    {
+      "file": "frontend\\src\\app\\api\\feed\\route.ts",
+      "table": "user_profiles",
+      "column": "user_id",
+      "operation": "eq",
+      "line": 58
+    },
+    {
+      "file": "frontend\\src\\app\\api\\feed\\route.ts",
+      "table": "user_profiles",
+      "column": "post_id",
+      "operation": "in",
+      "line": 58
+    },
+    {
+      "file": "frontend\\src\\app\\api\\messages\\route.ts",
+      "table": "user_profiles",
+      "column": "conversation_id",
+      "operation": "eq",
+      "line": 38
+    },
+    {
+      "file": "frontend\\src\\app\\api\\messages\\route.ts",
+      "table": "user_profiles",
+      "column": "conversation_id",
+      "operation": "eq",
+      "line": 38
+    },
+    {
+      "file": "frontend\\src\\app\\api\\messages\\route.ts",
+      "table": "user_profiles",
+      "column": "is_read",
+      "operation": "eq",
+      "line": 38
+    },
+    {
+      "file": "frontend\\src\\app\\api\\messages\\route.ts",
+      "table": "user_profiles",
+      "column": "sender_id",
+      "operation": "neq",
+      "line": 38
+    },
+    {
+      "file": "frontend\\src\\app\\api\\network\\followers\\route.ts",
+      "table": "user_profiles",
+      "column": "follower_id",
+      "operation": "eq",
+      "line": 25
+    },
+    {
+      "file": "frontend\\src\\app\\api\\network\\suggestions\\route.ts",
+      "table": "user_profiles",
+      "column": "status",
+      "operation": "eq",
+      "line": 54
+    },
+    {
+      "file": "frontend\\src\\app\\api\\notifications\\route.ts",
+      "table": "notifications",
+      "column": "username",
+      "operation": "select",
+      "line": 15
+    },
+    {
+      "file": "frontend\\src\\app\\api\\notifications\\route.ts",
+      "table": "notifications",
+      "column": "avatar_url",
+      "operation": "select",
+      "line": 15
+    },
+    {
+      "file": "frontend\\src\\app\\api\\notifications\\route.ts",
+      "table": "notifications",
+      "column": "headline)",
+      "operation": "select",
+      "line": 15
+    },
+    {
+      "file": "frontend\\src\\app\\api\\organizations\\route.ts",
+      "table": "organizations",
+      "column": "verification_status",
+      "operation": "eq",
+      "line": 44
+    },
+    {
+      "file": "frontend\\src\\app\\api\\profile\\[userId]\\endorse\\route.ts",
+      "table": "skill_endorsements",
+      "column": "avatar_url)",
+      "operation": "select",
+      "line": 71
+    },
+    {
+      "file": "frontend\\src\\app\\api\\profile\\[userId]\\recommendations\\route.ts",
+      "table": "recommendations",
+      "column": "avatar_url",
+      "operation": "select",
+      "line": 11
+    },
+    {
+      "file": "frontend\\src\\app\\api\\profile\\[userId]\\recommendations\\route.ts",
+      "table": "recommendations",
+      "column": "headline)",
+      "operation": "select",
+      "line": 11
+    },
+    {
+      "file": "frontend\\src\\app\\api\\recommendations\\route.ts",
+      "table": "user_profiles",
+      "column": "is_active",
+      "operation": "eq",
+      "line": 10
+    },
+    {
+      "file": "frontend\\src\\app\\api\\resources\\route.ts",
+      "table": "resources",
+      "column": "category",
+      "operation": "eq",
+      "line": 19
+    },
+    {
+      "file": "frontend\\src\\app\\api\\resources\\[slug]\\route.ts",
+      "table": "resources",
+      "column": "slug",
+      "operation": "eq",
+      "line": 20
+    },
+    {
+      "file": "frontend\\src\\app\\api\\search\\opportunities\\route.ts",
+      "table": "opportunities",
+      "column": "name",
+      "operation": "ilike",
+      "line": 18
+    },
+    {
+      "file": "frontend\\src\\app\\api\\search\\opportunities\\route.ts",
+      "table": "organizations",
+      "column": "category",
+      "operation": "eq",
+      "line": 28
+    },
+    {
+      "file": "frontend\\src\\app\\organizations\\[slug]\\page.tsx",
+      "table": "organizations",
+      "column": "organization_id",
+      "operation": "eq",
+      "line": 28
+    },
+    {
+      "file": "frontend\\src\\lib\\academy\\queries.ts",
+      "table": "user_learning_progress",
+      "column": "passed",
+      "operation": "eq",
+      "line": 106
+    },
+    {
+      "file": "frontend\\src\\lib\\academy\\queries.ts",
+      "table": "user_learning_progress",
+      "column": "day_number",
+      "operation": "eq",
+      "line": 151
+    },
+    {
+      "file": "frontend\\src\\lib\\academy\\queries.ts",
+      "table": "user_learning_progress",
+      "column": "day_number",
+      "operation": "eq",
+      "line": 202
+    },
+    {
+      "file": "frontend\\src\\lib\\email-digest.ts",
+      "table": "opportunities",
+      "column": "is_verified",
+      "operation": "eq",
+      "line": 31
+    },
+    {
+      "file": "frontend\\src\\lib\\opportunities-query.ts",
+      "table": "organizations",
+      "column": "deadline",
+      "operation": "order",
+      "line": 200
+    },
+    {
+      "file": "frontend\\src\\lib\\scrapers\\opportunity-scraper-impl.ts",
+      "table": "scrape_sources",
+      "column": "source_type",
+      "operation": "in",
+      "line": 87
+    },
+    {
+      "file": "backend\\server\\src\\repositories\\userdata.ts",
+      "table": "applications",
+      "column": "saved_at",
+      "operation": "select",
+      "line": 77
+    },
+    {
+      "file": "backend\\server\\src\\repositories\\userdata.ts",
+      "table": "applications",
+      "column": "saved_at",
+      "operation": "order",
+      "line": 77
+    },
+    {
+      "file": "backend\\server\\src\\routes\\messages.ts",
+      "table": "conversations",
+      "column": "conversation_id",
+      "operation": "eq",
+      "line": 90
+    },
+    {
+      "file": "backend\\server\\src\\routes\\social.ts",
+      "table": "feed_posts",
+      "column": "display_name",
+      "operation": "select",
+      "line": 41
+    },
+    {
+      "file": "backend\\server\\src\\routes\\social.ts",
+      "table": "feed_posts",
+      "column": "headline",
+      "operation": "select",
+      "line": 41
+    },
+    {
+      "file": "backend\\server\\src\\routes\\social.ts",
+      "table": "feed_posts",
+      "column": "avatar_url)",
+      "operation": "select",
+      "line": 41
+    },
+    {
+      "file": "backend\\server\\src\\routes\\social.ts",
+      "table": "feed_posts",
+      "column": "follower_id",
+      "operation": "select",
+      "line": 59
+    },
+    {
+      "file": "backend\\server\\src\\routes\\social.ts",
+      "table": "feed_posts",
+      "column": "following_id",
+      "operation": "eq",
+      "line": 59
+    },
+    {
+      "file": "backend\\server\\src\\routes\\social.ts",
+      "table": "feed_posts",
+      "column": "post_id",
+      "operation": "eq",
+      "line": 114
+    },
+    {
+      "file": "backend\\server\\src\\routes\\social.ts",
+      "table": "feed_post_likes",
+      "column": "author_id",
+      "operation": "select",
+      "line": 133
+    },
+    {
+      "file": "backend\\server\\src\\routes\\social.ts",
+      "table": "feed_post_likes",
+      "column": "author_id",
+      "operation": "select",
+      "line": 137
+    },
+    {
+      "file": "backend\\server\\src\\routes\\social.ts",
+      "table": "feed_post_comments",
+      "column": "author_id",
+      "operation": "select",
+      "line": 159
+    },
+    {
+      "file": "backend\\server\\src\\routes\\social.ts",
+      "table": "connections",
+      "column": "connection_count",
+      "operation": "order",
+      "line": 369
+    },
+    {
+      "file": "backend\\server\\src\\routes\\social.ts",
+      "table": "notifications",
+      "column": "display_name",
+      "operation": "select",
+      "line": 482
+    },
+    {
+      "file": "backend\\server\\src\\routes\\social.ts",
+      "table": "notifications",
+      "column": "avatar_url)",
+      "operation": "select",
+      "line": 482
+    },
+    {
+      "file": "scripts\\deep-opportunity-inspector.mjs",
+      "table": "organizations",
+      "column": "domain",
+      "operation": "select",
+      "line": 108
+    },
+    {
+      "file": "scripts\\e2e-security-and-workflow-validator.mjs",
+      "table": "opportunities",
+      "column": "user_id",
+      "operation": "eq",
+      "line": 52
+    },
+    {
+      "file": "scripts\\e2e-security-and-workflow-validator.mjs",
+      "table": "opportunities",
+      "column": "opportunity_id",
+      "operation": "eq",
+      "line": 52
+    }
+  ],
+  "totalMatchedQueries": 617
+}

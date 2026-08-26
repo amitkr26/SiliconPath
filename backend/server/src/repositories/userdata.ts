@@ -89,9 +89,9 @@ export async function listSavedOpportunities(
 ): Promise<{ data: any[]; count: number }> {
   const { data, error, count } = await client
     .from("saved_opportunities")
-    .select("id, user_id, opportunity_id, created_at, opportunities(*)")
+    .select("id, user_id, opportunity_id, saved_at, opportunities(*)")
     .eq("user_id", userId)
-    .order("created_at", { ascending: false })
+    .order("saved_at", { ascending: false })
     .range(offset, offset + limit - 1);
   if (error) throw error;
   return { data: data || [], count: count ?? 0 };
