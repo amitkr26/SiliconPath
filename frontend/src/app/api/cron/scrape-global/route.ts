@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
           apply_url: opp.apply_link || normUrl,
           source_url: normUrl,
           tags: opp.tags,
-          // P0.2: never fabricate `verified`; new inserts default unverified
+          verification_status: "pending",
           is_active: true,
           source_type: "scraped",
         }]);

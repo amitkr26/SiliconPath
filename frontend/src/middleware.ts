@@ -59,8 +59,9 @@ function addSecurityHeaders(response: NextResponse): void {
   }
 }
 
-function rateLimiterKey(path: string): 'api' | 'auth' | 'search' | 'scrape' | 'ai' | null {
+function rateLimiterKey(path: string): 'api' | 'auth' | 'search' | 'scrape' | 'ai' | 'admin' | null {
   if (path.startsWith('/api/scrapers')) return null;
+  if (path.startsWith('/api/admin')) return 'admin';
   if (path.startsWith('/api/auth')) return 'auth';
   if (path.startsWith('/api/search')) return 'search';
   if (path.startsWith('/api/scrape') || path.startsWith('/api/cron/scrape')) return 'scrape';

@@ -29,3 +29,24 @@ export const logger = {
   error: (msg: string, meta?: Record<string, unknown>) => makeLog("error", msg, meta),
   debug: (msg: string, meta?: Record<string, unknown>) => makeLog("debug", msg, meta),
 };
+
+export interface AuditEventMeta {
+  route: string;
+  method?: string;
+  userId?: string;
+  role?: string;
+  resourceId?: string;
+  status: "success" | "failure" | "denied";
+  durationMs?: number;
+  errorCode?: string;
+  details?: Record<string, unknown>;
+}
+
+export function logAuditEvent(action: string, meta: AuditEventMeta) {
+  logger.info(`Audit: ${action}`, {
+    type: "audit_log",
+    action,
+    ...meta,
+  });
+}
+
