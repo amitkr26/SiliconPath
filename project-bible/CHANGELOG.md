@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-26 — Phase 18: Canonical Availability Logic & byCategory Bug Fix (COMPLETE).**
+  - **Root Cause — byCategory Empty:**
+    - The `byCategory` query in `stats/route.ts` selected a non-existent column `posted_at` (actual column: `posted_date`). Supabase silently returned `data: null`, producing `byCategory: {}`.
+    - Applied same incorrect `posted_at` column name in 3 other surfaces: `sitemap.ts`, `[slug]/page.tsx`, `stats/route.ts`.
+  - **Fix — Column Name Correction:**
+    - Renamed all `posted_at` DB selects to `posted_date` across `stats/route.ts`, `sitemap.ts`, `[slug]/page.tsx`.
+    - Updated `availability.ts` `hasRecentEvidence()` and `isCurrentlyAvailable()` to accept both `posted_at` (client model) and `posted_date` (DB column) for graceful interop.
+    - Updated `utils.ts` `mapDbOpportunityToClient()` to prefer `posted_date` over `posted_at`.
+    - Added DB-level `buildAvailabilityDbFilter()` + `.limit(500)` to `byCategory` query for performance.
+  - **Live Production Verification:**
+    - Stats: `total: 3,608 | active: 399 | verified: 399 | byCategory: {industry:377, government:13, jrf:2, fellowship:7}`
+    - All 7 surfaces verified: homepage, opportunities feed, featured, search, stats, sitemap, detail page.
+    - Zero runtime errors in Vercel logs.
+  - **Automated Quality Gate:**
+    - `npx tsc --noEmit`: 0 errors.
+    - `npm test`: 16/16 test suites, 153/153 tests passed (100%).
+
 - **2026-08-24 — Phase 17: Admin Portal Credentials & Comprehensive Multi-Portal Verification (COMPLETE).**
   - **Admin Authentication Hardening (`api/admin/auth/route.ts`):**
     - Configured admin credentials with username `amitkr26` and password `amitkr2622002` using constant-time `timingSafeEqual` verification and HMAC session token generation.
