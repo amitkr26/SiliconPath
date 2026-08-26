@@ -1,16 +1,14 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Loader2, MessageCircle, Search, ArrowLeft, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@/hooks/useUser";
 import { useConversations, useConversationMessages, useSendMessage } from "@/hooks/useMessages";
-import MessageThread from "@/components/MessageThread";
 import EmptyState from "@/components/shared/EmptyState";
 import { formatDistanceToNow } from "date-fns";
-import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
 interface OtherUser {
@@ -47,6 +45,7 @@ export default function MessagesPage() {
   const [targetUser, setTargetUser] = useState<OtherUser | null>(null);
   const [text, setText] = useState("");
   const [search, setSearch] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!userLoading && !user) router.push("/login?redirectTo=/messages");
@@ -63,7 +62,6 @@ export default function MessagesPage() {
 
   const sendMessage = useSendMessage();
 
-  // Handle URL query parameters: ?conv= or ?user=
   useEffect(() => {
     const convParam = searchParams.get("conv") || searchParams.get("convId");
     const userParam = searchParams.get("user") || searchParams.get("userId");
@@ -75,13 +73,11 @@ export default function MessagesPage() {
     }
 
     if (userParam && user) {
-      // Check if conversation already exists with this user
       const existing = conversations.find((c) => c.other_user?.id === userParam);
       if (existing) {
         setActiveConv(existing.id);
         setTargetUser(null);
       } else {
-        // Fetch target user details via server API to allow starting a new thread
         fetch(`/api/profile/${userParam}`)
           .then((res) => res.json())
           .then((data: any) => {
@@ -99,6 +95,10 @@ export default function MessagesPage() {
       }
     }
   }, [searchParams, conversations, user]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const active = conversations.find((c) => c.id === activeConv);
   const activeOtherUser = active?.other_user || targetUser;
@@ -125,61 +125,72 @@ export default function MessagesPage() {
     );
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (text.trim()) send();
+    }
+  };
+
   if (userLoading || convLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bg-primary">
-        <Loader2 size={32} className="animate-spin text-blue-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 size={24} className="animate-spin text-blue-600" />
       </div>
     );
   }
 
+  const showConversationList = !activeConv && !targetUser;
+  const showChat = activeConv || targetUser;
+
   return (
-    <div className="min-h-screen bg-bg-primary py-6 px-4">
-      <div className="max-w-5xl mx-auto space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white shadow-brutal-sm">
-            <MessageCircle className="w-5 h-5 stroke-[2.5]" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Direct Messages</h1>
-            <p className="text-xs text-slate-600 font-medium">Private messaging with hardware engineers &amp; researchers</p>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Header */}
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Private conversations with hardware engineers and researchers</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4" style={{ height: "72vh" }}>
-          {/* CONVERSATION LIST */}
-          <div className={`bg-white border-2 border-slate-900 rounded-2xl flex flex-col overflow-hidden shadow-brutal ${activeConv || targetUser ? "hidden md:flex" : "flex"}`}>
-            {/* SEARCH BAR */}
-            <div className="p-3 border-b-2 border-slate-900 bg-slate-50">
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex" style={{ height: "calc(100vh - 200px)" }}>
+          {/* Left Panel - Conversation List */}
+          <div
+            className={cn(
+              "w-80 border-r border-gray-200 flex flex-col flex-shrink-0",
+              showChat ? "hidden md:flex" : "flex"
+            )}
+          >
+            {/* Search */}
+            <div className="p-3 border-b border-gray-100">
               <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 stroke-[2.5]" />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search conversations..."
-                  className="w-full bg-white border-2 border-slate-900 text-slate-900 text-xs font-medium rounded-xl pl-9 pr-3 py-2 outline-none shadow-brutal-sm focus:border-accent focus:shadow-brutal transition"
+                  className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg pl-9 pr-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
 
-            {/* LIST ITEMS */}
-            <div className="flex-1 overflow-y-auto divide-y-2 divide-slate-100">
+            {/* Conversation Items */}
+            <div className="flex-1 overflow-y-auto">
               {filtered.length === 0 && !targetUser ? (
                 <EmptyState
                   icon={<MessageCircle size={24} />}
                   title="No conversations yet"
-                  description="Start a direct message from any member's profile or network request."
+                  description="Start by connecting with someone from their profile."
                 />
               ) : (
-                <>
+                <div>
                   {targetUser && !activeConv && (
-                    <div className="p-3 bg-blue-50 border-b-2 border-slate-900 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black text-xs flex items-center justify-center border-2 border-slate-900 shadow-brutal-sm">
+                    <div className="p-3 bg-blue-50 border-b border-gray-100 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold">
                         {initials(targetUser.display_name)}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-black text-slate-900 truncate">{targetUser.display_name}</p>
-                        <span className="text-[10px] font-bold text-blue-700">New Conversation</span>
+                        <p className="text-sm font-medium text-gray-900 truncate">{targetUser.display_name}</p>
+                        <span className="text-xs text-blue-600 font-medium">New Conversation</span>
                       </div>
                     </div>
                   )}
@@ -192,93 +203,151 @@ export default function MessagesPage() {
                         setTargetUser(null);
                       }}
                       className={cn(
-                        "w-full flex items-start gap-3 p-3.5 text-left transition-colors",
-                        activeConv === c.id ? "bg-blue-50 font-black border-l-4 border-blue-600" : "hover:bg-slate-50",
+                        "w-full flex items-start gap-3 p-3 text-left transition-colors border-b border-gray-50",
+                        activeConv === c.id ? "bg-blue-50 border-l-2 border-l-blue-600" : "hover:bg-gray-50",
+                        c.unread_count > 0 && "border-l-2 border-l-blue-500 bg-blue-50/30"
                       )}
                     >
-                      <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shrink-0 border-2 border-slate-900 shadow-brutal-sm">
+                      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold shrink-0 overflow-hidden">
                         {c.other_user?.avatar_url ? (
-                          <Image src={c.other_user.avatar_url} alt="" width={40} height={40} className="w-10 h-10 rounded-xl object-cover" unoptimized />
+                          <Image src={c.other_user.avatar_url} alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover" unoptimized />
                         ) : (
                           initials(c.other_user?.display_name)
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex justify-between gap-1">
-                          <span className="text-xs font-black text-slate-900 truncate">
-                            {c.other_user?.display_name || "Hardware Member"}
+                          <span className={cn("text-sm truncate", c.unread_count > 0 ? "font-semibold text-gray-900" : "font-medium text-gray-700")}>
+                            {c.other_user?.display_name || "Member"}
                           </span>
-                          <span className="text-[10px] font-bold text-slate-400 shrink-0">
+                          <span className="text-xs text-gray-400 shrink-0">
                             {c.last_message_at
                               ? formatDistanceToNow(new Date(c.last_message_at), { addSuffix: false })
                               : ""}
                           </span>
                         </div>
-                        <p className="text-[11px] font-medium text-slate-600 truncate mt-0.5">{c.last_message_preview}</p>
+                        <p className={cn("text-xs truncate mt-0.5", c.unread_count > 0 ? "text-gray-700 font-medium" : "text-gray-500")}>
+                          {c.last_message_preview}
+                        </p>
                       </div>
                       {c.unread_count > 0 && (
-                        <span className="bg-blue-600 text-white text-[10px] font-black rounded-full px-2 py-0.5 shrink-0 border-2 border-slate-900">
+                        <span className="bg-blue-600 text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center shrink-0">
                           {c.unread_count}
                         </span>
                       )}
                     </button>
                   ))}
-                </>
+                </div>
               )}
             </div>
           </div>
 
-          {/* CHAT AREA */}
-          <div className={`bg-white border-2 border-slate-900 rounded-2xl flex flex-col overflow-hidden shadow-brutal ${activeConv || targetUser ? "flex" : "hidden md:flex"}`}>
+          {/* Right Panel - Active Conversation */}
+          <div
+            className={cn(
+              "flex-1 flex flex-col min-w-0",
+              showChat ? "flex" : "hidden md:flex"
+            )}
+          >
             {activeOtherUser ? (
               <>
-                {/* CHAT HEADER */}
-                <div className="flex items-center gap-3 px-4 py-3 border-b-2 border-slate-900 bg-slate-50">
+                {/* Chat Header */}
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 bg-white">
                   <button
                     onClick={() => {
                       setActiveConv(null);
                       setTargetUser(null);
                     }}
-                    className="md:hidden p-1 text-slate-900 hover:bg-slate-200 rounded-lg"
+                    className="md:hidden p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
                     aria-label="Back"
                   >
                     <ArrowLeft size={18} />
                   </button>
-                  <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shrink-0 border-2 border-slate-900 shadow-brutal-sm">
+                  <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold shrink-0 overflow-hidden">
                     {activeOtherUser.avatar_url ? (
-                      <Image src={activeOtherUser.avatar_url} alt="" width={36} height={36} className="w-9 h-9 rounded-xl object-cover" unoptimized />
+                      <Image src={activeOtherUser.avatar_url} alt="" width={36} height={36} className="w-9 h-9 rounded-full object-cover" unoptimized />
                     ) : (
                       initials(activeOtherUser.display_name)
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-black text-slate-900 truncate">
-                      {activeOtherUser.display_name || "Hardware Member"}
+                    <p className="text-sm font-semibold text-gray-900 truncate">
+                      {activeOtherUser.display_name || "Member"}
                     </p>
                     {activeOtherUser.headline && (
-                      <p className="text-[10px] font-bold text-slate-500 truncate">{activeOtherUser.headline}</p>
+                      <p className="text-xs text-gray-500 truncate">{activeOtherUser.headline}</p>
                     )}
                   </div>
                 </div>
 
-                {/* THREAD MESSAGES */}
-                <MessageThread
-                  messages={messages}
-                  currentUserId={user?.id ?? ""}
-                  otherUserName={activeOtherUser.display_name ?? undefined}
-                  otherUserAvatar={activeOtherUser.avatar_url ?? undefined}
-                  text={text}
-                  onTextChange={setText}
-                  onSend={send}
-                  isSending={sendMessage.isPending}
-                  className="flex-1 overflow-hidden"
-                />
+                {/* Messages Thread */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+                  {messages.length === 0 && (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-sm text-gray-500">
+                        Start a conversation with {activeOtherUser.display_name || "this person"}.
+                      </p>
+                    </div>
+                  )}
+                  {messages.map((msg) => {
+                    const isMine = msg.sender_id === user?.id;
+                    return (
+                      <div
+                        key={msg.id}
+                        className={cn("flex items-end gap-2", isMine ? "flex-row-reverse" : "flex-row")}
+                      >
+                        {!isMine && (
+                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-xs font-semibold overflow-hidden">
+                            {activeOtherUser.avatar_url ? (
+                              <Image src={activeOtherUser.avatar_url} alt="" width={28} height={28} className="w-7 h-7 rounded-full object-cover" unoptimized />
+                            ) : initials(activeOtherUser.display_name)}
+                          </div>
+                        )}
+                        <div
+                          className={cn(
+                            "max-w-[70%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed break-words",
+                            isMine
+                              ? "bg-blue-600 text-white rounded-br-md"
+                              : "bg-white text-gray-900 border border-gray-200 rounded-bl-md"
+                          )}
+                        >
+                          {msg.body}
+                          <p className={cn("text-[10px] mt-0.5", isMine ? "text-white/60 text-right" : "text-gray-400")}>
+                            {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Composer */}
+                <div className="border-t border-gray-200 p-3 bg-white flex items-end gap-2">
+                  <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={`Message ${activeOtherUser.display_name || ""}...`}
+                    rows={1}
+                    className="flex-1 resize-none bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg px-3.5 py-2.5 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent max-h-32 overflow-y-auto"
+                    style={{ minHeight: 40 }}
+                  />
+                  <button
+                    onClick={send}
+                    disabled={!text.trim() || sendMessage.isPending}
+                    aria-label="Send message"
+                    className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                  >
+                    {sendMessage.isPending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                  </button>
+                </div>
               </>
             ) : (
               <EmptyState
                 icon={<MessageCircle size={32} />}
                 title="Select a conversation"
-                description="Choose from the conversation list on the left or click 'Message' from any candidate's profile."
+                description="Choose from the list on the left or start a new one from someone's profile."
                 className="flex-1"
               />
             )}

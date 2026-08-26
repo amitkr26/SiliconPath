@@ -70,8 +70,8 @@ export default async function OpportunitiesPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
       />
       <Suspense fallback={
-        <div className="min-h-screen bg-bg-primary flex items-center justify-center p-8">
-          <p className="text-slate-900 font-bold text-sm">Loading opportunities...</p>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+          <p className="text-gray-600 font-medium text-sm">Loading opportunities...</p>
         </div>
       }>
         <OpportunitiesClient initialData={initialData} />
