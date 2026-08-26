@@ -65,8 +65,8 @@ export default function MessagesPage() {
 
   // Handle URL query parameters: ?conv= or ?user=
   useEffect(() => {
-    const convParam = searchParams.get("conv");
-    const userParam = searchParams.get("user");
+    const convParam = searchParams.get("conv") || searchParams.get("convId");
+    const userParam = searchParams.get("user") || searchParams.get("userId");
 
     if (convParam) {
       setActiveConv(convParam);

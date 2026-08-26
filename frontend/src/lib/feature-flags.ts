@@ -1,8 +1,7 @@
 // Feature flags — toggle features dynamically
 export const FEATURES = {
-  // LinkedIn-style features
-  // Set NEXT_PUBLIC_LINKEDIN_ENABLED=true in environment to activate
-  LINKEDIN_ENABLED: process.env.NEXT_PUBLIC_LINKEDIN_ENABLED === 'true',
+  // LinkedIn-style features enabled for Phase 27 product experience
+  LINKEDIN_ENABLED: process.env.NEXT_PUBLIC_LINKEDIN_ENABLED !== 'false',
 
   // Community forum — active
   COMMUNITY_ENABLED: true,

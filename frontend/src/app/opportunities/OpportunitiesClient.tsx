@@ -263,21 +263,27 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                 Domain:
               </span>
               {[
-                { name: "All", searchVal: "", catVal: "All", expVal: "All" },
-                { name: "🎓 Fresher First", searchVal: "", catVal: "All", expVal: "Fresher" },
-                { name: "⚡ VLSI RTL", searchVal: "RTL", catVal: "All", expVal: "All" },
-                { name: "🧪 Verification (UVM)", searchVal: "Verification", catVal: "All", expVal: "All" },
-                { name: "📐 Physical Design", searchVal: "Physical Design", catVal: "All", expVal: "All" },
-                { name: "🔌 Embedded Systems", searchVal: "Embedded", catVal: "All", expVal: "All" },
-                { name: "🔬 JRF / Fellowships", searchVal: "", catVal: "jrf", expVal: "All" },
-                { name: "💼 Internships", searchVal: "", catVal: "internship", expVal: "All" },
+                { name: "All", searchVal: "", catVal: "All", expVal: "All", sortVal: "fresher" },
+                { name: "🎓 Fresher First", searchVal: "", catVal: "All", expVal: "Fresher", sortVal: "fresher" },
+                { name: "⏳ Closing Soon", searchVal: "", catVal: "All", expVal: "All", sortVal: "closing_soon" },
+                { name: "⚡ VLSI RTL", searchVal: "RTL", catVal: "All", expVal: "All", sortVal: "fresher" },
+                { name: "🧪 Verification (UVM)", searchVal: "Verification", catVal: "All", expVal: "All", sortVal: "fresher" },
+                { name: "📐 Physical Design", searchVal: "Physical Design", catVal: "All", expVal: "All", sortVal: "fresher" },
+                { name: "🔌 Embedded Systems", searchVal: "Embedded", catVal: "All", expVal: "All", sortVal: "fresher" },
+                { name: "🔬 Research & JRF", searchVal: "", catVal: "jrf", expVal: "All", sortVal: "fresher" },
+                { name: "🏛️ Govt & PSU Labs", searchVal: "", catVal: "government", expVal: "All", sortVal: "fresher" },
+                { name: "🎓 PhD Fellowships", searchVal: "", catVal: "phd", expVal: "All", sortVal: "fresher" },
+                { name: "💼 Internships", searchVal: "", catVal: "internship", expVal: "All", sortVal: "fresher" },
               ].map((pill) => {
                 const isActive =
                   (pill.name === "🎓 Fresher First" && experience === "Fresher") ||
-                  (pill.name === "🔬 JRF / Fellowships" && category === "jrf") ||
+                  (pill.name === "⏳ Closing Soon" && sort === "closing_soon") ||
+                  (pill.name === "🔬 Research & JRF" && category === "jrf") ||
+                  (pill.name === "🏛️ Govt & PSU Labs" && category === "government") ||
+                  (pill.name === "🎓 PhD Fellowships" && category === "phd") ||
                   (pill.name === "💼 Internships" && category === "internship") ||
                   (pill.searchVal && search.toLowerCase() === pill.searchVal.toLowerCase()) ||
-                  (!pill.searchVal && !search && category === "All" && experience === "All" && pill.name === "All");
+                  (!pill.searchVal && !search && category === "All" && experience === "All" && sort === "fresher" && pill.name === "All");
 
                 return (
                   <button
@@ -287,13 +293,15 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                       if (pill.expVal !== "All") setExperience(pill.expVal);
                       if (pill.catVal !== "All") setCategory(pill.catVal);
                       if (pill.searchVal !== undefined) setSearch(pill.searchVal);
+                      if (pill.sortVal) setSort(pill.sortVal);
                       if (pill.name === "All") {
                         setCategory("All");
                         setExperience("All");
+                        setSort("fresher");
                         setSearch("");
                       }
                     }}
-                    className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border-2 border-slate-900 transition-all ${
+                    className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-bold border-2 border-slate-900 transition-all ${
                       isActive
                         ? "bg-blue-600 text-white shadow-brutal-sm scale-105"
                         : "bg-white text-slate-700 hover:bg-slate-100 hover:-translate-y-0.5"
