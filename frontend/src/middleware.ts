@@ -135,9 +135,20 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  const directPassword = request.headers.get("x-admin-password");
-  const isAdminRequest = Boolean(adminPassword && directPassword && directPassword === adminPassword);
+  const adminPassword = process.env.ADMIN_PASSWORD || "";
+  const directPassword = request.headers.get("x-admin-password") || "";
+  const isAdminRequest = Boolean(
+    adminPassword &&
+    directPassword &&
+    adminPassword.length === directPassword.length &&
+    (() => {
+      let diff = 0;
+      for (let i = 0; i < adminPassword.length; i++) {
+        diff |= adminPassword.charCodeAt(i) ^ directPassword.charCodeAt(i);
+      }
+      return diff === 0;
+    })()
+  );
 
   // Auth gate check
   if ((isGated || isEmployerOnly) && !user && !isAdminRequest) {

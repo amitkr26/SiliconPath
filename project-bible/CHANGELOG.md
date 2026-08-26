@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-26 — Phase 19: Security Hardening & Timing-Attack Mitigation (COMPLETE).**
+  - **Fail-Closed Admin Authentication (`api/admin/auth/route.ts`):**
+    - Eliminated hardcoded fallback credentials from bundle source code; the admin route now fails closed (503) if `ADMIN_PASSWORD` or `ADMIN_HMAC_SECRET` is unset.
+  - **Constant-Time Secret Verification (`lib/admin-auth.ts`, `middleware.ts`):**
+    - Refactored `verifyAdminToken`, `verifyAdmin`, and `verifyCron` to use constant-time `timingSafeEqual` comparison for all direct passwords, tokens, and HMAC signatures.
+    - Implemented Edge-compatible constant-time XOR comparison in `middleware.ts` to prevent timing-based credential discovery.
+  - **Automated Quality Gate:**
+    - `npx tsc --noEmit`: 0 errors.
+    - `npm test`: 16/16 test suites, 153/153 tests passed (100%).
+    - `npm run build`: 349 static and dynamic routes compiled cleanly.
+    - Full portal test suite: 24/24 passed.
+
 - **2026-08-26 — Phase 18: Canonical Availability Logic & byCategory Bug Fix (COMPLETE).**
   - **Root Cause — byCategory Empty:**
     - The `byCategory` query in `stats/route.ts` selected a non-existent column `posted_at` (actual column: `posted_date`). Supabase silently returned `data: null`, producing `byCategory: {}`.
