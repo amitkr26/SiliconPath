@@ -69,8 +69,8 @@ const config: Config = {
       borderRadius: {
         sm: "6px",
         md: "8px",
-        lg: radiusTokens.card, // 12px → card radius
-        xl: "14px",
+        lg: radiusTokens.lg, // 12px
+        xl: radiusTokens.xl, // 16px
         "2xl": "18px",
         full: "9999px",
         card: radiusTokens.card, // ← single source of truth
@@ -83,7 +83,7 @@ const config: Config = {
         "brutal-lg": shadowTokens.elevated,
         "brutal-sm": shadowTokens.card, // alias to card
         card: shadowTokens.card,
-        "card-sm": "2px 2px 0px 0px #0F172A", // 2px elevation for badges, avatars
+        "card-sm": "1px 1px 0px 0px #0F172A", // subtle elevation for badges, small elements
         "card-hover": shadowTokens.elevated,
         elevated: shadowTokens.elevated,
       },

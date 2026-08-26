@@ -1,8 +1,8 @@
 /*
- * BerojgarDegreeWala — Central Design Tokens (v1.0)
+ * SiliconPath — Central Design Tokens (v2.0 Professional Neo-Brutalism)
  * Single source of truth for shadows, radii, colors, typography, spacing, icons.
  * All components should reference these tokens instead of ad-hoc Tailwind values.
- * 
+ *
  * Do NOT add competing token definitions. If a new semantic is needed, add it
  * to the appropriate category here — do NOT create a second file.
  */
@@ -11,25 +11,26 @@
 // SHADOW SYSTEM — exactly 3 semantic levels
 // ============================================================
 export const shadow = {
-  // Subtle surface elevation (cards, boxes)
-  card: "4px 4px 0px 0px #0F172A",
-  // Interactive/important surface (buttons, hover states)
-  elevated: "6px 6px 0px 0px #0F172A",
-  // Dialogs/popovers/overlays
+  // Subtle surface elevation (cards, boxes) — 3px offset
+  card: "3px 3px 0px 0px #0F172A",
+  // Interactive/important surface (buttons, hover states) — 4px offset
+  elevated: "4px 4px 0px 0px #0F172A",
+  // Dialogs/popovers/overlays — standard drop shadow (no brutal offset)
   modal: "0 4px 24px rgba(0, 0, 0, 0.15)",
 } as const
 
 export type ShadowKey = keyof typeof shadow
 
 // ============================================================
-// RADIUS SYSTEM — exactly 3 semantic levels
+// RADIUS SYSTEM — semantic + numeric levels
 // ============================================================
 export const radius = {
-  // card → rounded-2xl / rounded-xl equivalent
+  sm: "6px",
+  md: "8px",
+  lg: "12px",
+  xl: "16px",
   card: "12px",
-  // badge → rounded-pill / full circle
   pill: "9999px",
-  // input → rounded-xl
   input: "12px",
 } as const
 
@@ -39,29 +40,29 @@ export type RadiusKey = keyof typeof radius
 // COLOR SYSTEM — one primary accent + semantic status colors
 // ============================================================
 export const color = {
-  // Single primary brand accent
+  // Single primary brand accent — Electric Blue
   primary: "#2563EB",
   primaryHover: "#1D4ED8",
   primarySubtle: "rgba(37, 99, 235, 0.1)",
 
-  // Semantic status colors — these have meaning, do NOT flatten
+  // Semantic status colors
   success: "#059669",
   warning: "#D97706",
   danger: "#DC2626",
   neutral: "#64748B",
 
-  // Surface/background
+  // Surface/background — Warm off-white + white cards
   bg: "#FAF9F6",
   surface: "#FFFFFF",
   surfaceElevated: "#F1F5F9",
 
-  // Text
+  // Text — Deep Navy hierarchy
   text: "#0F172A",
   textSecondary: "#334155",
   textMuted: "#64748B",
   textInverted: "#FFFFFF",
 
-  // Border
+  // Border — Deep Navy
   border: "#0F172A",
   borderHover: "#000000",
   borderSubtle: "#E2E8F0",
@@ -77,19 +78,21 @@ export const color = {
 export type ColorKey = keyof typeof color
 
 // ============================================================
-// TYPOGRAPHY SYSTEM — semantic weight hierarchy
+// TYPOGRAPHY SYSTEM — semantic weight + size hierarchy
 // ============================================================
 export const typography = {
-  // display: strong headline (not 900 everywhere)
-  display: "font-semibold tracking-tighter text-xl",
-  // heading: strong but not shouting
-  heading: "font-bold tracking-tight text-lg",
-  // body: regular/medium for readability
-  body: "font-medium text-sm leading-relaxed",
+  // display: strong headline (28-32px, font-bold)
+  display: "font-bold tracking-tight text-[30px] leading-tight",
+  // heading: section headline (20-24px, font-bold)
+  heading: "font-bold tracking-tight text-[22px] leading-snug",
+  // subheading: card/section subheading (16-18px, font-semibold)
+  subheading: "font-semibold text-[17px] leading-snug",
+  // body: regular/medium for readability (14-15px, font-normal)
+  body: "font-normal text-[15px] leading-relaxed",
   // label: semibold for form alignment
   label: "font-semibold text-xs uppercase tracking-wider",
-  // caption: smaller, muted
-  caption: "text-sm text-slate-500",
+  // caption: smaller, muted (12-13px, font-medium)
+  caption: "font-medium text-[12px] text-slate-500",
 } as const
 
 export type TypographyKey = keyof typeof typography

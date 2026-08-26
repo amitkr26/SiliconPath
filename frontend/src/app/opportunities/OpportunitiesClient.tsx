@@ -1,18 +1,55 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import type { Opportunity } from "@/types";
-import OpportunityCard from "@/components/OpportunityCard";
-import OpportunityRow from "@/components/OpportunityRow";
-import FilterBar from "@/components/FilterBar";
-import SearchBar from "@/components/SearchBar";
-import { Loader2, Sparkles, X, Filter, LayoutGrid, List, ArrowDownUp } from "lucide-react";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
+import CategoryBadge from "@/components/CategoryBadge";
+import DeadlineCountdown from "@/components/DeadlineCountdown";
+import VerificationBadge from "@/components/VerificationBadge";
+import { Loader2, Search, X, MapPin, IndianRupee, ExternalLink, ShieldCheck, Filter, ChevronDown } from "lucide-react";
+import { cn, getDaysUntilDeadline, isExpired } from "@/lib/utils";
+
+const QUICK_FILTERS = [
+  { label: "Fresher First", experience: "Fresher" },
+  { label: "Closing Soon", sort: "closing_soon" },
+  { label: "VLSI RTL", search: "RTL" },
+  { label: "Research/JRF", category: "jrf" },
+  { label: "Govt/PSU", category: "government" },
+];
+
+const DOMAIN_OPTIONS = [
+  { value: "All", label: "All Domains" },
+  { value: "RTL", label: "VLSI RTL Design" },
+  { value: "Verification", label: "Verification (UVM)" },
+  { value: "Physical Design", label: "Physical Design" },
+  { value: "Embedded", label: "Embedded Systems" },
+  { value: "Analog", label: "Analog/Mixed-Signal" },
+  { value: "DFT", label: "DFT" },
+];
+
+function getInitials(name?: string): string {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase();
+}
+
+function getLocalBookmarks(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem("BerojgarDegreeWala_bookmarks");
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
 
 export default function OpportunitiesClient({ initialData }: { initialData: Opportunity[] }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialSearchParam = searchParams.get("search") || "";
   const initialCategoryParam = searchParams.get("category") || "All";
@@ -27,6 +64,14 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   const [experience, setExperience] = useState(initialExperienceParam);
   const [sort, setSort] = useState("fresher");
   const [search, setSearch] = useState(initialSearchParam);
+  const [showUnverified, setShowUnverified] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(initialData.length);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const requestToken = useRef(0);
+  const [matchInfo, setMatchInfo] = useState<{ type?: string; query?: string }>({});
 
   useEffect(() => {
     const s = searchParams.get("search") || "";
@@ -37,27 +82,10 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
     setExperience(e);
   }, [searchParams]);
 
-  const [showUnverified, setShowUnverified] = useState(false);
-  const [viewMode, setViewMode] = useState<"card" | "row">("row");
-  const [aiChips, setAiChips] = useState<Record<string, string>>({});
-  const [aiSearching, setAiSearching] = useState(false);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(initialData.length);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const lastAISearch = useRef("");
-
-  const [matchInfo, setMatchInfo] = useState<{ type?: string; query?: string }>({});
-  const requestToken = useRef(0);
-
   const fetchOpportunities = useCallback(async (pageNum = 1, append = false) => {
     const token = ++requestToken.current;
-    if (append) {
-      setLoadingMore(true);
-    } else {
-      setLoading(true);
-    }
+    if (append) setLoadingMore(true);
+    else setLoading(true);
 
     try {
       const params = new URLSearchParams();
@@ -68,20 +96,18 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
       if (experience && experience !== "All") params.set("experience", experience);
       if (sort && sort !== "fresher") params.set("sort", sort);
       if (search) params.set("search", search);
-      if (showUnverified) {
-        params.set("verified", "all");
-      }
+      if (showUnverified) params.set("verified", "all");
       if (pageNum > 1) params.set("page", String(pageNum));
 
       const res = await fetch(`/api/opportunities?${params}`);
       const data = await res.json();
-
-      // Ignore stale responses
       if (token !== requestToken.current) return;
 
       if (data.opportunities) {
         setOpportunities((prev) =>
-          append ? Array.from(new Map([...prev, ...data.opportunities].map((o: Opportunity) => [o.id, o])).values()) : data.opportunities
+          append
+            ? Array.from(new Map([...prev, ...data.opportunities].map((o: Opportunity) => [o.id, o])).values())
+            : data.opportunities
         );
         setTotalPages(data.total_pages || 1);
         setTotalCount(data.total_count || data.opportunities.length);
@@ -105,35 +131,6 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
     }
   }, [category, eligibility, location, deadline, experience, sort, search, showUnverified]);
 
-  const handleSearch = useCallback(async (query: string) => {
-    setSearch(query);
-
-    if (query.length > 5 && query !== lastAISearch.current) {
-      lastAISearch.current = query;
-      setAiSearching(true);
-      try {
-        const res = await fetch("/api/ai/search", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const chips: Record<string, string> = {};
-          if (data.filters?.category) chips.category = data.filters.category;
-          if (data.filters?.location) chips.location = data.filters.location;
-          if (data.filters?.eligibility) chips.eligibility = data.filters.eligibility;
-          if (data.filters?.organization_hint) chips.organization = data.filters.organization_hint;
-          setAiChips(chips);
-        }
-      } catch {
-        // AI fallback
-      } finally {
-        setAiSearching(false);
-      }
-    }
-  }, []);
-
   useEffect(() => {
     fetchOpportunities(1);
   }, [category, eligibility, location, deadline, experience, sort, search, showUnverified, fetchOpportunities]);
@@ -142,267 +139,405 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
     if (page > 1) fetchOpportunities(page, true);
   }, [page, fetchOpportunities]);
 
+  const domainCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: opportunities.length };
+    for (const opp of opportunities) {
+      const tags = opp.tags || [];
+      for (const tag of tags) {
+        const normalized = tag.toLowerCase();
+        if (normalized.includes("rtl") || normalized.includes("verilog") || normalized.includes("vhdl")) {
+          counts["RTL"] = (counts["RTL"] || 0) + 1;
+        }
+        if (normalized.includes("verification") || normalized.includes("uvm")) {
+          counts["Verification"] = (counts["Verification"] || 0) + 1;
+        }
+        if (normalized.includes("physical") || normalized.includes("layout")) {
+          counts["Physical Design"] = (counts["Physical Design"] || 0) + 1;
+        }
+        if (normalized.includes("embedded") || normalized.includes("firmware")) {
+          counts["Embedded"] = (counts["Embedded"] || 0) + 1;
+        }
+      }
+      const cat = (opp.category || "").toLowerCase();
+      if (cat.includes("jrf") || cat.includes("research")) {
+        counts["Research/JRF"] = (counts["Research/JRF"] || 0) + 1;
+      }
+    }
+    return counts;
+  }, [opportunities]);
+
+  const activeQuickFilter = useMemo(() => {
+    if (experience === "Fresher") return "Fresher First";
+    if (sort === "closing_soon") return "Closing Soon";
+    if (search.toLowerCase() === "rtl") return "VLSI RTL";
+    if (category === "jrf") return "Research/JRF";
+    if (category === "government") return "Govt/PSU";
+    return null;
+  }, [experience, sort, search, category]);
+
+  const handleQuickFilter = (filter: (typeof QUICK_FILTERS)[number]) => {
+    if (activeQuickFilter === filter.label) {
+      setExperience("All");
+      setSort("fresher");
+      setSearch("");
+      setCategory("All");
+    } else {
+      if (filter.experience) setExperience(filter.experience);
+      else setExperience("All");
+      if (filter.sort) setSort(filter.sort);
+      else setSort("fresher");
+      if (filter.search) setSearch(filter.search);
+      else setSearch("");
+      if (filter.category) setCategory(filter.category);
+      else if (!filter.search) setCategory("All");
+    }
+  };
+
+  const resetAll = () => {
+    setCategory("All");
+    setEligibility("All");
+    setLocation("All");
+    setDeadline("All");
+    setExperience("All");
+    setSort("fresher");
+    setSearch("");
+  };
+
+  const hasActiveFilters = category !== "All" || eligibility !== "All" || location !== "All" || deadline !== "All" || experience !== "All" || search;
+
   return (
-    <div className="min-h-screen bg-bg-primary py-8">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* HEADER SECTION */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 text-xs font-bold text-blue-600 mb-2">
-            <Sparkles className="w-4 h-4" />
-            <span>Currently Active &amp; Verified Semiconductor &amp; VLSI Openings</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Jobs &amp; Opportunities</h1>
-          <p className="text-slate-600 mt-1 text-xs sm:text-sm font-medium">Browse verified JRF, SRF, PhD admissions, DRDO, ISRO, CSIR, and premier VLSI industry roles with active application deadlines.</p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Opportunities</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Browse verified semiconductor, VLSI, and research opportunities
+          </p>
         </div>
 
         <div className="flex gap-8">
-          
-          {/* DESKTOP SIDEBAR FILTERS */}
-          <aside className="hidden lg:block w-[280px] flex-shrink-0">
-            <div className="sticky top-20 z-10">
-              <FilterBar
-                selectedCategory={category}
-                selectedEligibility={eligibility}
-                selectedLocation={location}
-                selectedDeadline={deadline}
-                selectedExperience={experience}
-                onCategoryChange={setCategory}
-                onEligibilityChange={setEligibility}
-                onLocationChange={setLocation}
-                onDeadlineChange={setDeadline}
-                onExperienceChange={setExperience}
-              />
-            </div>
-          </aside>
-
-          {/* MOBILE FILTER DRAWER */}
-          {showMobileFilters && (
-            <div className="fixed inset-0 z-50 lg:hidden">
-              <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={() => setShowMobileFilters(false)} />
-              <div className="absolute inset-y-0 right-0 w-[300px] bg-white border-l-2 border-slate-900 shadow-brutal-lg flex flex-col">
-                <div className="flex items-center justify-between p-4 border-b-2 border-slate-900">
-                  <h2 className="text-slate-900 font-bold text-base">Filter Opportunities</h2>
-                  <button onClick={() => setShowMobileFilters(false)} className="text-slate-500 hover:text-slate-900">
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-                <div className="p-4 overflow-y-auto flex-1">
-                  <FilterBar
-                    selectedCategory={category}
-                    selectedEligibility={eligibility}
-                    selectedLocation={location}
-                    selectedDeadline={deadline}
-                    selectedExperience={experience}
-                    onCategoryChange={setCategory}
-                    onEligibilityChange={setEligibility}
-                    onLocationChange={setLocation}
-                    onDeadlineChange={setDeadline}
-                    onExperienceChange={setExperience}
-                  />
-                </div>
-                <div className="p-4 border-t-2 border-slate-900">
-                  <Button onClick={() => setShowMobileFilters(false)} className="w-full">
-                    Apply Filters
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* MAIN RESULTS FEED */}
+          {/* Main Content */}
           <div className="flex-1 min-w-0">
-            
-            {/* SEARCH & CONTROLS BAR */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
-              <div className="flex-1">
-                <SearchBar value={search} onChange={setSearch} onSearch={handleSearch} />
-                {aiSearching && (
-                  <div className="flex items-center gap-1.5 mt-1.5 text-xs text-blue-600 font-medium">
-                    <Sparkles className="w-3.5 h-3.5 animate-spin" />
-                    <span>AI parsing query parameters...</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                {/* SORT DROPDOWN */}
-                <div className="flex items-center gap-1 bg-white border-2 border-slate-900 rounded-xl px-3 py-1.5 shadow-brutal-sm text-xs font-bold">
-                  <ArrowDownUp className="w-3.5 h-3.5 text-blue-600" />
+            {/* Search Bar */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search opportunities by title, organization, or keyword..."
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Filter Chips */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              {QUICK_FILTERS.map((filter) => (
+                <button
+                  key={filter.label}
+                  onClick={() => handleQuickFilter(filter)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+                    activeQuickFilter === filter.label
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  )}
+                >
+                  {filter.label}
+                </button>
+              ))}
+              {hasActiveFilters && (
+                <button
+                  onClick={resetAll}
+                  className="px-3 py-1.5 rounded-full text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+
+            {/* Mobile Filter Toggle */}
+            <button
+              onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 mb-4 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+            >
+              <Filter className="w-4 h-4" />
+              Filters
+              <ChevronDown className={cn("w-4 h-4 transition-transform", mobileFiltersOpen && "rotate-180")} />
+            </button>
+
+            {/* Mobile Filters Panel */}
+            {mobileFiltersOpen && (
+              <div className="lg:hidden bg-white border border-gray-200 rounded-lg p-4 mb-4 space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Domain</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {DOMAIN_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Sort by</label>
                   <select
                     value={sort}
                     onChange={(e) => setSort(e.target.value)}
-                    aria-label="Sort opportunities"
-                    className="bg-transparent text-slate-900 font-bold focus:outline-hidden cursor-pointer"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="fresher">Fresher Relevance</option>
                     <option value="closing_soon">Closing Soon</option>
                     <option value="newest">Newest First</option>
                   </select>
                 </div>
-
-                <button
-                  onClick={() => setShowMobileFilters(true)}
-                  className="lg:hidden inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl border-2 border-slate-900 bg-white text-slate-700 hover:bg-slate-50 transition-colors flex-1 justify-center shadow-brutal-sm"
-                >
-                  <Filter className="w-4 h-4 text-blue-600" />
-                  Filters
-                </button>
-                <button
-                  onClick={() => setViewMode(viewMode === "card" ? "row" : "card")}
-                  className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border-2 border-slate-900 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-brutal-sm"
-                  title="Toggle Grid / List View"
-                >
-                  {viewMode === "card" ? <List className="w-4 h-4 text-blue-600" /> : <LayoutGrid className="w-4 h-4 text-blue-600" />}
-                </button>
-              </div>
-            </div>
-
-            {/* DOMAIN & FRESHER SHORTCUT PILLS */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-hide">
-              <span className="text-[11px] font-black uppercase text-slate-500 shrink-0 mr-1">
-                Domain:
-              </span>
-              {[
-                { name: "All", searchVal: "", catVal: "All", expVal: "All", sortVal: "fresher" },
-                { name: "🎓 Fresher First", searchVal: "", catVal: "All", expVal: "Fresher", sortVal: "fresher" },
-                { name: "⏳ Closing Soon", searchVal: "", catVal: "All", expVal: "All", sortVal: "closing_soon" },
-                { name: "⚡ VLSI RTL", searchVal: "RTL", catVal: "All", expVal: "All", sortVal: "fresher" },
-                { name: "🧪 Verification (UVM)", searchVal: "Verification", catVal: "All", expVal: "All", sortVal: "fresher" },
-                { name: "📐 Physical Design", searchVal: "Physical Design", catVal: "All", expVal: "All", sortVal: "fresher" },
-                { name: "🔌 Embedded Systems", searchVal: "Embedded", catVal: "All", expVal: "All", sortVal: "fresher" },
-                { name: "🔬 Research & JRF", searchVal: "", catVal: "jrf", expVal: "All", sortVal: "fresher" },
-                { name: "🏛️ Govt & PSU Labs", searchVal: "", catVal: "government", expVal: "All", sortVal: "fresher" },
-                { name: "🎓 PhD Fellowships", searchVal: "", catVal: "phd", expVal: "All", sortVal: "fresher" },
-                { name: "💼 Internships", searchVal: "", catVal: "internship", expVal: "All", sortVal: "fresher" },
-              ].map((pill) => {
-                const isActive =
-                  (pill.name === "🎓 Fresher First" && experience === "Fresher") ||
-                  (pill.name === "⏳ Closing Soon" && sort === "closing_soon") ||
-                  (pill.name === "🔬 Research & JRF" && category === "jrf") ||
-                  (pill.name === "🏛️ Govt & PSU Labs" && category === "government") ||
-                  (pill.name === "🎓 PhD Fellowships" && category === "phd") ||
-                  (pill.name === "💼 Internships" && category === "internship") ||
-                  (pill.searchVal && search.toLowerCase() === pill.searchVal.toLowerCase()) ||
-                  (!pill.searchVal && !search && category === "All" && experience === "All" && sort === "fresher" && pill.name === "All");
-
-                return (
-                  <button
-                    key={pill.name}
-                    type="button"
-                    onClick={() => {
-                      if (pill.expVal !== "All") setExperience(pill.expVal);
-                      if (pill.catVal !== "All") setCategory(pill.catVal);
-                      if (pill.searchVal !== undefined) setSearch(pill.searchVal);
-                      if (pill.sortVal) setSort(pill.sortVal);
-                      if (pill.name === "All") {
-                        setCategory("All");
-                        setExperience("All");
-                        setSort("fresher");
-                        setSearch("");
-                      }
-                    }}
-                    className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-bold border-2 border-slate-900 transition-all ${
-                      isActive
-                        ? "bg-blue-600 text-white shadow-brutal-sm scale-105"
-                        : "bg-white text-slate-700 hover:bg-slate-100 hover:-translate-y-0.5"
-                    }`}
-                  >
-                    {pill.name}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* AI FILTER CHIPS */}
-            {Object.keys(aiChips).length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
-                {Object.entries(aiChips).map(([key, value]) => (
-                  <Badge key={key} tone="accent" className="pr-1">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    {key}: {value}
-                    <button onClick={() => { const newChips = { ...aiChips }; delete newChips[key]; setAiChips(newChips); }} className="hover:text-blue-100 ml-1">
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </Badge>
-                ))}
               </div>
             )}
 
-            {/* RELEVANT MATCH BANNER */}
-            {search && matchInfo.type === "relevant" && (
-              <div className="mb-4 p-3.5 bg-blue-50 border-2 border-slate-900 rounded-xl text-xs font-medium text-slate-900 flex items-center gap-2.5 shadow-brutal-sm">
-                <Sparkles className="w-4 h-4 text-blue-600 flex-shrink-0 stroke-[2.5]" />
-                <span>Showing relevant postings for <strong>&quot;{matchInfo.query}&quot;</strong> matching your search <strong>&quot;{search}&quot;</strong>.</span>
-              </div>
-            )}
+            {/* Results Count */}
+            <p className="text-sm text-gray-600 mb-4">
+              {loading ? "Loading..." : `${totalCount} active opportunities`}
+            </p>
 
-            {/* RESULTS STATS HEADER */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-bold text-slate-800">
-                {loading ? "Fetching active opportunities..." : `Showing ${totalCount} Active & Verified Opportunities`}
-              </p>
-            </div>
-
-            {/* CONTENT GRID / LIST */}
+            {/* Opportunity Cards Grid */}
             {loading ? (
-              <Card tone="flat" className="flex flex-col items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
-                <p className="text-sm text-slate-600 font-medium">Loading verified openings...</p>
-              </Card>
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+              </div>
             ) : opportunities.length === 0 ? (
-              <Card tone="flat" className="text-center py-16 p-8">
-                <p className="text-slate-900 font-bold text-lg mb-2">No matching active opportunities found</p>
-                <p className="text-slate-500 text-sm max-w-md mx-auto mb-6">Try broadening your filter criteria or searching for different keywords.</p>
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setCategory("All");
-                    setEligibility("All");
-                    setLocation("All");
-                    setDeadline("All");
-                    setExperience("All");
-                    setSearch("");
-                  }}
-                  className="px-6 rounded-full"
+              <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
+                <p className="text-gray-900 font-medium">No opportunities found</p>
+                <p className="text-sm text-gray-500 mt-1">Try adjusting your filters or search terms</p>
+                <button
+                  onClick={resetAll}
+                  className="mt-4 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
                 >
-                  Reset All Filters
-                </Button>
-              </Card>
-            ) : viewMode === "card" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {opportunities.map((opp) => (
-                  <OpportunityCard key={opp.id} opportunity={opp} />
-                ))}
+                  Reset filters
+                </button>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {opportunities.map((opp) => (
-                  <OpportunityRow key={opp.id} opportunity={opp} />
+                  <OpportunityCardCompact key={opp.id} opportunity={opp} />
                 ))}
               </div>
             )}
 
-            {/* LOAD MORE / PAGINATION */}
+            {/* Load More */}
             {!loading && page < totalPages && (
-              <div className="flex flex-col items-center gap-3 mt-10">
-                <Button
+              <div className="flex justify-center mt-8">
+                <button
                   onClick={() => setPage((p) => p + 1)}
                   disabled={loadingMore}
-                  size="lg"
+                  className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
                 >
-                  {loadingMore ? <Loader2 className="w-4 h-4 animate-spin stroke-[2.5]" /> : <Sparkles className="w-4 h-4 stroke-[2.5]" />}
-                  {loadingMore ? "Loading more..." : "Load More Opportunities"}
-                </Button>
-                <p className="text-xs font-semibold text-slate-500">
-                  Showing page {page} of {totalPages} — {totalCount} active opportunities
-                </p>
+                  {loadingMore ? "Loading..." : "Load more"}
+                </button>
               </div>
             )}
-
           </div>
 
+          {/* Right Sidebar */}
+          <aside className="hidden lg:block w-72 flex-shrink-0">
+            <div className="sticky top-24 space-y-6">
+              {/* Quick Filters */}
+              <div className="bg-white border border-gray-200 rounded-xl p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Quick Filters</h3>
+                <div className="space-y-1">
+                  {QUICK_FILTERS.map((filter) => (
+                    <button
+                      key={filter.label}
+                      onClick={() => handleQuickFilter(filter)}
+                      className={cn(
+                        "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
+                        activeQuickFilter === filter.label
+                          ? "bg-blue-50 text-blue-700 font-medium"
+                          : "text-gray-700 hover:bg-gray-50"
+                      )}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Domain Stats */}
+              <div className="bg-white border border-gray-200 rounded-xl p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Domain Stats</h3>
+                <div className="space-y-2">
+                  {Object.entries(domainCounts)
+                    .filter(([, count]) => count > 0)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 8)
+                    .map(([domain, count]) => (
+                      <div key={domain} className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">{domain}</span>
+                        <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                          {count}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              {/* Refine Filters */}
+              <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
+                <h3 className="text-sm font-semibold text-gray-900">Refine Filters</h3>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Eligibility</label>
+                  <select
+                    value={eligibility}
+                    onChange={(e) => setEligibility(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="All">All Eligibility</option>
+                    <option value="B.Tech">B.Tech</option>
+                    <option value="M.Tech">M.Tech</option>
+                    <option value="PhD">PhD</option>
+                    <option value="M.Sc">M.Sc</option>
+                    <option value="B.Sc">B.Sc</option>
+                    <option value="Diploma">Diploma</option>
+                    <option value="Any Graduate">Any Graduate</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Location</label>
+                  <select
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="All">All Locations</option>
+                    <option value="Bangalore">Bangalore</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Pune">Pune</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Delhi / NCR">Delhi / NCR</option>
+                    <option value="Chennai">Chennai</option>
+                    <option value="Remote / WFH">Remote / WFH</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Deadline</label>
+                  <select
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="All">Any Deadline</option>
+                    <option value="Within 7 days">Within 7 days</option>
+                    <option value="Within 14 days">Within 14 days</option>
+                    <option value="Within 30 days">Within 30 days</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Compact Opportunity Card ─────────────────────────────────────── */
+
+function OpportunityCardCompact({ opportunity: opp }: { opportunity: Opportunity }) {
+  const router = useRouter();
+  const linkUnavailable = opp.verification_status === "link_unavailable" || opp.verification_status === "expired";
+
+  const daysLeft = opp.deadline ? getDaysUntilDeadline(opp.deadline) : null;
+  const expired = opp.deadline ? isExpired(opp.deadline) : false;
+
+  return (
+    <div
+      onClick={() => router.push(`/opportunities/${opp.slug}`)}
+      className={cn(
+        "bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md hover:border-gray-300 transition-all cursor-pointer group",
+        linkUnavailable && "opacity-70"
+      )}
+    >
+      <div className="flex items-start gap-3">
+        {/* Org Initials */}
+        <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+          <span className="text-sm font-semibold text-blue-600">{getInitials(opp.organization)}</span>
         </div>
 
+        <div className="flex-1 min-w-0">
+          {/* Title */}
+          <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">
+            {opp.title}
+          </h3>
+
+          {/* Organization */}
+          {opp.organization && (
+            <p className="text-xs text-gray-500 mt-0.5 truncate">{opp.organization}</p>
+          )}
+
+          {/* Tags Row */}
+          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+            <CategoryBadge category={opp.category} />
+            {opp.location && (
+              <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                <MapPin className="w-3 h-3" />
+                {opp.location}
+              </span>
+            )}
+            {opp.stipend && (
+              <span className="inline-flex items-center gap-1 text-xs text-gray-600 font-medium">
+                <IndianRupee className="w-3 h-3" />
+                {opp.stipend}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Verification */}
+        {opp.verification_status && (
+          <div className="flex-shrink-0">
+            <VerificationBadge status={opp.verification_status} compact />
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+        <div>
+          {opp.deadline ? (
+            <DeadlineCountdown deadline={opp.deadline} />
+          ) : (
+            <span className="text-xs text-gray-400">Open listing</span>
+          )}
+        </div>
+        <div>
+          {expired || opp.verification_status === "expired" ? (
+            <span className="text-xs text-gray-400 font-medium">Closed</span>
+          ) : opp.apply_link ? (
+            <a
+              href={opp.apply_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+            >
+              Apply <ExternalLink className="w-3 h-3" />
+            </a>
+          ) : (
+            <span className="text-xs font-medium text-blue-600">
+              View Details <ExternalLink className="w-3 h-3 inline" />
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
