@@ -1,4 +1,4 @@
-﻿import { MetadataRoute } from "next";
+import { MetadataRoute } from "next";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 
@@ -14,6 +14,7 @@ const STATIC_PAGES: { url: string; freq: "daily" | "hourly" | "weekly" | "monthl
   { url: "https://berojgardegreewala.vercel.app/chat", freq: "monthly", priority: 0.4 },
   { url: "https://berojgardegreewala.vercel.app/login", freq: "monthly", priority: 0.2 },
   { url: "https://berojgardegreewala.vercel.app/signup", freq: "monthly", priority: 0.2 },
+  { url: "https://berojgardegreewala.vercel.app/academy", freq: "daily", priority: 0.8 },
   { url: "https://berojgardegreewala.vercel.app/companies", freq: "weekly", priority: 0.6 },
   { url: "https://berojgardegreewala.vercel.app/search", freq: "weekly", priority: 0.5 },
 ];
@@ -22,10 +23,14 @@ const CATEGORY_PAGES = ["jrf", "srf", "phd", "govt-job", "fellowship", "private"
 
 const RESOURCE_PAGES = [
   "jrf-guide",
+  "jrf-vs-srf-difference",
+  "drdo-recruitment-electronics",
   "phd-guide",
+  "fully-funded-phd-vlsi-abroad",
   "international-fellowships",
-  "vlsi-careers",
   "net-vs-gate",
+  "vlsi-careers",
+  "vlsi-career-guide",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

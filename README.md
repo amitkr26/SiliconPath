@@ -8,8 +8,8 @@
 [![Supabase](https://img.shields.io/badge/Supabase-Primary%20DB-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
 [![Neon](https://img.shields.io/badge/Neon-Analytics%20DB-00E599?style=for-the-badge&logo=postgresql)](https://neon.tech/)
 [![Deployment](https://img.shields.io/badge/Vercel-Live-000000?style=for-the-badge&logo=vercel)](https://berojgardegreewala.vercel.app)
-[![Tests](https://img.shields.io/badge/Jest-117%2F117%20PASS-brightgreen?style=for-the-badge)](https://github.com/amitkr26/BerojgarDegreeWala)
-[![Forensic Audit](https://img.shields.io/badge/Forensic%20Audit-15%2F15%20READY-brightgreen?style=for-the-badge)](project-bible/FINAL_PLATFORM_AUDIT.md)
+[![Tests](https://img.shields.io/badge/Jest-153%2F153%20PASS-brightgreen?style=for-the-badge)](https://github.com/amitkr26/BerojgarDegreeWala)
+[![Verification](https://img.shields.io/badge/Phase%2025%20Audit-25%2F25%20GO-brightgreen?style=for-the-badge)](project-bible/qa/latest/phase-25-seo-features-audit.md)
 
 [**Live Platform**](https://berojgardegreewala.vercel.app) • [**Opportunities**](https://berojgardegreewala.vercel.app/opportunities) • [**Employer Suite**](https://berojgardegreewala.vercel.app/employer) • [**Academy**](https://berojgardegreewala.vercel.app/academy) • [**Admin**](https://berojgardegreewala.vercel.app/admin)
 
@@ -17,7 +17,7 @@
 
 ## Vision
 
-**SiliconPath** is career intelligence and recruitment infrastructure for India's electronics ecosystem — semiconductor, VLSI, embedded systems, and materials science. It exists to answer two critical questions:
+**SiliconPath (BerojgarDegreeWala)** is career intelligence and recruitment infrastructure for India's electronics ecosystem — semiconductor, VLSI, embedded systems, and materials science. It exists to answer two critical questions:
 1. For candidates & researchers: *"What can I apply to next, is it real, and am I eligible?"*
 2. For employers & research labs: *"How do we find, screen, invite, and hire specialized engineering talent with zero recruiter friction?"*
 
@@ -84,7 +84,7 @@ The Employer Suite provides a professional recruiter cockpit comparable to Linke
 
 | Layer | Choice | Notes |
 | :--- | :--- | :--- |
-| **Frontend & API** | Next.js 14.2 (App Router), React 18, TypeScript 5.4 | 241 static and dynamic compiled routes |
+| **Frontend & API** | Next.js 14.2 (App Router), React 18, TypeScript 5.4 | 350+ static and dynamic compiled routes |
 | **Styling** | Tailwind CSS + Neobrutalist Design System | Clean, responsive, high-contrast UI |
 | **Databases** | Supabase DB1 (Core/Social) + Neon (Analytics/Mirrors) | PostgreSQL with RLS and trigger-maintained counters |
 | **AI Gateway** | `@berojgardegreewala/ai-gateway` | DB-grounded RAG with Groq (`qwen/qwen3.6-27b`), Gemini, OpenRouter |
@@ -93,16 +93,17 @@ The Employer Suite provides a professional recruiter cockpit comparable to Linke
 
 ---
 
-## Verification & Forensic Audit Status
+## Verification & Quality Gates Status
 
 | Test Suite | Command | Result | Status |
 | :--- | :--- | :--- | :--- |
 | **TypeScript Compilation** | `npx tsc --noEmit` | **0 Errors** | ✅ PASS |
-| **Unit Test Suite** | `npx jest` | **117 / 117 Tests PASS** | ✅ PASS |
-| **Next.js Production Build** | `npm run build` | **241 / 241 Routes Compiled** | ✅ PASS |
-| **Multi-Actor Forensic E2E Gate** | `node scripts/forensic-full-suite.mjs` | **15 / 15 Gates PASS** | ✅ PASS |
+| **Unit Test Suite** | `npm test` | **153 / 153 Tests PASS (100%)** | ✅ PASS |
+| **Next.js Production Build** | `npm run build` | **350+ Routes Compiled** | ✅ PASS |
+| **End-to-End System Verification** | `node scripts/manual-feature-verification.mjs` | **25 / 25 Assertions PASS (100%)** | ✅ PASS |
+| **Multi-Portal Feature Suite** | `node scripts/test-all-portals-and-features.mjs` | **24 / 24 Tests PASS (100%)** | ✅ PASS |
 
-Complete forensic evidence and raw HTTP status codes are documented in [project-bible/FINAL_PLATFORM_AUDIT.md](project-bible/FINAL_PLATFORM_AUDIT.md).
+Complete forensic evidence and audit reports are documented in [project-bible/qa/latest/](project-bible/qa/latest/).
 
 ---
 
@@ -119,13 +120,14 @@ npm install
 # Start Next.js development server
 npm run dev
 
-# Run automated test suites
+# Run automated unit test suites
 npm test
 
-# Run forensic verification gate against live PostgreSQL
-node frontend/scripts/forensic-full-suite.mjs
+# Run manual feature verification gate against live runtime
+node scripts/manual-feature-verification.mjs
 ```
 
 ---
 
-*Last Updated: August 22, 2026 — Phase 8.1 Production Certified.*
+*Last Updated: August 26, 2026 — Phase 25 Production Accepted.*
+
