@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-26 — Phase 20: Post-Scraper Forensic Audit & Data Hygiene Remediation (COMPLETE).**
+  - **Forensic Audit & Invariant Enforcement:**
+    - Performed a 100% census audit of all 3,608 opportunities in Supabase.
+    - Quarantined 1 expired opportunity (`Rajasthan RVUNL` - deadline `2026-08-25`) and 1 CSIR CMERI expired listing.
+    - Quarantined 10 non-technical/irrelevant listings (clerical, peon, stenographer, agriculture, paleobotany, civil water JRFs, event forums).
+    - De-duplicated 84 redundant active listings, retaining the single strongest canonical record per cluster.
+    - Realigned 4 industry IC design roles previously tagged as `fellowship` to `industry`.
+    - Populated canonical organization names across all 34 public Government & JRF listings.
+  - **100% Data Preservation:**
+    - Zero rows deleted (Total preserved: 3,608).
+    - 100% candidate applications (11/11) and bookmarks (2/2) preserved intact.
+  - **Quality & Security Gates:**
+    - TypeScript: 0 errors.
+    - Jest: 16/16 suites, 153/153 tests passing.
+    - Next.js build: 349 routes compiled cleanly.
+    - Post-scraper forensic documentation created in `project-bible/qa/latest/post-scraper-audit/` (01 through 11).
+
 - **2026-08-26 — Phase 19: Security Hardening & Timing-Attack Mitigation (COMPLETE).**
   - **Fail-Closed Admin Authentication (`api/admin/auth/route.ts`):**
     - Eliminated hardcoded fallback credentials from bundle source code; the admin route now fails closed (503) if `ADMIN_PASSWORD` or `ADMIN_HMAC_SECRET` is unset.
