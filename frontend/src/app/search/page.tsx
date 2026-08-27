@@ -104,7 +104,7 @@ export default function SearchPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 overflow-x-auto border-b-2 border-slate-900 pb-px scrollbar-none">
+      <div className="flex gap-1 overflow-x-auto border-b-2 border-slate-900 pb-px no-scrollbar scrollbar-none">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -349,7 +349,7 @@ export default function SearchPage() {
                       </Link>
                       {item.summary && <p className="text-xs text-slate-600 line-clamp-2">{item.summary}</p>}
                       <div className="flex items-center gap-3 text-[11px] text-slate-400 pt-1 font-semibold">
-                        <span>{item.source_name || "SiliconPath News"}</span>
+                        <span>{item.source_name || "BerojgarDegreeWala News"}</span>
                         {item.published_at && <span>{new Date(item.published_at).toLocaleDateString()}</span>}
                       </div>
                     </div>

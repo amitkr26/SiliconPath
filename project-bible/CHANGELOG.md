@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-27 — Phase 28: Real UI/UX Audit, Responsive Polish & Production Reality Check (COMPLETE).**
+  - **Reality Audit Report (`project-bible/audits/phase-28-ui-ux-reality-audit.md`):**
+    - Executed live browser audit on running application; discovered and cataloged brand name leaks, empty opportunity badge glitches, glued ATS title suffixes, chat container viewport scrolling jerks, and notification query invalidation gaps.
+  - **P0 Brand Identity Unification (BerojgarDegreeWala Strict Enforcement):**
+    - `frontend/src/components/Navbar.tsx`: Updated logo brand text to `Berojgar<span className="text-blue-600">DegreeWala</span>` with responsive scaling.
+    - `frontend/src/components/Footer.tsx`: Removed `(SiliconPath)` suffix from copyright block.
+    - `frontend/src/app/layout.tsx`: Removed `alternateName: "SiliconPath India"` from schema.org JSON-LD structured data.
+    - `frontend/src/components/profile/PublicProfile.tsx`: Changed badge to `BerojgarDegreeWala Verified Engineer` and fixed profile URL fallback domain to `berojgardegreewala.vercel.app`.
+    - `frontend/src/app/employer/talent/page.tsx` & `frontend/src/app/api/employer/invite/route.ts`: Updated reachout placeholder and default message template to reference `BerojgarDegreeWala`.
+    - `frontend/src/app/search/page.tsx` & `frontend/src/app/community/page.tsx`: Updated fallback news source to `BerojgarDegreeWala News` and academy link to `BerojgarDegreeWala Learning Academy`.
+  - **P0 Opportunity Card Empty Badge & Glued Title Normalization:**
+    - `frontend/src/components/OpportunityCard.tsx`: Added `.filter((e) => e.length > 0)` to `eligibility.split(",")` to eliminate empty square border boxes rendered from trailing commas or whitespace items.
+    - `frontend/src/lib/scrapers/utils.ts`: Enhanced `cleanTitle` regex to split glued `Intern` / `Internship` suffixes and deduplicate leading/trailing role markers (`Intern - ...Intern`).
+    - `frontend/src/__tests__/lib/scrapers-utils.test.ts`: Added unit tests covering intern glue splitting and deduplication (100% pass).
+  - **P1 UX, Messaging & Notification Refinements:**
+    - `frontend/src/app/messages/page.tsx`: Replaced window-level `scrollIntoView` with `chatContainerRef.current.scrollTop` to prevent whole-page viewport jumping towards the footer when typing or sending messages.
+    - `frontend/src/hooks/useNotifications.ts`: Exported `useMarkSingleNotificationRead()` with automatic `queryClient.invalidateQueries({ queryKey: ["notifications"] })`.
+    - `frontend/src/app/notifications/page.tsx`: Connected `useMarkSingleNotificationRead()` to item click handlers so unread indicators update instantly.
+  - **P2 Scrollbars, Feed Actions & Styling Polish:**
+    - `frontend/src/app/globals.css`: Replaced harsh 12px global dark scrollbars with sleek slate scrollbars and created `.no-scrollbar` cross-browser utility.
+    - `frontend/src/app/feed/page.tsx`: Applied `.no-scrollbar` to topic tags, added 1-click `Share2` button with clipboard write and toast feedback to post cards, and fixed organization name fallback.
+    - `frontend/src/app/network/page.tsx` & `frontend/src/app/search/page.tsx`: Applied `.no-scrollbar` to horizontal tab bars.
+  - **Full Automated Verification Matrix (100% PASS):**
+    - `scripts/phase28-ui-reality-audit.mjs`: 17/17 passed (100%).
+    - `npx tsc --noEmit` (frontend): 0 errors.
+    - `npm test` across all workspaces: 16/16 suites, 155/155 passed (100%).
+    - Scraper Worker Tests: 30/30 passed (100%).
+    - Scraper API Tests: 46/46 passed (100%).
+    - `git diff --check`: Clean whitespace and line endings.
+
 - **2026-08-26 — Phase 27: Production Hardening, Security Matrix & Reality Audit (COMPLETE).**
   - **Reality & Security Audit Report (`project-bible/product-roadmap/phase-27-production-hardening.md`, `docs/audit-reports/2026-08-26-phase27-production-hardening-audit.md`):**
     - Independently verified all 10 core production readiness objectives against live Next.js 14 server and Supabase PostgreSQL (`aqauempuwmbizqoaolop`).

@@ -279,7 +279,7 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
               <div className="relative z-10 hidden sm:flex items-center gap-2">
                 <span className="px-2.5 py-1 bg-black/60 backdrop-blur-sm text-[10px] font-black uppercase tracking-widest text-blue-400 border border-blue-500/30 rounded-lg">
-                  SiliconPath Verified Engineer
+                  BerojgarDegreeWala Verified Engineer
                 </span>
               </div>
             </div>
@@ -735,7 +735,7 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
               <Globe className="w-4 h-4 text-blue-600" />
             </div>
             <p className="text-xs text-slate-600 font-medium break-all">
-              {typeof window !== "undefined" ? `${window.location.host}/profile/${profile.username || username}` : `siliconpath.in/profile/${profile.username || username}`}
+              {typeof window !== "undefined" ? `${window.location.host}/profile/${profile.username || username}` : `berojgardegreewala.vercel.app/profile/${profile.username || username}`}
             </p>
             <button
               onClick={handleShare}

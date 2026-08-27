@@ -32,9 +32,14 @@ export function cleanTitle(title: string, organization: string): string {
   t = t.replace(/\s*[-–]\s*(?:apply\s+by|last\s+date|deadline).*$/i, "").trim();
 
   // Glued employment-type suffixes from ATS sources: "...Engineer)Full-time"
-  // → "...Engineer) Full-time". Only when glued (no space) so real titles
-  // like "Full-time Faculty" are untouched.
-  t = t.replace(/(\S)(full-?time|part-?time|full ?time|part ?time)(?=\s|$)/gi, "$1 $2");
+  // → "...Engineer) Full-time", "...Design)Intern" → "...Design) Intern".
+  t = t.replace(/(\S)(full-?time|part-?time|full ?time|part ?time|intern(?:ship)?)(?=\s|$)/gi, "$1 $2");
+
+  // Remove redundant repeated suffix if title already starts with "Intern"
+  // e.g. "Intern - Occupational Health and Safety Intern" → "Intern - Occupational Health and Safety"
+  if (/^intern\b/i.test(t)) {
+    t = t.replace(/\s+intern(?:ship)?$/i, "");
+  }
 
   return t.trim();
 }

@@ -200,14 +200,19 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
 
             {opportunity.eligibility && (
               <div className="flex flex-wrap gap-1.5 mt-2.5">
-                {opportunity.eligibility.split(",").slice(0, 3).map((e) => (
-                  <span
-                    key={e.trim()}
-                    className="px-2 py-0.5 bg-slate-50 border border-slate-300 rounded text-slate-600 text-[10px] font-bold"
-                  >
-                    {e.trim()}
-                  </span>
-                ))}
+                {opportunity.eligibility
+                  .split(",")
+                  .map((e) => e.trim())
+                  .filter((e) => e.length > 0)
+                  .slice(0, 3)
+                  .map((e) => (
+                    <span
+                      key={e}
+                      className="px-2 py-0.5 bg-slate-50 border border-slate-300 rounded text-slate-600 text-[10px] font-bold"
+                    >
+                      {e}
+                    </span>
+                  ))}
               </div>
             )}
           </div>

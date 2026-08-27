@@ -41,3 +41,13 @@ export function useMarkNotificationsRead() {
     },
   });
 }
+
+export function useMarkSingleNotificationRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.patch(`/api/notifications/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}

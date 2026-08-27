@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Loader2, Send, ThumbsUp, MessageCircle, Repeat2, Trash2, Users, Briefcase,
-  Sparkles, Tag, Check, Edit2, X, Bookmark, Newspaper, Code, Award, ExternalLink
+  Sparkles, Tag, Check, Edit2, X, Bookmark, Newspaper, Code, Award, ExternalLink, Share2
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { useFeed, useCreatePost, useLikePost } from "@/hooks/useFeed";
@@ -342,7 +342,7 @@ export default function FeedPage() {
           {/* CENTER: Feed */}
           <div className="space-y-4 min-w-0">
             {/* Tag Filter Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar scrollbar-none">
               {ALL_TAGS.map((t) => (
                 <button
                   key={t.id}
@@ -585,6 +585,24 @@ export default function FeedPage() {
                           <span>{post.comments_count || comments.length || 0}</span>
                         </button>
 
+                        <button
+                          onClick={() => {
+                            if (typeof window !== "undefined") {
+                              const shareUrl = `${window.location.origin}/feed?post=${post.id}`;
+                              navigator.clipboard.writeText(shareUrl).then(() => {
+                                toast.success("Post link copied to clipboard!");
+                              }).catch(() => {
+                                toast.info(shareUrl);
+                              });
+                            }
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors"
+                          title="Share post"
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                          <span>Share</span>
+                        </button>
+
                         {post.reposts_count > 0 && (
                           <span className="flex items-center gap-1 px-3 py-1.5 text-xs text-slate-400">
                             <Repeat2 className="w-3.5 h-3.5" />
@@ -709,7 +727,7 @@ export default function FeedPage() {
                       <p className="text-xs font-medium text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
                         {o.title}
                       </p>
-                      <p className="text-[10px] text-slate-500 mt-0.5">{o.organizations?.name || "Semiconductor Org"}</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">{(o as any).organization || o.organizations?.name || "Verified Technical Org"}</p>
                     </Link>
                   ))
                 )}

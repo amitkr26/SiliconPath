@@ -274,7 +274,7 @@ export default function EmployerTalentSearchPage() {
                   rows={4}
                   value={inviteMessage}
                   onChange={(e) => setInviteMessage(e.target.value)}
-                  placeholder="Hi! We came across your VLSI profile on SiliconPath and would like to invite you to apply for our open position..."
+                  placeholder="Hi! We came across your VLSI profile on BerojgarDegreeWala and would like to invite you to apply for our open position..."
                   className="w-full p-3 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 focus:outline-none resize-none"
                 />
               </div>
