@@ -21,6 +21,18 @@ describe("cleanTitle — employment-type glue", () => {
     expect(cleanTitle("JRF Position in VLSI Design — C-DAC", "C-DAC")).toBe("JRF Position in VLSI Design — C-DAC");
   });
 
+  test("splits glued Intern and Internship suffixes", () => {
+    expect(cleanTitle("Digital IC Verification(RTL)Intern", "Acme"))
+      .toBe("Digital IC Verification(RTL) Intern");
+    expect(cleanTitle("Hardware Systems(FPGA)Internship", "Acme"))
+      .toBe("Hardware Systems(FPGA) Internship");
+  });
+
+  test("deduplicates redundant trailing Intern when title starts with Intern", () => {
+    expect(cleanTitle("Intern - Occupational Health and SafetyIntern", "Western Digital"))
+      .toBe("Intern - Occupational Health and Safety");
+  });
+
   test("existing pipeline transforms still apply", () => {
     expect(cleanTitle("Invites applications for the post of Technician-A", "DRDO"))
       .toBe("Technician-A — DRDO");

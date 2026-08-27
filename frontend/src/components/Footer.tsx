@@ -136,7 +136,7 @@ export default function Footer() {
         {/* BOTTOM BAR */}
         <div className="border-t border-slate-900 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-bold text-slate-500">
           <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-            <p>&copy; {new Date().getFullYear()} BerojgarDegreeWala (SiliconPath). All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} BerojgarDegreeWala. All rights reserved.</p>
             <div className="flex items-center gap-3">
               <Link href="/about" className="hover:text-slate-300 transition-colors">About</Link>
               <span>&bull;</span>

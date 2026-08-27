@@ -13,7 +13,7 @@ import { FEATURES } from "@/lib/feature-flags";
 import { ComingSoon } from "@/components/shared/ComingSoon";
 import { api } from "@/lib/api-client";
 import { useUser } from "@/hooks/useUser";
-import { useNotifications, useMarkNotificationsRead } from "@/hooks/useNotifications";
+import { useNotifications, useMarkNotificationsRead, useMarkSingleNotificationRead } from "@/hooks/useNotifications";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -80,9 +80,7 @@ export default function NotificationsPage() {
   const { user, loading: userLoading } = useUser();
   const { data, isLoading: notificationsLoading } = useNotifications();
   const markAllRead = useMarkNotificationsRead();
-  const markOneRead = useMutation({
-    mutationFn: (id: string) => api.patch(`/api/notifications/${id}`),
-  });
+  const markOneRead = useMarkSingleNotificationRead();
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
 
   if (userLoading || notificationsLoading) {

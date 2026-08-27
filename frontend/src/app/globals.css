@@ -65,31 +65,38 @@ body {
 }
 
 /* ==========================================================================
-   Scrollbar — single rule (previously two competing blocks; second silently
-   overrode the first). Electric blue thumb on dark track, brutal 2px inset.
+   Scrollbar — Sleek and subtle styling with no-scrollbar utility
    ========================================================================== */
-* {
+html, body {
   scrollbar-width: thin;
-  scrollbar-color: #2563EB #0F172A;
+  scrollbar-color: #94A3B8 #F1F5F9;
 }
 
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0F172A;
+  background: #F1F5F9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2563EB;
-  border: 2px solid #0F172A;
-  border-radius: 6px;
+  background: #94A3B8;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #1D4ED8;
+  background: #64748B;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* ==========================================================================

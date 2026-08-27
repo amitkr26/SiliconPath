@@ -97,8 +97,8 @@ export default function Navbar() {
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5">
-              <span className="font-display font-bold text-base sm:text-lg tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors leading-none">
-                Silicon<span className="text-blue-600">Path</span>
+              <span className="font-display font-bold text-sm sm:text-base md:text-lg tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors leading-none">
+                Berojgar<span className="text-blue-600">DegreeWala</span>
               </span>
               {isEmployer && (
                 <span className="px-1.5 py-0.5 rounded bg-blue-50 text-[9px] font-bold text-blue-600 uppercase tracking-wider">

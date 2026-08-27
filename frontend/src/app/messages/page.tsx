@@ -45,7 +45,7 @@ export default function MessagesPage() {
   const [targetUser, setTargetUser] = useState<OtherUser | null>(null);
   const [text, setText] = useState("");
   const [search, setSearch] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!userLoading && !user) router.push("/login?redirectTo=/messages");
@@ -97,7 +97,9 @@ export default function MessagesPage() {
   }, [searchParams, conversations, user]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const active = conversations.find((c) => c.id === activeConv);
@@ -281,7 +283,7 @@ export default function MessagesPage() {
                 </div>
 
                 {/* Messages Thread */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+                <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
                   {messages.length === 0 && (
                     <div className="flex items-center justify-center h-full">
                       <p className="text-sm text-gray-500">
@@ -319,7 +321,6 @@ export default function MessagesPage() {
                       </div>
                     );
                   })}
-                  <div ref={messagesEndRef} />
                 </div>
 
                 {/* Composer */}

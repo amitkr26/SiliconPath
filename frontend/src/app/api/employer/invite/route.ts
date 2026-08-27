@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     // 2. Insert invitation reachout message
     const invitationText = message
       ? `[Direct Opportunity Invitation] ${message}`
-      : "Hello! We reviewed your profile on SiliconPath and would like to invite you to apply for our open position.";
+      : "Hello! We reviewed your profile on BerojgarDegreeWala and would like to invite you to apply for our open position.";
 
     const { data: messageRecord, error: msgError } = await supabaseAdmin
       .from("messages")

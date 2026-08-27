@@ -299,7 +299,7 @@ export default function NetworkPage() {
 
             {/* Tab Bar */}
             <div className="border-b border-slate-200 mb-6">
-              <div className="flex items-center gap-0 overflow-x-auto scrollbar-none">
+              <div className="flex items-center gap-0 overflow-x-auto no-scrollbar scrollbar-none">
                 {(["suggestions", "received", "sent", "connections", "followers", "following"] as TabKey[]).map((k) => (
                   <button
                     key={k}

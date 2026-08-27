@@ -99,7 +99,6 @@ export default function RootLayout({
         "@type": "Organization",
         "@id": "https://berojgardegreewala.vercel.app/#organization",
         "name": "BerojgarDegreeWala",
-        "alternateName": "SiliconPath India",
         "url": "https://berojgardegreewala.vercel.app",
         "logo": "https://berojgardegreewala.vercel.app/icon.svg",
         "description": "100% verified circular aggregator for DRDO, ISRO, CSIR, IITs, and fabless semiconductor companies.",

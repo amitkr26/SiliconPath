@@ -384,7 +384,7 @@ export default function CommunityPage() {
                   href="/academy"
                   className="block text-sm text-text-secondary hover:text-accent transition-colors"
                 >
-                  → SiliconPath Learning Academy
+                  → BerojgarDegreeWala Learning Academy
                 </Link>
               </div>
             </Card>
