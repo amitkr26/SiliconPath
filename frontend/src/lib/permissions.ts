@@ -1,6 +1,7 @@
-import { NextRequest } from "next/server";
-import { getAuthenticatedEmployerUser } from "./employer-auth";
-import { verifyAdmin } from "./admin-auth";
+// Permission types and pure logic — client-safe, no server imports.
+// ponytail: this file must NOT import anything from next/headers, supabase/server,
+// or any server-only module. Server-side authorization lives in capabilities.ts
+// and employer-auth.ts.
 
 export type GlobalRole =
   | "owner"
@@ -157,29 +158,4 @@ export function canAccessRoute(
   }
 
   return true;
-}
-
-export async function requirePermission(
-  request: NextRequest,
-  permission: Permission
-): Promise<{ authorized: boolean; user?: any; status: number }> {
-  // Check admin password / HMAC secret first
-  if (verifyAdmin(request)) {
-    return { authorized: true, status: 200, user: { id: "admin", role: "platform_admin" } };
-  }
-
-  // Check authenticated Supabase user
-  const user = await getAuthenticatedEmployerUser(request);
-  if (!user) {
-    return { authorized: false, status: 401 };
-  }
-
-  const role = (user.user_metadata?.role as GlobalRole) || "user";
-  const userPerms = (user.user_metadata?.permissions as string[]) || [];
-
-  if (!hasPermission(role, permission, userPerms)) {
-    return { authorized: false, status: 403, user };
-  }
-
-  return { authorized: true, status: 200, user };
 }

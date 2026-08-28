@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase";
 import { profileUpdateSchema } from "@/lib/validation";
 import { validateOrThrow } from "@/lib/validation";
 
@@ -13,9 +14,22 @@ import {
 import { calculateProfileCompleteness } from "@/lib/profile-completeness";
 import { RESERVED_USERNAMES } from "@/lib/utils";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  let user = null;
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    if (supabaseAdmin) {
+      const { data } = await supabaseAdmin.auth.getUser(token);
+      user = data.user;
+    }
+  }
+
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  }
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { data, error } = await supabase
@@ -56,8 +70,21 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
+  let user = null;
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    if (supabaseAdmin) {
+      const { data } = await supabaseAdmin.auth.getUser(token);
+      user = data.user;
+    }
+  }
+
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  }
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();

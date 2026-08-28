@@ -56,9 +56,23 @@ function calculateAtsScore(resume: any) {
   };
 }
 
-export async function GET() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export async function GET(request: NextRequest) {
+  let user = null;
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    if (supabaseAdmin) {
+      const { data } = await supabaseAdmin.auth.getUser(token);
+      user = data.user;
+    }
+  }
+
+  if (!user) {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  }
+
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   // 1. Query physical user_resumes table
@@ -112,8 +126,22 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let user = null;
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    if (supabaseAdmin) {
+      const { data } = await supabaseAdmin.auth.getUser(token);
+      user = data.user;
+    }
+  }
+
+  if (!user) {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  }
+
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
