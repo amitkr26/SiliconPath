@@ -123,13 +123,28 @@ export async function PATCH(
 ) {
   const resolvedParams = params instanceof Promise ? await params : params;
   const userId = resolvedParams?.userId;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    if (supabaseAdmin) {
+      const { data } = await supabaseAdmin.auth.getUser(token);
+      user = data.user;
+    }
+  }
 
-  if (!user || user.id !== userId) {
+  const supabase = await createClient();
+  if (!user) {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  }
+
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (user.id !== userId) {
+    return NextResponse.json({ error: "Forbidden: Cannot edit another user's profile" }, { status: 403 });
   }
 
   const body = await request.json();
@@ -146,7 +161,7 @@ export async function PATCH(
     if (RESERVED_USERNAMES.includes(cleanUser)) {
       return NextResponse.json({ error: "This username is reserved and cannot be used." }, { status: 400 });
     }
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseAdmin!
       .from("user_profiles")
       .select("id")
       .eq("username", cleanUser)

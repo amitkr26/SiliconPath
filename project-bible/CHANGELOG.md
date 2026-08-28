@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-28 — Phase 30C: Unified Onboarding, Persona Activation & Opportunity Intelligence (COMPLETE).**
+  - **Comprehensive Phase 30C Architecture & Audit Reports:**
+    - `project-bible/audits/phase-30c-onboarding-audit.md`: Detailed audit of the 3-intent progressive onboarding system and domain taxonomy.
+    - `project-bible/audits/phase-30c-opportunity-intelligence-audit.md`: Inventory of 3,609 live opportunities and deterministic 0–100 quality scoring model.
+    - `project-bible/audits/phase-30c-database-migration-report.md`: Verification of Supabase vs Neon table ownership and foreign key integrity.
+    - `project-bible/audits/phase-30c-resume-studio-audit.md`: Structured resume data model, multi-version resumes, and ATS analysis engine.
+    - `project-bible/architecture/ai-career-copilot-architecture.md`: Grounded database truth architecture for conversational career guidance.
+    - `project-bible/architecture/opportunity-lifecycle-architecture.md`: Formal state machine decoupling `verification_status` from `lifecycle_status`.
+    - `project-bible/architecture/recommendation-engine.md`: Multi-factor explainable ranking formula for personalized opportunities.
+  - **Core Implementation:**
+    - `frontend/src/app/onboarding/page.tsx`: Built modern 3-intent progressive onboarding flow (Looking for Opportunities / Hiring Talent / Both) with semiconductor domain tags.
+    - `frontend/src/lib/opportunity-quality.ts`: Implemented deterministic 0–100 quality score calculation (`computeOpportunityQualityScore`).
+    - `frontend/src/app/api/resume/route.ts` & `frontend/src/app/api/profile/[userId]/route.ts`: Hardened Bearer authentication and enforced strict 403 Forbidden on cross-user mutation attempts.
+  - **Automated Intelligence Audit Suite:**
+    - `scripts/phase30c-platform-intelligence-audit.mjs`: Automated 12 tests covering guest preservation, persona activation, quality scoring, and cross-user isolation (100% pass).
+  - **Full Automated Verification Matrix:**
+    - `npx tsc --noEmit` (frontend): 0 errors.
+    - `npm test` across all workspaces: 16/16 test suites passed, 155/155 tests passed (100%).
+    - `git diff --check`: Clean formatting.
+
 - **2026-08-28 — Phase 30B: Progressive RBAC Architecture, Multi-Persona Model & Security Hardening (COMPLETE).**
   - **Comprehensive Phase 30B Architecture & Audit Reports:**
     - `project-bible/audits/phase-30b-rbac-implementation-audit.md`: Detailed audit of progressive multi-persona capabilities, guest preservation, and server-side authorization enforcement.
