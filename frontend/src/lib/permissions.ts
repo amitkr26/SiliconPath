@@ -93,6 +93,24 @@ export const ROLE_PERMISSIONS: Record<GlobalRole, Permission[]> = {
   ],
 };
 
+export function getSafeRedirectUrl(targetUrl: string | null | undefined, defaultUrl: string = "/"): string {
+  if (!targetUrl || typeof targetUrl !== "string") return defaultUrl;
+  const trimmed = targetUrl.trim();
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//") || trimmed.startsWith("/\\") || trimmed.includes("://")) {
+    return defaultUrl;
+  }
+  return trimmed;
+}
+
+export function hasRole(
+  role: GlobalRole = "user",
+  targetRole: GlobalRole
+): boolean {
+  if (role === "owner") return true;
+  if (targetRole === "user") return true;
+  return role === targetRole;
+}
+
 export function hasPermission(
   role: GlobalRole = "user",
   permission: Permission,
@@ -102,6 +120,30 @@ export function hasPermission(
   if (customPermissions.includes(permission)) return true;
   const permissions = ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.user;
   return permissions.includes(permission);
+}
+
+export function hasAnyPermission(
+  role: GlobalRole = "user",
+  permissions: Permission[],
+  customPermissions: string[] = []
+): boolean {
+  return permissions.some((p) => hasPermission(role, p, customPermissions));
+}
+
+export function hasOrganizationPermission(
+  role: GlobalRole = "user",
+  orgRole: OrgRole | string,
+  permission: Permission | string
+): boolean {
+  if (role === "owner" || role === "platform_admin") return true;
+  if (orgRole === "org_owner" || orgRole === "org_admin") return true;
+  if (orgRole === "hiring_manager") {
+    return ["opportunities.create", "opportunities.read", "applications.read", "applications.manage"].includes(permission);
+  }
+  if (orgRole === "recruiter") {
+    return ["opportunities.read", "applications.read", "talent.search", "talent.message"].includes(permission);
+  }
+  return permission === "opportunities.read";
 }
 
 export function canAccessRoute(
