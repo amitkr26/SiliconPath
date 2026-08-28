@@ -52,28 +52,30 @@ export default function Navbar() {
     }
   };
 
+  const isEmployerRoute = pathname.startsWith("/employer") || pathname === "/post-job";
+
   const navItems = !user
     ? [
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
-        { href: "/feed", label: "Feed", icon: Newspaper },
+        { href: "/academy", label: "Academy", icon: GraduationCap },
+        { href: "/news", label: "News", icon: Newspaper },
+        { href: "/feed", label: "Feed", icon: Users },
         { href: "/about", label: "About", icon: Building2 },
-        { href: "/contact", label: "Contact", icon: Users },
       ]
-    : isEmployer
+    : isEmployer && isEmployerRoute
     ? [
         { href: "/employer/dashboard", label: "Dashboard", icon: LayoutDashboard },
         { href: "/employer/jobs", label: "Jobs", icon: Briefcase },
         { href: "/employer/applicants", label: "Applicants", icon: Users },
         { href: "/employer/talent", label: "Talent", icon: GraduationCap },
-        { href: "/employer/messages", label: "Messages", icon: MessageSquare },
+        { href: "/opportunities", label: "Browse Main Site", icon: Home },
       ]
     : [
         { href: "/", label: "Home", icon: Home },
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
-        { href: "/network", label: "Network", icon: Users },
         { href: "/feed", label: "Feed", icon: Newspaper },
-        { href: "/messages", label: "Messages", icon: MessageSquare },
-        { href: "/notifications", label: "Notifications", icon: Bell },
+        { href: "/network", label: "Network", icon: Users },
+        { href: "/academy", label: "Academy", icon: GraduationCap },
       ];
 
   const Badge = ({ count }: { count: number }) =>
@@ -214,43 +216,42 @@ export default function Navbar() {
                     </p>
                   </div>
 
-                  {isEmployer ? (
+                  {/* Standard Candidate Links */}
+                  <DropdownLink href="/profile" icon={User} onClick={() => setUserDropdownOpen(false)}>
+                    My Profile
+                  </DropdownLink>
+                  <DropdownLink href="/dashboard" icon={LayoutDashboard} onClick={() => setUserDropdownOpen(false)}>
+                    Applications & Dashboard
+                  </DropdownLink>
+                  <DropdownLink href="/saved" icon={Bookmark} onClick={() => setUserDropdownOpen(false)}>
+                    Saved Jobs
+                  </DropdownLink>
+                  <DropdownLink href="/resume" icon={FileText} onClick={() => setUserDropdownOpen(false)}>
+                    AI Resume Studio
+                  </DropdownLink>
+
+                  {/* Employer Capabilities Section */}
+                  {isEmployer && (
                     <>
+                      <div className="my-1.5 border-t border-slate-100 px-4 pt-1.5 pb-0.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600">
+                          Employer Portal
+                        </span>
+                      </div>
                       <DropdownLink href="/employer/dashboard" icon={LayoutDashboard} onClick={() => setUserDropdownOpen(false)}>
-                        Dashboard
+                        Employer Dashboard
                       </DropdownLink>
                       <DropdownLink href="/employer/jobs" icon={Briefcase} onClick={() => setUserDropdownOpen(false)}>
-                        Manage Jobs
+                        Manage Job Listings
                       </DropdownLink>
                       <DropdownLink href="/employer/applicants" icon={Users} onClick={() => setUserDropdownOpen(false)}>
-                        Applicants
+                        ATS Applicants
                       </DropdownLink>
                       <DropdownLink href="/employer/talent" icon={GraduationCap} onClick={() => setUserDropdownOpen(false)}>
                         Talent Sourcing
                       </DropdownLink>
-                      <DropdownLink href="/employer/messages" icon={MessageSquare} onClick={() => setUserDropdownOpen(false)}>
-                        Messages
-                      </DropdownLink>
-                      <DropdownLink href="/employer/profile" icon={User} onClick={() => setUserDropdownOpen(false)}>
-                        Company Profile
-                      </DropdownLink>
-                      <DropdownLink href="/employer/settings" icon={Settings} onClick={() => setUserDropdownOpen(false)}>
-                        Settings
-                      </DropdownLink>
-                    </>
-                  ) : (
-                    <>
-                      <DropdownLink href="/profile" icon={User} onClick={() => setUserDropdownOpen(false)}>
-                        My Profile
-                      </DropdownLink>
-                      <DropdownLink href="/dashboard" icon={LayoutDashboard} onClick={() => setUserDropdownOpen(false)}>
-                        Dashboard
-                      </DropdownLink>
-                      <DropdownLink href="/saved" icon={Bookmark} onClick={() => setUserDropdownOpen(false)}>
-                        Saved Jobs
-                      </DropdownLink>
-                      <DropdownLink href="/resume" icon={FileText} onClick={() => setUserDropdownOpen(false)}>
-                        My Resume
+                      <DropdownLink href="/employer/post-job" icon={PlusCircle} onClick={() => setUserDropdownOpen(false)}>
+                        Post Opportunity
                       </DropdownLink>
                     </>
                   )}

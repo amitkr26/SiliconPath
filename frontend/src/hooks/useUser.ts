@@ -6,18 +6,23 @@ import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 
 export type UserRole = "candidate" | "employer" | "admin";
+export type GlobalRole = "owner" | "platform_admin" | "manager" | "moderator" | "support" | "user";
 
 export function useUser() {
   const [user, setUser] = useState<User | null>(null);
   const [username, setUsername] = useState<string>("");
   const [displayName, setDisplayName] = useState<string>("");
   const [role, setRole] = useState<UserRole>("candidate");
+  const [globalRole, setGlobalRole] = useState<GlobalRole>("user");
+  const [permissions, setPermissions] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const fetchProfileAndRole = useCallback(async (authUser: User | null) => {
     if (!authUser) {
       setRole("candidate");
+      setGlobalRole("user");
+      setPermissions([]);
       setUsername("");
       setDisplayName("");
       return;
@@ -25,6 +30,8 @@ export function useUser() {
 
     // 1. Initial resolution from user_metadata
     const metaRole = authUser.user_metadata?.role || authUser.user_metadata?.account_type;
+    const metaGlobalRole = authUser.user_metadata?.global_role as GlobalRole | undefined;
+    const metaPermissions = (authUser.user_metadata?.permissions as string[]) || [];
     const metaUsername = authUser.user_metadata?.username || authUser.email?.split("@")[0] || "";
     const metaDisplayName = authUser.user_metadata?.full_name || metaUsername;
 
@@ -36,6 +43,8 @@ export function useUser() {
     }
 
     setRole(determinedRole);
+    setGlobalRole(metaGlobalRole || (determinedRole === "admin" ? "platform_admin" : "user"));
+    setPermissions(metaPermissions);
     setUsername(metaUsername);
     setDisplayName(metaDisplayName);
 
@@ -58,6 +67,7 @@ export function useUser() {
             setRole("employer");
           } else if (pRole === "admin") {
             setRole("admin");
+            setGlobalRole("platform_admin");
           }
         }
       }
@@ -92,6 +102,8 @@ export function useUser() {
     setUsername("");
     setDisplayName("");
     setRole("candidate");
+    setGlobalRole("user");
+    setPermissions([]);
     router.push("/");
     router.refresh();
   }, [router]);
@@ -101,9 +113,13 @@ export function useUser() {
     username,
     displayName,
     role,
+    globalRole,
+    permissions,
     isCandidate: role === "candidate",
     isEmployer: role === "employer",
-    isAdmin: role === "admin",
+    isAdmin: role === "admin" || globalRole === "platform_admin" || globalRole === "owner",
+    hasEmployerCapability: role === "employer" || role === "admin",
+    hasManagerCapability: globalRole === "manager" || globalRole === "platform_admin" || globalRole === "owner",
     loading,
     signOut,
   };

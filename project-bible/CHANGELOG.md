@@ -7,20 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-- **2026-08-28 — Phase 30: Platform Architecture Discovery, Portal Unification, RBAC & Database Reality Audit (COMPLETE).**
+- **2026-08-28 — Phase 30: Identity, Role Architecture, RBAC & Portal Unification (COMPLETE).**
   - **Discovery Audit Reports & Architecture Specifications:**
     - `project-bible/audits/phase-30-platform-architecture-audit.md`: Mapped 82 frontend routes, 171 backend API endpoints, 21 active Supabase tables, and 7 Neon tables.
-    - `project-bible/audits/phase-30-rbac-access-matrix.md`: Formulated unified progressive capability matrix across Guest, Candidate, Employer, Manager, Admin, and Sovereign Owner.
-    - `project-bible/audits/phase-30-database-reality-audit.md`: Cataloged live entity schema relationships, foreign keys, and indexes (zero unverified assumptions).
-    - `project-bible/audits/phase-30-opportunity-data-audit.md`: Audited all 3,609 live opportunities (343 active, 316 verified, 82 pending, 3,061 archived) and established 0–100 quality scoring lifecycle.
+    - `project-bible/audits/phase-30-identity-role-architecture-audit.md`: Diagnosed role siloing and established unified identity capability layering.
+    - `project-bible/architecture/role-permission-model.md`: Formulated granular permission-based RBAC model across Global Roles (`owner`, `platform_admin`, `manager`, `moderator`, `support`, `user`) and Org Roles (`org_owner`, `org_admin`, `hiring_manager`, `recruiter`, `viewer`).
+    - `project-bible/architecture/route-access-matrix.md`: Complete route and API protection matrix.
+    - `project-bible/audits/phase-30-database-reality-audit.md`: Cataloged live schema entity relationships, foreign keys, and indexes.
+    - `project-bible/audits/phase-30-opportunity-data-audit.md`: Audited all 3,609 live opportunities and defined 0–100 quality scoring lifecycle.
     - `project-bible/architecture/platform-access-architecture.md`: Documented single-app portal philosophy and Preserve-Destination authentication pattern.
     - `project-bible/architecture/database-architecture.md`: Consolidated PostgreSQL relational data models and zero-data-loss migration rules.
     - `project-bible/architecture/ai-intelligence-roadmap.md`: Established grounded truth AI matching engine, AI Career Copilot, and AI Resume Studio blueprint.
-  - **Browser & Live Endpoint Verification:**
-    - Ran local dev server on `http://localhost:3000` with active browser subagent verification across candidate/employer home, jobs, and networking views.
-  - **Verification Gates (100% PASS):**
+  - **Database Migration:**
+    - `frontend/supabase/migrations/20260828000001_unified_rbac_and_lifecycle.sql`: Created `user_roles`, `user_permissions`, and `audit_logs` tables; added quality score and verification metadata columns to `opportunities`.
+  - **Portal & Navigation Unification:**
+    - `frontend/src/lib/permissions.ts`: Created reusable `hasPermission()`, `canAccessRoute()`, and `requirePermission()` authorization helpers.
+    - `frontend/src/hooks/useUser.ts`: Enhanced hook to support additive multi-capabilities (`hasEmployerCapability`, `hasManagerCapability`, `globalRole`, `permissions`).
+    - `frontend/src/components/Navbar.tsx`: Refactored navigation so employers retain full access to public and candidate features (Opportunities, Feed, Network, Academy) with seamless Employer Portal access in dropdown.
+    - `frontend/src/app/page.tsx`: Fixed server-side role resolution to accurately prioritize verified role metadata.
+  - **Automated Role Access Test Suite:**
+    - `scripts/phase30-role-access-audit.mjs`: Automated 22 tests validating public visitor flows, guest gated actions, candidate journeys, employer multi-capabilities, and privilege escalation prevention (100% pass).
+  - **Full Automated Verification Matrix:**
     - `npx tsc --noEmit` (frontend): 0 errors.
     - `npm test` across all workspaces: 16/16 test suites passed, 155/155 tests passed (100%).
+    - Browser subagent verification: Tested at 1440px, 768px, and 390px viewports.
     - `git diff --check`: Clean formatting.
 
 - **2026-08-28 — Phase 29: Live Production Reality Audit, End-to-End Validation & Critical Gap Closure (COMPLETE).**
