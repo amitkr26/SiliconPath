@@ -20,7 +20,7 @@ async function syncRssFeedsWithTimeout(): Promise<any[]> {
 
   try {
     const liveRssPromise = fetchAllNews();
-    const timeoutPromise = new Promise<any[]>((resolve) => setTimeout(() => resolve([]), 2500));
+    const timeoutPromise = new Promise<any[]>((resolve) => setTimeout(() => resolve([]), 1000));
     
     const liveRss = await Promise.race([liveRssPromise, timeoutPromise]);
     if (liveRss && liveRss.length > 0) {

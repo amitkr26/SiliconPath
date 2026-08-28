@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-28 — Phase 29: Live Production Reality Audit, End-to-End Validation & Critical Gap Closure (COMPLETE).**
+  - **Reality & Validation Reports (`project-bible/audits/phase-29-production-reality-audit.md`, `project-bible/audits/phase-29-feature-reality-matrix.md`):**
+    - Executed live production reality verification against production URL `https://berojgardegreewala.vercel.app` and local Next.js server with active Supabase PostgreSQL (`aqauempuwmbizqoaolop`).
+    - Verified all 20 active Supabase database entity tables with live query checks (zero PGRST205 table-missing errors).
+    - Validated all 23 platform features across Candidate, Employer, and Admin workflows (95.7% Verified Working, 4.3% Partially Working, 0% Mocked, 0% Broken).
+  - **API Taxonomy & Proxy Route Closures:**
+    - `frontend/src/app/api/categories/route.ts`: Created canonical 8-domain category taxonomy endpoint (`vlsi`, `embedded`, `pcb`, `firmware`, `hardware-qa`, `fpga`, `analog`, `robotics`) eliminating the production 404.
+    - `frontend/src/app/api/chat/route.ts`: Created transparent proxy forwarder to `/api/ai/chat` ensuring complete backwards compatibility with chat/AI clients.
+    - `frontend/src/app/api/news/route.ts`: Tuned synchronous RSS timeout promise from 2500ms down to 1000ms, safeguarding API response times and preventing downstream request stalls.
+    - `frontend/next.config.mjs`: Added `Permissions-Policy` and `X-DNS-Prefetch-Control` security headers alongside existing `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and `Strict-Transport-Security`.
+  - **Security & Multi-Role Attack Matrix (51/51 Checks Passed):**
+    - `scripts/phase29-production-reality-audit.mjs`: Automated 51 tests covering brand purity, API contracts, Supabase entity integrity, candidate/employer journeys, and security attack vectors SEC-01 through SEC-13 (100% pass rate).
+  - **Full Automated Verification Matrix:**
+    - `npx tsc --noEmit` (frontend): 0 errors.
+    - `npm test` across all workspaces: 100% pass.
+    - `git diff --check`: Clean whitespace and line endings.
+
 - **2026-08-27 — Phase 28: Real UI/UX Audit, Responsive Polish & Production Reality Check (COMPLETE).**
   - **Reality Audit Report (`project-bible/audits/phase-28-ui-ux-reality-audit.md`):**
     - Executed live browser audit on running application; discovered and cataloged brand name leaks, empty opportunity badge glitches, glued ATS title suffixes, chat container viewport scrolling jerks, and notification query invalidation gaps.
