@@ -73,4 +73,7 @@ export interface AuthUser {
   id: string;
   email: string;
   role?: string;
+  global_role?: string;
+  permissions?: string[];
+  account_type?: string;
 }

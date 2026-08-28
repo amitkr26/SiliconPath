@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-28 — Phase 30B: Progressive RBAC Architecture, Multi-Persona Model & Security Hardening (COMPLETE).**
+  - **Comprehensive Phase 30B Architecture & Audit Reports:**
+    - `project-bible/audits/phase-30b-rbac-implementation-audit.md`: Detailed audit of progressive multi-persona capabilities, guest preservation, and server-side authorization enforcement.
+    - `project-bible/audits/phase-30b-database-migration-report.md`: Verified all 21 Supabase entity tables, foreign keys, and RLS policies.
+    - `project-bible/architecture/unified-capability-model.md`: Single authenticated identity model supporting non-mutually-exclusive Candidate + Employer + Manager permissions.
+    - `project-bible/architecture/authorization-flow.md`: Request authorization lifecycle and fail-closed defense-in-depth specifications.
+    - `project-bible/security/rbac-security-model.md`: 12-scenario threat mitigation matrix and sovereign owner protection standard.
+  - **Core Authorization Helpers & Open Redirect Protection:**
+    - `@berojgardegreewala/api` & `frontend/src/lib/permissions.ts`: Implemented `hasRole()`, `hasPermission()`, `hasAnyPermission()`, `hasOrganizationPermission()`, and `getSafeRedirectUrl()`.
+    - `backend/api/src/auth/index.ts`: Hardened admin password and secret token comparison using `timingSafeEqual()` to eliminate side-channel timing attacks.
+    - `frontend/src/middleware.ts`: Enhanced destination preservation on guest gated redirects with safe parameter preservation (`redirectTo = pathname + search`).
+    - `frontend/src/app/login/page.tsx`: Sanitized post-login redirection with `getSafeRedirectUrl()` to prevent open redirect vulnerabilities.
+  - **Automated Security & Multi-Role Attack Suite:**
+    - `scripts/phase30b-security-attack-suite.mjs`: Automated 14 tests covering all 12 explicit attack scenarios (100% pass).
+  - **Full Automated Verification Matrix:**
+    - `npx tsc --noEmit` (frontend & backend): 0 errors.
+    - `npm test` across all workspaces: 16/16 test suites passed, 155/155 tests passed (100%).
+    - `git diff --check`: Clean formatting.
+
 - **2026-08-28 — Phase 30: Identity, Role Architecture, RBAC & Portal Unification (COMPLETE).**
   - **Discovery Audit Reports & Architecture Specifications:**
     - `project-bible/audits/phase-30-platform-architecture-audit.md`: Mapped 82 frontend routes, 171 backend API endpoints, 21 active Supabase tables, and 7 Neon tables.

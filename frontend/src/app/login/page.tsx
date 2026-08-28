@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { getSafeRedirectUrl } from "@/lib/permissions";
 
 export default function LoginPage() {
   return (
@@ -61,9 +62,11 @@ function LoginPageInner() {
       } else {
         toast.success("Logged in successfully!");
         const role = signInData.user?.user_metadata?.role || signInData.user?.user_metadata?.account_type;
-        let target = redirectTo;
+        const defaultTarget = (role === "employer" || role === "provider") ? "/employer/dashboard" : "/dashboard";
+
+        let target = getSafeRedirectUrl(redirectTo, defaultTarget);
         if (redirectTo === "/dashboard" || !redirectTo || redirectTo === "/") {
-          target = (role === "employer" || role === "provider") ? "/employer/dashboard" : "/dashboard";
+          target = defaultTarget;
         }
         router.push(target);
         router.refresh();

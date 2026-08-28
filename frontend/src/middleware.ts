@@ -34,6 +34,8 @@ const EMPLOYER_ONLY_PATHS = [
   '/api/employer',
 ];
 
+const ADMIN_PATHS = ['/admin', '/api/admin'];
+
 function addSecurityHeaders(response: NextResponse): void {
   const csp = [
     "default-src 'self'",
@@ -158,9 +160,14 @@ export async function middleware(request: NextRequest) {
     }
     const url = request.nextUrl.clone();
     url.pathname = '/login';
-    url.searchParams.set('redirectTo', request.nextUrl.pathname);
+    const destination = request.nextUrl.pathname + (request.nextUrl.search || "");
+    url.searchParams.set('redirectTo', destination);
     return NextResponse.redirect(url);
   }
+
+  // Progressive RBAC: Users can have multiple capabilities.
+  // A candidate can become an employer later. An employer can also be a candidate.
+  // Admin role is additive — it doesn't remove candidate/employer capabilities.
 
   // P0.5 RBAC: server-side employer role gate (was login-only — any logged-in
   // user could hit employer pages/APIs). Role lives in auth user_metadata
@@ -168,9 +175,11 @@ export async function middleware(request: NextRequest) {
   // "admin"). Admin APIs are NOT gated here — the admin console authenticates
   // via x-admin-password/HMAC tokens (no Supabase session), enforced
   // fail-closed by requireAdmin at every /api/admin route.
+  //
+  // NOTE: This checks user_metadata only (cheap, no DB query). Legacy signups
+  // where account_type lives only in user_profiles (not metadata) are not
+  // caught here — those routes do their own requireEmployerRole() check.
   if (isEmployerOnly && user && !isAdminRequest) {
-    // Same role source the app's own checks use (useUser.ts falls back to
-    // account_type — legacy signups predate the `role` metadata field).
     const role = user.user_metadata?.role as string | undefined;
     const accountType = user.user_metadata?.account_type as string | undefined;
     if (role !== "employer" && role !== "admin" && accountType !== "provider") {
@@ -181,6 +190,17 @@ export async function middleware(request: NextRequest) {
       url.pathname = '/';
       return NextResponse.redirect(url);
     }
+  }
+
+  // Admin/Manager route gate — requires admin password/HMAC (no Supabase session needed)
+  const isAdminOnly = ADMIN_PATHS.some(p => path === p || path.startsWith(p + '/'));
+  if (isAdminOnly && !isAdminRequest && !user) {
+    if (path.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
   }
 
   addSecurityHeaders(supabaseResponse);
