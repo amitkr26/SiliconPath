@@ -147,7 +147,7 @@ export default async function HomePage() {
     .eq("id", user.id)
     .maybeSingle();
 
-  const role = (profile?.account_type || user.user_metadata?.role || user.user_metadata?.account_type || "candidate").toLowerCase();
+  const role = (user.user_metadata?.role || profile?.role || profile?.account_type || user.user_metadata?.account_type || "candidate").toLowerCase();
 
   // -------------------------------------------------------------
   // A. EMPLOYER / LAB RECRUITER PORTAL HOME
