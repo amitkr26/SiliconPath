@@ -126,6 +126,25 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Application ID is required" }, { status: 400 });
     }
 
+    // Verify that this application belongs to an opportunity posted by this employer (prevents IDOR)
+    const role = user.user_metadata?.role;
+    if (role !== "admin") {
+      const { data: appData, error: appErr } = await supabaseAdmin
+        .from("applications")
+        .select("id, opportunity_id, opportunity:opportunities(id, created_by)")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (appErr || !appData) {
+        return NextResponse.json({ error: "Application not found" }, { status: 404 });
+      }
+
+      const oppOwner = (appData as any).opportunity?.created_by;
+      if (oppOwner && oppOwner !== user.id) {
+        return NextResponse.json({ error: "Forbidden: You do not own the opportunity for this application" }, { status: 403 });
+      }
+    }
+
     const validStatus = status === "accepted" || status === "rejected" || status === "shortlisted" || status === "applied"
       ? status
       : (status === "screening" || status === "interview")

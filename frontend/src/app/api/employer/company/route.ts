@@ -76,12 +76,30 @@ export async function PATCH(request: NextRequest) {
       const orgSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
       const { data: existingOrg } = await supabaseAdmin
         .from("organizations")
-        .select("id")
+        .select("id, created_by")
         .eq("name", name)
         .maybeSingle();
 
       if (existingOrg) {
         orgId = existingOrg.id;
+
+        // Check if organization or company page is already claimed by someone else
+        const { data: existingPage } = await supabaseAdmin
+          .from("company_pages")
+          .select("id, claimed_by")
+          .eq("organization_id", orgId)
+          .maybeSingle();
+
+        const role = user.user_metadata?.role;
+        if (role !== "admin") {
+          if (existingPage && existingPage.claimed_by && existingPage.claimed_by !== user.id) {
+            return NextResponse.json({ error: "Forbidden: This organization is already claimed by another administrator" }, { status: 403 });
+          }
+          if (existingOrg.created_by && existingOrg.created_by !== user.id && !existingPage) {
+            return NextResponse.json({ error: "Forbidden: You do not own this organization" }, { status: 403 });
+          }
+        }
+
         await supabaseAdmin
           .from("organizations")
           .update({ website, description })
@@ -94,6 +112,7 @@ export async function PATCH(request: NextRequest) {
             slug: orgSlug,
             website,
             description,
+            created_by: user.id,
           })
           .select("id")
           .single();

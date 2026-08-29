@@ -41,10 +41,24 @@ export async function GET(request: NextRequest) {
     .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
     .eq("status", "accepted");
 
-  const { data: postRows, error } = await db
+  const connectedUserIds = new Set<string>([user.id]);
+  (conns || []).forEach((c: any) => {
+    if (c.requester_id === user.id && c.addressee_id) connectedUserIds.add(c.addressee_id);
+    else if (c.addressee_id === user.id && c.requester_id) connectedUserIds.add(c.requester_id);
+  });
+
+  const scope = searchParams.get("scope") || searchParams.get("filter");
+  let postQuery = db
     .from("feed_posts")
     .select("id, author_id, content, created_at, like_count, comment_count")
-    .order("created_at", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  // Default to connection-scoped feed unless scope=global is explicitly requested
+  if (scope !== "global" && scope !== "all") {
+    postQuery = postQuery.in("author_id", Array.from(connectedUserIds));
+  }
+
+  const { data: postRows, error } = await postQuery
     .range(offset, offset + limit - 1);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

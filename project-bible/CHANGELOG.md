@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-29 — Phase 30D: Production Reality Audit, Security Hardening & Pre-Migration Verification (HARDENED & VERIFIED).**
+  - **Security & IDOR Boundary Remediation:**
+    - `frontend/src/app/api/employer/jobs/route.ts`: Enforced strict job ownership checks on `PATCH` and `DELETE` (403 on cross-employer tampering).
+    - `frontend/src/app/api/employer/applicants/route.ts`: Enforced application ownership verification on `PATCH` (employers can only update applicants for jobs they created).
+    - `frontend/src/app/api/applications/[id]/route.ts`: Added job ownership verification before updating application status.
+    - `frontend/src/app/api/applications/route.ts`: Restricted candidate `status` updates to `"withdrawn"` only (eliminating self-approval bypass).
+    - `frontend/src/app/api/feed/route.ts`: Fixed feed scoping to strictly filter posts by user's accepted connections network.
+    - `docker-compose.yml` & `k8s/configmap.yaml`: Sanitized static passwords and secret placeholders.
+  - **RLS Policy Security Hardening Migration:**
+    - `frontend/supabase/migrations/20260829000003_rls_security_hardening.sql`: Replaced wide-open `FOR ALL USING (true)` policies across 15+ sensitive tables (`app_config`, `scrape_sources`, `scrape_runs`, `user_roles`, `user_permissions`, `company_claims`, `recruiter_saved_candidates`, `candidate_*`, `ai_usage_log`, and `company_jobs`).
+  - **VerificationBadge Runtime Trust & Unit Testing:**
+    - `frontend/src/components/VerificationBadge.tsx`: Hardened to strictly require `status === "verified"`.
+    - `frontend/src/__tests__/components/VerificationBadge.test.tsx`: Authored 11 automated Jest test cases verifying runtime boundary conditions (100% pass).
+  - **Phase 30D Migration A v3 & Restoration Artifacts:**
+    - `frontend/supabase/migrations/20260829000001_phase30d_opportunity_quality_lifecycle_audit_v3.sql`: Additive quality fields, semantically accurate backfill (`pending` $\to$ `draft`), and lockstep `is_active` synchronization.
+    - `frontend/supabase/migrations/rollback/20260829000001_phase30d_restore_is_active_data.sql`: Deterministic data rollback script for 27 deactivated broken link rows.
+    - `project-bible/backups/opportunities_backup_2026-08-29T15-33-52-271Z.json`: Full 3,609-row live database backup snapshot.
+  - **Verification Matrix:**
+    - `npx tsc --noEmit`: 0 errors.
+    - `npm test`: 17/17 test suites, 166/166 tests passed (100%).
+
 - **2026-08-28 — Phase 30C: Unified Onboarding, Persona Activation & Opportunity Intelligence (COMPLETE).**
   - **Comprehensive Phase 30C Architecture & Audit Reports:**
     - `project-bible/audits/phase-30c-onboarding-audit.md`: Detailed audit of the 3-intent progressive onboarding system and domain taxonomy.

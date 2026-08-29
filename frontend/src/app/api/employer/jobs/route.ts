@@ -187,6 +187,24 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Opportunity ID is required" }, { status: 400 });
     }
 
+    // Ownership check (prevents IDOR)
+    const role = user.user_metadata?.role;
+    if (role !== "admin") {
+      const { data: existingOpp } = await supabaseAdmin
+        .from("opportunities")
+        .select("id, created_by")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (!existingOpp) {
+        return NextResponse.json({ error: "Opportunity not found" }, { status: 404 });
+      }
+
+      if (existingOpp.created_by && existingOpp.created_by !== user.id) {
+        return NextResponse.json({ error: "Forbidden: You do not own this opportunity" }, { status: 403 });
+      }
+    }
+
     const updates: Record<string, any> = {
       updated_at: new Date().toISOString(),
     };
@@ -232,6 +250,24 @@ export async function DELETE(request: NextRequest) {
 
     if (!id) {
       return NextResponse.json({ error: "Opportunity ID is required" }, { status: 400 });
+    }
+
+    // Ownership check (prevents IDOR)
+    const role = user.user_metadata?.role;
+    if (role !== "admin") {
+      const { data: existingOpp } = await supabaseAdmin
+        .from("opportunities")
+        .select("id, created_by")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (!existingOpp) {
+        return NextResponse.json({ error: "Opportunity not found" }, { status: 404 });
+      }
+
+      if (existingOpp.created_by && existingOpp.created_by !== user.id) {
+        return NextResponse.json({ error: "Forbidden: You do not own this opportunity" }, { status: 403 });
+      }
     }
 
     const { error } = await supabaseAdmin
