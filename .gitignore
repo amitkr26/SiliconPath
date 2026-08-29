@@ -31,3 +31,9 @@ Thumbs.db
 # typescript build output
 /backend/server/dist/
 /backend/worker/dist/
+*.tsbuildinfo
+
+# test & coverage artifacts
+/coverage/
+/.nyc_output/
+scripts/scratch/
