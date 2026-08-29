@@ -70,7 +70,12 @@ export async function PATCH(request: NextRequest) {
   if (!id) return NextResponse.json({ error: "Application ID required" }, { status: 400 });
 
   const updates: Record<string, string> = { updated_at: new Date().toISOString() };
-  if (status) updates.status = status;
+  if (status) {
+    return NextResponse.json(
+      { error: "Forbidden: Application status changes are restricted to employers. Candidates may withdraw an application using DELETE." },
+      { status: 403 }
+    );
+  }
   if (notes !== undefined) updates.notes = notes;
 
   const { error } = await supabaseAdmin
@@ -87,7 +92,15 @@ export async function DELETE(request: NextRequest) {
   const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { id } = await request.json();
+  let id = request.nextUrl?.searchParams?.get("id") || new URL(request.url).searchParams.get("id");
+  if (!id) {
+    try {
+      const body = await request.json();
+      id = body?.id;
+    } catch {
+      // Body may be empty if id was in query param
+    }
+  }
   if (!id) return NextResponse.json({ error: "Application ID required" }, { status: 400 });
 
   const { error } = await supabaseAdmin
