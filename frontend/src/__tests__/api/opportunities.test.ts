@@ -67,10 +67,6 @@ jest.mock('@/lib/supabase', () => ({
   },
 }));
 
-jest.mock('@/lib/telegram-bot', () => ({
-  postToTelegram: jest.fn(() => Promise.resolve()),
-}));
-
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(() => Promise.resolve({
     auth: {
