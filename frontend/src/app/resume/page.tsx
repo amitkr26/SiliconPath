@@ -61,8 +61,8 @@ export default function ResumeBuilderPage() {
 
   const handleFileUpload = async (file: File) => {
     if (!file) return;
-    if (!file.name.match(/\.(pdf|txt|docx|md)$/i)) {
-      toast.error("Please upload a PDF, DOCX, or TXT resume file.");
+    if (!file.name.match(/\.(pdf|txt|md)$/i)) {
+      toast.error("Please upload a PDF, TXT, or MD resume file.");
       return;
     }
     setUploading(true);
@@ -280,7 +280,7 @@ export default function ResumeBuilderPage() {
                 <div className="flex flex-col items-center justify-center gap-1.5">
                   <FileText className="w-6 h-6 text-blue-600" />
                   <span className="text-xs font-bold text-slate-800">
-                    {uploading ? "Extracting resume details..." : "Click or drag & drop your resume file here (.pdf, .txt, .docx)"}
+                    {uploading ? "Extracting resume details..." : "Click or drag & drop your resume file here (.pdf, .txt)"}
                   </span>
                   <span className="text-[11px] text-slate-500">
                     Auto-detects contact info, experience, education, skills & projects for 1-click editing

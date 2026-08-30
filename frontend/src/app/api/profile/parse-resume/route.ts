@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { callAI } from "@/lib/ai/providers";
-import { PDFParse } from "pdf-parse";
 import { apiError } from "@/lib/api-utils";
 import { logger } from "@/lib/logger";
 
@@ -21,6 +20,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Maximum upload size: 10MB
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
   // If no AI provider is configured, the handler will use the deterministic parser fallback below
 
   try {
@@ -29,9 +31,18 @@ export async function POST(request: NextRequest) {
     if (!file) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
+    if (file.size === 0) {
+      return NextResponse.json({ error: "Uploaded file is empty" }, { status: 400 });
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "File too large. Maximum size is 10MB." }, { status: 413 });
+    }
 
     const arrayBuffer = await file.arrayBuffer();
+    // pdf-parse v2.4.5 requires Uint8Array, not Buffer, but uploadToCloudStorage needs Buffer
     const buffer = Buffer.from(arrayBuffer);
+    // pdf-parse v2.4.5 requires Uint8Array, not Buffer
+    const data = new Uint8Array(arrayBuffer);
 
     // Try Document AI first as per GCP Credits Utilization Plan
     try {
@@ -55,12 +66,14 @@ export async function POST(request: NextRequest) {
     } else {
       // 2. If PDF, extract text with PDFParse
       try {
-        const parser = new PDFParse({ data: buffer, verbosity: 0 });
+        const { PDFParse } = await import("pdf-parse");
+        const parser = new PDFParse(buffer);
         const textResult = await parser.getText();
         extractedText = textResult.text;
       } catch (parseError: any) {
         logger.warn("PDF Parsing fallback to raw text buffer", { error: parseError?.message });
-        extractedText = buffer.toString("utf-8").replace(/[^\x20-\x7E\n\r]/g, " ");
+        // Strip non-printable characters but preserve Unicode (names, emails, etc.)
+        extractedText = buffer.toString("utf-8");
       }
     }
 
@@ -68,14 +81,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No text content could be extracted from the file." }, { status: 422 });
     }
 
-    // Check if AI is available for high-fidelity extraction
-    if (!hasAIProviderConfigured()) {
-      const { parseResumeTextDeterministically } = await import("@/lib/resume-text-parser");
-      const fallbackProfile = parseResumeTextDeterministically(extractedText);
-      return NextResponse.json({ success: true, profile: fallbackProfile, fallback: true });
+    // Detect scanned PDFs (very little extractable text)
+    const significantText = extractedText.trim().replace(/\s+/g, "").length;
+    if (significantText < 20 && extractedText.trim().length > 0) {
+      return NextResponse.json({ 
+        error: "This PDF appears to contain no selectable text. Please upload a text-based PDF or use OCR." 
+      }, { status: 422 });
     }
 
-    const parsePrompt = `
+    let parsedProfile: any = {};
+
+    if (hasAIProviderConfigured()) {
+      try {
+        const parsePrompt = `
 You are an expert resume parsing system for semiconductor and electronics engineering resumes. 
 Extract information from the raw resume text and return it as a structured JSON object matching the schema below.
 
@@ -95,54 +113,44 @@ Return ONLY a valid JSON object matching the following structure. Do not output 
   "current_org": "latest employer/organization if currently working",
   "city": "city location",
   "country": "country location",
-  "skills": ["skill1", "skill2", ...],
+  "skills": ["skill1", "skill2"],
   "experience": [
     {
       "company": "company name",
       "role": "role title",
-      "duration": "duration (e.g. June 2024 - Present or 2 years)",
-      "description": "bullet points or short description of work"
+      "duration": "duration",
+      "description": "short description of work"
     }
   ],
   "education": [
     {
       "institution": "university/college name",
-      "degree": "degree/course (e.g. B.Tech, M.S.)",
+      "degree": "degree/course",
       "duration": "graduation year or duration"
     }
   ],
   "projects": [
     {
       "name": "project title",
-      "description": "project details",
-      "technologies": "comma-separated tech stack used",
-      "link": "link if any"
-    }
-  ],
-  "publications": [
-    {
-      "title": "paper title",
-      "venue": "journal/conference name",
-      "year": "publication year",
-      "doi": "doi url/code if any"
+      "description": "project details"
     }
   ]
 }
 `;
-
-    const aiRes = await callAI(parsePrompt, undefined, { feature: "resume_parse" });
-    let jsonText = aiRes.text.trim();
-    
-    if (jsonText.startsWith("```")) {
-      jsonText = jsonText.replace(/^```json\s*/i, "").replace(/```$/, "").trim();
-    }
-
-    let parsedProfile = {};
-    try {
-      parsedProfile = JSON.parse(jsonText);
-    } catch (jsonErr) {
-      logger.error("JSON parsing error of AI output", { jsonText, error: jsonErr instanceof Error ? jsonErr.message : String(jsonErr) });
-      return NextResponse.json({ error: "Failed to structure the extracted text. Please try again." }, { status: 422 });
+        const aiRes = await callAI(parsePrompt, undefined, { feature: "resume_parse" });
+        let jsonText = aiRes.text.trim();
+        if (jsonText.startsWith("```")) {
+          jsonText = jsonText.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "").trim();
+        }
+        parsedProfile = JSON.parse(jsonText);
+      } catch (aiErr: any) {
+        logger.warn("[Resume Parser] AI structuring failed, applying deterministic fallback parser", { error: aiErr?.message });
+        const { parseResumeTextDeterministically } = await import("@/lib/resume-text-parser");
+        parsedProfile = parseResumeTextDeterministically(extractedText);
+      }
+    } else {
+      const { parseResumeTextDeterministically } = await import("@/lib/resume-text-parser");
+      parsedProfile = parseResumeTextDeterministically(extractedText);
     }
 
     let resumeUrl = "";
@@ -160,3 +168,7 @@ Return ONLY a valid JSON object matching the following structure. Do not output 
     return apiError(err, "parse-resume");
   }
 }
+
+
+
+
