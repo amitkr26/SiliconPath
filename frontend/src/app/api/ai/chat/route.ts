@@ -2,6 +2,7 @@
 import { callAI } from "@/lib/ai/providers";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { serverError } from "@berojgardegreewala/api";
+import { createClient } from "@/lib/supabase/server";
 import {
   buildGroundedSystemPrompt,
   buildRecordListing,
@@ -26,6 +27,11 @@ Be concise, accurate, and helpful. If you don't know something specific, say so.
 Do not make up deadlines or stipends — say "check the official website" only when no deadline/stipend is listed in the retrieved records.`;
 
 export async function POST(request: NextRequest) {
+  // ponytail: require authentication to prevent free AI credit consumption
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   try {
     const { messages } = await request.json();
 

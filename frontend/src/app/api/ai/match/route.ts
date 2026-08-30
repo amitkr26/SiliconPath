@@ -3,8 +3,14 @@ import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { matchOpportunities } from "@/lib/ai/matcher";
 import type { UserProfile } from "@/lib/ai/matcher";
 import { apiError } from "@/lib/api-utils";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
+  // ponytail: require authentication to prevent free AI credit consumption
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   if (!isAdminConfigured) {
     return NextResponse.json(
       { error: "Database not configured." },

@@ -37,6 +37,16 @@ jest.mock('@/lib/ai/providers', () => ({
   callAI: jest.fn(),
 }));
 
+jest.mock('@/lib/supabase/server', () => ({
+  createClient: jest.fn().mockResolvedValue({
+    auth: {
+      getUser: jest.fn().mockResolvedValue({
+        data: { user: { id: 'test-user-id', email: 'test@test.com' } },
+      }),
+    },
+  }),
+}));
+
 import { POST } from "@/app/api/ai/classify/route";
 import { callAI } from "@/lib/ai/providers";
 
