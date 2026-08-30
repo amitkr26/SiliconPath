@@ -1,201 +1,170 @@
-export interface QualityScoreResult {
-  quality_score: number;
-  quality_breakdown: {
-    source_trust: number;
-    source_link: number;
-    application_link: number;
-    deadline_validity: number;
-    org_verification: number;
-    title_quality: number;
-    description_completeness: number;
-    penalties: number;
-  };
-  quality_reason: string;
-  recommended_lifecycle: "active" | "expired" | "broken_link" | "archived" | "draft";
-  recommended_verification: "verified" | "pending" | "rejected" | "unverified";
+/**
+ * Deterministic Opportunity Quality & Signal Scorer.
+ * Input: raw opportunities row.
+ * Output: { score: 0..100, reason: string, details: StructuredQualityDetails }
+ *
+ * Scoring Architecture (Decoupled Dimensions):
+ *   1. Link Reachability (15%)  - HTTP probe health (200, 404, etc.) - DOES NOT imply verified content
+ *   2. Content Completeness (40%) - Title (10), Description (15), Eligibility (15)
+ *   3. Source Trust (20%)       - Organization entity linkage (10), Source URL (10)
+ *   4. Freshness & Action (25%) - Apply URL (15), Deadline viability (10)
+ *
+ * Total Score is bounded strictly within [0, 100].
+ */
+
+export interface StructuredQualityDetails {
+  link_reachability_score: number;
+  content_completeness_score: number;
+  source_trust_score: number;
+  actionability_score: number;
+  total_score: number;
+  positive_signals: string[];
+  risk_signals: string[];
+  calculated_at: string;
 }
 
-export interface OpportunityLike {
-  title?: string;
-  description?: string;
-  source_url?: string;
-  application_url?: string;
+export interface QualityScore {
+  score: number;
+  reason: string;
+  details: StructuredQualityDetails;
+}
+
+export interface OppScoringInput {
+  title?: string | null;
+  description?: string | null;
+  eligibility?: string | null;
+  apply_url?: string | null;
+  source_url?: string | null;
+  link_check_status?: number | null;
   deadline?: string | null;
-  organization?: string | { name?: string; is_verified?: boolean } | null;
-  category?: string;
-  is_active?: boolean;
-  verification_status?: string;
+  organization?: string | null;
+  organization_id?: string | null;
+  tags?: string[] | null;
+  is_active?: boolean | null;
+  verification_status?: string | null;
 }
 
-const TRUSTED_DOMAINS = [
-  "isro.gov.in",
-  "drdo.gov.in",
-  "csir.res.in",
-  "iisc.ac.in",
-  "iitb.ac.in",
-  "iitd.ac.in",
-  "iitm.ac.in",
-  "iitkgp.ac.in",
-  "iitr.ac.in",
-  "iitg.ac.in",
-  "iith.ac.in",
-  "cdac.in",
-  "scl.gov.in",
-  "nielit.gov.in",
-  "intel.com",
-  "qualcomm.com",
-  "ti.com",
-  "amd.com",
-  "nvidia.com",
-  "synopsys.com",
-  "cadence.com",
-  "arm.com",
-  "nxp.com",
-  "broadcom.com",
-  "appliedmaterials.com",
-  "asml.com",
-];
+export function computeOpportunityQualityScore(opp: OppScoringInput): QualityScore {
+  let linkScore = 0;
+  let contentScore = 0;
+  let sourceScore = 0;
+  let actionScore = 0;
 
-export function computeOpportunityQualityScore(opp: OpportunityLike): QualityScoreResult {
-  let sourceTrust = 10;
-  let sourceLink = 0;
-  let appLink = 0;
-  let deadlineValidity = 0;
-  let orgVerification = 5;
-  let titleQuality = 5;
-  let descCompleteness = 0;
-  let penalties = 0;
-  const reasons: string[] = [];
+  const positiveSignals: string[] = [];
+  const riskSignals: string[] = [];
 
-  // 1. Source Trustworthiness (0–20)
-  if (opp.source_url) {
-    try {
-      const parsed = new URL(opp.source_url);
-      const host = parsed.hostname.toLowerCase();
-      if (TRUSTED_DOMAINS.some((d) => host.endsWith(d))) {
-        sourceTrust = 20;
-        reasons.push("Official recognized semiconductor or research domain (+20)");
-      } else if (host.endsWith(".gov.in") || host.endsWith(".edu") || host.endsWith(".ac.in")) {
-        sourceTrust = 18;
-        reasons.push("Academic/Govt official host (+18)");
-      } else {
-        sourceTrust = 12;
-      }
-    } catch {
-      sourceTrust = 2;
-      penalties += 10;
-      reasons.push("Malformed source URL (-10)");
-    }
+  // ── 1. LINK REACHABILITY (15 pts max) ──
+  const lcs = opp.link_check_status;
+  if (lcs === 200) {
+    linkScore = 15;
+    positiveSignals.push("Apply link verified reachable (HTTP 200)");
+  } else if (lcs === 0 || lcs == null) {
+    linkScore = 5;
+    riskSignals.push("Apply link reachability pending automated check");
+  } else if (lcs === 404 || lcs === 500) {
+    linkScore = 0;
+    riskSignals.push(`Apply link returned HTTP ${lcs} error`);
+  } else {
+    linkScore = 5;
+    riskSignals.push(`Apply link returned HTTP ${lcs}`);
   }
 
-  // 2. Official Source Link (0–15)
+  // ── 2. CONTENT COMPLETENESS (40 pts max) ──
+  // Title (10 pts)
+  const titleLen = (opp.title ?? "").trim().length;
+  if (titleLen >= 20) {
+    contentScore += 10;
+    positiveSignals.push("Descriptive title");
+  } else if (titleLen >= 8) {
+    contentScore += 5;
+    riskSignals.push("Short or generic title");
+  } else {
+    riskSignals.push("Missing or extremely short title");
+  }
+
+  // Description (15 pts)
+  const descLen = (opp.description ?? "").trim().length;
+  if (descLen >= 300) {
+    contentScore += 15;
+    positiveSignals.push("Comprehensive job description");
+  } else if (descLen >= 100) {
+    contentScore += 8;
+    riskSignals.push("Brief job description (<300 characters)");
+  } else {
+    riskSignals.push("Missing job description");
+  }
+
+  // Eligibility (15 pts)
+  const eligLen = (opp.eligibility ?? "").trim().length;
+  if (eligLen >= 20) {
+    contentScore += 15;
+    positiveSignals.push("Explicit eligibility criteria provided");
+  } else {
+    riskSignals.push("Missing candidate eligibility/qualification requirements");
+  }
+
+  // ── 3. SOURCE TRUST (20 pts max) ──
+  if (opp.organization_id) {
+    sourceScore += 10;
+    positiveSignals.push("Linked to verified organization record");
+  } else if ((opp.organization ?? "").trim().length >= 3) {
+    sourceScore += 5;
+    riskSignals.push("Organization text only (no entity linkage)");
+  } else {
+    riskSignals.push("Missing employer organization");
+  }
+
   if (opp.source_url && opp.source_url.startsWith("http")) {
-    sourceLink = 15;
+    sourceScore += 10;
+    positiveSignals.push("Original source publication URL present");
+  } else {
+    riskSignals.push("No original citation/source URL");
   }
 
-  // 3. Application Link Validity (0–15)
-  if (opp.application_url && opp.application_url.startsWith("http")) {
-    appLink = 15;
-  } else if (opp.source_url && opp.source_url.startsWith("http")) {
-    appLink = 10; // Fallback to source URL
+  // ── 4. FRESHNESS & ACTIONABILITY (25 pts max) ──
+  if (opp.apply_url && opp.apply_url.length > 5) {
+    actionScore += 15;
+    positiveSignals.push("Direct application URL present");
+  } else {
+    riskSignals.push("Missing apply URL");
   }
 
-  // 4. Deadline Validity (0–10)
-  let isExpired = false;
   if (opp.deadline) {
-    const deadlineDate = new Date(opp.deadline);
-    if (!isNaN(deadlineDate.getTime())) {
-      const now = new Date();
-      if (deadlineDate.getTime() > now.getTime()) {
-        deadlineValidity = 10;
-        reasons.push("Future deadline validated (+10)");
-      } else {
-        deadlineValidity = 0;
-        isExpired = true;
-        penalties += 15;
-        reasons.push("Deadline has passed (-15)");
-      }
+    const dl = new Date(opp.deadline);
+    if (!isNaN(dl.getTime()) && dl > new Date()) {
+      actionScore += 10;
+      positiveSignals.push(`Active application deadline (${opp.deadline.slice(0, 10)})`);
+    } else {
+      actionScore += 2;
+      riskSignals.push("Application deadline is expired or invalid");
     }
   } else {
-    deadlineValidity = 5; // Rolling or unspecified
+    actionScore += 5;
+    positiveSignals.push("Rolling or unstated deadline");
   }
 
-  // 5. Organization Verification (0–10)
-  if (opp.organization) {
-    if (typeof opp.organization === "object" && opp.organization.is_verified) {
-      orgVerification = 10;
-      reasons.push("Verified Organization (+10)");
-    } else {
-      orgVerification = 8;
-    }
-  }
+  // Calculate clamped total
+  const rawTotal = linkScore + contentScore + sourceScore + actionScore;
+  const totalScore = Math.min(100, Math.max(0, rawTotal));
 
-  // 6. Title Quality (0–10)
-  if (opp.title && opp.title.trim().length >= 10) {
-    const t = opp.title.trim();
-    // Check for messy concatenated titles
-    if (t.length < 150 && !t.includes(">>>") && !t.includes("CLICK HERE")) {
-      titleQuality = 10;
-    } else {
-      titleQuality = 4;
-      penalties += 5;
-    }
-  }
+  const details: StructuredQualityDetails = {
+    link_reachability_score: linkScore,
+    content_completeness_score: contentScore,
+    source_trust_score: sourceScore,
+    actionability_score: actionScore,
+    total_score: totalScore,
+    positive_signals: positiveSignals,
+    risk_signals: riskSignals,
+    calculated_at: new Date().toISOString(),
+  };
 
-  // 7. Description Completeness (0–10)
-  if (opp.description && opp.description.trim().length >= 100) {
-    descCompleteness = 10;
-  } else if (opp.description && opp.description.trim().length >= 30) {
-    descCompleteness = 5;
-  } else {
-    penalties += 5;
-    reasons.push("Sparse description (-5)");
-  }
-
-  // Calculate raw total and clamp to [0, 100]
-  const rawScore =
-    sourceTrust +
-    sourceLink +
-    appLink +
-    deadlineValidity +
-    orgVerification +
-    titleQuality +
-    descCompleteness -
-    penalties;
-
-  const finalScore = Math.max(0, Math.min(100, Math.round(rawScore)));
-
-  // Determine recommended statuses
-  let recommendedLifecycle: "active" | "expired" | "broken_link" | "archived" | "draft" = "active";
-  let recommendedVerification: "verified" | "pending" | "rejected" | "unverified" = "pending";
-
-  if (isExpired) {
-    recommendedLifecycle = "expired";
-  } else if (!opp.source_url && !opp.application_url) {
-    recommendedLifecycle = "broken_link";
-    recommendedVerification = "rejected";
-  } else if (finalScore >= 75) {
-    recommendedLifecycle = "active";
-    recommendedVerification = "verified";
-  } else if (finalScore < 40) {
-    recommendedLifecycle = "archived";
-    recommendedVerification = "rejected";
-  }
+  const reason = riskSignals.length === 0
+    ? "High-integrity listing with all quality criteria satisfied."
+    : `Quality alerts: ${riskSignals.join("; ")}`;
 
   return {
-    quality_score: finalScore,
-    quality_breakdown: {
-      source_trust: sourceTrust,
-      source_link: sourceLink,
-      application_link: appLink,
-      deadline_validity: deadlineValidity,
-      org_verification: orgVerification,
-      title_quality: titleQuality,
-      description_completeness: descCompleteness,
-      penalties,
-    },
-    quality_reason: reasons.join("; ") || "Standard deterministic verification completed.",
-    recommended_lifecycle: recommendedLifecycle,
-    recommended_verification: recommendedVerification,
+    score: totalScore,
+    reason,
+    details,
   };
 }

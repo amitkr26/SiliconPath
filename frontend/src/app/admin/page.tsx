@@ -79,6 +79,14 @@ export default function AdminPage() {
   const [oppSearch, setOppSearch] = useState("");
   const [oppStatusFilter, setOppStatusFilter] = useState<string>("all");
   const [oppCategoryFilter, setOppCategoryFilter] = useState<string>("all");
+  const [oppPage, setOppPage] = useState(1);
+  const OPP_PAGE_SIZE = 25;
+
+  // Phase 30D: live DB stats
+  const [dbStats, setDbStats] = useState<{
+    total: number; active: number; pending: number; rejected: number;
+    broken_link: number; expired: number; low_quality: number; has_quality_score: boolean;
+  } | null>(null);
 
   // Subscriber search
   const [subSearch, setSubSearch] = useState("");
@@ -227,10 +235,13 @@ export default function AdminPage() {
     }
   };
 
-  const fetchOpportunities = async () => {
+  const fetchOpportunities = async (page = 1) => {
     setLoading(true);
     try {
-      const data = await api.get<{ opportunities?: Opportunity[]; count?: number } | Opportunity[]>("/api/admin/opportunities?limit=50");
+      const offset = (page - 1) * OPP_PAGE_SIZE;
+      const data = await api.get<{ opportunities?: Opportunity[]; count?: number } | Opportunity[]>(
+        `/api/admin/opportunities?limit=${OPP_PAGE_SIZE}&page=${page}`
+      );
       if (Array.isArray(data)) {
         setOpportunities(data);
       } else if (data && Array.isArray(data.opportunities)) {
@@ -238,10 +249,20 @@ export default function AdminPage() {
       } else {
         setOpportunities([]);
       }
+      setOppPage(page);
     } catch {
       setOpportunities([]);
     }
     setLoading(false);
+  };
+
+  const fetchStats = async () => {
+    try {
+      const stats = await api.get<typeof dbStats>("/api/admin/stats");
+      setDbStats(stats);
+    } catch {
+      // non-critical
+    }
   };
 
   const fetchSubscribers = async () => {
@@ -270,6 +291,38 @@ export default function AdminPage() {
       );
     } catch {
       toast.error("Failed to update status");
+    }
+  };
+
+  // Phase 30D: lifecycle action helper — routes through the action handler
+  const handleLifecycleAction = async (
+    id: string,
+    action: "approve" | "reject" | "archive" | "mark_broken" | "reactivate"
+  ) => {
+    const labels: Record<string, string> = {
+      approve: "Approved & verified",
+      reject: "Rejected",
+      archive: "Archived (expired)",
+      mark_broken: "Marked as broken link",
+      reactivate: "Reactivated to pending",
+    };
+    const optimistic: Record<string, Partial<Opportunity>> = {
+      approve:     { verification_status: "verified",         is_active: true  },
+      reject:      { verification_status: "rejected",         is_active: false },
+      archive:     { verification_status: "expired",          is_active: false },
+      mark_broken: { verification_status: "link_unavailable", is_active: false },
+      reactivate:  { verification_status: "pending",          is_active: true  },
+    };
+    try {
+      await api.patch(`/api/admin/opportunities/${id}`, { action });
+      toast.success(labels[action]);
+      setOpportunities((prev) =>
+        prev.map((opp) => (opp.id === id ? { ...opp, ...optimistic[action] } : opp))
+      );
+      // Refresh stats after lifecycle change
+      fetchStats();
+    } catch {
+      toast.error(`Action failed: ${action}`);
     }
   };
 
@@ -313,7 +366,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (authenticated) {
-      if (activeTab === "opportunities") fetchOpportunities();
+      if (activeTab === "opportunities") { fetchOpportunities(1); fetchStats(); }
       if (activeTab === "subscribers") fetchSubscribers();
     }
   }, [authenticated, activeTab]);
@@ -695,7 +748,6 @@ export default function AdminPage() {
 
         {/* TAB 3: AI ANALYTICS */}
         {activeTab === "ai" && <AIAnalyticsPanel />}
-
         {/* TAB 4: OPPORTUNITIES MODERATION */}
         {activeTab === "opportunities" && (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5">
@@ -712,13 +764,32 @@ export default function AdminPage() {
                   <Plus className="w-3.5 h-3.5" /> Add Opportunity
                 </Link>
                 <button
-                  onClick={fetchOpportunities}
+                  onClick={() => { fetchOpportunities(1); fetchStats(); }}
                   className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition"
                 >
                   Refresh
                 </button>
               </div>
             </div>
+
+            {/* Phase 30D: Live DB stats bar */}
+            {dbStats && (
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                {[
+                  { label: "Total", value: dbStats.total, color: "text-white" },
+                  { label: "Active", value: dbStats.active, color: "text-emerald-400" },
+                  { label: "Pending", value: dbStats.pending, color: "text-amber-400" },
+                  { label: "Rejected", value: dbStats.rejected, color: "text-red-400" },
+                  { label: "Broken Link", value: dbStats.broken_link, color: "text-orange-400" },
+                  { label: "Expired", value: dbStats.expired, color: "text-slate-400" },
+                ].map((s) => (
+                  <div key={s.label} className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-center">
+                    <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* SEARCH & FILTERS */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -727,7 +798,7 @@ export default function AdminPage() {
                 <input
                   type="text"
                   value={oppSearch}
-                  onChange={(e) => setOppSearch(e.target.value)}
+                  onChange={(e) => { setOppSearch(e.target.value); setOppPage(1); }}
                   placeholder="Search by title, organization, location..."
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500"
                 />
@@ -735,19 +806,20 @@ export default function AdminPage() {
 
               <select
                 value={oppStatusFilter}
-                onChange={(e) => setOppStatusFilter(e.target.value)}
+                onChange={(e) => { setOppStatusFilter(e.target.value); setOppPage(1); }}
                 className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
               >
                 <option value="all">All Verification Statuses</option>
-                <option value="verified">Verified Only</option>
-                <option value="pending">Pending Moderation</option>
-                <option value="rejected">Rejected</option>
-                <option value="expired">Expired</option>
+                <option value="verified">✓ Verified Only</option>
+                <option value="pending">⏳ Pending Moderation</option>
+                <option value="rejected">✗ Rejected</option>
+                <option value="expired">⚠ Expired</option>
+                <option value="link_unavailable">🔗 Broken Link</option>
               </select>
 
               <select
                 value={oppCategoryFilter}
-                onChange={(e) => setOppCategoryFilter(e.target.value)}
+                onChange={(e) => { setOppCategoryFilter(e.target.value); setOppPage(1); }}
                 className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
               >
                 <option value="all">All Categories</option>
@@ -766,77 +838,150 @@ export default function AdminPage() {
               <p className="text-slate-400 text-xs py-8 text-center">No opportunities matched your search criteria.</p>
             ) : (
               <div className="space-y-3">
-                {filteredOpps.slice(0, 30).map((opp) => (
-                  <div
-                    key={opp.id}
-                    className="p-4 bg-slate-950 border border-slate-800 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-slate-700 transition"
-                  >
-                    <div className="space-y-1 min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-sm text-white truncate max-w-lg">{opp.title}</span>
-                        <span className="px-2 py-0.5 bg-blue-900/40 text-blue-300 border border-blue-500/30 rounded text-[10px] font-bold uppercase">
-                          {opp.category}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
-                            opp.verification_status === "verified"
-                              ? "bg-emerald-950 text-emerald-400 border-emerald-500/30"
-                              : opp.verification_status === "rejected"
-                              ? "bg-red-950 text-red-400 border-red-500/30"
-                              : "bg-amber-950 text-amber-400 border-amber-500/30"
-                          }`}
-                        >
-                          {opp.verification_status || "pending"}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-400">
-                        <span className="text-slate-300 font-semibold">{opp.organization || "Independent Organization"}</span>
-                        {opp.location && <span> &bull; {opp.location}</span>}
-                        {opp.stipend && <span> &bull; <span className="text-emerald-400 font-semibold">{opp.stipend}</span></span>}
-                        {opp.deadline && <span> &bull; Deadline: {opp.deadline.slice(0, 10)}</span>}
-                      </p>
-                    </div>
+                {filteredOpps.slice((oppPage - 1) * OPP_PAGE_SIZE, oppPage * OPP_PAGE_SIZE).map((opp) => {
+                  const vs = opp.verification_status || "pending";
+                  const statusStyle =
+                    vs === "verified"           ? "bg-emerald-950 text-emerald-400 border-emerald-500/30"
+                    : vs === "rejected"         ? "bg-red-950 text-red-400 border-red-500/30"
+                    : vs === "link_unavailable" ? "bg-orange-950 text-orange-400 border-orange-500/30"
+                    : vs === "expired"          ? "bg-slate-800 text-slate-400 border-slate-600/30"
+                    :                             "bg-amber-950 text-amber-400 border-amber-500/30";
+                  const qs = (opp as any).quality_score as number | undefined;
+                  const qsColor = qs == null ? "text-slate-600" : qs >= 75 ? "text-emerald-400" : qs >= 50 ? "text-amber-400" : "text-red-400";
+                  const lcs = (opp as any).link_check_status as number | null;
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      {opp.verification_status !== "verified" && opp.id && (
-                        <button
-                          onClick={() => handleUpdateStatus(opp.id!, "verified")}
-                          title="Approve &amp; Verify"
-                          className="px-2.5 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition"
-                        >
-                          <Check className="w-3.5 h-3.5" /> Verify
-                        </button>
-                      )}
-                      {opp.verification_status !== "rejected" && opp.id && (
-                        <button
-                          onClick={() => handleUpdateStatus(opp.id!, "rejected")}
-                          title="Reject"
-                          className="px-2.5 py-1.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition"
-                        >
-                          <XCircle className="w-3.5 h-3.5" /> Reject
-                        </button>
-                      )}
-                      {opp.id && (
-                        <Link
-                          href={`/admin/edit-opportunity/${opp.id}`}
-                          title="Edit Opportunity"
-                          className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold flex items-center gap-1 border border-slate-700 transition"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" /> Edit
-                        </Link>
-                      )}
-                      {opp.id && (
-                        <button
-                          onClick={() => handleDeleteOpportunity(opp.id!)}
-                          title="Delete Opportunity"
-                          className="px-2.5 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
+                  return (
+                    <div key={opp.id} className="p-4 bg-slate-950 border border-slate-800 rounded-xl hover:border-slate-700 transition">
+                      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                        {/* LEFT: title + badges */}
+                        <div className="space-y-1.5 min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-sm text-white truncate max-w-lg">{opp.title}</span>
+                            {opp.category && (
+                              <span className="px-2 py-0.5 bg-blue-900/40 text-blue-300 border border-blue-500/30 rounded text-[10px] font-bold uppercase">
+                                {opp.category}
+                              </span>
+                            )}
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${statusStyle}`}>
+                              {vs}
+                            </span>
+                            {/* Quality score badge — hidden if column not yet migrated */}
+                            {qs != null && (
+                              <span className={`px-2 py-0.5 bg-slate-900 border border-slate-700 rounded text-[10px] font-mono font-bold ${qsColor}`}>
+                                Q:{qs}
+                              </span>
+                            )}
+                            {/* Link health indicator */}
+                            {lcs != null && lcs !== 200 && (
+                              <span className="px-2 py-0.5 bg-orange-950 text-orange-400 border border-orange-500/30 rounded text-[10px] font-bold">
+                                HTTP {lcs}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-400">
+                            <span className="text-slate-300 font-semibold">{opp.organization || "Independent Organization"}</span>
+                            {opp.location && <span> &bull; {opp.location}</span>}
+                            {(opp as any).salary_range && <span> &bull; <span className="text-emerald-400 font-semibold">{(opp as any).salary_range}</span></span>}
+                            {opp.deadline && <span> &bull; Deadline: {opp.deadline.slice(0, 10)}</span>}
+                          </p>
+                        </div>
+
+                        {/* RIGHT: lifecycle action buttons */}
+                        <div className="flex items-center gap-1.5 flex-wrap shrink-0">
+                          {vs !== "verified" && opp.id && (
+                            <button
+                              onClick={() => handleLifecycleAction(opp.id!, "approve")}
+                              title="Approve & Verify"
+                              className="px-2.5 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition"
+                            >
+                              <Check className="w-3.5 h-3.5" /> Approve
+                            </button>
+                          )}
+                          {vs !== "rejected" && opp.id && (
+                            <button
+                              onClick={() => handleLifecycleAction(opp.id!, "reject")}
+                              title="Reject"
+                              className="px-2.5 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition"
+                            >
+                              <XCircle className="w-3.5 h-3.5" /> Reject
+                            </button>
+                          )}
+                          {vs !== "expired" && opp.id && (
+                            <button
+                              onClick={() => handleLifecycleAction(opp.id!, "archive")}
+                              title="Archive (mark expired)"
+                              className="px-2.5 py-1.5 bg-slate-700/40 hover:bg-slate-700/70 text-slate-400 border border-slate-600/40 rounded-lg text-xs font-bold flex items-center gap-1 transition"
+                            >
+                              <Layers className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          {vs !== "link_unavailable" && opp.id && (
+                            <button
+                              onClick={() => handleLifecycleAction(opp.id!, "mark_broken")}
+                              title="Mark as broken link"
+                              className="px-2.5 py-1.5 bg-orange-950/50 hover:bg-orange-950 text-orange-400 border border-orange-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition"
+                            >
+                              <AlertTriangle className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          {(vs === "rejected" || vs === "expired" || vs === "link_unavailable") && opp.id && (
+                            <button
+                              onClick={() => handleLifecycleAction(opp.id!, "reactivate")}
+                              title="Reactivate to pending"
+                              className="px-2.5 py-1.5 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 border border-blue-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition"
+                            >
+                              <RefreshCw className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          {opp.id && (
+                            <Link
+                              href={`/admin/edit-opportunity/${opp.id}`}
+                              title="Edit Opportunity"
+                              className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold flex items-center gap-1 border border-slate-700 transition"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" /> Edit
+                            </Link>
+                          )}
+                          {opp.id && (
+                            <button
+                              onClick={() => handleDeleteOpportunity(opp.id!)}
+                              title="Delete Opportunity"
+                              className="px-2.5 py-1.5 bg-red-950/30 hover:bg-red-950/60 text-red-400 border border-red-500/20 rounded-lg text-xs font-bold transition"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Pagination */}
+                {filteredOpps.length > OPP_PAGE_SIZE && (
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-xs text-slate-500 font-semibold">
+                      Showing {Math.min((oppPage - 1) * OPP_PAGE_SIZE + 1, filteredOpps.length)}–{Math.min(oppPage * OPP_PAGE_SIZE, filteredOpps.length)} of {filteredOpps.length}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setOppPage(p => Math.max(1, p - 1))}
+                        disabled={oppPage === 1}
+                        className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 text-xs font-bold rounded-lg border border-slate-700 transition"
+                      >
+                        ← Prev
+                      </button>
+                      <span className="text-xs text-slate-400 font-mono">Page {oppPage} of {Math.ceil(filteredOpps.length / OPP_PAGE_SIZE)}</span>
+                      <button
+                        onClick={() => setOppPage(p => Math.min(Math.ceil(filteredOpps.length / OPP_PAGE_SIZE), p + 1))}
+                        disabled={oppPage >= Math.ceil(filteredOpps.length / OPP_PAGE_SIZE)}
+                        className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 text-xs font-bold rounded-lg border border-slate-700 transition"
+                      >
+                        Next →
+                      </button>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>
