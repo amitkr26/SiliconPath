@@ -63,27 +63,36 @@ export async function POST(request: NextRequest) {
     // 1. If text/markdown file, read directly
     if (file.type.includes("text") || file.name.endsWith(".txt") || file.name.endsWith(".md")) {
       extractedText = buffer.toString("utf-8");
-    } else {
+    } else if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
       // 2. If PDF, extract text with PDFParse
       try {
         const { PDFParse } = await import("pdf-parse");
-        const parser = new PDFParse(buffer);
+        const parser = new PDFParse({ data, verbosity: 0 });
         const textResult = await parser.getText();
-        extractedText = textResult.text;
+        extractedText = textResult.text || "";
       } catch (parseError: any) {
-        logger.warn("PDF Parsing fallback to raw text buffer", { error: parseError?.message });
-        // Strip non-printable characters but preserve Unicode (names, emails, etc.)
-        extractedText = buffer.toString("utf-8");
+        logger.warn("[Resume Parser] PDF extraction failed", { error: parseError?.message });
+        return NextResponse.json({ 
+          error: "Failed to parse PDF document. The file may be corrupted, password-protected, or invalid." 
+        }, { status: 422 });
       }
+    } else {
+      return NextResponse.json({ 
+        error: "Unsupported file format. Please upload a PDF, TXT, or MD resume." 
+      }, { status: 415 });
     }
 
     if (!extractedText.trim()) {
       return NextResponse.json({ error: "No text content could be extracted from the file." }, { status: 422 });
     }
 
-    // Detect scanned PDFs (very little extractable text)
-    const significantText = extractedText.trim().replace(/\s+/g, "").length;
-    if (significantText < 20 && extractedText.trim().length > 0) {
+    // Detect scanned PDFs (no selectable text layer)
+    const significantText = extractedText
+      .replace(/\s+/g, "")
+      .replace(/--\s*\d+\s*of\s*\d+\s*--/gi, "")
+      .replace(/page\s*\d+(\s*of\s*\d+)?/gi, "").length;
+
+    if (significantText < 20) {
       return NextResponse.json({ 
         error: "This PDF appears to contain no selectable text. Please upload a text-based PDF or use OCR." 
       }, { status: 422 });
@@ -168,7 +177,3 @@ Return ONLY a valid JSON object matching the following structure. Do not output 
     return apiError(err, "parse-resume");
   }
 }
-
-
-
-
