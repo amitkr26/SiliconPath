@@ -51,7 +51,7 @@ export function parseResumeTextDeterministically(text: string): ParsedResumeProf
   const lines = text
     .split(/\r?\n/)
     .map((l) => l.trim())
-    .filter(Boolean);
+    .filter((l) => Boolean(l) && !l.match(/^--\s*\d+\s*of\s*\d+\s*--$/i) && !l.match(/^page\s*\d+(\s*of\s*\d+)?$/i));
 
   const profile: ParsedResumeProfile = {
     skills: [],
