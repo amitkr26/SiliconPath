@@ -7,7 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-- **2026-08-29 — Phase 30D: Production Reality Audit, Security Hardening & Pre-Migration Verification (HARDENED & VERIFIED).**
+- **2026-08-30 — Resume Builder Parser Hardening, Phase 30D Opportunity Intelligence & Security Remediation (VERIFIED PRODUCTION READY).**
+  - **Resume Builder Upload & Deterministic Auto-Fill Hardening:**
+    - `frontend/src/app/api/profile/parse-resume/route.ts`:
+      - Root Cause: `pdf-parse` v2 required binary input as `Uint8Array` in `{ data: Uint8Array, verbosity: 0 }`. Passing a Node `Buffer` directly to `new PDFParse(buffer)` caused an unhandled constructor exception, which erroneously fell back to `buffer.toString("utf-8")` raw text parsing, extracting bytecode headers (`%PDF-1.4 1 0 obj<</Type/Catalog...`) as candidate name and headline.
+      - Remediation: Instantiated `new PDFParse({ data: new Uint8Array(arrayBuffer), verbosity: 0 })`, completely removed raw binary string fallback, and implemented strict HTTP response contracts:
+        - `HTTP 400`: Missing file or empty 0-byte upload.
+        - `HTTP 401`: Unauthorized / unauthenticated request.
+        - `HTTP 413`: File size exceeds 10MB limit.
+        - `HTTP 415`: Unsupported file format (rejected `.docx`, `.png`, `.exe`).
+        - `HTTP 422`: Corrupted PDF or image-only scanned PDF (< 20 extractable text characters).
+        - `HTTP 200`: Valid text-based PDF, TXT, or MD with structured candidate fields.
+    - `frontend/src/lib/resume-text-parser.ts`: Added regex pagination header filtering (`-- 1 of 1 --`, `Page 1 of 1`) to eliminate noise from PDF text streams.
+    - `frontend/src/__tests__/api/parse-resume.test.ts`: Added unit and regression test suite covering all parser contracts and phone number formatting.
+  - **Phase 30D Opportunity Quality Intelligence, Resume Versioning & RLS Hardening:**
+    - `frontend/src/lib/opportunity-quality.ts`: Implemented 4-pillar quality scoring (source, freshness, completeness, engagement) with lifecycle state transitions.
+    - `frontend/src/app/api/admin/opportunities/[id]/route.ts` & `frontend/src/app/api/admin/stats/route.ts`: Added admin opportunity management endpoints and analytics metrics.
+    - `frontend/src/app/admin/page.tsx`: Enhanced admin dashboard with quality scores, filter controls, and lifecycle actions.
+    - `frontend/supabase/migrations/`: Added RLS security hardening (`20260829000003_rls_security_hardening.sql`), resume versioning (`20260829000002_phase31_resume_versioning.sql`), and opportunity lifecycle audit v1-v3 with full rollbacks.
+    - `scripts/recalculate-opportunity-quality.mjs`: Added batch opportunity quality recalculation script.
+  - **Verification Matrix:**
+    - `npx tsc --noEmit`: 0 errors.
+    - `npm test`: 20/20 test suites passed, 181/181 tests passed (100% GREEN).
+    - `npm run build`: Next.js 14 production build compiled successfully with 338+ routes and static paths.
+    - Adversarial Matrix: 11/11 test cases verified with exact status codes and zero candidate PII leaking to logs.
+
+
   - **Security & IDOR Boundary Remediation:**
     - `frontend/src/app/api/employer/jobs/route.ts`: Enforced strict job ownership checks on `PATCH` and `DELETE` (403 on cross-employer tampering).
     - `frontend/src/app/api/employer/applicants/route.ts`: Enforced application ownership verification on `PATCH` (employers can only update applicants for jobs they created).
