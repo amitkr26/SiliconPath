@@ -11,7 +11,7 @@
 | **2026-08-07** | Git history force-rewritten (`git filter-branch` + force-push) to purge 20+ hardcoded secrets | All historic commits; old HEAD `078c59a` |
 | **2026-08-07** | Supabase service role keys rotated (both projects) | `aqauempuwmbizqoaolop`, `jbqjipwanfsxyqkfrrpx` |
 | **2026-08-07** | Neon API keys rotated (both projects) | `plain-glade-52224468`, `jolly-haze-11306362` |
-| **2026-08-07** | Vercel token rotated | `REDACTED_VERCEL_PAT_ROTATED` |
+| **2026-08-07** | Vercel token rotated | `vcp_...[REVOKED-2026-08-07]` |
 | **2026-08-07** | Deleted 19 QA scripts + `multi-db.ts` + `test_neon.js` containing hardcoded credentials | Repository cleanup |
 
 **Next scheduled rotation**: 2026-11-14 (quarterly) or immediately upon any suspected exposure.
