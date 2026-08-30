@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { db1, neonSecondary } from "@/lib/db";
 import { mapDbOpportunityToClient } from "@/lib/utils";
+import { verifyCron } from "@/lib/admin-auth";
 
 export async function GET(request: Request) {
   if (!db1 || !neonSecondary) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!verifyCron(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

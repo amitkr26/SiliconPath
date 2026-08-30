@@ -57,7 +57,8 @@ export async function GET(
     const opp = application.opportunity as any;
     if (role !== "admin" && opp) {
       const isOwner = (opp.created_by && opp.created_by === user.id) || (opp.employer_id && opp.employer_id === user.id);
-      if (!isOwner && (opp.created_by || opp.employer_id)) {
+      // ponytail: fail-closed — if both owner fields are null, deny access
+      if (!isOwner) {
         return NextResponse.json({ error: "Forbidden: You do not have access to this applicant." }, { status: 403 });
       }
     }
@@ -114,7 +115,8 @@ export async function PATCH(
     const opp = existingApp.opportunity as any;
     if (role !== "admin" && opp) {
       const isOwner = (opp.created_by && opp.created_by === user.id) || (opp.employer_id && opp.employer_id === user.id);
-      if (!isOwner && (opp.created_by || opp.employer_id)) {
+      // ponytail: fail-closed — if both owner fields are null, deny access
+      if (!isOwner) {
         return NextResponse.json({ error: "Forbidden: You do not have permission to mutate this applicant." }, { status: 403 });
       }
     }

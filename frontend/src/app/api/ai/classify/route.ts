@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai/providers";
 import { serverError } from "@berojgardegreewala/api";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
+  // ponytail: require authentication to prevent free AI credit consumption
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   try {
     const { title, description } = await request.json();
     if (!title) {

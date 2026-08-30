@@ -6,7 +6,9 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   const error = searchParams.get('error');
   const errorDescription = searchParams.get('error_description');
-  const nextPath = searchParams.get('next') || '/dashboard';
+  // ponytail: validate redirect target — only allow relative paths to prevent open redirect
+  const rawNext = searchParams.get('next') || '/dashboard';
+  const nextPath = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/dashboard';
 
   if (error) {
     console.error('[Auth callback]', error, errorDescription);

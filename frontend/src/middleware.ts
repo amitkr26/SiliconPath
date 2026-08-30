@@ -194,7 +194,7 @@ export async function middleware(request: NextRequest) {
 
   // Admin/Manager route gate — requires admin password/HMAC (no Supabase session needed)
   const isAdminOnly = ADMIN_PATHS.some(p => path === p || path.startsWith(p + '/'));
-  if (isAdminOnly && !isAdminRequest && !user) {
+  if (isAdminOnly && !isAdminRequest) {
     if (path.startsWith('/api/')) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }

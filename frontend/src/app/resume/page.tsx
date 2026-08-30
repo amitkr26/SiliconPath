@@ -270,7 +270,7 @@ export default function ResumeBuilderPage() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".pdf,.txt,.docx,.md"
+                  accept=".pdf,.txt,.md"
                   className="hidden"
                   onChange={(e) => {
                     const f = e.target.files?.[0];

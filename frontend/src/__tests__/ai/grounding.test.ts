@@ -41,6 +41,16 @@ jest.mock("next/server", () => {
   };
 });
 
+jest.mock('@/lib/supabase/server', () => ({
+  createClient: jest.fn().mockResolvedValue({
+    auth: {
+      getUser: jest.fn().mockResolvedValue({
+        data: { user: { id: 'test-user-id', email: 'test@test.com' } },
+      }),
+    },
+  }),
+}));
+
 const RECORDS = [
   {
     id: "o1",

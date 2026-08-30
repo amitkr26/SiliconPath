@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCandidateExperiences } from "@/lib/candidate-profile-store";
 import { supabaseAdmin } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { userId: string } | Promise<{ userId: string }> }
 ) {
+  // ponypfix: require authentication to access any user's structured career data
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const resolvedParams = params instanceof Promise ? await params : params;
   const userId = resolvedParams?.userId;
   if (!userId) return NextResponse.json({ error: "User ID required" }, { status: 400 });
