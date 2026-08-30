@@ -21,12 +21,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!hasAIProviderConfigured()) {
-    return NextResponse.json(
-      { error: "Resume parsing is not available. No AI provider is configured." },
-      { status: 503 }
-    );
-  }
+  // If no AI provider is configured, the handler will use the deterministic parser fallback below
 
   try {
     const formData = await request.formData();
@@ -49,21 +44,35 @@ export async function POST(request: NextRequest) {
         throw new Error("Document AI returned an empty profile mapping.");
       }
     } catch (docAiError: any) {
-      logger.warn("[Resume Parser] Document AI fallback triggered.", { reason: docAiError.message });
+      logger.warn("[Resume Parser] Document AI fallback triggered.", { reason: docAiError?.message });
     }
 
-    let pdfText = "";
-    try {
-      const parser = new PDFParse({ data: buffer, verbosity: 0 });
-      const textResult = await parser.getText();
-      pdfText = textResult.text;
-    } catch (parseError: any) {
-      logger.error("PDF Parsing error", { error: parseError instanceof Error ? parseError.message : String(parseError) });
-      return NextResponse.json({ error: "Could not read the PDF contents. Make sure it is not encrypted or corrupted." }, { status: 422 });
+    let extractedText = "";
+
+    // 1. If text/markdown file, read directly
+    if (file.type.includes("text") || file.name.endsWith(".txt") || file.name.endsWith(".md")) {
+      extractedText = buffer.toString("utf-8");
+    } else {
+      // 2. If PDF, extract text with PDFParse
+      try {
+        const parser = new PDFParse({ data: buffer, verbosity: 0 });
+        const textResult = await parser.getText();
+        extractedText = textResult.text;
+      } catch (parseError: any) {
+        logger.warn("PDF Parsing fallback to raw text buffer", { error: parseError?.message });
+        extractedText = buffer.toString("utf-8").replace(/[^\x20-\x7E\n\r]/g, " ");
+      }
     }
 
-    if (!pdfText.trim()) {
-      return NextResponse.json({ error: "No text content could be extracted from the PDF." }, { status: 422 });
+    if (!extractedText.trim()) {
+      return NextResponse.json({ error: "No text content could be extracted from the file." }, { status: 422 });
+    }
+
+    // Check if AI is available for high-fidelity extraction
+    if (!hasAIProviderConfigured()) {
+      const { parseResumeTextDeterministically } = await import("@/lib/resume-text-parser");
+      const fallbackProfile = parseResumeTextDeterministically(extractedText);
+      return NextResponse.json({ success: true, profile: fallbackProfile, fallback: true });
     }
 
     const parsePrompt = `
@@ -72,7 +81,7 @@ Extract information from the raw resume text and return it as a structured JSON 
 
 Raw Resume Text:
 """
-${pdfText}
+${extractedText}
 """
 
 Return ONLY a valid JSON object matching the following structure. Do not output markdown, notes, or wrap in backticks:

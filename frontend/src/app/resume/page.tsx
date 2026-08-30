@@ -4,7 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Loader2, Save, Plus, Trash2, User,
-  Briefcase, GraduationCap, Code, FolderGit2, Download, Sparkles
+  Briefcase, GraduationCap, Code, FolderGit2, Download, Sparkles,
+  UploadCloud, FileText, CheckCircle2
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
@@ -33,10 +34,13 @@ export default function ResumeBuilderPage() {
   const { user, loading: authLoading } = useUser();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("personal");
   const [atsScore, setAtsScore] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string[]>([]);
   const previewRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Resume State
   const [fullName, setFullName] = useState("");
@@ -54,6 +58,68 @@ export default function ResumeBuilderPage() {
   // Styling Customizer
   const [accentColor, setAccentColor] = useState("#2563EB");
   const [fontFamily, setFontFamily] = useState("font-sans");
+
+  const handleFileUpload = async (file: File) => {
+    if (!file) return;
+    if (!file.name.match(/\.(pdf|txt|docx|md)$/i)) {
+      toast.error("Please upload a PDF, DOCX, or TXT resume file.");
+      return;
+    }
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/profile/parse-resume", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to parse resume");
+      }
+      const p = data.profile || {};
+      if (p.full_name) setFullName(p.full_name);
+      if (p.headline) setHeadline(p.headline);
+      if (p.email) setEmail(p.email);
+      if (p.phone) setPhone(p.phone);
+      if (p.city || p.location) setLocation(p.city || p.location);
+      if (p.about || p.summary) setSummary(p.about || p.summary);
+
+      if (Array.isArray(p.skills) && p.skills.length > 0) {
+        setSkills((prev) => Array.from(new Set([...prev, ...p.skills])));
+      }
+      if (Array.isArray(p.experience) && p.experience.length > 0) {
+        const mappedExp: ExpItem[] = p.experience.map((e: any) => ({
+          role: e.role || "Role",
+          org: e.company || e.org || "Organization",
+          period: e.duration || e.period || "",
+          detail: e.description || e.detail || "",
+        }));
+        setExperience((prev) => [...prev, ...mappedExp]);
+      }
+      if (Array.isArray(p.education) && p.education.length > 0) {
+        const mappedEdu: EduItem[] = p.education.map((ed: any) => ({
+          school: ed.institution || ed.school || "University",
+          degree: ed.degree || "Degree",
+          year: ed.duration || ed.year || "",
+        }));
+        setEducation((prev) => [...prev, ...mappedEdu]);
+      }
+      if (Array.isArray(p.projects) && p.projects.length > 0) {
+        const mappedProj: ProjItem[] = p.projects.map((pr: any) => ({
+          name: pr.name || "Project",
+          detail: pr.description || pr.detail || "",
+        }));
+        setProjects((prev) => [...prev, ...mappedProj]);
+      }
+      toast.success("Resume parsed & auto-filled successfully! All fields are ready to edit.");
+    } catch (err: any) {
+      toast.error(err.message || "Could not parse resume");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (authLoading) return;
@@ -165,6 +231,64 @@ export default function ResumeBuilderPage() {
 
           {/* Left Editor Console */}
           <div className="space-y-6 print:hidden">
+            {/* Resume Upload & Auto-Fill Card */}
+            <Card className="p-5 space-y-3 bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-white border-2 border-blue-600/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-blue-600 text-white rounded-lg">
+                    <UploadCloud className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900">Upload & Auto-Fill Resume</h3>
+                    <p className="text-xs text-slate-600">Upload your PDF or TXT resume to automatically populate all fields below</p>
+                  </div>
+                </div>
+                {uploading && (
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Parsing...</span>
+                  </div>
+                )}
+              </div>
+
+              <div
+                onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+                onDragLeave={() => setIsDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(false);
+                  const f = e.dataTransfer.files?.[0];
+                  if (f) handleFileUpload(f);
+                }}
+                onClick={() => fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
+                  isDragOver
+                    ? "border-blue-600 bg-blue-100/50 scale-[1.01]"
+                    : "border-slate-300 hover:border-blue-500 hover:bg-white/80"
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.txt,.docx,.md"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleFileUpload(f);
+                  }}
+                />
+                <div className="flex flex-col items-center justify-center gap-1.5">
+                  <FileText className="w-6 h-6 text-blue-600" />
+                  <span className="text-xs font-bold text-slate-800">
+                    {uploading ? "Extracting resume details..." : "Click or drag & drop your resume file here (.pdf, .txt, .docx)"}
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    Auto-detects contact info, experience, education, skills & projects for 1-click editing
+                  </span>
+                </div>
+              </div>
+            </Card>
+
             {/* Editor Tabs Navigation */}
             <div className="flex bg-white border-2 border-slate-900 rounded-xl p-1.5 gap-1 overflow-x-auto whitespace-nowrap shadow-brutal">
               {TABS.map((tab) => (
