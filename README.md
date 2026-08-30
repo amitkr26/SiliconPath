@@ -97,11 +97,11 @@ The Employer Suite provides a professional recruiter cockpit comparable to Linke
 
 | Test Suite | Command | Result | Status |
 | :--- | :--- | :--- | :--- |
-| **TypeScript Compilation** | `npx tsc --noEmit` | **0 Errors** | ✅ PASS |
-| **Unit Test Suite** | `npm test` | **181 / 181 Tests PASS (100%)** | ✅ PASS |
-| **Next.js Production Build** | `npm run build` | **350+ Routes Compiled** | ✅ PASS |
-| **End-to-End System Verification** | `node scripts/manual-feature-verification.mjs` | **25 / 25 Assertions PASS (100%)** | ✅ PASS |
-| **Multi-Portal Feature Suite** | `node scripts/test-all-portals-and-features.mjs` | **24 / 24 Tests PASS (100%)** | ✅ PASS |
+| **Monorepo Typecheck** | `npm run typecheck` | **0 Errors across 5 Workspaces** | ✅ PASS |
+| **Frontend Test Suite** | `npm test --workspace=frontend` | **20 / 20 Suites, 181 / 181 Tests PASS (100%)** | ✅ PASS |
+| **Backend & AI Gateway Tests** | `npm test --workspaces` | **28 / 28 Suites, 293 / 293 Tests PASS (100%)** | ✅ PASS |
+| **Next.js Production Build** | `npm run build` | **338+ Routes & Static Paths Compiled** | ✅ PASS |
+| **Security & IDOR Audit** | `node scripts/verify-idor-attacks.mjs` | **Verified Zero IDOR / Cross-Tenant Leaks** | ✅ PASS |
 
 Complete forensic evidence and audit reports are documented in [project-bible/qa/latest/](project-bible/qa/latest/).
 
@@ -114,20 +114,24 @@ Complete forensic evidence and audit reports are documented in [project-bible/qa
 git clone https://github.com/amitkr26/BerojgarDegreeWala.git
 cd SiliconPath
 
-# Install dependencies
+# Install dependencies across all workspaces
 npm install
 
 # Start Next.js development server
 npm run dev
 
-# Run automated unit test suites
+# Run automated test suites across all workspaces
 npm test
 
-# Run manual feature verification gate against live runtime
-node scripts/manual-feature-verification.mjs
+# Run workspace-wide TypeScript validation
+npm run typecheck
+
+# Build for production
+npm run build
 ```
 
 ---
 
 *Last Updated: August 30, 2026 — Final Cleanup & Production Readiness Audit*
+
 
