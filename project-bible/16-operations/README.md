@@ -1,3 +1,5 @@
+**Last Verified:** 2026-08-30 · **Status:** Current · **Scope:** Operations procedures and runbooks**
+
 # Operations
 
 ## Overview

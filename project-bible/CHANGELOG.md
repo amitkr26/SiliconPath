@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-08-30 — Documentation Consolidation, Deduplication & Reality Sync.**
+  - **Consolidation:**
+    - Deleted 6 files: deprecated `deploy-stack.txt`, superseded `24-CHANGE-LOG.md`, duplicate `25-AGENT-STATE.md`/`26-AGENT-HANDOFF.md`, duplicate `phase-27-production-hardening-audit.md`, stale `27-CURRENT-SESSION.md`.
+    - Marked 5 Aug 22 audit files as superseded with warning headers (FINAL_PLATFORM_AUDIT, FINAL-SCORECARD, FULL-CODEBASE-AUDIT, MASTER-REMEDIATION-PLAN, FULL-SYSTEM-MAP).
+  - **Archival (73 items total):**
+    - Moved 38 items to `docs/historical/`: 18 early audit reports (Aug 16-18), `phase-15-launch/` directory, `opportunity-cleanup/` and `post-scraper-audit/` QA directories, 16 session reports.
+    - Moved 3 additional audit reports: `15-full-codebase-security-and-release-audit.md`, `phase9-candidate-identity-network-audit.md`, `FINAL_PLATFORM_AUDIT_20260822.md`.
+    - Moved 20 QA phase reports from `project-bible/qa/latest/` to `docs/historical/qa-latest/`.
+    - Moved 12 Aug 22 audit files from `project-bible/audits/` to `docs/historical/audits-aug22/`.
+    - `docs/historical/` now contains 100+ archived files across 5 subdirectories.
+  - **Reality Sync:**
+    - Rewrote `ARCHITECTURE.md`: Corrected DB topology (dual Supabase: DB1 core, DB2 user/social), updated all table listings, added cross-DB reference pattern, added RBAC middleware documentation.
+    - Rewrote `06-database/README.md`: Corrected topology to reflect DB1 (core) and DB2 (user/social), not "DB2 = Legacy Mirror". Added cross-DB reference section.
+    - Rewrote `05-backend/README.md`: Removed reference to deleted `deploy-stack.txt`, updated deployment status to "Deployed on Render".
+  - **Standardization:**
+    - Added standardized headers (Last Verified / Status / Scope) to 7 section READMEs (04-frontend, 07-api, 08-ai, 09-scrapers, 11-employers, 12-users, 16-operations).
+    - Rewrote `docs/audit-reports/README.md` to reflect current active reports only.
+    - Rewrote `docs/historical/README.md` with categorized inventory of all archived files.
+
 - **2026-08-30 — Resume Builder Parser Hardening, Phase 30D Opportunity Intelligence & Security Remediation (VERIFIED PRODUCTION READY).**
   - **Resume Builder Upload & Deterministic Auto-Fill Hardening:**
     - `frontend/src/app/api/profile/parse-resume/route.ts`:

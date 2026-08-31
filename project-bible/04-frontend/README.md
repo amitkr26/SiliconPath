@@ -1,3 +1,5 @@
+**Last Verified:** 2026-08-30 · **Status:** Current · **Scope:** Frontend architecture and page inventory**
+
 # Frontend Architecture
 
 > Last reconciled: 2026-08-19

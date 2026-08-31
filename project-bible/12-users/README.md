@@ -1,3 +1,5 @@
+**Last Verified:** 2026-08-30 · **Status:** Current · **Scope:** User model and profile architecture**
+
 # User Features (Candidates)
 
 ## Overview

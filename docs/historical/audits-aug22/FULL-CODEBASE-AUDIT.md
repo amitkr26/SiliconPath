@@ -1,3 +1,5 @@
+⚠️ SUPERSEDED by 2026-08-29 Final Platform Reality Audit. This audit reflects Aug 22 state only.
+
 # SiliconPath / BerojgarDegreeWala — Full Codebase Audit
 
 ## Version
