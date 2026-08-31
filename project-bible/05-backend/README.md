@@ -52,13 +52,18 @@ Consumed as raw TypeScript by both the frontend and `backend/server`. No server,
 - Dockerfile: `node:20-alpine`, non-root `USER node`, HEALTHCHECK (wget `http://127.0.0.1:8080/health`), EXPOSE 8080
 - `.env.example` categorized REQUIRED / OPTIONAL / DEPLOYMENT: SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_2_URL, SUPABASE_2_SERVICE_ROLE_KEY, PORT, NODE_ENV, ALLOWED_ORIGINS, ADMIN_PASSWORD, ADMIN_HMAC_SECRET, CRON_SECRET + AI provider keys (incl. AGENTROUTER_*, OMNIROUTER_*)
 
-## Backend replication status (as of 2026-08-19)
+## Deployment Status
+
+- **Production**: Deployed on Render as a standalone REST API replica
+- **Docker**: Dockerfile configured for containerized deployment
+- **Backend worker**: CLI tool (`backend/worker/`) with `news` (RSS sync) and `isro` (ISRO scraper) commands
+
+## Parity with Frontend
 
 Parity docs exist: `backend/docs/FRONTEND-BACKEND-MAP.md`, `backend/docs/API-PARITY.md`.
 
 - Complete: opportunities (list/detail/slug), applications, saved-opportunities, profiles (GET), organizations, admin stats, social layer (feed/network/messages/notifications), AI breadth (chat/match/search/summarize + usage logging), search + /people, auth signup/check-username, news `:slug`, news RSS sync cron
-- Production readiness (Phase 5): tests 46 server / 15 gateway / 97 api, `tsc` clean, Docker hardened, `/health/ready`, 502 mapping, admin + cron timing-safe guards
-- Not deployed: production-ready but deployment decision pending (KNOWN_ISSUES #0; recommended Docker → Render per `14-devops/deploy-stack.txt`)
+- Production readiness: tests 46 server / 15 gateway / 97 api, `tsc` clean, Docker hardened, `/health/ready`, 502 mapping, admin + cron timing-safe guards
 - Missing/deferred: scraper fleet port (Phase 6 candidate), PATCH `/profiles/me`, `supabase2Admin` DB2 client unused, admin breadth beyond `/stats`, academy, misc
 
 ## Related Documents

@@ -1,3 +1,5 @@
+**Last Verified:** 2026-08-30 · **Status:** Current · **Scope:** Employer portal architecture and RBAC**
+
 # Employer & Recruiter Portal Suite
 
 ## 1. Overview

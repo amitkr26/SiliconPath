@@ -1,3 +1,5 @@
+⚠️ SUPERSEDED by 2026-08-29 Final Platform Reality Audit. This file reflects Aug 22 state only.
+
 # BerojgarDegreeWala / SiliconPath — Final Platform Forensic Audit & Evidence Gate
 
 **Audit Date:** August 22, 2026  

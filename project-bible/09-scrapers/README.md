@@ -1,3 +1,5 @@
+**Last Verified:** 2026-08-30 · **Status:** Current · **Scope:** Scraper fleet and aggregation architecture**
+
 # Scraper Architecture
 
 > Last reconciled: 2026-08-20

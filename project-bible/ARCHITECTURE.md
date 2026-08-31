@@ -1,12 +1,12 @@
 # SiliconPath (BerojgarDegreeWala) — Technical Architecture
 
-**Version:** 2026-08-22 (Reconciled & Production Certified) · **Pattern:** Modular Monolith on Next.js & Supabase + Dedicated Employer Suite & Independent Backend Replication
+**Version:** 2026-08-30 (Reconciled & Production Certified) · **Pattern:** Modular Monolith on Next.js & Supabase + Dedicated Employer Suite & Independent Backend Replication
 
 ---
 
 ## 1. Architectural Overview
 
-SiliconPath operates as a **modular monolith** on Next.js 14 (App Router) deployed to Vercel, backed by a unified Supabase PostgreSQL database (`aqauempuwmbizqoaolop`) and Neon analytics database.
+SiliconPath operates as a **modular monolith** on Next.js 14 (App Router) deployed to Vercel, backed by a dual Supabase PostgreSQL database architecture (DB1 for core platform, DB2 for user/social layer) and Neon analytics database.
 
 The application serves four discrete, authoritative user experiences from a single codebase and authentication system:
 1. **Public Portal**: Deep-tech intelligence, news, opportunities, academy, and search.
@@ -29,14 +29,22 @@ The application serves four discrete, authoritative user experiences from a sing
                                       │
         ┌─────────────────────────────┼────────────────────────────┐
         ▼                             ▼                            ▼
-  Supabase DB1 (Core & Social)   Neon DB 1 (Analytics)       AI Gateway (9 Providers)
-  • opportunities (+created_by)  • click_events              • Groq (qwen/qwen3.6-27b)
-  • user_profiles (+username)    • page_views                • Gemini 1.5 Pro/Flash
-  • applications (+status)       • search_queries            • OpenRouter, Bedrock
-  • company_claims               • opportunities_mirror      • DB-grounded RAG
-  • recruiter_saved_candidates
-  • employer_settings
-  • workspace_members
+  Supabase DB1 (Core)           Supabase DB2 (User/Social)    Neon DB1 (Analytics)
+  • opportunities               • user_profiles                • click_events
+  • organizations               • connections                  • page_views
+  • news_articles               • user_follows                 • search_queries
+  • scraper_sources             • feed_posts                   • trending_cache
+  • company_claims              • applications                 • keyword_stats
+  • recruiter_saved_candidates  • saved_opportunities
+  • employer_settings           • conversations
+  • workspace_members           • messages
+  • ai_usage_log                • notifications
+                                • community_posts/comments
+                                • skill_endorsements
+                                • recommendations
+                                • candidate_experiences/educations/projects/certs/achievements
+                                • company_followers
+                                • user_resumes
 ```
 
 ---
@@ -50,7 +58,8 @@ The application serves four discrete, authoritative user experiences from a sing
 │ 1. Public Portal    Navbar + Footer         /, /opportunities, /news, /academy, │
 │                                             /organizations, /resources, /search │
 │ 2. Candidate Portal Candidate Layout        /dashboard, /applications, /saved,  │
-│                                             /network, /messages, /profile       │
+│                                             /network, /messages, /profile,      │
+│                                             /resume, /notifications             │
 │ 3. Employer Suite   EmployerSuiteShell      /employer/dashboard, /employer/jobs,│
 │                     + EmployerNav           /employer/post-job, /employer/talent│
 │                                             /employer/applicants, /employer/team│
@@ -62,31 +71,29 @@ The application serves four discrete, authoritative user experiences from a sing
 
 ---
 
-## 3. Database Architecture & Additive Schema
+## 3. Database Architecture
 
-The live Supabase PostgreSQL database incorporates the following schema structure:
+The live database infrastructure uses a dual-Supabase + Neon architecture:
 
-### Core Tables & Foreign Key Constraints
-- **`opportunities`**:
-  - `id` (UUID PK), `title` (TEXT), `slug` (TEXT UNIQUE), `organization_id` (UUID FK → `organizations.id`), `created_by` (UUID FK → `user_profiles.id`), `employer_id` (UUID FK → `user_profiles.id`), `job_status` (TEXT DEFAULT 'active' CHECK in ('active', 'paused', 'closed', 'draft')), `screening_questions` (JSONB DEFAULT '[]'), `category` (TEXT CHECK in ('jrf', 'srf', 'phd', 'fellowship', 'government', 'internship')), `location`, `salary_range`, `eligibility`, `description`, `apply_url`, `tags` (TEXT[]), `is_active` (BOOL), `posted_date`, `created_at`, `updated_at`.
-- **`applications`**:
-  - `id` (UUID PK), `opportunity_id` (UUID FK → `opportunities.id`), `user_id` (UUID FK → `user_profiles.id`), `status` (TEXT CHECK in ('applied', 'screening', 'shortlisted', 'interview', 'accepted', 'rejected')), `notes` (TEXT), `applied_at`, `updated_at`.
-- **`company_claims`**:
-  - `id` (UUID PK), `organization_id` (UUID FK → `organizations.id`), `claimed_by` (UUID FK → `user_profiles.id`), `status` (TEXT DEFAULT 'pending' CHECK in ('pending', 'approved', 'rejected')), `reviewed_by` (UUID FK → `user_profiles.id`), `reviewed_at` (TIMESTAMPTZ), `message` (TEXT), `created_at`, `updated_at`.
-- **`recruiter_saved_candidates`**:
-  - `id` (UUID PK), `employer_id` (UUID FK → `user_profiles.id`), `candidate_id` (UUID FK → `user_profiles.id`), `note` (TEXT), `created_at`.
-  - Constraint: `UNIQUE(employer_id, candidate_id)`.
-- **`employer_settings`**:
-  - `employer_id` (UUID PK FK → `user_profiles.id`), `email_alerts` (BOOL), `instant_applicant_alert` (BOOL), `weekly_digest` (BOOL), `dm_notifications` (BOOL), `default_stage_notes` (TEXT), `created_at`, `updated_at`.
-- **`workspace_members`**:
-  - `id` (UUID PK), `employer_id` (UUID FK → `user_profiles.id`), `email` (TEXT), `role` (TEXT CHECK in ('owner', 'admin', 'recruiter', 'hiring_manager')), `status` (TEXT DEFAULT 'active'), `created_at`, `updated_at`.
-  - Constraint: `UNIQUE(employer_id, email)`.
-### Candidate Professional Identity & Networking (Phase 9)
-- **`candidate_experiences`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `company_name`, `role_title`, `employment_type`, `location`, `start_date`, `end_date`, `is_current`, `description`, `skills_used` (TEXT[]), timestamps. Index: `idx_candidate_exp_candidate_id`. RLS: Public Read, Owner CRUD.
-- **`candidate_educations`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `institution`, `degree`, `field_of_study`, `start_year`, `end_year`, `grade`, `description`, timestamps. Index: `idx_candidate_edu_candidate_id`. RLS: Public Read, Owner CRUD.
-- **`candidate_projects`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `title`, `description`, `technologies` (TEXT[]), `project_url`, `github_url`, `start_date`, `end_date`, timestamps. Index: `idx_candidate_proj_candidate_id`. RLS: Public Read, Owner CRUD.
-- **`candidate_certifications`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `name`, `issuing_org`, `issue_date`, `expiration_date`, `credential_id`, `credential_url`, timestamps. Index: `idx_candidate_cert_candidate_id`. RLS: Public Read, Owner CRUD.
-- **`candidate_achievements`**: `id` (UUID PK), `candidate_id` (UUID FK → `user_profiles.id` ON DELETE CASCADE), `title`, `issuer`, `date_awarded`, `description`, timestamps. Index: `idx_candidate_achieve_candidate_id`. RLS: Public Read, Owner CRUD.
+### DB1 — Supabase (Core Platform Data)
+- **Provider**: Supabase Project 1 (`aqauempuwmbizqoaolop`)
+- **Role**: Production core — opportunities, organizations, news, admin, logs
+- **Key Tables**: `opportunities`, `organizations`, `news_articles`, `scraper_sources`, `company_claims`, `recruiter_saved_candidates`, `employer_settings`, `workspace_members`, `ai_usage_log`, `subscribers`, `suggestions`, `link_check_results`, `opportunity_reports`, `organization_announcements`, `opportunities_verification`
+
+### DB2 — Supabase (User & Social Layer)
+- **Provider**: Supabase Project 2 (`jbqjipwanfsxyqkfrrpx`)
+- **Role**: User profiles, social features, networking, messaging
+- **Key Tables**: `user_profiles`, `user_resumes`, `saved_opportunities`, `applications`, `user_alerts`, `user_follows`, `connection_requests`, `feed_posts`, `community_posts`, `community_comments`, `community_votes`, `conversations`, `messages`, `notifications`, `skill_endorsements`, `recommendations`, `candidate_experiences`, `candidate_educations`, `candidate_projects`, `candidate_certifications`, `candidate_achievements`, `company_claims`, `recruiter_saved_candidates`, `employer_settings`, `workspace_members`, `company_followers`
+
+### Neon DB1 — Analytics & Cache
+- **Provider**: Neon PostgreSQL
+- **Role**: Analytics, click tracking, trending cache
+- **Key Tables**: `page_views`, `search_queries`, `click_events`, `trending_cache`, `keyword_stats`
+
+### Cross-DB References
+- `saved_opportunities.opportunity_id` references DB1's `opportunities.id` — enforced at application level, not FK-constrained
+- `applications.opportunity_id` references DB1's `opportunities.id` — same pattern
+- `feed_posts.opportunity_id` references DB1's `opportunities.id` — same pattern
 
 ---
 
@@ -100,7 +107,11 @@ The live Supabase PostgreSQL database incorporates the following schema structur
 3. **Multi-Employer IDOR Shield**:
    - Every mutation and review endpoint verifies that the authenticated user owns the referenced opportunity (`created_by === user.id || employer_id === user.id` or `role === 'admin'`).
    - Cross-employer access attempts return HTTP 403 Forbidden.
-4. **Security Response Headers**:
+4. **RBAC Middleware**:
+   - Role-based access control with three roles: `candidate`, `employer`, `admin`
+   - Capability-based progressive permissions model
+   - Middleware enforces role checks at route boundaries
+5. **Security Response Headers**:
    - `X-Frame-Options: DENY`
    - `X-Content-Type-Options: nosniff`
    - `Referrer-Policy: strict-origin-when-cross-origin`
@@ -112,9 +123,7 @@ The live Supabase PostgreSQL database incorporates the following schema structur
 ## 5. Verification Baseline
 
 - **TypeScript Type Safety**: `npx tsc --noEmit` (0 errors)
-- **Unit & Integration Tests**: `npx jest` (15 suites, 120/120 passing)
-- **Backend Test Baseline**: 158/158 passing (46 server + 15 ai-gateway + 97 api)
-- **Total Automated Test Cases**: 278/278 passing (100%)
-- **Production Build**: `npm run build` (241/241 routes compiled)
-- **Candidate Network Forensic E2E**: `node scripts/candidate-network-e2e.mjs` (12/12 gates PASS)
-- **Employer Forensic Stateful E2E Suite**: `node scripts/forensic-full-suite.mjs` (15/15 gates PASS)
+- **Unit & Integration Tests**: `npx jest` (passing)
+- **Backend Test Baseline**: All passing (46 server + 15 ai-gateway + 97 api)
+- **Production Build**: `npm run build` (compiles successfully)
+- **Security**: IDOR protection, RBAC middleware, RLS on all tables, CSRF protection, rate limiting

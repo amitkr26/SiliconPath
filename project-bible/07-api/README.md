@@ -1,3 +1,5 @@
+**Last Verified:** 2026-08-30 · **Status:** Current · **Scope:** API architecture and route inventory**
+
 # API Architecture
 
 > Last reconciled: 2026-08-19

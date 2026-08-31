@@ -1,3 +1,5 @@
+**Last Verified:** 2026-08-30 · **Status:** Current · **Scope:** AI gateway and 9-provider architecture**
+
 # AI Architecture
 
 > Last reconciled: 2026-08-20 (groq model updated to qwen/qwen3.6-27b, verified live)
