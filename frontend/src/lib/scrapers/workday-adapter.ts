@@ -46,35 +46,48 @@ export const workdayAdapter: ATSAdapter = {
     }
 
     const url = `${baseUrl}/wday/cxs/${tenant}/${site}/jobs`;
-
     const searchText = config.filters?.keywords?.join(" ") || "";
-    const body: { limit: number; offset: number; searchText?: string } = {
-      limit: 20,
-      offset: 0,
-    };
-    
-    if (searchText) {
-      body.searchText = searchText;
+
+    // ponytail: Workday API was hardcoded to 20 jobs. Paginate until exhausted.
+    const PAGE_SIZE = 20;
+    const MAX_PAGES = 10; // safety cap: 200 jobs max per org
+    const allOpportunities: ScrapedOpportunity[] = [];
+
+    for (let page = 0; page < MAX_PAGES; page++) {
+      const body: { limit: number; offset: number; searchText?: string } = {
+        limit: PAGE_SIZE,
+        offset: page * PAGE_SIZE,
+      };
+      if (searchText) body.searchText = searchText;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        if (page === 0) throw new Error(`Workday API error: ${response.status} ${response.statusText}`);
+        break;
+      }
+
+      const data: WorkdayJobsResponse = await response.json();
+      const postings = data.jobPostings || [];
+      if (postings.length === 0) break;
+
+      allOpportunities.push(...postings.map((job) => mapWorkdayJob(job, baseUrl, config)));
+
+      // Workday returns total count; stop when we've fetched them all
+      if (data.total && allOpportunities.length >= data.total) break;
+      if (postings.length < PAGE_SIZE) break;
     }
 
-    logger.debug("Workday scraping", { url, body });
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Workday API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data: WorkdayJobsResponse = await response.json();
-    return data.jobPostings.map((job) => mapWorkdayJob(job, baseUrl, config));
+    logger.debug("Workday scraping complete", { url, count: allOpportunities.length });
+    return allOpportunities;
   },
   validateConfig(config: ATSConfig): { valid: boolean; errors: string[] } {
     const errors: string[] = [];

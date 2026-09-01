@@ -8,6 +8,19 @@ interface Message {
   content: string;
 }
 
+// LAYER 3: Frontend safety net — strip reasoning tags from AI responses
+function sanitizeAIContent(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/<analysis>[\s\S]*?<\/analysis>/gi, "")
+    .replace(/<reasoning>[\s\S]*?<\/reasoning>/gi, "")
+    .replace(/<think>[\s\S]*$/i, "")
+    .replace(/<analysis>[\s\S]*$/i, "")
+    .replace(/<reasoning>[\s\S]*$/i, "")
+    .trim() || "I apologize — I wasn't able to generate a clear response. Please try rephrasing.";
+}
+
 const SUGGESTED_QUESTIONS = [
   "What are the top VLSI JRF opportunities in India?",
   "Am I eligible for ISRO scientist post with B.Tech ECE?",
@@ -61,7 +74,7 @@ export default function AskAIModal({ isOpen, onClose }: AskAIModalProps) {
 
       setMessages([
         ...newMessages,
-        { role: "assistant", content: data.message || "No response received." },
+        { role: "assistant", content: sanitizeAIContent(data.message) || "No response received." },
       ]);
     } catch {
       setMessages([

@@ -52,6 +52,34 @@ const PSU_SOURCES = [
     category: 'Govt Job'
   },
   {
+    name: 'BSNL',
+    url: 'https://bsnl.co.in/careers',
+    org: 'BSNL',
+    org_slug: 'bsnl',
+    category: 'Govt Job'
+  },
+  {
+    name: 'RailTel',
+    url: 'https://www.railtelindia.com/careers',
+    org: 'RailTel',
+    org_slug: 'railtel',
+    category: 'Govt Job'
+  },
+  {
+    name: 'ITI Limited',
+    url: 'https://www.itiltd.in/careers',
+    org: 'ITI Limited',
+    org_slug: 'iti-limited',
+    category: 'Govt Job'
+  },
+  {
+    name: 'C-DOT',
+    url: 'https://www.cdot.in/careers',
+    org: 'C-DOT',
+    org_slug: 'cdot',
+    category: 'Govt Job'
+  },
+  {
     name: 'NPL',
     url: 'https://www.nplindia.org/recruitment',
     org: 'CSIR-NPL',
