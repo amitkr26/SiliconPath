@@ -4,6 +4,18 @@ import type { GatewayRequest, GatewayResponse } from "../types/gateway";
 const COOLDOWN_MS = 10 * 60 * 1000;
 const providerCooldowns: Record<string, number> = {};
 
+// ponytail: defense-in-depth reasoning tag stripping. Qwen 3.x models emit
+// <think>...</think> by default. Groq passes them through verbatim. Strip at the
+// gateway level so NO provider's internal reasoning reaches any consumer.
+const REASONING_TAG_RE = /<think>[\s\S]*?<\/think>/gi;
+const OPEN_REASONING_TAG_RE = /<think>[\s\S]*$/i;
+function stripReasoningTags(text: string): string {
+  let cleaned = text.replace(REASONING_TAG_RE, "").trim();
+  // Handle fragmented stream where closing tag hasn't arrived yet
+  cleaned = cleaned.replace(OPEN_REASONING_TAG_RE, "").trim();
+  return cleaned;
+}
+
 // Provider payloads are third-party JSON; undici's Response.json() returns
 // unknown. Accessors stay optional-chained (defensive) below.
 // ponytail: loose `any` cast — the strict alternative (per-provider zod
@@ -85,7 +97,8 @@ export class AIGateway {
       if (provider !== "omnirouter" && (!process.env[cfg.envKey] || (cfg.extraEnv && !process.env[cfg.extraEnv]))) continue;
 
       try {
-        const text = await this.callProvider(provider, promptText, systemPrompt);
+        const rawText = await this.callProvider(provider, promptText, systemPrompt);
+        const text = stripReasoningTags(rawText);
         const cost = estimateCost(provider, promptText.length, text.length);
         this.safeLog({ feature, provider, model: cfg.model, prompt_length: promptText.length, response_length: text.length, success: true, error_message: null, cost_estimate: cost });
         return { text, provider, model: cfg.model };
@@ -105,7 +118,8 @@ export class AIGateway {
       if (!cfg) continue;
       if (provider !== "omnirouter" && (!process.env[cfg.envKey] || (cfg.extraEnv && !process.env[cfg.extraEnv]))) continue;
       try {
-        const text = await this.callProvider(provider, prompt, systemPrompt);
+        const rawText = await this.callProvider(provider, prompt, systemPrompt);
+        const text = stripReasoningTags(rawText);
         const cost = estimateCost(provider, prompt.length, text.length);
         this.safeLog({ feature, provider, model: cfg.model, prompt_length: prompt.length, response_length: text.length, success: true, error_message: null, cost_estimate: cost });
         return { text, provider, model: cfg.model };

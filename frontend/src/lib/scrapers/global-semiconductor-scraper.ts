@@ -20,38 +20,47 @@ async function scrapeWorkdayJobs(company: CompanyConfig): Promise<ScrapedOpportu
 
   try {
     const url = `${cfg.baseUrl}/wday/cxs/${cfg.tenant}/${cfg.site}/jobs`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-      },
-      body: JSON.stringify({
-        limit: 20,
-        offset: 0,
-        searchText: 'electronics semiconductor VLSI embedded hardware'
-      })
-    });
-
-    if (!response.ok) return [];
-    const data = await response.json();
-    const postings = data.jobPostings || [];
-
-    for (const p of postings) {
-      opportunities.push({
-        title: p.title,
-        organization: company.name,
-        category: 'Private Job',
-        location: p.primaryLocation?.descriptor || p.location || 'India',
-        stipend: null,
-        deadline: null,
-        eligibility: null,
-        description: `Position available at official ${company.name} career portal. Requisition ID: ${p.jobRequisitionId}`,
-        apply_link: p.externalApplyUrl ? `${cfg.baseUrl}${p.externalApplyUrl}` : company.url,
-        source_url: company.url,
-        tags: [company.name, 'Semiconductor', 'Private Job']
+    // ponytail: paginate Workday API beyond the old 20-job hard limit
+    const PAGE_SIZE = 20;
+    const MAX_PAGES = 10;
+    for (let page = 0; page < MAX_PAGES; page++) {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        },
+        body: JSON.stringify({
+          limit: PAGE_SIZE,
+          offset: page * PAGE_SIZE,
+          searchText: 'electronics semiconductor VLSI embedded hardware'
+        })
       });
+
+      if (!response.ok) break;
+      const data = await response.json();
+      const postings = data.jobPostings || [];
+      if (postings.length === 0) break;
+
+      for (const p of postings) {
+        opportunities.push({
+          title: p.title,
+          organization: company.name,
+          category: 'Private Job',
+          location: p.primaryLocation?.descriptor || p.location || 'India',
+          stipend: null,
+          deadline: null,
+          eligibility: null,
+          description: `Position available at official ${company.name} career portal. Requisition ID: ${p.jobRequisitionId}`,
+          apply_link: p.externalApplyUrl ? `${cfg.baseUrl}${p.externalApplyUrl}` : company.url,
+          source_url: company.url,
+          tags: [company.name, 'Semiconductor', 'Private Job']
+        });
+      }
+
+      if (data.total && opportunities.length >= data.total) break;
+      if (postings.length < PAGE_SIZE) break;
     }
   } catch (error) {
     console.error(`Error fetching Workday for ${company.name}:`, error);
