@@ -10,17 +10,19 @@ import { Sparkles } from "lucide-react";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
-  const isChat = pathname === "/chat" || pathname === "/ask-ai";
+  const isChat = pathname === "/chat" || pathname.startsWith("/ask-ai");
+  const isResume = pathname === "/resume" || pathname.startsWith("/resume");
   const [aiModalOpen, setAiModalOpen] = useState(false);
 
   if (isAdmin) {
     return <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">{children}</div>;
   }
 
-  if (isChat) {
+  // Standalone Apps: Resume Studio & Ask AI Opportunity Intelligence
+  if (isChat || isResume) {
     return (
-      <div className="flex flex-col min-h-screen h-screen">
-        <main className="flex-1 min-h-0">{children}</main>
+      <div className="flex flex-col min-h-screen h-screen w-full overflow-hidden bg-white">
+        <main className="flex-1 min-h-0 flex flex-col overflow-hidden">{children}</main>
       </div>
     );
   }
@@ -31,7 +33,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1">{children}</main>
       <Footer />
 
-      {/* Floating Ask AI Button */}
+      {/* Floating Ask AI Button (Only visible on main website browsing pages) */}
       <button
         onClick={() => setAiModalOpen(true)}
         aria-label="Ask AI Assistant"

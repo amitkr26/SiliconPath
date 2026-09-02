@@ -41,7 +41,8 @@ All AI calls pass through a single gateway: workspace package `@berojgardegreewa
 
 | File | Purpose |
 |---|---|
-| grounding.ts | Grounds chat answers in DB records: extractSearchTerms, isOpportunityIntent, filterRelevantOpportunities, buildGroundedSystemPrompt, NO_MATCH_FALLBACK, sanitizeAnswerUrls (strips URLs outside the allowlist), wantsNewsContext, allowedUrls |
+| reasoning-sanitizer.ts | Defense-in-depth sanitization: strips `<think>`, `<thought>`, `<reflection>`, ````thought` blocks, and multi-line reasoning artifacts across streaming/batch responses |
+| grounding.ts | Grounds chat answers in DB records: date-aware expiry filtering, extractSearchTerms, isOpportunityIntent, filterRelevantOpportunities, buildGroundedSystemPrompt, NO_MATCH_FALLBACK, sanitizeAnswerUrls (strips URLs outside the allowlist), allowedUrls. Returns `{ answer, opportunities, sources, freshness, grounded }` contract. |
 | matcher.ts | Profile-to-opportunity matching, top-10 JSON output |
 | summarizer.ts | Gemini JSON summarization |
 | search-parser.ts | Groq JSON search-query parsing |
@@ -51,11 +52,11 @@ All AI calls pass through a single gateway: workspace package `@berojgardegreewa
 
 ## API Endpoints (8 handlers, `frontend/src/app/api/ai/`)
 
-chat (grounded — uses buildGroundedSystemPrompt), classify, enhance, expire (expiry-checker), match (matcher), opportunity-summary/[slug], search (search-parser), summarize (summarizer). All sit behind the `ai` rate-limit bucket (20/min) and the middleware CSRF guard.
+chat (grounded & date-aware — returns structured payload `{ answer, opportunities, sources, freshness, grounded }`), classify, enhance, expire (expiry-checker), match (matcher), opportunity-summary/[slug], search (search-parser), summarize (summarizer). All sit behind the `ai` rate-limit bucket (20/min) and the middleware CSRF guard.
 
 ## Status
 
 - Gateway provider chain: IMPLEMENTED
 - Feature utilities: IMPLEMENTED
-- Grounded chat with URL sanitization: IMPLEMENTED
+- Grounded date-aware chat with structured cards & source verification: IMPLEMENTED
 - Spec/contract documents previously linked here (ai-gateway.md, providers.md, prompts.md, usage-analytics.md, provider-contracts.json) do not exist; removed. No streaming or tool-calling in the gateway (not built).
