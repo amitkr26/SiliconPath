@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-02 — Master Codebase Security Audit & Hardening (commit c98967a):**
+  - **CRITICAL FIX: Error Message Leakage Eliminated** — Replaced `error.message` direct-to-response pattern with safe `apiError()` helper across 40+ API routes. Production now returns generic "An unexpected error occurred" instead of exposing Supabase/Neon internals (table names, column names, RLS policies). Fixed cron-health and cleanup-news `serverError()` calls to use static messages.
+  - **HIGH FIX: Admin Auth Bypass Patched** — 3 admin pages (`add-opportunity`, `edit-opportunity`, `scrape-health`) had `.catch(() => setAuthenticated(true))` that silently granted admin access when auth API failed. Now denies access on failure.
+  - **HIGH FIX: Dead Code Removed** — Deleted 8 files with zero imports (~1,623 lines): `RecommendationsSection.tsx`, `FilterBar.tsx`, `ConnectionCard.tsx`, `Tooltip.tsx`, `Dropdown.tsx`, `useNetwork.ts`, `opportunity-quality.ts`, `ResumeBuilder.tsx` (superseded by new resume page). Removed dead exports from `utils.ts` (`ELIGIBILITY_OPTIONS`, `LOCATIONS`, `DEADLINE_FILTERS`).
+  - **MEDIUM FIX: Operator Precedence Bug** — `ats-adapters.ts` `inferCategoryFromTitle` had `||` without parentheses causing "SCIENTIST SOFTWARE" to match as "Govt Job". Added correct grouping.
+  - **MEDIUM FIX: Hardcoded Year** — `sarkari-scraper.ts` had "Recruitment 2026" hardcoded. Now uses `new Date().getFullYear()`.
+  - **Audit Report:** Full 11-section report produced at `docs/audit-reports/2026-09-02-master-codebase-audit.md`
+  - **Verification:** `tsc --noEmit` clean, 195/195 frontend tests pass, 15/15 gateway tests pass.
+
+- **2026-09-02 — Master Product Rebuild & Reality Audit: Independent Resume Studio + Live Research Opportunities Intelligence System.**
+  - **Phase 0 Reality Audit & Validation:**
+    - Audited Resume Upload pipeline across 5 file formats (`empty`, `plain txt`, `corrupted pdf`, `legacy .doc`, `real docx`): verified deterministic and AI extraction, ZIP header parsing, and OLE byte rejection.
+    - Audited Live Database Opportunities (3,609 records total, 342 active, 3,267 expired/inactive) and established institutional coverage requirements (IIT Delhi, IIT Bombay, IIT Madras, IISc, DRDO, ISRO, CSIR).
+  - **Resume Studio Rebuild (`/resume`):**
+    - `frontend/src/app/resume/primitives/index.tsx`: Built reusable shared rendering primitives (`ResumeHeader`, `ContactBlock`, `SectionHeading`, `ExperienceItem`, `EducationItem`, `ProjectItem`, `SkillList`, `PublicationItem`) ensuring consistent styling, margin spacing, and print fidelity.
+    - `frontend/src/app/resume/page.tsx`: Implemented 3 top-level workspace modes (`Content`, `Customize`, `AI Tools`) with live A4 preview zoom (60% to 125%), multi-resume version storage with dedicated per-version datasets in `localStorage`, and AI bullet polish for Experience and Projects.
+    - `frontend/src/app/api/resume/ai-suggest/route.ts`: Added project polishing prompts and structured context handling for semiconductor/VLSI domains.
+  - **Opportunity Intelligence System (`/ask-ai`):**
+    - `frontend/src/lib/opportunity-freshness.ts`: Created strict date-aware freshness engine computing status (`ACTIVE`, `EXPIRING_SOON`, `EXPIRED`, `UNVERIFIED`) and deadline countdowns.
+    - `frontend/src/lib/sources/source-registry.ts`: Added premier institutional registry for DRDO, ISRO, CSIR, and top IITs/IISc.
+    - `frontend/src/lib/ai/grounding.ts` & `frontend/src/app/api/ai/chat/route.ts`: Updated grounding pipeline to filter expired opportunities from current queries and return structured response contract `{ answer, opportunities, sources, freshness, grounded }`.
+    - `frontend/src/app/ask-ai/components/AlertsManager.tsx`: Upgraded alerts manager with live on-demand database matching query runner and connected to `/api/subscribe` for weekly email digest delivery via Resend.
+    - `frontend/src/app/ask-ai/components/`: Built `OpportunityCard.tsx`, `DiscoverView.tsx`, `SavedView.tsx`, and updated `ChatMessage.tsx` to render interactive opportunity grids and citation chips.
+    - `frontend/src/app/ask-ai/page.tsx`: Rebuilt `/ask-ai` with 4 intelligence modes (`Ask AI`, `Discover`, `Saved`, `Alerts`).
+  - **Quality Assurance & Verification:**
+    - `frontend/src/__tests__/opportunity/freshness-engine.test.ts`: Added unit tests for freshness engine (4/4 tests passed).
+    - Full Jest Test Suite: 24/24 suites passed, 195/195 tests passed with 0 failures.
+    - Full Typecheck: Monorepo `npm run typecheck` and frontend `tsc --noEmit` passed with 0 errors.
+    - Responsive & E2E Verification: Tested across Desktop (1440x900) and Mobile (430x900) viewports with browser subagent and automated Node scripts.
+
+- **2026-09-01 — Master Implementation: Production-Grade /ask-ai Studio & FlowCV-Grade /resume Builder.**
+  - **`/ask-ai` AI Career Assistant Redesign & Architecture:**
+    - `frontend/src/lib/ai/reasoning-sanitizer.ts`: Implemented defense-in-depth sanitization stripping `<think>`, `<thought>`, `<reflection>`, ````thought` blocks, and multi-line reasoning artifacts across streaming and batch responses.
+    - `frontend/src/app/ask-ai/hooks/useChatSessions.ts`: Created multi-session persistence manager with `localStorage` fallback, LRU session pruning (max 50 sessions), and automatic synchronization with Supabase `/api/ai/sessions` for authenticated users.
+    - `frontend/src/app/ask-ai/hooks/useSpeechRecognition.ts`: Implemented native Web Speech API hook with continuous speech handling, permission management, unsupported browser fallback messaging, and zero-fake UI state.
+    - `frontend/src/app/ask-ai/hooks/useSpeechSynthesis.ts`: Implemented Web Speech Synthesis hook with markdown-to-plaintext conversion, utterance queue control, and active speaking state toggle.
+    - `frontend/src/app/ask-ai/hooks/useSmartScroll.ts`: Implemented user-intent scroll listener that auto-scrolls when user is near bottom (<120px) while avoiding reading interruption when user scrolls up.
+    - `frontend/src/app/ask-ai/components/MarkdownContent.tsx`: Safe markdown renderer with syntax highlighting, custom code blocks, and 1-click code copying.
+    - `frontend/src/app/ask-ai/components/ChatMessage.tsx`, `ChatComposer.tsx`, `ChatSidebar.tsx`, `ChatHeader.tsx`, `EmptyState.tsx`, `SuggestionGrid.tsx`: Built modular chat UI supporting message regeneration, response rating, auto-growing textarea (Shift+Enter support), mobile slide-out drawer, and suggested prompts.
+    - `frontend/src/app/api/ai/chat/route.ts`: Upgraded chat route supporting guest rate-limiting (15 msgs/hr) and authenticated user cloud sessions.
+  - **`/resume` FlowCV-Grade Semiconductor Resume Studio:**
+    - `frontend/src/app/api/profile/parse-resume/route.ts`: Added DOCX extraction via `mammoth.extractRawText()`, OLE magic byte check (`0xD0CF11E0A1B11AE1`) rejecting legacy `.doc` with conversion instructions, scanned PDF detection (<20 characters), and AI + deterministic fallback structuring.
+    - `frontend/src/lib/resume-text-parser.ts`: Upgraded deterministic semiconductor parser with word boundaries (`\b[:\s-]*`) to eliminate section misidentification, comprehensive EDA/VLSI taxonomy, and robust phone/location parsers.
+    - `frontend/src/app/resume/templates/`: Created 10 distinct professional templates (`ModernProfessional.tsx`, `Minimalist.tsx`, `ClassicCorporate.tsx`, `CompactTechnical.tsx`, `AcademicResearch.tsx`, `ModernSidebar.tsx`, `TwoColumnGrid.tsx`, `Executive.tsx`, `FresherCampus.tsx`, `SiliconTech.tsx`).
+    - `frontend/src/app/resume/components/ImportReviewModal.tsx`: Extracted resume data review dialog with Apply All, Merge, and Discard actions.
+    - `frontend/src/app/resume/components/StyleCustomizer.tsx`: Visual styling control for 8 curated color presets, custom hex picker, typography, page margins, and section visibility toggles.
+    - `frontend/src/app/resume/components/TemplateSelector.tsx`: Visual modal gallery for template selection with category filters.
+    - `frontend/src/app/resume/components/AIResumeAdvisor.tsx` & `AIImproveDiffModal.tsx`: Role-targeted ATS scoring (RTL Design, Verification, Physical Design, Embedded, JRF Fellow) with rubric breakdown, keyword suggestions, and side-by-side accept/reject AI enhancements.
+    - `frontend/src/app/resume/components/MyResumesDrawer.tsx`: Multi-resume version manager (create, clone, rename, delete) persisted via `localStorage` and `resume_versions`.
+    - `frontend/src/app/resume/components/ResumePreview.tsx`: Master printable preview component with zoom scaling (60%-130%) and exact print parity.
+    - `frontend/src/app/resume/page.tsx`: Rebuilt main 2-panel Studio page with tabbed editor, live preview, mobile toggle, auto-save, and PDF export.
+  - **Verification & Testing:**
+    - 23/23 Jest test suites passed (191 tests total, 0 failures).
+    - Monorepo typecheck (`npm run typecheck`) and frontend typecheck (`npx tsc --noEmit`) passed with 0 errors.
+    - Production build (`next build`) passed successfully across all 331 static and dynamic pages.
+
 - **2026-08-30 — Documentation Consolidation, Deduplication & Reality Sync.**
   - **Consolidation:**
     - Deleted 6 files: deprecated `deploy-stack.txt`, superseded `24-CHANGE-LOG.md`, duplicate `25-AGENT-STATE.md`/`26-AGENT-HANDOFF.md`, duplicate `phase-27-production-hardening-audit.md`, stale `27-CURRENT-SESSION.md`.
