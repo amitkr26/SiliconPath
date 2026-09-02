@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   const { section, context } = body as {
-    section: "summary" | "skills" | "experience";
+    section: "summary" | "skills" | "experience" | "projects";
     context: Record<string, unknown>;
   };
 
@@ -45,12 +45,20 @@ Domain: ${context.domain || "VLSI/Embedded/Electronics"}
 Return ONLY a comma-separated list of skills. No explanation.`,
 
     experience: `Improve this job experience bullet point for a semiconductor/VLSI engineer resume.
-Make it results-oriented using action verbs. Keep it under 2 lines.
-Original: ${context.description || "Worked on VLSI design"}
+Make it results-oriented using action verbs with metrics (timing, frequency, coverage, gate count). Keep it under 3 lines.
+Original: ${context.detail || context.description || "Worked on VLSI design"}
 Role: ${context.role || "Engineer"}
-Company: ${context.company || ""}
+Company: ${context.org || context.company || ""}
 
 Return ONLY the improved bullet point.`,
+
+    projects: `Improve this project description for a semiconductor/electronics engineer resume.
+Highlight the microarchitecture, EDA tools used, verification methodology, and measurable performance/timing/area outcome. Keep it concise (2-3 sentences or strong bullet points).
+Original: ${context.detail || context.description || "Worked on VLSI project"}
+Project Name: ${context.name || "Semiconductor Project"}
+Technologies: ${context.technologies || "Verilog / SystemVerilog"}
+
+Return ONLY the improved project description.`,
   };
 
   const prompt = prompts[section];

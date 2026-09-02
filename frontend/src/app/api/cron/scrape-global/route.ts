@@ -7,6 +7,7 @@ import { scrapeFellowships } from "@/lib/scrapers/fellowship-scraper";
 import { cleanTitle, normalizeUrl, slugify } from "@/lib/scrapers/utils";
 import { resolveOrganizationId } from "@/lib/scrapers/run-opportunity-scrape";
 import { requireCron, serverError } from "@berojgardegreewala/api";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: NextRequest) {
   if (!isConfigured) {
@@ -108,6 +109,6 @@ export async function GET(request: NextRequest) {
     }), { headers: { "Content-Type": "application/json" } });
   } catch (error: any) {
     console.error("Global scrape error:", error);
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "Content-Type": "application/json" } });
+    return apiError(error, "cron-scrape-global");
   }
 }

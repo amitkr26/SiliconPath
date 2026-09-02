@@ -16,11 +16,14 @@
 ## Structure (`frontend/src/app`)
 
 - 34 top-level route groups: about, academy, admin, api, applications, ask-ai, auth, categories, category, chat, community, companies, contact, dashboard, employer, employers, feed, login, match, messages, network, news, notifications, onboarding, opportunities, organizations, people, post-job, profile, resources, resume, saved, search, signup.
-- API surface: 138 handlers under `api/` — see `project-bible/07-api/README.md`.
+- Flagship Workspaces:
+  - **Resume Studio (`/resume`)**: 3 workspace modes (Content, Customize, AI Tools), shared primitives (`ResumeHeader`, `ContactBlock`, `SectionHeading`, `ExperienceItem`, `EducationItem`, `ProjectItem`, `SkillList`, `PublicationItem`), 10 templates, role-targeted ATS scoring, and local/cloud multi-resume versioning.
+  - **Opportunity Intelligence (`/ask-ai`)**: 4 intelligence modes (Ask AI, Discover, Saved, Alerts), date-aware freshness & expiry engine (`ACTIVE`, `EXPIRING_SOON`, `EXPIRED`, `UNVERIFIED`), institutional source tracking (DRDO, ISRO, CSIR, top IITs/IISc), grounded multi-modal cards, and weekly email digest subscriptions.
+- API surface: ~140 handlers under `api/` — see `project-bible/07-api/README.md`.
 - Error boundaries: root `error.tsx`, `global-error.tsx`, plus `academy/error.tsx`, `admin/error.tsx`, `profile/error.tsx`.
 - Loading states: `loading.tsx` skeletons on list/detail pages (opportunities, organizations, news, chat, resume, category).
 - SEO: `sitemap.ts` (+ `/api/sitemap`), `robots.ts` (disallows `/admin` and `/api/`, points at sitemap.xml), metadata in `layout.tsx`.
-- Shared libs under `frontend/src/lib/`: `supabase.ts` (supabaseAdmin service-role client), `logger.ts`, `ai/`, `scrapers/`, `admin-auth.ts`.
+- Shared libs under `frontend/src/lib/`: `supabase.ts` (supabaseAdmin service-role client), `logger.ts`, `ai/`, `scrapers/`, `admin-auth.ts`, `opportunity-freshness.ts`, `sources/source-registry.ts`.
 
 ## Middleware (`frontend/src/middleware.ts`)
 

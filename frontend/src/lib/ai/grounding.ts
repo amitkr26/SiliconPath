@@ -12,6 +12,8 @@ const STOPWORDS = new Set([
   "please", "need", "want", "know", "list", "me", "my", "our", "this", "that",
 ]);
 
+import { evaluateOpportunityFreshness, FreshnessMeta } from "../opportunity-freshness";
+
 export interface GroundedRecord {
   id?: string | null;
   title: string;
@@ -25,6 +27,17 @@ export interface GroundedRecord {
   source_url?: string | null;
   description?: string | null;
   slug?: string | null;
+  verification_status?: string | null;
+  last_verified_at?: string | null;
+  status?: string;
+  daysRemaining?: number | null;
+  formattedDeadline?: string;
+  freshnessLabel?: string;
+  badgeColor?: {
+    bg: string;
+    text: string;
+    border: string;
+  };
 }
 
 export interface GroundedNews {
@@ -152,15 +165,27 @@ export async function retrieveGrounding(
           .order("created_at", { ascending: false })
           .limit(FETCH_WINDOW);
 
+      const isHistoricalIntent = /expired|past|archive|historical|previous/i.test(query);
+
       const toRecords = (rows: any[]) =>
         filterRelevantOpportunities(
           terms,
-          rows.map((r: any) => ({
-            ...r,
-            // Live schema: salary_range (not stipend).
-            stipend: r.salary_range || null,
-            apply_url: r.apply_url || r.source_url || null,
-          }))
+          rows
+            .map((r: any) => {
+              const freshness = evaluateOpportunityFreshness(r.deadline, r.last_verified_at || r.created_at);
+              return {
+                ...r,
+                // Live schema: salary_range (not stipend).
+                stipend: r.salary_range || null,
+                apply_url: r.apply_url || r.source_url || null,
+                status: freshness.status,
+                daysRemaining: freshness.daysRemaining,
+                formattedDeadline: freshness.formattedDeadline,
+                freshnessLabel: freshness.freshnessLabel,
+                badgeColor: freshness.badgeColor,
+              };
+            })
+            .filter((r) => isHistoricalIntent || r.status !== "EXPIRED")
         );
 
       const kept: GroundedRecord[] = [];
