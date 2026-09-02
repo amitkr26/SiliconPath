@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { resolveOrganizationId } from "@/lib/scrapers/run-opportunity-scrape";
+import { apiError } from "@/lib/api-utils";
 import { z } from "zod";
 
 const postJobSchema = z.object({
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await query;
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "employer-jobs-list");
   return NextResponse.json({ jobs: data || [], opportunities: data || [] });
 }
 
@@ -160,9 +161,9 @@ export async function POST(request: NextRequest) {
       throw new Error(error.message);
     }
     return NextResponse.json({ job: data, opportunity: data }, { status: 201 });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Employer Post Job Error:", err);
-    return NextResponse.json({ error: err.message || "Failed to post opportunity" }, { status: 400 });
+    return apiError(err, "employer-jobs-create");
   }
 }
 
@@ -226,8 +227,8 @@ export async function PATCH(request: NextRequest) {
     if (error) throw error;
 
     return NextResponse.json({ success: true, opportunity: data });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to update opportunity" }, { status: 500 });
+  } catch (err) {
+    return apiError(err, "employer-jobs-update");
   }
 }
 
@@ -278,7 +279,7 @@ export async function DELETE(request: NextRequest) {
     if (error) throw error;
 
     return NextResponse.json({ success: true, message: "Opportunity deleted successfully" });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to delete opportunity" }, { status: 500 });
+  } catch (err) {
+    return apiError(err, "employer-jobs-delete");
   }
 }

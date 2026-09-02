@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { feedPostSchema, validateOrThrow } from "@/lib/validation";
+import { apiError } from "@/lib/api-utils";
 
 interface AuthorRow {
   id: string;
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
   const { data: postRows, error } = await postQuery
     .range(offset, offset + limit - 1);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "feed-list");
 
   const rows = (postRows || []) as PostRow[];
   const uniqueAuthorIds = Array.from(new Set(rows.map((p) => p.author_id)));
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
     .select("id, author_id, content, created_at, like_count, comment_count")
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "feed-create");
   return NextResponse.json({
     ...data,
     user_id: data.author_id,

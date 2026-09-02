@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { communityPostSchema, validateOrThrow } from "@/lib/validation";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
 
   const { data, count, error } = await query.range(offset, offset + limit - 1);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "community-posts-list");
   return NextResponse.json({ posts: data || [], count: count || 0 });
 }
 
@@ -46,6 +47,6 @@ export async function POST(request: NextRequest) {
     tags: body.tags || [],
   }).select("*, user_profiles(display_name)").single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "community-post-create");
   return NextResponse.json(data, { status: 201 });
 }

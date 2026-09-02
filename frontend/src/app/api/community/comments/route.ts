@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { communityCommentSchema, validateOrThrow } from "@/lib/validation";
+import { apiError } from "@/lib/api-utils";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     content: body.content,
   }).select("*, user_profiles(display_name)").single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "community-comment-create");
 
   // update comment_count
   const { data: currentPost } = await supabase.from("community_posts").select("comment_count").eq("id", body.post_id).single();

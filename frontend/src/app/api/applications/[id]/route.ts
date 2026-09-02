@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { applicationStatusUpdateSchema, validateOrThrow } from "@/lib/validation";
+import { apiError } from "@/lib/api-utils";
 
 export async function PATCH(
   request: NextRequest,
@@ -48,7 +49,7 @@ export async function PATCH(
     .select()
     .maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "applications-update");
   if (!data) return NextResponse.json({ error: "Application not found" }, { status: 404 });
   return NextResponse.json({ success: true, application: data });
 }
@@ -72,7 +73,7 @@ export async function DELETE(
     .eq("user_id", user.id)
     .select();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "applications-delete");
   if (!data || data.length === 0) return NextResponse.json({ error: "Application not found" }, { status: 404 });
   return NextResponse.json({ success: true });
 }

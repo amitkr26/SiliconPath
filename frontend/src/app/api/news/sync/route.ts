@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { fetchAllNews } from "@/lib/scrapers/rss-parser";
 import { requireCron, serverError } from "@berojgardegreewala/api";
+import { apiError } from "@/lib/api-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -54,10 +55,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error("News sync upsert error:", error);
-      return NextResponse.json(
-        { success: false, error: error.message, scraped_count: liveRss.length, inserted_count: 0 },
-        { status: 500 }
-      );
+      return apiError(error, "news-sync-upsert", 500);
     }
 
     return NextResponse.json({
@@ -69,6 +67,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (err: any) {
     console.error("News sync error:", err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    return apiError(err, "news-sync");
   }
 }

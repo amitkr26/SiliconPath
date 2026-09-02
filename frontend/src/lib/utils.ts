@@ -96,40 +96,6 @@ export const CATEGORY_COLORS: Record<string, string> = {
   international: "bg-indigo-500/10 text-indigo-600 border-indigo-200 font-semibold",
 };
 
-export const ELIGIBILITY_OPTIONS = [
-  "All",
-  "B.Tech",
-  "M.Tech",
-  "PhD",
-  "M.Sc",
-  "B.Sc",
-  "Diploma",
-  "Any Graduate",
-];
-
-export const LOCATIONS = [
-  "All India",
-  "Bangalore",
-  "Hyderabad",
-  "Pune",
-  "Mumbai",
-  "Delhi / NCR",
-  "Chennai",
-  "Kolkata",
-  "Ahmedabad",
-  "Multiple Locations",
-  "Remote / WFH",
-  "Abroad",
-];
-
-export const DEADLINE_FILTERS = [
-  "Any Deadline",
-  "Within 7 days",
-  "Within 14 days",
-  "Within 30 days",
-  "Expired",
-];
-
 export function getDaysUntilDeadline(deadline: string): number {
   if (!deadline) return 999;
   const now = new Date();

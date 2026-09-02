@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { createNotification } from "@/lib/notifications";
+import { apiError } from "@/lib/api-utils";
 
 // GET: current follow relationship state for the authenticated viewer.
 export async function GET(request: NextRequest, { params }: { params: { userId: string } | Promise<{ userId: string }> }) {
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
     .eq("following_id", userId)
     .maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "network-follow-get");
   return NextResponse.json({ following: !!data });
 }
 
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest, { params }: { params: { userId:
   if (error) {
     if (error.code === "23505") return NextResponse.json({ error: "Already following", following: true }, { status: 409 });
     if (error.code === "23503") return NextResponse.json({ error: "User not found" }, { status: 404 });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error, "network-follow-create");
   }
 
   try {
@@ -70,6 +71,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { userI
     .select("id")
     .maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "network-follow-delete");
   return NextResponse.json({ success: true, deleted: !!data });
 }

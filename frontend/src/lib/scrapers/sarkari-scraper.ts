@@ -130,7 +130,7 @@ export async function scrapeSarkariTechnicalOpportunities(): Promise<ScrapedSark
       const $d = cheerio.load(detailHtml);
 
       const rawTitle = $d("h1").text().trim() || target.text;
-      const cleanTitle = rawTitle.replace(/\s+/g, " ").replace(/Online Form \d+/i, "Recruitment 2026").trim();
+      const cleanTitle = rawTitle.replace(/\s+/g, " ").replace(/Online Form \d+/i, `Recruitment ${new Date().getFullYear()}`).trim();
 
       const bodyText = $d("body").text();
 

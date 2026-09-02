@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
     .eq("user_id", user.id)
     .order("applied_at", { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "applications-list");
   const applications = (data || []).map((app: any) => ({
     ...app,
     opportunity: app.opportunity
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "applications-create");
   return NextResponse.json({ application: data }, { status: 201 });
 }
 
@@ -84,7 +85,7 @@ export async function PATCH(request: NextRequest) {
     .eq("id", id)
     .eq("user_id", user.id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "applications-update-notes");
   return NextResponse.json({ success: true });
 }
 
@@ -109,6 +110,6 @@ export async function DELETE(request: NextRequest) {
     .eq("id", id)
     .eq("user_id", user.id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "applications-delete");
   return NextResponse.json({ success: true });
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 
 async function assertParticipant(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -37,7 +38,7 @@ export async function GET(_request: NextRequest, { params }: { params: { convers
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: true });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "messages-fetch");
 
   // Mark incoming messages read.
   await supabaseAdmin
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest, { params }: { params: { convers
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "messages-send");
 
   await supabaseAdmin
     .from("conversations")

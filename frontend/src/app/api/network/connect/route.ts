@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { createNotification } from "@/lib/notifications";
 import { sendEmailNotification, connectionRequestEmail } from "@/lib/email-notifications";
+import { apiError } from "@/lib/api-utils";
 
 interface PersonRow {
   id: string;
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
       const existing = r1 || r2;
       return NextResponse.json({ error: "Connection request already exists", connection: existing }, { status: 409 });
     }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error, "network-connect-create");
   }
 
   try {
@@ -118,7 +119,7 @@ export async function GET() {
     .eq("status", "pending")
     .order("created_at", { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "network-connect-list");
 
   const otherIds = Array.from(
     new Set(

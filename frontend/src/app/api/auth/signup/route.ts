@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { RESERVED_USERNAMES } from "@/lib/utils";
+import { apiError } from "@/lib/api-utils";
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
       if (error.message.includes("already registered") || error.message.includes("already exists")) {
         return NextResponse.json({ error: "User with this email already exists. Please sign in instead." }, { status: 400 });
       }
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return apiError(error, "signup", 400);
     }
 
     // Insert/upsert into user_profiles table

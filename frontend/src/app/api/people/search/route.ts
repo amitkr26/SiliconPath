@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -29,6 +30,6 @@ export async function GET(request: NextRequest) {
     .order("connection_count", { ascending: false })
     .range(offset, offset + limit - 1);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "people-search");
   return NextResponse.json({ people: data || [], count: count || 0 });
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 
 // PATCH: respond to a connection request.
 // Role semantics (canonical `connections` table, statuses pending/accepted/rejected/blocked):
@@ -55,7 +56,7 @@ export async function PATCH(
       .eq("id", id)
       .select()
       .maybeSingle();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return apiError(error, "network-connect-patch");
     return NextResponse.json({ connection: updated });
   }
 
@@ -67,7 +68,7 @@ export async function PATCH(
     // Cancel: requester deletes their own pending request
     if (!isRequester) return NextResponse.json({ error: "Only the sender can withdraw this request" }, { status: 403 });
     const { error } = await supabaseAdmin.from("connections").delete().eq("id", id);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return apiError(error, "network-connect-withdraw");
     return NextResponse.json({ connection: { id, status: "withdrawn" } });
   }
 
@@ -84,6 +85,6 @@ export async function PATCH(
     .select()
     .maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "network-connect-update");
   return NextResponse.json({ connection: data || { id, status: normalized } });
 }

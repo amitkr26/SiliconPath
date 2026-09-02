@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
 import { verifyAdmin } from "@/lib/admin-auth";
+import { apiError } from "@/lib/api-utils";
 
 function isSafePublicUrl(raw: string): boolean {
   let url: URL;
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
   if (sourceType) query = query.eq("adapter", sourceType);
 
   const { data, error, count } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "scrape-sources-list");
 
   return NextResponse.json({ sources: data || [], count: count || 0 });
 }
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "scrape-sources-create");
   return NextResponse.json({ source: data }, { status: 201 });
 }
 
@@ -140,7 +141,7 @@ export async function PUT(request: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "scrape-sources-update");
   return NextResponse.json({ source: data });
 }
 
@@ -157,6 +158,6 @@ export async function DELETE(request: NextRequest) {
   if (!id) return NextResponse.json({ error: "Missing required field: id" }, { status: 400 });
 
   const { error } = await supabaseAdmin.from("scrape_sources").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "scrape-sources-delete");
   return NextResponse.json({ success: true });
 }

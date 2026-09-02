@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
     .or(`participant_a.eq.${user.id},participant_b.eq.${user.id}`)
     .order("last_message_at", { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "messages-list");
 
   const enriched = await Promise.all(
     ((convs || []) as ConvRow[]).map(async (c) => {
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
         .insert({ participant_a: a, participant_b: b, last_message_at: new Date().toISOString() })
         .select("id")
         .single();
-      if (createErr) return NextResponse.json({ error: createErr.message }, { status: 500 });
+      if (createErr) return apiError(createErr, "messages-conversation-create");
       conversationId = created.id;
     }
   }
@@ -145,7 +146,7 @@ export async function POST(request: NextRequest) {
     .select()
     .single();
 
-  if (msgErr) return NextResponse.json({ error: msgErr.message }, { status: 500 });
+  if (msgErr) return apiError(msgErr, "messages-send");
 
   await supabaseAdmin
     .from("conversations")
