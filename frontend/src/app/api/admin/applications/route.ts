@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@berojgardegreewala/api";
 import { supabaseAdmin } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: Request) {
   try { await requireAdmin(request); } catch (e) { return e instanceof Response ? e : NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
   query = query.order("created_at", { ascending: false }).limit(100);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "admin-applications-list");
   // P0.4: preserve legacy `organization` string contract on the embedded opportunity.
   const applications = (data || []).map((app: any) => ({
     ...app,

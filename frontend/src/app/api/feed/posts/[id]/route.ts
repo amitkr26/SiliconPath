@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 
 // v2 schema: feed_posts.author_id (was user_id).
 // Uses supabaseAdmin for DB ops after strict auth + ownership verification.
@@ -22,14 +23,14 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
     .eq("id", id)
     .maybeSingle();
 
-  if (fetchErr) return NextResponse.json({ error: fetchErr.message }, { status: 500 });
+  if (fetchErr) return apiError(fetchErr, "feed-post-fetch");
   if (!post) return NextResponse.json({ error: "Post not found" }, { status: 404 });
   if (post.author_id !== user.id) {
     return NextResponse.json({ error: "Forbidden: You cannot delete another engineer's post" }, { status: 403 });
   }
 
   const { error } = await supabaseAdmin.from("feed_posts").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "feed-post-delete");
   return NextResponse.json({ success: true });
 }
 
@@ -51,7 +52,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     .eq("id", id)
     .maybeSingle();
 
-  if (fetchErr) return NextResponse.json({ error: fetchErr.message }, { status: 500 });
+  if (fetchErr) return apiError(fetchErr, "feed-post-fetch");
   if (!post) return NextResponse.json({ error: "Post not found" }, { status: 404 });
   if (post.author_id !== user.id) {
     return NextResponse.json({ error: "Forbidden: You cannot edit another engineer's post" }, { status: 403 });
@@ -65,6 +66,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 
   const { error } = await supabaseAdmin.from("feed_posts").update(patch).eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "feed-post-update");
   return NextResponse.json({ success: true });
 }

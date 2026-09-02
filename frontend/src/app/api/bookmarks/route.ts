@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
         .maybeSingle();
       return NextResponse.json({ bookmark: found, alreadyBookmarked: true }, { status: 200 });
     }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error, "bookmarks-create");
   }
 
   return NextResponse.json({ bookmark: data }, { status: 201 });

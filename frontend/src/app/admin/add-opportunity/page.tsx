@@ -68,10 +68,10 @@ export default function AddOpportunityPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.authenticated) setAuthenticated(true);
-        else if (existingPw) setAuthenticated(true);
+        else setAuthenticated(false);
       })
       .catch(() => {
-        if (existingPw) setAuthenticated(true);
+        setAuthenticated(false);
       });
   }, []);
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@berojgardegreewala/api";
 import { supabaseAdmin } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 import { z } from "zod";
 
 const createSchema = z.object({
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
     .from("announcements")
     .select("*")
     .order("created_at", { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "admin-announcements-list");
   return NextResponse.json({ announcements: data || [] });
 }
 
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     .insert(parsed.data)
     .select()
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "admin-announcements-create");
   return NextResponse.json(data, { status: 201 });
 }
 
@@ -40,6 +41,6 @@ export async function DELETE(request: NextRequest) {
   if (!id) return NextResponse.json({ error: "Announcement ID required" }, { status: 400 });
 
   const { error } = await supabaseAdmin!.from("announcements").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "admin-announcements-delete");
   return NextResponse.json({ success: true });
 }

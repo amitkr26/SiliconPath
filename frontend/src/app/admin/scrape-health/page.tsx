@@ -74,6 +74,7 @@ export default function ScrapeHealthPage() {
       setOpps(data.recent_opportunities || []);
       setAuthed(true);
     } catch {
+      setAuthed(false);
       setError("Failed to load.");
     } finally {
       setLoading(false);

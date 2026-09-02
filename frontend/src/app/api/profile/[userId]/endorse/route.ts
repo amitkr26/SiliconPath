@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { createNotification } from "@/lib/notifications";
+import { apiError } from "@/lib/api-utils";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest, { params }: { params: { userId:
     skill,
   });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "profile-endorse-create");
 
   await createNotification({
     userId: targetId,
@@ -98,6 +99,6 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
     .select("*, endorser:user_profiles!skill_endorsements_endorser_id_profile_fkey(display_name, avatar_url)")
     .eq("profile_owner_id", targetId);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "profile-endorse-list");
   return NextResponse.json({ endorsements: data || [] });
 }

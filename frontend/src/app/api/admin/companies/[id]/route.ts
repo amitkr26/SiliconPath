@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@berojgardegreewala/api";
 import { supabaseAdmin } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 import { z } from "zod";
 
 const updateSchema = z.object({
@@ -24,7 +25,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     .from("company_pages")
     .update(parsed.data)
     .eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "admin-companies-update");
   return NextResponse.json({ success: true });
 }
 
@@ -35,6 +36,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     .from("company_pages")
     .delete()
     .eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "admin-companies-delete");
   return NextResponse.json({ success: true });
 }

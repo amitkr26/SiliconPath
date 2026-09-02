@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
   if (unreadOnly) query = query.eq("is_read", false);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "notifications-fetch");
   return NextResponse.json({ notifications: data || [] });
 }
 
@@ -36,6 +37,6 @@ export async function PATCH() {
     .eq("user_id", user.id)
     .eq("is_read", false);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "notifications-mark-all-read");
   return NextResponse.json({ success: true });
 }

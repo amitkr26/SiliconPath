@@ -54,6 +54,6 @@ export async function GET() {
 
   } catch (error) {
     console.error("Cron health check error:", error);
-    return serverError(error instanceof Error ? error.message : "Unknown error");
+    return serverError("Health check failed");
   }
 }

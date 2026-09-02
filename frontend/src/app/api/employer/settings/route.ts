@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireEmployerRole } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: NextRequest) {
   const user = await requireEmployerRole(request);
@@ -19,8 +20,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (error && error.code !== "PGRST116") { // PGRST116 = no rows returned
-      console.error("Employer settings fetch error:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError(error, "employer-settings-fetch");
     }
 
     // Return defaults if no settings exist yet
@@ -35,8 +35,8 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json({ settings });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to fetch settings" }, { status: 500 });
+  } catch (err) {
+    return apiError(err, "employer-settings-fetch-catch");
   }
 }
 
@@ -73,7 +73,7 @@ export async function PATCH(request: NextRequest) {
     if (error) throw error;
 
     return NextResponse.json({ success: true, settings: updates });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to save settings" }, { status: 500 });
+  } catch (err) {
+    return apiError(err, "employer-settings-update");
   }
 }

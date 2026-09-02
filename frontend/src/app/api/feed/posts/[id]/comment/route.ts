@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { createNotification } from "@/lib/notifications";
+import { apiError } from "@/lib/api-utils";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     parent_comment_id: parentCommentId || null,
   }).select("*, user_profile:user_profiles!feed_post_comments_user_id_profile_fkey(display_name, username, avatar_url)").single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "feed-comment-create");
 
   // comment_count is maintained by the on_post_comment trigger
   // (update_post_comments_count) — no manual increment here.
@@ -55,6 +56,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     .eq("post_id", id)
     .order("created_at", { ascending: true });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "feed-comments-list");
   return NextResponse.json({ comments: data || [] });
 }

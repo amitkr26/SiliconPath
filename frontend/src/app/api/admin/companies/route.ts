@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@berojgardegreewala/api";
 import { supabaseAdmin } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 import { z } from "zod";
 
 const createSchema = z.object({
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
     .from("company_pages")
     .select("*")
     .order("name");
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "admin-companies-list");
   return NextResponse.json({ companies: data || [] });
 }
 
@@ -35,6 +36,6 @@ export async function POST(request: NextRequest) {
     .insert([{ ...parsed.data, slug, follower_count: 0 }])
     .select()
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "admin-companies-create");
   return NextResponse.json(data, { status: 201 });
 }

@@ -68,8 +68,8 @@ export function inferCategoryFromTitle(title: string): string {
   if (t.includes("JRF") || t.includes("JUNIOR RESEARCH")) return "JRF";
   if (t.includes("SRF") || t.includes("SENIOR RESEARCH")) return "SRF";
   if (t.includes("PHD") || t.includes("DOCTORAL") || t.includes("FELLOWSHIP")) return "Fellowship";
-  if (t.includes("SCIENTIST") || t.includes("ENGINEER") && !t.includes("SOFTWARE")) return "Govt Job";
-  if (t.includes("INTERN")) return "Fellowship";
+  if ((t.includes("SCIENTIST") || t.includes("ENGINEER")) && !t.includes("SOFTWARE")) return "Govt Job";
+  if (t.includes("INTERN")) return "Internship";
   if (t.includes("TECHNICIAN") || t.includes("ASSISTANT")) return "Govt Job";
   if (t.includes("SOFTWARE") || t.includes("DEVELOPER") || t.includes("PROGRAMMER")) return "Tech Job";
   return "JRF";

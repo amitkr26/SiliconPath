@@ -10,6 +10,7 @@ import {
   getCandidateAchievements,
 } from "@/lib/candidate-profile-store";
 import { calculateProfileCompleteness } from "@/lib/profile-completeness";
+import { apiError } from "@/lib/api-utils";
 
 
 const UPDATABLE_FIELDS = [
@@ -52,7 +53,7 @@ export async function GET(
   else query = query.eq("username", userId);
   const { data, error } = await query.maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "profile-get");
   if (!data) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
 
   if (user.id !== data.id) {
@@ -187,7 +188,7 @@ export async function PATCH(
     .update({ ...sanitized, updated_at: new Date().toISOString() })
     .eq("id", userId);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "profile-update");
 
   return NextResponse.json({ success: true });
 }

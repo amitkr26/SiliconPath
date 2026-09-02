@@ -1,6 +1,7 @@
 ﻿import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { mapDbOpportunityToClient } from "@/lib/utils";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET() {
   if (!supabaseAdmin?.from) {
@@ -15,7 +16,7 @@ export async function GET() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error, "opportunities-feed");
   }
 
   // P0.4: hand-rolled mapping read dead columns (organization, stipend, apply_link).

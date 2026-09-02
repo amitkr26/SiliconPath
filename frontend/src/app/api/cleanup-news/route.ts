@@ -105,6 +105,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Cleanup error:", error);
-    return serverError(error instanceof Error ? error.message : "Cleanup failed");
+    return serverError("Cleanup failed");
   }
 }

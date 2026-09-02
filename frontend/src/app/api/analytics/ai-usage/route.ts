@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { verifyAdmin } from "@/lib/admin-auth";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: Request) {
   if (!verifyAdmin(request)) {
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
     .limit(500);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return apiError(error, "ai-usage-list");
   }
 
   const byKey = new Map<string, {

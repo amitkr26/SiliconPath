@@ -13,6 +13,7 @@ import {
 } from "@/lib/candidate-profile-store";
 import { calculateProfileCompleteness } from "@/lib/profile-completeness";
 import { RESERVED_USERNAMES } from "@/lib/utils";
+import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: NextRequest) {
   let user = null;
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "profile-me-get");
   if (!data) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
 
   const [experiences, educations, projects, certifications, achievements] = await Promise.all([
@@ -141,7 +142,7 @@ export async function PATCH(request: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "profile-me-update");
 
   return NextResponse.json({ profile: data });
 }

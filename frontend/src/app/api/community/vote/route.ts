@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { apiError } from "@/lib/api-utils";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -14,6 +15,6 @@ export async function POST(request: NextRequest) {
     p_user_id: user.id,
   });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "community-vote");
   return NextResponse.json({ success: true });
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@berojgardegreewala/api";
 import { supabaseAdmin } from "@/lib/supabase";
+import { apiError } from "@/lib/api-utils";
 import { z } from "zod";
 
 const statusSchema = z.object({
@@ -15,6 +16,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (!parsed.success) return NextResponse.json({ error: "Invalid status" }, { status: 400 });
 
   const { error } = await supabaseAdmin!.from("applications").update({ status: parsed.data.status }).eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "admin-applications-update");
   return NextResponse.json({ success: true });
 }
