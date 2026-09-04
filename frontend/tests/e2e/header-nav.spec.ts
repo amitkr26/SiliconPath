@@ -2,14 +2,13 @@ import { test, expect } from '@playwright/test';
 import { loginAsCandidate } from './helpers';
 
 test.describe('Header Navigation E2E Verification', () => {
-  test('Logged-out guest sees About, Contact, Opportunities, News & Feed, and NO Academy in main nav', async ({ page }) => {
+  test('Logged-out guest sees About, Contact, Opportunities, Academy, and News & Feed in main nav', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
 
-    // 1. Assert Academy is NOT in the main header navigation
     const header = page.locator('header');
     await expect(header).toBeVisible();
     
-    // Opportunities, News & Feed, About, Contact should be present
+    // Opportunities, News & Feed, About, Contact, Academy should be present
     const oppsLink = header.locator('a[href="/opportunities"]');
     const newsLink = header.locator('a[href="/news"], a[href="/feed"]');
     const aboutLink = header.locator('a[href="/about"]');
@@ -19,9 +18,9 @@ test.describe('Header Navigation E2E Verification', () => {
     await expect(aboutLink.first()).toBeVisible();
     await expect(contactLink.first()).toBeVisible();
 
-    // Academy should not be in the nav bar
+    // Academy should be in the nav bar
     const academyNavLink = header.locator('nav a[href="/academy"]');
-    await expect(academyNavLink).toHaveCount(0);
+    await expect(academyNavLink).toHaveCount(1);
 
     // 2. Click About and verify it loads the About page
     await aboutLink.first().click();

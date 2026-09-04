@@ -248,19 +248,19 @@ export default function CandidateHome({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Link href="/academy" className="p-4 rounded-xl border border-slate-200 hover:border-slate-900 hover:bg-blue-50/50 transition-all">
+            <Link href="/academy/digital-logic" className="p-4 rounded-xl border border-slate-200 hover:border-slate-900 hover:bg-blue-50/50 transition-all">
               <span className="text-xs font-black text-blue-600">Track 01</span>
               <p className="text-sm font-bold text-slate-900 mt-1">Digital RTL &amp; Verilog</p>
               <p className="text-xs text-slate-500 mt-0.5">FSMs, synthesizable Verilog, and AXI4 bus protocols.</p>
             </Link>
 
-            <Link href="/academy" className="p-4 rounded-xl border border-slate-200 hover:border-slate-900 hover:bg-blue-50/50 transition-all">
+            <Link href="/academy/verilog" className="p-4 rounded-xl border border-slate-200 hover:border-slate-900 hover:bg-blue-50/50 transition-all">
               <span className="text-xs font-black text-purple-600">Track 02</span>
               <p className="text-sm font-bold text-slate-900 mt-1">SystemVerilog &amp; UVM</p>
               <p className="text-xs text-slate-500 mt-0.5">Constrained-random testbenches and SVA assertions.</p>
             </Link>
 
-            <Link href="/academy" className="p-4 rounded-xl border border-slate-200 hover:border-slate-900 hover:bg-blue-50/50 transition-all">
+            <Link href="/academy/systemverilog" className="p-4 rounded-xl border border-slate-200 hover:border-slate-900 hover:bg-blue-50/50 transition-all">
               <span className="text-xs font-black text-emerald-600">Track 03</span>
               <p className="text-sm font-bold text-slate-900 mt-1">Physical Design &amp; STA</p>
               <p className="text-xs text-slate-500 mt-0.5">Floorplanning, CTS, Primetime STA, and DRC/LVS closure.</p>
