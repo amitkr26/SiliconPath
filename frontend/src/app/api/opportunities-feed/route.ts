@@ -20,7 +20,7 @@ export async function GET() {
   }
 
   // P0.4: hand-rolled mapping read dead columns (organization, stipend, apply_link).
-  // Reuse mapDbOpportunityToClient — resolves org name + salary_range?stipend + apply_url.
+  // Reuse mapDbOpportunityToClient ï¿½ resolves org name + salary_range?stipend + apply_url.
   const opportunities = (data || []).map((row: any) => {
     const m = mapDbOpportunityToClient(row) || {};
     return {

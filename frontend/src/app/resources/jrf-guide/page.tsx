@@ -5,7 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
-  title: "Complete JRF Guide 2026 — Electronics Science",
+  title: "Complete JRF Guide 2026 ï¿½ Electronics Science",
   description: "Everything about Junior Research Fellowship for electronics researchers: eligibility, stipend ?37,000-42,000/month, age limit, how to apply, documents needed, DRDO ISRO CSIR openings.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/jrf-guide" },
 };
@@ -41,10 +41,10 @@ export default async function JRFGuidePage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: "Complete JRF Guide 2026 — Electronics Science", description: "Everything about Junior Research Fellowship for electronics researchers", author: { "@type": "Organization", name: "BerojgarDegreeWala" } }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: "Complete JRF Guide 2026 ï¿½ Electronics Science", description: "Everything about Junior Research Fellowship for electronics researchers", author: { "@type": "Organization", name: "BerojgarDegreeWala" } }) }} />
 
       <Link href="/resources" className="inline-flex items-center gap-1 text-slate-600 hover:text-blue-600 text-sm font-semibold mb-4 transition-colors"><ArrowLeft className="w-4 h-4" /> Back to Resources</Link>
-      <h1 className="font-display text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-8">Junior Research Fellowship (JRF) Complete Guide 2026 — Electronics Science</h1>
+      <h1 className="font-display text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-8">Junior Research Fellowship (JRF) Complete Guide 2026 ï¿½ Electronics Science</h1>
 
       <div className="space-y-10 text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
         <section>
@@ -64,7 +64,7 @@ export default async function JRFGuidePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">JRF Stipend 2026 — How Much Will You Earn?</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">JRF Stipend 2026 ï¿½ How Much Will You Earn?</h2>
           <div className="overflow-x-auto bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-sm">
             <table className="w-full text-sm border-collapse">
               <thead><tr className="border-b-2 border-slate-900 bg-slate-100"><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Component</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Amount</th></tr></thead>
@@ -109,7 +109,7 @@ export default async function JRFGuidePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">JRF Interview Process — What to Expect</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">JRF Interview Process ï¿½ What to Expect</h2>
           <p>The JRF selection process typically involves a written test followed by an interview. The written test covers subject knowledge in electronics (electronic devices, circuit theory, analog/digital electronics, VLSI basics). The interview panel assesses your research aptitude, academic background, and motivation. Be prepared to discuss your MSc project, research interests, and why you want to pursue this specific JRF.</p>
         </section>
 
@@ -118,8 +118,8 @@ export default async function JRFGuidePage() {
           <ul className="list-disc list-inside space-y-1">
             <li>Applying without checking eligibility criteria (age, qualification, NET/GATE validity)</li>
             <li>Submitting incomplete documents (missing marksheets, certificates)</li>
-            <li>Generic cover letters — research area must match the project requirement</li>
-            <li>Missing deadlines — most JRF positions have strict 21-30 day application windows</li>
+            <li>Generic cover letters ï¿½ research area must match the project requirement</li>
+            <li>Missing deadlines ï¿½ most JRF positions have strict 21-30 day application windows</li>
             <li>Not preparing for the interview (technical knowledge + research proposal)</li>
           </ul>
         </section>
@@ -131,7 +131,7 @@ export default async function JRFGuidePage() {
               {jrfOpps.map((opp: any) => (
                 <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border-2 border-slate-900 rounded-xl p-3.5 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all">
                   <h3 className="text-slate-900 text-sm font-semibold">{opp.title}</h3>
-                  <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization} {opp.deadline ? `• Deadline: ${new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""} {opp.stipend ? `• ${opp.stipend}` : ""}</p>
+                  <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization} {opp.deadline ? `ï¿½ Deadline: ${new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""} {opp.stipend ? `ï¿½ ${opp.stipend}` : ""}</p>
                 </Link>
               ))}
             </div>

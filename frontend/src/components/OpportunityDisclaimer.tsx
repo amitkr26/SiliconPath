@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Info, ExternalLink, Flag } from "lucide-react";

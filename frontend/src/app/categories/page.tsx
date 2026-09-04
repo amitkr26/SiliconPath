@@ -5,7 +5,7 @@ import { GraduationCap, FlaskConical, BookOpen, Building2, Award, Briefcase } fr
 import { Badge } from "@/components/ui/Badge";
 
 export const metadata: Metadata = {
-  title: "Browse Opportunities by Category — JRF, PhD, Govt Jobs",
+  title: "Browse Opportunities by Category ï¿½ JRF, PhD, Govt Jobs",
   description: "Browse electronics and semiconductor opportunities by category: JRF, SRF, PhD, Government Jobs, Fellowships, and Private Sector positions. Updated daily.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/categories" },
 };
