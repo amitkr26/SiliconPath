@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { supabaseAdmin, isConfigured } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin"; import { isConfigured } from "@/lib/supabase";
 import { requireCron, serverError } from "@berojgardegreewala/api";
 import { createHash } from "crypto";
 

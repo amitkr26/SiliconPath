@@ -35,6 +35,8 @@ let row: { id: string; unsubscribe_token: string | null } | null = null;
 
 jest.mock("@/lib/supabase", () => ({
   isAdminConfigured: true,
+}));
+jest.mock("@/lib/supabase-admin", () => ({
   supabaseAdmin: {
     from: jest.fn((table: string) => {
       const chain: any = (...args: any[]) => chain;
@@ -55,6 +57,7 @@ jest.mock("@/lib/supabase", () => ({
       return chain;
     }),
   },
+  isAdminConfigured: true,
 }));
 
 jest.mock("@/lib/rate-limiter", () => ({
@@ -98,7 +101,7 @@ describe("DELETE /api/subscribe (unsubscribe)", () => {
   it("deletes only after email + token match", async () => {
     row = { id: "sub-1", unsubscribe_token: "real-token" };
     const { NextRequest } = require("next/server");
-    const { supabaseAdmin } = require("@/lib/supabase");
+    const { supabaseAdmin } = require("@/lib/supabase-admin");
     const res = await DELETE(new NextRequest("http://localhost/api/subscribe?email=a@b.com&token=real-token", { method: "DELETE" }));
     expect(res.status).toBe(200);
     expect(deleteEq).toBe("sub-1");

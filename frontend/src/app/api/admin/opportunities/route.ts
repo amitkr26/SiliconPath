@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { requireAdmin, serverError, forbidden } from "@berojgardegreewala/api";
 import { adminOpportunityUpdateSchema, mapAdminOpportunityColumns } from "@/lib/validation";
 import { validateOrThrow } from "@/lib/validation";

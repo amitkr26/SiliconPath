@@ -1,4 +1,4 @@
-import { supabaseAdmin, isAdminConfigured } from "./supabase";
+import { supabaseAdmin, isAdminConfigured } from "./supabase-admin";
 import type { Opportunity, Subscriber } from "@/types";
 import { generateWeeklyDigest } from "@/lib/ai/newsletter";
 import { logger } from "@/lib/logger";

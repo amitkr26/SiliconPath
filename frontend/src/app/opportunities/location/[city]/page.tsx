@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Briefcase } from "lucide-react";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import OpportunityCard from "@/components/OpportunityCard";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";

@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { fetchAllNews } from "@/lib/scrapers/rss-parser";
 import { runOpportunityScrape } from "@/lib/scrapers/run-opportunity-scrape";
 import { slugify, normalizeUrl } from "@/lib/scrapers/utils";

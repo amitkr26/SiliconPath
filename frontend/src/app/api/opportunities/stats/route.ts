@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { serverError } from "@berojgardegreewala/api";
 import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 

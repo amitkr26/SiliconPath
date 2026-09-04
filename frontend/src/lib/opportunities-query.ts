@@ -3,7 +3,7 @@
 // the thin /api/search compatibility route. Single source of truth — the
 // routes stay thin, filters keep working everywhere.
 
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 
 export interface OpportunityQueryParams {

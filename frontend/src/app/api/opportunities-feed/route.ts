@@ -1,5 +1,5 @@
-﻿import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { mapDbOpportunityToClient } from "@/lib/utils";
 import { apiError } from "@/lib/api-utils";
 
@@ -20,7 +20,7 @@ export async function GET() {
   }
 
   // P0.4: hand-rolled mapping read dead columns (organization, stipend, apply_link).
-  // Reuse mapDbOpportunityToClient — resolves org name + salary_range→stipend + apply_url.
+  // Reuse mapDbOpportunityToClient � resolves org name + salary_range?stipend + apply_url.
   const opportunities = (data || []).map((row: any) => {
     const m = mapDbOpportunityToClient(row) || {};
     return {

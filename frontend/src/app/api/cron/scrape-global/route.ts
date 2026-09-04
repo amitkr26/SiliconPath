@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { normalizeCategory } from "@/lib/categories";
-import { supabaseAdmin, isConfigured } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin"; import { isConfigured } from "@/lib/supabase";
 import { scrapeGlobalSemiconductor } from "@/lib/scrapers/global-semiconductor-scraper";
 import { scrapeInternationalAcademic } from "@/lib/scrapers/international-academic-scraper";
 import { scrapeFellowships } from "@/lib/scrapers/fellowship-scraper";

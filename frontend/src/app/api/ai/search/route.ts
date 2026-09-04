@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { parseSearchQuery } from "@/lib/ai/search-parser";
 import { resolveOrganization } from "@/lib/organizations/resolve";
 import { serverError } from "@berojgardegreewala/api";

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { checkRateLimit } from "@/lib/rate-limiter";
 
 export async function POST(request: NextRequest) {

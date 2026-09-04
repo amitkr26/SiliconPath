@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { PUBLIC_PROFILE_FIELDS, RESERVED_USERNAMES } from "@/lib/utils";
 import {
   getCandidateExperiences,

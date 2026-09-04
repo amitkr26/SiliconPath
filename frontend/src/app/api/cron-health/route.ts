@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin, isConfigured } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase-admin'; import { isConfigured } from '@/lib/supabase';
 import { serverError } from "@berojgardegreewala/api";
 
 export const dynamic = 'force-dynamic';

@@ -4,7 +4,7 @@ import {
   ShieldCheck, Globe, BookOpen, Newspaper, MessageSquare,
   ChevronRight, TrendingUp, Briefcase, GraduationCap, Building2, Users
 } from "lucide-react";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 

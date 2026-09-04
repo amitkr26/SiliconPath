@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { requireCron, serverError } from "@berojgardegreewala/api";
 
 export async function GET(request: NextRequest) {

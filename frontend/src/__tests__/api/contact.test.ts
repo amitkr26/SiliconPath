@@ -37,11 +37,14 @@ jest.mock("next/server", () => {
 const insertMock = jest.fn();
 jest.mock("@/lib/supabase", () => ({
   isAdminConfigured: true,
+}));
+jest.mock("@/lib/supabase-admin", () => ({
   supabaseAdmin: {
     from: jest.fn(() => ({
       insert: insertMock,
     })),
   },
+  isAdminConfigured: true,
 }));
 jest.mock("@/lib/rate-limiter", () => ({
   checkRateLimit: jest.fn(() => Promise.resolve({ success: true })),

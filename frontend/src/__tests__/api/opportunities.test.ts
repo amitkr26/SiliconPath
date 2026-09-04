@@ -57,6 +57,8 @@ function makeChain(finalResult: typeof SELECT_RESULT) {
 
 jest.mock('@/lib/supabase', () => ({
   isAdminConfigured: true,
+}));
+jest.mock('@/lib/supabase-admin', () => ({
   supabaseAdmin: {
     from: jest.fn(() => ({
       select: jest.fn(() => makeChain(SELECT_RESULT)),
@@ -65,6 +67,7 @@ jest.mock('@/lib/supabase', () => ({
       })),
     })),
   },
+  isAdminConfigured: true,
 }));
 
 jest.mock('@/lib/supabase/server', () => ({
@@ -92,7 +95,7 @@ describe('GET /api/opportunities', () => {
   it('calls supabase.from with opportunities table', async () => {
     const { NextRequest } = require('next/server');
     await GET(new NextRequest('http://localhost:3000/api/opportunities?category=jrf'));
-    const { supabaseAdmin } = require('@/lib/supabase');
+    const { supabaseAdmin } = require('@/lib/supabase-admin');
     expect(supabaseAdmin.from).toHaveBeenCalledWith('opportunities');
   });
 });

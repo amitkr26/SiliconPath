@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, Calendar, Tag, Newspaper } from "lucide-react";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import NewsImage from "@/components/NewsImage";
 import { Card } from "@/components/ui/Card";
 

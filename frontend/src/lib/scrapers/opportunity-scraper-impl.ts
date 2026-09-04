@@ -1,5 +1,5 @@
 import type { ScrapedOpportunity, ScrapeResult } from "./types";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { logger } from "@/lib/logger";
 import { scrapeISRO } from "./isro-scraper";
 import { scrapeDRDO } from "./drdo-scraper";

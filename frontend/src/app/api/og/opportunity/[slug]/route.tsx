@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 export const runtime = "edge";
 
 export async function GET(_request: Request, { params }: { params: { slug: string } }) {

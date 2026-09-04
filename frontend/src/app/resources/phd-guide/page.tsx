@@ -1,23 +1,23 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { ArrowRight, ArrowLeft, GraduationCap, BookOpen, Award, Calendar, Mail } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
-  title: "PhD in Electronics India 2026 — Admission Guide",
+  title: "PhD in Electronics India 2026 � Admission Guide",
   description: "Complete PhD admission guide for electronics researchers in India. IIT, IISc, TIFR, IISER, CSIR labs. Funding options, stipends, application process. Everything you need to know.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/phd-guide" },
 };
 
 const TOP_INSTITUTIONS = [
-  { name: "IISc Bangalore", strengths: "VLSI, nanoelectronics, photonics, signal processing", window: "Feb-Mar (KVPY channel), Oct-Dec (direct)", stipend: "₹37,000-70,000" },
-  { name: "IIT Bombay", strengths: "RF & microwave, embedded systems, AI hardware, communications", window: "Mar-Apr, Oct-Nov", stipend: "₹31,000-70,000" },
-  { name: "IIT Delhi", strengths: "VLSI design, optical communication, MEMS, power electronics", window: "Apr-Jun, Nov-Dec", stipend: "₹31,000-70,000" },
-  { name: "IIT Madras", strengths: "Semiconductor devices, antenna design, control systems, IoT", window: "Apr-May, Oct-Nov", stipend: "₹31,000-70,000" },
-  { name: "IISER Pune", strengths: "Quantum electronics, photonics, materials science, sensors", window: "Nov-Dec", stipend: "₹31,000-37,000" },
-  { name: "TIFR Mumbai", strengths: "Condensed matter physics, laser electronics, quantum computing", window: "Dec-Jan", stipend: "₹37,000-42,000" },
-  { name: "CSIR-NPL Delhi", strengths: "Semiconductor metrology, nanoelectronics, quantum standards", window: "Year-round (AcSIR)", stipend: "₹37,000-42,000" },
+  { name: "IISc Bangalore", strengths: "VLSI, nanoelectronics, photonics, signal processing", window: "Feb-Mar (KVPY channel), Oct-Dec (direct)", stipend: "?37,000-70,000" },
+  { name: "IIT Bombay", strengths: "RF & microwave, embedded systems, AI hardware, communications", window: "Mar-Apr, Oct-Nov", stipend: "?31,000-70,000" },
+  { name: "IIT Delhi", strengths: "VLSI design, optical communication, MEMS, power electronics", window: "Apr-Jun, Nov-Dec", stipend: "?31,000-70,000" },
+  { name: "IIT Madras", strengths: "Semiconductor devices, antenna design, control systems, IoT", window: "Apr-May, Oct-Nov", stipend: "?31,000-70,000" },
+  { name: "IISER Pune", strengths: "Quantum electronics, photonics, materials science, sensors", window: "Nov-Dec", stipend: "?31,000-37,000" },
+  { name: "TIFR Mumbai", strengths: "Condensed matter physics, laser electronics, quantum computing", window: "Dec-Jan", stipend: "?37,000-42,000" },
+  { name: "CSIR-NPL Delhi", strengths: "Semiconductor metrology, nanoelectronics, quantum standards", window: "Year-round (AcSIR)", stipend: "?37,000-42,000" },
 ];
 
 export default async function PhDGuidePage() {
@@ -36,7 +36,7 @@ export default async function PhDGuidePage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Link href="/resources" className="inline-flex items-center gap-1 text-slate-600 hover:text-blue-600 text-sm font-semibold mb-4 transition-colors"><ArrowLeft className="w-4 h-4" /> Back to Resources</Link>
-      <h1 className="font-display text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-8">PhD in Electronics India 2026 — Complete Admission Guide</h1>
+      <h1 className="font-display text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-8">PhD in Electronics India 2026 � Complete Admission Guide</h1>
 
       <div className="space-y-10 text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
         <section>
@@ -48,7 +48,7 @@ export default async function PhDGuidePage() {
                 <GraduationCap className="w-5 h-5 text-blue-600" />
                 <h3 className="font-display text-base font-bold text-slate-900">Route 1: GATE/NET Fellowship</h3>
               </div>
-              <p>Clear GATE (ECE) or UGC-NET (Electronic Science) to qualify for JRF. Use the fellowship to pursue PhD at CSIR labs (AcSIR), IITs, IISc, or universities. This is the most common route — you get a stipend of ₹37,000/month from day one of your PhD.</p>
+              <p>Clear GATE (ECE) or UGC-NET (Electronic Science) to qualify for JRF. Use the fellowship to pursue PhD at CSIR labs (AcSIR), IITs, IISc, or universities. This is the most common route � you get a stipend of ?37,000/month from day one of your PhD.</p>
             </div>
             <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
               <div className="flex items-center gap-2 mb-2">
@@ -106,22 +106,22 @@ export default async function PhDGuidePage() {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">CSIR JRF</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹37,000/mo</td><td className="py-2.5 px-3">CSIR labs</td><td className="py-2.5 px-3">GATE score</td></tr>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">UGC JRF</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹37,000/mo</td><td className="py-2.5 px-3">Any university</td><td className="py-2.5 px-3">UGC-NET</td></tr>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">DST-INSPIRE</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹31,000/mo</td><td className="py-2.5 px-3">Any institution</td><td className="py-2.5 px-3">Top 1% in MSc</td></tr>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">PMRF</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹70,000-80,000/mo</td><td className="py-2.5 px-3">IITs, IISc, central univs</td><td className="py-2.5 px-3">Institute selection</td></tr>
-                <tr><td className="py-2.5 px-3 font-semibold text-slate-900">Institute Fellowship</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹25,000-37,000/mo</td><td className="py-2.5 px-3">IITs, IISERs, NITs</td><td className="py-2.5 px-3">Institute PhD entrance</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">CSIR JRF</td><td className="py-2.5 px-3 text-blue-600 font-bold">?37,000/mo</td><td className="py-2.5 px-3">CSIR labs</td><td className="py-2.5 px-3">GATE score</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">UGC JRF</td><td className="py-2.5 px-3 text-blue-600 font-bold">?37,000/mo</td><td className="py-2.5 px-3">Any university</td><td className="py-2.5 px-3">UGC-NET</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">DST-INSPIRE</td><td className="py-2.5 px-3 text-blue-600 font-bold">?31,000/mo</td><td className="py-2.5 px-3">Any institution</td><td className="py-2.5 px-3">Top 1% in MSc</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">PMRF</td><td className="py-2.5 px-3 text-blue-600 font-bold">?70,000-80,000/mo</td><td className="py-2.5 px-3">IITs, IISc, central univs</td><td className="py-2.5 px-3">Institute selection</td></tr>
+                <tr><td className="py-2.5 px-3 font-semibold text-slate-900">Institute Fellowship</td><td className="py-2.5 px-3 text-blue-600 font-bold">?25,000-37,000/mo</td><td className="py-2.5 px-3">IITs, IISERs, NITs</td><td className="py-2.5 px-3">Institute PhD entrance</td></tr>
               </tbody>
             </table>
           </div>
-          <p className="mt-3">All fellowships include annual contingency grants (₹10,000-₹20,000) and HRA (10-30% of stipend depending on city). PMRF is the most prestigious with the highest stipend but is limited to the top 3000 research scholars nationally.</p>
+          <p className="mt-3">All fellowships include annual contingency grants (?10,000-?20,000) and HRA (10-30% of stipend depending on city). PMRF is the most prestigious with the highest stipend but is limited to the top 3000 research scholars nationally.</p>
         </section>
 
         <section>
           <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">How to Contact Professors (Email Template)</h2>
-          <p className="mb-3">Before applying to a PhD program, it is critical to contact potential supervisors. Professors receive dozens of emails — here is a template that works:</p>
+          <p className="mb-3">Before applying to a PhD program, it is critical to contact potential supervisors. Professors receive dozens of emails � here is a template that works:</p>
           <div className="bg-slate-50 border-2 border-slate-900 rounded-xl p-4 font-mono text-xs leading-relaxed shadow-brutal-sm">
-            <p className="text-slate-900 mb-2"><strong>Subject:</strong> PhD Inquiry — [Your Name] — Electronics — [Research Area]</p>
+            <p className="text-slate-900 mb-2"><strong>Subject:</strong> PhD Inquiry � [Your Name] � Electronics � [Research Area]</p>
             <p>Dear Prof. [Last Name],</p>
             <p className="mt-2">I am writing to express my interest in pursuing a PhD in [specific area] under your guidance at [Institution].</p>
             <p className="mt-2">I recently completed my MSc in Electronics from [University] with [grade/percentage]. I have a valid GATE score of [score] (AIR [rank]). My MSc thesis was on [topic], and I am particularly interested in [specific sub-field related to your work].</p>
@@ -187,7 +187,7 @@ export default async function PhDGuidePage() {
               {phdOpps.map((opp: any) => (
                 <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border-2 border-slate-900 rounded-xl p-3.5 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all">
                   <h3 className="text-slate-900 text-sm font-semibold">{opp.title}</h3>
-                  <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization}{opp.stipend ? ` • ${opp.stipend}` : ""}{opp.deadline ? ` • Deadline: ${new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""}</p>
+                  <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization}{opp.stipend ? ` � ${opp.stipend}` : ""}{opp.deadline ? ` � Deadline: ${new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""}</p>
                 </Link>
               ))}
             </div>

@@ -47,7 +47,10 @@ jest.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
-jest.mock("@/lib/supabase", () => {
+jest.mock("@/lib/supabase", () => ({
+  isAdminConfigured: true,
+}));
+jest.mock("@/lib/supabase-admin", () => {
   const mockFrom = jest.fn();
   return {
     supabaseAdmin: {
@@ -63,7 +66,7 @@ import { PATCH as patchApplicant } from "@/app/api/employer/applicants/route";
 import { PATCH as patchApplication } from "@/app/api/applications/route";
 import { PATCH as patchCompany } from "@/app/api/employer/company/route";
 
-const { supabaseAdmin } = require("@/lib/supabase");
+const { supabaseAdmin } = require("@/lib/supabase-admin");
 
 describe("Employer & Candidate IDOR Prevention Gates", () => {
   beforeEach(() => {

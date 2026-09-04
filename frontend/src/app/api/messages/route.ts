@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { apiError } from "@/lib/api-utils";
 
 export const dynamic = "force-dynamic";

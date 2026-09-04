@@ -45,6 +45,8 @@ oppChain.select = () => oppChain;
 
 jest.mock("@/lib/supabase", () => ({
   isAdminConfigured: true,
+}));
+jest.mock("@/lib/supabase-admin", () => ({
   supabaseAdmin: {
     from: jest.fn((table: string) => {
       if (table === "opportunities") return oppChain;
@@ -57,6 +59,7 @@ jest.mock("@/lib/supabase", () => ({
       return chain;
     }),
   },
+  isAdminConfigured: true,
 }));
 
 import { GET } from "@/app/api/organizations/route";

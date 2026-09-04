@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { fetchAllNews } from "@/lib/scrapers/rss-parser";
 import { requireCron, serverError } from "@berojgardegreewala/api";
 import { apiError } from "@/lib/api-utils";

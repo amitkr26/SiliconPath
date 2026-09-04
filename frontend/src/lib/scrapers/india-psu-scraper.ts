@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
+import { fetchWithLooseTLS } from "./fetch-utils";
 
 const PSU_SOURCES = [
   {
@@ -119,19 +120,12 @@ function cleanTitle(title: string): string {
 async function scrapeSinglePSU(source: typeof PSU_SOURCES[0]): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
   try {
-    const origTls = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-    let res;
-    try {
-      res = await fetch(source.url, {
-        signal: AbortSignal.timeout(10000),
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        }
-      });
-    } finally {
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = origTls;
-    }
+    const res = await fetchWithLooseTLS(source.url, {
+      signal: AbortSignal.timeout(10000),
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+      }
+    });
 
     if (!res.ok) return [];
     const html = await res.text();
@@ -186,12 +180,15 @@ async function scrapeSinglePSU(source: typeof PSU_SOURCES[0]): Promise<ScrapedOp
 }
 
 export async function scrapeIndiaPSU(): Promise<ScrapedOpportunity[]> {
+  const BATCH_SIZE = 5;
   const all: ScrapedOpportunity[] = [];
-  for (const source of PSU_SOURCES) {
-    const results = await scrapeSinglePSU(source);
-    all.push(...results);
-    // 2000ms delay between requests
-    await new Promise(resolve => setTimeout(resolve, 2000));
+  for (let i = 0; i < PSU_SOURCES.length; i += BATCH_SIZE) {
+    const batch = PSU_SOURCES.slice(i, i + BATCH_SIZE);
+    const results = await Promise.allSettled(batch.map(s => scrapeSinglePSU(s)));
+    for (const r of results) if (r.status === "fulfilled") all.push(...r.value);
+    if (i + BATCH_SIZE < PSU_SOURCES.length) {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
   }
   return all;
 }

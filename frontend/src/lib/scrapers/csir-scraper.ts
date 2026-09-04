@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
+import { fetchWithLooseTLS } from "./fetch-utils";
 
 const CSIR_URL = "https://www.csir.res.in/en/career-opportunities/recruitment";
 
@@ -55,17 +56,10 @@ export async function scrapeCSIR(): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
 
   try {
-    const origTls = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-    let res;
-    try {
-      res = await fetch(CSIR_URL, {
-        signal: AbortSignal.timeout(15000),
-        headers: { "User-Agent": "Mozilla/5.0 (BerojgarDegreeWala/1.0)" },
-      });
-    } finally {
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = origTls;
-    }
+    const res = await fetchWithLooseTLS(CSIR_URL, {
+      signal: AbortSignal.timeout(15000),
+      headers: { "User-Agent": "Mozilla/5.0 (BerojgarDegreeWala/1.0)" },
+    });
     if (!res.ok) {
       console.error(`CSIR scraper: HTTP ${res.status}`);
       return [];

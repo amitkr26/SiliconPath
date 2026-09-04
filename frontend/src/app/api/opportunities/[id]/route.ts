@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase, supabaseAdmin, isConfigured } from "@/lib/supabase";
+import { supabase, isConfigured } from "@/lib/supabase"; import { supabaseAdmin } from "@/lib/supabase-admin";
 import { requireAdmin, serverError } from "@berojgardegreewala/api";
 import { adminOpportunityUpdateSchema, mapAdminOpportunityColumns, validateOrThrow } from "@/lib/validation";
 import { resolveOrganizationId } from "@/lib/scrapers/run-opportunity-scrape";

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { checkRateLimit } from "@/lib/rate-limiter";
 
 // QA audit P1: POST /api/contact previously 404'd while the UI always showed
