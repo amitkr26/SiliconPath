@@ -11,6 +11,7 @@ import {
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { LearningTrack, LearningDay, LearningResource, LearningQuestion } from "@/lib/academy/types";
+import { getCompletedDaysLocal, markDayCompleteLocal } from "@/lib/academy/progress-local";
 import { YoutubeEmbed } from "@/components/academy/YoutubeEmbed";
 import { PracticeQuiz } from "@/components/academy/PracticeQuiz";
 import { Card } from "@/components/ui/Card";
@@ -60,7 +61,9 @@ export default function DayDetailsPage() {
         setResources(data.resources);
         setQuestions(data.questions);
 
-        const completedList = await api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: user?.id || "" } });
+        const completedList = user?.id
+          ? await api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: user.id } }).catch(() => [])
+          : getCompletedDaysLocal(trackSlug);
         setCompletedDays(Array.isArray(completedList) ? completedList : []);
 
         if (data.questions.length === 0) {
@@ -123,17 +126,27 @@ export default function DayDetailsPage() {
     try {
       setSubmitting(true);
       const userId = user?.id || null;
-      const success = await api.post<boolean>("/api/academy/progress", {
-        userId,
-        trackId: track.id,
-        dayId: day.id,
-        completed: true,
-      });
+      let success = false;
+      if (userId) {
+        success = await api.post<boolean>("/api/academy/progress", {
+          userId,
+          trackId: track.id,
+          dayId: day.id,
+          completed: true,
+        });
+
+        if (!success) {
+          toast.error("Failed to update progress");
+          return;
+        }
+      } else {
+        markDayCompleteLocal(trackSlug, day.id);
+        success = true;
+      }
 
       if (success) {
         setCompletedDays((prev) => [...prev, day.id]);
         toast.success(`Day ${day.day_number} completed!`);
-
         setTimeout(() => {
           if (nextDayNum) {
             router.push(`/academy/${track.slug}/day/${nextDayNum}`);
@@ -141,8 +154,6 @@ export default function DayDetailsPage() {
             router.push(`/academy/${track.slug}`);
           }
         }, 1500);
-      } else {
-        toast.error("Failed to update progress");
       }
     } catch {
       toast.error("An error occurred");

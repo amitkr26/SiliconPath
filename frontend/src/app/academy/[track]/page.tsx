@@ -11,6 +11,7 @@ import {
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { LearningTrack, LearningDay, TrackSlug } from "@/lib/academy/types";
+import { getCompletedDaysLocal, getPassedTracksLocal } from "@/lib/academy/progress-local";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -50,12 +51,17 @@ export default function TrackOverview() {
         setDays(daysList);
 
         const userId = user?.id || null;
-        const [completedList, passedList] = await Promise.all([
-          api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: userId || "" } }),
-          api.get<TrackSlug[]>("/api/academy/progress/passed-tracks", { params: { userId: userId || "" } })
-        ]);
-        setCompletedDays(completedList);
-        setPassedTracks(passedList);
+        if (userId) {
+          const [completedList, passedList] = await Promise.all([
+            api.get<string[]>("/api/academy/progress/completed-days", { params: { userId } }),
+            api.get<TrackSlug[]>("/api/academy/progress/passed-tracks", { params: { userId } })
+          ]);
+          setCompletedDays(completedList);
+          setPassedTracks(passedList);
+        } else {
+          setCompletedDays(getCompletedDaysLocal(trackSlug));
+          setPassedTracks(getPassedTracksLocal() as TrackSlug[]);
+        }
       } catch (err) {
         console.error("Failed to load track details:", err);
         setError("Something went wrong loading this track. Please refresh.");

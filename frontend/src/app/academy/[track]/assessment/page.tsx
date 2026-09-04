@@ -11,6 +11,7 @@ import {
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { LearningTrack, TrackAssessment } from "@/lib/academy/types";
+import { getCompletedDaysLocal, markTrackPassedLocal, saveAssessmentResultLocal } from "@/lib/academy/progress-local";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -61,6 +62,15 @@ export default function TrackAssessmentPage() {
           const allDayIds = trackDays.map((d: any) => d.id);
           const completedCount = allDayIds.filter((id: string) => completedDayIds.includes(id)).length;
           const allDone = completedCount === allDayIds.length && allDayIds.length > 0;
+          if (!allDone) {
+            toast.warning("Complete all days before taking the assessment.");
+            router.push(`/academy/${trackSlug}`);
+            return;
+          }
+        } else {
+          const localCompleted = getCompletedDaysLocal(trackSlug);
+          const trackDays = await api.get<{ id: string; day_number: number }[]>(`/api/academy/tracks/${t.id}/days`).catch(() => [] as { id: string; day_number: number }[]);
+          const allDone = trackDays.length > 0 && trackDays.every((d) => localCompleted.includes(d.id));
           if (!allDone) {
             toast.warning("Complete all days before taking the assessment.");
             router.push(`/academy/${trackSlug}`);
@@ -125,14 +135,24 @@ export default function TrackAssessmentPage() {
 
     try {
       const userId = user?.id || null;
-      await api.post<boolean>("/api/academy/progress", {
-        userId,
-        trackId: track.id,
-        trackSlug: track.slug,
-        dayNumber: 999,
-        status: hasPassed ? "completed" : "in_progress",
-        score: finalScore,
-      });
+      if (userId) {
+        await api.post<boolean>("/api/academy/progress", {
+          userId,
+          trackId: track.id,
+          trackSlug: track.slug,
+          dayNumber: 999,
+          status: hasPassed ? "completed" : "in_progress",
+          score: finalScore,
+        });
+      } else if (hasPassed) {
+        markTrackPassedLocal(track.slug);
+        saveAssessmentResultLocal({
+          scorePercent: finalScore,
+          passed: true,
+          trackSlug: track.slug,
+          completedAt: new Date().toISOString(),
+        });
+      }
 
       if (hasPassed) {
         toast.success(`Congratulations! You passed the ${track.title} assessment!`);

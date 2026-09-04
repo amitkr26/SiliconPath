@@ -6,6 +6,7 @@ import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { FALLBACK_TRACKS } from "@/lib/academy/fallback";
 import type { LearningTrack, TrackSlug } from "@/lib/academy/types";
+import { getCompletedDaysLocal, getPassedTracksLocal } from "@/lib/academy/progress-local";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -85,12 +86,22 @@ export default function AcademyDashboard() {
       setTracks(tracksData);
 
       const userId = user?.id || null;
-      const [cd, pt] = await Promise.all([
-        api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: userId || "" } }).catch(() => []),
-        api.get<TrackSlug[]>("/api/academy/progress/passed-tracks", { params: { userId: userId || "" } }).catch(() => []),
-      ]);
-      setCompletedDays(cd || []);
-      setPassedTracks(pt || []);
+      if (userId) {
+        const [cd, pt] = await Promise.all([
+          api.get<string[]>("/api/academy/progress/completed-days", { params: { userId } }).catch(() => []),
+          api.get<TrackSlug[]>("/api/academy/progress/passed-tracks", { params: { userId } }).catch(() => []),
+        ]);
+        setCompletedDays(cd || []);
+        setPassedTracks(pt || []);
+      } else {
+        const localCd: string[] = [];
+        const tracksToCheck = tracksData.length > 0 ? tracksData : FALLBACK_TRACKS;
+        for (const t of tracksToCheck) {
+          localCd.push(...getCompletedDaysLocal(t.slug));
+        }
+        setCompletedDays(localCd);
+        setPassedTracks(getPassedTracksLocal() as TrackSlug[]);
+      }
     } catch (err) {
       console.error("Academy load failed:", err);
       setTracks(FALLBACK_TRACKS);
