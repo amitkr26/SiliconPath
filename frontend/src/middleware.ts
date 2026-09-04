@@ -33,7 +33,7 @@ const EMPLOYER_ONLY_PATHS = [
   '/api/employer',
 ];
 
-const ADMIN_PATHS = ['/admin', '/api/admin'];
+const ADMIN_PATHS = ['/api/admin'];
 
 function addSecurityHeaders(response: NextResponse): void {
   const csp = [
@@ -191,15 +191,10 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Admin/Manager route gate — requires admin password/HMAC (no Supabase session needed)
+  // Admin/Manager API route gate — requires admin password/HMAC (no Supabase session needed)
   const isAdminOnly = ADMIN_PATHS.some(p => path === p || path.startsWith(p + '/'));
   if (isAdminOnly && !isAdminRequest) {
-    if (path.startsWith('/api/')) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    return NextResponse.redirect(url);
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 
   addSecurityHeaders(supabaseResponse);

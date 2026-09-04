@@ -47,11 +47,18 @@ interface Props {
 async function lookupOpportunity(slug: string) {
   if (!supabaseAdmin?.from) return null;
   try {
-    const { data, error } = await supabaseAdmin
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+    let query = supabaseAdmin
       .from("opportunities")
-      .select("*, organizations(*)")
-      .eq("slug", slug)
-      .maybeSingle();
+      .select("*, organizations(*)");
+
+    if (isUuid) {
+      query = query.or(`id.eq.${slug},slug.eq.${slug}`);
+    } else {
+      query = query.eq("slug", slug);
+    }
+
+    const { data, error } = await query.maybeSingle();
 
     if (error || !data) return null;
     return mapDbOpportunityToClient(data);

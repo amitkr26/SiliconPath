@@ -4,6 +4,8 @@ import { FALLBACK_TRACKS } from "@/lib/academy/queries";
 
 export const dynamic = "force-dynamic";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const VERIFIED_VIDEO_LECTURES_BY_TRACK: Record<string, Array<{ title: string; channel_name: string; channel_url: string; youtube_video_id: string; notes: string }>> = {
   "digital-logic": [
     {
@@ -129,62 +131,96 @@ export async function GET(
 
   if (isAdminConfigured && supabaseAdmin) {
     try {
-      let actualTrackId = id;
-      const { data: trackRow } = await supabaseAdmin
-        .from("academy_tracks")
-        .select("id")
-        .or(`id.eq.${id},slug.eq.${id}`)
-        .maybeSingle();
+      const isIdUuid = UUID_REGEX.test(id);
+      let actualTrackId = isIdUuid ? id : null;
 
-      if (trackRow?.id) actualTrackId = trackRow.id;
+      if (!actualTrackId) {
+        // Look up by slug in learning_tracks (seeded v1) or academy_tracks (v2)
+        const { data: legacyTrackRow } = await supabaseAdmin
+          .from("learning_tracks")
+          .select("id")
+          .eq("slug", id)
+          .maybeSingle();
 
-      const { data: dayData } = await supabaseAdmin
-        .from("academy_days")
-        .select("*")
-        .eq("track_id", actualTrackId)
-        .eq("day_number", dayNumber)
-        .maybeSingle();
+        if (legacyTrackRow?.id) {
+          actualTrackId = legacyTrackRow.id;
+        } else {
+          const { data: trackRow } = await supabaseAdmin
+            .from("academy_tracks")
+            .select("id")
+            .eq("slug", id)
+            .maybeSingle();
+          if (trackRow?.id) actualTrackId = trackRow.id;
+        }
+      }
 
-      if (dayData) {
+      let finalDayData = null;
+      if (actualTrackId && UUID_REGEX.test(actualTrackId)) {
+        // Query learning_days first (seeded content), fallback to academy_days
+        const { data: legacyDayData } = await supabaseAdmin
+          .from("learning_days")
+          .select("*")
+          .eq("track_id", actualTrackId)
+          .eq("day_number", dayNumber)
+          .maybeSingle();
+        finalDayData = legacyDayData;
+
+        if (!finalDayData) {
+          const { data: dayData } = await supabaseAdmin
+            .from("academy_days")
+            .select("*")
+            .eq("track_id", actualTrackId)
+            .eq("day_number", dayNumber)
+            .maybeSingle();
+          finalDayData = dayData;
+        }
+      }
+
+      if (finalDayData) {
+        // Fetch real resources and questions from DB
+        const dayId = finalDayData.id;
+        let resources = trackVideoLectures;
+        let questions = [];
+
+        if (dayId) {
+          // Query v1 tables (learning_resources/learning_questions) — these are
+          // the seeded tables from migration 20260705000002. Skip the v2
+          // academy_* table names entirely since they don't exist.
+          const { data: dbResources } = await supabaseAdmin
+            .from("learning_resources")
+            .select("*")
+            .eq("day_id", dayId)
+            .order("order_index", { ascending: true });
+
+          if (dbResources && dbResources.length > 0) {
+            resources = dbResources;
+          }
+
+          const { data: dbQuestions } = await supabaseAdmin
+            .from("learning_questions")
+            .select("*")
+            .eq("day_id", dayId)
+            .order("order_index", { ascending: true });
+
+          if (dbQuestions && dbQuestions.length > 0) {
+            questions = dbQuestions;
+          }
+        }
+
         return NextResponse.json({
           track,
           day: {
-            ...dayData,
-            key_concepts: dayData.key_concepts || [track.title, `Day ${dayNumber}`, "VLSI Architecture", "RTL Verification"],
-            estimated_minutes: dayData.estimated_minutes || 60,
-            practice_links: dayData.practice_links || [
+            ...finalDayData,
+            key_concepts: finalDayData.key_concepts || [track.title, `Day ${dayNumber}`, "VLSI Architecture", "RTL Verification"],
+            estimated_minutes: finalDayData.estimated_minutes || 60,
+            practice_links: finalDayData.practice_links || [
               { label: "EDA Playground (Online Verilog IDE)", url: "https://www.edaplayground.com" },
               { label: "HDLBits Interactive Practice", url: "https://hdlbits.01xz.net" },
               { label: "ChipVerify Verilog & SystemVerilog Lab", url: "https://chipverify.com" }
             ],
           },
-          resources: trackVideoLectures,
-          questions: [
-            {
-              id: `q-${dayNumber}-1`,
-              question: `In Verilog/SystemVerilog RTL design, which type of assignment operator MUST be used for sequential logic inside an always @(posedge clk) block?`,
-              options: [
-                "Blocking assignment (=)",
-                "Non-blocking assignment (<=)",
-                "Continuous assignment (assign)",
-                "Procedural force assignment",
-              ],
-              correct_answer: 1,
-              explanation: "Non-blocking assignments (<=) schedule updates for the end of the current simulation timestep, preventing race conditions between sequential registers.",
-            },
-            {
-              id: `q-${dayNumber}-2`,
-              question: `What is the primary consequence of violating setup time ($t_{su}$) in a flip-flop?`,
-              options: [
-                "Metastability at the register output",
-                "Higher static leakage current",
-                "Permanent gate dielectric breakdown",
-                "Increased clock frequency",
-              ],
-              correct_answer: 0,
-              explanation: "Setup time violation prevents the data input from settling before the active clock edge, causing the flip-flop output to enter a metastable state.",
-            },
-          ],
+          resources,
+          questions,
         });
       }
     } catch (err) {
