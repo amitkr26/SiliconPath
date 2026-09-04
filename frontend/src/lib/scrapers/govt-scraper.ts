@@ -1,4 +1,4 @@
-﻿import Parser from "rss-parser";
+import Parser from "rss-parser";
 import type { ScrapedOpportunity, ScrapeResult } from "./types";
 import { logger } from "@/lib/logger";
 

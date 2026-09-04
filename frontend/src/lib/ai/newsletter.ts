@@ -1,4 +1,4 @@
-﻿import { callAIAdvanced } from "./providers";
+import { callAIAdvanced } from "./providers";
 
 export async function generateWeeklyDigest(
   opportunities: any[],

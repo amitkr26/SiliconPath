@@ -5,7 +5,7 @@ import { ArrowRight, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
-  title: "UGC-NET vs GATE for Electronics Research — Complete Comparison 2026",
+  title: "UGC-NET vs GATE for Electronics Research ï¿½ Complete Comparison 2026",
   description: "Complete comparison of UGC-NET Electronic Science vs GATE ECE for electronics research careers. Which exam opens JRF, which leads to PSU jobs, stipend comparison, difficulty analysis.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/net-vs-gate" },
 };
@@ -14,9 +14,9 @@ const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   mainEntity: [
-    { "@type": "Question", name: "Which is better for JRF — NET or GATE?", acceptedAnswer: { "@type": "Answer", text: "Both qualify for JRF but through different routes. UGC-NET opens JRF at universities/colleges (UGC-JRF). GATE opens CSIR-JRF at CSIR labs leading to AcSIR PhD. The stipend is the same ?37,000/month for both." } },
+    { "@type": "Question", name: "Which is better for JRF ï¿½ NET or GATE?", acceptedAnswer: { "@type": "Answer", text: "Both qualify for JRF but through different routes. UGC-NET opens JRF at universities/colleges (UGC-JRF). GATE opens CSIR-JRF at CSIR labs leading to AcSIR PhD. The stipend is the same ?37,000/month for both." } },
     { "@type": "Question", name: "Can I appear for both NET and GATE?", acceptedAnswer: { "@type": "Answer", text: "Yes, many candidates appear for both. UGC-NET is held in June/December, GATE in February. The syllabi overlap significantly (70-80% common topics in Electronic Science/ECE)." } },
-    { "@type": "Question", name: "Which exam is harder — NET or GATE?", acceptedAnswer: { "@type": "Answer", text: "GATE ECE is generally considered more competitive due to higher number of applicants and wider syllabus. UGC-NET Electronic Science has a narrower syllabus focused on research-oriented electronics topics." } },
+    { "@type": "Question", name: "Which exam is harder ï¿½ NET or GATE?", acceptedAnswer: { "@type": "Answer", text: "GATE ECE is generally considered more competitive due to higher number of applicants and wider syllabus. UGC-NET Electronic Science has a narrower syllabus focused on research-oriented electronics topics." } },
     { "@type": "Question", name: "What is the stipend for NET-JRF vs GATE-JRF?", acceptedAnswer: { "@type": "Answer", text: "Both UGC-NET JRF and CSIR-GATE JRF offer the same stipend: ?37,000/month during JRF period (first 2 years) and ?42,000/month as SRF (years 3-5). Both also include HRA and contingency grants." } },
     { "@type": "Question", name: "Can I become a professor with GATE?", acceptedAnswer: { "@type": "Answer", text: "No, GATE does not qualify you for assistant professor positions. Only UGC-NET (or state-level SET) qualifies candidates for assistant professor roles in Indian universities and colleges." } },
     { "@type": "Question", name: "What are the age limits for NET and GATE JRF?", acceptedAnswer: { "@type": "Answer", text: "UGC-NET JRF: 30 years for General (relaxation for OBC/SC/ST). GATE CSIR-JRF: 28 years for General (33 for SC/ST, 31 for OBC). Age is calculated from the date of the exam notification." } },
@@ -40,7 +40,7 @@ export default async function NetVsGatePage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <Link href="/resources" className="inline-flex items-center gap-1 text-slate-600 hover:text-blue-600 text-sm font-semibold mb-4 transition-colors"><ArrowLeft className="w-4 h-4" /> Back to Resources</Link>
-      <h1 className="font-display text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-8">UGC-NET vs GATE for Electronics Research — Which Should You Choose?</h1>
+      <h1 className="font-display text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-8">UGC-NET vs GATE for Electronics Research ï¿½ Which Should You Choose?</h1>
 
       <div className="space-y-10 text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
         <section>
@@ -118,9 +118,9 @@ export default async function NetVsGatePage() {
           <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Can You Appear for Both?</h2>
           <p className="mb-3">Yes, and many successful researchers do exactly that. The syllabi of UGC-NET Electronic Science and GATE ECE overlap by 70-80%, so preparing for one naturally helps with the other. Here is a strategy:</p>
           <ul className="list-disc list-inside space-y-1">
-            <li><strong className="text-slate-900">Start with GATE preparation</strong> (January-February exam) — the wider syllabus covers most NET topics plus additional engineering concepts.</li>
+            <li><strong className="text-slate-900">Start with GATE preparation</strong> (January-February exam) ï¿½ the wider syllabus covers most NET topics plus additional engineering concepts.</li>
             <li><strong className="text-slate-900">After GATE, focus on NET-specific topics</strong> like research methodology, teaching aptitude (Paper 1), and any electronics topics not covered in GATE.</li>
-            <li><strong className="text-slate-900">Appear for NET in June</strong> (or December) — the extra 4 months after GATE gives you ample time to prepare for NET Paper 1.</li>
+            <li><strong className="text-slate-900">Appear for NET in June</strong> (or December) ï¿½ the extra 4 months after GATE gives you ample time to prepare for NET Paper 1.</li>
             <li><strong className="text-slate-900">Result</strong>: You potentially have both UGC-JRF and CSIR-JRF offers, maximizing your options for PhD in electronics.</li>
           </ul>
         </section>
@@ -132,7 +132,7 @@ export default async function NetVsGatePage() {
               {relevantOpps.map((opp: any) => (
                 <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border-2 border-slate-900 rounded-xl p-3.5 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all">
                   <h3 className="text-slate-900 text-sm font-semibold">{opp.title}</h3>
-                  <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization}{opp.stipend ? ` • ${opp.stipend}` : ""}{opp.deadline ? ` • Deadline: ${new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""}</p>
+                  <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization}{opp.stipend ? ` ï¿½ ${opp.stipend}` : ""}{opp.deadline ? ` ï¿½ Deadline: ${new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""}</p>
                 </Link>
               ))}
             </div>
@@ -146,7 +146,7 @@ export default async function NetVsGatePage() {
           <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">FAQs</h2>
           <div className="space-y-4">
             <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
-              <p className="font-bold text-slate-900 mb-1">Which is better for JRF — NET or GATE?</p>
+              <p className="font-bold text-slate-900 mb-1">Which is better for JRF ï¿½ NET or GATE?</p>
               <p>Both are equally good but serve different paths. NET opens UGC-JRF at any university; GATE opens CSIR-JRF at CSIR labs. The stipend is identical (?37,000/month). Choose based on where you want to do your PhD.</p>
             </div>
             <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
@@ -159,7 +159,7 @@ export default async function NetVsGatePage() {
             </div>
             <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
               <p className="font-bold text-slate-900 mb-1">What is the stipend?</p>
-              <p>Both offer ?37,000/month (JRF) and ?42,000/month (SRF) plus HRA and contingency — the exact same pay scale.</p>
+              <p>Both offer ?37,000/month (JRF) and ?42,000/month (SRF) plus HRA and contingency ï¿½ the exact same pay scale.</p>
             </div>
             <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
               <p className="font-bold text-slate-900 mb-1">Can I become a professor with GATE?</p>
