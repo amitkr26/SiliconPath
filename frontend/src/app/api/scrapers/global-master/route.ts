@@ -1,26 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { runScraperRoute } from "../utils";
-import {
-  scrapeGlobalResearchLabs,
-  scrapeGlobalUniversities,
-  scrapeTopSemiconductorCompanies,
-  scrapeEdaAndEquipment
-} from "@/lib/scrapers/global-master-scraper";
+import { scrapeGlobalSemiconductor } from "@/lib/scrapers/global-semiconductor-scraper";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const masterGlobalScraper = async () => {
-    let all: any[] = [];
-    all = all.concat(await scrapeGlobalResearchLabs());
-    all = all.concat(await scrapeGlobalUniversities());
-    all = all.concat(await scrapeTopSemiconductorCompanies());
-    all = all.concat(await scrapeEdaAndEquipment());
-    return all;
-  };
-
   return runScraperRoute(
     request,
-    masterGlobalScraper,
-    "Global Master Scraper Runner (NASA, CERN, IMEC, TSMC, NVIDIA, Intel, AMD, ARM, Synopsys, Cadence, ASML)",
-    ["Global Master", "Semiconductor", "Foundry", "EDA", "Verified"]
+    scrapeGlobalSemiconductor,
+    "Global Semiconductor Scraper (Intel, Qualcomm, AMD, TSMC, Arm)",
+    ["Global", "Semiconductor", "Foundry", "EDA", "Verified"]
   );
 }
+

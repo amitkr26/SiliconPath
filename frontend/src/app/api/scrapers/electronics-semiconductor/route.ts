@@ -1,12 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { runScraperRoute } from "../utils";
-import { scrapeElectronicsAndSemiconductor } from "@/lib/scrapers/national-scrapers";
+import { scrapeGlobalSemiconductor } from "@/lib/scrapers/global-semiconductor-scraper";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   return runScraperRoute(
     request,
-    () => scrapeElectronicsAndSemiconductor(),
-    "Electronics & Semiconductor Scraper (C-DAC, SAMEER, SCL Mohali, MeitY, ISM)",
-    ["Semiconductor", "Electronics", "C-DAC", "SCL Mohali"]
+    scrapeGlobalSemiconductor,
+    "Electronics & Semiconductor Scraper",
+    ["Semiconductor", "Electronics", "VLSI"]
   );
 }
+

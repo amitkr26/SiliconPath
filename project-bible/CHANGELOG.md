@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-04 — Master Reality Alignment & Production Hardening (Items 6–10):**
+  - **Academy Curriculum Connected & PracticeQuiz Answer Resiliency**:
+    - `frontend/src/components/academy/PracticeQuiz.tsx`: Enhanced answer evaluation to cross-match between object options (`{label, value}`), string arrays, option indices, and literal strings, eliminating false negatives on seeded quiz submissions.
+    - `frontend/src/app/api/academy/tracks/[id]/days/[day]/route.ts`: Wired seeded `learning_questions` from Supabase DB1 into lesson responses with fallback to sample questions.
+    - `frontend/src/app/api/academy/tracks/[id]/route.ts`: Added `UUID_REGEX` discrimination to prevent Postgres 22P02 syntax errors when resolving track slugs (e.g., `digital-logic`), querying `learning_tracks` directly.
+  - **Resume Studio Multi-Version Cloud Persistence & Guest Auth Guard**:
+    - `frontend/src/app/api/resume/route.ts`: Added `resume_versions` querying in `GET`, upserting with `{version_id, version_name, style, target_domain, target_role}` in `PATCH`/`POST`, and version-specific deletion `?versionId=...` in `DELETE`.
+    - `frontend/src/app/resume/page.tsx`: Updated `handleSaveToBackend` to send version metadata and style configuration, added cloud version hydration on mount for authenticated users, and added user sign-in prompt before calling AI bullet generation or syncing resumes across devices.
+  - **Dead Mock Scrapers Removed & Genuine Scraper Fleet Rewired**:
+    - Deleted `frontend/src/lib/scrapers/national-scrapers.ts` and `frontend/src/lib/scrapers/global-master-scraper.ts` (410+ lines of mock data gated by dead flags).
+    - Rewired scraper routes in `frontend/src/app/api/scrapers/` (`space-defence`, `scientific-research`, `electronics-semiconductor`, `psu-electronics`, `railways`, `iits-iisc`, `run-all`, `[slug]`, `global-master`) to live genuine scrapers (`scrapeDRDO`, `scrapeISRO`, `scrapeCSIR`, `scrapeIndiaAcademic`, `scrapeIndiaPSU`, `scrapeGlobalSemiconductor`, `scrapeSarkariTechnicalOpportunities`, `scrapeAllOpportunities`).
+  - **Social Feed Route Consolidation (`/community` -> `/feed`)**:
+    - `frontend/next.config.mjs`: Added permanent 308 redirects for `/community` and `/community/:path*` to `/feed`, plus permanent redirects for `/chat` -> `/ask-ai`, `/post-job` -> `/employer/post-job`, and `/employers` -> `/employer`. Removed obsolete UUID redirect that previously intercepted direct opportunity UUID views.
+    - `frontend/src/app/community/page.tsx` & `[id]/page.tsx`: Replaced monolithic legacy code with instant server-side redirect stubs to `/feed`, eliminating ~25KB of dead client bundle code.
+  - **Repository Root Cleanliness Mandate (`AGENTS.md`)**:
+    - Relocated `FINAL_PRODUCTION_READINESS_REPORT.md` from repository root into `docs/audit-reports/FINAL_PRODUCTION_READINESS_REPORT.md`.
+  - **Bookmark 22P02 Postgres Syntax Guard**:
+    - `frontend/src/app/api/bookmarks/[id]/route.ts`: Added UUID regex validation guard before executing delete queries against `saved_opportunities`.
+  - **Verification & Test Suite Growth**:
+    - Expanded `frontend/src/__tests__/lib/phase0-fixes.test.ts` with tests for PracticeQuiz answer evaluation and resume version mapping.
+    - Full monorepo validation: **393/393 tests passing** (API: 97, Server: 46, Worker: 30, Gateway: 15, Frontend: 205). TypeScript clean (`0 errors`).
+
 - **2026-09-04 — Phase 0: P0 Production Blockers & Critical Reality Fixes:**
   - **Academy Data Blocked by Slug/UUID Mismatch (Postgres 22P02 Error) Fixed**:
     - `frontend/src/app/api/academy/tracks/[id]/days/[day]/route.ts`: Added `UUID_REGEX` validation to prevent executing `id.eq.<slug>` against UUID columns which previously failed with PostgreSQL 22P02 `invalid input syntax for type uuid`. Safely resolves track slug against seeded `learning_tracks` (and `academy_tracks`), queries `learning_days`, and extracts genuine seeded `learning_resources` and `learning_questions` from the database.

@@ -12,6 +12,10 @@ export async function DELETE(
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!UUID_REGEX.test(id)) {
+    return NextResponse.json({ error: "Invalid bookmark ID format" }, { status: 400 });
+  }
 
   const { error } = await supabaseAdmin
     .from("saved_opportunities")

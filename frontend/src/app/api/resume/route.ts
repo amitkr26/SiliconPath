@@ -111,10 +111,22 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  // 3. Query multi-resume versions if present
+  let versions: any[] = [];
+  try {
+    const { data: vList } = await supabaseAdmin
+      .from("resume_versions")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false });
+    if (vList) versions = vList;
+  } catch {}
+
   const { score, feedback } = calculateAtsScore(resumeData);
 
   return NextResponse.json({
     resume: resumeData,
+    versions,
     ...resumeData,
     ats_score: resumeData.ats_score || score,
     ats_feedback: resumeData.ats_feedback || feedback,
@@ -180,6 +192,40 @@ export async function PATCH(request: NextRequest) {
     console.error("user_resumes upsert error:", upsertError);
   }
 
+  // Also persist to resume_versions table
+  let savedVersion = null;
+  try {
+    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const versionId = body.version_id && UUID_REGEX.test(body.version_id) ? body.version_id : undefined;
+    const versionName = body.version_name || "Primary Resume";
+    const targetDomain = body.target_domain || null;
+    const targetRole = body.target_role || updates.headline || null;
+    const styleData = body.style || null;
+
+    const versionPayload = {
+      ...(versionId ? { id: versionId } : {}),
+      user_id: user.id,
+      version_name: versionName,
+      target_domain: targetDomain,
+      target_role: targetRole,
+      is_master: body.is_master ?? true,
+      structured_data: { data: updates, style: styleData },
+      ats_score: score,
+      ats_feedback: feedback,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data: vData } = await supabaseAdmin
+      .from("resume_versions")
+      .upsert(versionPayload)
+      .select()
+      .maybeSingle();
+
+    savedVersion = vData;
+  } catch (vErr) {
+    console.error("resume_versions upsert error:", vErr);
+  }
+
   // Sync profile metadata if provided
   await supabaseAdmin
     .from("user_profiles")
@@ -194,14 +240,42 @@ export async function PATCH(request: NextRequest) {
   return NextResponse.json({
     success: true,
     resume: payload,
+    version: savedVersion,
     ...payload,
   });
 }
 
-export async function DELETE() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export async function DELETE(request: NextRequest) {
+  let user = null;
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    if (supabaseAdmin) {
+      const { data } = await supabaseAdmin.auth.getUser(token);
+      user = data.user;
+    }
+  }
+
+  if (!user) {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  }
+
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { searchParams } = new URL(request.url);
+  const versionId = searchParams.get("versionId");
+
+  if (versionId) {
+    await supabaseAdmin
+      .from("resume_versions")
+      .delete()
+      .eq("id", versionId)
+      .eq("user_id", user.id);
+
+    return NextResponse.json({ success: true, deletedVersionId: versionId });
+  }
 
   await supabaseAdmin
     .from("user_resumes")

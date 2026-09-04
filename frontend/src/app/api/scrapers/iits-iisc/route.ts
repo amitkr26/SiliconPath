@@ -1,12 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { runScraperRoute } from "../utils";
-import { scrapeUniversitiesAndInstitutes } from "@/lib/scrapers/national-scrapers";
+import { scrapeIndiaAcademic } from "@/lib/scrapers/india-academic-scraper";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   return runScraperRoute(
     request,
-    () => scrapeUniversitiesAndInstitutes(),
-    "IITs & IISc Scraper (IIT Bombay, IIT Madras, IIT Delhi, IISc Bangalore, IISERs)",
-    ["IIT", "IISc", "PhD", "JRF"]
+    scrapeIndiaAcademic,
+    "IITs & IISc Academic Scraper",
+    ["IIT", "IISc", "PhD", "JRF", "Academia"]
   );
 }
+
