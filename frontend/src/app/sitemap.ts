@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
+import { FALLBACK_TRACKS } from "@/lib/academy/fallback";
 
 const STATIC_PAGES: { url: string; freq: "daily" | "hourly" | "weekly" | "monthly"; priority: number }[] = [
   { url: "https://berojgardegreewala.vercel.app", freq: "daily", priority: 1 },
@@ -57,6 +58,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `https://berojgardegreewala.vercel.app/resources/${res}`,
       lastModified: new Date(),
       changeFrequency: "weekly",
+      priority: 0.6,
+    });
+  }
+
+  // Academy track + day + assessment pages (from fallback list; DB tracks
+  // would require an extra query but the fallback covers all 7 tracks)
+  for (const track of FALLBACK_TRACKS) {
+    urls.push({
+      url: `https://berojgardegreewala.vercel.app/academy/${track.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    });
+    for (let d = 1; d <= track.estimated_days; d++) {
+      urls.push({
+        url: `https://berojgardegreewala.vercel.app/academy/${track.slug}/day/${d}`,
+        lastModified: new Date(),
+        changeFrequency: "monthly",
+        priority: 0.5,
+      });
+    }
+    urls.push({
+      url: `https://berojgardegreewala.vercel.app/academy/${track.slug}/assessment`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
       priority: 0.6,
     });
   }
