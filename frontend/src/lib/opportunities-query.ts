@@ -236,5 +236,5 @@ export async function searchOpportunities(
     ? (data || [])
     : (data || []).filter((opp: any) => isCurrentlyAvailable(opp, today));
 
-  return { data: filtered, count: includeExpired ? (count !== null ? count : (data || []).length) : filtered.length };
+  return { data: filtered, count: count !== null && count !== undefined ? count : filtered.length };
 }

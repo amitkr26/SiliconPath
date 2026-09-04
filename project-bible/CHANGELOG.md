@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-04 — Phase 0: P0 Production Blockers & Critical Reality Fixes:**
+  - **Academy Data Blocked by Slug/UUID Mismatch (Postgres 22P02 Error) Fixed**:
+    - `frontend/src/app/api/academy/tracks/[id]/days/[day]/route.ts`: Added `UUID_REGEX` validation to prevent executing `id.eq.<slug>` against UUID columns which previously failed with PostgreSQL 22P02 `invalid input syntax for type uuid`. Safely resolves track slug against seeded `learning_tracks` (and `academy_tracks`), queries `learning_days`, and extracts genuine seeded `learning_resources` and `learning_questions` from the database.
+    - `frontend/src/app/api/academy/tracks/[id]/days/route.ts`: Replaced unsafe `or(id.eq.${id},slug.eq.${id})` and `eq("track_id", id)` with UUID-checked queries resolving `learning_tracks` and `learning_days`.
+    - `frontend/src/app/api/academy/tracks/[id]/assessment/route.ts`: Replaced unsafe `.or()` with slug vs UUID discrimination before querying `track_assessments`.
+  - **Admin Browser Navigation Lockout Resolved**:
+    - `frontend/src/middleware.ts`: Restricted `ADMIN_PATHS` to `['/api/admin']` returning 403 JSON for unauthorized API mutations, while allowing browser document GET requests to load `/admin`. The built-in client Admin Console Login Form at `frontend/src/app/admin/page.tsx` is now accessible to operators.
+  - **Conflicting Vercel Cron Configuration Synchronized**:
+    - `frontend/vercel.json`: Replaced obsolete `/api/scrapers/run-all` cron with production pipeline crons matching root `vercel.json` (`/api/cron/scrape-opportunities` at `0 0 * * *`, `/api/cron/check-links` at `0 8 * * *`, and `/api/news/sync` at `0 6 * * *`).
+  - **Opportunity Pagination Truncated Count Restored**:
+    - `frontend/src/lib/opportunities-query.ts`: Fixed line 239 where `count` was returned as `filtered.length` (<=30) when `includeExpired=false`. Now preserves exact Supabase database count (`count !== null && count !== undefined ? count : filtered.length`), restoring pagination across the platform.
+  - **Opportunity Detail 404 on Direct UUID Links Resolved**:
+    - `frontend/src/app/opportunities/[slug]/page.tsx`: Updated `lookupOpportunity(slug)` to detect UUID format via regex and query `.or(\`id.eq.${slug},slug.eq.${slug}\`)`, resolving opportunities requested via UUID (such as weekly email digest links) while preserving slug queries without 22P02 errors.
+  - **Verification & Testing**:
+    - Added `frontend/src/__tests__/lib/phase0-fixes.test.ts` with runnable unit tests covering UUID discrimination, pagination count fidelity, and admin path routing scope.
+    - Full monorepo validation: Frontend Jest test suite (25/25 suites, 201/201 tests passed), API test suite (97/97 passed), Worker test suite (30/30 passed), Server test suite (46/46 passed), Gateway test suite (15/15 passed) — 389 tests passed with 0 failures. Typecheck clean (`npx tsc --noEmit` 0 errors).
+
 - **2026-09-02 — Master Codebase Security Audit & Hardening (commit c98967a):**
   - **CRITICAL FIX: Error Message Leakage Eliminated** — Replaced `error.message` direct-to-response pattern with safe `apiError()` helper across 40+ API routes. Production now returns generic "An unexpected error occurred" instead of exposing Supabase/Neon internals (table names, column names, RLS policies). Fixed cron-health and cleanup-news `serverError()` calls to use static messages.
   - **HIGH FIX: Admin Auth Bypass Patched** — 3 admin pages (`add-opportunity`, `edit-opportunity`, `scrape-health`) had `.catch(() => setAuthenticated(true))` that silently granted admin access when auth API failed. Now denies access on failure.

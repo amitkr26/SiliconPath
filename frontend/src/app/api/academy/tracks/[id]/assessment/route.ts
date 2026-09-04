@@ -16,10 +16,31 @@ export async function GET(
   try {
     const { id } = await params;
 
+    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const isIdUuid = UUID_REGEX.test(id);
+    let actualTrackId = isIdUuid ? id : null;
+
+    if (!actualTrackId) {
+      const { data: trackRow } = await supabaseAdmin
+        .from("learning_tracks")
+        .select("id")
+        .eq("slug", id)
+        .maybeSingle();
+
+      if (trackRow?.id) actualTrackId = trackRow.id;
+    }
+
+    if (!actualTrackId || !UUID_REGEX.test(actualTrackId)) {
+      return NextResponse.json(
+        { error: "Track not found" },
+        { status: 404 }
+      );
+    }
+
     const { data, error } = await supabaseAdmin
       .from("track_assessments")
       .select("*")
-      .eq("track_id", id)
+      .eq("track_id", actualTrackId)
       .single();
 
     if (error || !data) {

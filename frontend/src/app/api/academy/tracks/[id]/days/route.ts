@@ -4,6 +4,8 @@ import { FALLBACK_TRACKS } from "@/lib/academy/queries";
 
 export const dynamic = "force-dynamic";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -14,40 +16,46 @@ export async function GET(
 
   if (isAdminConfigured && supabaseAdmin) {
     try {
-      let actualTrackId = id;
-      const { data: trackRow } = await supabaseAdmin
-        .from("academy_tracks")
-        .select("id")
-        .or(`id.eq.${id},slug.eq.${id}`)
-        .maybeSingle();
+      const isIdUuid = UUID_REGEX.test(id);
+      let actualTrackId = isIdUuid ? id : null;
 
-      if (trackRow?.id) {
-        actualTrackId = trackRow.id;
-      } else {
+      if (!actualTrackId) {
         const { data: legacyTrackRow } = await supabaseAdmin
           .from("learning_tracks")
           .select("id")
-          .or(`id.eq.${id},slug.eq.${id}`)
+          .eq("slug", id)
           .maybeSingle();
-        if (legacyTrackRow?.id) actualTrackId = legacyTrackRow.id;
+
+        if (legacyTrackRow?.id) {
+          actualTrackId = legacyTrackRow.id;
+        } else {
+          const { data: trackRow } = await supabaseAdmin
+            .from("academy_tracks")
+            .select("id")
+            .eq("slug", id)
+            .maybeSingle();
+          if (trackRow?.id) actualTrackId = trackRow.id;
+        }
       }
 
-      let res = await supabaseAdmin
-        .from("academy_days")
-        .select("*")
-        .eq("track_id", actualTrackId)
-        .order("day_number", { ascending: true });
-
-      if ((!res.data || res.data.length === 0) && actualTrackId !== id) {
-        res = await supabaseAdmin
-          .from("academy_days")
+      if (actualTrackId && UUID_REGEX.test(actualTrackId)) {
+        let res = await supabaseAdmin
+          .from("learning_days")
           .select("*")
-          .eq("track_id", id)
+          .eq("track_id", actualTrackId)
           .order("day_number", { ascending: true });
-      }
 
-      if (res.data && res.data.length > 0) {
-        return NextResponse.json(res.data);
+        if (!res.data || res.data.length === 0) {
+          res = await supabaseAdmin
+            .from("academy_days")
+            .select("*")
+            .eq("track_id", actualTrackId)
+            .order("day_number", { ascending: true });
+        }
+
+        if (res.data && res.data.length > 0) {
+          return NextResponse.json(res.data);
+        }
       }
     } catch (err) {
       console.error("Error fetching days from DB:", err);
