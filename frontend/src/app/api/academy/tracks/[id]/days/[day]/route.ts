@@ -129,6 +129,45 @@ export async function GET(
     watch_from_seconds: 0
   }));
 
+  const sampleQuestions = [
+    {
+      id: `q-${dayNumber}-1`,
+      question: `In Verilog/SystemVerilog RTL design, which type of assignment operator MUST be used for sequential logic inside an always @(posedge clk) block?`,
+      options: [
+        "Blocking assignment (=)",
+        "Non-blocking assignment (<=)",
+        "Continuous assignment (assign)",
+        "Procedural force assignment",
+      ],
+      correct_answer: 1,
+      explanation: "Non-blocking assignments (<=) schedule updates for the end of the current simulation timestep, preventing race conditions between sequential registers.",
+    },
+    {
+      id: `q-${dayNumber}-2`,
+      question: `What is the primary consequence of violating setup time ($t_{su}$) in a flip-flop?`,
+      options: [
+        "Metastability at the register output",
+        "Higher static leakage current",
+        "Permanent gate dielectric breakdown",
+        "Increased clock frequency",
+      ],
+      correct_answer: 0,
+      explanation: "Setup time violation prevents the data input from settling before the active clock edge, causing the flip-flop output to enter a metastable state.",
+    },
+    {
+      id: `q-${dayNumber}-3`,
+      question: `Which tool in the open-source OpenLANE flow performs RTL synthesis into logic gates before physical placement?`,
+      options: [
+        "Yosys Open SYnthesis Suite",
+        "OpenROAD",
+        "Magic VLSI",
+        "KLayout",
+      ],
+      correct_answer: 0,
+      explanation: "Yosys is the open-source synthesis tool used by OpenLANE to convert Verilog RTL into standard gate primitives.",
+    }
+  ];
+
   if (isAdminConfigured && supabaseAdmin) {
     try {
       const isIdUuid = UUID_REGEX.test(id);
@@ -204,7 +243,11 @@ export async function GET(
 
           if (dbQuestions && dbQuestions.length > 0) {
             questions = dbQuestions;
+          } else {
+            questions = sampleQuestions;
           }
+        } else {
+          questions = sampleQuestions;
         }
 
         return NextResponse.json({
@@ -289,45 +332,6 @@ endmodule
       { label: "ChipVerify In-Browser Yosys + Sky130 Lab", url: "https://chipverify.com" }
     ],
   };
-
-  const sampleQuestions = [
-    {
-      id: `q-${dayNumber}-1`,
-      question: `In Verilog/SystemVerilog RTL design, which type of assignment operator MUST be used for sequential logic inside an always @(posedge clk) block?`,
-      options: [
-        "Blocking assignment (=)",
-        "Non-blocking assignment (<=)",
-        "Continuous assignment (assign)",
-        "Procedural force assignment",
-      ],
-      correct_answer: 1,
-      explanation: "Non-blocking assignments (<=) schedule updates for the end of the current simulation timestep, preventing race conditions between sequential registers.",
-    },
-    {
-      id: `q-${dayNumber}-2`,
-      question: `What is the primary consequence of violating setup time ($t_{su}$) in a flip-flop?`,
-      options: [
-        "Metastability at the register output",
-        "Higher static leakage current",
-        "Permanent gate dielectric breakdown",
-        "Increased clock frequency",
-      ],
-      correct_answer: 0,
-      explanation: "Setup time violation prevents the data input from settling before the active clock edge, causing the flip-flop output to enter a metastable state.",
-    },
-    {
-      id: `q-${dayNumber}-3`,
-      question: `Which tool in the open-source OpenLANE flow performs RTL synthesis into logic gates before physical placement?`,
-      options: [
-        "Yosys Open SYnthesis Suite",
-        "OpenROAD",
-        "Magic VLSI",
-        "KLayout",
-      ],
-      correct_answer: 0,
-      explanation: "Yosys is the open-source synthesis tool used by OpenLANE to convert Verilog RTL into standard gate primitives.",
-    }
-  ];
 
   return NextResponse.json({
     track,

@@ -60,4 +60,85 @@ describe("Phase 0 Production Fixes", () => {
       expect(isAdminApiRoute("/admin/add-opportunity")).toBe(false);
     });
   });
+
+  describe("PracticeQuiz Answer Grading Resiliency", () => {
+    function evaluateAnswer(
+      q: { options: any[]; correct_option_index: number },
+      selectedIdx: number
+    ): boolean {
+      const selected = q.options[selectedIdx];
+      const selectedText = typeof selected === "string" ? selected : selected?.label || selected?.value || "";
+      const correctOption = q.options[q.correct_option_index];
+      const correctText = typeof correctOption === "string" ? correctOption : correctOption?.label || correctOption?.value || "";
+
+      return (
+        selectedIdx === q.correct_option_index ||
+        (Boolean(selectedText) && selectedText.trim().toLowerCase() === correctText.trim().toLowerCase())
+      );
+    }
+
+    it("correctly grades plain string option arrays", () => {
+      const question = {
+        options: ["Blocking (=)", "Non-blocking (<=)", "Continuous (assign)"],
+        correct_option_index: 1,
+      };
+      expect(evaluateAnswer(question, 1)).toBe(true);
+      expect(evaluateAnswer(question, 0)).toBe(false);
+      expect(evaluateAnswer(question, 2)).toBe(false);
+    });
+
+    it("correctly grades object option arrays {label, value}", () => {
+      const question = {
+        options: [
+          { label: "Synthesis mismatch", value: "opt_a" },
+          { label: "Race condition hazard", value: "opt_b" },
+        ],
+        correct_option_index: 1,
+      };
+      expect(evaluateAnswer(question, 1)).toBe(true);
+      expect(evaluateAnswer(question, 0)).toBe(false);
+    });
+  });
+
+  describe("Resume Multi-Version Mapping", () => {
+    interface VersionRecord {
+      id: string;
+      version_name?: string;
+      style?: any;
+      updated_at?: string;
+    }
+
+    function mapVersionToMeta(v: VersionRecord) {
+      return {
+        id: v.id,
+        name: v.version_name || "Primary Resume",
+        templateId: v.style?.templateId || "modern-professional",
+        updatedAt: v.updated_at ? new Date(v.updated_at).toLocaleDateString() : "Just now",
+      };
+    }
+
+    it("extracts version metadata correctly with fallback defaults", () => {
+      const record: VersionRecord = {
+        id: "v-123",
+        version_name: "Verification Engineer Resume",
+        style: { templateId: "technical-minimal" },
+        updated_at: "2026-09-04T12:00:00Z",
+      };
+
+      const meta = mapVersionToMeta(record);
+      expect(meta.id).toBe("v-123");
+      expect(meta.name).toBe("Verification Engineer Resume");
+      expect(meta.templateId).toBe("technical-minimal");
+      expect(meta.updatedAt).toBeTruthy();
+    });
+
+    it("applies sensible defaults for empty style and name", () => {
+      const record: VersionRecord = { id: "v-456" };
+      const meta = mapVersionToMeta(record);
+      expect(meta.name).toBe("Primary Resume");
+      expect(meta.templateId).toBe("modern-professional");
+      expect(meta.updatedAt).toBe("Just now");
+    });
+  });
 });
+

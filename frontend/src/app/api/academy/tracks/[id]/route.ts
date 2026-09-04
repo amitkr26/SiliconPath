@@ -12,20 +12,19 @@ export async function GET(
 
   const fallbackTrack = FALLBACK_TRACKS.find(t => t.slug === id || t.id === id);
 
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const isUuid = UUID_REGEX.test(id);
+
   if (isAdminConfigured && supabaseAdmin) {
     try {
-      let { data } = await supabaseAdmin
-        .from("academy_tracks")
-        .select("*")
-        .or(`id.eq.${id},slug.eq.${id}`)
-        .maybeSingle();
+      let query1 = supabaseAdmin.from("learning_tracks").select("*");
+      query1 = isUuid ? query1.or(`id.eq.${id},slug.eq.${id}`) : query1.eq("slug", id);
+      let { data } = await query1.maybeSingle();
 
       if (!data) {
-        const res2 = await supabaseAdmin
-          .from("learning_tracks")
-          .select("*")
-          .or(`id.eq.${id},slug.eq.${id}`)
-          .maybeSingle();
+        let query2 = supabaseAdmin.from("academy_tracks").select("*");
+        query2 = isUuid ? query2.or(`id.eq.${id},slug.eq.${id}`) : query2.eq("slug", id);
+        const res2 = await query2.maybeSingle();
         data = res2.data;
       }
 

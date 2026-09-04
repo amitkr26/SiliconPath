@@ -22,9 +22,39 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: "/opportunities/:uuid(\\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\b)",
-        destination: "/opportunities",
-        permanent: false,
+        source: "/community",
+        destination: "/feed",
+        permanent: true,
+      },
+      {
+        source: "/community/:path*",
+        destination: "/feed",
+        permanent: true,
+      },
+      {
+        source: "/chat",
+        destination: "/ask-ai",
+        permanent: true,
+      },
+      {
+        source: "/chat/:path*",
+        destination: "/ask-ai",
+        permanent: true,
+      },
+      {
+        source: "/post-job",
+        destination: "/employer/post-job",
+        permanent: true,
+      },
+      {
+        source: "/employers",
+        destination: "/employer",
+        permanent: true,
+      },
+      {
+        source: "/employers/:path*",
+        destination: "/employer/:path*",
+        permanent: true,
       },
     ];
   },

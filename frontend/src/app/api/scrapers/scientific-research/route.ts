@@ -1,12 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { runScraperRoute } from "../utils";
-import { scrapeScientificResearch } from "@/lib/scrapers/national-scrapers";
+import { scrapeCSIR } from "@/lib/scrapers/csir-scraper";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   return runScraperRoute(
     request,
-    () => scrapeScientificResearch(),
-    "Scientific Research Scraper (CSIR CEERI, NPL, CSIO, NAL, TIFR, NCBS)",
-    ["Scientific Research", "CSIR", "TIFR"]
+    scrapeCSIR,
+    "Scientific Research Scraper (CSIR CEERI, NPL, CSIO, NAL)",
+    ["Scientific Research", "CSIR"]
   );
 }
+

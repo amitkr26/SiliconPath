@@ -1,12 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { runScraperRoute } from "../utils";
-import { scrapePsuElectronics } from "@/lib/scrapers/national-scrapers";
+import { scrapeIndiaPSU } from "@/lib/scrapers/india-psu-scraper";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   return runScraperRoute(
     request,
-    () => scrapePsuElectronics(),
+    scrapeIndiaPSU,
     "PSU Electronics Scraper (ECIL, ITI, RailTel, BSNL, BHEL, C-DOT)",
     ["PSU", "ECIL", "CDOT"]
   );
 }
+

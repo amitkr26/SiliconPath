@@ -39,7 +39,22 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
     const userAns = (selectedAnswers[questionId] || "").trim().toLowerCase();
     const correctAns = String(rawCorrectAnswer ?? "").trim().toLowerCase();
 
-    const isCorrect = userAns === correctAns;
+    const q = questions.find((item) => item.id === questionId);
+    let isCorrect = userAns === correctAns;
+    if (!isCorrect && q) {
+      const rawOpts = (q as any).options || [];
+      const matchedOpt = rawOpts.map((opt: any, oIdx: number) => {
+        if (typeof opt === "string") {
+          return { value: String(oIdx).toLowerCase(), alt: opt.trim().toLowerCase() };
+        }
+        return { value: String(opt.value ?? oIdx).toLowerCase(), alt: String(opt.label || opt.value || "").trim().toLowerCase() };
+      }).find((o: any) => o.value === userAns || o.alt === userAns);
+
+      if (matchedOpt && (matchedOpt.value === correctAns || matchedOpt.alt === correctAns)) {
+        isCorrect = true;
+      }
+    }
+
     if (isCorrect) {
       setScore((prev) => prev + 1);
     }
@@ -69,9 +84,6 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
         {questions.map((q, idx) => {
           const isSubmitted = submitted[q.id];
           const selectedAns = selectedAnswers[q.id] || "";
-          const strCorrectAns = String(q.correct_answer ?? "").trim().toLowerCase();
-          const isCorrect = selectedAns.trim().toLowerCase() === strCorrectAns;
-
           const rawOptions = (q as any).options || [];
           const normalizedOptions = rawOptions.map((opt: any, oIdx: number) => {
             if (typeof opt === "string") {
@@ -87,6 +99,10 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
               altValue: String(opt.value || opt.label || "").trim().toLowerCase(),
             };
           });
+
+          const strCorrectAns = String(q.correct_answer ?? "").trim().toLowerCase();
+          const matchedSelected = normalizedOptions.find((o: any) => o.value.toLowerCase() === selectedAns.trim().toLowerCase() || o.altValue === selectedAns.trim().toLowerCase());
+          const isCorrect = selectedAns.trim().toLowerCase() === strCorrectAns || Boolean(matchedSelected && (matchedSelected.value.toLowerCase() === strCorrectAns || matchedSelected.altValue === strCorrectAns));
 
           return (
             <Card

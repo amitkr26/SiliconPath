@@ -1,12 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { runScraperRoute } from "../utils";
-import { scrapeSpaceAndDefence } from "@/lib/scrapers/national-scrapers";
+import { scrapeDRDO } from "@/lib/scrapers/drdo-scraper";
+import { scrapeISRO } from "@/lib/scrapers/isro-scraper";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   return runScraperRoute(
     request,
-    () => scrapeSpaceAndDefence(),
-    "Space & Defence Scraper (DRDO, ISRO, BARC, DAE, HAL, BEL, BDL)",
+    async () => [...(await scrapeDRDO()), ...(await scrapeISRO())],
+    "Space & Defence Scraper (DRDO, ISRO)",
     ["Space", "Defence", "DRDO", "ISRO"]
   );
 }
+
