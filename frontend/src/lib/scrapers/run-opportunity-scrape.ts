@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { fetchOpportunitiesFromRSS } from "@/lib/scrapers/rss-parser";
 import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper-impl";
 import { cleanTitle, slugify, normalizeUrl, GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";

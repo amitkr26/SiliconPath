@@ -65,6 +65,8 @@ const ROWS = Array.from({ length: 25 }, (_, i) => ({
 
 jest.mock("@/lib/supabase", () => ({
   isAdminConfigured: true,
+}));
+jest.mock("@/lib/supabase-admin", () => ({
   supabaseAdmin: {
     from: (table: string) => {
       if (table === "organizations") {
@@ -74,6 +76,7 @@ jest.mock("@/lib/supabase", () => ({
       return chain;
     },
   },
+  isAdminConfigured: true,
 }));
 
 jest.mock("@/lib/utils", () => ({

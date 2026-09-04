@@ -111,22 +111,22 @@ function makeSupabaseMock() {
 }
 
 // Route under test imports @/lib/ai/providers (gateway) and @/lib/supabase.
-jest.mock("@/lib/supabase", () => {
-  const real = jest.requireActual("@/lib/ai/grounding");
-  return {
-    isAdminConfigured: true,
-    supabaseAdmin: {
-      from: (table: string) => {
-        const chain: any = (..._a: any[]) => chain;
-        chain.then = (fn: any) => Promise.resolve({ data: table === "opportunities" ? RECORDS : [], error: null }).then(fn);
-        chain.eq = () => chain; chain.neq = () => chain; chain.or = () => chain;
-        chain.order = () => chain; chain.ilike = () => chain; chain.limit = () => chain;
-        chain.select = () => chain; chain.range = () => chain; chain.contains = () => chain;
-        return chain;
-      },
+jest.mock("@/lib/supabase", () => ({
+  isAdminConfigured: true,
+}));
+jest.mock("@/lib/supabase-admin", () => ({
+  supabaseAdmin: {
+    from: (table: string) => {
+      const chain: any = (..._a: any[]) => chain;
+      chain.then = (fn: any) => Promise.resolve({ data: table === "opportunities" ? RECORDS : [], error: null }).then(fn);
+      chain.eq = () => chain; chain.neq = () => chain; chain.or = () => chain;
+      chain.order = () => chain; chain.ilike = () => chain; chain.limit = () => chain;
+      chain.select = () => chain; chain.range = () => chain; chain.contains = () => chain;
+      return chain;
     },
-  };
-});
+  },
+  isAdminConfigured: true,
+}));
 
 import { POST } from "@/app/api/ai/chat/route";
 import {
@@ -196,7 +196,7 @@ describe("P0 grounding — chat route", () => {
 
   test("d) zero relevant records → explicit no-results fallback, LLM not called", async () => {
     // Make retrieval return nothing by pointing the mock at empty data
-    const emptyMock = jest.requireMock("@/lib/supabase") as any;
+    const emptyMock = jest.requireMock("@/lib/supabase-admin") as any;
     const origFrom = emptyMock.supabaseAdmin.from;
     emptyMock.supabaseAdmin.from = (table: string) => {
       const chain: any = (..._a: any[]) => chain;
@@ -363,7 +363,7 @@ describe("AI-QUALITY regression — no-match parroting guard", () => {
       provider: "groq",
       model: "test-model",
     });
-    const emptyMock = jest.requireMock("@/lib/supabase") as any;
+    const emptyMock = jest.requireMock("@/lib/supabase-admin") as any;
     const origFrom = emptyMock.supabaseAdmin.from;
     emptyMock.supabaseAdmin.from = (table: string) => {
       const chain: any = (..._a: any[]) => chain;

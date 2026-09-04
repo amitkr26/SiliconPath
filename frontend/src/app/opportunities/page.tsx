@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { mapDbOpportunityToClient } from "@/lib/utils";
 import { GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
 import { searchOpportunities } from "@/lib/opportunities-query";

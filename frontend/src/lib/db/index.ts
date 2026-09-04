@@ -1,25 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { neon } from '@neondatabase/serverless';
-
-// ── DB1: Supabase Primary — core platform + social + logs (live truth) ──
-// Tables: opportunities (+organizations), news_articles, user_profiles,
-//         connections, feed_posts, messages, saved_opportunities,
-//         applications, scrape_sources, scrape_runs, ai_usage_log,
-//         link_check_logs, opportunity_verifications (DDL pending)
-function getDb1() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return null;
-  }
-  try {
-    return createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-  } catch (error: any) {
-    console.error('[DB Setup] Failed to initialize Supabase db1:', error.message);
-    return null;
-  }
-}
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 // ── DB2: Supabase Secondary — legacy social mirror (read-only fallback) ──
 // Retained for compat; live social tables were consolidated into db1.
@@ -63,7 +44,7 @@ function getNeon2() {
   }
 }
 
-export const db1 = getDb1();
+export const db1 = supabaseAdmin;
 export const db2 = getDb2();
 export const neon1 = getNeon1();
 export const neon2 = getNeon2();

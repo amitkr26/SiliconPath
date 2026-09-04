@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { matchOpportunities } from "@/lib/ai/matcher";
 import type { UserProfile } from "@/lib/ai/matcher";
 import { apiError } from "@/lib/api-utils";

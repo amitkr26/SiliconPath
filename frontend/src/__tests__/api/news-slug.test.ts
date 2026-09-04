@@ -46,11 +46,14 @@ function makeChain(result: any) {
 
 jest.mock('@/lib/supabase', () => ({
   isAdminConfigured: true,
+}));
+jest.mock('@/lib/supabase-admin', () => ({
   supabaseAdmin: {
     from: jest.fn(() => ({
       select: jest.fn(() => makeChain({ data: ARTICLES[0], error: null })),
     })),
   },
+  isAdminConfigured: true,
 }));
 
 jest.mock('@berojgardegreewala/api', () => ({
@@ -75,7 +78,7 @@ describe('GET /api/news/[slug]', () => {
 
   it('queries news_articles filtered by slug', async () => {
     const { NextRequest } = require('next/server');
-    const { supabaseAdmin } = require('@/lib/supabase');
+    const { supabaseAdmin } = require('@/lib/supabase-admin');
     await GET(
       new NextRequest('http://localhost:3000/api/news/blog-review-july-15'),
       { params: Promise.resolve({ slug: 'blog-review-july-15' }) }
@@ -87,7 +90,7 @@ describe('GET /api/news/[slug]', () => {
   });
 
   it('returns 404 when the article does not exist', async () => {
-    const { supabaseAdmin } = require('@/lib/supabase');
+    const { supabaseAdmin } = require('@/lib/supabase-admin');
     supabaseAdmin.from.mockReturnValueOnce({
       select: jest.fn(() => makeChain({ data: null, error: { message: 'No rows found' } })),
     });

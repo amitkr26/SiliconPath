@@ -1,6 +1,6 @@
 import { gateway } from "@berojgardegreewala/ai-gateway";
 import type { AIProvider } from "@berojgardegreewala/ai-gateway";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export type { AIProvider };
 export type AIResponse = { text: string; provider: AIProvider; model: string };

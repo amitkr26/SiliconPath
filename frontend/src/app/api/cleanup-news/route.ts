@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { slugify, normalizeUrl } from "@/lib/scrapers/utils";
 import { serverError } from "@berojgardegreewala/api";
 

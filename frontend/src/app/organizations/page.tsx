@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Sparkles } from "lucide-react";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { Card } from "@/components/ui/Card";
 import OrganizationsClient from "./OrganizationsClient";
 

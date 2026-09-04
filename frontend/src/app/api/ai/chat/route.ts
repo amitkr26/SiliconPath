@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI } from "@/lib/ai/providers";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { serverError } from "@berojgardegreewala/api";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeAIContent } from "@/lib/ai/reasoning-sanitizer";

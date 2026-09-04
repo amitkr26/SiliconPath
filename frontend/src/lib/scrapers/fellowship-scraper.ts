@@ -117,11 +117,15 @@ async function scrapeSingleFellowship(source: typeof FELLOWSHIP_SOURCES[0]): Pro
 }
 
 export async function scrapeFellowships(): Promise<ScrapedOpportunity[]> {
+  const BATCH_SIZE = 5;
   const all: ScrapedOpportunity[] = [];
-  for (const source of FELLOWSHIP_SOURCES) {
-    const results = await scrapeSingleFellowship(source);
-    all.push(...results);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+  for (let i = 0; i < FELLOWSHIP_SOURCES.length; i += BATCH_SIZE) {
+    const batch = FELLOWSHIP_SOURCES.slice(i, i + BATCH_SIZE);
+    const results = await Promise.allSettled(batch.map(s => scrapeSingleFellowship(s)));
+    for (const r of results) if (r.status === "fulfilled") all.push(...r.value);
+    if (i + BATCH_SIZE < FELLOWSHIP_SOURCES.length) {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
   }
   return all;
 }

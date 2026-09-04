@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCandidateExperiences } from "@/lib/candidate-profile-store";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(

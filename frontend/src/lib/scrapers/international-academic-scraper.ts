@@ -132,16 +132,17 @@ async function scrapeHtmlAcademic(source: typeof INTERNATIONAL_SOURCES[0]): Prom
 }
 
 export async function scrapeInternationalAcademic(): Promise<ScrapedOpportunity[]> {
+  const BATCH_SIZE = 5;
   const all: ScrapedOpportunity[] = [];
-  for (const source of INTERNATIONAL_SOURCES) {
-    let results: ScrapedOpportunity[] = [];
-    if (source.type === 'rss') {
-      results = await scrapeRssSource(source);
-    } else {
-      results = await scrapeHtmlAcademic(source);
+  for (let i = 0; i < INTERNATIONAL_SOURCES.length; i += BATCH_SIZE) {
+    const batch = INTERNATIONAL_SOURCES.slice(i, i + BATCH_SIZE);
+    const results = await Promise.allSettled(
+      batch.map(s => s.type === 'rss' ? scrapeRssSource(s) : scrapeHtmlAcademic(s))
+    );
+    for (const r of results) if (r.status === "fulfilled") all.push(...r.value);
+    if (i + BATCH_SIZE < INTERNATIONAL_SOURCES.length) {
+      await new Promise(resolve => setTimeout(resolve, 1500));
     }
-    all.push(...results);
-    await new Promise(resolve => setTimeout(resolve, 1500));
   }
   return all;
 }

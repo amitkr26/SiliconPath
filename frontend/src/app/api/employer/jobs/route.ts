@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { resolveOrganizationId } from "@/lib/scrapers/run-opportunity-scrape";
 import { apiError } from "@/lib/api-utils";
 import { z } from "zod";

@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
+import { fetchWithLooseTLS } from "./fetch-utils";
 import institutions from "@/config/scrapers/institutions.json";
 
 // Filter for Indian academic institutions
@@ -27,19 +28,12 @@ function cleanTitle(title: string): string {
 async function scrapeSingleAcademic(source: any): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
   try {
-    const origTls = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-    let res;
-    try {
-      res = await fetch(source.url, {
-        signal: AbortSignal.timeout(10000),
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
-      });
-    } finally {
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = origTls;
-    }
+    const res = await fetchWithLooseTLS(source.url, {
+      signal: AbortSignal.timeout(10000),
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      }
+    });
 
     if (!res.ok) return [];
     const html = await res.text();
@@ -89,11 +83,15 @@ async function scrapeSingleAcademic(source: any): Promise<ScrapedOpportunity[]> 
 }
 
 export async function scrapeIndiaAcademic(): Promise<ScrapedOpportunity[]> {
+  const BATCH_SIZE = 5;
   const all: ScrapedOpportunity[] = [];
-  for (const source of ACADEMIC_SOURCES) {
-    const results = await scrapeSingleAcademic(source);
-    all.push(...results);
-    await new Promise(resolve => setTimeout(resolve, 1500));
+  for (let i = 0; i < ACADEMIC_SOURCES.length; i += BATCH_SIZE) {
+    const batch = ACADEMIC_SOURCES.slice(i, i + BATCH_SIZE);
+    const results = await Promise.allSettled(batch.map(s => scrapeSingleAcademic(s)));
+    for (const r of results) if (r.status === "fulfilled") all.push(...r.value);
+    if (i + BATCH_SIZE < ACADEMIC_SOURCES.length) {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
   }
   return all;
 }

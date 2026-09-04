@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { PUBLIC_PROFILE_FIELDS } from "@/lib/utils";
 import ProfileEditor from "@/components/profile/ProfileEditor";
 

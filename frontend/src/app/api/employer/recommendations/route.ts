@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 
 async function isEmployerUser(userId: string, userMetadata: any): Promise<boolean> {
   const role = userMetadata?.role || userMetadata?.account_type;

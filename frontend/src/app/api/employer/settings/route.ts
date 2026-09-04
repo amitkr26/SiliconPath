@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireEmployerRole } from "@/lib/employer-auth";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: NextRequest) {

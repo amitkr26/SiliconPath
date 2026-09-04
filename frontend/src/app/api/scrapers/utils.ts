@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { normalizeCategory } from "@/lib/categories";
 import { requireCronOrAdmin, serverError } from "@berojgardegreewala/api";
 

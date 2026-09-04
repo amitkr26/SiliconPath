@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { PUBLIC_PROFILE_FIELDS } from "@/lib/utils";
 import PublicProfile from "@/components/profile/PublicProfile";
 

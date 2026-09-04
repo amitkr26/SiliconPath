@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase";
+import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { mapDbOpportunityToClient } from "@/lib/utils";
 import { GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
 import { searchOpportunities } from "@/lib/opportunities-query";
