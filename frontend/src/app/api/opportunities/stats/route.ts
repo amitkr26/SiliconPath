@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
       supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true })
         .eq("is_active", true)
         .neq("verification_status", "rejected")
+        .neq("verification_status", "pending")
         .neq("verification_status", "expired")
         .neq("verification_status", "link_unavailable")
         .or(availFilter),
@@ -36,6 +37,7 @@ export async function GET(request: NextRequest) {
       .select("category, deadline, verification_status, posted_date, created_at, last_link_checked, is_active")
       .eq("is_active", true)
       .neq("verification_status", "rejected")
+      .neq("verification_status", "pending")
       .neq("verification_status", "expired")
       .neq("verification_status", "link_unavailable")
       .or(availFilter)

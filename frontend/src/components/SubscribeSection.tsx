@@ -50,7 +50,7 @@ export default function SubscribeSection() {
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
-            Subscribe to Verified Opportunity Alerts
+            Subscribe to Opportunity Alerts
           </h2>
 
           <p className="mt-4 text-sm sm:text-base text-blue-50 max-w-2xl mx-auto font-semibold leading-relaxed">

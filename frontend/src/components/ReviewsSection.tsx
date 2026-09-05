@@ -9,8 +9,8 @@ const TRUST_SIGNALS = [
     icon: ExternalLink,
   },
   {
-    title: "Automated + Human Verification",
-    description: "Scrapers fetch new listings daily. Each passes link validation and availability checks before surfacing in the public feed.",
+    title: "Automated Link Validation",
+    description: "Scrapers fetch new listings daily. Each passes automated link validation — confirming the URL resolves and the source is live before surfacing.",
     icon: CheckCircle2,
   },
   {
