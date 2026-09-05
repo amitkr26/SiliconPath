@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-bold text-slate-400">
           <div className="flex items-center gap-2 text-white font-black uppercase tracking-wider">
             <ShieldCheck className="w-5 h-5 text-accent" />
-            <span>India&apos;s Verified Semiconductor &amp; VLSI Career Gateway</span>
+            <span>India&apos;s Semiconductor &amp; VLSI Career Gateway</span>
           </div>
           <div className="flex flex-wrap items-center gap-5 text-slate-300">
             <span className="flex items-center gap-1.5">

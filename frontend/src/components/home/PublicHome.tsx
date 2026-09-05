@@ -235,7 +235,7 @@ export default function PublicHome({
             <div className="w-10 h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center text-blue-600 font-black shadow-brutal-sm text-sm">
               01
             </div>
-            <h3 className="text-base font-black text-slate-900">Discover Verified Circulars</h3>
+            <h3 className="text-base font-black text-slate-900">Discover Opportunity Circulars</h3>
             <p className="text-xs text-slate-600 font-medium leading-relaxed">
               We aggregate and index government research fellowship circulars, PSU recruitment notices, and private hardware engineering posts daily.
             </p>
@@ -316,7 +316,7 @@ export default function PublicHome({
 
                 <div className="pt-4 mt-4 border-t-2 border-slate-100 flex items-center justify-between">
                   <span className="text-xs font-bold text-blue-600 group-hover:underline flex items-center gap-1">
-                    Explore verified openings <ChevronRight className="w-3.5 h-3.5" />
+                    Explore openings <ChevronRight className="w-3.5 h-3.5" />
                   </span>
                   <span className="text-[10px] font-bold uppercase text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                     Live
