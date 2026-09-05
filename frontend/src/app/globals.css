@@ -53,6 +53,22 @@
 
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
+/* ==========================================================================
+   ACCESSIBILITY — Focus-visible ring for keyboard navigation
+   Only shows for keyboard users (not mouse clicks). Uses a high-contrast
+   2px offset ring matching the neo-brutalist design system.
+   ========================================================================== */
+:focus-visible {
+  outline: 2px solid #2563EB;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove default outline for mouse/touch users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 body {
   margin: 0;
   background-color: var(--bg);

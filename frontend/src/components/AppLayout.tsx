@@ -29,15 +29,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex flex-col min-h-screen relative">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-bold focus:text-sm focus:outline-none focus:ring-2 focus:ring-white"
+      >
+        Skip to main content
+      </a>
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1" tabIndex={-1}>{children}</main>
       <Footer />
 
-      {/* Floating Ask AI Button (Only visible on main website browsing pages) */}
+      {/* Floating Ask AI Button — safe-area-aware for iOS notch/BB */}
       <button
         onClick={() => setAiModalOpen(true)}
         aria-label="Ask AI Assistant"
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl border-2 border-slate-900 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-0.5 transition-all font-black text-xs sm:text-sm group"
+        className="fixed z-40 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl border-2 border-slate-900 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-0.5 transition-all font-black text-xs sm:text-sm group"
+        style={{ bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))", right: "1rem" }}
       >
         <Sparkles size={18} className="text-white fill-current" />
         <span>Ask AI</span>
