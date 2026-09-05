@@ -16,6 +16,8 @@ export async function GET(request: NextRequest) {
   const { data: opportunities } = await supabaseAdmin.from("opportunities")
     .select("id, title, organization:organizations(name), location, category, tags, is_active, deadline, description")
     .eq("is_active", true)
+    .neq("verification_status", "pending")
+    .neq("verification_status", "rejected")
     .order("created_at", { ascending: false })
     .limit(100);
 

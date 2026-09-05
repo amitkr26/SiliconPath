@@ -118,11 +118,13 @@ export async function runOpportunityScrape(): Promise<OpportunityScrapeResult> {
       "postdoc": "postdoc", "PostDoc": "postdoc", "Research Associate": "postdoc",
       "fellowship": "fellowship", "Fellowship": "fellowship", "Research Fellow": "fellowship",
       "internship": "internship", "Internship": "internship",
-      "government": "government", "Govt Job": "government",
-      "industry": "industry", "Tech Job": "industry", "Electronics": "industry",
-      "Engineering": "industry", "Private Job": "industry"
+      "government": "government", "Govt Job": "government", "govt job": "government",
+      "industry": "industry", "Tech Job": "industry", "tech job": "industry",
+      "Electronics": "industry", "electronics": "industry",
+      "Engineering": "industry", "engineering": "industry",
+      "Private Job": "industry", "private job": "industry"
     };
-    const normalizedCategory = CAT_MAP[opp.category] ?? "government";
+    const normalizedCategory = CAT_MAP[opp.category] ?? CAT_MAP[opp.category?.toLowerCase() ?? ""] ?? "government";
 
     // Generate slug from title (required NOT NULL UNIQUE in live schema)
     let oppSlug = slugify(cleanedTitle);

@@ -101,7 +101,7 @@ export default function RootLayout({
         "name": "BerojgarDegreeWala",
         "url": "https://berojgardegreewala.vercel.app",
         "logo": "https://berojgardegreewala.vercel.app/icon.svg",
-        "description": "100% verified circular aggregator for DRDO, ISRO, CSIR, IITs, and fabless semiconductor companies.",
+        "description": "Semiconductor and VLSI opportunity aggregator covering DRDO, ISRO, CSIR, IITs, and fabless companies.",
         "sameAs": [
           "https://twitter.com/berojgardegreewala",
           "https://linkedin.com/company/berojgardegreewala"

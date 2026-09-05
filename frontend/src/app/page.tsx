@@ -15,7 +15,7 @@ import AdminHome from "@/components/home/AdminHome";
 
 async function getPublicStats() {
   if (!supabaseAdmin?.from) {
-    return { total: 3571, jrf: 345, phd: 218, govt: 180, verified: 3241 };
+    return { total: 0, jrf: 0, phd: 0, govt: 0, verified: 0 };
   }
 
   const today = computeIstToday();
@@ -73,11 +73,11 @@ async function getPublicStats() {
   ]);
 
   return {
-    total: totalActive || 3571,
-    jrf: jrfCount || 345,
-    phd: phdCount || 218,
-    govt: govtCount || 180,
-    verified: verifiedCount || 3241,
+    total: totalActive || 0,
+    jrf: jrfCount || 0,
+    phd: phdCount || 0,
+    govt: govtCount || 0,
+    verified: verifiedCount || 0,
   };
 }
 
@@ -207,11 +207,11 @@ export default async function HomePage() {
   // -------------------------------------------------------------
   if (role === "admin") {
     const today = computeIstToday();
-    let totalOpp = 3595;
-    let activeOpp = 3571;
-    let expiredOpp = 23;
-    let pendingOpp = 250;
-    let totalUsersCount = 120;
+    let totalOpp = 0;
+    let activeOpp = 0;
+    let expiredOpp = 0;
+    let pendingOpp = 0;
+    let totalUsersCount = 0;
 
     if (supabaseAdmin?.from) {
       const [

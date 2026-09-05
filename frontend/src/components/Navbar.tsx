@@ -59,7 +59,6 @@ export default function Navbar() {
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
         { href: "/academy", label: "Academy", icon: GraduationCap },
         { href: "/news", label: "News", icon: Newspaper },
-        { href: "/feed", label: "Feed", icon: Users },
         { href: "/about", label: "About", icon: Building2 },
       ]
     : isEmployer && isEmployerRoute

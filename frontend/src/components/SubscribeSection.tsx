@@ -63,7 +63,7 @@ export default function SubscribeSection() {
               <Zap className="w-3.5 h-3.5 text-amber-300 stroke-[2.5]" /> Real-Time Notifications
             </div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-700/60 border-2 border-white/20 rounded-full text-xs font-extrabold text-blue-100">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-300 stroke-[2.5]" /> 100% Official Links
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-300 stroke-[2.5]" /> Links to Official Sources
             </div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-700/60 border-2 border-white/20 rounded-full text-xs font-extrabold text-blue-100">
               <SlidersHorizontal className="w-3.5 h-3.5 text-blue-100 stroke-[2.5]" /> Custom Keywords

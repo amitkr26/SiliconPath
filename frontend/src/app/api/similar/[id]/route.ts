@@ -30,6 +30,8 @@ export async function GET(
       .from("opportunities")
       .select("*")
       .eq("is_active", true)
+      .neq("verification_status", "pending")
+      .neq("verification_status", "rejected")
       .neq("id", params.id)
       .or(`deadline.gte.${today},deadline.is.null`)
       .overlaps("tags", current.tags)
