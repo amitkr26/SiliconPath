@@ -12,8 +12,8 @@ interface FaqItem {
 const FAQS: FaqItem[] = [
   {
     category: "Ingestion & Verification",
-    question: "How are JRF, PhD, and industry opportunities verified?",
-    answer: "Every single listing ingested by BerojgarDegreeWala passes through automated scraper checks followed by human verification. We filter out third-party job aggregators and link directly to official university domain portals (e.g. iitb.ac.in, iisc.ac.in, drdo.gov.in, isro.gov.in) or verified corporate career nodes (e.g. intel.com, qualcomm.com).",
+    question: "How are JRF, PhD, and industry opportunities sourced and validated?",
+    answer: "Every single listing ingested by BerojgarDegreeWala passes through automated scraper checks followed by link validation. We surface listings from official university domain portals (e.g. iitb.ac.in, iisc.ac.in, drdo.gov.in, isro.gov.in) and verified corporate career nodes (e.g. intel.com, qualcomm.com). Always confirm details on the original circular before applying.",
   },
   {
     category: "Research Fellowships",
@@ -33,7 +33,7 @@ const FAQS: FaqItem[] = [
   {
     category: "Alerts & Notifications",
     question: "How do I receive instant alerts for new openings matching my exact profile?",
-    answer: "You can subscribe to our free Email & Telegram notification system. Specify your target keywords (e.g. 'SystemVerilog', 'IIT Bombay', 'DRDO') and categories ('JRF', 'PhD', 'Private Sector') to receive automated real-time alerts the moment matching openings are verified.",
+    answer: "You can subscribe to our free Email & Telegram notification system. Specify your target keywords (e.g. 'SystemVerilog', 'IIT Bombay', 'DRDO') and categories ('JRF', 'PhD', 'Private Sector') to receive automated real-time alerts when matching listings are detected by our scrapers.",
   },
 ];
 

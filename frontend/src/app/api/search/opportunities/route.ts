@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
     .select("*, organization:organizations(name)", { count: "exact" })
     .eq("is_active", true)
     .neq("verification_status", "rejected")
+    .neq("verification_status", "pending")
     .neq("verification_status", "expired")
     .neq("verification_status", "link_unavailable")
     .or(buildAvailabilityDbFilter(today));

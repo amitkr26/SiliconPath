@@ -25,6 +25,8 @@ export async function POST(request: NextRequest) {
       .from("opportunities")
       .select("*")
       .eq("is_active", true)
+      .neq("verification_status", "pending")
+      .neq("verification_status", "rejected")
       .limit(50);
 
     if (!opportunities || opportunities.length === 0) {

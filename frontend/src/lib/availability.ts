@@ -118,11 +118,12 @@ export function isCurrentlyAvailable(
   // 1. Must be active (false or null = not active)
   if (opp.is_active === false || opp.is_active === null) return false;
 
-  // 2-3. Hard rejections
+  // 2-4. Hard rejections — never surface these
   if (opp.verification_status === "rejected") return false;
   if (opp.verification_status === "expired") return false;
+  if (opp.verification_status === "pending") return false;
 
-  // 4. link_unavailable: excluded from "normally applicable" feeds
+  // 5. link_unavailable: excluded from "normally applicable" feeds
   if (opp.verification_status === "link_unavailable") return false;
 
   const today = todayOverride || computeIstToday();

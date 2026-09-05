@@ -149,7 +149,7 @@ export default function PublicHome({
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border-2 border-slate-900 shadow-brutal-sm mb-6">
             <ShieldCheck className="w-4 h-4 text-blue-600" />
             <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              Official Aggregator for ISRO, DRDO, CSIR, IITs &amp; Chipmakers
+              Opportunities from ISRO, DRDO, CSIR, IITs &amp; Chipmakers
             </span>
           </div>
 
@@ -207,13 +207,13 @@ export default function PublicHome({
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {[
-            { value: `${stats.total}+`, label: "Active Opportunities", sub: "Government & Industry" },
-            { value: `${stats.verified}+`, label: "Verified Postings", sub: "Direct Circular URLs" },
-            { value: `${stats.jrf}+`, label: "JRF Fellowships", sub: "DST / CSIR Norms" },
-            { value: `${stats.phd}+`, label: "PhD Seats", sub: "IITs, IISc & NITs" },
+            { value: stats.total, label: "Active Opportunities", sub: "Government & Industry" },
+            { value: stats.verified, label: "Verified Postings", sub: "Direct Circular URLs" },
+            { value: stats.jrf, label: "JRF Fellowships", sub: "DST / CSIR Norms" },
+            { value: stats.phd, label: "PhD Seats", sub: "IITs, IISc & NITs" },
           ].map((s) => (
             <Card key={s.label} className="p-5 text-center">
-              <p className="text-2xl sm:text-3xl font-black text-blue-600 tracking-tight">{s.value}</p>
+              <p className="text-2xl sm:text-3xl font-black text-blue-600 tracking-tight">{s.value > 0 ? `${s.value}+` : "—"}</p>
               <p className="text-slate-900 text-xs font-bold uppercase tracking-wider mt-1">{s.label}</p>
               <p className="text-slate-500 text-[11px] font-medium mt-0.5">{s.sub}</p>
             </Card>
@@ -336,7 +336,7 @@ export default function PublicHome({
           description="Verified positions with official links, stipends, eligibility criteria, and deadlines."
           action={
             <Button href="/opportunities" variant="secondary" size="sm">
-              Explore all {stats.total}+ jobs &rarr;
+              Explore all jobs &rarr;
             </Button>
           }
         />
@@ -357,10 +357,10 @@ export default function PublicHome({
               <span>FELLOWSHIP &amp; STIPEND SCALE REFERENCE</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Government Research Fellowship &amp; Scientist Pay Scales (2026 Norms)
+              Government Research Fellowship &amp; Scientist Pay Scales
             </h2>
             <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1">
-              Comprehensive guidelines per Department of Science &amp; Technology (DST), CSIR, DRDO, and Ministry of Education revised emoluments.
+              Per DST/CSIR revised emoluments (2026 norms). Actual figures vary by institution and funding agency — always verify the specific circular.
             </p>
           </div>
 
@@ -484,7 +484,7 @@ export default function PublicHome({
 
               <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs font-bold text-blue-600 group-hover:underline">
-                  Browse {domain.title.split(" ")[0]} Jobs &rarr;
+                  View openings &rarr;
                 </span>
               </div>
             </Link>

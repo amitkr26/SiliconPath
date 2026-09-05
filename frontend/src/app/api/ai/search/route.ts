@@ -34,6 +34,8 @@ export async function POST(request: NextRequest) {
       .from("opportunities")
       .select("*")
       .eq("is_active", true)
+      .neq("verification_status", "pending")
+      .neq("verification_status", "rejected")
       .order("created_at", { ascending: false })
       .limit(20);
 

@@ -14,10 +14,10 @@ export default function Footer() {
           </div>
           <div className="flex flex-wrap items-center gap-5 text-slate-300">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> 100% Official Circular Links
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Links to Official Sources
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Direct Official Applications
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Apply Directly to Portals
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Free Public Aggregator
@@ -40,7 +40,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-slate-400 text-xs font-medium leading-relaxed max-w-sm">
-              Empowering India&apos;s semiconductor, microelectronics, and deep-tech talent pool with 100% verified notifications from DRDO, ISRO, CSIR, IITs, and premier fabless enterprises.
+              Empowering India&apos;s semiconductor, microelectronics, and deep-tech talent pool with aggregated opportunity notifications from DRDO, ISRO, CSIR, IITs, and premier fabless enterprises.
             </p>
 
             <div className="pt-2 flex flex-wrap gap-2 text-[11px] font-bold">
