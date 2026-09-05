@@ -22,27 +22,27 @@ const TRUST_SIGNALS = [
 
 export default function ReviewsSection() {
   return (
-    <div className="bg-white border-2 border-slate-900 rounded-2xl p-6 sm:p-10 shadow-brutal-lg">
+    <div className="bg-white border-2 border-slate-900 rounded-2xl p-5 sm:p-8 lg:p-10 shadow-brutal-lg">
       <div className="flex items-center gap-2 text-xs font-black uppercase text-blue-600 mb-2">
         <ShieldCheck className="w-4 h-4 stroke-[3]" />
         <span>How We Build Trust</span>
       </div>
-      <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
         Transparency Over Testimonials
       </h2>
-      <p className="text-slate-600 text-sm mt-1 mb-8 font-semibold">
+      <p className="text-slate-600 text-sm mt-1 mb-6 sm:mb-8 font-semibold">
         We don&apos;t fabricate reviews. Here&apos;s how BerojgarDegreeWala actually works.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         {TRUST_SIGNALS.map((signal) => {
           const Icon = signal.icon;
           return (
             <div
               key={signal.title}
-              className="bg-slate-50 border-2 border-slate-900 rounded-xl p-6 shadow-brutal flex flex-col gap-3 hover:-translate-y-1 transition-all"
+              className="bg-slate-50 border-2 border-slate-900 rounded-xl p-4 sm:p-6 shadow-brutal flex flex-col gap-2 sm:gap-3 hover:-translate-y-1 transition-all"
             >
-              <div className="w-10 h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center text-blue-600 shadow-brutal-sm">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center text-blue-600 shadow-brutal-sm">
                 <Icon className="w-5 h-5" />
               </div>
               <h3 className="font-extrabold text-slate-900 text-sm leading-tight">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Clock, ExternalLink, ArrowRight, X, Newspaper } from "lucide-react";
 import type { NewsArticle } from "@/types";
 
@@ -24,6 +24,19 @@ function timeAgo(dateString: string): string {
 export default function NewsCard({ article }: NewsCardProps) {
   const [showModal, setShowModal] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    if (!showModal) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowModal(false);
+    };
+    document.addEventListener("keydown", handleEscape);
+    // Focus the close button when modal opens
+    closeBtnRef.current?.focus();
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [showModal]);
 
   const tags = article.tags || [];
   const sourceName = article.source || (article as any).source_name || "Official Source";
@@ -115,11 +128,18 @@ export default function NewsCard({ article }: NewsCardProps) {
 
       {/* MODAL VIEW */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl border-2 border-slate-900 shadow-brutal-lg max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 relative">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
+          role="dialog"
+          aria-modal="true"
+          aria-label={article.title}
+        >
+          <div className="bg-white rounded-2xl border-2 border-slate-900 shadow-brutal-lg max-w-2xl w-full max-h-[85vh] overflow-y-auto p-5 sm:p-6 relative">
             <button
+              ref={closeBtnRef}
               onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-xl border-2 border-slate-900 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold transition shadow-brutal-sm"
+              className="absolute top-4 right-4 p-1.5 rounded-xl border-2 border-slate-900 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold transition shadow-brutal-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               aria-label="Close modal"
             >
               <X size={18} className="" />
