@@ -31,7 +31,7 @@ export default async function InternationalFellowshipsPage() {
       <div className="space-y-10 text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
         <section>
           <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Why Consider International Research Fellowship?</h2>
-          <p>International fellowships offer Indian electronics researchers exposure to world-class laboratories, higher stipends (₹861-2,700/month abroad vs ?37,000/month in India), global networking opportunities, and access to cutting-edge research infrastructure not yet available in India. These programs cover tuition, living expenses, and often include travel grants.</p>
+          <p>International fellowships offer Indian electronics researchers exposure to world-class laboratories, higher stipends (₹861-2,700/month abroad vs ₹37,000/month in India), global networking opportunities, and access to cutting-edge research infrastructure not yet available in India. These programs cover tuition, living expenses, and often include travel grants.</p>
         </section>
 
         <section>

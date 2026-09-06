@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
   title: "Complete JRF Guide 2026 — Electronics Science",
-  description: "Everything about Junior Research Fellowship for electronics researchers: eligibility, stipend ?37,000-42,000/month, age limit, how to apply, documents needed, DRDO ISRO CSIR openings.",
+  description: "Everything about Junior Research Fellowship for electronics researchers: eligibility, stipend ₹37,000-42,000/month, age limit, how to apply, documents needed, DRDO ISRO CSIR openings.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/jrf-guide" },
 };
 
@@ -14,11 +14,11 @@ const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   mainEntity: [
-    { "@type": "Question", name: "What is the JRF stipend in 2026?", acceptedAnswer: { "@type": "Answer", text: "JRF stipend is ?37,000/month for first 2 years, ?42,000/month as SRF for years 3-5 plus HRA and contingency." } },
+    { "@type": "Question", name: "What is the JRF stipend in 2026?", acceptedAnswer: { "@type": "Answer", text: "JRF stipend is ₹37,000/month for first 2 years, ₹42,000/month as SRF for years 3-5 plus HRA and contingency." } },
     { "@type": "Question", name: "What is the age limit for JRF?", acceptedAnswer: { "@type": "Answer", text: "Maximum 28 years for General, 33 years for SC/ST/PwD/Women, 31 years for OBC-NCL." } },
     { "@type": "Question", name: "Do I need NET or GATE for JRF?", acceptedAnswer: { "@type": "Answer", text: "Yes, valid UGC-NET Electronic Science or GATE ECE is required for most JRF positions." } },
     { "@type": "Question", name: "How to apply for DRDO JRF?", acceptedAnswer: { "@type": "Answer", text: "Visit drdo.gov.in/careers for notifications. DRDO labs conduct walk-in interviews or accept applications through their portals." } },
-    { "@type": "Question", name: "What is the difference between JRF and SRF?", acceptedAnswer: { "@type": "Answer", text: "JRF is entry-level (2 years, ?37,000/month). SRF is promotion after 2 years or PhD entry (?42,000/month)." } },
+    { "@type": "Question", name: "What is the difference between JRF and SRF?", acceptedAnswer: { "@type": "Answer", text: "JRF is entry-level (2 years, ₹37,000/month). SRF is promotion after 2 years or PhD entry (₹42,000/month)." } },
     { "@type": "Question", name: "How long does JRF last?", acceptedAnswer: { "@type": "Answer", text: "JRF tenure is typically 5 years total: 2 years as JRF + 3 years as SRF, subject to annual review." } },
     { "@type": "Question", name: "Can I do JRF without NET?", acceptedAnswer: { "@type": "Answer", text: "Some institutional JRFs at IITs, DRDO, and private research centers may accept candidates without NET through project-based appointments, but they are less common." } },
     { "@type": "Question", name: "What is the difference between CSIR JRF and UGC JRF?", acceptedAnswer: { "@type": "Answer", text: "CSIR-JRF is awarded through GATE score and is tenable only at CSIR labs leading to AcSIR PhD. UGC-JRF is awarded through UGC-NET and is tenable at any recognized Indian university or college." } },
@@ -49,7 +49,7 @@ export default async function JRFGuidePage() {
       <div className="space-y-10 text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
         <section>
           <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">What is JRF in Electronics?</h2>
-          <p>Junior Research Fellowship (JRF) is a prestigious research position for postgraduate students holding MSc in Electronics, Physics, or related fields. JRFs work on funded research projects at premier institutions like DRDO labs, CSIR institutes, IITs, and NITs while pursuing their PhD. The fellowship provides a monthly stipend of ?37,000 with HRA, enabling researchers to focus entirely on their work without financial concerns.</p>
+          <p>Junior Research Fellowship (JRF) is a prestigious research position for postgraduate students holding MSc in Electronics, Physics, or related fields. JRFs work on funded research projects at premier institutions like DRDO labs, CSIR institutes, IITs, and NITs while pursuing their PhD. The fellowship provides a monthly stipend of ₹37,000 with HRA, enabling researchers to focus entirely on their work without financial concerns.</p>
           <p className="mt-2">Types of JRF include UGC-JRF (via NET), CSIR-JRF (via GATE), and institutional JRFs offered directly by research organizations for specific projects.</p>
         </section>
 
@@ -69,11 +69,11 @@ export default async function JRFGuidePage() {
             <table className="w-full text-sm border-collapse">
               <thead><tr className="border-b-2 border-slate-900 bg-slate-100"><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Component</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Amount</th></tr></thead>
               <tbody>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3">JRF Stipend (Year 1-2)</td><td className="py-2.5 px-3 text-blue-600 font-bold">?37,000/month</td></tr>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3">SRF Stipend (Year 3-5)</td><td className="py-2.5 px-3 text-blue-600 font-bold">?42,000/month</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3">JRF Stipend (Year 1-2)</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹37,000/month</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3">SRF Stipend (Year 3-5)</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹42,000/month</td></tr>
                 <tr className="border-b border-slate-200"><td className="py-2.5 px-3">HRA (House Rent Allowance)</td><td className="py-2.5 px-3">10-30% of stipend (city dependent)</td></tr>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3">Annual Contingency</td><td className="py-2.5 px-3">?20,000 (science stream)</td></tr>
-                <tr><td className="py-2.5 px-3 font-semibold text-slate-900">Total Package (approx)</td><td className="py-2.5 px-3 text-blue-600 font-bold">?5.5-6.5 LPA</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3">Annual Contingency</td><td className="py-2.5 px-3">₹20,000 (science stream)</td></tr>
+                <tr><td className="py-2.5 px-3 font-semibold text-slate-900">Total Package (approx)</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹5.5-6.5 LPA</td></tr>
               </tbody>
             </table>
           </div>
