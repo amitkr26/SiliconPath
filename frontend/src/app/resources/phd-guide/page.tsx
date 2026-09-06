@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 };
 
 const TOP_INSTITUTIONS = [
-  { name: "IISc Bangalore", strengths: "VLSI, nanoelectronics, photonics, signal processing", window: "Feb-Mar (KVPY channel), Oct-Dec (direct)", stipend: "?37,000-70,000" },
-  { name: "IIT Bombay", strengths: "RF & microwave, embedded systems, AI hardware, communications", window: "Mar-Apr, Oct-Nov", stipend: "?31,000-70,000" },
-  { name: "IIT Delhi", strengths: "VLSI design, optical communication, MEMS, power electronics", window: "Apr-Jun, Nov-Dec", stipend: "?31,000-70,000" },
-  { name: "IIT Madras", strengths: "Semiconductor devices, antenna design, control systems, IoT", window: "Apr-May, Oct-Nov", stipend: "?31,000-70,000" },
-  { name: "IISER Pune", strengths: "Quantum electronics, photonics, materials science, sensors", window: "Nov-Dec", stipend: "?31,000-37,000" },
-  { name: "TIFR Mumbai", strengths: "Condensed matter physics, laser electronics, quantum computing", window: "Dec-Jan", stipend: "?37,000-42,000" },
-  { name: "CSIR-NPL Delhi", strengths: "Semiconductor metrology, nanoelectronics, quantum standards", window: "Year-round (AcSIR)", stipend: "?37,000-42,000" },
+  { name: "IISc Bangalore", strengths: "VLSI, nanoelectronics, photonics, signal processing", window: "Feb-Mar (KVPY channel), Oct-Dec (direct)", stipend: "₹37,000-70,000" },
+  { name: "IIT Bombay", strengths: "RF & microwave, embedded systems, AI hardware, communications", window: "Mar-Apr, Oct-Nov", stipend: "₹31,000-70,000" },
+  { name: "IIT Delhi", strengths: "VLSI design, optical communication, MEMS, power electronics", window: "Apr-Jun, Nov-Dec", stipend: "₹31,000-70,000" },
+  { name: "IIT Madras", strengths: "Semiconductor devices, antenna design, control systems, IoT", window: "Apr-May, Oct-Nov", stipend: "₹31,000-70,000" },
+  { name: "IISER Pune", strengths: "Quantum electronics, photonics, materials science, sensors", window: "Nov-Dec", stipend: "₹31,000-37,000" },
+  { name: "TIFR Mumbai", strengths: "Condensed matter physics, laser electronics, quantum computing", window: "Dec-Jan", stipend: "₹37,000-42,000" },
+  { name: "CSIR-NPL Delhi", strengths: "Semiconductor metrology, nanoelectronics, quantum standards", window: "Year-round (AcSIR)", stipend: "₹37,000-42,000" },
 ];
 
 export default async function PhDGuidePage() {
@@ -106,15 +106,15 @@ export default async function PhDGuidePage() {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">CSIR JRF</td><td className="py-2.5 px-3 text-blue-600 font-bold">?37,000/mo</td><td className="py-2.5 px-3">CSIR labs</td><td className="py-2.5 px-3">GATE score</td></tr>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">UGC JRF</td><td className="py-2.5 px-3 text-blue-600 font-bold">?37,000/mo</td><td className="py-2.5 px-3">Any university</td><td className="py-2.5 px-3">UGC-NET</td></tr>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">DST-INSPIRE</td><td className="py-2.5 px-3 text-blue-600 font-bold">?31,000/mo</td><td className="py-2.5 px-3">Any institution</td><td className="py-2.5 px-3">Top 1% in MSc</td></tr>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">PMRF</td><td className="py-2.5 px-3 text-blue-600 font-bold">?70,000-80,000/mo</td><td className="py-2.5 px-3">IITs, IISc, central univs</td><td className="py-2.5 px-3">Institute selection</td></tr>
-                <tr><td className="py-2.5 px-3 font-semibold text-slate-900">Institute Fellowship</td><td className="py-2.5 px-3 text-blue-600 font-bold">?25,000-37,000/mo</td><td className="py-2.5 px-3">IITs, IISERs, NITs</td><td className="py-2.5 px-3">Institute PhD entrance</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">CSIR JRF</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹37,000/mo</td><td className="py-2.5 px-3">CSIR labs</td><td className="py-2.5 px-3">GATE score</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">UGC JRF</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹37,000/mo</td><td className="py-2.5 px-3">Any university</td><td className="py-2.5 px-3">UGC-NET</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">DST-INSPIRE</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹31,000/mo</td><td className="py-2.5 px-3">Any institution</td><td className="py-2.5 px-3">Top 1% in MSc</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">PMRF</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹70,000-80,000/mo</td><td className="py-2.5 px-3">IITs, IISc, central univs</td><td className="py-2.5 px-3">Institute selection</td></tr>
+                <tr><td className="py-2.5 px-3 font-semibold text-slate-900">Institute Fellowship</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹25,000-37,000/mo</td><td className="py-2.5 px-3">IITs, IISERs, NITs</td><td className="py-2.5 px-3">Institute PhD entrance</td></tr>
               </tbody>
             </table>
           </div>
-          <p className="mt-3">All fellowships include annual contingency grants (?10,000-?20,000) and HRA (10-30% of stipend depending on city). PMRF is the most prestigious with the highest stipend but is limited to the top 3000 research scholars nationally.</p>
+          <p className="mt-3">All fellowships include annual contingency grants (₹10,000-₹20,000) and HRA (10-30% of stipend depending on city). PMRF is the most prestigious with the highest stipend but is limited to the top 3000 research scholars nationally.</p>
         </section>
 
         <section>
