@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Bot,
   Loader2,
@@ -13,6 +14,7 @@ import {
   Layers,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useUser } from "@/hooks/useUser";
 import { useChatSessions, ChatMessageItem } from "./hooks/useChatSessions";
 import { useSpeechRecognition } from "./hooks/useSpeechRecognition";
 import { useSpeechSynthesis } from "./hooks/useSpeechSynthesis";
@@ -30,6 +32,8 @@ import { sanitizeAIContent } from "@/lib/ai/reasoning-sanitizer";
 type IntelligenceMode = "ask_ai" | "discover" | "saved" | "alerts";
 
 export default function OpportunityIntelligencePage() {
+  const router = useRouter();
+  const { user, loading: userLoading } = useUser();
   const [activeMode, setActiveMode] = useState<IntelligenceMode>("ask_ai");
   const [savedOpportunityIds, setSavedOpportunityIds] = useState<string[]>([]);
 
@@ -62,6 +66,21 @@ export default function OpportunityIntelligencePage() {
       }
     } catch {}
   }, []);
+
+  // Auth guard: redirect to login if not authenticated
+  useEffect(() => {
+    if (!userLoading && !user) {
+      router.push("/login?redirect=/ask-ai");
+    }
+  }, [user, userLoading, router]);
+
+  if (userLoading || !user) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   const toggleSaveOpportunity = (id: string) => {
     setSavedOpportunityIds((prev) => {

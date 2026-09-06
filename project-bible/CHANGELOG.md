@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-06 — Master Comprehensive Codebase Reality Audit:**
+  - **Audit Scope & Analysis Execution**:
+    - Conducted complete forensic codebase audit across frontend, backend workspaces (`api`, `server`, `worker`, `ai-gateway`), database schemas, RLS policies, scrapers, pipelines, DevOps, and documentation.
+    - Verified Next.js 14 production build (`exit code 0`, 338+ routes and static paths compiled).
+    - Verified backend workspaces test suites (API: 97/97, Gateway: 15/15, Server: 46/46, Worker: 30/30).
+  - **Critical Findings Identified**:
+    - `SEC-01 (P0)`: Client-modifiable `user_metadata.role = "admin"` allows privilege escalation, IDOR bypass in employer ATS routes (`/api/employer/applicants`, `/api/employer/jobs`), and administrative RLS policy bypass on `app_config` and `ai_usage_log`.
+    - `AUTH-01 (P0)`: Admin web console at `/admin` locked out because `middleware.ts` intercepts `/api/admin/auth` and rejects it with 403 before credentials can be processed, and lacks HMAC token verification.
+    - `PIPE-01 (P0)`: Opportunity ingestion pipeline broken because new rows are inserted as `pending`, `isCurrentlyAvailable()` excludes `pending` from public feeds/search, link checker does not auto-promote, and admin promotion is locked out.
+    - `TEST-01 (P1)`: 3 test failures in `frontend/src/__tests__/lib/availability.test.ts` due to pending exclusion mismatch.
+    - `TOOL-01 (P1)`: `frontend/package.json` missing `"typecheck": "tsc --noEmit"`, causing monorepo `npm run typecheck` to silently skip the frontend.
+    - `SEC-02 (P1)`: Unbounded in-memory rate-limiter store (`memoryStore`) vulnerable to IP-spoofing DoS and memory leak on standalone server.
+    - `DATA-01 (P1)`: Post-DB availability filtering causes pagination drifting and underfilled result pages.
+    - `DEVOPS-01 (P2)`: Frontend `Dockerfile` and `docker-compose.yml` build context fails due to local `file:../backend/api` dependency and missing `output: "standalone"` in `next.config.mjs`.
+    - `DOC-01 (P2)`: `project-bible/ARCHITECTURE.md` contradicts code by asserting live user/social data resides in DB2 instead of consolidated DB1.
+  - **Audit Report**:
+    - Comprehensive 4-section report produced and published at `docs/audit-reports/2026-09-06-comprehensive-codebase-audit.md`.
+
 - **2026-09-04 — Master Reality Alignment & Production Hardening (Items 6–10):**
   - **Academy Curriculum Connected & PracticeQuiz Answer Resiliency**:
     - `frontend/src/components/academy/PracticeQuiz.tsx`: Enhanced answer evaluation to cross-match between object options (`{label, value}`), string arrays, option indices, and literal strings, eliminating false negatives on seeded quiz submissions.

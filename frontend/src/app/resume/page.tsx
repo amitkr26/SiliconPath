@@ -95,13 +95,20 @@ const DEFAULT_STYLE_CONFIG: ResumeStyleConfig = {
 type ActiveEditorTab = "personal" | "experience" | "education" | "skills" | "projects" | "extras" | "styling" | "ai";
 
 export default function ResumeBuilderPage() {
-  const { user } = useUser();
+  const { user, loading: userLoading } = useUser();
   const router = useRouter();
   const [resumeData, setResumeData] = useState<ResumeData>(DEFAULT_RESUME_DATA);
   const [styleConfig, setStyleConfig] = useState<ResumeStyleConfig>(DEFAULT_STYLE_CONFIG);
   const [activeTab, setActiveTab] = useState<ActiveEditorTab>("personal");
   const [zoomScale, setZoomScale] = useState(1.0);
   const [mobileMode, setMobileMode] = useState<"editor" | "preview">("editor");
+
+  // Auth guard: redirect to login if not authenticated
+  useEffect(() => {
+    if (!userLoading && !user) {
+      router.push("/login?redirect=/resume");
+    }
+  }, [user, userLoading, router]);
 
   // Multi-resume state
   const [savedResumes, setSavedResumes] = useState<SavedResumeMeta[]>([

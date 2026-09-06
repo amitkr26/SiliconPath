@@ -26,17 +26,21 @@ async function getStats() {
 
   const now = new Date().toISOString();
 
-  const [{ count: oppCount }, { count: newsCount }, { count: orgCount }] = await Promise.all([
-    supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("is_active", true).or(`deadline.gte.${now},deadline.is.null`),
-    supabaseAdmin.from("news_articles").select("*", { count: "exact", head: true }),
-    supabaseAdmin.from("organizations").select("*", { count: "exact", head: true }).eq("is_active", true),
-  ]);
+  try {
+    const [{ count: oppCount }, { count: newsCount }, { count: orgCount }] = await Promise.all([
+      supabaseAdmin.from("opportunities").select("*", { count: "exact", head: true }).eq("is_active", true).or(`deadline.gte.${now},deadline.is.null`),
+      supabaseAdmin.from("news_articles").select("*", { count: "exact", head: true }),
+      supabaseAdmin.from("organizations").select("*", { count: "exact", head: true }).eq("is_active", true),
+    ]);
 
-  return {
-    opportunities: oppCount || 0,
-    organizations: orgCount || 0,
-    news: newsCount || 0,
-  };
+    return {
+      opportunities: oppCount || 0,
+      organizations: orgCount || 0,
+      news: newsCount || 0,
+    };
+  } catch {
+    return { opportunities: 0, organizations: 0, news: 0 };
+  }
 }
 
 const coverageCards = [

@@ -1,21 +1,36 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, Plus, Building2, Trash2, ExternalLink, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { api } from "@/lib/api-client";
+
+const ADMIN_TOKEN_KEY = "sp_admin_token";
 
 function getInitials(name: string): string {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 }
 
 export default function AdminCompaniesPage() {
+  const router = useRouter();
   const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: "", description: "", website: "", industry: "", location: "", size: "" });
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+    const pw = sessionStorage.getItem("admin_password");
+    if (!token && !pw) {
+      router.push("/admin");
+      return;
+    }
+    setAuthed(true);
+  }, [router]);
 
   const load = async () => {
     setLoading(true);
@@ -28,7 +43,13 @@ export default function AdminCompaniesPage() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (authed) load(); }, [authed]);
+
+  if (!authed) return (
+    <div className="max-w-5xl mx-auto px-4 py-20 flex justify-center">
+      <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+    </div>
+  );
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

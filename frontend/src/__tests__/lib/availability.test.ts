@@ -208,7 +208,7 @@ describe("isCurrentlyAvailable", () => {
     expect(isCurrentlyAvailable({
       category: "industry",
       deadline: null,
-      verification_status: "pending",
+      verification_status: "verified",
       is_active: true,
       posted_at: recentDate,
     }, TODAY)).toBe(true);
@@ -223,7 +223,7 @@ describe("isCurrentlyAvailable", () => {
     expect(isCurrentlyAvailable({
       category: "job",
       deadline: null,
-      verification_status: "pending",
+      verification_status: "verified",
       is_active: true,
       created_at: recentDate,
     }, TODAY)).toBe(true);
@@ -294,7 +294,7 @@ describe("isCurrentlyAvailable", () => {
     const industryOpp = {
       category: "industry",
       deadline: null,
-      verification_status: "pending",
+      verification_status: "verified",
       is_active: true,
       posted_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     };
@@ -354,7 +354,7 @@ describe("isCurrentlyAvailable edge cases", () => {
     expect(isCurrentlyAvailable({
       category: "government",
       deadline: TODAY,
-      verification_status: "pending",
+      verification_status: "verified",
       is_active: true,
     }, TODAY)).toBe(true);
   });

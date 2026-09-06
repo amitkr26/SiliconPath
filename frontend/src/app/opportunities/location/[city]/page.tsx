@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Briefcase } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 import OpportunityCard from "@/components/OpportunityCard";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -33,18 +34,22 @@ export default async function LocationPage({ params }: Props) {
   let opportunities: any[] = [];
   
   if (supabaseAdmin?.from) {
-    const today = new Date().toISOString().split("T")[0];
+    const today = computeIstToday();
     const { data } = await supabaseAdmin
       .from("opportunities")
       .select("*")
       .eq("is_active", true)
       .eq("verification_status", "verified")
+      .not("verification_status", "eq", "rejected")
+      .not("verification_status", "eq", "pending")
+      .not("verification_status", "eq", "expired")
+      .not("verification_status", "eq", "link_unavailable")
       .ilike("location", `%${cityName}%`)
-      .or(`deadline.gte.${today},deadline.is.null`)
+      .or(buildAvailabilityDbFilter(today))
       .order("created_at", { ascending: false });
       
     if (data) {
-      opportunities = data;
+      opportunities = data.filter((opp: any) => isCurrentlyAvailable(opp, today));
     }
   }
 

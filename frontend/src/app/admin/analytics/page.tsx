@@ -1,19 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, TrendingUp, Users, Briefcase, FileText, Newspaper, Eye, Search, BarChart3 } from "lucide-react";
 
+const ADMIN_TOKEN_KEY = "sp_admin_token";
+
 export default function AdminAnalyticsPage() {
+  const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+    const pw = sessionStorage.getItem("admin_password");
+    if (!token && !pw) {
+      router.push("/admin");
+      return;
+    }
+    setAuthed(true);
+  }, [router]);
+
+  useEffect(() => {
+    if (!authed) return;
     fetch("/api/admin/analytics").then(r => r.json()).then(d => {
       setData(d); setLoading(false);
     }).catch(() => setLoading(false));
-  }, []);
+  }, [authed]);
 
-  if (loading) return (
+  if (!authed || loading) return (
     <div className="max-w-5xl mx-auto px-4 py-20 flex justify-center">
       <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
     </div>
