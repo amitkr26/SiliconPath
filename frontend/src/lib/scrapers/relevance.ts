@@ -1,6 +1,6 @@
 /**
  * Shared role-level relevance module for BerojgarDegreeWala.
- * Single source of truth for determining whether an opportunity is
+ * SINGLE SOURCE OF TRUTH for determining whether an opportunity is
  * relevant to the platform's core domain:
  *
  *   Semiconductor + VLSI + Electronics + Embedded + Hardware + Research
@@ -11,8 +11,26 @@
  * - run-opportunity-scrape.ts (insert-time gate)
  * - page.tsx homepage feed (relevance-aware selection)
  *
- * Design principle: INCLUSIVE for electronics/research, EXCLUSIVE for
- * clearly-irrelevant roles. When ambiguous, err on the side of inclusion.
+ * RELEVANCE POLICY (Phase 2.6):
+ * ─────────────────────────────────────────────────────────────
+ * "relevant"          → Homepage featured, public search, all surfaces
+ * "possibly_relevant" → Public search/browse ONLY. NOT homepage.
+ * "irrelevant"        → Excluded from all public surfaces.
+ *
+ * Homepage = VERIFIED + ACTIVE + RELEVANT (high precision).
+ * Search   = VERIFIED + ACTIVE + (RELEVANT | POSSIBLY_RELEVANT) (high recall).
+ * Admin    = Everything (review/audit).
+ *
+ * DESIGN PRINCIPLE:
+ * ROLE SIGNAL beats ORG SIGNAL when they conflict.
+ * "Manager at BEL" → irrelevant (non-technical role wins over electronics org).
+ * "VLSI Engineer at Unknown" → relevant (electronics role wins over unknown org).
+ *
+ * NEGATIVE CLASSIFICATION WINS:
+ * If title matches IRRELEVANT_KEYWORDS, it's excluded even if from a
+ * relevant org. The one exception: if the title ALSO has electronics/research
+ * keywords (e.g. "Electronics Fitter" — trade + domain).
+ * ─────────────────────────────────────────────────────────────
  */
 
 // ============================================================
@@ -20,29 +38,32 @@
 // ============================================================
 
 const ELECTRONICS_KEYWORDS = [
-  // Core domain
+  // Core domain — specific terms that unambiguously indicate electronics
   "electronics", "electronic", "semiconductor", "vlsi", "asic",
   "fpga", "rtl", "verilog", "systemverilog", "vhdl",
-  "embedded", "firmware", "hardware", "pcb", "board",
+  "embedded", "firmware", "hardware", "pcb",
   "analog", "rf", "rfic", "mixed-signal", "signal processing",
-  "digital design", "physical design", "verification",
-  "microcontroller", "microprocessor", "soc", "chip",
+  "digital design", "physical design",
+  "microcontroller", "microprocessor", "chip",
   "fabrication", "lithography", "cleanroom", "wafer",
   "mems", "nanoelectronics", "nanotech",
-  // Specific roles
+  // Specific roles — compound terms that are unambiguously electronics
   "electronics engineer", "electronics and communication",
   "ece", "eee", "eie",  // common Indian branch abbreviations
   "instrumentation", "control systems",
-  // Tools & methodologies
+  "design verification", "post silicon", "silicon verification",
+  "static timing",  // STA in VLSI context (replaces bare "sta" which matched "staff")
+  " system on chip", " system-on-chip",  // word-boundary safe (replaces bare "soc")
+  "circuit board", "board design", "board test",  // replaces bare "board"
+  // Tools & methodologies — VLSI-specific tool names
   "cadence", "synopsys", "mentor", "vivado", "quartus",
-  "primetime", "sta", "drc", "lvs", "gdsii",
-  "uvm", "sva", "coverage",
-  // Industry
-  "chip design", "silicon", "wafer", "foundry",
-  "intel", "qualcomm", "amd", "nvidia", "arm", "tsmc",
-  "synopsys", "cadence", "marvell", "broadcom", "micron",
+  "drc", "lvs", "gdsii",
+  "uvm", "sva",
+  // Industry companies — semiconductor/chip companies only
+  "qualcomm", "amd", "nvidia", "tsmc",
+  "marvell", "broadcom", "micron",
   "texas instruments", "nxp", "infineon", "stmicro",
-  "globalfoundries", "UMC",
+  "globalfoundries", "umc", "graphcore", "tenstorrent",
 ];
 
 // ============================================================
@@ -52,14 +73,14 @@ const ELECTRONICS_KEYWORDS = [
 const RESEARCH_KEYWORDS = [
   "jrf", "junior research fellow",
   "srf", "senior research fellow",
-  "research associate", "ra ",
+  "research associate",
   "phd", "doctoral", "doctorate",
   "research fellow", "fellowship",
   "research scientist", "research engineer",
   "postdoc", "post-doctoral",
   "project assistant", "project staff", "project fellow",
   "research project", "research position",
-  "gated", "net qualified", "csir-ugc",
+  "csir-ugc",
   "dst funded", "serb", "dbt",
 ];
 
@@ -77,14 +98,19 @@ const IRRELEVANT_KEYWORDS = [
   "hr ", "human resource", "human resources",
   "finance", "accountant", "accounting", "auditor",
   "admin", "administrative", "office assistant",
-  "clerk", "stenographer", "lower division clerk",
+  "clerk", "lower division clerk",
   "peon", "chowkidar", "watchman", "safaiwala",
-  "driver", "cook", "nurse",
-  // Generic management (not technical)
-  "general manager", "deputy manager admin",
-  "manager hr", "manager finance",
+  "driver", "cook", "nurse", "nursing",
+  "teacher", "tutor", "educator",
+  "legal", "lawyer", "advocate",
+  "medical officer", "medical staff",
+  "marketing", "sales executive", "business development",
+  // Management (non-technical)
+  "general manager", "deputy manager",
+  "manager hr", "manager finance", "manager admin",
+  "office manager", "branch manager",
   // Generic non-technical government
-  "civil engineer",  // but "civil services" or "civil works at electronics lab" could be relevant
+  "civil engineer",  // but "civil works at electronics lab" could be relevant
   "mechanical engineer",  // unless at semiconductor fab
   "chemical engineer",
   "metallurgical",
@@ -93,10 +119,13 @@ const IRRELEVANT_KEYWORDS = [
 ];
 
 // ============================================================
-// PSU ORG RELEVANCE — some PSUs are inherently electronics-focused
+// PSU ORG RELEVANCE — organization-level signals
 // ============================================================
 
-/** PSUs where ALL roles should be considered potentially relevant */
+/**
+ * PSUs where ALL roles should be considered potentially relevant.
+ * These are pure electronics/semiconductor/research organizations.
+ */
 const ELECTRONICS_PSUS = new Set([
   "bel", "bharat electronics",
   "ecil", "electronics corporation of india",
@@ -109,10 +138,12 @@ const ELECTRONICS_PSUS = new Set([
   "cdot", "centre for development of telematics",
   "scl", "semi-conductor laboratory",
   "cmet", "centre for materials for electronics",
-  "barc", "bhabha atomic",  // nuclear/atomic has electronics instrumentation
 ]);
 
-/** PSUs where only specific roles are relevant (need title check) */
+/**
+ * PSUs where only specific roles are relevant (need title check).
+ * These orgs have electronics divisions but also other divisions.
+ */
 const MIXED_PSUS = new Set([
   "hal", "hindustan aeronautics",
   "bsnl", "bharat sanchar",
@@ -121,6 +152,7 @@ const MIXED_PSUS = new Set([
   "isro", "indian space",
   "drdo", "defence research",
   "csir",
+  "barc", "bhabha atomic",  // has electronics instrumentation but also chemistry/biology
 ]);
 
 // ============================================================
@@ -149,16 +181,16 @@ export function hasResearchKeywords(text: string): boolean {
  * Check if a title is clearly irrelevant to the platform's domain.
  * Uses negative matching — returns true if the title contains
  * non-technical/trade/HR/finance keywords.
+ *
+ * IMPORTANT: If the title ALSO has electronics/research keywords,
+ * it's NOT irrelevant (e.g. "Electronics Fitter" — trade + domain).
  */
 export function isClearlyIrrelevant(title: string): boolean {
   const t = title.toLowerCase();
-  // Check for trade keywords that indicate non-technical roles
-  // Be conservative: only exclude if the title is clearly about a non-technical trade
   const hasTradeKeyword = IRRELEVANT_KEYWORDS.some((kw) => t.includes(kw));
 
-  // Special case: "electrician" alone is irrelevant, but "electronics" is relevant
   if (hasTradeKeyword) {
-    // If it also has electronics/research keywords, it might be relevant
+    // Exception: if it also has electronics/research keywords, keep it
     if (hasElectronicsKeywords(title) || hasResearchKeywords(title)) {
       return false;
     }
@@ -186,12 +218,34 @@ export function isMixedPSU(orgName: string): boolean {
 }
 
 /**
+ * Broader technical signals for mixed/unknown orgs.
+ * NOTE: "apprentice" and "trainee" are INTENTIONALLY excluded —
+ * generic multi-trade apprenticeships without electronics keywords
+ * should not qualify. Electronics-specific apprenticeships are caught
+ * by hasElectronicsKeywords() in steps 2-3.
+ */
+const TECHNICAL_SIGNALS = [
+  "engineer", "scientist", "technician", "technical",
+  "developer", "designer", "research", "fellow",
+  "intern",
+];
+
+/**
  * Classify an opportunity's role relevance to the platform.
  *
  * Returns:
  * - "relevant": clearly electronics/semiconductor/research — always include
- * - "possibly_relevant": from a relevant org but title is ambiguous — include with caution
+ * - "possibly_relevant": from a relevant org but title is ambiguous — search only
  * - "irrelevant": clearly not electronics/research — exclude
+ *
+ * POLICY:
+ * - Homepage featured: ONLY "relevant"
+ * - General public search: "relevant" + "possibly_relevant"
+ * - Admin/review: all classifications
+ *
+ * RULE: ROLE SIGNAL beats ORG SIGNAL when they conflict.
+ * "Manager at BEL" → irrelevant (non-technical role wins).
+ * "VLSI at Unknown" → relevant (electronics role wins).
  */
 export function classifyRoleRelevance(
   title: string,
@@ -201,7 +255,8 @@ export function classifyRoleRelevance(
 ): "relevant" | "possibly_relevant" | "irrelevant" {
   const combined = [title, description, orgName, ...(tags || [])].filter(Boolean).join(" ");
 
-  // 1. Clearly irrelevant — exclude even if from a relevant org
+  // 1. Clearly irrelevant — ROLE SIGNAL WINS over org signal
+  //    (unless title also has electronics/research keywords)
   if (isClearlyIrrelevant(title)) {
     return "irrelevant";
   }
@@ -216,47 +271,40 @@ export function classifyRoleRelevance(
     return "relevant";
   }
 
-  // 4. From an electronics-focused PSU — include (org-level signal)
+  // 4. From an electronics-focused PSU — org signal (no role contradiction)
   if (orgName && isElectronicsPSU(orgName)) {
     return "relevant";
   }
 
-  // 5. From a mixed PSU — include only if title has some technical signal
+  // 5. From a mixed PSU — only if title has strong technical signal
   if (orgName && isMixedPSU(orgName)) {
-    // Check for broader technical keywords
-    const technicalSignals = [
-      "engineer", "scientist", "technician", "technical",
-      "developer", "designer", "research", "fellow",
-      "intern", "apprentice", "trainee",
-    ];
     const t = title.toLowerCase();
-    if (technicalSignals.some((s) => t.includes(s))) {
+    if (TECHNICAL_SIGNALS.some((s) => t.includes(s))) {
       return "possibly_relevant";
     }
     return "irrelevant";
   }
 
-  // 6. Unknown org — if title has technical signals, include
+  // 6. Unknown org — only if title has strong technical signal
   const t = title.toLowerCase();
-  const technicalSignals = [
-    "engineer", "scientist", "technician", "technical",
-    "developer", "designer", "research", "fellow",
-    "intern", "apprentice", "trainee", "project",
-  ];
-  if (technicalSignals.some((s) => t.includes(s))) {
+  if (TECHNICAL_SIGNALS.some((s) => t.includes(s))) {
     return "possibly_relevant";
   }
 
-  // 7. Default: possibly relevant (be inclusive)
-  return "possibly_relevant";
+  // 7. Default: IRRELEVANT (fail closed — don't include unknowns)
+  return "irrelevant";
 }
 
 /**
  * Main relevance gate — should this opportunity be included in the
  * public electronics-focused opportunity pool?
  *
- * Returns true if the opportunity is relevant to the platform's domain.
+ * Returns true if the opportunity is relevant (not irrelevant).
  * Used by scrapers at ingestion time and by the public query as a safety layer.
+ *
+ * NOTE: This includes "possibly_relevant" for broad scraper filtering.
+ * The homepage uses classifyRoleRelevance() directly to enforce
+ * "relevant" only (high precision).
  */
 export function isRelevantToPlatform(
   title: string,
@@ -298,13 +346,13 @@ export function deriveTags(
   if (combined.includes("electronics") || combined.includes("electronic")) {
     tags.add("Electronics");
   }
-  if (combined.includes("hardware") || combined.includes("pcb") || combined.includes("board")) {
+  if (combined.includes("hardware") || combined.includes("pcb")) {
     tags.add("Hardware");
   }
-  if (combined.includes("analog") || combined.includes("rf") || combined.includes("rfic")) {
+  if (combined.includes("analog") || combined.includes(" rf ") || combined.includes("rfic")) {
     tags.add("Analog/RF");
   }
-  if (combined.includes("verification") || combined.includes("uvm")) {
+  if (combined.includes("design verification") || combined.includes("uvm")) {
     tags.add("Verification");
   }
 
@@ -322,11 +370,10 @@ export function deriveTags(
   if (combined.includes("fellow")) tags.add("Fellowship");
   if (combined.includes("scientist")) tags.add("Scientist");
   if (combined.includes("intern")) tags.add("Internship");
-  if (combined.includes("apprentice")) tags.add("Apprentice");
 
   // Organization type tags
   if (combined.includes("govt") || combined.includes("government") ||
-      combined.includes("railway") || combined.includes("psu")) {
+      combined.includes("psu")) {
     tags.add("Govt Job");
   }
 

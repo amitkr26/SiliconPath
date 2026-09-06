@@ -6,6 +6,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { searchOpportunities } from "@/lib/opportunities-query";
 import { mapDbOpportunityToClient } from "@/lib/utils";
 import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
+import { classifyRoleRelevance } from "@/lib/scrapers/relevance";
 import type { Opportunity, NewsArticle } from "@/types";
 
 import PublicHome from "@/components/home/PublicHome";
@@ -129,24 +130,25 @@ export default async function HomePage() {
 
   // 1. UNHEALTHY / UNAUTHENTICATED GUEST VISITOR -> RENDER PUBLIC HOME
   if (!user) {
-    // Relevance-aware homepage feed: prefer electronics/semiconductor/research
-    // opportunities. Two-pass approach:
-    // 1) Fetch verified+active opportunities with electronics/research tags
-    // 2) If < 6, fill remaining slots with all verified+active (newest first)
+    // RELEVANCE-ONLY homepage feed (Phase 2.6).
     //
-    // This ensures the homepage shows domain-relevant opportunities instead of
-    // generic government roles (IOCL/Railway/RRB) that may have been verified
-    // but are not electronics-focused.
+    // Contract: PUBLIC HOMEPAGE = VERIFIED + ACTIVE + RELEVANT
+    //
+    // No "fill empty slots with arbitrary verified+active" fallback.
+    // If fewer than 6 relevant opportunities exist, show fewer.
+    // Quality > Quantity. Two relevant cards > six cards with four
+    // generic government jobs.
+    //
+    // Strategy: Fetch all verified+active+available from DB (up to 200),
+    // then filter through classifyRoleRelevance() in application code.
+    // DB handles eligibility (verified, active, available).
+    // Classifier handles domain relevance (electronics/VLSI/research).
+    // Only "relevant" (not "possibly_relevant") makes the homepage.
 
-    const RELEVANT_TAGS = [
-      "Electronics", "VLSI", "Semiconductor", "FPGA", "Embedded",
-      "Hardware", "Analog/RF", "Verification", "JRF", "SRF",
-      "Research", "PhD", "Fellowship", "Scientist", "ISRO", "DRDO",
-      "CSIR", "BEL", "ECIL", "C-DAC", "SAMEER",
-    ];
+    const HOMEPAGE_LIMIT = 200; // fetch enough for classification
+    const HOMEPAGE_TARGET = 6;
 
-    // Pass 1: Get relevant verified+active opportunities
-    const { data: relevantOpps } = await supabaseAdmin
+    const { data: candidateOpps } = await supabaseAdmin
       .from("opportunities")
       .select("*, organizations(*)")
       .eq("is_active", true)
@@ -156,44 +158,24 @@ export default async function HomePage() {
       .not("verification_status", "eq", "link_unavailable")
       .not("verification_status", "eq", "expired")
       .or(buildAvailabilityDbFilter(computeIstToday()))
-      .overlaps("tags", RELEVANT_TAGS)
       .order("created_at", { ascending: false })
-      .limit(6);
+      .limit(HOMEPAGE_LIMIT);
 
-    let homepageOpps = (relevantOpps || []).filter((opp: any) => isCurrentlyAvailable(opp));
-
-    // Pass 2: If < 6 relevant, fill with remaining verified+active
-    if (homepageOpps.length < 6) {
-      const existingIds = homepageOpps.map((o: any) => o.id);
-      const remaining = 6 - homepageOpps.length;
-
-      let fillQuery = supabaseAdmin
-        .from("opportunities")
-        .select("*, organizations(*)")
-        .eq("is_active", true)
-        .eq("verification_status", "verified")
-        .not("verification_status", "eq", "rejected")
-        .not("verification_status", "eq", "pending")
-        .not("verification_status", "eq", "link_unavailable")
-        .not("verification_status", "eq", "expired")
-        .or(buildAvailabilityDbFilter(computeIstToday()))
-        .order("created_at", { ascending: false })
-        .limit(remaining);
-
-      if (existingIds.length > 0) {
-        fillQuery = fillQuery.not("id", "in", `(${existingIds.join(",")})`);
-      }
-
-      const { data: fillOpps } = await fillQuery;
-      const validFill = (fillOpps || []).filter((opp: any) => isCurrentlyAvailable(opp));
-      homepageOpps = [...homepageOpps, ...validFill];
-    }
-
-    // If still no relevant opportunities, fall back to the standard query
-    if (homepageOpps.length === 0) {
-      const fallback = await searchOpportunities({ limit: 6, sort: "fresher" });
-      homepageOpps = fallback.data;
-    }
+    // Application-level relevance filter: ONLY "relevant" opportunities.
+    // This is the canonical relevance gate for the homepage.
+    // "possibly_relevant" is EXCLUDED from the homepage (search only).
+    const homepageOpps = (candidateOpps || [])
+      .filter((opp: any) => isCurrentlyAvailable(opp))
+      .filter((opp: any) => {
+        const relevance = classifyRoleRelevance(
+          opp.title,
+          opp.description,
+          opp.organization || opp.organizations?.name || null,
+          opp.tags,
+        );
+        return relevance === "relevant";
+      })
+      .slice(0, HOMEPAGE_TARGET);
 
     const [publicStats, latestNews] = await Promise.all([
       getPublicStats(),
