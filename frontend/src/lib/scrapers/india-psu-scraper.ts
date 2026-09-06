@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
 import { fetchWithLooseTLS } from "./fetch-utils";
+import { isRelevantToPlatform, deriveTags, inferCategoryFromTitle } from "./relevance";
 
 const PSU_SOURCES = [
   {
@@ -103,12 +104,16 @@ const PSU_SOURCES = [
   }
 ];
 
+// ponytail: Broad link-matching keywords to catch recruitment pages on PSU sites.
+// The role-level relevance check (isRelevantToPlatform) below is the actual gate —
+// these just prevent us from missing valid links during HTML parsing.
 const RELEVANT_KEYWORDS = [
   "recruitment", "vacancy", "career", "position", "fellow",
-  "jrf", "srf", "scientist", "engineer", "apprentice", "project"
+  "jrf", "srf", "scientist", "engineer", "apprentice", "project",
+  "technician", "technical", "notification",
 ];
 
-function isRelevant(title: string): boolean {
+function isRelevantLink(title: string): boolean {
   const t = title.toLowerCase();
   return RELEVANT_KEYWORDS.some(k => t.includes(k));
 }
@@ -142,7 +147,7 @@ async function scrapeSinglePSU(source: typeof PSU_SOURCES[0]): Promise<ScrapedOp
       const skipPatterns = /home|contact|sitemap|about|privacy|terms|login|sign in|register|apply now|download|click here|read more|view all|payment gateway|at a glance|departments|reference designs|quick links|useful links|important links|all rights reserved|copyright|disclaimer|help|faq|\bsearch\b|skip to main content|breadcrumb|you are here|news & events|photo gallery|tender|archive|annual report|right to information/i;
       if (text.length <= 15 || skipPatterns.test(text)) return;
 
-      if (isRelevant(text)) {
+      if (isRelevantLink(text)) {
         let fullLink = href;
         if (href && !href.startsWith("http")) {
           try {
@@ -154,14 +159,25 @@ async function scrapeSinglePSU(source: typeof PSU_SOURCES[0]): Promise<ScrapedOp
         }
 
         const title = cleanTitle(text);
-        const tags = [source.org, "Govt Job", "Electronics"];
-        if (title.toLowerCase().includes("jrf")) tags.push("JRF");
-        if (title.toLowerCase().includes("project")) tags.push("Project");
+
+        // ROLE-LEVEL RELEVANCE GATE: only include if the actual role is
+        // electronics/semiconductor/research relevant. This prevents generic
+        // PSU vacancies (HR, admin, finance, non-technical trades) from
+        // entering the electronics-focused opportunity pool.
+        if (!isRelevantToPlatform(title, null, source.org, null)) {
+          return; // skip irrelevant roles — even from electronics PSUs
+        }
+
+        // Content-derived category (title-based, not source-based)
+        const category = inferCategoryFromTitle(title);
+
+        // Content-derived tags (not blanket "Electronics")
+        const tags = deriveTags(title, null, source.org, null);
 
         opportunities.push({
           title,
           organization: source.org,
-          category: source.category,
+          category,
           location: "India",
           stipend: null,
           deadline: null,

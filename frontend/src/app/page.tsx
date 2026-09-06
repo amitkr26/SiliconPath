@@ -129,16 +129,81 @@ export default async function HomePage() {
 
   // 1. UNHEALTHY / UNAUTHENTICATED GUEST VISITOR -> RENDER PUBLIC HOME
   if (!user) {
-    const [publicStats, opportunitiesRes, latestNews] = await Promise.all([
+    // Relevance-aware homepage feed: prefer electronics/semiconductor/research
+    // opportunities. Two-pass approach:
+    // 1) Fetch verified+active opportunities with electronics/research tags
+    // 2) If < 6, fill remaining slots with all verified+active (newest first)
+    //
+    // This ensures the homepage shows domain-relevant opportunities instead of
+    // generic government roles (IOCL/Railway/RRB) that may have been verified
+    // but are not electronics-focused.
+
+    const RELEVANT_TAGS = [
+      "Electronics", "VLSI", "Semiconductor", "FPGA", "Embedded",
+      "Hardware", "Analog/RF", "Verification", "JRF", "SRF",
+      "Research", "PhD", "Fellowship", "Scientist", "ISRO", "DRDO",
+      "CSIR", "BEL", "ECIL", "C-DAC", "SAMEER",
+    ];
+
+    // Pass 1: Get relevant verified+active opportunities
+    const { data: relevantOpps } = await supabaseAdmin
+      .from("opportunities")
+      .select("*, organizations(*)")
+      .eq("is_active", true)
+      .eq("verification_status", "verified")
+      .not("verification_status", "eq", "rejected")
+      .not("verification_status", "eq", "pending")
+      .not("verification_status", "eq", "link_unavailable")
+      .not("verification_status", "eq", "expired")
+      .or(buildAvailabilityDbFilter(computeIstToday()))
+      .overlaps("tags", RELEVANT_TAGS)
+      .order("created_at", { ascending: false })
+      .limit(6);
+
+    let homepageOpps = (relevantOpps || []).filter((opp: any) => isCurrentlyAvailable(opp));
+
+    // Pass 2: If < 6 relevant, fill with remaining verified+active
+    if (homepageOpps.length < 6) {
+      const existingIds = homepageOpps.map((o: any) => o.id);
+      const remaining = 6 - homepageOpps.length;
+
+      let fillQuery = supabaseAdmin
+        .from("opportunities")
+        .select("*, organizations(*)")
+        .eq("is_active", true)
+        .eq("verification_status", "verified")
+        .not("verification_status", "eq", "rejected")
+        .not("verification_status", "eq", "pending")
+        .not("verification_status", "eq", "link_unavailable")
+        .not("verification_status", "eq", "expired")
+        .or(buildAvailabilityDbFilter(computeIstToday()))
+        .order("created_at", { ascending: false })
+        .limit(remaining);
+
+      if (existingIds.length > 0) {
+        fillQuery = fillQuery.not("id", "in", `(${existingIds.join(",")})`);
+      }
+
+      const { data: fillOpps } = await fillQuery;
+      const validFill = (fillOpps || []).filter((opp: any) => isCurrentlyAvailable(opp));
+      homepageOpps = [...homepageOpps, ...validFill];
+    }
+
+    // If still no relevant opportunities, fall back to the standard query
+    if (homepageOpps.length === 0) {
+      const fallback = await searchOpportunities({ limit: 6, sort: "fresher" });
+      homepageOpps = fallback.data;
+    }
+
+    const [publicStats, latestNews] = await Promise.all([
       getPublicStats(),
-      searchOpportunities({ limit: 6, sort: "fresher" }),
       getLatestNews(),
     ]);
 
     return (
       <PublicHome
         stats={publicStats}
-        latestOpenings={opportunitiesRes.data.map((d: any) => mapDbOpportunityToClient(d))}
+        latestOpenings={homepageOpps.map((d: any) => mapDbOpportunityToClient(d))}
         latestNews={latestNews}
       />
     );

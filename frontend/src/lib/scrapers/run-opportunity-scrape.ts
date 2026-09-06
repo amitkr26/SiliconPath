@@ -4,6 +4,7 @@ import { scrapeAllOpportunities } from "@/lib/scrapers/opportunity-scraper-impl"
 import { cleanTitle, slugify, normalizeUrl, GARBAGE_TITLE_PATTERNS } from "@/lib/scrapers/utils";
 import { enrichOpportunity } from "@/lib/scrapers/deep-scraper";
 import { resolveOrganization } from "@/lib/organizations/resolve";
+import { isRelevantToPlatform } from "@/lib/scrapers/relevance";
 
 export interface OpportunityScrapeResult {
   sources: unknown[];
@@ -85,6 +86,15 @@ export async function runOpportunityScrape(): Promise<OpportunityScrapeResult> {
       GARBAGE_TITLE_PATTERNS.test(cleanedTitle) ||
       GARBAGE_TITLE_PATTERNS.test(opp.title)
     ) {
+      oppSkipped++;
+      continue;
+    }
+
+    // ROLE-LEVEL RELEVANCE GATE (P0.2): skip opportunities that are clearly
+    // irrelevant to the platform's electronics/semiconductor/research domain.
+    // This is a safety layer — scrapers should also filter, but this catches
+    // any that slip through (e.g. generic PSU HR/admin vacancies).
+    if (!isRelevantToPlatform(opp.title, opp.description, opp.organization, opp.tags)) {
       oppSkipped++;
       continue;
     }
