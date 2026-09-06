@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
+
+const ADMIN_TOKEN_KEY = "sp_admin_token";
 
 function slugify(title: string): string {
   return title
@@ -22,6 +24,7 @@ function slugify(title: string): string {
 export default function AddNewsPage() {
   const router = useRouter();
   const { user } = useUser();
+  const [authed, setAuthed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     title: "",
@@ -34,6 +37,22 @@ export default function AddNewsPage() {
     image_url: "",
     published_at: new Date().toISOString().slice(0, 16),
   });
+
+  useEffect(() => {
+    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+    const pw = sessionStorage.getItem("admin_password");
+    if (!token && !pw) {
+      router.push("/admin");
+      return;
+    }
+    setAuthed(true);
+  }, [router]);
+
+  if (!authed) return (
+    <div className="max-w-4xl mx-auto px-4 py-20 flex justify-center">
+      <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+    </div>
+  );
 
   const handleTitleChange = (title: string) => {
     setForm((prev) => ({

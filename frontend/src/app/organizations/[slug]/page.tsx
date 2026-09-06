@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 import type { Opportunity } from "@/types";
 import OpportunityCard from "@/components/OpportunityCard";
 
@@ -39,8 +40,13 @@ async function getOrganizationOpportunities(
     .from("opportunities")
     .select("*, organizations(*)")
     .eq("is_active", true)
+    .eq("verification_status", "verified")
+    .not("verification_status", "eq", "rejected")
+    .not("verification_status", "eq", "pending")
+    .not("verification_status", "eq", "expired")
+    .not("verification_status", "eq", "link_unavailable")
     .eq("organization_id", orgData.id)
-    .or(`deadline.gte.${today},deadline.is.null`)
+    .or(buildAvailabilityDbFilter(computeIstToday()))
     .order("created_at", { ascending: false });
 
   if (!data || data.length === 0) {

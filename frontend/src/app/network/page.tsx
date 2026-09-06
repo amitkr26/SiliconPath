@@ -200,6 +200,15 @@ export default function NetworkPage() {
     );
   }
 
+  if (!user) {
+    router.push("/login?redirect=/network");
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center bg-slate-50">
+        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
   const suggestions = suggestionsData || [];
   const connections = (connectionsData || []).filter((c: any) =>
     search ? (c.display_name || "").toLowerCase().includes(search.toLowerCase()) : true

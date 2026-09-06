@@ -73,8 +73,8 @@ export default function NewsPage() {
 
   const filteredArticles = articles.filter((art) => {
     if (viewMode === "monthly") {
-      // Prioritize in-depth analysis, digests, or all recent monthly features
-      return art.summary?.toLowerCase().includes("digest") || art.summary?.toLowerCase().includes("analysis") || (art as any).is_breaking || true;
+      // Prioritize in-depth analysis, digests, or breaking news for monthly view
+      return art.summary?.toLowerCase().includes("digest") || art.summary?.toLowerCase().includes("analysis") || (art as any).is_breaking;
     }
     return true;
   });

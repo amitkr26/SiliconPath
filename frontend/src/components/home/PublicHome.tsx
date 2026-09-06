@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import nextDynamic from "next/dynamic";
 import {
   ArrowRight, Sparkles, ShieldCheck, UserCheck,
   Building2, GraduationCap, Search, CheckCircle2,
-  Award, Layers, Cpu, Atom, Rocket, ChevronRight, Check
+  Award, Layers, Cpu, Atom, Rocket, ChevronRight, Check,
+  ChevronDown, ChevronUp
 } from "lucide-react";
 import type { Opportunity, NewsArticle } from "@/types";
 import OpportunityCard from "@/components/OpportunityCard";
@@ -14,6 +16,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { cn } from "@/lib/utils";
 
 import ReviewsSection from "@/components/ReviewsSection";
 import FaqSection from "@/components/FaqSection";
@@ -121,6 +124,19 @@ const DOMAIN_SPECIALIZATIONS = [
   },
 ];
 
+const PRIORITY_FILTERS = [
+  { label: "ISRO Careers", q: "ISRO" },
+  { label: "DRDO JRF", q: "DRDO" },
+  { label: "CSIR CEERI", q: "CSIR" },
+  { label: "IIT Bombay PhD", q: "IIT Bombay" },
+  { label: "Qualcomm RTL", q: "Qualcomm" },
+];
+
+const SECONDARY_FILTERS = [
+  { label: "Intel Physical Design", q: "Intel" },
+  { label: "SystemVerilog UVM", q: "Verification" },
+];
+
 interface PublicHomeProps {
   stats: {
     total: number;
@@ -138,10 +154,12 @@ export default function PublicHome({
   latestOpenings,
   latestNews,
 }: PublicHomeProps) {
-  // Build stats array dynamically — only show non-zero values
+  const [showAllFilters, setShowAllFilters] = useState(false);
+
+  // Build stats array dynamically — only show non-zero values with clear semantic distinction
   const statsCards = [
-    { value: stats.total, label: "Active Opportunities", sub: "Government & Industry" },
-    { value: stats.verified, label: "Verified Postings", sub: "Direct Circular URLs" },
+    { value: stats.total, label: "Active Opportunities", sub: "Open for Applications" },
+    { value: stats.verified, label: "Verified Circulars", sub: "Source-Validated URLs" },
     { value: stats.jrf, label: "JRF Fellowships", sub: "DST / CSIR Norms" },
     { value: stats.phd, label: "PhD Seats", sub: "IITs, IISc & NITs" },
   ].filter((s) => s.value > 0);
@@ -150,7 +168,7 @@ export default function PublicHome({
     <div className="space-y-12 sm:space-y-20 pb-16 sm:pb-20">
 
       {/* 1. HERO SECTION */}
-      <section className="relative bg-[#FAF9F6] border-b-2 border-slate-900 py-10 sm:py-16 lg:py-20">
+      <section className="relative bg-[#FAF9F6] border-b-2 border-slate-900 py-8 sm:py-12 lg:py-14">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
 
           {/* TOP BADGE */}
@@ -162,7 +180,7 @@ export default function PublicHome({
           </div>
 
           {/* MAIN HERO HEADLINE */}
-          <h1 className="text-2xl sm:text-4xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.1] max-w-4xl mx-auto">
+          <h1 className="text-[1.65rem] sm:text-4xl lg:text-5xl xl:text-6xl font-black text-slate-900 tracking-tight leading-[1.18] sm:leading-[1.1] max-w-xs sm:max-w-2xl lg:max-w-4xl mx-auto">
             India&apos;s Career &amp; Research Gateway for{" "}
             <span className="text-blue-600">Semiconductor &amp; VLSI</span> Engineering
           </h1>
@@ -171,39 +189,33 @@ export default function PublicHome({
           <p className="hidden sm:block mt-5 text-base lg:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium">
             Explore verified government JRF/SRF fellowships, DRDO &amp; ISRO Scientist posts, IIT microelectronics admissions, and fabless silicon design openings with active deadlines.
           </p>
-          <p className="sm:hidden mt-4 text-sm text-slate-600 max-w-xl mx-auto leading-relaxed font-medium">
-            Government JRF/SRF fellowships, DRDO &amp; ISRO posts, IIT admissions &amp; silicon design openings — updated daily.
+          <p className="sm:hidden mt-3 text-xs sm:text-sm text-slate-600 max-w-sm mx-auto leading-relaxed font-medium">
+            Government JRF/SRF fellowships, DRDO &amp; ISRO posts, IIT admissions &amp; silicon design openings — new opportunities added regularly.
           </p>
 
           {/* PRIMARY & SECONDARY ACTIONS */}
-          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button href="/opportunities" size="lg" className="w-full sm:w-auto shadow-brutal hover:shadow-brutal-lg text-center">
+          <div className="mt-5 sm:mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button href="/opportunities" size="lg" className="w-full sm:w-auto shadow-brutal hover:shadow-brutal-lg text-center font-black">
               Explore Active Opportunities <ArrowRight className="w-4 h-4" />
             </Button>
-            <div className="flex gap-3 w-full sm:w-auto">
-              <Button href="/organizations" variant="secondary" size="lg" className="flex-1 sm:flex-initial text-center">
+            <div className="flex gap-2.5 sm:gap-3 w-full sm:w-auto">
+              <Button href="/organizations" variant="secondary" size="lg" className="flex-1 sm:flex-initial text-center font-bold">
                 <Building2 className="w-4 h-4 text-slate-700" /> <span className="hidden sm:inline">Browse by</span> Organizations
               </Button>
-              <Button href="/academy" variant="ghost" size="lg" className="flex-1 sm:flex-initial text-center">
+              <Button href="/academy" variant="ghost" size="lg" className="flex-1 sm:flex-initial text-center font-bold">
                 <GraduationCap className="w-4 h-4 text-slate-700" /> Academy
               </Button>
             </div>
           </div>
 
           {/* SEARCH PILLS */}
-          <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-900 max-w-3xl mx-auto">
-            <span className="font-bold text-slate-500 uppercase flex items-center gap-1">
+          <div className="mt-5 sm:mt-7 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-900 max-w-3xl mx-auto">
+            <span className="font-bold text-slate-500 uppercase flex items-center gap-1 shrink-0">
               <Search className="w-3.5 h-3.5 text-blue-600" /> <span className="hidden sm:inline">Direct Filter:</span>
             </span>
-            {[
-              { label: "ISRO Careers", q: "ISRO" },
-              { label: "DRDO JRF", q: "DRDO" },
-              { label: "CSIR CEERI", q: "CSIR" },
-              { label: "IIT Bombay PhD", q: "IIT Bombay" },
-              { label: "Qualcomm RTL", q: "Qualcomm" },
-              { label: "Intel Physical Design", q: "Intel" },
-              { label: "SystemVerilog UVM", q: "Verification" },
-            ].map((tag) => (
+
+            {/* Priority filters (always visible) */}
+            {PRIORITY_FILTERS.map((tag) => (
               <Link
                 key={tag.label}
                 href={`/opportunities?search=${encodeURIComponent(tag.q)}`}
@@ -212,6 +224,32 @@ export default function PublicHome({
                 {tag.label}
               </Link>
             ))}
+
+            {/* Secondary filters (collapsed on mobile, always visible on sm+) */}
+            {SECONDARY_FILTERS.map((tag) => (
+              <Link
+                key={tag.label}
+                href={`/opportunities?search=${encodeURIComponent(tag.q)}`}
+                className={cn(
+                  "px-2.5 py-1 sm:px-3 bg-white border-2 border-slate-900 rounded-full font-bold text-slate-800 hover:bg-blue-600 hover:text-white transition-all shadow-brutal-sm",
+                  showAllFilters ? "inline-flex" : "hidden sm:inline-flex"
+                )}
+              >
+                {tag.label}
+              </Link>
+            ))}
+
+            {/* Mobile toggle for secondary filters */}
+            <button
+              type="button"
+              onClick={() => setShowAllFilters(!showAllFilters)}
+              aria-expanded={showAllFilters}
+              aria-label={showAllFilters ? "Show fewer filter tags" : "Show more filter tags"}
+              className="sm:hidden px-2.5 py-1 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 rounded-full font-bold text-slate-700 hover:text-slate-900 transition-all shadow-brutal-sm flex items-center gap-1 text-[11px]"
+            >
+              <span>{showAllFilters ? "Fewer" : "+2 More"}</span>
+              {showAllFilters ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
           </div>
 
         </div>
@@ -219,7 +257,7 @@ export default function PublicHome({
 
       {/* 2. REAL-TIME STATS COUNTER STRIP — only show non-zero stats */}
       {statsCards.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 sm:-mt-10 relative z-20">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 sm:-mt-8 relative z-20">
           <div className={`grid gap-3 sm:gap-4 ${statsCards.length <= 2 ? "grid-cols-2" : statsCards.length === 3 ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2 lg:grid-cols-4"}`}>
             {statsCards.map((s) => (
               <Card key={s.label} className="p-4 sm:p-5 text-center">
@@ -338,11 +376,19 @@ export default function PublicHome({
           }
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {latestOpenings.slice(0, 6).map((opp) => (
-            <OpportunityCard key={opp.id} opportunity={opp} />
-          ))}
-        </div>
+        {latestOpenings.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {latestOpenings.slice(0, 6).map((opp) => (
+              <OpportunityCard key={opp.id} opportunity={opp} />
+            ))}
+          </div>
+        ) : (
+          <Card className="p-8 text-center space-y-3">
+            <p className="font-bold text-slate-800">No matching verified opportunities currently open.</p>
+            <p className="text-xs text-slate-500 font-medium">Check back soon or browse our full archive of opportunities.</p>
+            <Button href="/opportunities" variant="secondary" size="sm">Browse All Opportunities</Button>
+          </Card>
+        )}
       </section>
 
       {/* 6. AUTHORITATIVE RESEARCH FELLOWSHIP GUIDE */}

@@ -5,7 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
-  title: "VLSI Career India 2026 � Jobs, Salaries, Skills & Companies",
+  title: "VLSI Career India 2026 — Jobs, Salaries, Skills & Companies",
   description: "Complete VLSI career guide for India 2026. RTL design, physical design, verification jobs. Companies: Intel, Qualcomm, AMD, TI. Salaries ?5-50 LPA. Skills: Verilog, SystemVerilog, Cadence.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/resources/vlsi-careers" },
 };
@@ -26,7 +26,7 @@ export default async function VLSICareersPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Link href="/resources" className="inline-flex items-center gap-1 text-slate-600 hover:text-blue-600 text-sm font-semibold mb-4 transition-colors"><ArrowLeft className="w-4 h-4" /> Back to Resources</Link>
-      <h1 className="font-display text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-8">VLSI Career Roadmap India 2026 � Complete Guide for Electronics Engineers</h1>
+      <h1 className="font-display text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-8">VLSI Career Roadmap India 2026 — Complete Guide for Electronics Engineers</h1>
 
       <div className="space-y-10 text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
         <section>
@@ -35,7 +35,7 @@ export default async function VLSICareersPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">VLSI Job Roles � Which Path is Right for You?</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">VLSI Job Roles — Which Path is Right for You?</h2>
           <ul className="list-disc list-inside space-y-1">
             <li><strong className="text-slate-900">RTL Design</strong>: Writing hardware in Verilog/SystemVerilog. Salary ?6-15 LPA fresh. Requires strong digital design fundamentals.</li>
             <li><strong className="text-slate-900">Physical Design</strong>: Floorplan, place & route, timing closure. Salary ?7-18 LPA fresh. Requires EDA tool knowledge (Synopsys ICC2, Cadence Innovus).</li>
@@ -65,7 +65,7 @@ export default async function VLSICareersPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Salary Guide � VLSI India 2026</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Salary Guide — VLSI India 2026</h2>
           <div className="overflow-x-auto bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-sm">
             <table className="w-full text-sm border-collapse">
               <thead><tr className="border-b-2 border-slate-900 bg-slate-100"><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Experience</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Role</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Salary Range</th></tr></thead>
@@ -96,7 +96,7 @@ export default async function VLSICareersPage() {
               {vlsiOpps.map((opp: any) => (
                 <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border-2 border-slate-900 rounded-xl p-3.5 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all">
                   <h3 className="text-slate-900 text-sm font-semibold">{opp.title}</h3>
-                  <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization} {opp.location ? `� ${opp.location}` : ""} {opp.stipend ? `� ${opp.stipend}` : ""}</p>
+                  <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization} {opp.location ? `— ${opp.location}` : ""} {opp.stipend ? `— ${opp.stipend}` : ""}</p>
                 </Link>
               ))}
             </div>

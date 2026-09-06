@@ -154,7 +154,7 @@ export default function MessagesPage() {
           <p className="text-sm text-gray-500 mt-0.5">Private conversations with hardware engineers and researchers</p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex" style={{ height: "calc(100vh - 200px)" }}>
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex" style={{ height: "min(calc(100vh - 200px), 700px)" }}>
           {/* Left Panel - Conversation List */}
           <div
             className={cn(
@@ -212,7 +212,7 @@ export default function MessagesPage() {
                     >
                       <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold shrink-0 overflow-hidden">
                         {c.other_user?.avatar_url ? (
-                          <Image src={c.other_user.avatar_url} alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover" unoptimized />
+                          <Image src={c.other_user.avatar_url} alt={c.other_user.display_name || "User avatar"} width={40} height={40} className="w-10 h-10 rounded-full object-cover" unoptimized />
                         ) : (
                           initials(c.other_user?.display_name)
                         )}
@@ -267,7 +267,7 @@ export default function MessagesPage() {
                   </button>
                   <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold shrink-0 overflow-hidden">
                     {activeOtherUser.avatar_url ? (
-                      <Image src={activeOtherUser.avatar_url} alt="" width={36} height={36} className="w-9 h-9 rounded-full object-cover" unoptimized />
+                      <Image src={activeOtherUser.avatar_url} alt={activeOtherUser.display_name || "User avatar"} width={36} height={36} className="w-9 h-9 rounded-full object-cover" unoptimized />
                     ) : (
                       initials(activeOtherUser.display_name)
                     )}
@@ -301,7 +301,7 @@ export default function MessagesPage() {
                         {!isMine && (
                           <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-xs font-semibold overflow-hidden">
                             {activeOtherUser.avatar_url ? (
-                              <Image src={activeOtherUser.avatar_url} alt="" width={28} height={28} className="w-7 h-7 rounded-full object-cover" unoptimized />
+                              <Image src={activeOtherUser.avatar_url} alt={activeOtherUser.display_name || "User avatar"} width={28} height={28} className="w-7 h-7 rounded-full object-cover" unoptimized />
                             ) : initials(activeOtherUser.display_name)}
                           </div>
                         )}

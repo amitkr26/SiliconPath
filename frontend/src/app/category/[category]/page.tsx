@@ -95,7 +95,11 @@ export default function CategoryPage({ params }: { params: { category: string } 
         "government": "government",
         "fellowship": "fellowship",
         "private": "job",
+        "private-job": "job",
+        "jobs": "job",
+        "job": "job",
         "internship": "internship",
+        "international": "international",
       };
       const dbCat = catDbMap[categoryParam.toLowerCase()] || "jrf";
 
