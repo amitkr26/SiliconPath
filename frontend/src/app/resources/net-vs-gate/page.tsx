@@ -14,7 +14,7 @@ const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   mainEntity: [
-    { "@type": "Question", name: "Which is better for JRF — NET or GATE?", acceptedAnswer: { "@type": "Answer", text: "Both qualify for JRF but through different routes. UGC-NET opens JRF at universities/colleges (UGC-JRF). GATE opens CSIR-JRF at CSIR labs leading to AcSIR PhD. The stipend is the same ?37,000/month for both." } },
+    { "@type": "Question", name: "Which is better for JRF — NET or GATE?", acceptedAnswer: { "@type": "Answer", text: "Both qualify for JRF but through different routes. UGC-NET opens JRF at universities/colleges (UGC-JRF). GATE opens CSIR-JRF at CSIR labs leading to AcSIR PhD. The stipend is the same ₹37,000/month for both." } },
     { "@type": "Question", name: "Can I appear for both NET and GATE?", acceptedAnswer: { "@type": "Answer", text: "Yes, many candidates appear for both. UGC-NET is held in June/December, GATE in February. The syllabi overlap significantly (70-80% common topics in Electronic Science/ECE)." } },
     { "@type": "Question", name: "Which exam is harder — NET or GATE?", acceptedAnswer: { "@type": "Answer", text: "GATE ECE is generally considered more competitive due to higher number of applicants and wider syllabus. UGC-NET Electronic Science has a narrower syllabus focused on research-oriented electronics topics." } },
     { "@type": "Question", name: "What is the stipend for NET-JRF vs GATE-JRF?", acceptedAnswer: { "@type": "Answer", text: "Both UGC-NET JRF and CSIR-GATE JRF offer the same stipend: ₹37,000/month during JRF period (first 2 years) and ₹42,000/month as SRF (years 3-5). Both also include HRA and contingency grants." } },

@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 };
 
 const CATEGORIES_CONFIG = [
-  { slug: "jrf", label: "JRF", icon: GraduationCap, description: "Junior Research Fellowship positions at DRDO, ISRO, CSIR, IITs for NET/GATE qualified MSc holders. Stipend: ?37,000/month.", chip: "bg-blue-50 text-blue-700 border-blue-600", badge: "accent" as const },
-  { slug: "srf", label: "SRF", icon: FlaskConical, description: "Senior Research Fellowship for experienced researchers (2+ years JRF or PhD). Stipend: ?42,000/month.", chip: "bg-purple-50 text-purple-700 border-purple-600", badge: "purple" as const },
+  { slug: "jrf", label: "JRF", icon: GraduationCap, description: "Junior Research Fellowship positions at DRDO, ISRO, CSIR, IITs for NET/GATE qualified MSc holders. Stipend: ₹37,000/month.", chip: "bg-blue-50 text-blue-700 border-blue-600", badge: "accent" as const },
+  { slug: "srf", label: "SRF", icon: FlaskConical, description: "Senior Research Fellowship for experienced researchers (2+ years JRF or PhD). Stipend: ₹42,000/month.", chip: "bg-purple-50 text-purple-700 border-purple-600", badge: "purple" as const },
   { slug: "phd", label: "PhD", icon: BookOpen, description: "Funded doctoral opportunities at IITs, IISc, CSIR labs, and international universities with JRF/INSPIRE/PMRF funding.", chip: "bg-emerald-50 text-emerald-700 border-emerald-600", badge: "success" as const },
   { slug: "govt-job", label: "Govt Job", icon: Building2, description: "Scientist, engineer, and technical positions at DRDO, ISRO, BARC, CSIR. Stable careers with 7th CPC pay scales.", chip: "bg-amber-50 text-amber-700 border-amber-600", badge: "warning" as const },
   { slug: "fellowship", label: "Fellowship", icon: Award, description: "Research fellowships and scholarships: DST-INSPIRE, DAAD (Germany), SINGA (Singapore), MEXT (Japan), and more.", chip: "bg-indigo-50 text-indigo-700 border-indigo-600", badge: "accent" as const },
