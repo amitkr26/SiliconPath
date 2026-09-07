@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
+import { getAuthenticatedEmployerUser, isUserAdmin, isUserEmployer } from "@/lib/employer-auth";
 import { verifyAdmin } from "@/lib/admin-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { z } from "zod";
@@ -20,9 +20,8 @@ export async function GET(request: NextRequest) {
   if (!isAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
-
   try {
-    const role = user?.user_metadata?.role;
+    const isPlatformAdmin = isAdmin || isUserAdmin(user);
     let query = supabaseAdmin
       .from("company_claims")
       .select(`
@@ -38,7 +37,7 @@ export async function GET(request: NextRequest) {
       `)
       .order("created_at", { ascending: false });
 
-    if (!isAdmin && role !== "admin") {
+    if (!isPlatformAdmin) {
       query = query.eq("claimed_by", user!.id);
     }
 
@@ -61,8 +60,8 @@ export async function POST(request: NextRequest) {
   const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const role = user.user_metadata?.role;
-  if (role !== "employer" && role !== "provider" && role !== "admin") {
+  const isEmployer = await isUserEmployer(user);
+  if (!isEmployer) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -110,7 +109,9 @@ export async function PATCH(request: NextRequest) {
   const isAdmin = verifyAdmin(request);
   const user = await getAuthenticatedEmployerUser(request);
 
-  if (!isAdmin && user?.user_metadata?.role !== "admin") {
+  const isPlatformAdmin = isAdmin || isUserAdmin(user);
+
+  if (!isPlatformAdmin) {
     return NextResponse.json({ error: "Forbidden: Admin access required to review claims" }, { status: 403 });
   }
 

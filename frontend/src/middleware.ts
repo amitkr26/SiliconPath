@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { applyRateLimit } from '@berojgardegreewala/api';
+import { verifyAdmin } from './lib/admin-auth';
 
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
@@ -137,20 +138,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  const adminPassword = process.env.ADMIN_PASSWORD || "";
-  const directPassword = request.headers.get("x-admin-password") || "";
-  const isAdminRequest = Boolean(
-    adminPassword &&
-    directPassword &&
-    adminPassword.length === directPassword.length &&
-    (() => {
-      let diff = 0;
-      for (let i = 0; i < adminPassword.length; i++) {
-        diff |= adminPassword.charCodeAt(i) ^ directPassword.charCodeAt(i);
-      }
-      return diff === 0;
-    })()
-  );
+  const isAdminRequest = verifyAdmin(request);
 
   // Auth gate check
   if ((isGated || isEmployerOnly) && !user && !isAdminRequest) {
@@ -181,7 +169,9 @@ export async function middleware(request: NextRequest) {
   if (isEmployerOnly && user && !isAdminRequest) {
     const role = user.user_metadata?.role as string | undefined;
     const accountType = user.user_metadata?.account_type as string | undefined;
-    if (role !== "employer" && role !== "admin" && accountType !== "provider") {
+    const appRole = user.app_metadata?.role as string | undefined;
+    const isEmployer = role === "employer" || accountType === "provider" || appRole === "admin" || appRole === "super_admin";
+    if (!isEmployer) {
       if (path.startsWith('/api/')) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
@@ -191,9 +181,10 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Admin/Manager API route gate — requires admin password/HMAC (no Supabase session needed)
+  // Admin/Manager API route gate — requires admin password/HMAC (no Supabase session needed).
+  // Note: /api/admin/auth is exempt because credentials are submitted in POST body for initial authentication.
   const isAdminOnly = ADMIN_PATHS.some(p => path === p || path.startsWith(p + '/'));
-  if (isAdminOnly && !isAdminRequest) {
+  if (isAdminOnly && path !== '/api/admin/auth' && !isAdminRequest) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 

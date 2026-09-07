@@ -3,6 +3,7 @@ const nextConfig = {
   swcMinify: true,
   compress: true,
   reactStrictMode: true,
+  output: process.env.DOCKER_BUILD === "1" ? "standalone" : undefined,
   eslint: {
     ignoreDuringBuilds: true,
   },

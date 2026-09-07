@@ -75,15 +75,14 @@ The application serves four discrete, authoritative user experiences from a sing
 
 The live database infrastructure uses a dual-Supabase + Neon architecture:
 
-### DB1 — Supabase (Core Platform Data)
+### DB1 — Supabase (Consolidated Platform & User Data)
 - **Provider**: Supabase Project 1 (`aqauempuwmbizqoaolop`)
-- **Role**: Production core — opportunities, organizations, news, admin, logs
-- **Key Tables**: `opportunities`, `organizations`, `news_articles`, `scraper_sources`, `company_claims`, `recruiter_saved_candidates`, `employer_settings`, `workspace_members`, `ai_usage_log`, `subscribers`, `suggestions`, `link_check_results`, `opportunity_reports`, `organization_announcements`, `opportunities_verification`
+- **Role**: Production authoritative database hosting core platform, opportunities, organizations, news, admin logs, as well as consolidated user profiles, social features, applications, and academy content.
+- **Key Tables**: `opportunities`, `organizations`, `news_articles`, `user_profiles`, `applications`, `saved_opportunities`, `feed_posts`, `learning_tracks`, `learning_days`, `learning_questions`, `company_claims`, `recruiter_saved_candidates`, `employer_settings`, `workspace_members`, `ai_usage_log`.
 
-### DB2 — Supabase (User & Social Layer)
-- **Provider**: Supabase Project 2 (`jbqjipwanfsxyqkfrrpx`)
-- **Role**: User profiles, social features, networking, messaging
-- **Key Tables**: `user_profiles`, `user_resumes`, `saved_opportunities`, `applications`, `user_alerts`, `user_follows`, `connection_requests`, `feed_posts`, `community_posts`, `community_comments`, `community_votes`, `conversations`, `messages`, `notifications`, `skill_endorsements`, `recommendations`, `candidate_experiences`, `candidate_educations`, `candidate_projects`, `candidate_certifications`, `candidate_achievements`, `company_claims`, `recruiter_saved_candidates`, `employer_settings`, `workspace_members`, `company_followers`
+### DB2 — Supabase (Legacy Split Architecture)
+- **Provider**: Supabase Project 2 (`jbqjipwanfsxyqkfrrpx` — optional / legacy)
+- **Role**: Historically planned user/social partition. In current runtime, when `NEXT_PUBLIC_SUPABASE_DB2_URL` is unset, `frontend/src/lib/supabase-db2.ts` automatically falls back to DB1, operating as a unified single-database instance.
 
 ### Neon DB1 — Analytics & Cache
 - **Provider**: Neon PostgreSQL
@@ -99,9 +98,10 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
 
 ## 4. Security, Dual Auth & IDOR Protection
 
-1. **Dual Authentication Helper (`frontend/src/lib/employer-auth.ts`)**:
+1. **Dual Authentication & Authoritative RBAC (`frontend/src/lib/employer-auth.ts`, `backend/api/src/auth/index.ts`)**:
    - Accepts both browser session cookies (`sb-...-auth-token`) and programmatic Bearer tokens (`Authorization: Bearer <jwt>`).
-   - Validates role metadata (`employer`, `provider`, or `admin`).
+   - Validates roles against server-managed `app_metadata.role` (or DB tables), explicitly ignoring client-writable `user_metadata.role` for administrative privilege decisions (`AUTH-01`).
+   - Admin access is validated via `verifyAdmin` (constant-time password hash / HMAC token verification) or authoritative `isUserAdmin(user)`.
 2. **Server-Side Middleware Boundary (`frontend/src/middleware.ts`)**:
    - Strictly intercepts all `/employer/*` and `/api/employer/*` routes, returning 403 Forbidden for non-employer roles and 401 for anonymous traffic.
 3. **Multi-Employer IDOR Shield**:

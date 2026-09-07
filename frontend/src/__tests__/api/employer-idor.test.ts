@@ -37,6 +37,8 @@ let mockCurrentUser: any = null;
 jest.mock("@/lib/employer-auth", () => ({
   getAuthenticatedEmployerUser: jest.fn(async () => mockCurrentUser),
   requireEmployerRole: jest.fn(async () => mockCurrentUser),
+  isUserAdmin: jest.fn((user: any) => user?.app_metadata?.role === "admin" || user?.role === "admin"),
+  isUserEmployer: jest.fn(async (user: any) => user?.user_metadata?.role === "employer" || user?.app_metadata?.role === "employer" || user?.role === "employer" || user?.id?.startsWith("employer")),
 }));
 
 jest.mock("@/lib/supabase/server", () => ({

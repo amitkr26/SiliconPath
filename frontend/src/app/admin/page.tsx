@@ -357,7 +357,7 @@ export default function AdminPage() {
 
   const handleTriggerEmailDigest = async () => {
     try {
-      await api.post("/api/cron/email-digest");
+      await api.post("/api/cron/digest");
       toast.success("Weekly email digest triggered!");
     } catch {
       toast.error("Failed to trigger email digest");

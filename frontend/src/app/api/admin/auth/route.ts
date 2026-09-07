@@ -7,8 +7,6 @@ import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 // a constant-time compare. The returned token is an HMAC session signed with
 // ADMIN_HMAC_SECRET (fallback: ADMIN_PASSWORD); verification lives in
 // lib/admin-auth.ts. If ADMIN_PASSWORD is unset the route fails closed.
-const HMAC_KEY = process.env.ADMIN_HMAC_SECRET || process.env.ADMIN_PASSWORD || "";
-
 function safeEqual(a: string, b: string): boolean {
   const ab = Buffer.from(a);
   const bb = Buffer.from(b);
@@ -17,6 +15,7 @@ function safeEqual(a: string, b: string): boolean {
 }
 
 export async function POST(request: Request) {
+  const hmacKey = process.env.ADMIN_HMAC_SECRET || process.env.ADMIN_PASSWORD || "";
   try {
     const body = await request.json().catch(() => ({}));
     const usernameInput = (body.username || "").trim().toLowerCase();
@@ -25,7 +24,7 @@ export async function POST(request: Request) {
     const expectedUsername = (process.env.ADMIN_USERNAME || "").trim().toLowerCase();
     const expectedPassword = (process.env.ADMIN_PASSWORD || "").trim();
 
-    if (!expectedPassword || !HMAC_KEY) {
+    if (!expectedPassword || !hmacKey) {
       return NextResponse.json(
         { authenticated: false, error: "Authentication is not configured on this deployment." },
         { status: 503 }
@@ -48,7 +47,7 @@ export async function POST(request: Request) {
 
     const sessionId = randomBytes(16).toString("hex");
     const expiry = Date.now() + 24 * 60 * 60 * 1000;
-    const token = `${sessionId}.${expiry}.${createHmac("sha256", HMAC_KEY).update(`${sessionId}.${expiry}`).digest("hex")}`;
+    const token = `${sessionId}.${expiry}.${createHmac("sha256", hmacKey).update(`${sessionId}.${expiry}`).digest("hex")}`;
 
     return NextResponse.json({
       authenticated: true,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
+import { getAuthenticatedEmployerUser, isUserAdmin } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
@@ -54,8 +54,8 @@ export async function GET(request: NextRequest) {
       .order("applied_at", { ascending: false });
 
     // Filter by employer's jobs only (strictly prevents IDOR across employers)
-    const role = user.user_metadata?.role;
-    if (role !== "admin") {
+    const isAdmin = isUserAdmin(user);
+    if (!isAdmin) {
       if (jobId && jobId !== "all") {
         if (!jobIds.includes(jobId)) {
           return NextResponse.json({ error: "Forbidden: You do not own this job" }, { status: 403 });
@@ -127,8 +127,8 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Verify that this application belongs to an opportunity posted by this employer (prevents IDOR)
-    const role = user.user_metadata?.role;
-    if (role !== "admin") {
+    const isAdmin = isUserAdmin(user);
+    if (!isAdmin) {
       const { data: appData, error: appErr } = await supabaseAdmin
         .from("applications")
         .select("id, opportunity_id, opportunity:opportunities(id, created_by)")

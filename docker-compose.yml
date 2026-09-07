@@ -2,8 +2,8 @@ services:
   # Next.js 14 Frontend & API Service
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
     container_name: berojgardegreewala_frontend
     ports:
       - "3000:3000"
@@ -11,7 +11,7 @@ services:
       - NODE_ENV=production
       - NEXT_PUBLIC_APP_NAME=BerojgarDegreeWala
       - NEXT_PUBLIC_SITE_URL=https://berojgardegreewala.vercel.app
-      - DATABASE_URL=postgresql://postgres:postgres_pass_2026@postgres:5432/berojgardegreewala_db?sslmode=disable
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-postgres_dev_secret}@postgres:5432/berojgardegreewala_db?sslmode=disable
       - REDIS_URL=redis://redis:6379
     depends_on:
       - postgres

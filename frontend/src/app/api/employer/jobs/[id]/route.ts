@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
+import { getAuthenticatedEmployerUser, isUserAdmin, isUserEmployer } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
 
-async function isEmployerAuthorized(userId: string, userMetadata: any, oppId: string) {
-  const role = userMetadata?.role || userMetadata?.account_type;
-  if (role === "admin") return true;
-  if (role !== "employer" && role !== "provider") return false;
+async function isEmployerAuthorized(user: any, oppId: string) {
+  if (isUserAdmin(user)) return true;
+  const isEmployer = await isUserEmployer(user);
+  if (!isEmployer) return false;
 
   const { data: opp } = await supabaseAdmin
     .from("opportunities")
@@ -18,7 +18,7 @@ async function isEmployerAuthorized(userId: string, userMetadata: any, oppId: st
   if (!opp) return false;
 
   // P0.6: Employer must be the creator of the opportunity OR an admin
-  const isOwner = opp.created_by === userId;
+  const isOwner = opp.created_by === user.id;
   if (!isOwner) {
     // Also check if the organization belongs to this employer
     const { data: org } = await supabaseAdmin
@@ -26,7 +26,7 @@ async function isEmployerAuthorized(userId: string, userMetadata: any, oppId: st
       .select("id, created_by")
       .eq("id", opp.organization_id)
       .maybeSingle();
-    if (!org || org.created_by !== userId) return false;
+    if (!org || org.created_by !== user.id) return false;
   }
 
   return true;
@@ -46,7 +46,7 @@ export async function GET(
   const { id } = params;
   if (!id) return NextResponse.json({ error: "Job ID required" }, { status: 400 });
 
-  const authorized = await isEmployerAuthorized(user.id, user.user_metadata, id);
+  const authorized = await isEmployerAuthorized(user, id);
   if (!authorized) {
     return NextResponse.json({ error: "Forbidden: You do not own this job posting." }, { status: 403 });
   }
@@ -91,7 +91,7 @@ export async function PATCH(
   }
 
   const { id } = params;
-  const authorized = await isEmployerAuthorized(user.id, user.user_metadata, id);
+  const authorized = await isEmployerAuthorized(user, id);
   if (!authorized) {
     return NextResponse.json({ error: "Forbidden: You do not own this job posting." }, { status: 403 });
   }
@@ -141,7 +141,7 @@ export async function DELETE(
   }
 
   const { id } = params;
-  const authorized = await isEmployerAuthorized(user.id, user.user_metadata, id);
+  const authorized = await isEmployerAuthorized(user, id);
   if (!authorized) {
     return NextResponse.json({ error: "Forbidden: You do not own this job posting." }, { status: 403 });
   }

@@ -60,7 +60,8 @@ export async function searchOpportunities(
     .select("*, organizations(*)", { count: "exact" })
     .eq("is_active", true)
     .neq("verification_status", "rejected")
-    .neq("verification_status", "pending");
+    .neq("verification_status", "pending")
+    .neq("verification_status", "link_unavailable");
 
   if (!includeExpired) {
     supabaseQuery = supabaseQuery

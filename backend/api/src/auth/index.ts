@@ -169,12 +169,18 @@ export async function getUser(request: RequestLike): Promise<AuthUser | null> {
   const { data: { user } } = await supabase.auth.getUser(token);
   if (!user) return null;
 
+  // P0 Security: user_metadata is client-writable in Supabase GoTrue.
+  // Admin and owner privileges MUST come from app_metadata (server-controlled).
+  const appRole = user.app_metadata?.role;
+  const rawMetaRole = user.user_metadata?.role;
+  const safeRole = appRole || (rawMetaRole === "admin" ? "user" : rawMetaRole) || user.role;
+
   return {
     id: user.id,
     email: user.email || "",
-    role: user.user_metadata?.role || user.role,
-    global_role: user.user_metadata?.global_role,
-    permissions: user.user_metadata?.permissions || [],
+    role: safeRole,
+    global_role: user.app_metadata?.global_role || (safeRole === "admin" ? "platform_admin" : (user.user_metadata?.global_role === "platform_admin" || user.user_metadata?.global_role === "owner" ? "user" : user.user_metadata?.global_role)),
+    permissions: user.app_metadata?.permissions || (safeRole === "admin" ? ROLE_PERMISSIONS.platform_admin : user.user_metadata?.permissions || []),
     account_type: user.user_metadata?.account_type,
   };
 }

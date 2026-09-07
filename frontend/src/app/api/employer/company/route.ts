@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isUserAdmin } from "@/lib/employer-auth";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 
@@ -90,8 +91,8 @@ export async function PATCH(request: NextRequest) {
           .eq("organization_id", orgId)
           .maybeSingle();
 
-        const role = user.user_metadata?.role;
-        if (role !== "admin") {
+        const isAdmin = isUserAdmin(user);
+        if (!isAdmin) {
           if (existingPage && existingPage.claimed_by && existingPage.claimed_by !== user.id) {
             return NextResponse.json({ error: "Forbidden: This organization is already claimed by another administrator" }, { status: 403 });
           }

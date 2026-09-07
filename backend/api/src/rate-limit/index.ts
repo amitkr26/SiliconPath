@@ -4,12 +4,35 @@ export interface RateLimitConfig {
   keyPrefix: string;
 }
 
+const MAX_STORE_SIZE = 10_000;
 const memoryStore = new Map<string, { count: number; resetAt: number }>();
+
+function pruneExpiredEntries(now: number): void {
+  for (const [k, v] of memoryStore.entries()) {
+    if (now > v.resetAt) {
+      memoryStore.delete(k);
+    }
+  }
+}
 
 export function createRateLimiter(config: RateLimitConfig) {
   return async function rateLimit(request: Request): Promise<Response | null> {
     const key = `${config.keyPrefix}:${getClientKey(request)}`;
     const now = Date.now();
+
+    // Bound memoryStore size: prune expired entries when approaching threshold
+    if (memoryStore.size >= MAX_STORE_SIZE) {
+      pruneExpiredEntries(now);
+      if (memoryStore.size >= MAX_STORE_SIZE) {
+        // Drop oldest 20% of entries to guarantee bounded memory consumption
+        let deleted = 0;
+        for (const k of memoryStore.keys()) {
+          memoryStore.delete(k);
+          deleted++;
+          if (deleted >= MAX_STORE_SIZE * 0.2) break;
+        }
+      }
+    }
 
     let record = memoryStore.get(key);
     if (!record || now > record.resetAt) {
@@ -40,10 +63,31 @@ export function createRateLimiter(config: RateLimitConfig) {
   };
 }
 
+const IPV4_REGEX = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+const IPV6_REGEX = /^[0-9a-fA-F:]+$/;
+
 function getClientKey(request: Request): string {
+  // If authenticated, limit by user token prefix to prevent cross-account IP throttling
+  const auth = request.headers.get("authorization");
+  if (auth && auth.startsWith("Bearer ")) {
+    const token = auth.slice(7).trim();
+    if (token) {
+      return `auth_${token.slice(0, 16)}`;
+    }
+  }
+
   const forwarded = request.headers.get("x-forwarded-for");
-  const ip = forwarded?.split(",")[0]?.trim() || "unknown";
-  return ip;
+  const rawIp = forwarded?.split(",")[0]?.trim();
+  if (rawIp && (IPV4_REGEX.test(rawIp) || IPV6_REGEX.test(rawIp))) {
+    return rawIp;
+  }
+
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp && (IPV4_REGEX.test(realIp) || IPV6_REGEX.test(realIp))) {
+    return realIp;
+  }
+
+  return "unknown";
 }
 
 export const rateLimiters = {

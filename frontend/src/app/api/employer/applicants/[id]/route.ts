@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
+import { getAuthenticatedEmployerUser, isUserAdmin } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
@@ -53,9 +53,9 @@ export async function GET(
     }
 
     // IDOR check: Verify the user is an admin OR owns the opportunity
-    const role = user.user_metadata?.role || user.user_metadata?.account_type;
+    const isAdmin = isUserAdmin(user);
     const opp = application.opportunity as any;
-    if (role !== "admin" && opp) {
+    if (!isAdmin && opp) {
       const isOwner = (opp.created_by && opp.created_by === user.id) || (opp.employer_id && opp.employer_id === user.id);
       // ponytail: fail-closed — if both owner fields are null, deny access
       if (!isOwner) {
@@ -111,9 +111,9 @@ export async function PATCH(
       return NextResponse.json({ error: "Application not found" }, { status: 404 });
     }
 
-    const role = user.user_metadata?.role || user.user_metadata?.account_type;
+    const isAdmin = isUserAdmin(user);
     const opp = existingApp.opportunity as any;
-    if (role !== "admin" && opp) {
+    if (!isAdmin && opp) {
       const isOwner = (opp.created_by && opp.created_by === user.id) || (opp.employer_id && opp.employer_id === user.id);
       // ponytail: fail-closed — if both owner fields are null, deny access
       if (!isOwner) {

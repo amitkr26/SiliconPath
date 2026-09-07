@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireEmployerRole } from "@/lib/employer-auth";
+import { requireEmployerRole, isUserAdmin } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
@@ -33,8 +33,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Job not found" }, { status: 404 });
       }
 
-      const role = user.user_metadata?.role;
-      if (role !== "admin") {
+      const isAdmin = isUserAdmin(user);
+      if (!isAdmin) {
         const isOwner = opp.created_by === user.id;
         if (!isOwner) {
           return NextResponse.json(
