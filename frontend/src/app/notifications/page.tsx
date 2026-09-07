@@ -15,7 +15,7 @@ import { api } from "@/lib/api-client";
 import { useUser } from "@/hooks/useUser";
 import { useNotifications, useMarkNotificationsRead, useMarkSingleNotificationRead } from "@/hooks/useNotifications";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function getInitials(name: string): string {
   return name.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase();
@@ -83,6 +83,12 @@ export default function NotificationsPage() {
   const markOneRead = useMarkSingleNotificationRead();
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
 
+  useEffect(() => {
+    if (!userLoading && !user) {
+      router.push("/login?redirect=/notifications");
+    }
+  }, [user, userLoading, router]);
+
   if (userLoading || notificationsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[80vh] bg-gray-50">
@@ -92,8 +98,11 @@ export default function NotificationsPage() {
   }
 
   if (!user) {
-    router.push("/login");
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-[80vh] bg-gray-50">
+        <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+      </div>
+    );
   }
 
   const notifications = data?.notifications || [];
