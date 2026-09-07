@@ -103,7 +103,7 @@ function SidebarSkeleton() {
 export default function FeedPage() {
   const router = useRouter();
   const { user, displayName: userDisplayName, username: currentUsername, loading: userLoading } = useUser();
-  const { data: feedData, isLoading: feedLoading } = useFeed(30);
+  const { data: feedData, isLoading: feedLoading, refetch: refetchFeed } = useFeed(30);
   const createPost = useCreatePost();
   const likePost = useLikePost();
   const [content, setContent] = useState("");
@@ -189,7 +189,7 @@ export default function FeedPage() {
     try {
       await api.delete(`/api/feed/posts/${postId}`);
       toast.success("Post deleted");
-      window.location.reload();
+      refetchFeed();
     } catch {
       toast.error("Failed to delete post");
     }
@@ -206,7 +206,7 @@ export default function FeedPage() {
       await api.patch(`/api/feed/posts/${postId}`, { content: editContent });
       toast.success("Post updated!");
       setEditingPostId(null);
-      window.location.reload();
+      refetchFeed();
     } catch {
       toast.error("Failed to update post");
     }
@@ -463,7 +463,7 @@ export default function FeedPage() {
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
                                 src={post.author?.avatar_url || (post as any).user_profile?.avatar_url}
-                                alt=""
+                                alt={post.author?.display_name || (post as any).user_profile?.display_name || "User avatar"}
                                 className="w-full h-full object-cover"
                               />
                             ) : (

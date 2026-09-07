@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Currency, Calendar, ExternalLink, Clock, Briefcase, GraduationCap, CalendarDays, User, Bookmark, Share2, BookmarkCheck } from "lucide-react";
+import { ArrowLeft, Calendar, ExternalLink, Briefcase, Bookmark, Share2 } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { formatDate, isExpired, mapDbOpportunityToClient } from "@/lib/utils";
 import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
