@@ -8,10 +8,10 @@
 [![Supabase](https://img.shields.io/badge/Supabase-Primary%20DB-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
 [![Neon](https://img.shields.io/badge/Neon-Analytics%20DB-00E599?style=for-the-badge&logo=postgresql)](https://neon.tech/)
 [![Deployment](https://img.shields.io/badge/Vercel-Live-000000?style=for-the-badge&logo=vercel)](https://berojgardegreewala.vercel.app)
-[![Tests](https://img.shields.io/badge/Jest-181%2F181%20PASS-brightgreen?style=for-the-badge)](https://github.com/amitkr26/BerojgarDegreeWala)
-[![Verification](https://img.shields.io/badge/Phase%2025%20Audit-25%2F25%20GO-brightgreen?style=for-the-badge)](project-bible/qa/latest/phase-25-seo-features-audit.md)
+[![Tests](https://img.shields.io/badge/Tests-403%2F403%20PASS-brightgreen?style=for-the-badge)](https://github.com/amitkr26/BerojgarDegreeWala)
+[![Typecheck](https://img.shields.io/badge/Typecheck-5%20Workspaces%20PASS-brightgreen?style=for-the-badge)](https://github.com/amitkr26/BerojgarDegreeWala)
 
-[**Live Platform**](https://berojgardegreewala.vercel.app) • [**Opportunities**](https://berojgardegreewala.vercel.app/opportunities) • [**Employer Suite**](https://berojgardegreewala.vercel.app/employer) • [**Academy**](https://berojgardegreewala.vercel.app/academy) • [**Admin**](https://berojgardegreewala.vercel.app/admin)
+[**Live Platform**](https://berojgardegreewala.vercel.app) • [**Opportunities**](https://berojgardegreewala.vercel.app/opportunities) • [**Opportunity Intelligence (`/ask-ai`)**](https://berojgardegreewala.vercel.app/ask-ai) • [**Employer Suite**](https://berojgardegreewala.vercel.app/employer) • [**Resume Studio**](https://berojgardegreewala.vercel.app/resume) • [**Academy**](https://berojgardegreewala.vercel.app/academy) • [**Admin**](https://berojgardegreewala.vercel.app/admin)
 
 ---
 
@@ -97,13 +97,17 @@ The Employer Suite provides a professional recruiter cockpit comparable to Linke
 
 | Test Suite | Command | Result | Status |
 | :--- | :--- | :--- | :--- |
-| **Monorepo Typecheck** | `npm run typecheck` | **0 Errors across 5 Workspaces** | ✅ PASS |
-| **Frontend Test Suite** | `npm test --workspace=frontend` | **20 / 20 Suites, 181 / 181 Tests PASS (100%)** | ✅ PASS |
-| **Backend & AI Gateway Tests** | `npm test --workspaces` | **28 / 28 Suites, 293 / 293 Tests PASS (100%)** | ✅ PASS |
-| **Next.js Production Build** | `npm run build` | **338+ Routes & Static Paths Compiled** | ✅ PASS |
-| **Security & IDOR Audit** | `node scripts/verify-idor-attacks.mjs` | **Verified Zero IDOR / Cross-Tenant Leaks** | ✅ PASS |
+| **Monorepo Typecheck** | `npm run typecheck` | **0 Errors across all 5 Workspaces** | ✅ PASS |
+| **Frontend Test Suite** | `npm test --workspace=frontend` | **26 / 26 Suites, 215 / 215 Tests PASS (100%)** | ✅ PASS |
+| **Backend API Tests** | `npm test --workspace=@berojgardegreewala/api` | **6 / 6 Suites, 97 / 97 Tests PASS (100%)** | ✅ PASS |
+| **Standalone Server Tests** | `npm test --workspace=@berojgardegreewala/server` | **46 / 46 Tests PASS (100%)** | ✅ PASS |
+| **Worker Scraper Tests** | `npm test --workspace=@berojgardegreewala/worker` | **30 / 30 Tests PASS (100%)** | ✅ PASS |
+| **AI Gateway Fallback Tests** | `npm test --workspace=@berojgardegreewala/ai-gateway` | **15 / 15 Tests PASS (100%)** | ✅ PASS |
+| **Next.js Production Build** | `npm run build` | **338+ Routes & 298 Static SSG Pages Compiled** | ✅ PASS |
+| **Security & IDOR Tests** | `npm test -- src/__tests__/api/employer-idor.test.ts` | **Verified Multi-Tenant IDOR & Admin Role Guards** | ✅ PASS |
 
-Complete forensic evidence and audit reports are documented in [project-bible/qa/latest/](project-bible/qa/latest/).
+Authoritative system architecture and specifications are documented in [project-bible/ARCHITECTURE.md](project-bible/ARCHITECTURE.md), [project-bible/PRODUCT.md](project-bible/PRODUCT.md), and [project-bible/SECURITY.md](project-bible/SECURITY.md).
+The authoritative release gate audit report is available at [docs/audit-reports/2026-09-07-FINAL-WHOLE-SYSTEM-AUDIT.md](docs/audit-reports/2026-09-07-FINAL-WHOLE-SYSTEM-AUDIT.md).
 
 ---
 
@@ -132,6 +136,6 @@ npm run build
 
 ---
 
-*Last Updated: August 30, 2026 — Final Cleanup & Production Readiness Audit*
+*Last Updated: September 7, 2026 — Final Production Stabilization & Repository Pruning*
 
 

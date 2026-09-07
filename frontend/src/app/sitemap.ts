@@ -12,7 +12,7 @@ const STATIC_PAGES: { url: string; freq: "daily" | "hourly" | "weekly" | "monthl
   { url: "https://berojgardegreewala.vercel.app/resources", freq: "monthly", priority: 0.5 },
   { url: "https://berojgardegreewala.vercel.app/contact", freq: "monthly", priority: 0.3 },
   { url: "https://berojgardegreewala.vercel.app/match", freq: "monthly", priority: 0.4 },
-  { url: "https://berojgardegreewala.vercel.app/chat", freq: "monthly", priority: 0.4 },
+  { url: "https://berojgardegreewala.vercel.app/ask-ai", freq: "monthly", priority: 0.5 },
   { url: "https://berojgardegreewala.vercel.app/login", freq: "monthly", priority: 0.2 },
   { url: "https://berojgardegreewala.vercel.app/signup", freq: "monthly", priority: 0.2 },
   { url: "https://berojgardegreewala.vercel.app/academy", freq: "daily", priority: 0.8 },

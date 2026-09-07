@@ -35,4 +35,4 @@ Not lazy about: understanding the problem (read it fully and trace the real flow
 
 - **All documentation lives in `project-bible/`** (architecture, security, changelog, spec, ADRs, section guides). **All audit reports live in `docs/audit-reports/`**; session reports in `docs/session-reports/`. Keep root clean — only `README.md`, `AGENTS.md`, `LICENSE`, code, and config.
 - **After every change, update the documentation and audit reports that the change touches**: at minimum a dated `CHANGELOG.md` entry (exact files, root cause, exact change), plus any affected section guide or report. Never leave a stale claim that contradicts the code or live data.
-- Before any `git push`: credential scan (see `project-bible/13-security/SECURITY.md`), `.gitignore` coverage, history check. Rotate, never just ignore.
+- Before any `git push`: credential scan (see `project-bible/SECURITY.md`), `.gitignore` coverage, history check. Rotate, never just ignore.

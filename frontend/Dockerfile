@@ -1,15 +1,20 @@
 # ============================================================
 # BerojgarDegreeWala Frontend — Multi-Stage Production Dockerfile
-# Optimized for minimal image size & security
+# Build: docker build -f frontend/Dockerfile . (context = repo root)
 # ============================================================
 
-# Stage 1: Dependencies Base
+# Stage 1: Workspace Dependencies
 FROM node:20-alpine AS deps
 RUN apk add --no-libc6-compat
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+COPY backend/api/package.json backend/api/
+COPY backend/ai-gateway/package.json backend/ai-gateway/
+COPY backend/server/package.json backend/server/
+COPY backend/worker/package.json backend/worker/
+COPY frontend/package.json frontend/
+RUN npm ci --workspace berojgardegreewala-frontend --include-workspace-root
 
 # Stage 2: Application Builder
 FROM node:20-alpine AS builder
@@ -19,8 +24,9 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
+ENV DOCKER_BUILD 1
 
-RUN npm run build
+RUN npm run build --workspace berojgardegreewala-frontend
 
 # Stage 3: Production Runner
 FROM node:20-alpine AS runner
@@ -33,14 +39,13 @@ ENV PORT 3000
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/public ./public
+COPY --from=builder /app/frontend/public ./public
 
-# Automatically leverage output traces to reduce image size
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Automatically leverage output traces from standalone build
+COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next/static ./frontend/.next/static
 
 USER nextjs
 
 EXPOSE 3000
-
-CMD ["node", "server.js"]
+CMD ["node", "frontend/server.js"]

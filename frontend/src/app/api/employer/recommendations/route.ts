@@ -1,20 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
-
-async function isEmployerUser(userId: string, userMetadata: any): Promise<boolean> {
-  const role = userMetadata?.role || userMetadata?.account_type;
-  if (role === "employer" || role === "provider" || role === "admin") return true;
-
-  const { data } = await supabaseAdmin
-    .from("user_profiles")
-    .select("account_type")
-    .eq("id", userId)
-    .maybeSingle();
-
-  const pRole = (data?.account_type || "").toLowerCase();
-  return pRole === "employer" || pRole === "provider" || pRole === "admin";
-}
+import { isUserEmployer } from "@/lib/employer-auth";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -25,7 +12,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
-  const allowed = await isEmployerUser(user.id, user.user_metadata);
+  const allowed = await isUserEmployer(user);
   if (!allowed) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

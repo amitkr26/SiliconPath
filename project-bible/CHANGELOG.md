@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-07 — Final Repository Cleanup & Documentation Pruning:**
+  - **Project Bible Consolidation**:
+    - Consolidated sprawling 31-folder `project-bible` into 5 authoritative root documents: `ARCHITECTURE.md`, `PRODUCT.md`, `SECURITY.md`, `DEVELOPMENT.md`, and `CHANGELOG.md`. Removed obsolete directories: `00-repository-intelligence`, `00-ai-operating-manual`, `01-product`, `02-design`, `03-ui`, `04-frontend`, `05-backend`, `06-database`, `07-api`, `08-ai`, `09-scrapers`, `10-academy`, `11-employers`, `12-users`, `13-security`, `14-devops`, `15-testing`, `16-operations`, `17-project`, `18-knowledge`, `19-prompts`, `20-machine-specs`, `21-governance`, `22-adrs`, `23-reference`, `architecture`, `audits`, `backlog`, `product-roadmap`, `qa`, and `security`.
+    - Updated `AGENTS.md` to reference `project-bible/SECURITY.md`.
+  - **Audit Archive & Screenshot Pruning**:
+    - Removed 116 obsolete historical reports in `docs/historical/` and 5 superseded reports in `backend/docs/`.
+    - Pruned obsolete audits, generated Playwright artifacts, and audit screenshots in `docs/audit-reports/`, retaining exclusively the authoritative current release gate report `docs/audit-reports/2026-09-07-FINAL-WHOLE-SYSTEM-AUDIT.md`.
+  - **Temporary & One-Off Scripts Cleanup**:
+    - Removed 8 obsolete audit scripts and `scripts/archive/` from `scripts/`, preserving production scraper triggers and database maintenance utilities (`auto-daily-scraper.js`, `omnirouter-gateway.js`, `execute-opportunity-cleanup.mjs`, `realign-corporate-job-categories.mjs`, `recalculate-opportunity-quality.mjs`).
+    - Removed 17 one-off forensic/inspection scripts from `frontend/scripts/`, preserving essential operational scripts (`delete-fake-jobs.js` used in package.json, `category-normalize.js`, `org-backfill.js`, `backfill-organization-ids.ts`).
+  - **Secret Hygiene in Root Directory**:
+    - Removed uncommitted credential dump artifacts `SECRETS.md` and `siliconpath-credentials.txt` from the working root; confirmed `.gitignore` patterns prevent credential leaks.
+  - **Monorepo Integrity**:
+    - Zero modifications to application source, database migrations, authentication, UI, or API logic.
+
+- **2026-09-07 — Final Whole-System Stabilization & Production Readiness Pass:**
+  - **Authoritative Server-Managed Admin & Employer RBAC (`SEC-01`, `AUTH-01`)**:
+    - Eliminated client-writable `user_metadata.role` privilege escalation across all employer ATS routes (`frontend/src/app/api/employer/applicants/route.ts`, `applicants/[id]`, `jobs/route.ts`, `jobs/[id]`, `claim/route.ts`, `analytics/route.ts`, `stats/route.ts`, `company/route.ts`, `invite/route.ts`, `recommendations/route.ts`, `frontend/src/app/api/applications/[id]/route.ts`).
+    - Added authoritative `isUserAdmin(user)` checking server-controlled `app_metadata.role` and `isUserEmployer(user)` in `frontend/src/lib/employer-auth.ts`.
+    - Sanitized `role` in `backend/api/src/auth/index.ts` to prevent client-injected `user_metadata.role = 'admin'` from escalating privileges in backend APIs.
+    - Created formal RLS migration `frontend/supabase/migrations/20260907000001_remove_user_metadata_admin_bypass.sql` dropping client `user_metadata` checks on `app_config`, `scrape_sources`, `scrape_runs`, and `ai_usage_log`.
+    - Updated `frontend/src/middleware.ts` with `verifyAdmin(request)` (supporting constant-time password and HMAC Bearer tokens) and explicitly exempted `/api/admin/auth` from pre-login lockout.
+  - **5-Workspace Monorepo Typecheck (`TOOL-01`)**:
+    - Added `"typecheck": "tsc --noEmit"` to `frontend/package.json` so root `npm run typecheck` validates all 5 workspaces (`api`, `server`, `worker`, `ai-gateway`, `frontend`). Verified 0 errors across the entire codebase.
+  - **Rate Limiter Memory Store Eviction & IP Sanitization (`SEC-02`)**:
+    - Upgraded `backend/api/src/rate-limit/index.ts` memory store with maximum capacity bounds (10,000 entries), periodic expired TTL cleanup, LRU eviction for oldest keys, and IP format validation/hashing to protect against memory leaks and spoofed header attacks.
+  - **SQL Pagination Integrity & Range Filtering (`DATA-01`)**:
+    - Added `.neq("verification_status", "link_unavailable")` to the base query builder in `frontend/src/lib/opportunities-query.ts` to ensure un-surfaced opportunities are excluded at the SQL level before range pagination, eliminating underfilled result pages.
+  - **Digest API Parity & Route Alignment (`API-01`)**:
+    - Added `POST` handler with `requireCronOrAdmin` authentication in `frontend/src/app/api/cron/digest/route.ts`. Updated admin console at `frontend/src/app/admin/page.tsx` from non-existent `/api/cron/email-digest` to canonical `/api/cron/digest`.
+  - **Docker Standalone Output & Container Setup (`DEVOPS-01`)**:
+    - Configured `output: process.env.DOCKER_BUILD === "1" ? "standalone" : undefined` in `frontend/next.config.mjs`, added `ENV DOCKER_BUILD 1` to `frontend/Dockerfile`, and aligned dev database passwords in `docker-compose.yml`.
+  - **SEO Sitemap & Robots.txt Alignment (`SEO-01`)**:
+    - Updated `frontend/src/app/sitemap.ts` to replace `/chat` redirect with canonical `/ask-ai`. Updated `frontend/src/app/robots.ts` to disallow private portal paths (`/dashboard`, `/saved`, `/applications`, `/messages`, `/network`, `/feed`, `/employer`).
+  - **Architecture Documentation Reality Alignment (`DOC-01`)**:
+    - Reconciled `project-bible/ARCHITECTURE.md` with live production database topology: documented DB1 (`aqauempuwmbizqoaolop`) as the consolidated production database housing core platform, users, social, and academy data, with DB2 documented as legacy fallback.
+  - **Full Monorepo Verification**:
+    - 5-workspace TypeScript typecheck: 0 errors.
+    - Test suites: 25/25 suites passed, 205/205 frontend tests, 46 server tests, 30 worker tests, 97 API tests, 15 gateway tests.
+    - Production build: `npm run build` compiled successfully (338+ routes and static paths generated).
+
+- **2026-09-06 — Homepage Final Polish & UX/Correctness Remediation:**
+  - **Mobile Hero Density & Search Filters (`frontend/src/components/home/PublicHome.tsx`)**:
+    - Replaced 7 sprawling direct filter pills on mobile with 5 high-priority pills (`ISRO Careers`, `DRDO JRF`, `CSIR CEERI`, `IIT Bombay PhD`, `Qualcomm RTL`) plus an accessible `+2 More` / `Fewer` toggle button.
+    - Preserved full display of all 7 direct filter pills on tablet/desktop viewports (`sm:` and above).
+    - Tuned H1 hero typography with responsive clamp `text-[1.65rem] sm:text-4xl lg:text-5xl xl:text-6xl` and `max-w-xs sm:max-w-2xl lg:max-w-4xl`, eliminating awkward 4-line wrapping and orphan words on 390px mobile.
+  - **Desktop Spacing & Whitespace Optimization**:
+    - Reduced hero vertical padding by ~25% (`py-8 sm:py-12 lg:py-14`) and tightened strip offsets (`-mt-6 sm:-mt-8`), bringing the real-time statistics counter strip cleanly above the fold on 1440×900 desktop.
+  - **Statistics Semantics Disambiguation**:
+    - Disambiguated `stats.total` ("Active Opportunities" - "Open for Applications") and `stats.verified` ("Verified Circulars" - "Source-Validated URLs") to provide distinct semantic value for identical/adjacent database metrics.
+  - **Trust Copy & Fallback Quality**:
+    - Replaced mobile hero subtitle claim `"updated daily"` with accurate copy: `"new opportunities added regularly"`.
+    - Added empty-state fallback guard for Section 5 (Verified Opportunities) to gracefully handle cases with fewer or zero matching opportunities without re-introducing arbitrary unverified filler cards.
+  - **Floating Ask AI Button Refinement (`frontend/src/components/AppLayout.tsx`)**:
+    - Tuned mobile footprint to 84.8px × 33.6px with dynamic safe-area insets (`calc(0.75rem + env(safe-area-inset-bottom, 0px))`), preventing content collisions on mobile while keeping full touch target accessibility and visible focus ring.
+  - **Test Suite & Build Alignment**:
+    - Updated 3 stale test fixtures in `frontend/src/__tests__/lib/availability.test.ts` to expect `verification_status: "verified"` per Phase 2.6 security contract.
+    - Fixed React Rules of Hooks early return in `frontend/src/app/ask-ai/page.tsx` so `npm run build` succeeds cleanly (`exit code 0`).
+  - **Audits & Verification**:
+    - Automated Playwright visual tests across 7 viewports (`390x844`, `412x915`, `768x1024`, `1024x768`, `1280x800`, `1440x900`, `1920x1080`) verified zero horizontal overflow, exactly 1 H1, visible and responsive Ask AI, and functional filter expansion.
+    - Audit report published at `docs/audit-reports/2026-09-06-homepage-final-polish.md`.
+
 - **2026-09-06 — Master Comprehensive Codebase Reality Audit:**
   - **Audit Scope & Analysis Execution**:
     - Conducted complete forensic codebase audit across frontend, backend workspaces (`api`, `server`, `worker`, `ai-gateway`), database schemas, RLS policies, scrapers, pipelines, DevOps, and documentation.

@@ -67,6 +67,29 @@ export default function OpportunityIntelligencePage() {
     } catch {}
   }, []);
 
+  // Smart Scrolling Hook
+  const {
+    containerRef,
+    showScrollBottomButton,
+    scrollToBottom,
+    triggerAutoScroll,
+  } = useSmartScroll<HTMLDivElement>();
+
+  // Speech Recognition Hook
+  const speech = useSpeechRecognition((transcriptText) => {
+    if (transcriptText) {
+      setInput((prev) => (prev ? `${prev} ${transcriptText}` : transcriptText));
+    }
+  });
+
+  // Speech Synthesis (TTS) Hook
+  const tts = useSpeechSynthesis();
+
+  // Trigger auto-scroll on new messages or loading change
+  useEffect(() => {
+    triggerAutoScroll();
+  }, [activeSession.messages, loading, triggerAutoScroll]);
+
   // Auth guard: redirect to login if not authenticated
   useEffect(() => {
     if (!userLoading && !user) {
@@ -92,29 +115,6 @@ export default function OpportunityIntelligencePage() {
       return updated;
     });
   };
-
-  // Smart Scrolling Hook
-  const {
-    containerRef,
-    showScrollBottomButton,
-    scrollToBottom,
-    triggerAutoScroll,
-  } = useSmartScroll<HTMLDivElement>();
-
-  // Speech Recognition Hook
-  const speech = useSpeechRecognition((transcriptText) => {
-    if (transcriptText) {
-      setInput((prev) => (prev ? `${prev} ${transcriptText}` : transcriptText));
-    }
-  });
-
-  // Speech Synthesis (TTS) Hook
-  const tts = useSpeechSynthesis();
-
-  // Trigger auto-scroll on new messages or loading change
-  useEffect(() => {
-    triggerAutoScroll();
-  }, [activeSession.messages, loading, triggerAutoScroll]);
 
   const handleSend = async (textToSend?: string) => {
     const query = (textToSend || input).trim();

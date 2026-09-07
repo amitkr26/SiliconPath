@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isUserAdmin, isUserEmployer } from "@/lib/employer-auth";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { applicationStatusUpdateSchema, validateOrThrow } from "@/lib/validation";
@@ -14,13 +15,14 @@ export async function PATCH(
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const role = user.user_metadata?.role;
-  if (role !== "employer" && role !== "admin") {
+  const isEmployer = await isUserEmployer(user);
+  if (!isEmployer) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const isAdmin = isUserAdmin(user);
   // Verify employer owns the opportunity associated with this application (prevents IDOR)
-  if (role !== "admin") {
+  if (!isAdmin) {
     const { data: appData, error: appErr } = await supabaseAdmin
       .from("applications")
       .select("id, opportunity_id, opportunity:opportunities(id, created_by)")

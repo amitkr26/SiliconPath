@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
+import { getAuthenticatedEmployerUser, isUserAdmin, isUserEmployer } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
@@ -8,8 +8,8 @@ export async function GET(request: NextRequest) {
   const user = await getAuthenticatedEmployerUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const role = user.user_metadata?.role;
-  if (role !== "employer" && role !== "provider" && role !== "admin") {
+  const isEmployer = await isUserEmployer(user);
+  if (!isEmployer) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -23,7 +23,8 @@ export async function GET(request: NextRequest) {
       .from("opportunities")
       .select("id, is_active");
 
-    if (role !== "admin") {
+    const isAdmin = isUserAdmin(user);
+    if (!isAdmin) {
       jobQuery = jobQuery.eq("created_by", user.id);
     }
 

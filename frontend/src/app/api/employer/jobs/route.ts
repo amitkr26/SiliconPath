@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
+import { getAuthenticatedEmployerUser, isUserAdmin, isUserEmployer } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { resolveOrganizationId } from "@/lib/scrapers/run-opportunity-scrape";
 import { apiError } from "@/lib/api-utils";
@@ -36,19 +36,6 @@ function normalizeCategory(cat: string): string {
   return "jrf"; // Allowed DB check constraint values: 'jrf', 'srf', 'phd', 'fellowship', 'government', 'internship'
 }
 
-async function isEmployerUser(userId: string, userMetadata: any): Promise<boolean> {
-  const role = userMetadata?.role || userMetadata?.account_type;
-  if (role === "employer" || role === "provider" || role === "admin") return true;
-
-  const { data } = await supabaseAdmin
-    .from("user_profiles")
-    .select("account_type")
-    .eq("id", userId)
-    .maybeSingle();
-
-  const pRole = (data?.account_type || "").toLowerCase();
-  return pRole === "employer" || pRole === "provider" || pRole === "admin";
-}
 
 export async function GET(request: NextRequest) {
   const user = await getAuthenticatedEmployerUser(request);
@@ -58,18 +45,18 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
-  const allowed = await isEmployerUser(user.id, user.user_metadata);
+  const allowed = await isUserEmployer(user);
   if (!allowed) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const role = user.user_metadata?.role;
+  const isAdmin = isUserAdmin(user);
   let query = supabaseAdmin
     .from("opportunities")
     .select("*, organization:organizations(*)")
     .order("created_at", { ascending: false });
 
-  if (role !== "admin") {
+  if (!isAdmin) {
     query = query.or(`created_by.eq.${user.id},employer_id.eq.${user.id}`);
   }
 
@@ -87,7 +74,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
-  const allowed = await isEmployerUser(user.id, user.user_metadata);
+  const allowed = await isUserEmployer(user);
   if (!allowed) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -175,7 +162,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
-  const allowed = await isEmployerUser(user.id, user.user_metadata);
+  const allowed = await isUserEmployer(user);
   if (!allowed) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -189,8 +176,8 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Ownership check (prevents IDOR)
-    const role = user.user_metadata?.role;
-    if (role !== "admin") {
+    const isAdmin = isUserAdmin(user);
+    if (!isAdmin) {
       const { data: existingOpp } = await supabaseAdmin
         .from("opportunities")
         .select("id, created_by")
@@ -240,7 +227,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
   }
 
-  const allowed = await isEmployerUser(user.id, user.user_metadata);
+  const allowed = await isUserEmployer(user);
   if (!allowed) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -254,8 +241,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Ownership check (prevents IDOR)
-    const role = user.user_metadata?.role;
-    if (role !== "admin") {
+    const isAdmin = isUserAdmin(user);
+    if (!isAdmin) {
       const { data: existingOpp } = await supabaseAdmin
         .from("opportunities")
         .select("id, created_by")
