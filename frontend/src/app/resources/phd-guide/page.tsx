@@ -48,7 +48,7 @@ export default async function PhDGuidePage() {
                 <GraduationCap className="w-5 h-5 text-blue-600" />
                 <h3 className="font-display text-base font-bold text-slate-900">Route 1: GATE/NET Fellowship</h3>
               </div>
-              <p>Clear GATE (ECE) or UGC-NET (Electronic Science) to qualify for JRF. Use the fellowship to pursue PhD at CSIR labs (AcSIR), IITs, IISc, or universities. This is the most common route — you get a stipend of ?37,000/month from day one of your PhD.</p>
+              <p>Clear GATE (ECE) or UGC-NET (Electronic Science) to qualify for JRF. Use the fellowship to pursue PhD at CSIR labs (AcSIR), IITs, IISc, or universities. This is the most common route — you get a stipend of ₹37,000/month from day one of your PhD.</p>
             </div>
             <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
               <div className="flex items-center gap-2 mb-2">
