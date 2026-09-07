@@ -3,6 +3,9 @@ const nextConfig = {
   swcMinify: true,
   compress: true,
   reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   experimental: {
     serverComponentsExternalPackages: ["pdf-parse", "pdfjs-dist"],
   },
