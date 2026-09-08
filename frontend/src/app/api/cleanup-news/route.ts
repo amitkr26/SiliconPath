@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { slugify, normalizeUrl } from "@/lib/scrapers/utils";
 import { serverError } from "@berojgardegreewala/api";
+import { safeEqual } from "@/lib/admin-auth";
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Fail-Secure: Cron Secret is missing." }, { status: 500 });
   }
 
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || !safeEqual(authHeader || "", `Bearer ${cronSecret}`)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

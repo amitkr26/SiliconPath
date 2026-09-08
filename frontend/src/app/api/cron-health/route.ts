@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin'; import { isConfigured } from '@/lib/supabase';
-import { serverError } from "@berojgardegreewala/api";
+import { serverError, requireAdmin } from "@berojgardegreewala/api";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: Request) {
+  // Only admins can see detailed health info
+  try { await requireAdmin(request); }
+  catch (e) { return e instanceof Response ? e : serverError(); }
+
   if (!isConfigured) {
     return NextResponse.json({ error: 'Database not configured.' }, { status: 503 });
   }

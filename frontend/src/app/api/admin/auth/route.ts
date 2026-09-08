@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       authenticated: true,
       token,
       admin: {
-        username: expectedUsername || "admin",
+        username: "admin",
         email: "",
         role: "superadmin",
       },

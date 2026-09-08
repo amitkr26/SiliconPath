@@ -18,7 +18,7 @@ export async function GET(
   try {
     const { data, error } = await supabase
       .from("opportunities")
-      .select("*")
+      .select("id, slug, title, organization, organization_id, category, location, description, eligibility, tags, deadline, posted_date, stipend, source_url, link_type, is_active, verification_status, created_at")
       .eq("id", params.id)
       .single();
 

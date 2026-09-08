@@ -48,9 +48,20 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
+    // Whitelist allowed fields to prevent mass assignment
+    const ALLOWED_FIELDS = ["name", "slug", "description", "website", "logo_url", "industry", "location", "size", "is_active", "linkedin_url"];
+    const safeUpdate: Record<string, unknown> = {};
+    for (const key of ALLOWED_FIELDS) {
+      if (key in body) safeUpdate[key] = body[key];
+    }
+
+    if (Object.keys(safeUpdate).length === 0) {
+      return new Response(JSON.stringify({ error: "No valid fields to update" }), { status: 400, headers: { "Content-Type": "application/json" } });
+    }
+
     const { data, error } = await supabaseAdmin
       .from("organizations")
-      .update(body)
+      .update(safeUpdate)
       .eq("id", id)
       .select()
       .single();

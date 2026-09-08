@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to save subscription. Please try again." }, { status: 500 });
     }
 
-    return NextResponse.json({ message: "Successfully subscribed!", unsubscribe_token: unsubscribeToken }, { status: 201 });
+    return NextResponse.json({ message: "Successfully subscribed!" }, { status: 201 });
   } catch (error: any) {
     console.error("Error subscribing:", error);
     return NextResponse.json({ error: "Failed to subscribe" }, { status: 500 });
