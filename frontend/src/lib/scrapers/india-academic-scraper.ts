@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
 import { fetchWithLooseTLS } from "./fetch-utils";
 import institutions from "@/config/scrapers/institutions.json";
+import { isRelevantToPlatform } from "./relevance";
 
 // Filter for Indian academic institutions
 const ACADEMIC_SOURCES = institutions.flatMap(cat => cat.organizations);
@@ -50,7 +51,7 @@ async function scrapeSingleAcademic(source: any): Promise<ScrapedOpportunity[]> 
       const skipPatterns = /home|contact|sitemap|about|privacy|terms|login|sign in|register|apply now|download|click here|read more|view all|payment gateway|at a glance|departments|reference designs|quick links|useful links|important links|all rights reserved|copyright|disclaimer|help|faq|\bsearch\b|skip to main content|breadcrumb|you are here|news & events|photo gallery|tender|archive|annual report|right to information/i;
       if (text.length <= 12 || skipPatterns.test(text)) return;
         const category = detectCategory(text);
-        if (category) {
+        if (category && isRelevantToPlatform(cleanTitle(text), `Academic position at ${source.org}`, source.org, [source.org, category, "Research"])) {
           let fullLink = href;
           if (href && !href.startsWith("http")) {
             try {

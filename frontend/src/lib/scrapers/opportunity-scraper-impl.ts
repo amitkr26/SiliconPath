@@ -1,6 +1,7 @@
 import type { ScrapedOpportunity, ScrapeResult } from "./types";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { logger } from "@/lib/logger";
+import { isRelevantToPlatform } from "./relevance";
 import { scrapeISRO } from "./isro-scraper";
 import { scrapeDRDO } from "./drdo-scraper";
 import { scrapeCSIR } from "./csir-scraper";
@@ -160,8 +161,9 @@ async function executeScrape(source: ScrapedSource): Promise<{ opportunities: Sc
       } as ScrapedOpportunity;
     });
 
-      allOpportunities.push(...opportunities);
-      logger.info("Source scrape complete", { source: source.name, count: opportunities.length });
+      const relevant = opportunities.filter((j: ScrapedOpportunity) => isRelevantToPlatform(j.title, j.description, j.organization, j.tags));
+      allOpportunities.push(...relevant);
+      logger.info("Source scrape complete", { source: source.name, count: relevant.length });
     } else {
       throw new Error(`Adapter not found: ${source.adapter}`);
     }

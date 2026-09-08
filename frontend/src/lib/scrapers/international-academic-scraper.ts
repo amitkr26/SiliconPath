@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
 import Parser from "rss-parser";
 import institutions from "@/config/scrapers/institutions.json";
+import { isRelevantToPlatform } from "./relevance";
 
 // RSS and static external feeds
 const STATIC_INTERNATIONAL_SOURCES = [
@@ -46,6 +47,7 @@ async function scrapeRssSource(source: typeof INTERNATIONAL_SOURCES[0]): Promise
     const feed = await parser.parseURL(source.url);
 
     for (const item of feed.items) {
+      if (!isRelevantToPlatform(item.title || "Academic Research Position", item.contentSnippet || item.content || `Academic opportunity listed on ${source.org}.`, item.creator || item.publisher || source.org, ["International", "Academic", source.category])) continue;
       opportunities.push({
         title: item.title || "Academic Research Position",
         organization: item.creator || item.publisher || source.org,
@@ -110,19 +112,21 @@ async function scrapeHtmlAcademic(source: typeof INTERNATIONAL_SOURCES[0]): Prom
           }
         }
 
-        opportunities.push({
-          title: text.replace(/\s+/g, " ").trim(),
-          organization: source.org,
-          category: source.category,
-          location: "International",
-          stipend: null,
-          deadline: null,
-          eligibility: null,
-          description: `Research position available at ${source.org} careers portal.`,
-          apply_link: fullLink || source.url,
-          source_url: fullLink || source.url,
-          tags: ["International", "Academic", source.category, source.org]
-        });
+        if (isRelevantToPlatform(text.replace(/\s+/g, " ").trim(), `Research position available at ${source.org} careers portal.`, source.org, ["International", "Academic", source.category, source.org])) {
+          opportunities.push({
+            title: text.replace(/\s+/g, " ").trim(),
+            organization: source.org,
+            category: source.category,
+            location: "International",
+            stipend: null,
+            deadline: null,
+            eligibility: null,
+            description: `Research position available at ${source.org} careers portal.`,
+            apply_link: fullLink || source.url,
+            source_url: fullLink || source.url,
+            tags: ["International", "Academic", source.category, source.org]
+          });
+        }
       }
     });
   } catch (error) {

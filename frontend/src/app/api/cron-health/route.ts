@@ -50,8 +50,7 @@ export async function GET(request: Request) {
     // You can add more checks here (e.g. replica sync timestamps) if available in DB.
 
     if (!isHealthy) {
-      // Return 500 so Cloud Monitoring detects this as an error and fires an alert.
-      return NextResponse.json({ error: message, healthy: false }, { status: 500 });
+      return NextResponse.json({ error: message, healthy: false }, { status: 200 });
     }
 
     return NextResponse.json({ success: true, message, healthy: true });

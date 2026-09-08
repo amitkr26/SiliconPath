@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
+import { isRelevantToPlatform } from "./relevance";
 
 const FELLOWSHIP_SOURCES = [
   {
@@ -95,19 +96,21 @@ async function scrapeSingleFellowship(source: typeof FELLOWSHIP_SOURCES[0]): Pro
           }
         }
 
-        opportunities.push({
-          title: text.replace(/\s+/g, " ").trim(),
-          organization: source.org,
-          category: source.category,
-          location: source.location_type,
-          stipend: null,
-          deadline: null,
-          eligibility: null,
-          description: `Research fellowship scheme details listed on the official portal.`,
-          apply_link: fullLink || source.url,
-          source_url: fullLink || source.url,
-          tags: [source.org, source.category, source.location_type, "Funding"]
-        });
+        if (isRelevantToPlatform(text.replace(/\s+/g, " ").trim(), `Research fellowship scheme details listed on the official portal.`, source.org, [source.org, source.category, source.location_type, "Funding"])) {
+          opportunities.push({
+            title: text.replace(/\s+/g, " ").trim(),
+            organization: source.org,
+            category: source.category,
+            location: source.location_type,
+            stipend: null,
+            deadline: null,
+            eligibility: null,
+            description: `Research fellowship scheme details listed on the official portal.`,
+            apply_link: fullLink || source.url,
+            source_url: fullLink || source.url,
+            tags: [source.org, source.category, source.location_type, "Funding"]
+          });
+        }
       }
     });
   } catch (error) {

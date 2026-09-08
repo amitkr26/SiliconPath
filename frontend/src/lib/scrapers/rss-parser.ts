@@ -2,6 +2,7 @@ import Parser from "rss-parser";
 import type { ScrapedOpportunity } from "./types";
 import { isElectronicsNews } from "./news-filter";
 import { autoTagArticle } from "./news-filter";
+import { isRelevantToPlatform } from "./relevance";
 
 export interface NewsSourceConfig {
   name: string;
@@ -186,6 +187,7 @@ export async function fetchOpportunitiesFromRSS(): Promise<ScrapedOpportunity[]>
       const feed = await parser.parseURL(source.url);
       for (const item of feed.items) {
         const description = item.contentSnippet || item.content || "";
+        if (!isRelevantToPlatform(item.title || "Academic Opportunity", description, source.name, source.tags)) continue;
         results.push({
           title: item.title || "Academic Opportunity",
           organization: source.name,

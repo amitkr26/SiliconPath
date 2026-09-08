@@ -41,7 +41,8 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to fetch company profile" }, { status: 500 });
+    console.error("Failed to fetch company profile:", err);
+    return NextResponse.json({ error: "Failed to fetch company profile" }, { status: 500 });
   }
 }
 
@@ -141,6 +142,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: "Company profile updated and persisted" });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to update company profile" }, { status: 500 });
+    console.error("Failed to update company profile:", err);
+    return NextResponse.json({ error: "Failed to update company profile" }, { status: 500 });
   }
 }
