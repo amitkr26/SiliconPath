@@ -1,25 +1,47 @@
 import { NextRequest } from "next/server";
-import { createHmac, timingSafeEqual } from "crypto";
 
 // ponytail: constant-time comparison for all secret comparisons —
 // prevents timing attacks on admin password, HMAC tokens, and cron secrets.
-function safeEqual(a: string, b: string): boolean {
-  const ab = Buffer.from(a);
-  const bb = Buffer.from(b);
-  if (ab.length !== bb.length) return false;
-  return timingSafeEqual(ab, bb);
+// Pure JS implementation runs in Edge Runtime without Node 'crypto' module or Buffer.
+export function safeEqual(a: string, b: string): boolean {
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
 }
 
-function verifyAdminToken(token: string, secret: string): boolean {
+async function computeHmacSha256Hex(secret: string, data: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, enc.encode(data));
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function verifyAdminToken(token: string, secret: string): Promise<boolean> {
   const parts = token.split(".");
   if (parts.length !== 3) return false;
   const [sessionId, expiry, sig] = parts;
   if (Date.now() > parseInt(expiry, 10)) return false;
-  const expected = createHmac("sha256", secret).update(`${sessionId}.${expiry}`).digest("hex");
-  return safeEqual(sig, expected);
+  try {
+    const expected = await computeHmacSha256Hex(secret, `${sessionId}.${expiry}`);
+    return safeEqual(sig, expected);
+  } catch {
+    return false;
+  }
 }
 
-export function verifyAdmin(request: NextRequest | Request): boolean {
+export async function verifyAdmin(request: NextRequest | Request): Promise<boolean> {
   const adminPassword = process.env.ADMIN_PASSWORD;
   const cronSecret = process.env.CRON_SECRET;
   const hmacKey = process.env.ADMIN_HMAC_SECRET || adminPassword;
@@ -34,7 +56,7 @@ export function verifyAdmin(request: NextRequest | Request): boolean {
   if (match) {
     const token = match[1];
     if (adminPassword && safeEqual(token, adminPassword)) return true;
-    if (adminPassword && verifyAdminToken(token, hmacKey!)) return true;
+    if (adminPassword && hmacKey && (await verifyAdminToken(token, hmacKey))) return true;
     if (cronSecret && safeEqual(token, cronSecret)) return true;
   }
 

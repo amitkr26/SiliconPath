@@ -4,7 +4,7 @@ import { verifyAdmin } from "@/lib/admin-auth";
 import { apiError } from "@/lib/api-utils";
 
 export async function GET(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!await verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

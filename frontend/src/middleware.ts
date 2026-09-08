@@ -138,7 +138,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  const isAdminRequest = verifyAdmin(request);
+  const isAdminRequest = await verifyAdmin(request);
 
   // Auth gate check
   if ((isGated || isEmployerOnly) && !user && !isAdminRequest) {

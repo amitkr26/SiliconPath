@@ -7,7 +7,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { api } from "@/lib/api-client";
 
-const ADMIN_TOKEN_KEY = "sp_admin_token";
+const ADMIN_TOKEN_KEY = "admin_token";
 
 function getInitials(name: string): string {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();

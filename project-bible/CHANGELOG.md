@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-08 — Admin Portal Functionality & Edge Runtime Compatibility Fix:**
+  - **Edge Runtime Crypto Neutralization**:
+    - Removed Node.js built-in `crypto` (`createHmac`, `timingSafeEqual`) and `Buffer` imports from `frontend/src/lib/admin-auth.ts` and `backend/api/src/auth/index.ts`.
+    - Replaced `safeEqual` with a zero-dependency constant-time bitwise character code XOR loop that executes identically in Next.js Edge Runtime, Node.js, and browser contexts without timing attack vulnerability.
+    - Implemented HMAC SHA-256 token verification using universal W3C standard Web Crypto API (`crypto.subtle.importKey` and `crypto.subtle.sign`).
+  - **Async Admin Verification Propagated**:
+    - Updated `verifyAdmin` callers to `await verifyAdmin(request)` across `frontend/src/middleware.ts`, `frontend/src/app/api/admin/auth/session/route.ts`, `frontend/src/app/api/scrape-sources/route.ts`, `frontend/src/app/api/employer/claim/route.ts`, `frontend/src/app/api/analytics/platform/route.ts`, `frontend/src/app/api/analytics/ai-usage/route.ts`, `frontend/src/app/api/admin/scrape/route.ts`, and `frontend/src/app/api/admin/scrape/status/route.ts`.
+    - Updated unit test suite `frontend/src/__tests__/api/admin-auth.test.ts` to `await verifyAdmin(...)` (10/10 tests passing).
+  - **Token Storage & API Client Alignment**:
+    - Normalized admin token key across `frontend/src/app/admin/companies/page.tsx`, `frontend/src/app/admin/analytics/page.tsx`, and `frontend/src/app/admin/add-news/page.tsx` from `sp_admin_token` to canonical `admin_token`.
+    - Enhanced `frontend/src/lib/api-client.ts` to attach admin authentication headers (`Authorization: Bearer <token>` and `x-admin-password`) for `/api/analytics` and `/api/scrape-sources`.
+    - Updated `AIAnalyticsPanel.tsx`, `admin/analytics/page.tsx`, and `admin/performance/page.tsx` to use `api.get` instead of unauthenticated raw `fetch`.
+  - **Admin Performance & News Endpoints**:
+    - Updated `frontend/src/app/api/admin/performance/route.ts` to authenticate admin requests via `requireAdmin(request)`.
+    - Created missing `frontend/src/app/api/admin/news/route.ts` with `GET` and `POST` handlers supporting article creation and administrative listing.
+
 - **2026-09-07 — Final Repository Cleanup & Documentation Pruning:**
   - **Project Bible Consolidation**:
     - Consolidated sprawling 31-folder `project-bible` into 5 authoritative root documents: `ARCHITECTURE.md`, `PRODUCT.md`, `SECURITY.md`, `DEVELOPMENT.md`, and `CHANGELOG.md`. Removed obsolete directories: `00-repository-intelligence`, `00-ai-operating-manual`, `01-product`, `02-design`, `03-ui`, `04-frontend`, `05-backend`, `06-database`, `07-api`, `08-ai`, `09-scrapers`, `10-academy`, `11-employers`, `12-users`, `13-security`, `14-devops`, `15-testing`, `16-operations`, `17-project`, `18-knowledge`, `19-prompts`, `20-machine-specs`, `21-governance`, `22-adrs`, `23-reference`, `architecture`, `audits`, `backlog`, `product-roadmap`, `qa`, and `security`.

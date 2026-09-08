@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Loader2, ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 
-const ADMIN_TOKEN_KEY = "sp_admin_token";
+const ADMIN_TOKEN_KEY = "admin_token";
 
 function slugify(title: string): string {
   return title

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Loader2, Activity, Clock, Zap, AlertTriangle, Server, Database } from "lucide-react";
+import { api } from "@/lib/api-client";
 
 export default function AdminPerformancePage() {
   const [metrics, setMetrics] = useState<any>(null);
@@ -10,8 +11,8 @@ export default function AdminPerformancePage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch("/api/admin/performance");
-        if (res.ok) { const d = await res.json(); setMetrics(d); }
+        const d = await api.get<any>("/api/admin/performance");
+        if (d) setMetrics(d);
       } catch {}
       setLoading(false);
     };

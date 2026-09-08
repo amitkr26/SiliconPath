@@ -43,7 +43,7 @@ describe("Admin Authentication & Session Verification", () => {
         authorization: `Bearer ${data.token}`,
       }),
     } as any;
-    expect(verifyAdmin(mockReq)).toBe(true);
+    expect(await verifyAdmin(mockReq)).toBe(true);
   });
 
   it("2. POST /api/admin/auth rejects invalid password with 401", async () => {
@@ -76,41 +76,41 @@ describe("Admin Authentication & Session Verification", () => {
     expect(data.authenticated).toBe(false);
   });
 
-  it("4. verifyAdmin rejects requests with missing credentials", () => {
+  it("4. verifyAdmin rejects requests with missing credentials", async () => {
     const mockReq = {
       headers: new Headers(),
     } as any;
-    expect(verifyAdmin(mockReq)).toBe(false);
+    expect(await verifyAdmin(mockReq)).toBe(false);
   });
 
-  it("5. verifyAdmin accepts valid x-admin-password header", () => {
+  it("5. verifyAdmin accepts valid x-admin-password header", async () => {
     const mockReq = {
       headers: new Headers({
         "x-admin-password": "SuperSecretPassword123!",
       }),
     } as any;
-    expect(verifyAdmin(mockReq)).toBe(true);
+    expect(await verifyAdmin(mockReq)).toBe(true);
   });
 
-  it("6. verifyAdmin rejects incorrect x-admin-password header", () => {
+  it("6. verifyAdmin rejects incorrect x-admin-password header", async () => {
     const mockReq = {
       headers: new Headers({
         "x-admin-password": "IncorrectPassword!",
       }),
     } as any;
-    expect(verifyAdmin(mockReq)).toBe(false);
+    expect(await verifyAdmin(mockReq)).toBe(false);
   });
 
-  it("7. verifyAdmin accepts direct ADMIN_PASSWORD Bearer token", () => {
+  it("7. verifyAdmin accepts direct ADMIN_PASSWORD Bearer token", async () => {
     const mockReq = {
       headers: new Headers({
         authorization: "Bearer SuperSecretPassword123!",
       }),
     } as any;
-    expect(verifyAdmin(mockReq)).toBe(true);
+    expect(await verifyAdmin(mockReq)).toBe(true);
   });
 
-  it("8. verifyAdmin rejects tampered HMAC signature", () => {
+  it("8. verifyAdmin rejects tampered HMAC signature", async () => {
     const sessionId = "fake-session-id";
     const expiry = Date.now() + 100000;
     const fakeSig = "deadbeef1234567890abcdefdeadbeef";
@@ -121,10 +121,10 @@ describe("Admin Authentication & Session Verification", () => {
         authorization: `Bearer ${tamperedToken}`,
       }),
     } as any;
-    expect(verifyAdmin(mockReq)).toBe(false);
+    expect(await verifyAdmin(mockReq)).toBe(false);
   });
 
-  it("9. verifyAdmin rejects expired HMAC token", () => {
+  it("9. verifyAdmin rejects expired HMAC token", async () => {
     const sessionId = "expired-session-id";
     const expiredTime = Date.now() - 5000; // 5 seconds in past
     const sig = createHmac("sha256", process.env.ADMIN_HMAC_SECRET!)
@@ -137,7 +137,7 @@ describe("Admin Authentication & Session Verification", () => {
         authorization: `Bearer ${expiredToken}`,
       }),
     } as any;
-    expect(verifyAdmin(mockReq)).toBe(false);
+    expect(await verifyAdmin(mockReq)).toBe(false);
   });
 
   it("10. verifyCron accepts valid CRON_SECRET and rejects invalid secret", () => {

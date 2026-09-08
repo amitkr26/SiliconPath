@@ -5,6 +5,6 @@ import { verifyAdmin } from "@/lib/admin-auth";
 // token with zero server involvement. Sessions are now re-validated against
 // the server (x-admin-password or HMAC bearer token via verifyAdmin).
 export async function POST(request: NextRequest) {
-  const ok = verifyAdmin(request);
+  const ok = await verifyAdmin(request);
   return NextResponse.json({ authenticated: ok }, { status: ok ? 200 : 401 });
 }

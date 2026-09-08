@@ -4,7 +4,7 @@ import { verifyAdmin } from "@/lib/admin-auth";
 import { serverError } from "@berojgardegreewala/api";
 
 export async function POST(request: NextRequest) {
-  if (!verifyAdmin(request)) {
+  if (!await verifyAdmin(request)) {
     return NextResponse.json({ error: "Admin access required" }, { status: 401 });
   }
 
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  if (!verifyAdmin(request)) {
+  if (!await verifyAdmin(request)) {
     return NextResponse.json({ error: "Admin access required" }, { status: 401 });
   }
 
