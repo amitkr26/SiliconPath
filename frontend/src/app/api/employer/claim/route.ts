@@ -13,7 +13,7 @@ const claimSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
-  const isAdmin = verifyAdmin(request);
+  const isAdmin = await verifyAdmin(request);
   const user = await getAuthenticatedEmployerUser(request);
   if (!isAdmin && !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const isAdmin = verifyAdmin(request);
+  const isAdmin = await verifyAdmin(request);
   const user = await getAuthenticatedEmployerUser(request);
 
   const isPlatformAdmin = isAdmin || isUserAdmin(user);

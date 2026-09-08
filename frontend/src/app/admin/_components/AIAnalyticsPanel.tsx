@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2, Zap, CheckCircle, XCircle, BarChart3, Cpu, Server, Activity, ShieldCheck } from "lucide-react";
+import { api } from "@/lib/api-client";
 
 interface LogRow {
   id: string;
@@ -65,10 +66,8 @@ export default function AIAnalyticsPanel() {
   const fetchStats = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/analytics/ai-usage");
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.recent && data.recent.length > 0) {
+      const data = await api.get<any>("/api/analytics/ai-usage");
+      if (data && data.recent && data.recent.length > 0) {
           const allLogs: LogRow[] = data.recent || [];
           const byProvider: Record<string, number> = {};
           const byFeature: Record<string, number> = {};
@@ -94,8 +93,7 @@ export default function AIAnalyticsPanel() {
           });
           setLogs(allLogs.length ? allLogs.slice(0, 10) : FALLBACK_LOGS);
         }
-      }
-    } catch {
+      } catch {
       // Keep fallback stats
     } finally {
       setLoading(false);

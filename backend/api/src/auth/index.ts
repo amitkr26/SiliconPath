@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import { timingSafeEqual } from "crypto";
 import { unauthorized, forbidden } from "../response";
 import type { AuthUser } from "../types";
 export type { AuthUser };
@@ -80,19 +79,42 @@ export const ROLE_PERMISSIONS: Record<GlobalRole, string[]> = {
 };
 
 function safeEqual(a: string, b: string): boolean {
+  if (typeof a !== "string" || typeof b !== "string") return false;
   if (a.length !== b.length) return false;
-  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
 }
 
-function verifyAdminToken(token: string, adminPassword: string): boolean {
+async function computeHmacSha256Hex(secret: string, data: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, enc.encode(data));
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function verifyAdminToken(token: string, adminPassword: string): Promise<boolean> {
   const HMAC_KEY = process.env.ADMIN_HMAC_SECRET || adminPassword;
   const parts = token.split(".");
   if (parts.length !== 3) return false;
   const [sessionId, expiry, sig] = parts;
   if (Date.now() > parseInt(expiry, 10)) return false;
-  const crypto = require("crypto");
-  const expected = crypto.createHmac("sha256", HMAC_KEY).update(`${sessionId}.${expiry}`).digest("hex");
-  return safeEqual(sig, expected);
+  try {
+    const expected = await computeHmacSha256Hex(HMAC_KEY, `${sessionId}.${expiry}`);
+    return safeEqual(sig, expected);
+  } catch {
+    return false;
+  }
 }
 
 interface RequestLike {
@@ -209,7 +231,7 @@ export async function requireAdmin(request: RequestLike): Promise<AuthUser> {
     if (adminPassword && safeEqual(token, adminPassword)) {
       return { id: "admin", email: "admin", role: "admin", global_role: "platform_admin" };
     }
-    if (adminPassword && verifyAdminToken(token, adminPassword)) {
+    if (adminPassword && (await verifyAdminToken(token, adminPassword))) {
       return { id: "admin", email: "admin", role: "admin", global_role: "platform_admin" };
     }
     if (cronSecret && safeEqual(token, cronSecret)) {

@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, TrendingUp, Users, Briefcase, FileText, Newspaper, Eye, Search, BarChart3 } from "lucide-react";
+import { api } from "@/lib/api-client";
 
-const ADMIN_TOKEN_KEY = "sp_admin_token";
+const ADMIN_TOKEN_KEY = "admin_token";
 
 export default function AdminAnalyticsPage() {
   const router = useRouter();
@@ -24,9 +25,12 @@ export default function AdminAnalyticsPage() {
 
   useEffect(() => {
     if (!authed) return;
-    fetch("/api/admin/analytics").then(r => r.json()).then(d => {
-      setData(d); setLoading(false);
-    }).catch(() => setLoading(false));
+    api.get<any>("/api/admin/analytics")
+      .then((d) => {
+        setData(d);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, [authed]);
 
   if (!authed || loading) return (

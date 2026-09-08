@@ -30,7 +30,7 @@ function isSafePublicUrl(raw: string): boolean {
 }
 
 export async function GET(request: NextRequest) {
-  if (!verifyAdmin(request)) {
+  if (!await verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!verifyAdmin(request)) {
+  if (!await verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -111,7 +111,7 @@ const UPDATABLE_FIELDS = [
 ] as const;
 
 export async function PUT(request: NextRequest) {
-  if (!verifyAdmin(request)) {
+  if (!await verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   if (!isAdminConfigured || !supabaseAdmin) {
@@ -146,7 +146,7 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  if (!verifyAdmin(request)) {
+  if (!await verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   if (!isAdminConfigured || !supabaseAdmin) {

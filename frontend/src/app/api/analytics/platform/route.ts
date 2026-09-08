@@ -3,7 +3,7 @@ import { neonPrimary, db1 } from "@/lib/db";
 import { verifyAdmin } from "@/lib/admin-auth";
 
 export async function GET(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!await verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
