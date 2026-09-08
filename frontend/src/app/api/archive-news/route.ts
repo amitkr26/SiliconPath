@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db1, db2 } from "@/lib/db";
+import { safeEqual } from "@/lib/admin-auth";
 
 export async function GET(request: Request) {
   if (!db1 || !db2) {
@@ -7,7 +8,7 @@ export async function GET(request: Request) {
   }
 
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!safeEqual(authHeader || "", `Bearer ${process.env.CRON_SECRET}`)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

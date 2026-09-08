@@ -2,8 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { neon1 } from "@/lib/db";
 import { serverError } from "@berojgardegreewala/api";
+import { createClient } from "@/lib/supabase/server";
+import { rateLimit } from "@/lib/rate-limiter";
 
 export async function POST(request: NextRequest) {
+  // Auth check
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
+  // Rate limit: 30 clicks per user per hour
+  const { success } = await rateLimit(`click:${user.id}`, 30, 3600);
+  if (!success) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   if (!isAdminConfigured) {
     return NextResponse.json(
       { error: "Database not configured." },

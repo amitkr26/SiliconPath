@@ -2,11 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { callAI } from "@/lib/ai/providers";
 import { serverError } from "@berojgardegreewala/api";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: { slug: string } }
 ) {
+  // Auth check: only authenticated users can use AI features
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
   if (!isAdminConfigured) {
     return NextResponse.json(
       { error: "Database not configured." },
@@ -17,7 +25,7 @@ export async function GET(
   try {
     const { data: opportunity } = await supabaseAdmin
       .from("opportunities")
-      .select("*")
+      .select("title, organization, description, eligibility, category")
       .eq("slug", params.slug)
       .single();
 
