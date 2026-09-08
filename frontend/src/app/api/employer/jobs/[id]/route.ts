@@ -75,7 +75,8 @@ export async function GET(
       },
     });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to fetch job" }, { status: 500 });
+    console.error("Failed to fetch job:", err);
+    return NextResponse.json({ error: "Failed to fetch job" }, { status: 500 });
   }
 }
 
@@ -125,7 +126,8 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, job: updatedJob });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to update job" }, { status: 500 });
+    console.error("Failed to update job:", err);
+    return NextResponse.json({ error: "Failed to update job" }, { status: 500 });
   }
 }
 
@@ -156,6 +158,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: "Job deleted" });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to delete job" }, { status: 500 });
+    console.error("Failed to delete job:", err);
+    return NextResponse.json({ error: "Failed to delete job" }, { status: 500 });
   }
 }

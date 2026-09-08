@@ -92,9 +92,9 @@ export default function NewsCard({ article }: NewsCardProps) {
           {/* Tags */}
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-3">
-              {tags.slice(0, 3).map((tag: string) => (
+              {tags.slice(0, 3).map((tag: string, i: number) => (
                 <span
-                  key={tag}
+                  key={`${tag}-${i}`}
                   className="px-2 py-0.5 bg-blue-50 text-blue-900 rounded-md text-[10px] font-bold border border-slate-900 shadow-[1px_1px_0px_0px_#0F172A]"
                 >
                   #{tag}

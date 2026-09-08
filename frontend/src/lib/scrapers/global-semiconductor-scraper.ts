@@ -1,6 +1,8 @@
 import * as cheerio from "cheerio";
 import type { ScrapedOpportunity } from "./types";
 import companies from "@/config/scrapers/companies.json";
+import { isRelevantToPlatform } from "./relevance";
+import { fetchWithLooseTLS } from "./fetch-utils";
 
 interface CompanyConfig {
   name: string;
@@ -44,6 +46,7 @@ async function scrapeWorkdayJobs(company: CompanyConfig): Promise<ScrapedOpportu
       if (postings.length === 0) break;
 
       for (const p of postings) {
+        if (!isRelevantToPlatform(p.title, `Position available at official ${company.name} career portal. Requisition ID: ${p.jobRequisitionId}`, company.name, [company.name, 'Semiconductor', 'Private Job'])) continue;
         opportunities.push({
           title: p.title,
           organization: company.name,
@@ -86,7 +89,7 @@ async function scrapeGreenhouseJobs(company: CompanyConfig): Promise<ScrapedOppo
     const data = await response.json();
     const jobs = data.jobs || [];
 
-    for (const job of jobs) {
+      for (const job of jobs) {
       // Filter for semiconductor/VLSI relevant roles
       const titleLower = job.title.toLowerCase();
       if (
@@ -100,19 +103,21 @@ async function scrapeGreenhouseJobs(company: CompanyConfig): Promise<ScrapedOppo
         titleLower.includes("rtl") ||
         titleLower.includes("verification")
       ) {
-        opportunities.push({
-          title: job.title,
-          organization: company.name,
-          category: 'Private Job',
-          location: job.location?.name || 'Global',
-          stipend: null,
-          deadline: null,
-          eligibility: null,
-          description: job.content || `Position available at ${company.name} Greenhouse board.`,
-          apply_link: job.absolute_url || company.url,
-          source_url: job.absolute_url || company.url,
-          tags: [company.name, 'Semiconductor', 'Private Job']
-        });
+        if (isRelevantToPlatform(job.title, job.content || `Position available at ${company.name} Greenhouse board.`, company.name, [company.name, 'Semiconductor', 'Private Job'])) {
+          opportunities.push({
+            title: job.title,
+            organization: company.name,
+            category: 'Private Job',
+            location: job.location?.name || 'Global',
+            stipend: null,
+            deadline: null,
+            eligibility: null,
+            description: job.content || `Position available at ${company.name} Greenhouse board.`,
+            apply_link: job.absolute_url || company.url,
+            source_url: job.absolute_url || company.url,
+            tags: [company.name, 'Semiconductor', 'Private Job']
+          });
+        }
       }
     }
   } catch (error) {
@@ -124,7 +129,7 @@ async function scrapeGreenhouseJobs(company: CompanyConfig): Promise<ScrapedOppo
 async function scrapeHtmlCompany(company: CompanyConfig): Promise<ScrapedOpportunity[]> {
   const opportunities: ScrapedOpportunity[] = [];
   try {
-    const res = await fetch(company.url, {
+    const res = await fetchWithLooseTLS(company.url, {
       signal: AbortSignal.timeout(10000),
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -167,19 +172,21 @@ async function scrapeHtmlCompany(company: CompanyConfig): Promise<ScrapedOpportu
           }
         }
 
-        opportunities.push({
-          title: text.replace(/\s+/g, " ").trim(),
-          organization: company.name,
-          category: 'Private Job',
-          location: 'India',
-          stipend: null,
-          deadline: null,
-          eligibility: null,
-          description: `Career opportunity at ${company.name}.`,
-          apply_link: fullLink || company.url,
-          source_url: fullLink || company.url,
-          tags: [company.name, 'Private Job', 'Semiconductor']
-        });
+        if (isRelevantToPlatform(text.replace(/\s+/g, " ").trim(), `Career opportunity at ${company.name}.`, company.name, [company.name, 'Private Job', 'Semiconductor'])) {
+          opportunities.push({
+            title: text.replace(/\s+/g, " ").trim(),
+            organization: company.name,
+            category: 'Private Job',
+            location: 'India',
+            stipend: null,
+            deadline: null,
+            eligibility: null,
+            description: `Career opportunity at ${company.name}.`,
+            apply_link: fullLink || company.url,
+            source_url: fullLink || company.url,
+            tags: [company.name, 'Private Job', 'Semiconductor']
+          });
+        }
       }
     });
   } catch (error) {

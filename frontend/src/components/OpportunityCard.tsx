@@ -205,9 +205,9 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
                   .map((e) => e.trim())
                   .filter((e) => e.length > 0)
                   .slice(0, 3)
-                  .map((e) => (
+                  .map((e, i) => (
                     <span
-                      key={e}
+                      key={`${e}-${i}`}
                       className="px-2 py-0.5 bg-slate-50 border border-slate-300 rounded text-slate-600 text-[10px] font-bold"
                     >
                       {e}

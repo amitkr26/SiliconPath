@@ -102,59 +102,62 @@ export async function enrichOpportunity(opp: ScrapedOpportunity, id: string): Pr
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
 
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; BerojgarDegreeWala/1.0)" },
-      redirect: "follow",
-    });
-    clearTimeout(timeout);
+    try {
+      const response = await fetch(url, {
+        signal: controller.signal,
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; BerojgarDegreeWala/1.0)" },
+        redirect: "follow",
+      });
 
-    if (!response.ok) return { description: null, eligibility: null, stipend: null, deadline: null, location: null, tags: [], apply_link_type: detectApplyLinkType(url, 0), official_page_url: null };
+      if (!response.ok) return { description: null, eligibility: null, stipend: null, deadline: null, location: null, tags: [], apply_link_type: detectApplyLinkType(url, 0), official_page_url: null };
 
-    const contentType = response.headers.get("content-type") || "";
-    const text = await response.text();
+      const contentType = response.headers.get("content-type") || "";
+      const text = await response.text();
 
-    const applyLinkType = detectApplyLinkType(url, text.length, contentType);
+      const applyLinkType = detectApplyLinkType(url, text.length, contentType);
 
-    if (contentType.includes("pdf") || url.match(/\.pdf/i)) {
+      if (contentType.includes("pdf") || url.match(/\.pdf/i)) {
+        return {
+          description: opp.description,
+          eligibility: opp.eligibility,
+          stipend: opp.stipend,
+          deadline: opp.deadline,
+          location: opp.location,
+          tags: opp.tags,
+          apply_link_type: "pdf",
+          official_page_url: url,
+        };
+      }
+
+      const $ = cheerio.load(text);
+
+      $("script, style, nav, header, footer, iframe, .sidebar, .menu, .nav, .footer").remove();
+
+      const pageText = $("body").text();
+
+      const combinedText = pageText;
+
+      const enrichedDescription = extractDescription(combinedText) || opp.description;
+      const enrichedEligibility = extractEligibility(combinedText) || opp.eligibility;
+      const enrichedStipend = extractStipend(combinedText) || opp.stipend;
+      const enrichedDeadline = extractDeadline(combinedText) || opp.deadline;
+      const enrichedLocation = extractLocation(combinedText) || opp.location;
+      const enrichedTags = Array.from(new Set([...opp.tags, ...extractTags(combinedText)]));
+      const officialUrl = $('link[rel="canonical"]').attr("href") || url;
+
       return {
-        description: opp.description,
-        eligibility: opp.eligibility,
-        stipend: opp.stipend,
-        deadline: opp.deadline,
-        location: opp.location,
-        tags: opp.tags,
-        apply_link_type: "pdf",
-        official_page_url: url,
+        description: enrichedDescription,
+        eligibility: enrichedEligibility,
+        stipend: enrichedStipend,
+        deadline: enrichedDeadline,
+        location: enrichedLocation,
+        tags: enrichedTags,
+        apply_link_type: applyLinkType,
+        official_page_url: officialUrl,
       };
+    } finally {
+      clearTimeout(timeout);
     }
-
-    const $ = cheerio.load(text);
-
-    $("script, style, nav, header, footer, iframe, .sidebar, .menu, .nav, .footer").remove();
-
-    const pageText = $("body").text();
-
-    const combinedText = pageText;
-
-    const enrichedDescription = extractDescription(combinedText) || opp.description;
-    const enrichedEligibility = extractEligibility(combinedText) || opp.eligibility;
-    const enrichedStipend = extractStipend(combinedText) || opp.stipend;
-    const enrichedDeadline = extractDeadline(combinedText) || opp.deadline;
-    const enrichedLocation = extractLocation(combinedText) || opp.location;
-    const enrichedTags = Array.from(new Set([...opp.tags, ...extractTags(combinedText)]));
-    const officialUrl = $('link[rel="canonical"]').attr("href") || url;
-
-    return {
-      description: enrichedDescription,
-      eligibility: enrichedEligibility,
-      stipend: enrichedStipend,
-      deadline: enrichedDeadline,
-      location: enrichedLocation,
-      tags: enrichedTags,
-      apply_link_type: applyLinkType,
-      official_page_url: officialUrl,
-    };
   } catch {
     return {
       description: opp.description,
