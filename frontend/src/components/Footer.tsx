@@ -27,7 +27,7 @@ export default function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           
           {/* BRAND COLUMN */}
           <div className="lg:col-span-2 space-y-4">
@@ -128,6 +128,21 @@ export default function Footer() {
               <Link href="/contact" className="text-slate-400 hover:text-white transition-colors">
                 Contact &amp; Support
               </Link>
+            </div>
+          </div>
+
+          {/* COLUMN 3: OUR ECOSYSTEM */}
+          <div className="space-y-3.5">
+            <h4 className="text-xs font-black text-white tracking-widest uppercase pb-1 border-b-2 border-blue-500 inline-block">
+              Our Ecosystem
+            </h4>
+            <div className="flex flex-col gap-2 font-semibold text-xs">
+              <a href="https://siliconpath.vercel.app" target="_blank" rel="noopener" className="text-slate-400 hover:text-white transition-colors">
+                SiliconPath — Free VLSI Learning Platform
+              </a>
+              <a href="https://electrobridge.vercel.app" target="_blank" rel="noopener" className="text-slate-400 hover:text-white transition-colors">
+                ElectroBridge — AI Resume Builder for Engineers
+              </a>
             </div>
           </div>
 
