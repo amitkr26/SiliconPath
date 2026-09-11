@@ -8,6 +8,7 @@ import {
   ArrowLeft, Award, Trophy,
   HelpCircle, RefreshCw, ChevronRight, Check, X, AlertTriangle
 } from "lucide-react";
+import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { LearningTrack, TrackAssessment } from "@/lib/academy/types";
 import { getCompletedDaysLocal, markTrackPassedLocal, saveAssessmentResultLocal } from "@/lib/academy/progress-local";
@@ -22,6 +23,7 @@ export default function TrackAssessmentPage() {
   const params = useParams();
   const router = useRouter();
   const trackSlug = params.track as string;
+  const { user } = useUser();
 
   const [track, setTrack] = useState<LearningTrack | null>(null);
   const [assessment, setAssessment] = useState<TrackAssessment | null>(null);
@@ -52,13 +54,28 @@ export default function TrackAssessmentPage() {
         }
         setAssessment(ass);
 
-        const localCompleted = getCompletedDaysLocal(trackSlug);
-        const trackDays = await api.get<{ id: string; day_number: number }[]>(`/api/academy/tracks/${t.id}/days`).catch(() => [] as { id: string; day_number: number }[]);
-        const allDone = trackDays.length > 0 && trackDays.every((d) => localCompleted.includes(d.id));
-        if (!allDone) {
-          toast.warning("Complete all days before taking the assessment.");
-          router.push(`/academy/${trackSlug}`);
-          return;
+        if (user) {
+          const [completedDayIds, trackDays] = await Promise.all([
+            api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: user.id } }).catch(() => [] as string[]),
+            api.get<{ id: string }[]>(`/api/academy/tracks/${t.id}/days`).catch(() => [] as { id: string }[]),
+          ]);
+          const allDayIds = trackDays.map((d: any) => d.id);
+          const completedCount = allDayIds.filter((id: string) => completedDayIds.includes(id)).length;
+          const allDone = completedCount === allDayIds.length && allDayIds.length > 0;
+          if (!allDone) {
+            toast.warning("Complete all days before taking the assessment.");
+            router.push(`/academy/${trackSlug}`);
+            return;
+          }
+        } else {
+          const localCompleted = getCompletedDaysLocal(trackSlug);
+          const trackDays = await api.get<{ id: string; day_number: number }[]>(`/api/academy/tracks/${t.id}/days`).catch(() => [] as { id: string; day_number: number }[]);
+          const allDone = trackDays.length > 0 && trackDays.every((d) => localCompleted.includes(d.id));
+          if (!allDone) {
+            toast.warning("Complete all days before taking the assessment.");
+            router.push(`/academy/${trackSlug}`);
+            return;
+          }
         }
       } catch (err) {
         console.error("Failed to load assessment:", err);
@@ -69,7 +86,7 @@ export default function TrackAssessmentPage() {
     if (trackSlug) {
       loadAssessment();
     }
-  }, [trackSlug, router]);
+  }, [trackSlug, router, user]);
 
   if (loading) {
     return (
@@ -117,7 +134,17 @@ export default function TrackAssessmentPage() {
     setIsSubmitted(true);
 
     try {
-      if (hasPassed) {
+      const userId = user?.id || null;
+      if (userId) {
+        await api.post<boolean>("/api/academy/progress", {
+          userId,
+          trackId: track.id,
+          trackSlug: track.slug,
+          dayNumber: 999,
+          status: hasPassed ? "completed" : "in_progress",
+          score: finalScore,
+        });
+      } else if (hasPassed) {
         markTrackPassedLocal(track.slug);
         saveAssessmentResultLocal({
           scorePercent: finalScore,

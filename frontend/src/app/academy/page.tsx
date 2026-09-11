@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { Sparkles, Play, Lock, Zap, CheckCircle2, ExternalLink } from "lucide-react";
+import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { FALLBACK_TRACKS } from "@/lib/academy/fallback";
 import type { LearningTrack, TrackSlug } from "@/lib/academy/types";
@@ -55,6 +56,7 @@ const EDA_TOOLS = [
 ];
 
 export default function AcademyDashboard() {
+  const { user } = useUser();
   const [tracks, setTracks] = useState<LearningTrack[]>([]);
   const [completedDays, setCompletedDays] = useState<string[]>([]);
   const [passedTracks, setPassedTracks] = useState<TrackSlug[]>([]);
@@ -83,13 +85,23 @@ export default function AcademyDashboard() {
       }
       setTracks(tracksData);
 
-      const localCd: string[] = [];
-      const tracksToCheck = tracksData.length > 0 ? tracksData : FALLBACK_TRACKS;
-      for (const t of tracksToCheck) {
-        localCd.push(...getCompletedDaysLocal(t.slug));
+      const userId = user?.id || null;
+      if (userId) {
+        const [cd, pt] = await Promise.all([
+          api.get<string[]>("/api/academy/progress/completed-days", { params: { userId } }).catch(() => []),
+          api.get<TrackSlug[]>("/api/academy/progress/passed-tracks", { params: { userId } }).catch(() => []),
+        ]);
+        setCompletedDays(cd || []);
+        setPassedTracks(pt || []);
+      } else {
+        const localCd: string[] = [];
+        const tracksToCheck = tracksData.length > 0 ? tracksData : FALLBACK_TRACKS;
+        for (const t of tracksToCheck) {
+          localCd.push(...getCompletedDaysLocal(t.slug));
+        }
+        setCompletedDays(localCd);
+        setPassedTracks(getPassedTracksLocal() as TrackSlug[]);
       }
-      setCompletedDays(localCd);
-      setPassedTracks(getPassedTracksLocal() as TrackSlug[]);
     } catch (err) {
       console.error("Academy load failed:", err);
       setTracks(FALLBACK_TRACKS);
@@ -97,7 +109,7 @@ export default function AcademyDashboard() {
       clearTimeout(timeout);
       setLoading(false);
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
