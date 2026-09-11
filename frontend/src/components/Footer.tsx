@@ -61,12 +61,6 @@ export default function Footer() {
               <Link href="/academy" className="text-slate-400 hover:text-white transition-colors">
                 All Tracks
               </Link>
-              <Link href="/login" className="text-slate-400 hover:text-white transition-colors">
-                Sign In
-              </Link>
-              <Link href="/signup" className="text-slate-400 hover:text-white transition-colors">
-                Create Account
-              </Link>
             </div>
           </div>
 
