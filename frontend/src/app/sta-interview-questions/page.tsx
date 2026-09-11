@@ -7,6 +7,7 @@ import {
   BookOpen,
   MessageSquare,
   Target,
+  ArrowRight,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -600,8 +601,8 @@ export default function STAInterviewPage() {
             These questions cover the most commonly asked STA topics. Practice explaining each answer out loud — that is how interviews work.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button href="/courses" variant="secondary" size="lg">
-              Browse Courses
+            <Button href="/learn" variant="secondary" size="lg">
+              Start Learning Free <ArrowRight className="w-4 h-4" />
             </Button>
             <Button href="/engineering-lab" variant="ghost" size="lg" className="text-white border-white/20 hover:bg-white/10">
               Engineering Lab

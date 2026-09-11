@@ -46,7 +46,7 @@ const learnDropdown = [
 
 const navLinks = [
   { href: "/engineering-lab", label: "Engineering Lab" },
-  { href: "/courses", label: "Courses" },
+  { href: "/courses", label: "Resources" },
   { href: "/jobs", label: "Jobs" },
   { href: "/blog", label: "Blog" },
   { href: "/sta-interview-questions", label: "STA Interview Q&A" },

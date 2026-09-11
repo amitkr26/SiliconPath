@@ -113,7 +113,7 @@ export default function AcademyDashboard() {
               <span>SELF-PACED HARDWARE &amp; VLSI CURRICULUM</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-              VLSI &amp; Microelectronics Courses
+              VLSI &amp; Microelectronics Learning Paths
             </h1>
             <p className="text-blue-50 text-sm sm:text-base font-medium leading-relaxed">
               Structured learning paths with verified NPTEL lectures, ChipVerify tutorials, SystemVerilog/UVM masterclasses, OpenLANE Physical Design labs, and auto-graded assessments.
@@ -204,7 +204,7 @@ export default function AcademyDashboard() {
           <SectionHeader
             eyebrow="Curated Reference Library"
             title="Trusted Resources & Lecture Sources"
-            description="Official courses from NPTEL IITs, Siemens EDA Verification Academy, ChipVerify, Doulos Knowhow, and OpenROAD."
+            description="Official learning resources from NPTEL IITs, Siemens EDA Verification Academy, ChipVerify, Doulos Knowhow, and OpenROAD."
           />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

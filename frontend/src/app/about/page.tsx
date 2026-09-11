@@ -21,8 +21,8 @@ const whatWeOffer = [
   },
   {
     icon: <GraduationCap className="w-5 h-5" />,
-    title: "Hands-on Courses",
-    desc: "Practical courses on RTL-to-GDS, interview prep, and career development. Built by engineers who ship silicon.",
+    title: "Free Courses",
+    desc: "Practical courses on RTL-to-GDS, interview prep, and career development — all 100% free. Built by engineers who ship silicon.",
   },
   {
     icon: <CircuitBoard className="w-5 h-5" />,
@@ -102,8 +102,8 @@ export default function AboutPage() {
             <Button href="/" variant="secondary" size="lg">
               Back to Home <ArrowRight className="w-4 h-4" />
             </Button>
-            <Button href="/courses" variant="ghost" size="lg" className="text-white border-white/20 hover:bg-white/10">
-              Browse Courses
+            <Button href="/learn" variant="ghost" size="lg" className="text-white border-white/20 hover:bg-white/10">
+              Start Learning Free
             </Button>
           </div>
         </Card>

@@ -166,7 +166,7 @@ export default function TrackAssessmentPage() {
             {track.title} Gating Assessment
           </h1>
           <p className="text-sm font-medium text-slate-600 max-w-xl mx-auto leading-relaxed">
-            Verify your understanding of all materials in this track. Scoring <strong className="text-slate-900 font-black">{assessment.passing_score_percent}%</strong> or higher unlocks the next course in the VLSI curriculum.
+            Verify your understanding of all materials in this track. Scoring <strong className="text-slate-900 font-black">{assessment.passing_score_percent}%</strong> or higher unlocks the next track in the VLSI curriculum.
           </p>
         </Card>
 

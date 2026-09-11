@@ -29,7 +29,7 @@ const footerColumns = [
       { label: "Engineering Lab", href: "/engineering-lab" },
       { label: "TCL for EDA", href: "/learn/tcl-for-eda" },
       { label: "Linux for VLSI", href: "/learn/linux-for-vlsi" },
-      { label: "Open-source Flows", href: "/courses/openlane-rtl-to-gds" },
+      { label: "Open-source Flows", href: "/courses" },
     ],
   },
   {

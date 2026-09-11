@@ -10,7 +10,7 @@ export default function AcademyNotFound() {
         </div>
         <h1 className="text-2xl font-bold">Page Not Found</h1>
         <p className="text-gray-400 text-sm">
-          This track or page doesn&apos;t exist. Check the URL or browse all available courses.
+          This track or page doesn&apos;t exist. Check the URL or browse all available learning paths.
         </p>
         <div className="flex gap-3 justify-center pt-2">
           <Link
@@ -18,7 +18,7 @@ export default function AcademyNotFound() {
             className="px-5 py-2.5 bg-cyan text-navy font-semibold rounded-lg text-sm hover:bg-cyan/90 transition-colors inline-flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Browse Courses
+            Browse Academy
           </Link>
         </div>
       </div>

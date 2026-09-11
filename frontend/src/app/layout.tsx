@@ -12,11 +12,11 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space
 export const metadata: Metadata = {
   metadataBase: new URL("https://siliconpath.in"),
   title: {
-    default: "SiliconPath — Learn VLSI Online",
+    default: "SiliconPath — Free VLSI Learning Platform",
     template: "%s | SiliconPath",
   },
   description:
-    "Practical VLSI learning from RTL to GDSII — real workflows, tools, and interview-ready practice.",
+    "100% free VLSI learning — 15 paths, 148 modules, 128 interview questions. No login required.",
   keywords: [
     "VLSI", "physical design", "STA", "synthesis", "Verilog", "semiconductor",
     "ASIC", "RTL design", "digital logic", "EDA", "OpenLane", "OpenROAD",
@@ -29,15 +29,15 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "https://siliconpath.in",
     siteName: "SiliconPath",
-    title: "SiliconPath — Learn VLSI Online",
+    title: "SiliconPath — Free VLSI Learning Platform",
     description:
-      "Practical VLSI learning from RTL to GDSII — real workflows, tools, and interview-ready practice.",
+      "100% free VLSI learning — 15 paths, 148 modules, 128 interview questions. No login required.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "SiliconPath — Learn VLSI Online",
+    title: "SiliconPath — Free VLSI Learning Platform",
     description:
-      "Practical VLSI learning from RTL to GDSII — real workflows, tools, and interview-ready practice.",
+      "100% free VLSI learning — 15 paths, 148 modules, 128 interview questions. No login required.",
   },
   robots: {
     index: true,
@@ -76,8 +76,8 @@ export default function RootLayout({
         "@type": "WebSite",
         "@id": "https://siliconpath.in/#website",
         "url": "https://siliconpath.in",
-        "name": "SiliconPath — Learn VLSI Online",
-        "description": "Practical VLSI learning from RTL to GDSII — real workflows, tools, and interview-ready practice.",
+        "name": "SiliconPath — Free VLSI Learning Platform",
+        "description": "100% free VLSI learning — 15 paths, 148 modules, 128 interview questions. No login required.",
         "inLanguage": "en-IN",
       },
       {

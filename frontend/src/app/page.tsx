@@ -73,7 +73,7 @@ const toolsGrid = [
 
 const testimonials = [
   { name: "Rahul Menon", role: "STA Engineer · Qualcomm India, Bangalore", text: "I cracked my Qualcomm STA round purely on the back of this site. The OCV vs AOCV explanation, the CPPR section, the timing equation diagrams — all exactly what was asked. No other free resource comes close to this depth." },
-  { name: "Priya Krishnamurthy", role: "Physical Design Engineer · MediaTek, Hyderabad", text: "The resume template from the course got me shortlisted at MediaTek within 3 days of applying. Before this, I had been applying for 2 months with zero callbacks." },
+  { name: "Priya Krishnamurthy", role: "Physical Design Engineer · MediaTek, Hyderabad", text: "The resume template from SiliconPath got me shortlisted at MediaTek within 3 days of applying. Before this, I had been applying for 2 months with zero callbacks." },
   { name: "Aditya Sharma", role: "VLSI Design Engineer · Samsung R&D, Noida", text: "As a fresher from NIT, I had no real tool exposure. The 16-week study plan was my bible. I followed it from week 1 to week 16 and landed an offer at Samsung." },
   { name: "Sneha Rao", role: "DFT Engineer · Capgemini Engineering", text: "Free content alone is better than any VLSI YouTube playlist. The depth of explanation on DFT concepts is unmatched." },
   { name: "Karthik Iyer", role: "PD Engineer · Samsung R&D, Noida", text: "16-week plan actually works. Got my first offer in month 4. The structured approach made all the difference." },
@@ -82,11 +82,11 @@ const testimonials = [
   { name: "Meghana Tiwari", role: "Verification Engineer · Texas Instruments", text: "Cracked TI written test after 2 weeks on SiliconPath. The interview questions are exactly what gets asked." },
 ];
 
-const courses = [
-  { name: "Interview Bootcamp", price: "₹299", originalPrice: "₹499", level: "All levels", detail: "90+ Q&A", desc: "90+ real interview questions with detailed answers across PD, Synthesis, STA, and PV.", href: "/courses/interview-bootcamp" },
-  { name: "OpenLane RTL-to-GDS", price: "₹999", originalPrice: "₹1,999", level: "Intermediate", detail: "Step-by-step lessons", desc: "Full RTL to GDSII flow using OpenLane on a real design, step by step.", href: "/courses/openlane-rtl-to-gds" },
-  { name: "Fresher Pack", price: "₹199", originalPrice: "₹299", level: "Beginner", detail: "Roadmap + 8-week plan", desc: "Complete beginner roadmap for VLSI freshers, with an 8-week structured study plan.", href: "/courses/fresher-pack" },
-  { name: "Resume Tips", price: "Free", originalPrice: null, level: "All levels", detail: "Templates", desc: "VLSI-specific resume templates and tips that get you shortlisted.", href: "/courses/resume-tips" },
+const resources = [
+  { name: "OpenLane RTL-to-GDS", level: "Intermediate", detail: "Step-by-step guide", desc: "Full RTL to GDSII flow using OpenLane on a real design, step by step. Free.", href: "/courses/openlane-rtl-to-gds" },
+  { name: "Interview Q&A", level: "All levels", detail: "90+ questions", desc: "90+ real interview questions with detailed answers across PD, Synthesis, STA, and PV. Free.", href: "/sta-interview-questions" },
+  { name: "Career Roadmap", level: "Beginner", detail: "Structured plan", desc: "Complete beginner roadmap for VLSI freshers, with an 8-week structured study plan. Free.", href: "/learn/career-roadmap" },
+  { name: "Resume Tips", level: "All levels", detail: "Templates", desc: "VLSI-specific resume templates and tips that get you shortlisted. Free.", href: "/courses/resume-tips" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -103,11 +103,11 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 text-center">
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-            The engineering platform for{" "}
-            <span className="text-blue-400">semiconductor design</span>
+            100% free VLSI learning for{" "}
+            <span className="text-blue-400">semiconductor engineers</span>
           </h1>
           <p className="mt-5 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Practical VLSI learning from RTL to GDSII — real workflows, tools, and interview-ready practice.
+            Practical VLSI learning from RTL to GDSII — 15 paths, 148 modules, 128 interview questions. No login required.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -371,10 +371,7 @@ export default function HomePage() {
               <h3 className="font-display font-bold text-slate-900 mb-1">A VLSI job board</h3>
               <p className="text-sm text-slate-500">Physical Design · STA · Verification · DFT</p>
             </Link>
-            <Link href="/mentorship" className="bg-white border border-slate-200 hover:border-blue-300 rounded-xl p-5 transition-all hover:shadow-md">
-              <h3 className="font-display font-bold text-slate-900 mb-1">Mock interviews</h3>
-              <p className="text-sm text-slate-500">With working engineers</p>
-            </Link>
+
           </div>
         </div>
       </section>
@@ -405,15 +402,15 @@ export default function HomePage() {
       </section>
 
       {/* ============================================================ */}
-      {/* COURSES                                                      */}
+      {/* FREE RESOURCES                                               */}
       {/* ============================================================ */}
       <section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 mb-2">Structured programs, focused outcomes</h2>
-          <p className="text-slate-500 mb-10">Go further.</p>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 mb-2">100% free resources</h2>
+          <p className="text-slate-500 mb-10">Everything you need. No paywall.</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {courses.map((c) => (
+            {resources.map((c) => (
               <Link
                 key={c.name}
                 href={c.href}
@@ -421,11 +418,7 @@ export default function HomePage() {
               >
                 <h3 className="font-display font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{c.name}</h3>
                 <p className="text-sm text-slate-500 mt-2 leading-relaxed">{c.desc}</p>
-                <div className="mt-4 flex items-baseline gap-2">
-                  <span className="text-lg font-bold text-slate-900">{c.price}</span>
-                  {c.originalPrice && <span className="text-sm text-slate-400 line-through">{c.originalPrice}</span>}
-                </div>
-                <div className="mt-2 flex items-center gap-2 text-xs text-slate-400">
+                <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
                   <span>{c.level}</span>
                   <span>·</span>
                   <span>{c.detail}</span>
@@ -433,47 +426,23 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
-
-          <div className="mt-8 text-center">
-            <Link href="/courses" className="text-sm font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
-              All courses &amp; bundle <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
         </div>
       </section>
 
       {/* ============================================================ */}
-      {/* CTA + NEWSLETTER                                             */}
+      {/* CTA                                                          */}
       {/* ============================================================ */}
       <section className="py-20 bg-slate-950 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">Start building real-chip skills today</h2>
-          <p className="text-slate-400 mb-8">Free, structured, built by engineers who ship silicon.</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+          <p className="text-slate-400 mb-8">100% free, structured, built by engineers who ship silicon.</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/learn" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm">
               Start Learning Free <ArrowRight className="w-4 h-4" />
             </Link>
             <Link href="/vlsi" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm">
               Explore VLSI topics
             </Link>
-          </div>
-
-          {/* Newsletter */}
-          <div className="max-w-md mx-auto">
-            <h3 className="font-display text-xl font-bold mb-3">Stay ahead of the flow</h3>
-            <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="your@email.com"
-                className="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-blue-400"
-              />
-              <button
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors shrink-0"
-              >
-                Subscribe
-              </button>
-            </form>
           </div>
         </div>
       </section>
