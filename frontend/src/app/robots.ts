@@ -7,19 +7,12 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         disallow: [
-          "/admin",
           "/api/",
-          "/dashboard",
-          "/saved",
-          "/applications",
-          "/messages",
-          "/network",
-          "/feed",
-          "/employer",
+          "/admin",
         ],
       },
     ],
-    sitemap: "https://berojgardegreewala.vercel.app/sitemap.xml",
-    host: "https://berojgardegreewala.vercel.app",
+    sitemap: "https://siliconpath.vercel.app/sitemap.xml",
+    host: "https://siliconpath.vercel.app",
   };
 }

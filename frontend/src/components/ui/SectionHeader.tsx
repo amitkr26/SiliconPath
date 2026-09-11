@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { color } from "@/styles/design-tokens";
 
 export interface SectionHeaderProps {
   eyebrow?: string;
@@ -12,9 +11,6 @@ export interface SectionHeaderProps {
 }
 
 export function SectionHeader({ eyebrow, eyebrowTone = "accent", title, description, action, align = "left", className }: SectionHeaderProps) {
-  const eyebrowBg = eyebrowTone === "accent" ? color.primary : eyebrowTone === "success" ? color.success : eyebrowTone === "warning" ? color.warning : color.neutral;
-  const eyebrowFg = eyebrowTone === "accent" ? color.textInverted : eyebrowTone === "success" ? color.textSecondary : eyebrowTone === "warning" ? color.textSecondary : color.textSecondary;
-
   return (
     <div
       className={cn(
