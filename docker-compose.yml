@@ -1,0 +1,66 @@
+services:
+  # Next.js 14 Frontend & API Service
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: berojgardegreewala_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_NAME=BerojgarDegreeWala
+      - NEXT_PUBLIC_SITE_URL=https://berojgardegreewala.vercel.app
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-postgres_dev_secret}@postgres:5432/berojgardegreewala_db?sslmode=disable
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    restart: always
+
+  # Standalone Express REST API (backend/server)
+  # Env vars are interpolated from the shell/.env (empty by default — API
+  # boots anyway and serves /health; DB routes return 503 until configured).
+  api:
+    build:
+      context: .
+      dockerfile: backend/server/Dockerfile
+    container_name: berojgardegreewala_api
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}
+    restart: always
+
+  # PostgreSQL Database Container
+  postgres:
+    image: postgres:16-alpine
+    container_name: berojgardegreewala_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres_dev_secret}
+      - POSTGRES_DB=${POSTGRES_DB:-berojgardegreewala_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  # Redis Cache Container
+  redis:
+    image: redis:7-alpine
+    container_name: berojgardegreewala_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:

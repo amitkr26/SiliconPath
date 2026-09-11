@@ -1,0 +1,27 @@
+{
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/.next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "redirects": [
+    {
+      "source": "/auth/signin",
+      "destination": "/login",
+      "permanent": true
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/scrape-opportunities",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/check-links",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/news/sync",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}

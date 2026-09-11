@@ -1,0 +1,58 @@
+# Render deployment for the standalone backend replica (Phase 6/7 deployment
+# decision).
+#
+# Architecture (simplest option that meets the requirements — no queue, no
+# microservices, no Redis, no paid infrastructure):
+#   - web service: the Express API, built from backend/server/Dockerfile.
+#     Health checks hit /health; Render sends SIGTERM on deploys, which the
+#     server handles gracefully (drain + exit).
+#
+# Render is an INDEPENDENT backend replica — Vercel remains the production
+# platform (Next.js APIs + Vercel cron own all production traffic). The
+# frontend does not call Render. Render Free only: no Render Cron Job, no
+# Background Worker, no paid plan (cron creation on this workspace was
+# attempted and rejected by billing — the replica needs none of it).
+#
+# The backend/worker entrypoint is NOT scheduled on Render. It stays in the
+# image and is independently runnable on demand (node --import tsx
+# backend/worker/dist/index.js news) for testing/future use — it is the same
+# ingestion logic as the replica's guarded GET /api/v1/cron/news-sync, which
+# exists for manual/parity use only.
+#
+# Secrets are NOT committed here. Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
+# SUPABASE_2_URL, SUPABASE_2_SERVICE_ROLE_KEY, ADMIN_PASSWORD,
+# ADMIN_HMAC_SECRET, CRON_SECRET, ALLOWED_ORIGINS in the Render dashboard
+# (sync: false below).
+
+services:
+  - type: web
+    name: berojgardegreewala-backend
+    runtime: docker
+    repo: https://github.com/amitkr26/BerojgarDegreeWala
+    dockerfilePath: ./backend/server/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_2_URL
+        sync: false
+      - key: SUPABASE_2_SERVICE_ROLE_KEY
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_HMAC_SECRET
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: "http://localhost:3000,https://berojgardegreewala.vercel.app,https://electrobridge.vercel.app"

@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   BerojgarDegreeWala - Neo-Brutalist ("Brutalish") Design System
+   High-contrast, bold borders, hard offset shadows, zero glassmorphism.
+
+   Single source of truth for tokens: frontend/tailwind.config.ts.
+   These :root vars MUST mirror the config values exactly — used only by
+   components that reference var(--...) directly (AskAIModal, MessageThread,
+   shared/*). New components must use Tailwind classes, not raw vars.
+   ========================================================================== */
+
+:root {
+  --bg:               #FAF9F6;
+  --surface:          #FFFFFF;
+  --surface-raised:   #F1F5F9;
+  --surface-sunken:   #F1F5F9;
+  --text:             #0F172A;
+  --text-secondary:   #334155;
+  --text-tertiary:    #64748B;
+  --border:           #0F172A;
+  --border-subtle:    #E2E8F0;
+  --border-hover:     #000000;
+
+  --primary:          #2563EB;
+  --primary-hover:    #1D4ED8;
+  --primary-light:    #DBEAFE;
+
+  --accent-yellow:    #FACC15;
+  --accent-blue:      #3B82F6;
+  --accent-cyan:      #06B6D4;
+  --accent-emerald:   #10B981;
+  --accent-purple:    #8B5CF6;
+  --accent-pink:      #EC4899;
+  --accent-orange:    #F97316;
+
+  --success:          #059669;
+  --warning:          #D97706;
+  --error:            #DC2626;
+
+  --shadow-brutal:    4px 4px 0px 0px #0F172A;
+  --shadow-brutal-lg: 6px 6px 0px 0px #0F172A;
+  --shadow-brutal-sm: 2px 2px 0px 0px #0F172A;
+
+  --radius-sm: 6px;
+  --radius:    10px;
+  --radius-lg: 14px;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+/* ==========================================================================
+   ACCESSIBILITY — Focus-visible ring for keyboard navigation
+   Only shows for keyboard users (not mouse clicks). Uses a high-contrast
+   2px offset ring matching the neo-brutalist design system.
+   ========================================================================== */
+:focus-visible {
+  outline: 2px solid #2563EB;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove default outline for mouse/touch users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Scrollbar — Sleek and subtle styling with no-scrollbar utility
+   ========================================================================== */
+html, body {
+  scrollbar-width: thin;
+  scrollbar-color: #94A3B8 #F1F5F9;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94A3B8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748B;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ==========================================================================
+   Neo-Brutalist Component Classes
+   ========================================================================== */
+
+/* Brutal Card */
+.brutal-card {
+  background: #FFFFFF;
+  border: 2px solid #0F172A;
+  box-shadow: 4px 4px 0px 0px #0F172A;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.brutal-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #0F172A;
+  border-color: #000000;
+}
+
+.brutal-card:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px 0px #0F172A;
+}
+
+/* Legacy aliases kept for pre-redesign components still referencing them.
+   They map onto the brutal styles so nothing breaks until page agents
+   migrate off (audit §6). Remove once migrated. */
+.glass-premium,
+.brutal-card,
+.glass-nav,
+.btn-glow,
+.btn-brutal {
+  background: #FFFFFF;
+  border: 2px solid #0F172A;
+  box-shadow: 4px 4px 0px 0px #0F172A;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-glow,
+.btn-brutal {
+  background: #2563EB;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.btn-glow:hover,
+.btn-brutal:hover {
+  background: #1D4ED8;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #0F172A;
+}

@@ -1,0 +1,40 @@
+# dependencies
+/node_modules
+/.pnpm-store
+
+# next.js build output
+/.next/
+/out/
+/build
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# local env & secrets
+.env
+.env*.local
+.env.production
+siliconpath-credentials.txt
+SECRETS.md
+github-recovery-codes.txt
+change-fk.js
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+.vercel
+
+# typescript build output
+/backend/server/dist/
+/backend/worker/dist/
+*.tsbuildinfo
+
+# test & coverage artifacts
+/coverage/
+/.nyc_output/
+scripts/scratch/
+.env*
