@@ -1,8 +1,23 @@
+import LoadingSkeleton from "@/components/LoadingSkeleton";
+
 export default function TrackLoading() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh]">
-      <div className="w-10 h-10 border-4 border-slate-900 border-t-blue-600 rounded-full animate-spin" />
-      <p className="mt-4 text-slate-600 text-sm font-medium">Loading curriculum track...</p>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <LoadingSkeleton className="h-4 w-32 mb-6" />
+      <LoadingSkeleton className="h-8 w-72 mb-2" />
+      <LoadingSkeleton className="h-4 w-96 mb-8" />
+      <div className="space-y-3">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i} className="bg-navy-light border border-gray-800 rounded-lg p-4 flex items-center gap-4">
+            <LoadingSkeleton className="h-8 w-8 rounded-full shrink-0" />
+            <div className="flex-1 space-y-2">
+              <LoadingSkeleton className="h-4 w-48" />
+              <LoadingSkeleton className="h-3 w-32" />
+            </div>
+            <LoadingSkeleton className="h-6 w-6 rounded shrink-0" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

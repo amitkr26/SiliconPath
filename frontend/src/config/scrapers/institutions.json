@@ -1,0 +1,135 @@
+[
+  {
+    "category": "Space & Defence",
+    "organizations": [
+      { "name": "DRDO (Defence Research & Development Organisation)", "slug": "drdo", "url": "https://rac.gov.in", "type": "defence" },
+      { "name": "ISRO (Indian Space Research Organisation)", "slug": "isro", "url": "https://isro.gov.in/Careers.html", "type": "space" },
+      { "name": "BARC (Bhabha Atomic Research Centre)", "slug": "barc", "url": "https://barc.gov.in/careers/", "type": "atomic" },
+      { "name": "DAE (Department of Atomic Energy)", "slug": "dae", "url": "https://dae.gov.in/careers", "type": "atomic" },
+      { "name": "IGCAR (Indira Gandhi Centre for Atomic Research)", "slug": "igcar", "url": "http://www.igcar.gov.in/gctrecruitment.html", "type": "atomic" },
+      { "name": "RRCAT (Raja Ramanna Centre for Advanced Tech)", "slug": "rrcat", "url": "https://www.rrcat.gov.in/hrd/careers.html", "type": "atomic" },
+      { "name": "VECC (Variable Energy Cyclotron Centre)", "slug": "vecc", "url": "https://www.vecc.gov.in/recruitment", "type": "atomic" },
+      { "name": "NFC (Nuclear Fuel Complex)", "slug": "nfc", "url": "https://nfc.gov.in/recruitment.html", "type": "atomic" },
+      { "name": "AERB (Atomic Energy Regulatory Board)", "slug": "aerb", "url": "https://aerb.gov.in/careers", "type": "atomic" },
+      { "name": "ADA (Aeronautical Development Agency)", "slug": "ada", "url": "https://ada.gov.in/careers", "type": "defence" },
+      { "name": "HAL (Hindustan Aeronautics Limited)", "slug": "hal", "url": "https://hal-india.co.in/careers", "type": "defence-psu" },
+      { "name": "BEL (Bharat Electronics Limited)", "slug": "bel", "url": "https://bel-india.in/careers", "type": "defence-psu" },
+      { "name": "BDL (Bharat Dynamics Limited)", "slug": "bdl", "url": "https://bdl-india.in/careers", "type": "defence-psu" },
+      { "name": "MIDHANI (Mishra Dhatu Nigam Limited)", "slug": "midhani", "url": "https://midhani-india.in/careers", "type": "defence-psu" },
+      { "name": "GRSE (Garden Reach Shipbuilders)", "slug": "grse", "url": "https://grse.in/careers", "type": "defence-psu" },
+      { "name": "GSL (Goa Shipyard Limited)", "slug": "gsl", "url": "https://goashipyard.in/careers", "type": "defence-psu" },
+      { "name": "MDL (Mazagon Dock Shipbuilders)", "slug": "mdl", "url": "https://mazagondock.in/careers", "type": "defence-psu" },
+      { "name": "CSL (Cochin Shipyard Limited)", "slug": "csl", "url": "https://cochinshipyard.in/careers", "type": "defence-psu" },
+      { "name": "AVNL (Armoured Vehicles Nigam Limited)", "slug": "avnl", "url": "https://avnl.co.in/careers", "type": "defence-psu" },
+      { "name": "Yantra India Limited", "slug": "yantra-india", "url": "https://yantraindia.co.in/careers", "type": "defence-psu" },
+      { "name": "Munitions India Limited", "slug": "munitions-india", "url": "https://munitionsindia.co.in/careers", "type": "defence-psu" },
+      { "name": "India Optel Limited", "slug": "india-optel", "url": "https://indiaoptel.in/careers", "type": "defence-psu" },
+      { "name": "Troop Comforts Limited", "slug": "troop-comforts", "url": "https://troopcomfortsltd.in/careers", "type": "defence-psu" },
+      { "name": "AWEIL (Advanced Weapons & Equipment India)", "slug": "aweil", "url": "https://aweil.in/careers", "type": "defence-psu" }
+    ]
+  },
+  {
+    "category": "Scientific Research Organisations",
+    "organizations": [
+      { "name": "CSIR CEERI (Central Electronics Engg Research Inst)", "slug": "csir-ceeri", "url": "https://ceeri.res.in/careers", "type": "csir" },
+      { "name": "CSIR NPL (National Physical Laboratory)", "slug": "csir-npl", "url": "https://nplindia.org/careers", "type": "csir" },
+      { "name": "CSIR CSIO (Central Scientific Instruments Org)", "slug": "csir-csio", "url": "https://csio.res.in/careers", "type": "csir" },
+      { "name": "CSIR IIP (Indian Institute of Petroleum)", "slug": "csir-iip", "url": "https://iip.res.in/careers", "type": "csir" },
+      { "name": "CSIR CMERI (Central Mechanical Engg Research Inst)", "slug": "csir-cmeri", "url": "https://cmeri.res.in/careers", "type": "csir" },
+      { "name": "CSIR IMMT (Institute of Minerals & Materials Tech)", "slug": "csir-immt", "url": "https://immt.res.in/careers", "type": "csir" },
+      { "name": "CSIR NEERI (National Environmental Engg Inst)", "slug": "csir-neeri", "url": "https://neeri.res.in/careers", "type": "csir" },
+      { "name": "CSIR IITR (Indian Institute of Toxicology Research)", "slug": "csir-iitr", "url": "https://iitrindia.org/careers", "type": "csir" },
+      { "name": "CSIR IICT (Indian Institute of Chemical Tech)", "slug": "csir-iict", "url": "https://iictindia.org/careers", "type": "csir" },
+      { "name": "CSIR NAL (National Aerospace Laboratories)", "slug": "csir-nal", "url": "https://nal.res.in/careers", "type": "csir" },
+      { "name": "CSIR 4PI (Fourth Paradigm Institute)", "slug": "csir-4pi", "url": "https://csir4pi.in/careers", "type": "csir" },
+      { "name": "CSIR IHBT (Institute of Himalayan Bioresource Tech)", "slug": "csir-ihbt", "url": "https://ihbt.res.in/careers", "type": "csir" },
+      { "name": "ICMR (Indian Council of Medical Research)", "slug": "icmr", "url": "https://icmr.gov.in/careers", "type": "medical" },
+      { "name": "ICMR NIRRCH", "slug": "icmr-nirrch", "url": "https://nirrch.res.in/careers", "type": "medical" },
+      { "name": "ICMR NIV (National Institute of Virology)", "slug": "icmr-niv", "url": "https://niv.icmr.org.in/careers", "type": "medical" },
+      { "name": "DBT (Department of Biotechnology)", "slug": "dbt", "url": "https://dbtindia.gov.in/careers", "type": "biotech" },
+      { "name": "DST (Department of Science & Technology)", "slug": "dst", "url": "https://dst.gov.in/careers", "type": "science" },
+      { "name": "SERB ANRF (Science & Engineering Research Board)", "slug": "serb-anrf", "url": "https://serbonline.in/careers", "type": "science" },
+      { "name": "TIFR (Tata Institute of Fundamental Research)", "slug": "tifr", "url": "https://tifr.res.in/careers", "type": "fundamental" },
+      { "name": "NCBS (National Centre for Biological Sciences)", "slug": "ncbs", "url": "https://ncbs.res.in/careers", "type": "biology" },
+      { "name": "JNCASR (Jawaharlal Nehru Centre for Advanced Scientific Research)", "slug": "jncasr", "url": "https://jncasr.ac.in/careers", "type": "research" },
+      { "name": "ARCI (Advanced Research Centre for Powder Metallurgy)", "slug": "arci", "url": "https://arci.res.in/careers", "type": "materials" },
+      { "name": "CSTEP (Center for Study of Science, Tech & Policy)", "slug": "cstep", "url": "https://cstep.in/careers", "type": "policy" }
+    ]
+  },
+  {
+    "category": "Electronics & Semiconductor",
+    "organizations": [
+      { "name": "C-DAC (Center for Development of Advanced Computing)", "slug": "cdac", "url": "https://cdac.in/careers", "type": "cdac" },
+      { "name": "SAMEER (Society for Applied Microwave Electronics)", "slug": "sameer", "url": "https://sameer.gov.in/careers", "type": "microwave" },
+      { "name": "SCL Mohali (Semi-Conductor Laboratory)", "slug": "scl-mohali", "url": "https://scl.gov.in/careers", "type": "fab" },
+      { "name": "NIELIT (National Inst of Electronics & IT)", "slug": "nielit", "url": "https://nielit.gov.in/careers", "type": "electronics" },
+      { "name": "STQC (Standardisation Testing & Quality Certification)", "slug": "stqc", "url": "https://stqc.gov.in/careers", "type": "testing" },
+      { "name": "ERNET India", "slug": "ernet", "url": "https://ernet.in/careers", "type": "network" },
+      { "name": "MeitY (Ministry of Electronics & IT)", "slug": "meity", "url": "https://meity.gov.in/careers", "type": "ministry" },
+      { "name": "Digital India Corporation", "slug": "dic", "url": "https://dic.gov.in/careers", "type": "digital" },
+      { "name": "C-MET Hyderabad (Centre for Materials for Electronics Tech)", "slug": "cmet-hyderabad", "url": "https://cmet.gov.in/hyderabad/careers", "type": "cmet" },
+      { "name": "C-MET Pune", "slug": "cmet-pune", "url": "https://cmet.gov.in/pune/careers", "type": "cmet" },
+      { "name": "C-MET Thrissur", "slug": "cmet-thrissur", "url": "https://cmet.gov.in/thrissur/careers", "type": "cmet" },
+      { "name": "ISM (India Semiconductor Mission)", "slug": "ism", "url": "https://semiconindia.org/careers", "type": "semicon" }
+    ]
+  },
+  {
+    "category": "PSU Electronics Companies",
+    "organizations": [
+      { "name": "ECIL (Electronics Corporation of India Limited)", "slug": "ecil", "url": "https://ecil.co.in/careers", "type": "psu" },
+      { "name": "ITI Limited (Indian Telephone Industries)", "slug": "iti-limited", "url": "https://itiltd.in/careers", "type": "psu" },
+      { "name": "RailTel Corporation of India", "slug": "railtel", "url": "https://railtelindia.com/careers", "type": "psu" },
+      { "name": "BSNL (Bharat Sanchar Nigam Limited)", "slug": "bsnl", "url": "https://bsnl.co.in/careers", "type": "psu" },
+      { "name": "MTNL (Mahanagar Telephone Nigam Limited)", "slug": "mtnl", "url": "https://mtnl.net.in/careers", "type": "psu" },
+      { "name": "BHEL (Bharat Heavy Electricals Limited)", "slug": "bhel", "url": "https://bhel.com/careers", "type": "psu" },
+      { "name": "EIL (Engineers India Limited)", "slug": "eil", "url": "https://engineersindia.com/careers", "type": "psu" },
+      { "name": "Power Grid Corporation of India", "slug": "powergrid", "url": "https://powergrid.in/careers", "type": "psu" },
+      { "name": "C-DOT (Centre for Development of Telematics)", "slug": "cdot", "url": "https://cdot.in/careers", "type": "telecom" }
+    ]
+  },
+  {
+    "category": "Railways",
+    "organizations": [
+      { "name": "RDSO (Research Designs & Standards Organisation)", "slug": "rdso", "url": "https://rdso.indianrailways.gov.in", "type": "railway" },
+      { "name": "Indian Railways Central Recruitment", "slug": "indian-railways", "url": "https://indianrailways.gov.in", "type": "railway" },
+      { "name": "RVNL (Rail Vikas Nigam Limited)", "slug": "rvnl", "url": "https://rvnl.org/careers", "type": "railway" },
+      { "name": "DFCCIL (Dedicated Freight Corridor Corporation)", "slug": "dfccil", "url": "https://dfccil.com/careers", "type": "railway" },
+      { "name": "IRCON International Limited", "slug": "ircon", "url": "https://ircon.org/careers", "type": "railway" },
+      { "name": "CRIS (Centre for Railway Information Systems)", "slug": "cris", "url": "https://cris.org.in/careers", "type": "railway" }
+    ]
+  },
+  {
+    "category": "Government Universities & Institutes",
+    "organizations": [
+      { "name": "IIT Bombay", "slug": "iit-bombay", "url": "https://ee.iitb.ac.in", "type": "iit" },
+      { "name": "IIT Delhi", "slug": "iit-delhi", "url": "https://ee.iitd.ac.in", "type": "iit" },
+      { "name": "IIT Madras", "slug": "iit-madras", "url": "https://ee.iitm.ac.in", "type": "iit" },
+      { "name": "IIT Kanpur", "slug": "iit-kanpur", "url": "https://ee.iitk.ac.in", "type": "iit" },
+      { "name": "IIT Kharagpur", "slug": "iit-kharagpur", "url": "https://ece.iitkgp.ac.in", "type": "iit" },
+      { "name": "IIT Roorkee", "slug": "iit-roorkee", "url": "https://ece.iitr.ac.in", "type": "iit" },
+      { "name": "IIT Guwahati", "slug": "iit-guwahati", "url": "https://eee.iitg.ac.in", "type": "iit" },
+      { "name": "IIT Hyderabad", "slug": "iit-hyderabad", "url": "https://ee.iith.ac.in", "type": "iit" },
+      { "name": "IIT Indore", "slug": "iit-indore", "url": "https://ee.iiti.ac.in", "type": "iit" },
+      { "name": "IIT Mandi", "slug": "iit-mandi", "url": "https://eecs.iitmandi.ac.in", "type": "iit" },
+      { "name": "IIT Jodhpur", "slug": "iit-jodhpur", "url": "https://ee.iitj.ac.in", "type": "iit" },
+      { "name": "IIT Patna", "slug": "iit-patna", "url": "https://ee.iitp.ac.in", "type": "iit" },
+      { "name": "IIT Ropar", "slug": "iit-ropar", "url": "https://ee.iitrpr.ac.in", "type": "iit" },
+      { "name": "IIT Gandhinagar", "slug": "iit-gandhinagar", "url": "https://ee.iitgn.ac.in", "type": "iit" },
+      { "name": "IIT Bhilai", "slug": "iit-bhilai", "url": "https://ee.iitbhilai.ac.in", "type": "iit" },
+      { "name": "IIT Goa", "slug": "iit-goa", "url": "https://ee.iitgoa.ac.in", "type": "iit" },
+      { "name": "IIT Jammu", "slug": "iit-jammu", "url": "https://ee.iitjammu.ac.in", "type": "iit" },
+      { "name": "IIT Tirupati", "slug": "iit-tirupati", "url": "https://ee.iittp.ac.in", "type": "iit" },
+      { "name": "IIT Dharwad", "slug": "iit-dharwad", "url": "https://ee.iitdh.ac.in", "type": "iit" },
+      { "name": "IIT Palakkad", "slug": "iit-palakkad", "url": "https://ee.iitpkd.ac.in", "type": "iit" },
+      { "name": "IIT BHU Varanasi", "slug": "iit-bhu", "url": "https://ece.iitbhu.ac.in", "type": "iit" },
+      { "name": "IISc Bangalore", "slug": "iisc-bangalore", "url": "https://cense.iisc.ac.in", "type": "iisc" },
+      { "name": "IISER Pune", "slug": "iiser-pune", "url": "https://iiserpune.ac.in/careers", "type": "iiser" },
+      { "name": "IISER Kolkata", "slug": "iiser-kolkata", "url": "https://iiserkol.ac.in/careers", "type": "iiser" },
+      { "name": "IISER Mohali", "slug": "iiser-mohali", "url": "https://iisermohali.ac.in/careers", "type": "iiser" },
+      { "name": "IISER Bhopal", "slug": "iiser-bhopal", "url": "https://iiserb.ac.in/careers", "type": "iiser" },
+      { "name": "IISER Thiruvananthapuram", "slug": "iiser-tvm", "url": "https://iisertvm.ac.in/careers", "type": "iiser" },
+      { "name": "IISER Tirupati", "slug": "iiser-tirupati", "url": "https://iisertirupati.ac.in/careers", "type": "iiser" },
+      { "name": "IISER Berhampur", "slug": "iiser-berhampur", "url": "https://iiserbpr.ac.in/careers", "type": "iiser" }
+    ]
+  }
+]

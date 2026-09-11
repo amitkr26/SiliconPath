@@ -1,10 +1,24 @@
-import { Loader2 } from "lucide-react";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 export default function AcademyLoading() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh]">
-      <div className="w-10 h-10 border-4 border-slate-900 border-t-blue-600 rounded-full animate-spin" />
-      <p className="mt-4 text-slate-600 text-sm font-medium">Loading VLSI Academy...</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <LoadingSkeleton className="h-10 w-64 mb-4" />
+      <LoadingSkeleton className="h-4 w-96 mb-8" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="bg-navy-light border border-gray-800 rounded-xl p-6 space-y-4">
+            <LoadingSkeleton className="h-8 w-8 rounded-lg" />
+            <LoadingSkeleton className="h-6 w-3/4" />
+            <LoadingSkeleton className="h-4 w-full" />
+            <LoadingSkeleton className="h-4 w-2/3" />
+            <div className="flex gap-2 pt-2">
+              <LoadingSkeleton className="h-6 w-20 rounded-full" />
+              <LoadingSkeleton className="h-6 w-16 rounded-full" />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

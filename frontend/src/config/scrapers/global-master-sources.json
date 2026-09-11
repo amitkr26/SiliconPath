@@ -1,0 +1,185 @@
+[
+  {
+    "region": "India",
+    "categories": [
+      {
+        "name": "Government & Defence Research",
+        "sources": [
+          { "name": "DRDO", "slug": "drdo", "url": "https://rac.gov.in" },
+          { "name": "ISRO", "slug": "isro", "url": "https://isro.gov.in" },
+          { "name": "BARC", "slug": "barc", "url": "https://barc.gov.in" },
+          { "name": "DAE", "slug": "dae", "url": "https://dae.gov.in" },
+          { "name": "IGCAR", "slug": "igcar", "url": "http://www.igcar.gov.in" },
+          { "name": "RRCAT", "slug": "rrcat", "url": "https://www.rrcat.gov.in" },
+          { "name": "VECC", "slug": "vecc", "url": "https://www.vecc.gov.in" },
+          { "name": "NFC", "slug": "nfc", "url": "https://nfc.gov.in" },
+          { "name": "AERB", "slug": "aerb", "url": "https://aerb.gov.in" },
+          { "name": "ADA", "slug": "ada", "url": "https://ada.gov.in" },
+          { "name": "CSIR CEERI", "slug": "csir-ceeri", "url": "https://ceeri.res.in" },
+          { "name": "CSIR NPL", "slug": "csir-npl", "url": "https://nplindia.org" },
+          { "name": "CSIR CSIO", "slug": "csir-csio", "url": "https://csio.res.in" },
+          { "name": "CSIR CMERI", "slug": "csir-cmeri", "url": "https://cmeri.res.in" },
+          { "name": "CSIR NAL", "slug": "csir-nal", "url": "https://nal.res.in" },
+          { "name": "CSIR 4PI", "slug": "csir-4pi", "url": "https://csir4pi.in" },
+          { "name": "CSIR IIP", "slug": "csir-iip", "url": "https://iip.res.in" },
+          { "name": "CSIR IMMT", "slug": "csir-immt", "url": "https://immt.res.in" },
+          { "name": "CSIR IICT", "slug": "csir-iict", "url": "https://iictindia.org" },
+          { "name": "CSIR NEERI", "slug": "csir-neeri", "url": "https://neeri.res.in" },
+          { "name": "ICMR", "slug": "icmr", "url": "https://icmr.gov.in" },
+          { "name": "DBT", "slug": "dbt", "url": "https://dbtindia.gov.in" },
+          { "name": "DST", "slug": "dst", "url": "https://dst.gov.in" },
+          { "name": "ANRF (SERB)", "slug": "serb-anrf", "url": "https://serbonline.in" },
+          { "name": "TIFR", "slug": "tifr", "url": "https://tifr.res.in" },
+          { "name": "NCBS", "slug": "ncbs", "url": "https://ncbs.res.in" },
+          { "name": "JNCASR", "slug": "jncasr", "url": "https://jncasr.ac.in" },
+          { "name": "ARCI", "slug": "arci", "url": "https://arci.res.in" },
+          { "name": "CSTEP", "slug": "cstep", "url": "https://cstep.in" },
+          { "name": "C-DAC", "slug": "cdac", "url": "https://cdac.in" },
+          { "name": "SAMEER", "slug": "sameer", "url": "https://sameer.gov.in" },
+          { "name": "SCL Mohali", "slug": "scl-mohali", "url": "https://scl.gov.in" },
+          { "name": "C-MET", "slug": "cmet", "url": "https://cmet.gov.in" },
+          { "name": "NIELIT", "slug": "nielit", "url": "https://nielit.gov.in" },
+          { "name": "MeitY", "slug": "meity", "url": "https://meity.gov.in" },
+          { "name": "ISM (India Semiconductor Mission)", "slug": "ism", "url": "https://semiconindia.org" },
+          { "name": "Chips to Startup (C2S)", "slug": "c2s", "url": "https://c2s.gov.in" }
+        ]
+      },
+      {
+        "name": "Defence & Electronics PSUs",
+        "sources": [
+          { "name": "HAL", "slug": "hal", "url": "https://hal-india.co.in" },
+          { "name": "BEL", "slug": "bel", "url": "https://bel-india.in" },
+          { "name": "BDL", "slug": "bdl", "url": "https://bdl-india.in" },
+          { "name": "MIDHANI", "slug": "midhani", "url": "https://midhani-india.in" },
+          { "name": "BEML", "slug": "beml", "url": "https://bemlindia.in" },
+          { "name": "MDL", "slug": "mdl", "url": "https://mazagondock.in" },
+          { "name": "GSL", "slug": "gsl", "url": "https://goashipyard.in" },
+          { "name": "GRSE", "slug": "grse", "url": "https://grse.in" },
+          { "name": "CSL", "slug": "csl", "url": "https://cochinshipyard.in" },
+          { "name": "ECIL", "slug": "ecil", "url": "https://ecil.co.in" },
+          { "name": "ITI Limited", "slug": "iti-limited", "url": "https://itiltd.in" },
+          { "name": "C-DOT", "slug": "cdot", "url": "https://cdot.in" },
+          { "name": "RailTel", "slug": "railtel", "url": "https://railtelindia.com" },
+          { "name": "BSNL", "slug": "bsnl", "url": "https://bsnl.co.in" },
+          { "name": "BHEL", "slug": "bhel", "url": "https://bhel.com" },
+          { "name": "Power Grid", "slug": "powergrid", "url": "https://powergrid.in" },
+          { "name": "EIL", "slug": "eil", "url": "https://engineersindia.com" },
+          { "name": "RDSO Indian Railways", "slug": "rdso", "url": "https://rdso.indianrailways.gov.in" },
+          { "name": "DFCCIL", "slug": "dfccil", "url": "https://dfccil.com" }
+        ]
+      },
+      {
+        "name": "Academic Institutes",
+        "sources": [
+          { "name": "IIT Bombay", "slug": "iit-bombay", "url": "https://ee.iitb.ac.in" },
+          { "name": "IIT Delhi", "slug": "iit-delhi", "url": "https://ee.iitd.ac.in" },
+          { "name": "IIT Madras", "slug": "iit-madras", "url": "https://ee.iitm.ac.in" },
+          { "name": "IIT Kanpur", "slug": "iit-kanpur", "url": "https://ee.iitk.ac.in" },
+          { "name": "IIT Kharagpur", "slug": "iit-kharagpur", "url": "https://ece.iitkgp.ac.in" },
+          { "name": "IIT Roorkee", "slug": "iit-roorkee", "url": "https://ece.iitr.ac.in" },
+          { "name": "IIT Guwahati", "slug": "iit-guwahati", "url": "https://eee.iitg.ac.in" },
+          { "name": "IIT Hyderabad", "slug": "iit-hyderabad", "url": "https://ee.iith.ac.in" },
+          { "name": "IISc Bangalore", "slug": "iisc-bangalore", "url": "https://cense.iisc.ac.in" },
+          { "name": "IISER Pune", "slug": "iiser-pune", "url": "https://iiserpune.ac.in" },
+          { "name": "IISER Mohali", "slug": "iiser-mohali", "url": "https://iisermohali.ac.in" },
+          { "name": "IISER Kolkata", "slug": "iiser-kolkata", "url": "https://iiserkol.ac.in" }
+        ]
+      }
+    ]
+  },
+  {
+    "region": "United States",
+    "categories": [
+      {
+        "name": "US National Labs & Agencies",
+        "sources": [
+          { "name": "DARPA", "slug": "darpa", "url": "https://darpa.mil/work-with-us/careers" },
+          { "name": "NASA", "slug": "nasa", "url": "https://nasa.gov/careers" },
+          { "name": "NIST", "slug": "nist", "url": "https://nist.gov/careers" },
+          { "name": "Sandia National Laboratories", "slug": "sandia", "url": "https://sandia.gov/careers" },
+          { "name": "Lawrence Berkeley National Lab (LBNL)", "slug": "lbnl", "url": "https://lbl.gov/careers" },
+          { "name": "Los Alamos National Lab (LANL)", "slug": "lanl", "url": "https://lanl.gov/careers" },
+          { "name": "Oak Ridge National Lab (ORNL)", "slug": "ornl", "url": "https://ornl.gov/careers" },
+          { "name": "Argonne National Laboratory", "slug": "argonne", "url": "https://anl.gov/careers" }
+        ]
+      },
+      {
+        "name": "US Top Engineering Universities",
+        "sources": [
+          { "name": "MIT (Massachusetts Institute of Technology)", "slug": "mit", "url": "https://eecs.mit.edu/research" },
+          { "name": "Stanford University", "slug": "stanford", "url": "https://ee.stanford.edu/research" },
+          { "name": "UC Berkeley", "slug": "uc-berkeley", "url": "https://eecs.berkeley.edu/research" },
+          { "name": "Caltech", "slug": "caltech", "url": "https://ee.caltech.edu" },
+          { "name": "Carnegie Mellon University (CMU)", "slug": "cmu", "url": "https://ece.cmu.edu" },
+          { "name": "Georgia Tech", "slug": "georgia-tech", "url": "https://ece.gatech.edu" },
+          { "name": "Purdue University", "slug": "purdue", "url": "https://engineering.purdue.edu/ECE" }
+        ]
+      }
+    ]
+  },
+  {
+    "region": "Europe",
+    "categories": [
+      {
+        "name": "European Research Centers & Universities",
+        "sources": [
+          { "name": "CERN", "slug": "cern", "url": "https://home.cern/careers" },
+          { "name": "IMEC Belgium", "slug": "imec", "url": "https://imec-int.com/en/careers" },
+          { "name": "CEA-Leti France", "slug": "cea-leti", "url": "https://leti-cea.fr/careers" },
+          { "name": "Fraunhofer Society / IIS / IZM", "slug": "fraunhofer", "url": "https://fraunhofer.de/careers" },
+          { "name": "Max Planck Society", "slug": "max-planck", "url": "https://mpg.de/careers" },
+          { "name": "CNRS France", "slug": "cnrs", "url": "https://cnrs.fr/careers" },
+          { "name": "ETH Zurich", "slug": "eth-zurich", "url": "https://ethz.ch/careers" },
+          { "name": "EPFL Switzerland", "slug": "epfl", "url": "https://epfl.ch/careers" },
+          { "name": "Cambridge University", "slug": "cambridge", "url": "https://cam.ac.uk/careers" },
+          { "name": "Oxford University", "slug": "oxford", "url": "https://ox.ac.uk/careers" }
+        ]
+      }
+    ]
+  },
+  {
+    "region": "Global Semiconductor & EDA Leaders",
+    "categories": [
+      {
+        "name": "Top Semiconductor Foundries & Fabless Giants",
+        "sources": [
+          { "name": "TSMC", "slug": "tsmc", "url": "https://tsmc.com/careers" },
+          { "name": "Intel Corporation", "slug": "intel", "url": "https://jobs.intel.com" },
+          { "name": "AMD", "slug": "amd", "url": "https://careers.amd.com" },
+          { "name": "NVIDIA", "slug": "nvidia", "url": "https://nvidia.com/careers" },
+          { "name": "Qualcomm", "slug": "qualcomm", "url": "https://qualcomm.com/careers" },
+          { "name": "Broadcom", "slug": "broadcom", "url": "https://broadcom.com/careers" },
+          { "name": "Samsung Semiconductor", "slug": "samsung-semicon", "url": "https://semiconductor.samsung.com/careers" },
+          { "name": "SK hynix", "slug": "sk-hynix", "url": "https://skhynix.com/careers" },
+          { "name": "Micron Technology", "slug": "micron", "url": "https://micron.com/careers" },
+          { "name": "Texas Instruments", "slug": "ti", "url": "https://careers.ti.com" },
+          { "name": "NXP Semiconductors", "slug": "nxp", "url": "https://nxp.com/careers" },
+          { "name": "Infineon Technologies", "slug": "infineon", "url": "https://infineon.com/careers" },
+          { "name": "STMicroelectronics", "slug": "stmicroelectronics", "url": "https://st.com/careers" },
+          { "name": "Renesas Electronics", "slug": "renesas", "url": "https://renesas.com/careers" },
+          { "name": "Analog Devices (ADI)", "slug": "analog-devices", "url": "https://analog.com/careers" },
+          { "name": "onsemi", "slug": "onsemi", "url": "https://onsemi.com/careers" },
+          { "name": "GlobalFoundries", "slug": "globalfoundries", "url": "https://gf.com/careers" },
+          { "name": "ARM Architecture", "slug": "arm", "url": "https://careers.arm.com" },
+          { "name": "Microchip Technology", "slug": "microchip", "url": "https://microchip.com/careers" },
+          { "name": "Espressif Systems", "slug": "espressif", "url": "https://espressif.com/careers" }
+        ]
+      },
+      {
+        "name": "EDA & Semiconductor Equipment Leaders",
+        "sources": [
+          { "name": "Cadence Design Systems", "slug": "cadence", "url": "https://cadence.com/careers" },
+          { "name": "Synopsys", "slug": "synopsys", "url": "https://synopsys.com/careers" },
+          { "name": "Siemens EDA", "slug": "siemens-eda", "url": "https://eda.sw.siemens.com/careers" },
+          { "name": "Ansys", "slug": "ansys", "url": "https://ansys.com/careers" },
+          { "name": "Keysight Technologies", "slug": "keysight", "url": "https://keysight.com/careers" },
+          { "name": "ASML Lithography", "slug": "asml", "url": "https://asml.com/careers" },
+          { "name": "Applied Materials (AMAT)", "slug": "applied-materials", "url": "https://appliedmaterials.com/careers" },
+          { "name": "Lam Research", "slug": "lam-research", "url": "https://lamresearch.com/careers" },
+          { "name": "KLA Corporation", "slug": "kla", "url": "https://kla.com/careers" },
+          { "name": "Tokyo Electron (TEL)", "slug": "tokyo-electron", "url": "https://tel.com/careers" }
+        ]
+      }
+    ]
+  }
+]

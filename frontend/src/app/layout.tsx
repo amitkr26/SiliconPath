@@ -5,39 +5,43 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import AppLayout from "@/components/AppLayout";
 import Providers from "@/components/Providers";
+import { AuthSync } from "@/components/AuthSync";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://siliconpath.vercel.app"),
+  metadataBase: new URL("https://berojgardegreewala.vercel.app"),
   title: {
-    default: "SiliconPath — VLSI Academy & Learning Platform",
-    template: "%s | SiliconPath",
+    default: "BerojgarDegreeWala — Semiconductor, VLSI & Electronics Opportunities India",
+    template: "%s | BerojgarDegreeWala",
   },
   description:
-    "Master VLSI design, verification, and physical design through structured learning tracks. Digital Logic, Verilog, SystemVerilog, UVM, RTL, and Physical Design courses.",
+    "Find JRF, PhD positions, government research jobs, fellowships, and private sector opportunities in semiconductor, VLSI, and electronics industry. DRDO, ISRO, CSIR, IIT opportunities aggregated in one place.",
   keywords: [
-    "VLSI", "semiconductor", "Verilog", "SystemVerilog", "UVM", "RTL design",
-    "physical design", "ASIC verification", "digital logic", "FPGA", "EDA",
-    "open source ASIC", "Sky130", "OpenLane", "Yosys", "SiliconPath",
+    "JRF", "Junior Research Fellow", "electronics jobs India", "semiconductor jobs",
+    "DRDO recruitment", "ISRO JRF", "CSIR fellowship", "PhD electronics India",
+    "VLSI jobs", "ASIC design jobs", "embedded systems jobs", "research fellowship India",
+    "NET electronics jobs", "GATE electronics jobs", "BerojgarDegreeWala", "semiconductor India",
   ],
-  authors: [{ name: "SiliconPath" }],
-  creator: "SiliconPath",
+  authors: [{ name: "BerojgarDegreeWala" }],
+  creator: "BerojgarDegreeWala",
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://siliconpath.vercel.app",
-    siteName: "SiliconPath",
-    title: "SiliconPath — VLSI Academy & Learning Platform",
+    url: "https://berojgardegreewala.vercel.app",
+    siteName: "BerojgarDegreeWala",
+    title: "BerojgarDegreeWala — Semiconductor & VLSI Opportunities Aggregator",
     description:
-      "Master VLSI design, verification, and physical design through structured learning tracks.",
+      "One-stop platform for JRF, PhD, government and private sector opportunities in semiconductor, VLSI, and electronics industry.",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "BerojgarDegreeWala" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "SiliconPath — VLSI Academy",
+    title: "BerojgarDegreeWala — Semiconductor & Electronics Opportunities",
     description:
-      "Structured VLSI learning tracks: Digital Logic → Verilog → SystemVerilog → UVM → RTL → Physical Design → Interview Prep.",
+      "Find JRF, PhD, DRDO, ISRO, CSIR opportunities in VLSI & semiconductor. Updated daily.",
+    images: ["/api/og"],
   },
   robots: {
     index: true,
@@ -50,7 +54,10 @@ export const metadata: Metadata = {
       "noarchive": true
     },
   },
-  alternates: { canonical: "https://siliconpath.vercel.app" },
+  alternates: { canonical: "https://berojgardegreewala.vercel.app" },
+  verification: {
+    google: "QnEIBEpKxP_ZiQxtneegX-6WWKxO_FZ8Yzzxp4kOqxA",
+  },
   icons: {
     icon: "/icon.svg",
     apple: "/icon.svg",
@@ -74,19 +81,31 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://siliconpath.vercel.app/#website",
-        "url": "https://siliconpath.vercel.app",
-        "name": "SiliconPath — VLSI Academy",
-        "description": "Structured VLSI learning tracks for semiconductor design and verification.",
+        "@id": "https://berojgardegreewala.vercel.app/#website",
+        "url": "https://berojgardegreewala.vercel.app",
+        "name": "BerojgarDegreeWala — Semiconductor & VLSI Career Portal",
+        "description": "India's dedicated career & research gateway for VLSI design, ASIC verification, JRF fellowships, and semiconductor engineering opportunities.",
         "inLanguage": "en-IN",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://berojgardegreewala.vercel.app/opportunities?search={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
       },
       {
         "@type": "Organization",
-        "@id": "https://siliconpath.vercel.app/#organization",
-        "name": "SiliconPath",
-        "url": "https://siliconpath.vercel.app",
-        "logo": "https://siliconpath.vercel.app/icon.svg",
-        "description": "VLSI learning platform covering digital logic, Verilog, SystemVerilog, UVM, RTL design, and physical design.",
+        "@id": "https://berojgardegreewala.vercel.app/#organization",
+        "name": "BerojgarDegreeWala",
+        "url": "https://berojgardegreewala.vercel.app",
+        "logo": "https://berojgardegreewala.vercel.app/icon.svg",
+        "description": "Semiconductor and VLSI opportunity aggregator covering DRDO, ISRO, CSIR, IITs, and fabless companies.",
+        "sameAs": [
+          "https://twitter.com/berojgardegreewala",
+          "https://linkedin.com/company/berojgardegreewala"
+        ]
       }
     ]
   };
@@ -102,10 +121,12 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} font-body bg-[#FAF9F6] text-slate-900 min-h-screen`}
       >
+        <AuthSync />
         <Providers>
           <AppLayout>{children}</AppLayout>
         </Providers>
         <Toaster position="bottom-right" toastOptions={{ style: { background: '#111827', border: '1px solid #374151', color: '#F9FAFB' } }} />
+        <Script defer data-domain="berojgardegreewala.vercel.app" src="https://plausible.io/js/script.js" strategy="afterInteractive" />
       </body>
     </html>
   );
