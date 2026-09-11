@@ -10,34 +10,34 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://siliconpath.vercel.app"),
+  metadataBase: new URL("https://siliconpath.in"),
   title: {
-    default: "SiliconPath — VLSI Academy & Learning Platform",
+    default: "SiliconPath — Learn VLSI Online",
     template: "%s | SiliconPath",
   },
   description:
-    "Master VLSI design, verification, and physical design through structured learning tracks. Digital Logic, Verilog, SystemVerilog, UVM, RTL, and Physical Design courses.",
+    "Practical VLSI learning from RTL to GDSII — real workflows, tools, and interview-ready practice.",
   keywords: [
-    "VLSI", "semiconductor", "Verilog", "SystemVerilog", "UVM", "RTL design",
-    "physical design", "ASIC verification", "digital logic", "FPGA", "EDA",
-    "open source ASIC", "Sky130", "OpenLane", "Yosys", "SiliconPath",
+    "VLSI", "physical design", "STA", "synthesis", "Verilog", "semiconductor",
+    "ASIC", "RTL design", "digital logic", "EDA", "OpenLane", "OpenROAD",
+    "clock tree synthesis", "timing signoff", "DFT", "low power", "SiliconPath",
   ],
   authors: [{ name: "SiliconPath" }],
   creator: "SiliconPath",
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://siliconpath.vercel.app",
+    url: "https://siliconpath.in",
     siteName: "SiliconPath",
-    title: "SiliconPath — VLSI Academy & Learning Platform",
+    title: "SiliconPath — Learn VLSI Online",
     description:
-      "Master VLSI design, verification, and physical design through structured learning tracks.",
+      "Practical VLSI learning from RTL to GDSII — real workflows, tools, and interview-ready practice.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "SiliconPath — VLSI Academy",
+    title: "SiliconPath — Learn VLSI Online",
     description:
-      "Structured VLSI learning tracks: Digital Logic → Verilog → SystemVerilog → UVM → RTL → Physical Design → Interview Prep.",
+      "Practical VLSI learning from RTL to GDSII — real workflows, tools, and interview-ready practice.",
   },
   robots: {
     index: true,
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
       "noarchive": true
     },
   },
-  alternates: { canonical: "https://siliconpath.vercel.app" },
+  alternates: { canonical: "https://siliconpath.in" },
   icons: {
     icon: "/icon.svg",
     apple: "/icon.svg",
@@ -74,19 +74,19 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://siliconpath.vercel.app/#website",
-        "url": "https://siliconpath.vercel.app",
-        "name": "SiliconPath — VLSI Academy",
-        "description": "Structured VLSI learning tracks for semiconductor design and verification.",
+        "@id": "https://siliconpath.in/#website",
+        "url": "https://siliconpath.in",
+        "name": "SiliconPath — Learn VLSI Online",
+        "description": "Practical VLSI learning from RTL to GDSII — real workflows, tools, and interview-ready practice.",
         "inLanguage": "en-IN",
       },
       {
         "@type": "Organization",
-        "@id": "https://siliconpath.vercel.app/#organization",
+        "@id": "https://siliconpath.in/#organization",
         "name": "SiliconPath",
-        "url": "https://siliconpath.vercel.app",
-        "logo": "https://siliconpath.vercel.app/icon.svg",
-        "description": "VLSI learning platform covering digital logic, Verilog, SystemVerilog, UVM, RTL design, and physical design.",
+        "url": "https://siliconpath.in",
+        "logo": "https://siliconpath.in/icon.svg",
+        "description": "VLSI learning platform covering physical design, STA, synthesis, Verilog, and design verification.",
       }
     ]
   };
