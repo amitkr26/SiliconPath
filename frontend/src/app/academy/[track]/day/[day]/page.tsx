@@ -8,7 +8,6 @@ import {
   ArrowLeft, ChevronLeft, ChevronRight,
   FileText, Play, Check, CheckCircle2, HelpCircle, GraduationCap, ExternalLink
 } from "lucide-react";
-import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { LearningTrack, LearningDay, LearningResource, LearningQuestion } from "@/lib/academy/types";
 import { getCompletedDaysLocal, markDayCompleteLocal } from "@/lib/academy/progress-local";
@@ -22,7 +21,6 @@ import { Toaster, toast } from "sonner";
 export default function DayDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useUser();
 
   const trackSlug = params.track as string;
   const dayNumberStr = params.day as string;
@@ -61,9 +59,7 @@ export default function DayDetailsPage() {
         setResources(data.resources);
         setQuestions(data.questions);
 
-        const completedList = user?.id
-          ? await api.get<string[]>("/api/academy/progress/completed-days", { params: { userId: user.id } }).catch(() => [])
-          : getCompletedDaysLocal(trackSlug);
+        const completedList = getCompletedDaysLocal(trackSlug);
         setCompletedDays(Array.isArray(completedList) ? completedList : []);
 
         if (data.questions.length === 0) {
@@ -81,7 +77,7 @@ export default function DayDetailsPage() {
       loadDayData();
     }
     return () => clearTimeout(timeoutId);
-  }, [trackSlug, dayNumberStr, dayNumber, router, user?.id]);
+  }, [trackSlug, dayNumberStr, dayNumber, router]);
 
   if (loading) {
     return (
@@ -125,36 +121,17 @@ export default function DayDetailsPage() {
 
     try {
       setSubmitting(true);
-      const userId = user?.id || null;
-      let success = false;
-      if (userId) {
-        success = await api.post<boolean>("/api/academy/progress", {
-          userId,
-          trackId: track.id,
-          dayId: day.id,
-          completed: true,
-        });
+      markDayCompleteLocal(trackSlug, day.id);
 
-        if (!success) {
-          toast.error("Failed to update progress");
-          return;
+      setCompletedDays((prev) => [...prev, day.id]);
+      toast.success(`Day ${day.day_number} completed!`);
+      setTimeout(() => {
+        if (nextDayNum) {
+          router.push(`/academy/${track.slug}/day/${nextDayNum}`);
+        } else {
+          router.push(`/academy/${track.slug}`);
         }
-      } else {
-        markDayCompleteLocal(trackSlug, day.id);
-        success = true;
-      }
-
-      if (success) {
-        setCompletedDays((prev) => [...prev, day.id]);
-        toast.success(`Day ${day.day_number} completed!`);
-        setTimeout(() => {
-          if (nextDayNum) {
-            router.push(`/academy/${track.slug}/day/${nextDayNum}`);
-          } else {
-            router.push(`/academy/${track.slug}`);
-          }
-        }, 1500);
-      }
+      }, 1500);
     } catch {
       toast.error("An error occurred");
     } finally {
