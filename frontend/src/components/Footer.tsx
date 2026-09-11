@@ -51,6 +51,13 @@ const footerColumns = [
       { label: "Contact", href: "/contact" },
     ],
   },
+  {
+    title: "Our Ecosystem",
+    links: [
+      { label: "BerojgarDegreeWala — Opportunities & Career Hub", href: "https://berojgardegreewala.vercel.app" },
+      { label: "ElectroBridge — AI Resume Builder for Engineers", href: "https://electrobridge.vercel.app" },
+    ],
+  },
 ];
 
 export default function Footer() {
@@ -75,13 +82,22 @@ export default function Footer() {
             <div key={col.title}>
               <h4 className="text-xs font-bold text-white tracking-wider uppercase mb-3">{col.title}</h4>
               <ul className="space-y-2">
-                {col.links.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href} className="text-sm text-slate-400 hover:text-white transition-colors">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                {col.links.map((link) => {
+                  const isExternal = link.href.startsWith("http");
+                  return (
+                    <li key={link.href}>
+                      {isExternal ? (
+                        <a href={link.href} target="_blank" rel="noopener" className="text-sm text-slate-400 hover:text-white transition-colors">
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link href={link.href} className="text-sm text-slate-400 hover:text-white transition-colors">
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
