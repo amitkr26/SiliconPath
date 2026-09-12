@@ -6,13 +6,17 @@
 
 ## 1. Architectural Overview
 
-SiliconPath operates as a **modular monolith** on Next.js 14 (App Router) deployed to Vercel, backed by a dual Supabase PostgreSQL database architecture (DB1 for core platform, DB2 for user/social layer) and Neon analytics database.
+SiliconPath operates as a **modular monolith** on Next.js 14 (App Router) deployed to Vercel, backed by a Supabase PostgreSQL database and Neon analytics database.
 
-The application serves four discrete, authoritative user experiences from a single codebase and authentication system:
-1. **Public Portal**: Deep-tech intelligence, news, opportunities, academy, and search.
-2. **Candidate Portal**: Career management, applications, saved jobs, networking, messaging, and profile/resume builder.
+> **DB topology note:** The codebase contains a legacy dual-DB config (`supabase-db2.ts`), but in production both DB1 and DB2 point to the same Supabase instance. The split is not enforced.
+
+The application serves three discrete, authoritative user experiences from a single codebase and authentication system:
+1. **Public Portal**: Deep-tech intelligence, news, opportunities, and search.
+2. **Candidate Portal**: Career management, applications, saved jobs, networking, messaging, and profile.
 3. **Employer / Recruiter Suite**: Full recruitment cockpit, job posting studio, multi-stage ATS pipeline, talent sourcing, recruiter messaging, company branding, team seats, settings, and analytics.
 4. **Admin Console**: Opportunity verification, scraping fleet health, announcements, and platform performance.
+
+> **Note:** Resume Studio is hosted on ElectroBridge; Academy is hosted on SiliconPath.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -27,24 +31,16 @@ The application serves four discrete, authoritative user experiences from a sing
 │            • Public Reads  • Candidate Actions  • Employer Endpoints     │
 └─────────────────────────────────────┬────────────────────────────────────┘
                                       │
-        ┌─────────────────────────────┼────────────────────────────┐
-        ▼                             ▼                            ▼
-  Supabase DB1 (Core)           Supabase DB2 (User/Social)    Neon DB1 (Analytics)
-  • opportunities               • user_profiles                • click_events
-  • organizations               • connections                  • page_views
-  • news_articles               • user_follows                 • search_queries
-  • scraper_sources             • feed_posts                   • trending_cache
-  • company_claims              • applications                 • keyword_stats
-  • recruiter_saved_candidates  • saved_opportunities
-  • employer_settings           • conversations
-  • workspace_members           • messages
-  • ai_usage_log                • notifications
-                                • community_posts/comments
-                                • skill_endorsements
-                                • recommendations
-                                • candidate_experiences/educations/projects/certs/achievements
-                                • company_followers
-                                • user_resumes
+        ┌─────────────────────────────┼────────────────────┐
+        ▼                             ▼                    ▼
+  Supabase PostgreSQL (Unified)              Neon DB1 (Analytics)
+  • opportunities + user_profiles            • click_events
+  • organizations + connections              • page_views
+  • news_articles + feed_posts               • search_queries
+  • applications + messages                  • trending_cache
+  • notifications + community_posts          • keyword_stats
+  • ai_usage_log + skill_endorsements
+  • scraper_sources + company_claims
 ```
 
 ---

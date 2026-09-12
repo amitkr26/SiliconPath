@@ -171,6 +171,12 @@ function LoginPageInner() {
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In"}
             </Button>
+
+            <div className="text-center">
+              <Link href="/forgot-password" className="text-xs font-semibold text-blue-600 hover:underline">
+                Forgot your password?
+              </Link>
+            </div>
           </form>
 
           <div className="pt-4 border-t-2 border-slate-900 text-center space-y-2">
