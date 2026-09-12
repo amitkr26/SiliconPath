@@ -78,7 +78,7 @@ describe("POST /api/subscribe", () => {
     }));
     const body = await res.json();
     expect(res.status).toBe(201);
-    expect(body.unsubscribe_token).toBeTruthy();
+    expect(body.message).toBeTruthy();
   });
 });
 
