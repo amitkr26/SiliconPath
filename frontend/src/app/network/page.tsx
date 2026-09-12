@@ -192,6 +192,16 @@ export default function NetworkPage() {
     }
   };
 
+  const handleFollow = async (targetUserId: string) => {
+    try {
+      await api.post(`/api/network/follow/${targetUserId}`);
+      toast.success("Followed");
+      queryClient.invalidateQueries({ queryKey: ["network", "suggestions"] });
+    } catch {
+      toast.error("Failed to follow");
+    }
+  };
+
   if (userLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center bg-slate-50">
@@ -407,6 +417,7 @@ export default function NetworkPage() {
                             size="sm"
                             variant="ghost"
                             className="flex-1 text-xs"
+                            onClick={() => handleFollow(person.id)}
                           >
                             Follow
                           </Button>

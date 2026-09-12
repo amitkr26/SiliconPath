@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -23,6 +23,9 @@ export function useRealtimeChannel(
   },
 ) {
   const queryClient = useQueryClient();
+  // Stable ref for queryKeys to avoid unnecessary channel recreation.
+  const queryKeysRef = useRef(config.queryKeys);
+  queryKeysRef.current = config.queryKeys;
 
   useEffect(() => {
     const supabase = createClient();
@@ -40,7 +43,7 @@ export function useRealtimeChannel(
             filter: config.filter,
           },
           () => {
-            for (const key of config.queryKeys) {
+            for (const key of queryKeysRef.current) {
               queryClient.invalidateQueries({ queryKey: key });
             }
           },
@@ -56,5 +59,8 @@ export function useRealtimeChannel(
         supabase.removeChannel(channel);
       }
     };
-  }, [channelName, config.event, config.schema, config.table, config.filter, queryClient, config.queryKeys]);
+  // ponytail: Only re-subscribe when table/filter/event changes, not queryKeys.
+  // queryKeys are read from a stable ref that always points to latest values.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channelName, config.event, config.schema, config.table, config.filter, queryClient]);
 }

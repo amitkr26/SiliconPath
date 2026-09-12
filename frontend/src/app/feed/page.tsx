@@ -8,7 +8,7 @@ import {
   Sparkles, Tag, Check, Edit2, X, Bookmark, Newspaper, Code, Award, ExternalLink, Share2
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
-import { useFeed, useCreatePost, useLikePost } from "@/hooks/useFeed";
+import { useFeed, useCreatePost, useLikePost, useRepostFeedPost } from "@/hooks/useFeed";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 import type { FeedPost } from "@/types";
@@ -106,6 +106,7 @@ export default function FeedPage() {
   const { data: feedData, isLoading: feedLoading, refetch: refetchFeed } = useFeed(30);
   const createPost = useCreatePost();
   const likePost = useLikePost();
+  const repostPost = useRepostFeedPost();
   const [content, setContent] = useState("");
   const [activeTag, setActiveTag] = useState("all");
   const [opps, setOpps] = useState<Opp[]>([]);
@@ -600,12 +601,17 @@ export default function FeedPage() {
                           <span>Share</span>
                         </button>
 
-                        {post.reposts_count > 0 && (
-                          <span className="flex items-center gap-1 px-3 py-1.5 text-xs text-slate-400">
-                            <Repeat2 className="w-3.5 h-3.5" />
-                            {post.reposts_count}
-                          </span>
-                        )}
+                        <button
+                          onClick={() => repostPost.mutate({ postId: post.id })}
+                          className={cn(
+                            "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                            "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+                          )}
+                          title="Repost"
+                        >
+                          <Repeat2 className="w-3.5 h-3.5" />
+                          <span>{post.reposts_count || 0}</span>
+                        </button>
                       </div>
 
                       {/* Expandable Comments */}

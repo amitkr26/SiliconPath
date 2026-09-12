@@ -45,3 +45,14 @@ export function useLikePost() {
     },
   });
 }
+
+export function useRepostFeedPost() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ postId, comment }: { postId: string; comment?: string }) =>
+      api.post(`/api/feed/posts/${postId}/repost`, { comment }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+    },
+  });
+}
