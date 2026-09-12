@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedEmployerUser } from "@/lib/employer-auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { createNotification } from "@/lib/notifications";
 import { apiError } from "@/lib/api-utils";
 
 export const dynamic = "force-dynamic";
@@ -147,6 +148,18 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (msgErr) return apiError(msgErr, "messages-send");
+
+  // Notify recipient of new message
+  try {
+    await createNotification({
+      userId: participantId,
+      type: "message",
+      actorId: user.id,
+      entityType: "message",
+      entityId: message.id,
+      message: "sent you a message",
+    });
+  } catch { /* notification failure must not fail the send */ }
 
   await supabaseAdmin
     .from("conversations")

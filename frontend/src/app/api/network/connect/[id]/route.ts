@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { createNotification } from "@/lib/notifications";
 import { apiError } from "@/lib/api-utils";
 
 // PATCH: respond to a connection request.
@@ -86,5 +87,20 @@ export async function PATCH(
     .maybeSingle();
 
   if (error) return apiError(error, "network-connect-update");
+
+  // Notify requester that their connection was accepted
+  if (normalized === "accepted") {
+    try {
+      await createNotification({
+        userId: conn.requester_id,
+        type: "connection_accepted",
+        actorId: user.id,
+        entityType: "connection",
+        entityId: id,
+        message: "accepted your connection request",
+      });
+    } catch { /* notification failure must not fail the response */ }
+  }
+
   return NextResponse.json({ connection: data || { id, status: normalized } });
 }

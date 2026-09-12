@@ -114,18 +114,24 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const raw = await request.json();
-  const body = validateOrThrow<{ content: string }>(feedPostSchema, raw);
+  const body = validateOrThrow<{ content: string; type?: string; tags?: string[] }>(feedPostSchema, raw);
+
+  const insertPayload: Record<string, unknown> = { author_id: user.id, content: body.content };
+  if (body.type) insertPayload.post_type = body.type;
+  if (body.tags && body.tags.length > 0) insertPayload.tags = body.tags;
 
   const { data, error } = await supabaseAdmin
     .from("feed_posts")
-    .insert({ author_id: user.id, content: body.content })
-    .select("id, author_id, content, created_at, like_count, comment_count")
+    .insert(insertPayload)
+    .select("id, author_id, content, post_type, tags, created_at, like_count, comment_count")
     .single();
 
   if (error) return apiError(error, "feed-create");
   return NextResponse.json({
     ...data,
     user_id: data.author_id,
+    post_type: data.post_type || "post",
+    tags: data.tags || [],
     likes_count: data.like_count || 0,
     comments_count: data.comment_count || 0,
   }, { status: 201 });
