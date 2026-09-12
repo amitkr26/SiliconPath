@@ -20,7 +20,6 @@ interface Profile {
   skills?: string[];
   is_open_to_work?: boolean;
   experience_years?: number | null;
-  resume_ats_score?: number;
   [key: string]: unknown;
 }
 

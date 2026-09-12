@@ -110,7 +110,6 @@ export interface UserProfile {
   following_count: number;
   connection_count: number;
   is_profile_public: boolean;
-  resume_ats_score: number;
   created_at: string;
   updated_at: string;
 }

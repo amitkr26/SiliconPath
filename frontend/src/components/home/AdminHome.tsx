@@ -127,7 +127,7 @@ export default function AdminHome({ stats }: AdminHomeProps) {
           >
             <Bell className="w-6 h-6 text-emerald-600 mb-3" />
             <h3 className="text-base font-bold text-slate-900">Platform Announcements</h3>
-            <p className="text-xs text-slate-600 mt-1">Broadcast system-wide notices and new academy track releases to all active users.</p>
+            <p className="text-xs text-slate-600 mt-1">Broadcast system-wide notices and new updates to all active users.</p>
             <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 mt-4">
               Manage Notices →
             </span>

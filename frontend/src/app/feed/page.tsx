@@ -311,9 +311,6 @@ export default function FeedPage() {
                 <Link href="/applications" className="flex items-center gap-2 text-xs text-slate-600 hover:text-blue-600 transition-colors py-1">
                   <Briefcase className="w-3.5 h-3.5" /> My Applications
                 </Link>
-                <Link href="/academy" className="flex items-center gap-2 text-xs text-slate-600 hover:text-blue-600 transition-colors py-1">
-                  <Award className="w-3.5 h-3.5" /> Academy Tracks
-                </Link>
               </div>
             </Card>
 

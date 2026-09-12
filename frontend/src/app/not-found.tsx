@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Briefcase, GraduationCap, Newspaper, Sparkles, Building2, Home, ArrowLeft } from "lucide-react";
+import { Briefcase, Newspaper, Sparkles, Building2, Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 
@@ -12,7 +12,7 @@ export default function NotFound() {
       <h1 className="text-6xl sm:text-7xl font-black text-slate-900 mb-2 tracking-tight">404</h1>
       <p className="text-xl sm:text-2xl font-black text-slate-900 mb-2">Page Not Found</p>
       <p className="text-slate-600 max-w-md mb-8 text-sm font-medium">
-        The requested URL could not be found. Explore verified opportunities, research news, or VLSI academy tracks below.
+        The requested URL could not be found. Explore verified opportunities, research news, or resources below.
       </p>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full max-w-lg mb-8">
@@ -20,7 +20,6 @@ export default function NotFound() {
           { label: "Home", href: "/", icon: Home },
           { label: "Opportunities", href: "/opportunities", icon: Briefcase },
           { label: "AI Assistant", href: "/ask-ai", icon: Sparkles },
-          { label: "VLSI Academy", href: "/academy", icon: GraduationCap },
           { label: "Industry News", href: "/news", icon: Newspaper },
           { label: "Organizations", href: "/organizations", icon: Building2 },
         ].map((item) => {

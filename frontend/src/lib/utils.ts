@@ -267,7 +267,7 @@ export const RESERVED_USERNAMES = [
   "dashboard", "employer", "employers", "feed", "login", "match", "messages",
   "network", "news", "notifications", "onboarding", "opportunities",
   "organizations", "people", "post-job", "profile", "register", "resources",
-  "resume", "saved", "search", "settings", "signup", "me", "www",
+  "saved", "search", "settings", "signup", "me", "www",
 ];
 
 // Columns safe to expose on public profiles (never email / email_notifications).
