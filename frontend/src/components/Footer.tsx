@@ -5,6 +5,7 @@ const footerColumns = [
   {
     title: "Learn+",
     links: [
+      { label: "Academy", href: "/academy" },
       { label: "Digital Electronics", href: "/learn/digital-electronics" },
       { label: "Verilog", href: "/learn/verilog" },
       { label: "Design Verification", href: "/learn/design-verification" },

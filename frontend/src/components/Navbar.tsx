@@ -45,6 +45,7 @@ const learnDropdown = [
 ];
 
 const navLinks = [
+  { href: "/academy", label: "Academy" },
   { href: "/engineering-lab", label: "Engineering Lab" },
   { href: "/courses", label: "Resources" },
   { href: "/jobs", label: "Jobs" },

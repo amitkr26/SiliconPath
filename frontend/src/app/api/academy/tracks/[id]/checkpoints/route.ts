@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
-import { serverError } from "@berojgardegreewala/api";
+function serverError(message: string) {
+  return NextResponse.json({ error: message }, { status: 500 });
+}
 
 export async function GET(
   request: NextRequest,
