@@ -4,23 +4,19 @@
 
 /* ==========================================================================
    SiliconPath — Design System
-   Clean, professional design for a VLSI learning platform.
-
-   Single source of truth for tokens: frontend/src/styles/design-tokens.ts.
-   These :root vars mirror the config values — used only by components that
-   reference var(--...) directly. New components must use Tailwind classes.
+   Technical, documentation-grade design for a VLSI learning platform.
    ========================================================================== */
 
 :root {
-  --bg:               #FAF9F6;
+  --bg:               #F8FAFC;
   --surface:          #FFFFFF;
-  --surface-raised:   #F1F5F9;
+  --surface-raised:   #FFFFFF;
   --surface-sunken:   #F1F5F9;
   --text:             #0F172A;
-  --text-secondary:   #334155;
-  --text-tertiary:    #64748B;
+  --text-secondary:   #475569;
+  --text-tertiary:    #94A3B8;
   --border:           #E2E8F0;
-  --border-subtle:    #E2E8F0;
+  --border-subtle:    #F1F5F9;
   --border-hover:     #94A3B8;
 
   --primary:          #2563EB;
@@ -31,13 +27,13 @@
   --warning:          #D97706;
   --error:            #DC2626;
 
-  --shadow-card:      0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-elevated:  0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
-  --shadow-modal:     0 4px 24px rgba(0,0,0,0.15);
+  --shadow-card:      0 1px 2px 0 rgba(0,0,0,0.05);
+  --shadow-elevated:  0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+  --shadow-modal:     0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
 
-  --radius-sm: 6px;
-  --radius:    10px;
-  --radius-lg: 14px;
+  --radius-sm: 4px;
+  --radius:    8px;
+  --radius-lg: 12px;
 }
 
 * { box-sizing: border-box; }
@@ -46,8 +42,7 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
 /* ==========================================================================
    ACCESSIBILITY — Focus-visible ring for keyboard navigation
-   Only shows for keyboard users (not mouse clicks). Uses a high-contrast
-   2px offset ring matching the neo-brutalist design system.
+   Only shows for keyboard users (not mouse clicks). Uses a clean 2px offset ring.
    ========================================================================== */
 :focus-visible {
   outline: 2px solid #2563EB;
@@ -55,7 +50,6 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
   border-radius: 4px;
 }
 
-/* Remove default outline for mouse/touch users */
 :focus:not(:focus-visible) {
   outline: none;
 }
@@ -64,7 +58,7 @@ body {
   margin: 0;
   background-color: var(--bg);
   color: var(--text);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -76,12 +70,12 @@ body {
    ========================================================================== */
 html, body {
   scrollbar-width: thin;
-  scrollbar-color: #94A3B8 #F1F5F9;
+  scrollbar-color: #CBD5E1 #F1F5F9;
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -89,12 +83,12 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #94A3B8;
-  border-radius: 4px;
+  background: #CBD5E1;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #64748B;
+  background: #94A3B8;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -107,10 +101,8 @@ html, body {
 }
 
 /* ==========================================================================
-   Neo-Brutalist Component Classes
+   Utility Classes & Aliases
    ========================================================================== */
-
-/* Legacy aliases — map to neutral white surface. Remove once all pages migrated. */
 .glass-premium,
 .glass-nav {
   background: #FFFFFF;
@@ -121,7 +113,7 @@ html, body {
 .btn-brutal {
   background: #2563EB;
   color: #FFFFFF;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .btn-glow:hover,

@@ -1,402 +1,682 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, GitBranch, Layers, Timer } from "lucide-react";
+import {
+  ArrowRight,
+  Terminal,
+  Clock,
+  Layers,
+  ChevronDown,
+  ChevronUp,
+  Cpu,
+  BookOpen,
+  CheckCircle2,
+  FileCode2,
+  GitBranch,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 /* ------------------------------------------------------------------ */
-/*  Data                                                               */
+/*  Data Constants                                                     */
 /* ------------------------------------------------------------------ */
 
-const stats = [
-  { value: "15", label: "paths" },
-  { value: "40+", label: "topics" },
-  { value: "128", label: "STA Q&A" },
+const FLOW_STAGES = [
+  {
+    num: "01",
+    name: "RTL Specification",
+    phase: "Architecture → RTL",
+    desc: "Describe hardware logic cycle-by-cycle in synthesizable Verilog or SystemVerilog.",
+    tools: ["Verilog", "SystemVerilog"],
+    href: "/learn/verilog",
+  },
+  {
+    num: "02",
+    name: "Logic Synthesis",
+    phase: "RTL → Gate Netlist",
+    desc: "Map hardware description to standard cell libraries, optimizing for area, power, and delay.",
+    tools: ["Design Compiler", "Genus", "Yosys"],
+    href: "/learn/synthesis",
+  },
+  {
+    num: "03",
+    name: "Floorplanning & Power",
+    phase: "Netlist → Floorplan",
+    desc: "Define die aspect ratio, core area, I/O pin placement, macro placement, and power grid meshes.",
+    tools: ["Innovus", "ICC2", "OpenROAD"],
+    href: "/learn/physical-design",
+  },
+  {
+    num: "04",
+    name: "Cell Placement",
+    phase: "Floorplan → Placed",
+    desc: "Place standard cells while balancing global timing critical paths against routing congestion.",
+    tools: ["Innovus", "ICC2"],
+    href: "/learn/physical-design",
+  },
+  {
+    num: "05",
+    name: "Clock Tree Synthesis (CTS)",
+    phase: "Placed → CTS",
+    desc: "Synthesize balanced clock distribution trees to deliver clean clock edges with minimum skew.",
+    tools: ["TritonCTS", "ClockOpt"],
+    href: "/learn/physical-design",
+  },
+  {
+    num: "06",
+    name: "Routing & Optimization",
+    phase: "CTS → Routed",
+    desc: "Connect signal nets across metal layers according to strict design rules and track guidelines.",
+    tools: ["TritonRoute", "NanoRoute"],
+    href: "/learn/physical-design",
+  },
+  {
+    num: "07",
+    name: "Static Timing Analysis (STA)",
+    phase: "Routed → Timing Clean",
+    desc: "Exhaustively verify setup and hold constraints across multi-corner multi-mode (MCMM) PVT.",
+    tools: ["PrimeTime", "Tempus", "OpenSTA"],
+    href: "/learn/static-timing-analysis",
+  },
+  {
+    num: "08",
+    name: "Physical Verification",
+    phase: "Signoff Checks",
+    desc: "Run DRC, LVS, and antenna checks to guarantee the silicon layout is 100% manufacturable.",
+    tools: ["Calibre", "Pegasus", "Magic"],
+    href: "/learn/physical-verification",
+  },
+  {
+    num: "09",
+    name: "Tapeout (GDSII / OASIS)",
+    phase: "Signoff → Foundry",
+    desc: "Deliver final mask geometry stream to the semiconductor foundry for lithographic fabrication.",
+    tools: ["Foundry Signoff"],
+    href: "/courses/openlane-rtl-to-gds",
+  },
 ];
 
-const paths = {
-  Foundation: [
-    { name: "Digital Electronics", href: "/learn/digital-electronics", count: 11 },
-    { name: "Verilog", href: "/learn/verilog", count: 14 },
-  ],
-  "Front-end": [
-    { name: "Design Verification", href: "/learn/design-verification", count: 13 },
-    { name: "Clock Domain Crossing", href: "/learn/clock-domain-crossing", count: 8 },
-    { name: "Hardware Protocols", href: "/learn/hardware-protocols", count: 8 },
-  ],
-  "Back-end": [
-    { name: "Synthesis", href: "/learn/synthesis", count: 11 },
-    { name: "Physical Design", href: "/learn/physical-design", count: 11 },
-    { name: "Static Timing Analysis", href: "/learn/static-timing-analysis", count: 13 },
-    { name: "Physical Verification", href: "/learn/physical-verification", count: 12 },
-  ],
-  Specialized: [
-    { name: "Low Power Design & UPF", href: "/learn/low-power", count: 13 },
-    { name: "Design for Test", href: "/learn/design-for-test", count: 8 },
-  ],
-  "EDA & workflow": [
-    { name: "TCL for EDA", href: "/learn/tcl-for-eda", count: 7 },
-    { name: "Linux for VLSI", href: "/learn/linux-for-vlsi", count: 7 },
-  ],
-};
-
-const flowStages = [
-  { num: "01", name: "RTL", from: "spec → RTL", desc: "Describe the hardware in Verilog / SystemVerilog — the behaviour, cycle by cycle.", tools: ["Verilog", "SystemVerilog"], href: "/learn/verilog" },
-  { num: "02", name: "Synthesis", from: "RTL → netlist", desc: "Map the RTL onto real standard cells, optimized for timing, area and power.", tools: ["Design Compiler", "Genus"], href: "/learn/synthesis" },
-  { num: "03", name: "Floorplan", from: "netlist → floorplan", desc: "Set die size and core area, place the macros, build the power grid.", tools: ["ICC2", "Innovus"], href: "/learn/physical-design" },
-  { num: "04", name: "Placement", from: "floorplan → placed", desc: "Place every standard cell — balancing timing against routing congestion.", tools: ["ICC2", "Innovus"], href: "/learn/physical-design" },
-  { num: "05", name: "Clock Tree", from: "placed → CTS", desc: "Build a balanced clock tree so the clock reaches every flop with minimal skew.", tools: ["ICC2", "Innovus"], href: "/learn/physical-design" },
-  { num: "06", name: "Routing", from: "CTS → routed", desc: "Connect every net across the metal stack — DRC-correct, on-grid.", tools: ["ICC2", "OpenROAD"], href: "/learn/physical-design" },
-  { num: "07", name: "Timing Signoff", from: "routed → timing clean", desc: "Close setup and hold across every corner and mode. Sign the timing off.", tools: ["PrimeTime", "Tempus"], href: "/learn/static-timing-analysis" },
-  { num: "08", name: "Physical Verification", from: "routed → signoff", desc: "DRC, LVS and antenna checks — prove the layout is actually manufacturable.", tools: ["Calibre", "IC Validator"], href: "/learn/physical-verification" },
-  { num: "09", name: "GDSII", from: "signoff → GDSII", desc: "Tape-out. The final layout the foundry turns into silicon.", tools: ["Tape-out"], href: "/learn/physical-design" },
+const LEARNING_PATHS_SUMMARY = [
+  {
+    tier: "Foundations",
+    tierDescription: "Core digital logic, hardware description, and protocol fundamentals.",
+    paths: [
+      { name: "Digital Electronics", duration: "11 modules", href: "/learn/digital-electronics", level: "Beginner" },
+      { name: "Verilog HDL", duration: "14 modules", href: "/learn/verilog", level: "Beginner" },
+      { name: "Hardware Protocols", duration: "8 modules", href: "/learn/hardware-protocols", level: "Beginner" },
+      { name: "Design Verification", duration: "13 modules", href: "/learn/design-verification", level: "Intermediate" },
+      { name: "Clock Domain Crossing", duration: "8 modules", href: "/learn/clock-domain-crossing", level: "Intermediate" },
+    ],
+  },
+  {
+    tier: "Backend & Signoff",
+    tierDescription: "RTL-to-GDSII physical implementation, timing closure, and manufacturability.",
+    paths: [
+      { name: "Logic Synthesis", duration: "11 modules", href: "/learn/synthesis", level: "Intermediate" },
+      { name: "ASIC Physical Design", duration: "11 modules", href: "/learn/physical-design", level: "Intermediate" },
+      { name: "Static Timing Analysis", duration: "13 modules", href: "/learn/static-timing-analysis", level: "Advanced" },
+      { name: "Physical Verification", duration: "12 modules", href: "/learn/physical-verification", level: "Intermediate" },
+      { name: "Low Power & UPF", duration: "13 modules", href: "/learn/low-power-design-upf", level: "Advanced" },
+      { name: "Design for Test (DFT)", duration: "8 modules", href: "/learn/design-for-test", level: "Intermediate" },
+    ],
+  },
+  {
+    tier: "Tools & Career",
+    tierDescription: "Industry EDA scripting, Linux automation, and interview preparation.",
+    paths: [
+      { name: "TCL Scripting for EDA", duration: "7 modules", href: "/learn/tcl-for-eda", level: "Beginner" },
+      { name: "Linux for VLSI", duration: "7 modules", href: "/learn/linux-for-vlsi", level: "Beginner" },
+      { name: "Interview Q&A Path", duration: "5 modules", href: "/learn/interview-qa", level: "All levels" },
+      { name: "VLSI Career Roadmap", duration: "9 modules", href: "/learn/career-roadmap", level: "All levels" },
+    ],
+  },
 ];
-
-const labCases = [
-  { type: "Setup", wns: "−143 ps", tns: "−2.84 ns", critical: "reg_124/Q → reg_892/D", icon: Timer },
-  { type: "Hold", wns: "−38 ps", tns: "−0.95 ns", critical: "reg_510/Q → reg_511/D", icon: Timer },
-  { type: "Congestion", wns: "92%", tns: "overflow", critical: "GlobalRoute layer 2", icon: Layers },
-  { type: "CTS / Skew", wns: "210 ps", tns: "skew", critical: "clk → reg_301", icon: GitBranch },
-];
-
-const toolsGrid = [
-  { category: "Synthesis", names: "Design Compiler · Genus" },
-  { category: "Physical Design", names: "ICC2 · Innovus · Fusion Compiler" },
-  { category: "STA", names: "PrimeTime · Tempus" },
-  { category: "Physical Verification", names: "Calibre · IC Validator" },
-  { category: "Open source", names: "OpenROAD · OpenLane" },
-];
-
-
 
 /* ------------------------------------------------------------------ */
-/*  Page                                                               */
+/*  Main Page Component                                                */
 /* ------------------------------------------------------------------ */
 
 export default function HomePage() {
+  const [activeStage, setActiveStage] = useState(0);
+  const [questionRevealed, setQuestionRevealed] = useState(false);
+
+  const currentStage = FLOW_STAGES[activeStage];
+
   return (
-    <div className="min-h-screen">
+    <div className="space-y-24 pb-20">
       {/* ============================================================ */}
-      {/* HERO                                                         */}
+      {/* 1. HERO: Concise, Technical, Restrained                      */}
       {/* ============================================================ */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 text-center">
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-            100% free VLSI learning for{" "}
-            <span className="text-blue-400">semiconductor engineers</span>
-          </h1>
-          <p className="mt-5 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Practical VLSI learning from RTL to GDSII — 15 paths, 148 modules, 128 interview questions. No login required.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/learn"
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm"
-            >
-              Start Learning Free <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/sta-interview-questions"
-              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm"
-            >
-              128 STA interview questions <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="mt-6 flex items-center justify-center gap-6 text-sm text-slate-400 font-medium">
-            <span>Learn</span><span className="text-blue-400">→</span>
-            <span>Build</span><span className="text-blue-400">→</span>
-            <span>Debug</span><span className="text-blue-400">→</span>
-            <span>Prove</span><span className="text-blue-400">→</span>
-            <span>Get hired</span>
+      <section className="pt-16 sm:pt-20 border-b border-slate-200/80 pb-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl space-y-6">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-medium">
+              <Cpu className="w-3.5 h-3.5" />
+              <span>100% Free &amp; Open Semiconductor Education</span>
+            </div>
+
+            <h1 className="font-display text-3xl sm:text-5xl font-bold tracking-tight text-slate-900 leading-[1.15]">
+              The structured curriculum for semiconductor &amp; VLSI engineers.
+            </h1>
+
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
+              Master the full digital design flow from writing your first Verilog module to signing off timing at the foundry level. 15 learning paths, 7 academy tracks, 128 interview questions, and hands-on signoff labs. No paywalls, no login required.
+            </p>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <Link
+                href="/learn"
+                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-colors shadow-sm"
+              >
+                Start Learning Free <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/sta-interview-questions"
+                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium px-5 py-2.5 rounded-lg text-sm transition-colors shadow-sm"
+              >
+                128 STA Interview Questions
+              </Link>
+            </div>
+
+            {/* Quick entry anchors */}
+            <div className="pt-6 border-t border-slate-100 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-500">
+              <span className="font-semibold text-slate-700">Quick start:</span>
+              <Link href="/learn/digital-electronics" className="hover:text-blue-600 transition-colors">
+                Beginner: Digital Logic &amp; Verilog →
+              </Link>
+              <Link href="/learn/static-timing-analysis" className="hover:text-blue-600 transition-colors">
+                Timing: Static Timing Analysis →
+              </Link>
+              <Link href="/engineering-lab" className="hover:text-blue-600 transition-colors">
+                Hands-on: Engineering Lab →
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ============================================================ */}
-      {/* THE WHOLE CHIP-DESIGN STACK                                  */}
+      {/* 2. CHIP-DESIGN FLOW SCHEMATIC (RTL to GDSII)                 */}
       {/* ============================================================ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
-            <div>
-              <p className="text-sm font-semibold text-blue-600 tracking-wide uppercase mb-2">The stack</p>
-              <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-900">The whole chip-design stack</h2>
-              <p className="mt-2 text-slate-500">15 paths. One connected flow.</p>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div>
+            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
+              Silicon Implementation
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              The RTL to GDSII Flow
+            </h2>
+            <p className="text-sm text-slate-500 mt-1 max-w-xl">
+              Every digital chip passes through nine discrete stages. Select any stage to inspect the technical objective and associated EDA tooling.
+            </p>
+          </div>
+          <Link
+            href="/courses/openlane-rtl-to-gds"
+            className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 shrink-0"
+          >
+            Read OpenLane RTL-to-GDS Guide <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* Pipeline Navigation Bar */}
+        <div className="bg-white border border-slate-200 rounded-xl p-2 shadow-sm mb-6 overflow-x-auto">
+          <div className="flex items-center gap-1 min-w-[720px]">
+            {FLOW_STAGES.map((st, idx) => (
+              <button
+                key={st.num}
+                onClick={() => setActiveStage(idx)}
+                className={cn(
+                  "flex-1 px-3 py-2 rounded-lg text-left transition-colors text-xs font-medium",
+                  activeStage === idx
+                    ? "bg-blue-50 text-blue-700 border border-blue-200/80 font-semibold"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                )}
+              >
+                <span className="block text-[10px] text-slate-400 font-mono mb-0.5">{st.num}</span>
+                <span className="truncate block">{st.name.split(" ")[0]}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Selected Stage Inspection Panel */}
+        <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-3 max-w-2xl">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
+                  Stage {currentStage.num}
+                </span>
+                <span className="text-xs text-slate-400 font-medium">·</span>
+                <span className="text-xs text-slate-500 font-medium">{currentStage.phase}</span>
+              </div>
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-slate-900">
+                {currentStage.name}
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {currentStage.desc}
+              </p>
+              <div className="pt-2 flex flex-wrap items-center gap-2">
+                <span className="text-xs text-slate-500 font-medium">Standard EDA Tools:</span>
+                {currentStage.tools.map((tool) => (
+                  <span
+                    key={tool}
+                    className="text-xs font-mono bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200/60"
+                  >
+                    {tool}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="flex gap-6 text-center">
-              {stats.map((s) => (
-                <div key={s.label}>
-                  <div className="text-2xl font-bold text-slate-900">{s.value}</div>
-                  <div className="text-xs text-slate-500 font-medium">{s.label}</div>
-                </div>
-              ))}
+
+            <div className="shrink-0 flex sm:flex-col gap-3">
+              <Link
+                href={currentStage.href}
+                className="inline-flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-xs transition-colors shadow-sm"
+              >
+                Study This Topic <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-            {Object.entries(paths).map(([category, items]) => (
-              <div key={category} className="space-y-3">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{category}</h3>
-                <div className="space-y-2">
-                  {items.map((path) => (
+      {/* ============================================================ */}
+      {/* 3. STRUCTURED LEARNING PATHS (Matrix View)                    */}
+      {/* ============================================================ */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div>
+            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
+              Curriculum Map
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              15 Career-Focused Learning Paths
+            </h2>
+            <p className="text-sm text-slate-500 mt-1 max-w-xl">
+              Organized into three distinct milestones. Follow the sequential path or target specific domains.
+            </p>
+          </div>
+          <Link
+            href="/learn"
+            className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 shrink-0"
+          >
+            Browse all paths <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {LEARNING_PATHS_SUMMARY.map((group) => (
+            <div
+              key={group.tier}
+              className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 shadow-sm flex flex-col justify-between"
+            >
+              <div>
+                <div className="mb-4">
+                  <h3 className="font-display font-bold text-lg text-slate-900">
+                    {group.tier}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    {group.tierDescription}
+                  </p>
+                </div>
+
+                <div className="divide-y divide-slate-100">
+                  {group.paths.map((p) => (
                     <Link
-                      key={path.href}
-                      href={path.href}
-                      className="group flex items-center justify-between bg-slate-50 hover:bg-blue-50 rounded-lg px-4 py-3 transition-colors"
+                      key={p.href}
+                      href={p.href}
+                      className="py-3 flex items-center justify-between group hover:text-blue-600 transition-colors"
                     >
-                      <span className="text-sm font-medium text-slate-700 group-hover:text-blue-600 transition-colors">
-                        {path.name}
-                      </span>
-                      <span className="text-xs font-semibold text-slate-400 bg-white px-2 py-0.5 rounded-full">
-                        {path.count}
+                      <div className="min-w-0 pr-2">
+                        <p className="text-sm font-medium text-slate-800 group-hover:text-blue-600 truncate transition-colors">
+                          {p.name}
+                        </p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          {p.duration}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-medium text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded shrink-0">
+                        {p.level}
                       </span>
                     </Link>
                   ))}
                 </div>
               </div>
-            ))}
-          </div>
 
-          <div className="mt-8 text-center">
-            <Link href="/learn" className="text-sm font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
-              Browse all paths <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+              <div className="mt-5 pt-4 border-t border-slate-100">
+                <Link
+                  href="/learn"
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1"
+                >
+                  Explore {group.tier} Paths <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* ============================================================ */}
-      {/* FROM RTL TO GDSII                                             */}
+      {/* 4. ENGINEERING LAB SPOTLIGHT (Authentic Terminal)            */}
       {/* ============================================================ */}
-      <section className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold text-blue-600 tracking-wide uppercase mb-2">The flow</p>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 mb-4">From RTL to GDSII</h2>
-          <p className="text-slate-500 mb-12 max-w-xl">Follow a design through the complete RTL-to-GDSII flow, from RTL through signoff.</p>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-slate-900 rounded-2xl p-6 sm:p-10 text-white shadow-md border border-slate-800">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            {/* Left explanation */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-blue-500/10 border border-blue-400/20 text-blue-400 text-xs font-mono font-medium">
+                <Terminal className="w-3.5 h-3.5" />
+                <span>SIGN-OFF DIAGNOSTICS</span>
+              </div>
+              <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">
+                Debug real design violations from actual EDA reports.
+              </h2>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                Textbooks teach ideal timing equations. Real engineering happens when a post-CTS setup slack fails by −143 ps across 18 logic levels or hold margins collapse across temperature corners.
+              </p>
+              <div className="pt-2 flex items-center gap-3">
+                <Link
+                  href="/engineering-lab"
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-lg text-xs transition-colors"
+                >
+                  Enter Engineering Lab <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+                <span className="text-xs text-slate-400 font-mono">4 Case Studies Available</span>
+              </div>
+            </div>
 
-          <div className="space-y-4">
-            {flowStages.map((stage, i) => (
-              <div
-                key={stage.num}
-                className="group bg-white border border-slate-200 hover:border-blue-300 rounded-xl p-5 sm:p-6 transition-all hover:shadow-md"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-                  <div className="flex items-center gap-4 shrink-0">
-                    <span className="text-xs font-bold text-blue-600 bg-blue-50 w-8 h-8 rounded-lg flex items-center justify-center">
-                      {stage.num}
-                    </span>
-                    <div>
-                      <h3 className="font-display text-lg font-bold text-slate-900">{stage.name}</h3>
-                      <p className="text-xs text-slate-400 font-medium">{stage.from}</p>
-                    </div>
+            {/* Right: Authentic Terminal Window */}
+            <div className="lg:col-span-7 bg-[#0B1120] rounded-xl border border-slate-800 p-4 font-mono text-xs shadow-inner">
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-slate-400 text-[11px]">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500/80 inline-block" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                  <span className="ml-2 text-slate-400">PrimeTime :: report_timing -delay_type max</span>
+                </div>
+                <span className="text-red-400 font-bold">SLACK: −0.143 ns (VIOLATED)</span>
+              </div>
+
+              <div className="space-y-1.5 text-slate-300 overflow-x-auto leading-relaxed">
+                <p className="text-slate-500"># Critical path analysis: reg_124/CLK → reg_892/D</p>
+                <p><span className="text-slate-500">Startpoint:</span> reg_124 (rising edge-triggered flip-flop)</p>
+                <p><span className="text-slate-500">Endpoint:  </span> reg_892 (rising edge-triggered flip-flop)</p>
+                <p><span className="text-slate-500">Path Group:</span> core_clock_clk</p>
+                <div className="py-2 text-slate-400 border-y border-slate-800/80 my-2">
+                  <div className="grid grid-cols-4 gap-2 text-[11px] text-slate-500">
+                    <span>POINT</span>
+                    <span className="text-right">INCR</span>
+                    <span className="text-right">PATH</span>
+                    <span className="text-right">STAGE</span>
                   </div>
-                  <div className="flex-1 sm:ml-4">
-                    <p className="text-sm text-slate-600 leading-relaxed mb-3">{stage.desc}</p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {stage.tools.map((t) => (
-                        <span key={t} className="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-1 rounded">
-                          {t}
-                        </span>
-                      ))}
-                      <Link href={stage.href} className="text-xs font-semibold text-blue-600 hover:text-blue-700 ml-2 inline-flex items-center gap-1">
-                        Learn {stage.name} <ArrowRight className="w-3 h-3" />
-                      </Link>
-                    </div>
+                  <div className="grid grid-cols-4 gap-2 text-slate-300">
+                    <span>clock clk (rise)</span>
+                    <span className="text-right font-mono">0.000</span>
+                    <span className="text-right font-mono">0.000</span>
+                    <span className="text-right text-slate-500">launch</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-slate-300">
+                    <span>reg_124/CLK</span>
+                    <span className="text-right font-mono">0.120</span>
+                    <span className="text-right font-mono">0.120</span>
+                    <span className="text-right text-slate-500">CTS latency</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-slate-300">
+                    <span>u_alu/adder_18/S</span>
+                    <span className="text-right font-mono text-amber-400">1.880</span>
+                    <span className="text-right font-mono">2.000</span>
+                    <span className="text-right text-slate-500">18 levels</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-slate-300">
+                    <span>reg_892/D</span>
+                    <span className="text-right font-mono">0.143</span>
+                    <span className="text-right font-mono text-red-400">2.143</span>
+                    <span className="text-right text-slate-500">arrival</span>
                   </div>
                 </div>
+                <p className="text-emerald-400">
+                  Diagnosis: High logic depth on adder tree combined with unbalanced clock latency. Resolved by pipeline stage insertion and cell resizing (+12 ps slack met).
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================ */}
-      {/* ENGINEERING LAB                                              */}
-      {/* ============================================================ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold text-blue-600 tracking-wide uppercase mb-2">Engineering Lab</p>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
-            Real design. Real violations.<br />Real engineering.
-          </h2>
-          <p className="text-slate-500 mb-10">Debug real design problems from real reports.</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {labCases.map((c) => {
-              const Icon = c.icon;
-              return (
-                <div key={c.type} className="bg-slate-950 text-white rounded-xl p-5 font-mono text-sm space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Icon className="w-4 h-4 text-blue-400" />
-                    <span className="font-bold text-blue-400">{c.type} violation</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                      <span className="text-slate-500">WNS</span>
-                      <div className="font-bold text-red-400">{c.wns}</div>
-                    </div>
-                    <div>
-                      <span className="text-slate-500">TNS</span>
-                      <div className="font-bold text-red-400">{c.tns}</div>
-                    </div>
-                  </div>
-                  <div className="text-xs">
-                    <span className="text-slate-500">Critical path</span>
-                    <div className="text-slate-300">{c.critical}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-8 text-center">
-            <Link href="/engineering-lab" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm">
-              Analyze path <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================ */}
-      {/* KNOWLEDGE MEETS TOOLS                                        */}
-      {/* ============================================================ */}
-      <section className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold text-blue-600 tracking-wide uppercase mb-2">Knowledge → tools</p>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Where knowledge meets the tools</h2>
-          <p className="text-slate-500 mb-10">Concept → Command → Report → Debug.</p>
-
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
-            {["Concept", "CPPR", "Command", "report_timing", "Report", "slack · latency · delay", "Debug", "shared clock over-pessimism"].map((step, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <span className="bg-white border border-slate-200 rounded-lg px-4 py-2 text-sm font-medium text-slate-700">{step}</span>
-                {i < 7 && i % 2 === 1 && <ArrowRight className="w-4 h-4 text-blue-400" />}
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {toolsGrid.map((t) => (
-              <div key={t.category} className="bg-white border border-slate-200 rounded-xl p-5">
-                <h3 className="font-display font-bold text-slate-900 mb-1">{t.category}</h3>
-                <p className="text-sm text-slate-500 font-mono">{t.names}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 text-center">
-            <Link href="/learn" className="text-sm font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
-              Browse all paths <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================ */}
-      {/* PROVE YOUR ENGINEERING SKILLS                                 */}
-      {/* ============================================================ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold text-blue-600 tracking-wide uppercase mb-2">Prove</p>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Prove your engineering skills</h2>
-          <p className="text-slate-500 mb-8">Real scenarios. Real reasoning.</p>
-
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 sm:p-8 max-w-2xl">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">interview · physical design</p>
-            <blockquote className="text-lg font-medium text-slate-800 leading-relaxed italic">
-              &ldquo;Your design passes timing before CTS. After CTS, WNS −87 ps. How do you debug it?&rdquo;
-            </blockquote>
-            <div className="mt-4 flex items-center gap-4 text-sm text-slate-500">
-              <span>Analyze</span><span className="text-blue-400">→</span>
-              <span>Answer</span><span className="text-blue-400">→</span>
-              <span>Get feedback</span>
             </div>
           </div>
-
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
-            <Link href="/sta-interview-questions" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm">
-              128 STA interview questions <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link href="/learn/interview" className="inline-flex items-center gap-2 bg-white border border-slate-200 hover:border-blue-300 text-slate-700 font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm">
-              Q&A across the flow
-            </Link>
-          </div>
         </div>
       </section>
 
       {/* ============================================================ */}
-      {/* WHY SILICONPATH                                              */}
+      {/* 5. INTERVIEW PRACTICE SPOTLIGHT                              */}
       {/* ============================================================ */}
-      <section className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold text-blue-600 tracking-wide uppercase mb-2">Why SiliconPath</p>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Built for engineers, by an engineer</h2>
-          <p className="text-slate-500 mb-12 max-w-xl">Every path, every lab case, every interview question is drawn from real industry experience in physical design and timing signoff.</p>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div>
+            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
+              Interview Readiness
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              Test Your Engineering Reasoning
+            </h2>
+            <p className="text-sm text-slate-500 mt-1 max-w-xl">
+              128 real interview questions covering physical design, synthesis, clock domain crossing, and signoff timing.
+            </p>
+          </div>
+          <Link
+            href="/sta-interview-questions"
+            className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 shrink-0"
+          >
+            Open All 128 Questions <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { label: "Structured", desc: "15 paths organized into a coherent progression — Foundations → Backend → Tools & Career. Follow the sequence or jump to what you need." },
-              { label: "Practical", desc: "Engineering Lab cases come from real EDA reports. Interview questions are drawn from real VLSI interviews. No textbook filler." },
-              { label: "Free — always", desc: "No paywall. No premium tier. No login required. Every module, every question, every lab case is open to everyone." },
-              { label: "RTL to GDSII", desc: "The full chip-design flow in one place — from writing your first Verilog module to signing off timing at the last metal layer." },
-              { label: "Tool-aware", desc: "Content explicitly covers industry EDA tools — PrimeTime, ICC2, Innovus, Design Compiler, Calibre — alongside open-source alternatives." },
-              { label: "Career-focused", desc: "128 STA interview questions. A structured 8-week study plan. Resume guidance specific to VLSI roles. Built to get you hired." },
-            ].map((item) => (
-              <div key={item.label} className="bg-white border border-slate-200 rounded-xl p-6">
-                <h3 className="font-display font-bold text-slate-900 mb-2">{item.label}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+        {/* Interactive Scenario Card */}
+        <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-sm">
+          <div className="space-y-4 max-w-3xl">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Static Timing Analysis · CTS Skew
+              </span>
+              <span className="text-slate-300">·</span>
+              <span className="text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
+                Frequently Asked at Qualcomm / TI
+              </span>
+            </div>
+
+            <blockquote className="text-base sm:text-lg font-medium text-slate-900 leading-relaxed">
+              &ldquo;Your design passes timing cleanly before CTS. After CTS, setup slack is violated by −87 ps on a non-default clock group. How do you isolate and debug this?&rdquo;
+            </blockquote>
+
+            <button
+              onClick={() => setQuestionRevealed(!questionRevealed)}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors pt-2"
+            >
+              {questionRevealed ? "Hide Solution" : "Reveal Engineering Solution"}
+              {questionRevealed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+
+            {questionRevealed && (
+              <div className="mt-4 pt-4 border-t border-slate-100 space-y-3 text-sm text-slate-600 leading-relaxed bg-slate-50/60 p-4 rounded-lg border">
+                <p>
+                  <strong>Step 1: Check Ideal vs. Propagated Clock Model.</strong> Pre-CTS STA models clock pins with zero skew and zero insertion latency. When propagated clocks are enabled post-CTS, real clock path delay differences appear.
+                </p>
+                <p>
+                  <strong>Step 2: Inspect CPPR (Clock Path Pessimism Removal).</strong> Verify whether the launch and capture clock paths share common buffer segments and confirm CPPR credit is correctly calculated in the timing report.
+                </p>
+                <p>
+                  <strong>Step 3: Review Clock Uncertainty.</strong> Pre-CTS SDC constraints often include an explicit margin for expected skew (e.g. 100 ps). If you do not reduce this budget post-CTS when real skew is measured, you double-count skew uncertainty.
+                </p>
+                <p>
+                  <strong>Resolution:</strong> Re-constrain clock uncertainty to jitter-only post-CTS, review tree buffer drive strengths, and re-run path group optimization.
+                </p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
 
       {/* ============================================================ */}
-      {/* FREE RESOURCES                                               */}
+      {/* 6. CURATED GUIDES & RESOURCES                                */}
       {/* ============================================================ */}
-      <section className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 mb-2">100% free resources</h2>
-          <p className="text-slate-500 mb-10">Everything you need. No paywall.</p>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div>
+            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
+              Practical Guides
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              Curated Semiconductor Guides
+            </h2>
+            <p className="text-sm text-slate-500 mt-1 max-w-xl">
+              In-depth technical references and study plans to bridge academic theory and silicon design.
+            </p>
+          </div>
+          <Link
+            href="/courses"
+            className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 shrink-0"
+          >
+            All Free Resources <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { name: "OpenLane RTL-to-GDS", level: "Intermediate", detail: "Step-by-step guide", desc: "Full RTL to GDSII flow using OpenLane on a real design, step by step. Free.", href: "/courses/openlane-rtl-to-gds" },
-              { name: "Interview Q&A", level: "All levels", detail: "90+ questions", desc: "90+ real interview questions with detailed answers across PD, Synthesis, STA, and PV. Free.", href: "/sta-interview-questions" },
-              { name: "Career Roadmap", level: "Beginner", detail: "Structured plan", desc: "Complete beginner roadmap for VLSI freshers, with an 8-week structured study plan. Free.", href: "/learn/career-roadmap" },
-              { name: "Resume Tips", level: "All levels", detail: "Templates", desc: "VLSI-specific resume templates and tips that get you shortlisted. Free.", href: "/courses/resume-tips" },
-            ].map((c) => (
-              <Link
-                key={c.name}
-                href={c.href}
-                className="group bg-white border border-slate-200 hover:border-blue-300 rounded-xl p-5 transition-all hover:shadow-md"
-              >
-                <h3 className="font-display font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{c.name}</h3>
-                <p className="text-sm text-slate-500 mt-2 leading-relaxed">{c.desc}</p>
-                <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
-                  <span>{c.level}</span>
-                  <span>·</span>
-                  <span>{c.detail}</span>
-                </div>
-              </Link>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link
+            href="/courses/openlane-rtl-to-gds"
+            className="bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-6 shadow-sm hover:shadow-md transition-all group flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-8 h-8 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center">
+                <FileCode2 className="w-4 h-4" />
+              </div>
+              <h3 className="font-display font-bold text-base text-slate-900 group-hover:text-blue-600 transition-colors">
+                OpenLane RTL-to-GDSII Guide
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Step-by-step complete tapeout walkthrough using OpenLane on the SkyWater 130nm PDK. From Verilog to GDSII.
+              </p>
+            </div>
+            <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-600">
+              <span>Read Guide</span>
+              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </Link>
+
+          <Link
+            href="/learn/career-roadmap"
+            className="bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-6 shadow-sm hover:shadow-md transition-all group flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-8 h-8 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <GitBranch className="w-4 h-4" />
+              </div>
+              <h3 className="font-display font-bold text-base text-slate-900 group-hover:text-blue-600 transition-colors">
+                VLSI Career Roadmap
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                8-week structured study roadmap for freshers and electronics graduates targeting physical design and RTL verification roles.
+              </p>
+            </div>
+            <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-600">
+              <span>View Roadmap</span>
+              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </Link>
+
+          <Link
+            href="/courses/resume-tips"
+            className="bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-6 shadow-sm hover:shadow-md transition-all group flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-8 h-8 rounded-md bg-purple-50 text-purple-600 flex items-center justify-center">
+                <BookOpen className="w-4 h-4" />
+              </div>
+              <h3 className="font-display font-bold text-base text-slate-900 group-hover:text-blue-600 transition-colors">
+                Semiconductor Resume Guide
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Project description formulas, essential EDA tool keywords, and formatting standards that pass ATS filters.
+              </p>
+            </div>
+            <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-600">
+              <span>View Templates</span>
+              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* ============================================================ */}
+      {/* 7. PHILOSOPHY: Why SiliconPath                                */}
+      {/* ============================================================ */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="border border-slate-200 bg-white rounded-xl p-8 sm:p-10 shadow-sm">
+          <div className="max-w-2xl mb-8">
+            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
+              Platform Methodology
+            </p>
+            <h2 className="font-display text-2xl font-bold text-slate-900">
+              Built for engineers, by an engineer.
+            </h2>
+            <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+              SiliconPath was created to provide the structured, hands-on VLSI learning resource that was missing in university and online courses.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                100% Free Forever
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                No paywalls, subscriptions, premium tiers, or required accounts. Every module, assessment, and question is open to all engineers.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                Industry EDA Tool Alignment
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Instruction explicitly references standard tool commands (Synopsys PrimeTime, Cadence Innovus, Mentor Calibre) alongside open-source OpenROAD and OpenLane.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                Real Signoff Scenarios
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Practice questions and lab cases are drawn directly from real tapeout reviews, timing reports, and physical verification signoff dilemmas.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-
       {/* ============================================================ */}
-      {/* CTA                                                          */}
+      {/* 8. QUIET FINAL CTA                                           */}
       {/* ============================================================ */}
-      <section className="py-20 bg-slate-950 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">Start building real-chip skills today</h2>
-          <p className="text-slate-400 mb-8">100% free, structured, built by engineers who ship silicon.</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/learn" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center py-12 px-6 bg-slate-100/60 border border-slate-200/80 rounded-2xl max-w-3xl mx-auto space-y-4">
+          <h2 className="font-display text-2xl font-bold text-slate-900">
+            Ready to master silicon design?
+          </h2>
+          <p className="text-sm text-slate-600 max-w-md mx-auto">
+            Choose a path, review EDA reports, and practice technical interview questions at your own pace.
+          </p>
+          <div className="pt-2 flex items-center justify-center gap-3">
+            <Link
+              href="/learn"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-colors shadow-sm"
+            >
               Start Learning Free <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href="/sta-interview-questions" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm">
+            <Link
+              href="/sta-interview-questions"
+              className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium px-5 py-2.5 rounded-lg text-sm transition-colors shadow-sm"
+            >
               STA Interview Q&amp;A
             </Link>
           </div>

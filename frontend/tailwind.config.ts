@@ -67,23 +67,24 @@ const config: Config = {
 
       // --- Border radius: derive from unified radius tokens ---
       borderRadius: {
-        sm: "6px",
-        md: "8px",
-        lg: radiusTokens.lg, // 12px
-        xl: radiusTokens.xl, // 16px
-        "2xl": "18px",
+        sm: radiusTokens.sm, // 4px
+        md: radiusTokens.md, // 6px
+        lg: radiusTokens.lg, // 8px
+        xl: radiusTokens.xl, // 12px
+        "2xl": "16px",
         full: "9999px",
-        card: radiusTokens.card, // ← single source of truth
+        card: radiusTokens.card, // 12px
         pill: radiusTokens.pill,
+        badge: radiusTokens.badge,
       },
 
       // --- Box shadow: derive from unified shadow tokens ---
       boxShadow: {
         brutal: shadowTokens.card,
         "brutal-lg": shadowTokens.elevated,
-        "brutal-sm": shadowTokens.card, // alias to card
+        "brutal-sm": shadowTokens.card,
         card: shadowTokens.card,
-        "card-sm": "1px 1px 0px 0px #0F172A", // subtle elevation for badges, small elements
+        "card-sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
         "card-hover": shadowTokens.elevated,
         elevated: shadowTokens.elevated,
       },

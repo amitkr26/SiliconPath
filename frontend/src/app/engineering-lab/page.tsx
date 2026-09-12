@@ -1,21 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
-  AlertTriangle,
   Clock,
+  AlertTriangle,
   Layers,
   GitBranch,
+  Terminal,
+  CheckCircle2,
   ChevronDown,
   ChevronUp,
-  Beaker,
   ArrowRight,
-  CheckCircle2,
+  Cpu,
+  Sliders,
 } from "lucide-react";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { SectionHeader } from "@/components/ui/SectionHeader";
 import { cn } from "@/lib/utils";
 
 type CaseSeverity = "critical" | "high" | "medium";
@@ -23,11 +22,12 @@ type CaseSeverity = "critical" | "high" | "medium";
 interface ViolationCase {
   id: string;
   title: string;
-  icon: React.ReactNode;
+  category: string;
+  icon: typeof Clock;
   severity: CaseSeverity;
-  badge: string;
-  badgeTone: "danger" | "warning" | "accent" | "purple";
-  stats: { label: string; value: string }[];
+  domain: string;
+  metrics: { label: string; value: string; isBad?: boolean }[];
+  reportTitle: string;
   report: string;
   question: string;
   analysis: string;
@@ -38,359 +38,341 @@ interface ViolationCase {
 const VIOLATION_CASES: ViolationCase[] = [
   {
     id: "setup",
-    title: "Setup Violation",
-    icon: <Clock className="w-5 h-5" />,
+    title: "Setup Timing Violation",
+    category: "Static Timing Analysis",
+    icon: Clock,
     severity: "critical",
-    badge: "TIMING",
-    badgeTone: "danger",
-    stats: [
-      { label: "WNS", value: "-143 ps" },
-      { label: "TNS", value: "-2.84 ns" },
+    domain: "core_clock_clk (1 GHz)",
+    metrics: [
+      { label: "WNS", value: "−143 ps", isBad: true },
+      { label: "TNS", value: "−2.84 ns", isBad: true },
+      { label: "Logic Depth", value: "18 levels" },
+      { label: "Corner", value: "ss/0.72V/125°C" },
     ],
-    report: `Path Group:          reg_124_clk
+    reportTitle: "PrimeTime :: report_timing -delay_type max -nworst 1",
+    report: `Path Group:          core_clock_clk
 Startpoint:          reg_124 (rising edge-triggered flip-flop)
 Endpoint:            reg_892 (rising edge-triggered flip-flop)
+Analysis Corner:     ss/0.72V/125°C (Worst Setup PVT)
 
-------------------------------------------------------------
-Delay Type       Delay  Arrival  Required  Slack
-------------------------------------------------------------
-  Clock            2.000   2.000
-  Logic            0.143   2.143
-  Net              0.380
-  Transition       0.210
-------------------------------------------------------------
-  Data Required                        1.890
-  Data Arrival                         2.143
-  Slack (setup)                       -0.143  VIOLATED
-------------------------------------------------------------
+Point                                Incr       Path
+-------------------------------------------------------------
+clock clk (rise edge)               0.000      0.000
+clock network delay (propagated)    0.120      0.120
+reg_124/CLK                         0.000      0.120 r
+reg_124/Q (DFFHQ4X1)                0.115      0.235 f
+u_alu/adder_18/S                    1.798      2.033 r (18 levels)
+u_mux/out                           0.110      2.143 f
+data arrival time                              2.143
 
-Clock Uncertainty:    0.050
-CPPR Adjustment:      0.012
-Logic Depth:          18 levels
-Critical Path Net:    data_path_reg[14]_to_reg_892/D
-Library Cell:         DFFHQ4X1`,
+clock clk (rise edge)               2.000      2.000
+clock network delay (propagated)    0.090      2.090
+clock reconvergence pessimism       0.012      2.102
+clock uncertainty                  -0.080      2.022
+reg_892/CLK                         0.000      2.022 r
+library setup time                 -0.132      1.890
+data required time                             1.890
+-------------------------------------------------------------
+slack (VIOLATED)                              -0.143 ns`,
     question:
-      "Your design passes timing before CTS. After CTS, WNS is -87 ps. How do you debug it?",
+      "Your design passes timing cleanly before CTS. After CTS, setup slack is violated by −143 ps. What is the root cause and diagnostic procedure?",
     analysis:
-      "Pre-CTS timing uses ideal clocks with zero skew. After CTS, real clock tree introduces skew and insertion delay. The post-CTS slack drop indicates the clock tree is unbalanced on this path group. Key debugging steps: (1) Analyze CPPR — Clock Path Pessimism Removal may not be accounting for shared clock tree segments. (2) Check clock uncertainty — the tool auto-calculates skew-based uncertainty post-CTS; verify it matches your CTS report. (3) Examine path groups — non-default path groups may have lower optimization priority. (4) Review clock tree QOR — check if this endpoint's clock latency is significantly higher than others in the same domain.",
-    result: "After balancing the clock tree and adding path group constraints, WNS improved to +12 ps (met).",
+      "Pre-CTS STA operates with an ideal clock network where all register clock pins receive clock edges with zero insertion delay and zero skew. Once CTS is run and propagated clocks are enabled, physical clock tree variations introduce latency differences between the launch register (120 ps) and capture register (90 ps) — creating a 30 ps skew deficit on this path. Furthermore, 18 combinational logic levels through the ALU adder tree cannot meet the 2.0 ns clock period at the slow-slow (ss) corner. To isolate: (1) Check clock uncertainty values — verify you did not leave pre-CTS skew budgets in SDC. (2) Inspect CPPR common-path credit. (3) Restructure the critical adder tree or insert an intermediate pipeline stage.",
+    result:
+      "Inserted a pipeline register stage at the ALU output and upsized the driving buffer on u_mux. WNS improved to +18 ps (timing met across all corners).",
     takeaway:
-      "CTS timing closure requires understanding the delta between ideal and real clock models. Always re-constrain non-default path groups post-CTS.",
+      "CTS timing closure requires understanding the delta between ideal and real clock distribution networks. Always re-evaluate logic depth before attempting physical cell resizing.",
   },
   {
     id: "hold",
-    title: "Hold Violation",
-    icon: <AlertTriangle className="w-5 h-5" />,
+    title: "Multi-Corner Hold Failure",
+    category: "Signoff Verification",
+    icon: AlertTriangle,
     severity: "high",
-    badge: "HOLD",
-    badgeTone: "warning",
-    stats: [
-      { label: "Failing Endpoints", value: "326" },
-      { label: "WHS", value: "-67 ps" },
+    domain: "io_clock_sync",
+    metrics: [
+      { label: "WHS", value: "−67 ps", isBad: true },
+      { label: "Failing Pins", value: "326 pins", isBad: true },
+      { label: "Critical Corner", value: "ss/0.72V/-40°C" },
+      { label: "Nominal tt", value: "+45 ps (met)" },
     ],
-    report: `Hold Analysis Report
---------------------
-Multi-Corner Analysis:  Enabled (3 corners: ss/0p72v/-40c, tt/0p80v/25c, ff/0p88v/125c)
+    reportTitle: "Tempus :: report_timing -delay_type min -multi_corner",
+    report: `Multi-Corner Hold Signoff Summary
+-------------------------------------------------------------
+Corner               Failing Endpoints     Worst Slack (WHS)
+-------------------------------------------------------------
+ss/0.72V/-40°C              326                -0.067 ns (VIOLATED)
+tt/0.80V/25°C                 0                 +0.045 ns (MET)
+ff/0.88V/125°C                0                 +0.092 ns (MET)
 
-Corner          Failing   Worst WHS
-------------------------------------
-ss/0p72v/-40c       326      -67 ps
-tt/0p80v/25c          0       0 ps
-ff/0p88v/125c         0       0 ps
-
-Worst Hold Path:
-  Startpoint: input_reg_5 (rising)
-  Endpoint:   output_reg_12 (rising)
-  Clock Uncertainty:  0.050
-  Contamination Delay: 0.021
-  Data Path Delay:     0.108
-  Hold Required:       0.175
-  Slack:              -0.067  VIOLATED (ss corner only)`,
+Critical Path Detail (ss/-40°C):
+Startpoint:          input_reg_5/CLK
+Endpoint:            output_reg_12/D
+Contamination Delay: 0.021 ns
+Data Path Delay:     0.108 ns
+Clock Skew (delta):  0.115 ns (capture clock arrives late)
+Hold Required:       0.175 ns
+-------------------------------------------------------------
+slack (VIOLATED)                              -0.067 ns`,
     question:
-      "Hold violations appear only in multi-corner analysis. Single-corner is clean. Why?",
+      "Hold violations appear only in multi-corner temperature inversion analysis (ss/-40°C). Single-corner nominal analysis is completely clean. Why?",
     analysis:
-      "Single-corner analysis typically runs at typical (tt) conditions. Multi-corner analysis includes worst-case (ss) and best-case (ff) corners. The ss corner has slower transistor drive strength, which increases clock insertion delay disproportionately on some paths compared to the data path. This creates a larger effective hold window. The tt corner is clean because both clock and data paths scale similarly at nominal conditions. The key insight: hold violations in multi-corner are caused by corner-dependent skew — the clock tree delay scales differently than the data path delay across voltage/temperature corners. Check: (1) Clock tree depth variations across corners. (2) Whether buffer insertion in the clock tree has different effects per corner. (3) On-chip variation (OCV) derating factors.",
+      "Single-corner analysis typically runs at nominal (tt) conditions where NMOS and PMOS transistor delays scale symmetrically. However, modern FinFET technologies exhibit temperature inversion: at ultra-low voltages, cells may run slower or faster depending on temperature and threshold voltage. At ss/-40°C, high local resistance and uneven clock tree branch loading cause the capture flip-flop clock edge to arrive 115 ps late. Because data path contamination delay is only 21 ps, the new data arrives before the previous value has cleared the hold window. Hold violations are fatal in silicon — they cannot be resolved by reducing the clock frequency.",
     result:
-      "Added hold-fix buffers only on the ss-corner-critical paths. All 326 endpoints fixed with 41 buffer insertions. Total area overhead: 0.3%.",
+      "Inserted 41 delay buffers in the data path near destination registers specifically calibrated to ss/-40°C. Total area impact: 0.28%. Zero hold violations across all 12 PVT corners.",
     takeaway:
-      "Never trust single-corner hold analysis. Multi-corner hold closure catches corner-dependent skew that typical analysis misses.",
+      "Never trust nominal-corner hold analysis. Hold closure must be verified at fast-fast and extreme temperature inversion corners before tapeout signoff.",
   },
   {
     id: "congestion",
-    title: "Congestion",
-    icon: <Layers className="w-5 h-5" />,
+    title: "Routing Congestion Hotspot",
+    category: "Place & Route (P&R)",
+    icon: Layers,
     severity: "high",
-    badge: "CONGESTION",
-    badgeTone: "purple",
-    stats: [
-      { label: "Overflow", value: "18.4%" },
-      { label: "Hotspot", value: "Near macros" },
+    domain: "SRAM Subsystem Boundary",
+    metrics: [
+      { label: "Global Overflow", value: "18.4%", isBad: true },
+      { label: "Horizontal", value: "22.1% max" },
+      { label: "GRC Utilization", value: "94.1%" },
+      { label: "Layer", value: "Metal 3 / Metal 4" },
     ],
-    report: `Congestion Report
-------------------
-Global Overflow:     18.4%
-Horizontal Overflow: 22.1%
-Vertical Overflow:   14.7%
+    reportTitle: "Innovus :: report_congestion -hotspot -layers M2-M5",
+    report: `Global Routing Congestion Report
+-------------------------------------------------------------
+Global Routing Cells (GRC) Checked:  148,200
+Target Utilization Limit:            85.0%
 
-Top 3 Hotspot Regions:
-  Region             HV-Routing-Overflow  GRC-Util
-  -----------------------------------------------
-  (450,320)-(520,380)       42.3%            94.1%
-  (180,500)-(240,560)       38.7%            91.8%
-  (600,100)-(660,160)       31.2%            88.5%
+Top Hotspot Coordinates (X, Y):
+Region                 H-Overflow   V-Overflow   GRC-Util
+-------------------------------------------------------------
+(450, 320)-(520, 380)    42.3%        28.1%       94.1%
+(180, 500)-(240, 560)    38.7%        19.4%       91.8%
 
-All hotspots are adjacent to macro boundaries:
-  - SRAM_128x32 instance at (440,310)
-  - ROM_256x8 instance  at (170,490)
-  - PLL_TOP instance     at (590,90)
-
-Pin Access:  Macro pin density 4.7x higher than standard cell average
-Track Usage: 97.8% in hotspot GRCs (target: <85%)`,
+Hotspot Diagnosis:
+  - SRAM_128x32 instance placed at coordinate (440, 310)
+  - Macro pin access density: 4.7x higher than core average
+  - Standard cells placed within 2 µm of macro boundaries
+  - Insufficient routing tracks remaining for horizontal bus lines`,
     question:
-      "Congestion hotspots appear near macro boundaries. What's the likely cause?",
+      "Congestion hotspots concentrate heavily along SRAM macro boundaries. What is the root cause and standard remediation?",
     analysis:
-      "Macro boundary congestion is almost always pin access related. Macros have fixed pin locations that create high local demand for routing resources. When standard cells are placed too close to macro boundaries, their routes must fan out from the macro pins through a narrow channel. Specific causes: (1) Pin access congestion — macro pins are clustered, requiring many metal layers in a small area. (2) Missing blockages/halos — no routing blockage around macros means cells place right up against them. (3) Macro channel width — the gap between macros may be too narrow for the required routing. (4) Pin direction — pins on the macro facing inward toward other macros create a routing bottleneck. Fix strategy: add routing blockages (1-2 metal layers) around macros, increase halo spacing, or push macro pins outward with pin access optimization.",
+      "Macro boundary congestion is fundamentally a pin access and channel width problem. Memory compilers cluster hundreds of address and data pins onto narrow metal layers. When placer algorithms place standard cells right up against the macro edge without a halo, signal routes must compete for the same metal tracks needed to reach the SRAM pins. Attempting to fix this by spreading standard cells via global placement density bounds rarely succeeds and often creates setup timing regressions. The correct fix is physical constraints: establish routing blockages and keep-out halos around macros.",
     result:
-      "Added 5-micron routing blockage around all macros and increased halo to 8 microns. Overflow dropped to 3.2%. DRC-clean with no timing regression.",
+      "Applied a 6 µm placement halo around all memory macros and created a Metal 2/3 routing blockage over macro pin channels. Global overflow dropped from 18.4% to 2.1%. DRC clean.",
     takeaway:
-      "Macro-adjacent congestion is a pin access problem first. Fix the physical constraint (blockage/halo) before attempting logical fixes like cell spreading.",
+      "Fix physical macro boundary congestion with placement halos and layer-specific blockages first before adjusting global placer heuristics.",
   },
   {
     id: "skew",
-    title: "Clock Skew",
-    icon: <GitBranch className="w-5 h-5" />,
+    title: "Clock Skew Imbalance",
+    category: "Clock Tree Synthesis",
+    icon: GitBranch,
     severity: "medium",
-    badge: "CLOCK TREE",
-    badgeTone: "accent",
-    stats: [
-      { label: "Global Skew", value: "87 ps" },
-      { label: "Local Skew", value: "23 ps" },
+    domain: "clk_main (H-Tree)",
+    metrics: [
+      { label: "Global Skew", value: "87 ps", isBad: true },
+      { label: "Target Skew", value: "< 40 ps" },
+      { label: "Leaf Count", value: "3,892 flops" },
+      { label: "Total Buffers", value: "1,247 cells" },
     ],
-    report: `Clock Tree Summary
---------------------
-Tree Type:          H-Tree (balanced)
-Total Buffers:      1,247
-Total Leaf Cells:   3,892
-Target Skew:        < 50 ps
+    reportTitle: "ICC2 :: report_clock_tree_summary -domain clk_main",
+    report: `Clock Tree Summary :: clk_main (H-Tree Topology)
+-------------------------------------------------------------
+Total Leaf Cells (Registers):       3,892
+Clock Inverters / Buffers:          1,247
+Target Skew Bound:                  0.040 ns
 
-Skew Report:
-  Domain          Endpoint Count  Global Skew  Local Skew
-  -------------------------------------------------------
-  clk_main              3,892        87 ps        23 ps
-  clk_div2                412        12 ps         8 ps
+Latency Distribution across Register Groups:
+Group Name           Leaf Count   Latency Range      Max Skew
+-------------------------------------------------------------
+reg_core_bank_A        1,240      1.38 - 1.42 ns      40 ps
+reg_core_bank_B        1,180      1.49 - 1.53 ns      40 ps
+reg_core_bank_C        1,472      1.32 - 1.35 ns      30 ps
 
-Clock Latency Distribution (clk_main):
-  Endpoint Group     Latency    Count
-  ------------------------------------
-  reg_group_A         1.42 ns    1,240
-  reg_group_B         1.51 ns    1,180
-  reg_group_C         1.34 ns    1,472
-
-  Max Delta:          0.17 ns (reg_group_B vs reg_group_C)
-  Repeater Chain:     BUFX4 → BUFX8 → BUFX16 (3 levels)
-  Physical Distance:  reg_group_B is 840 μm from root`,
+Inter-Group Skew Analysis:
+  Worst Group Delta:  0.180 ns (reg_core_bank_B vs. reg_core_bank_C)
+  Physical Distance:  reg_core_bank_B is located 840 µm from clock root`,
     question:
-      "Global skew is high despite CTS completing successfully. What do you check?",
+      "Local skew within register banks is under 40 ps, but global clock skew across the entire domain is 87 ps. How do you resolve this discrepancy?",
     analysis:
-      "High global skew with clean local skew means the problem is between endpoint groups, not within them. This is a clock tree balance issue. Debugging steps: (1) Check endpoint ClockLatency differences — the report shows 170 ps delta between reg_group_B and reg_group_C. reg_group_B has 87 ps more latency, likely due to physical distance from the clock root (840 μm). (2) Examine the H-tree topology — an H-tree should balance latencies, but asymmetric physical placement of register groups can force the tree to take longer routes. (3) Check buffer insertion — the 3-level repeater chain may be adding unequal delay on different branches. (4) Review clock tree targets — CTS may have prioritized local skew over global skew. Fix: add clock tree post-processing (clock rebalancing) or manually insert latency buffers on the faster paths to equalize arrival times.",
+      "When local skew is tight but global skew is high, the clock tree has balanced leaf clusters well, but the primary distribution branches feeding those clusters have unequal insertion delays. In this case, reg_core_bank_B is placed 840 µm away from the clock root near the die periphery, requiring longer wire runs and additional repeater buffers (1.51 ns average latency) compared to centrally placed bank C (1.34 ns). Adding buffers randomly will only increase power and jitter. The proper procedure is clock tree rebalancing: equalize root-to-cluster latency by optimizing trunk buffer drive strengths and applying target latency bounds in CTS setup.",
     result:
-      "Ran clock tree post-optimization to rebalance reg_group_C path. Global skew reduced to 41 ps. No timing regression on any path group.",
+      "Applied custom clock trunk constraints (`set_clock_tree_options -target_latency 1.45ns`). Re-synthesized tree trunks; global skew dropped from 87 ps to 36 ps.",
     takeaway:
-      "Global skew = latency imbalance between groups. Local skew = imbalance within a group. Fix the right level — global skew fixes require endpoint-level latency equalization, not buffer insertion.",
+      "Global skew measures latency differences between functional register banks; local skew measures differences between neighboring flops. Fix global skew at the trunk level.",
   },
 ];
 
-const severityConfig: Record<CaseSeverity, { color: string; ring: string }> = {
-  critical: { color: "bg-red-500", ring: "ring-red-200" },
-  high: { color: "bg-amber-500", ring: "ring-amber-200" },
-  medium: { color: "bg-blue-500", ring: "ring-blue-200" },
-};
-
-function ViolationCaseCard({ violationCase }: { violationCase: ViolationCase }) {
-  const [expanded, setExpanded] = useState(false);
-  const sev = severityConfig[violationCase.severity];
-
-  return (
-    <Card className="overflow-hidden">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div
-            className={cn(
-              "w-10 h-10 rounded-xl flex items-center justify-center text-white ring-4",
-              sev.color,
-              sev.ring,
-            )}
-          >
-            {violationCase.icon}
-          </div>
-          <div>
-            <h3 className="font-bold text-slate-900 text-base">
-              {violationCase.title}
-            </h3>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge tone={violationCase.badgeTone}>{violationCase.badge}</Badge>
-              <span className="text-[10px] font-bold text-slate-400 uppercase">
-                {violationCase.severity}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="flex gap-4 mt-4">
-        {violationCase.stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"
-          >
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              {stat.label}
-            </div>
-            <div className="text-sm font-black text-slate-900 mt-0.5">
-              {stat.value}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* EDA Report Excerpt */}
-      <div className="mt-4">
-        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-          EDA Report Excerpt
-        </div>
-        <div className="bg-slate-900 rounded-xl p-4 overflow-x-auto">
-          <pre className="text-[11px] leading-relaxed text-emerald-400 font-mono whitespace-pre">
-            {violationCase.report}
-          </pre>
-        </div>
-      </div>
-
-      {/* Diagnosis Question */}
-      <div className="mt-5 bg-amber-50 border-2 border-amber-200 rounded-xl p-4">
-        <div className="flex items-start gap-2">
-          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <div className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-1">
-              Diagnosis Question
-            </div>
-            <p className="text-sm font-semibold text-amber-900 leading-relaxed">
-              {violationCase.question}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Expand/Collapse Toggle */}
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 transition-colors"
-      >
-        {expanded ? "Hide Analysis" : "Show Analysis"}
-        {expanded ? (
-          <ChevronUp className="w-4 h-4" />
-        ) : (
-          <ChevronDown className="w-4 h-4" />
-        )}
-      </button>
-
-      {/* Expanded Content */}
-      {expanded && (
-        <div className="mt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
-          {/* Analysis */}
-          <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-            <div className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-2">
-              Analysis
-            </div>
-            <p className="text-sm text-blue-900 leading-relaxed font-medium">
-              {violationCase.analysis}
-            </p>
-          </div>
-
-          {/* Result */}
-          <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-4">
-            <div className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <div>
-                <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1">
-                  Result After Fix
-                </div>
-                <p className="text-sm text-emerald-900 leading-relaxed font-semibold">
-                  {violationCase.result}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Takeaway */}
-          <div className="bg-slate-900 rounded-xl p-4">
-            <div className="flex items-start gap-2">
-              <ArrowRight className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-              <div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  Key Takeaway
-                </div>
-                <p className="text-sm text-slate-100 leading-relaxed font-medium">
-                  {violationCase.takeaway}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </Card>
-  );
-}
-
 export default function EngineeringLabPage() {
+  const [selectedCaseIndex, setSelectedCaseIndex] = useState(0);
+  const [revealed, setRevealed] = useState(false);
+
+  const activeCase = VIOLATION_CASES[selectedCaseIndex];
+  const Icon = activeCase.icon;
+
   return (
-    <div className="min-h-screen bg-[#FAF9F6] py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-10">
+    <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+      {/* Header */}
+      <div className="border-b border-slate-200/80 pb-8">
+        <div className="max-w-3xl space-y-3">
+          <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
+            Signoff Diagnostics
+          </p>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+            Engineering Lab: Violation Case Studies
+          </h1>
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+            Inspect real EDA log excerpts from Synopsys PrimeTime, Cadence Innovus, and Tempus. Learn the exact reasoning used by physical design and signoff engineers to diagnose and resolve tapeout violations.
+          </p>
+        </div>
 
-        {/* HERO */}
-        <Card tone="accent" className="p-8 sm:p-12 shadow-brutal-lg relative overflow-hidden">
-          <div className="max-w-3xl space-y-4 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white text-slate-900 text-xs font-black border-2 border-slate-900 shadow-brutal-sm">
-              <Beaker className="w-4 h-4 text-purple-600 stroke-[2.5]" />
-              <span>REAL VIOLATION DEBUGGING CASES</span>
+        {/* Case Study Switcher */}
+        <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {VIOLATION_CASES.map((c, idx) => (
+            <button
+              key={c.id}
+              onClick={() => {
+                setSelectedCaseIndex(idx);
+                setRevealed(false);
+              }}
+              className={cn(
+                "p-3.5 rounded-xl text-left border transition-all flex flex-col justify-between gap-2",
+                selectedCaseIndex === idx
+                  ? "bg-white border-blue-600 shadow-sm ring-1 ring-blue-600"
+                  : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className={cn(
+                    "text-[10px] font-mono uppercase px-1.5 py-0.5 rounded font-semibold",
+                    c.severity === "critical" && "bg-red-50 text-red-700 border border-red-200",
+                    c.severity === "high" && "bg-amber-50 text-amber-800 border border-amber-200",
+                    c.severity === "medium" && "bg-blue-50 text-blue-700 border border-blue-200"
+                  )}
+                >
+                  {c.severity}
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">Case 0{idx + 1}</span>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-900">{c.title}</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">{c.category}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Inspection View */}
+      <div className="space-y-8">
+        {/* Top Status Banner */}
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
+                <Icon className="w-4 h-4" />
+              </span>
+              <div>
+                <h2 className="font-display font-bold text-xl text-slate-900">
+                  {activeCase.title}
+                </h2>
+                <p className="text-xs text-slate-500">Domain: {activeCase.domain}</p>
+              </div>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-              Engineering Lab
-            </h1>
-            <p className="text-blue-50 text-sm sm:text-base font-medium leading-relaxed">
-              Walk through real EDA report excerpts, diagnose timing violations, congestion issues, and clock tree problems. Each case presents the data, asks the question, then reveals the debugging methodology.
-            </p>
           </div>
-        </Card>
 
-        {/* CASES */}
-        <div>
-          <SectionHeader
-            eyebrow="Violation Cases"
-            title="Debugging Case Studies"
-            description="4 real-world violation scenarios from signoff timing, multi-corner analysis, physical design, and CTS. Expand each case to see the full analysis."
-          />
-
-          <div className="space-y-6">
-            {VIOLATION_CASES.map((vc) => (
-              <ViolationCaseCard key={vc.id} violationCase={vc} />
+          {/* Key Metrics */}
+          <div className="flex items-center gap-4 flex-wrap">
+            {activeCase.metrics.map((m) => (
+              <div key={m.label} className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-center">
+                <p className="text-[10px] text-slate-400 uppercase font-mono">{m.label}</p>
+                <p
+                  className={cn(
+                    "text-xs font-mono font-bold mt-0.5",
+                    m.isBad ? "text-red-600" : "text-slate-800"
+                  )}
+                >
+                  {m.value}
+                </p>
+              </div>
             ))}
           </div>
         </div>
 
-        {/* BOTTOM CTA */}
-        <Card tone="inverse" className="p-8 text-center">
-          <h2 className="text-xl font-black text-white mb-2">
-            Want more practice?
-          </h2>
-          <p className="text-slate-300 text-sm font-medium mb-5 max-w-lg mx-auto">
-            These cases cover setup, hold, congestion, and clock skew. Practice analyzing real EDA reports to build debugging intuition.
-          </p>
-          <Button href="/academy" variant="secondary" size="lg">
-            Back to Academy
-          </Button>
-        </Card>
+        {/* Diagnostic Split Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left: EDA Report Output */}
+          <div className="lg:col-span-7 bg-[#0B1120] rounded-xl border border-slate-800 p-5 font-mono text-xs text-slate-300 shadow-inner overflow-hidden">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-slate-400 text-[11px]">
+              <div className="flex items-center gap-2">
+                <Terminal className="w-3.5 h-3.5 text-blue-400" />
+                <span className="truncate">{activeCase.reportTitle}</span>
+              </div>
+              <span className="text-slate-500 text-[10px]">RAW LOG EXCERPT</span>
+            </div>
+
+            <pre className="overflow-x-auto text-[11px] leading-relaxed text-slate-300 whitespace-pre font-mono">
+              {activeCase.report}
+            </pre>
+          </div>
+
+          {/* Right: Diagnostic Analysis & Solution */}
+          <div className="lg:col-span-5 space-y-6">
+            {/* The Engineering Problem */}
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-3">
+              <h3 className="font-display font-bold text-sm text-slate-900 flex items-center gap-2">
+                <Cpu className="w-4 h-4 text-blue-600" />
+                Diagnostic Question
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
+                &ldquo;{activeCase.question}&rdquo;
+              </p>
+
+              <button
+                onClick={() => setRevealed(!revealed)}
+                className="pt-2 text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 transition-colors"
+              >
+                {revealed ? "Hide Diagnostic Analysis" : "Reveal Engineering Analysis & Fix"}
+                {revealed ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+
+            {revealed && (
+              <>
+                {/* Root Cause Analysis */}
+                <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-3">
+                  <h3 className="font-display font-bold text-sm text-slate-900 flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-amber-600" />
+                    Root Cause Analysis
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {activeCase.analysis}
+                  </p>
+                </div>
+
+                {/* Practical Fix & Silicon Result */}
+                <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-3">
+                  <h3 className="font-display font-bold text-sm text-slate-900 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    Fix Applied &amp; Result
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {activeCase.result}
+                  </p>
+                  <div className="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <p className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      Tapeout Signoff Takeaway:
+                    </p>
+                    <p className="text-xs text-slate-600 italic">
+                      &ldquo;{activeCase.takeaway}&rdquo;
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -100,7 +100,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} font-body bg-[#FAF9F6] text-slate-900 min-h-screen`}
+        className={`${inter.variable} ${spaceGrotesk.variable} font-body bg-slate-50 text-slate-900 min-h-screen antialiased`}
       >
         <Providers>
           <AppLayout>{children}</AppLayout>

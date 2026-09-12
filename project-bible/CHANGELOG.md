@@ -9,82 +9,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — 2026-09-12
 
-### Fixed
-- homepage: `/vlsi` broken links (×3) → replaced with `/learn` and `/sta-interview-questions`
-- homepage: `/jobs` broken link → removed dead Career section
-- homepage: fabricated testimonials section removed (8 hardcoded names/companies)
-- homepage: hardcoded "1k+ engineers · 4.9★" fake stat removed
-- footer: removed broken links `/contact`, `/privacy`, `/terms` (pages don't exist)
-- robots.ts: removed BDW-era disallow paths (`/dashboard`, `/saved`, `/messages`, etc.)
-- sitemap.ts: normalized BASE_URL from `siliconpath.vercel.app` → `siliconpath.in`
-- sitemap.ts: fixed learning path slugs to match actual `/learn/[path]` routes
+### Added
+- **Complete Product UI/UX & Information Architecture Overhaul**:
+  - Restructured SiliconPath from historic neo-brutalist patterns into a disciplined, high-density semiconductor engineering education platform.
+  - Centralized design system in `frontend/src/styles/design-tokens.ts` with clean neutrals (`#F8FAFC`), crisp slate typography (`#0F172A`), restrained blue accents (`#2563EB`), geometric radii, and subtle elevations.
+  - New Tapeout Guide: `/courses/openlane-rtl-to-gds` covering complete 7-stage RTL-to-GDSII flow on SkyWater Sky130 PDK with Yosys, OpenROAD, and Magic.
+  - New Career Guide: `/courses/resume-tips` detailing semiconductor engineering resume structures, ATS keywords, tool matrices, and quantified QoR bullets.
+  - New Career Resources Hub: `/resources` covering semiconductor engineering role profiles (PD, DV, RTL, DFT) and required EDA toolchains.
+  - Unit Test Suite: `frontend/src/__tests__/curriculum-integrity.test.ts` testing curriculum paths, slug uniqueness, sitemap completeness, and token integrity.
 
 ### Changed
-- homepage: replaced fake testimonials with honest "Why SiliconPath" value props section
-- navbar: moved Academy into Learn dropdown; reduced top-level items from 5 → 3
-- navbar: added visible "Start Learning Free" primary CTA button on desktop + mobile
-- footer: restructured from 6 quirky "Learn+" columns to 4 clean columns (Learn, Practice, Career, About)
-- footer: added tagline "Free VLSI learning for semiconductor engineers"
-- globals.css: removed stale "BerojgarDegreeWala — Neo-Brutalist" comment header
-- globals.css: updated CSS vars — border, shadow now use standard values (not brutal offset)
-- design-tokens.ts: softened shadow.card from hard offset to standard drop shadow
-- types/index.ts: removed 19 unused BDW-era types (dead code since fork)
-
-
-### Added
-- Complete SiliconPath branding (replaced all BerojgarDegreeWala references)
-- 15 learning paths with 148 modules (5 Foundation + 6 Backend + 4 Tools & Career)
-- Engineering Lab with 4 real violation debugging cases
-- 128 STA interview questions across 11 topics
-- Free Resources page (OpenLane guide, Career Roadmap, Resume Tips)
-- About page describing SiliconPath mission
-- Do-follow backlinks to BerojgarDegreeWala and ElectroBridge in footer
-- Navigation: Learn dropdown with all 15 paths, Academy link
-- Footer: 6-column layout with Our Ecosystem section
-- Academy system migrated from BerojgarDegreeWala (tracks, days, assessments, progress)
-- 9 API routes for academy functionality
-- PracticeQuiz and YoutubeEmbed components
-- Academy library (types, queries, progress-local, fallback)
+- **Homepage (`/`)**: Completely redesigned around an authentic semiconductor engineering journey:
+  - Concise technical hero with immediate learning entry points.
+  - Interactive 9-stage RTL-to-GDSII flow diagram.
+  - 15-Path 3-tier curriculum directory matrix.
+  - EDA signoff spotlight with authentic dark terminal styling (`#0B1120`).
+  - Interactive STA interview scenario disclosure.
+  - Honest platform philosophy and zero marketing fluff.
+- **Navigation (`Navbar.tsx`)**:
+  - Reorganized around user mental models: **Learn** (Learning Paths, VLSI Academy, Engineering Lab), **Practice** (128 STA Q&A, Interview Path), **Guides & Resources** (OpenLane Tapeout, Career Roadmap, Resume Tips), **About**, and prominent **Start Learning Free** primary CTA.
+  - Resolved all broken links (`/learn/interview` → `/learn/interview-qa`).
+- **Footer (`Footer.tsx`)**:
+  - Replaced heavy multi-column SaaS footer with a restrained, compact engineering product footer.
+- **Learning Surfaces (`/learn`, `/learn/[path]`, `/learn/[path]/[module]`)**:
+  - Searchable directory of 15 paths with category tabs (Foundations, Backend, Tools & Career).
+  - Unlocked sequential module gates — users can jump directly to any topic.
+  - Rich syllabus detail pages with concept overviews, EDA TCL commands, signoff checklists, and localStorage progress tracking.
+- **Academy (`/academy`)**:
+  - Cleaned up curriculum overview, removing artificial paywall boxes while retaining verified NPTEL and Siemens lecture references.
+- **Engineering Lab (`/engineering-lab`)**:
+  - Replaced generic educational cards with authentic EDA diagnostic interfaces (PrimeTime, Tempus, Innovus, ICC2 report analysis, root cause breakdown, and signoff takeaways).
+- **STA Interview Questions (`/sta-interview-questions`)**:
+  - Integrated real-time search across 128 questions with category filter chips and expandable mathematical derivations.
+- **Free Resources (`/courses`)**:
+  - Redesigned into an editorial directory linking to tapeout guides, resume templates, and study roadmaps.
+- **About (`/about`)**:
+  - Redesigned with a clear engineering mission statement and open-access commitments.
+- **Sitemap (`sitemap.ts`)**:
+  - Updated to include all 16 static routes and dynamic learning paths with exact slug alignment.
 
 ### Removed
-- All pricing and course-selling content
-- All authentication requirements for learning content
-- Mentorship section
-- Newsletter signup
-- All "Buy", "Purchase", "Bundle" references
-- Resume builder (migrated to ElectroBridge)
-- All BerojgarDegreeWala branding references
-
-### Changed
-- "Courses" → "Resources" throughout
-- "Browse Courses" → "Start Learning Free"
-- All testimonials reference "SiliconPath" not "the course"
-- Layout title: "SiliconPath — Free VLSI Learning Platform"
-- Metadata: keywords emphasize free learning
-- package.json name → "siliconpath"
-- docker-compose.yml container names → "siliconpath_*"
-- render.yaml service name → "siliconpath-backend"
-
-### Fixed
-- sitemap.ts: added all 15 learning paths + static pages
-- robots.ts: added private path disallow rules
-- Footer.tsx: removed dead links (/vlsi, /jobs, /community, /blog, /book)
-- Navbar.tsx: removed dead links (/jobs, /blog)
-
-### Documentation
-- PRODUCT.md: rewritten for SiliconPath (6 learning surfaces, 15 paths, 148 modules)
-- ARCHITECTURE.md: rewritten for single-purpose learning platform
-- DEVELOPMENT.md: updated branding from BDW to SiliconPath
-- README.md: rewritten for SiliconPath VLSI learning platform
-- SECURITY.md: updated all domain references to siliconpath.vercel.app
-
----
-
-## [1.0.0] — 2026-09-08
-
-### Note
-SiliconPath was forked from BerojgarDegreeWala on 2026-09-08. The platform was stripped to Academy-only features and rebranded as a free VLSI learning platform. All previous BDW-specific history (opportunity aggregation, employer portal, social network, resume builder) has been migrated to their respective platforms:
-
-- **Opportunities + Social** → [BerojgarDegreeWala](https://berojgardegreewala.vercel.app)
-- **Resume Builder** → [ElectroBridge](https://electrobridge.vercel.app)
-- **Academy + Learning** → SiliconPath (this platform)
+- Removed all neo-brutalist artifacts (2px/3px black borders, offset drop shadows, pill buttons, and identical repeated 3-column card grids).
+- Removed all broken and dead routes (`/vlsi`, `/jobs`, `/courses/openlane-rtl-to-gds` 404, `/courses/resume-tips` 404).
+- Removed all fake social proof, fabricated metrics, and artificial progression locks.

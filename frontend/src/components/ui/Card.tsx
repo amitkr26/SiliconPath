@@ -1,20 +1,21 @@
 import { cn } from "@/lib/utils";
 
-type CardTone = "default" | "flat" | "inverse" | "accent";
+type CardTone = "default" | "flat" | "muted" | "inverse" | "accent";
 type CardPadding = "none" | "sm" | "md" | "lg";
 
 const toneClasses: Record<CardTone, string> = {
-  default: "bg-white border border-slate-200 shadow-card",
+  default: "bg-white border border-slate-200/90 shadow-sm",
   flat: "bg-white border border-slate-200 shadow-none",
-  inverse: "bg-slate-900 border-2 border-slate-900 text-white shadow-card",
-  accent: "bg-blue-600 border-2 border-slate-900 text-white shadow-card",
+  muted: "bg-slate-50/80 border border-slate-200/80 shadow-none",
+  inverse: "bg-slate-900 border border-slate-800 text-white shadow-sm",
+  accent: "bg-blue-50/40 border border-blue-200/80 text-slate-900 shadow-none",
 };
 
 const paddingClasses: Record<CardPadding, string> = {
   none: "p-0",
-  sm: "p-3",
-  md: "p-5",
-  lg: "p-8",
+  sm: "p-3 sm:p-4",
+  md: "p-5 sm:p-6",
+  lg: "p-6 sm:p-8",
 };
 
 export interface CardProps {
@@ -40,11 +41,11 @@ export function Card({
     <div
       onClick={onClick}
       className={cn(
-        "rounded-card",
+        "rounded-xl transition-all duration-150",
         toneClasses[tone],
         paddingClasses[padding],
-        hover && "transition-all hover:-translate-y-1 hover:shadow-elevated",
-        interactive && "cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-elevated hover:border-slate-900",
+        hover && "hover:border-slate-300 hover:shadow-md",
+        interactive && "cursor-pointer hover:border-blue-300 hover:shadow-md",
         className,
       )}
     >

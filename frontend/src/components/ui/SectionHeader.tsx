@@ -10,7 +10,22 @@ export interface SectionHeaderProps {
   className?: string;
 }
 
-export function SectionHeader({ eyebrow, eyebrowTone = "accent", title, description, action, align = "left", className }: SectionHeaderProps) {
+const eyebrowColor: Record<string, string> = {
+  accent: "text-blue-600",
+  success: "text-emerald-600",
+  warning: "text-amber-700",
+  neutral: "text-slate-500",
+};
+
+export function SectionHeader({
+  eyebrow,
+  eyebrowTone = "accent",
+  title,
+  description,
+  action,
+  align = "left",
+  className,
+}: SectionHeaderProps) {
   return (
     <div
       className={cn(
@@ -21,20 +36,18 @@ export function SectionHeader({ eyebrow, eyebrowTone = "accent", title, descript
     >
       <div className={cn(align === "center" && "mx-auto")}>
         {eyebrow && (
-          <span
-            className={cn(
-              "inline-flex items-center px-3 py-1 rounded-lg border-2 border-slate-900 text-xs font-bold uppercase shadow-brutal-sm",
-              eyebrowTone === "accent" && "bg-blue-600 text-white",
-              eyebrowTone === "success" && "bg-emerald-400 text-slate-900",
-              eyebrowTone === "warning" && "bg-amber-400 text-slate-900",
-              eyebrowTone === "neutral" && "bg-slate-100 text-slate-700"
-            )}
-          >
+          <p className={cn("text-xs font-semibold uppercase tracking-wider mb-1.5", eyebrowColor[eyebrowTone])}>
             {eyebrow}
-          </span>
+          </p>
         )}
-        <h2 className={cn("text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-3")}>{title}</h2>
-        {description && <p className={cn("text-sm font-medium text-slate-600 mt-1.5 max-w-2xl")}>{description}</p>}
+        <h2 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          {title}
+        </h2>
+        {description && (
+          <p className="text-sm text-slate-500 mt-1.5 max-w-2xl leading-relaxed">
+            {description}
+          </p>
+        )}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>

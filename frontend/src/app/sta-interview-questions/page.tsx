@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import Link from "next/link";
 import {
   ChevronDown,
   ChevronUp,
   BookOpen,
   MessageSquare,
-  Target,
+  Search,
   ArrowRight,
+  HelpCircle,
+  Layers,
 } from "lucide-react";
-import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { SectionHeader } from "@/components/ui/SectionHeader";
 import { cn } from "@/lib/utils";
 
 /* ------------------------------------------------------------------ */
@@ -442,34 +442,41 @@ const TOPICS: Topic[] = [
   },
 ];
 
-const STATS = [
-  { value: "128", label: "questions", icon: MessageSquare },
-  { value: "11", label: "topics", icon: BookOpen },
-  { value: "40+", label: "diagrams", icon: Target },
-];
-
 /* ------------------------------------------------------------------ */
-/*  Question Card                                                      */
+/*  Question Card Component                                            */
 /* ------------------------------------------------------------------ */
 
-function QuestionCard({ question }: { question: Question }) {
+function QuestionCard({
+  question,
+  topicTitle,
+  index,
+}: {
+  question: Question;
+  topicTitle: string;
+  index: number;
+}) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="border border-slate-200 rounded-xl overflow-hidden">
+    <div className="bg-white border border-slate-200/90 rounded-xl overflow-hidden shadow-sm transition-all hover:border-slate-300">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-start gap-3 p-4 text-left hover:bg-slate-50 transition-colors"
+        className="w-full flex items-start gap-3.5 p-4 sm:p-5 text-left transition-colors hover:bg-slate-50/70"
       >
-        <span className="shrink-0 mt-0.5 w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
-          Q
+        <span className="shrink-0 mt-0.5 w-6 h-6 rounded-md bg-blue-50 text-blue-700 text-xs font-mono font-bold flex items-center justify-center border border-blue-200/60">
+          {index + 1}
         </span>
-        <span className="text-sm font-semibold text-slate-900 flex-1 leading-relaxed">
-          {question.question}
-        </span>
-        <span className="shrink-0 mt-0.5 text-slate-400">
+        <div className="flex-1 min-w-0 pr-2">
+          <span className="text-xs font-mono text-slate-400 block mb-1">
+            {topicTitle}
+          </span>
+          <h3 className="text-sm sm:text-base font-semibold text-slate-900 leading-snug">
+            {question.question}
+          </h3>
+        </div>
+        <span className="shrink-0 mt-1 text-slate-400">
           {expanded ? (
-            <ChevronUp className="w-4 h-4" />
+            <ChevronUp className="w-4 h-4 text-blue-600" />
           ) : (
             <ChevronDown className="w-4 h-4" />
           )}
@@ -477,15 +484,15 @@ function QuestionCard({ question }: { question: Question }) {
       </button>
 
       {expanded && (
-        <div className="px-4 pb-4 pt-0 pl-13">
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <div className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-2">
-              Answer
-            </div>
+        <div className="px-4 pb-5 sm:px-6 sm:pb-6 pt-1 border-t border-slate-100 bg-slate-50/40">
+          <div className="pl-3 sm:pl-4 border-l-2 border-blue-600 space-y-3 mt-3">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-blue-600 font-mono">
+              Engineering Answer
+            </p>
             {question.answer.split("\n\n").map((para, i) => (
               <p
                 key={i}
-                className="text-sm text-blue-900 leading-relaxed font-medium mb-2 last:mb-0"
+                className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal"
               >
                 {para}
               </p>
@@ -498,117 +505,181 @@ function QuestionCard({ question }: { question: Question }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Topic Section                                                      */
-/* ------------------------------------------------------------------ */
-
-function TopicSection({ topic, index }: { topic: Topic; index: number }) {
-  const [expanded, setExpanded] = useState(index === 0);
-
-  return (
-    <div>
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between gap-4 p-4 bg-white border border-slate-200 hover:border-blue-300 rounded-xl transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold text-blue-600 bg-blue-50 w-8 h-8 rounded-lg flex items-center justify-center">
-            {String(index + 1).padStart(2, "0")}
-          </span>
-          <div className="text-left">
-            <h3 className="font-bold text-slate-900">{topic.title}</h3>
-            <p className="text-xs text-slate-500">{topic.count} questions</p>
-          </div>
-        </div>
-        <ChevronDown
-          className={cn(
-            "w-5 h-5 text-slate-400 transition-transform",
-            expanded && "rotate-180"
-          )}
-        />
-      </button>
-
-      {expanded && (
-        <div className="mt-3 space-y-3 pl-4">
-          {topic.questions.map((q) => (
-            <QuestionCard key={q.id} question={q} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Page                                                               */
+/*  Main STA Interview Questions Page                                  */
 /* ------------------------------------------------------------------ */
 
 export default function STAInterviewPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTopicId, setSelectedTopicId] = useState<string>("all");
+
+  const totalQuestions = TOPICS.reduce((acc, t) => acc + t.questions.length, 0);
+
+  const filteredTopics = useMemo(() => {
+    return TOPICS.map((topic) => {
+      const matchesTopicFilter = selectedTopicId === "all" || topic.id === selectedTopicId;
+      if (!matchesTopicFilter) return null;
+
+      const matchingQuestions = topic.questions.filter((q) => {
+        if (!searchQuery.trim()) return true;
+        const qText = q.question.toLowerCase();
+        const aText = q.answer.toLowerCase();
+        const sText = searchQuery.toLowerCase();
+        return qText.includes(sText) || aText.includes(sText);
+      });
+
+      if (matchingQuestions.length === 0) return null;
+
+      return {
+        ...topic,
+        questions: matchingQuestions,
+      };
+    }).filter(Boolean) as Topic[];
+  }, [searchQuery, selectedTopicId]);
+
+  const matchingCount = filteredTopics.reduce((acc, t) => acc + t.questions.length, 0);
+
   return (
-    <div className="min-h-screen bg-[#FAF9F6] py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-10">
-
-        {/* HERO */}
-        <Card tone="accent" className="p-8 sm:p-12 shadow-brutal-lg relative overflow-hidden">
-          <div className="max-w-3xl space-y-4 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white text-slate-900 text-xs font-black border-2 border-slate-900 shadow-brutal-sm">
-              <MessageSquare className="w-4 h-4 text-purple-600 stroke-[2.5]" />
-              <span>STATIC TIMING ANALYSIS</span>
-            </div>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-              STA Interview Questions
-            </h1>
-            <p className="text-blue-50 text-sm sm:text-base font-medium leading-relaxed">
-              128 real interview questions across 11 topics — from fundamentals to signoff. Each answer includes detailed explanations with practical context.
-            </p>
-          </div>
-        </Card>
-
-        {/* STATS */}
-        <div className="flex items-center justify-center gap-8">
-          {STATS.map((s) => {
-            const Icon = s.icon;
-            return (
-              <div key={s.label} className="flex items-center gap-2">
-                <Icon className="w-4 h-4 text-blue-600" />
-                <span className="text-lg font-black text-slate-900">{s.value}</span>
-                <span className="text-xs font-bold text-slate-500">{s.label}</span>
-              </div>
-            );
-          })}
+    <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-12">
+      {/* Header */}
+      <div className="border-b border-slate-200/80 pb-8 space-y-6">
+        <div className="max-w-3xl space-y-3">
+          <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
+            Practice Repository
+          </p>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+            128 STA Interview Questions &amp; Answers
+          </h1>
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+            Exhaustive Static Timing Analysis interview preparation. Covering setup/hold closure, clock uncertainty, CRPR, crosstalk noise, multi-corner analysis, and SDC constraints.
+          </p>
         </div>
 
-        {/* TOPICS */}
-        <div>
-          <SectionHeader
-            eyebrow="All Topics"
-            title="Complete STA Interview Guide"
-            description="11 Topics · 128 Questions — Click a topic to expand. Each question has a detailed 2-3 paragraph answer."
-          />
+        {/* Search & Topic Filters */}
+        <div className="space-y-4 pt-2">
+          {/* Search Box */}
+          <div className="relative max-w-xl">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search 128 questions... (e.g. CRPR, crosstalk, OCV, setup slack, jitter)"
+              className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900 placeholder:text-slate-400 shadow-sm"
+            />
+          </div>
 
-          <div className="space-y-4">
-            {TOPICS.map((topic, i) => (
-              <TopicSection key={topic.id} topic={topic} index={i} />
+          {/* Topic Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 text-xs">
+            <button
+              onClick={() => setSelectedTopicId("all")}
+              className={cn(
+                "px-3 py-1.5 rounded-lg font-medium transition-colors whitespace-nowrap",
+                selectedTopicId === "all"
+                  ? "bg-slate-900 text-white"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              )}
+            >
+              All Topics ({totalQuestions})
+            </button>
+            {TOPICS.map((topic) => (
+              <button
+                key={topic.id}
+                onClick={() => setSelectedTopicId(topic.id)}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg font-medium transition-colors whitespace-nowrap",
+                  selectedTopicId === topic.id
+                    ? "bg-slate-900 text-white"
+                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                )}
+              >
+                {topic.title} ({topic.count})
+              </button>
             ))}
           </div>
-        </div>
 
-        {/* BOTTOM CTA */}
-        <Card tone="inverse" className="p-8 text-center">
-          <h2 className="text-xl font-black text-white mb-2">
-            Need more practice?
-          </h2>
-          <p className="text-slate-300 text-sm font-medium mb-5 max-w-lg mx-auto">
-            These questions cover the most commonly asked STA topics. Practice explaining each answer out loud — that is how interviews work.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button href="/learn" variant="secondary" size="lg">
-              Start Learning Free <ArrowRight className="w-4 h-4" />
-            </Button>
-            <Button href="/engineering-lab" variant="ghost" size="lg" className="text-white border-white/20 hover:bg-white/10">
-              Engineering Lab
-            </Button>
+          {/* Active Result Count */}
+          <div className="flex items-center justify-between text-xs text-slate-500 font-medium pt-1">
+            <span>
+              Showing {matchingCount} of {totalQuestions} questions
+            </span>
+            {(searchQuery || selectedTopicId !== "all") && (
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setSelectedTopicId("all");
+                }}
+                className="text-blue-600 hover:underline font-semibold"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
-        </Card>
+        </div>
+      </div>
+
+      {/* Questions List */}
+      <div className="space-y-10">
+        {filteredTopics.map((topic) => (
+          <div key={topic.id} className="space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <h2 className="font-display font-bold text-lg text-slate-900 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-blue-600" />
+                {topic.title}
+              </h2>
+              <span className="text-xs text-slate-400 font-mono font-medium">
+                {topic.questions.length} questions
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {topic.questions.map((q, idx) => (
+                <QuestionCard
+                  key={q.id}
+                  question={q}
+                  topicTitle={topic.title}
+                  index={idx}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {filteredTopics.length === 0 && (
+          <div className="text-center py-16 bg-white border border-slate-200 rounded-xl p-8 space-y-3">
+            <HelpCircle className="w-8 h-8 text-slate-400 mx-auto" />
+            <p className="text-sm font-semibold text-slate-900">No matching questions found</p>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              We couldn&apos;t find any questions matching &quot;{searchQuery}&quot;. Try broader terms like &quot;hold&quot;, &quot;clock&quot;, or &quot;SDC&quot;.
+            </p>
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedTopicId("all");
+              }}
+              className="text-xs font-semibold text-blue-600 hover:underline"
+            >
+              Reset Search &amp; Filters
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Practice Banner */}
+      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="space-y-1 text-center sm:text-left">
+          <h3 className="font-display font-bold text-base text-slate-900">
+            Want to test these concepts on real reports?
+          </h3>
+          <p className="text-xs text-slate-500">
+            Head to the Engineering Lab to diagnose setup, hold, and clock skew violations on actual EDA outputs.
+          </p>
+        </div>
+        <Link
+          href="/engineering-lab"
+          className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-xs transition-colors shadow-sm shrink-0"
+        >
+          Open Engineering Lab <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
     </div>
   );

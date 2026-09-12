@@ -1,112 +1,208 @@
 "use client";
 
-import React from "react";
-import { BookOpen, Zap, Layers, ArrowRight } from "lucide-react";
+import React, { useState } from "react";
+import Link from "next/link";
+import { ArrowRight, Layers, Zap, BookOpen, Clock, Search } from "lucide-react";
 import { LEARNING_PATHS } from "@/lib/academy/all-paths";
-import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
-  { key: "foundations" as const, label: "Foundations", description: "Master the fundamentals of digital design and verification.", icon: Layers },
-  { key: "backend" as const, label: "Backend (RTL to GDSII)", description: "From synthesis to tapeout — physical implementation of digital chips.", icon: Zap },
-  { key: "tools-career" as const, label: "Tools & Career", description: "Scripting, Linux, interview prep, and career guidance.", icon: BookOpen },
+  {
+    key: "foundations" as const,
+    label: "Foundations",
+    description: "Digital circuits, binary logic, HDL description, and functional verification.",
+    icon: Layers,
+  },
+  {
+    key: "backend" as const,
+    label: "Backend & Signoff (RTL to GDSII)",
+    description: "Physical implementation, clock tree synthesis, routing, STA, and signoff checks.",
+    icon: Zap,
+  },
+  {
+    key: "tools-career" as const,
+    label: "Tools & Career",
+    description: "EDA scripting automation, Linux fundamentals, roadmap planning, and interview prep.",
+    icon: BookOpen,
+  },
 ];
 
 const LEVEL_TONE: Record<string, "accent" | "success" | "warning" | "purple" | "neutral"> = {
-  "Beginner": "accent",
-  "Intermediate": "success",
-  "Advanced": "warning",
-  "All levels": "purple",
+  Beginner: "accent",
+  Intermediate: "success",
+  Advanced: "warning",
+  "All levels": "neutral",
 };
 
 export default function LearnIndex() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+
+  const filteredPaths = LEARNING_PATHS.filter((p) => {
+    const matchesSearch =
+      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.tools.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesCategory = activeCategory === "all" || p.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
-    <div className="min-h-screen bg-[#FAF9F6] py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+      {/* Header */}
+      <div className="border-b border-slate-200/80 pb-8">
+        <div className="max-w-3xl space-y-3">
+          <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
+            Curriculum Directory
+          </p>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+            15 Structured Learning Paths
+          </h1>
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+            From digital logic foundations to advanced physical design and timing signoff. 148 self-paced modules, completely free and open.
+          </p>
+        </div>
 
-        {/* HERO */}
-        <Card tone="accent" className="p-8 sm:p-12 shadow-brutal-lg relative overflow-hidden">
-          <div className="max-w-3xl space-y-4 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white text-slate-900 text-xs font-black border-2 border-slate-900 shadow-brutal-sm">
-              <Layers className="w-4 h-4 text-blue-600 stroke-[2.5]" />
-              <span>SELF-PACED VLSI LEARNING PATHS</span>
-            </div>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-              Learning Paths
-            </h1>
-            <p className="text-blue-50 text-sm sm:text-base font-medium leading-relaxed">
-              {LEARNING_PATHS.length} structured paths across digital design, verification, physical design, EDA tools, and career preparation. Pick a path or follow the sequence from foundations to advanced.
-            </p>
+        {/* Filter / Search Bar */}
+        <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            <button
+              onClick={() => setActiveCategory("all")}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap",
+                activeCategory === "all"
+                  ? "bg-slate-900 text-white"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              )}
+            >
+              All Paths ({LEARNING_PATHS.length})
+            </button>
+            {CATEGORIES.map((c) => {
+              const count = LEARNING_PATHS.filter((p) => p.category === c.key).length;
+              return (
+                <button
+                  key={c.key}
+                  onClick={() => setActiveCategory(c.key)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap",
+                    activeCategory === c.key
+                      ? "bg-slate-900 text-white"
+                      : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                  )}
+                >
+                  {c.label.split(" ")[0]} ({count})
+                </button>
+              );
+            })}
           </div>
-        </Card>
 
-        {/* PATHS BY CATEGORY */}
-        {CATEGORIES.map((cat) => {
-          const paths = LEARNING_PATHS.filter((p) => p.category === cat.key);
-          const Icon = cat.icon;
-          return (
-            <div key={cat.key}>
-              <SectionHeader
-                eyebrow={cat.label}
-                eyebrowTone={cat.key === "foundations" ? "accent" : cat.key === "backend" ? "success" : "neutral"}
-                title={cat.label}
-                description={cat.description}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {paths.map((path) => {
-                  const levelTone = LEVEL_TONE[path.level] || "neutral";
-                  return (
-                    <Card key={path.slug} hover className="p-6 flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-center justify-between mb-4">
-                          <Badge tone={levelTone}>{path.level}</Badge>
-                          <Badge tone="neutral">{path.moduleCount} modules</Badge>
-                        </div>
-
-                        <h3 className="font-black text-slate-900 text-lg mb-2">{path.title}</h3>
-                        <p className="text-slate-600 text-xs leading-relaxed font-medium mb-4">
-                          {path.description}
-                        </p>
-
-                        {path.tools.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mb-4">
-                            {path.tools.map((t) => (
-                              <span key={t} className="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
-                                {t}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="pt-4 border-t-2 border-slate-100 flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-500">
-                          {path.modules.reduce((acc, m) => {
-                            const num = parseInt(m.duration);
-                            return acc + (isNaN(num) ? 0 : num);
-                          }, 0)} min total
-                        </span>
-                        <Button
-                          href={`/learn/${path.slug}`}
-                          size="sm"
-                          variant="primary"
-                        >
-                          Start Path
-                          <ArrowRight className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
+          <div className="relative w-full sm:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search paths or tools..."
+              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900 placeholder:text-slate-400 shadow-sm"
+            />
+          </div>
+        </div>
       </div>
+
+      {/* Path Listings */}
+      {CATEGORIES.map((cat) => {
+        const pathsInCat = filteredPaths.filter((p) => p.category === cat.key);
+        if (pathsInCat.length === 0) return null;
+
+        return (
+          <div key={cat.key} className="space-y-6">
+            <SectionHeader
+              eyebrow={cat.label}
+              title={cat.label}
+              description={cat.description}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {pathsInCat.map((path) => {
+                const totalMinutes = path.modules.reduce((acc, m) => {
+                  const num = parseInt(m.duration);
+                  return acc + (isNaN(num) ? 0 : num);
+                }, 0);
+
+                return (
+                  <div
+                    key={path.slug}
+                    className="bg-white border border-slate-200/90 hover:border-slate-300 rounded-xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Badge tone={LEVEL_TONE[path.level] || "neutral"}>{path.level}</Badge>
+                        <span className="text-xs text-slate-400 font-medium">
+                          {path.moduleCount} modules
+                        </span>
+                      </div>
+
+                      <h3 className="font-display font-bold text-base text-slate-900 group-hover:text-blue-600 transition-colors mb-2">
+                        {path.title}
+                      </h3>
+
+                      <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                        {path.description}
+                      </p>
+
+                      {path.tools.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                          {path.tools.map((t) => (
+                            <span
+                              key={t}
+                              className="text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200/60"
+                            >
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" /> ~{totalMinutes} min
+                      </span>
+                      <Link
+                        href={`/learn/${path.slug}`}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                      >
+                        Explore Path <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+
+      {filteredPaths.length === 0 && (
+        <div className="text-center py-16 bg-white border border-slate-200 rounded-xl p-8 space-y-3">
+          <p className="text-sm font-semibold text-slate-900">No matching learning paths</p>
+          <p className="text-xs text-slate-500">
+            No paths matched &quot;{searchQuery}&quot;. Try searching for &quot;Verilog&quot;, &quot;STA&quot;, or &quot;TCL&quot;.
+          </p>
+          <button
+            onClick={() => {
+              setSearchQuery("");
+              setActiveCategory("all");
+            }}
+            className="text-xs font-semibold text-blue-600 hover:underline"
+          >
+            Reset Filters
+          </button>
+        </div>
+      )}
     </div>
   );
 }

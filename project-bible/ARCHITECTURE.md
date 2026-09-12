@@ -32,65 +32,70 @@ The application serves a single focused purpose: **free VLSI learning for semico
 
 ---
 
-## 2. Five Learning Surfaces
+## 2. Six Learning Surfaces
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│ Surface                   Key Pages                                            │
+│ Surface                   Key Pages                                             │
 ├─────────────────────────────────────────────────────────────────────────────────┤
-│ 1. VLSI Learning Academy  /academy, /academy/[trackId],                        │
-│    (/academy)             /academy/[trackId]/[day]                             │
-│                           7 tracks, day-by-day curriculum, quizzes             │
+│ 1. VLSI Learning Academy  /academy, /academy/[trackId],                         │
+│    (/academy)             /academy/[trackId]/[day]                              │
+│                           7 tracks, day-by-day curriculum, quizzes              │
 ├─────────────────────────────────────────────────────────────────────────────────┤
-│ 2. Learning Paths         /learn, /learn/[pathId],                             │
-│    (/learn)               /learn/[pathId]/[moduleId]                           │
-│                           15 paths (5 Foundation + 6 Backend + 4 Tools)        │
+│ 2. Learning Paths         /learn, /learn/[pathId],                              │
+│    (/learn)               /learn/[pathId]/[moduleId]                            │
+│                           15 paths (5 Foundations + 6 Backend + 4 Tools/Career) │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │ 3. Engineering Lab        /engineering-lab                                      │
-│                           4 real violation debugging cases                      │
+│                           4 real EDA diagnostic report cases                    │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │ 4. STA Interview Q&A      /sta-interview-questions                              │
-│                           128 questions, 11 topics, difficulty badges           │
+│                           128 questions, 11 topics, search & math derivations   │
 ├─────────────────────────────────────────────────────────────────────────────────┤
-│ 5. Free Resources         /courses                                             │
-│                           OpenLane guide, Career Roadmap, Resume Tips          │
+│ 5. Free Resources         /courses, /courses/openlane-rtl-to-gds,               │
+│                           /courses/resume-tips                                  │
+│                           OpenLane Sky130 tapeout guide, resume guidelines      │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ 6. Career Resources       /resources                                            │
+│                           Roles breakdown (PD, DV, RTL, DFT), EDA toolchains    │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. Database Architecture
+## 3. Design System Architecture
 
-SiliconPath uses a single optional Supabase database for progress persistence. All learning content is statically generated or served from API routes. localStorage is the primary progress store.
-
-### Supabase (Optional — Progress Persistence)
-- **Role**: Optional cloud sync for academy progress and quiz results
-- **Key Tables**: `learning_tracks`, `learning_days`, `learning_questions`, `track_assessments`, `user_progress`
-- **Fallback**: localStorage when Supabase is unavailable or user is unauthenticated
-
-### Content Delivery
-- Learning path modules, engineering lab cases, and STA questions are statically generated
-- YouTube video embeds for visual learning
-- No database required for content reads
-
----
-
-## 4. Security
-
-SiliconPath has minimal security surface since all content is freely accessible:
-
-1. **No Authentication Required**: All learning content is public
-2. **Optional Progress Sync**: Supabase auth only used if user wants cloud progress persistence
-3. **Security Headers**:
-   - `X-Frame-Options: DENY`
-   - `X-Content-Type-Options: nosniff`
-   - `Strict-Transport-Security: max-age=31536000; includeSubDomains`
+Defined centrally in `frontend/src/styles/design-tokens.ts`:
+- **Colors:**
+  - Background: `#F8FAFC`
+  - Text Primary: `#0F172A`
+  - Text Secondary: `#475569`
+  - Text Muted: `#94A3B8`
+  - Brand Primary: `#2563EB` (reserved for primary CTAs and active states)
+  - Terminal/Log Viewport: `#0B1120`
+  - Status: `#059669` (success), `#D97706` (warning), `#DC2626` (danger)
+- **Radii:** Geometric hierarchy (`sm: 4px`, `md: 6px`, `lg: 8px`, `xl: 12px`). No oversized bubble shapes.
+- **Shadows:** Standard subtle CSS box-shadows (`card: 0 1px 2px rgba(0,0,0,0.05)`). Removed all hard neo-brutalist offset borders and drop shadows.
+- **Typography:** Inter (body text) and Space Grotesk (technical headings & labels).
 
 ---
 
-## 5. Verification Baseline
+## 4. Content Delivery & State Management
 
-- **TypeScript Type Safety**: `npx tsc --noEmit` (0 errors)
-- **Unit & Integration Tests**: `npx jest` (passing)
-- **Production Build**: `npm run build` (compiles successfully)
-- **Security**: No auth required, public content, security headers enabled
+- **Zero Auth Gating:** All learning paths, modules, academy days, engineering labs, and interview Q&As are immediately accessible.
+- **Client-side Progress Tracking:** `localStorage` provides instant, unauthenticated progress persistence for completed modules and track days (`learn-${pathSlug}-completed`).
+- **Optional Cloud Sync:** Optional Supabase API synchronization if an authenticated session exists, with immediate fallback to local storage.
+- **Static Generation:** Next.js prerenders all 16 static routes during build time for instant page loads.
+
+---
+
+## 5. Security & Verification Baseline
+
+1. **Security Controls:**
+   - No sensitive credentials exposed in client bundles.
+   - All secret variables isolated to server-side environments.
+   - Security headers enabled in `next.config.js` (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`).
+2. **Verification Suite:**
+   - **TypeScript:** `npx tsc --noEmit` passing with 0 errors.
+   - **Unit Tests:** `jest` testing curriculum integrity, slug uniqueness, and sitemap synchronization.
+   - **Build:** `npm run build` generates all static and dynamic routes successfully.

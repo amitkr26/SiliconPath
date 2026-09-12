@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import {
   GraduationCap,
   CheckCircle2,
@@ -9,174 +10,195 @@ import {
   BookOpen,
   FileText,
   Map,
+  Layers,
+  Terminal,
+  ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { SectionHeader } from "@/components/ui/SectionHeader";
-
-/* ------------------------------------------------------------------ */
-/*  Data                                                               */
-/* ------------------------------------------------------------------ */
 
 interface Resource {
   id: string;
   title: string;
+  category: string;
   level: "Beginner" | "Intermediate" | "All levels";
   levelTone: "success" | "accent" | "neutral";
   icon: React.ReactNode;
   features: string[];
   desc: string;
   href: string;
+  ctaText: string;
 }
 
 const RESOURCES: Resource[] = [
   {
     id: "openlane",
-    title: "OpenLane RTL-to-GDS Guide",
+    title: "OpenLane RTL-to-GDSII Complete Flow Guide",
+    category: "Tapeout & EDA Tooling",
     level: "Intermediate",
     levelTone: "accent",
-    icon: <Zap className="w-5 h-5" />,
-    desc: "Full RTL to GDSII flow using OpenLane on a real design, step by step. 100% free.",
+    icon: <Zap className="w-5 h-5 text-blue-600" />,
+    desc: "Complete step-by-step physical implementation on the SkyWater Sky130 PDK using open-source tools: Yosys, OpenROAD, and Magic.",
     features: [
-      "Complete open-source flow walkthrough",
-      "Synthesis, P&R, CTS, and signoff",
-      "Real SkyWater Sky130 PDK labs",
-      "Hands-on with OpenROAD tools",
+      "Full open-source ASIC flow walkthrough",
+      "Synthesis, Floorplan, PDN, CTS, and Routing commands",
+      "Verifiable Sky130 PDK configuration files",
+      "DRC, LVS, and signoff troubleshooting guide",
     ],
     href: "/courses/openlane-rtl-to-gds",
+    ctaText: "Read Tapeout Guide",
   },
   {
     id: "interview",
-    title: "Interview Q&A Collection",
+    title: "Static Timing Analysis (STA) Interview Question Bank",
+    category: "Interview Preparation",
     level: "All levels",
     levelTone: "neutral",
-    icon: <BookOpen className="w-5 h-5" />,
-    desc: "90+ real interview questions with detailed answers across PD, Synthesis, STA, and PV. 100% free.",
+    icon: <BookOpen className="w-5 h-5 text-indigo-600" />,
+    desc: "128 curated interview questions with detailed engineering answers covering setup/hold, clock skew, jitter, OCV, crosstalk, and SDC constraints.",
     features: [
-      "90+ interview Q&A with answers",
-      "PD, Synthesis, STA, and PV topics",
-      "Real-world scenario-based questions",
-      "Expandable detailed explanations",
+      "128 questions with expandable mathematical proofs & answers",
+      "Setup, Hold, Clock Tree, and Signal Integrity topics",
+      "Real-world scenario & timing report analysis questions",
+      "Instant keyword search and topic filtering",
     ],
     href: "/sta-interview-questions",
+    ctaText: "Practice 128 Questions",
   },
   {
     id: "roadmap",
-    title: "Career Roadmap",
+    title: "8-Week VLSI Engineering Career Roadmap",
+    category: "Career & Planning",
     level: "Beginner",
     levelTone: "success",
-    icon: <Map className="w-5 h-5" />,
-    desc: "Complete beginner roadmap for VLSI freshers, with an 8-week structured study plan. 100% free.",
+    icon: <Map className="w-5 h-5 text-emerald-600" />,
+    desc: "Structured study blueprint for students and transitioning engineers: from digital logic fundamentals to tapeout-ready physical design.",
     features: [
-      "8-week structured study plan",
-      "VLSI career roadmap",
-      "Tool setup guides",
-      "Beginner-friendly explanations",
+      "Week-by-week structured curriculum guide",
+      "Tool setup instructions for open-source EDA simulators",
+      "Recommended textbook chapters and papers",
+      "Clear milestone checkpoints and self-assessments",
     ],
     href: "/learn/career-roadmap",
+    ctaText: "Explore 8-Week Roadmap",
   },
   {
     id: "resume",
-    title: "Resume Tips",
+    title: "Semiconductor Technical Resume & Portfolio Guide",
+    category: "Career & Hiring",
     level: "All levels",
     levelTone: "neutral",
-    icon: <FileText className="w-5 h-5" />,
-    desc: "VLSI-specific resume templates and tips that get you shortlisted. 100% free.",
+    icon: <FileText className="w-5 h-5 text-slate-700" />,
+    desc: "How to craft an ATS-optimized semiconductor resume: bullet point formulas, EDA tool matrices, tapeout metric reporting, and portfolio ideas.",
     features: [
-      "VLSI-specific resume templates",
-      "Keyword optimization guide",
-      "Portfolio project ideas",
-      "LinkedIn profile tips",
+      "Before & after bullet point rewrite comparisons",
+      "Categorized EDA skills matrix formatting",
+      "Quantified QoR metrics guide (slack, power, area)",
+      "3 high-credibility portfolio projects that hiring managers respect",
     ],
     href: "/courses/resume-tips",
+    ctaText: "View Resume Guide",
   },
 ];
 
-/* ------------------------------------------------------------------ */
-/*  Page                                                               */
-/* ------------------------------------------------------------------ */
-
 export default function CoursesPage() {
   return (
-    <div className="min-h-screen bg-[#FAF9F6] py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto space-y-12">
+    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto space-y-10">
 
-        {/* HERO */}
-        <Card tone="accent" className="p-8 sm:p-12 shadow-brutal-lg relative overflow-hidden">
-          <div className="max-w-3xl space-y-4 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white text-slate-900 text-xs font-black border-2 border-slate-900 shadow-brutal-sm">
-              <GraduationCap className="w-4 h-4 text-blue-600 stroke-[2.5]" />
-              <span>100% FREE RESOURCES</span>
-            </div>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-              Free VLSI resources
-            </h1>
-            <p className="text-blue-50 text-sm sm:text-base font-medium leading-relaxed">
-              Everything you need to learn VLSI — guides, interview prep, career roadmaps, and resume tips. No paywall, no login required.
-            </p>
+        {/* BREADCRUMB */}
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500">
+          <Link href="/" className="hover:text-slate-900 transition-colors">
+            Home
+          </Link>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+          <span className="text-slate-900 font-medium">Free Resources</span>
+        </nav>
+
+        {/* HEADER */}
+        <header className="border-b border-slate-200 pb-8 space-y-3">
+          <div className="flex items-center gap-2">
+            <Badge tone="accent">Editorial Guides</Badge>
+            <Badge tone="neutral">100% Free Access</Badge>
           </div>
-        </Card>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Curated VLSI Engineering Guides & Resources
+          </h1>
+          <p className="text-base text-slate-600 max-w-2xl leading-relaxed">
+            Technical deep dives, interview question banks, career roadmaps, and tapeout walkthroughs. No paywalls, no signup gates, no marketing fluff.
+          </p>
+        </header>
 
-        {/* RESOURCES */}
-        <div>
-          <SectionHeader
-            eyebrow="All Free"
-            title="Free resources"
-            description="Every resource is free. Pick what you need."
-          />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {RESOURCES.map((resource) => (
-              <Card key={resource.id} hover className="p-6 flex flex-col justify-between relative">
-                <div>
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center text-blue-600">
-                      {resource.icon}
-                    </div>
+        {/* RESOURCE CARDS GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {RESOURCES.map((resource) => (
+            <div
+              key={resource.id}
+              className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between hover:border-slate-300 transition-all shadow-sm group"
+            >
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center">
+                    {resource.icon}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-slate-500">{resource.category}</span>
                     <Badge tone={resource.levelTone}>{resource.level}</Badge>
                   </div>
+                </div>
 
-                  <h3 className="font-black text-slate-900 text-lg mb-1">{resource.title}</h3>
-                  <p className="text-sm text-slate-500 leading-relaxed mb-4">{resource.desc}</p>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                    {resource.title}
+                  </h2>
+                  <p className="text-xs text-slate-500 leading-relaxed mt-1.5">
+                    {resource.desc}
+                  </p>
+                </div>
 
+                <div className="border-t border-slate-100 pt-3">
                   <ul className="space-y-2">
-                    {resource.features.map((f, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                        <span>{f}</span>
+                    {resource.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-2 text-xs text-slate-600">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                        <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
+              </div>
 
-                <div className="mt-5 pt-4 border-t border-slate-200">
-                  <Button variant="primary" size="sm" href={resource.href}>
-                    Access Free <ArrowRight className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-              </Card>
-            ))}
+              <div className="mt-6 pt-4 border-t border-slate-100">
+                <Button href={resource.href} variant="primary" size="sm" className="w-full justify-center">
+                  {resource.ctaText} <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* SYSTEM CURRICULUM BANNER */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 sm:p-8 text-white space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold text-white">Looking for the complete structured curriculum?</h3>
+              <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+                SiliconPath provides 15 structured learning paths covering 148 technical modules from Digital Logic and Verilog HDL to Clock Tree Synthesis and Physical Verification.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <Button href="/learn" variant="primary" size="md">
+                Browse All 15 Paths <ArrowRight className="w-4 h-4 ml-1.5" />
+              </Button>
+              <Button href="/engineering-lab" variant="ghost" size="md" className="text-slate-300 hover:text-white border-slate-700">
+                Engineering Lab
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* BOTTOM CTA */}
-        <Card className="p-8 text-center border-2 border-slate-200">
-          <h2 className="text-xl font-black text-slate-900 mb-2">
-            Not sure where to start?
-          </h2>
-          <p className="text-slate-500 text-sm font-medium mb-5 max-w-lg mx-auto">
-            Start with the free learning paths. 15 structured paths covering the full VLSI flow — from Digital Electronics to Physical Verification.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button href="/learn" variant="primary" size="lg">
-              Start Learning Free <ArrowRight className="w-4 h-4" />
-            </Button>
-            <Button href="/sta-interview-questions" variant="ghost" size="lg">
-              Try STA Q&A Free
-            </Button>
-          </div>
-        </Card>
       </div>
     </div>
   );
