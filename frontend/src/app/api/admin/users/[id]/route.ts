@@ -8,8 +8,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
-  const adminErr = await verifyAdmin(request);
-  if (adminErr) return adminErr;
+  if (!await verifyAdmin(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const resolvedParams = params instanceof Promise ? await params : params;
   const userId = resolvedParams.id;
