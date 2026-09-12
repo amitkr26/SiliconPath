@@ -34,7 +34,7 @@ export async function PATCH(
     }
 
     const oppOwner = (appData as any).opportunity?.created_by;
-    if (oppOwner && oppOwner !== user.id) {
+    if (!oppOwner || oppOwner !== user.id) {
       return NextResponse.json({ error: "Forbidden: You do not own the opportunity for this application" }, { status: 403 });
     }
   }

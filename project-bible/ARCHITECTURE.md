@@ -108,9 +108,12 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
    - Admin access is validated via `verifyAdmin` (constant-time password hash / HMAC token verification) or authoritative `isUserAdmin(user)`.
 2. **Server-Side Middleware Boundary (`frontend/src/middleware.ts`)**:
    - Strictly intercepts all `/employer/*` and `/api/employer/*` routes, returning 403 Forbidden for non-employer roles and 401 for anonymous traffic.
-3. **Multi-Employer IDOR Shield**:
+3. **Multi-Employer IDOR Shield & Fail-Closed Gates**:
    - Every mutation and review endpoint verifies that the authenticated user owns the referenced opportunity (`created_by === user.id || employer_id === user.id` or `role === 'admin'`).
-   - Cross-employer access attempts return HTTP 403 Forbidden.
+   - Any resource where `created_by` or ownership is `null` (e.g. scraped jobs or system entries) strictly fails closed (`if (!owner || owner !== user.id) return 403;`), preventing unauthorized modification or deletion by other employers.
+   - Cross-employer and cross-tenant access attempts return HTTP 403 Forbidden.
+   - Message endpoints (`/api/messages`) enforce participant validation (`participant_a === user.id || participant_b === user.id`), preventing arbitrary cross-user message injection into foreign conversation IDs.
+   - Company claim lifecycle (`/api/employer/claim`): Admin approval transitions claims to `approved`, securely links `claimed_by` in `company_pages`, grants verified status, and alerts the applicant via real-time system notification.
 4. **RBAC Middleware**:
    - Role-based access control with three roles: `candidate`, `employer`, `admin`.
    - Capability-based progressive permissions model.
@@ -126,8 +129,7 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
 
 ## 6. Verification Baseline
 
-- **TypeScript Type Safety**: `npx tsc --noEmit` (0 errors)
-- **Unit & Integration Tests**: `npx jest` (23 suites, 211 tests passing)
-- **Backend Test Baseline**: All passing (46 server + 15 ai-gateway + 97 api)
-- **Production Build**: `npm run build` (compiles successfully, 273 static and dynamic routes)
-- **Security**: IDOR protection, RBAC middleware, RLS on all tables, CSRF protection, rate limiting
+- **TypeScript Type Safety**: `npx tsc --noEmit` (0 errors across monorepo workspaces)
+- **Unit & Integration Tests**: 24 frontend test suites, 218 tests passing; 309 tests passing monorepo-wide (46 server + 15 ai-gateway + 30 worker + 218 frontend)
+- **Production Build**: `npm run build` (compiles cleanly, 273 static and dynamic routes generated)
+- **Security**: Fail-closed IDOR protection, message participant guards, company claim integrity, RBAC middleware, RLS, CSRF protection, and rate limiting.

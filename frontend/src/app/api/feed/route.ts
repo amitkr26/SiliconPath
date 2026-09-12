@@ -15,9 +15,12 @@ interface PostRow {
   id: string;
   author_id: string;
   content: string;
+  post_type?: string | null;
+  tags?: string[] | null;
   created_at: string;
   like_count: number | null;
   comment_count: number | null;
+  reposts_count?: number | null;
 }
 
 // GET: posts from the current user's connections + own posts (v2 schema).
@@ -51,7 +54,7 @@ export async function GET(request: NextRequest) {
   const scope = searchParams.get("scope") || searchParams.get("filter");
   let postQuery = db
     .from("feed_posts")
-    .select("id, author_id, content, created_at, like_count, comment_count")
+    .select("id, author_id, content, post_type, tags, created_at, like_count, comment_count, reposts_count")
     .order("created_at", { ascending: false });
 
   // Default to connection-scoped feed unless scope=global is explicitly requested
@@ -95,9 +98,12 @@ export async function GET(request: NextRequest) {
     user_id: p.author_id,
     author_id: p.author_id,
     content: p.content,
+    post_type: p.post_type || "post",
+    tags: p.tags || [],
     created_at: p.created_at,
     likes_count: p.like_count || 0,
     comments_count: p.comment_count || 0,
+    reposts_count: p.reposts_count || 0,
     user_reaction: reactedPostIds.has(p.id) ? "like" : null,
     author: authorsById[p.author_id] || null,
   }));

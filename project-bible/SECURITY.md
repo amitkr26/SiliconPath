@@ -149,7 +149,9 @@
 - [ ] Cron endpoints protected by `CRON_SECRET`
 - [ ] Rate limiting on auth/AI/public-write endpoints
 - [ ] CSP headers set in `middleware.ts`
-- [ ] Dependency audit passed (`npm audit` clean or documented overrides)
+- [ ] Fail-closed authorization: every mutation/read gate checks `!owner || owner !== user.id` (never allow access when `created_by` or relation is null)
+- [ ] Direct Object Reference protection: never trust user-supplied `userId`, `role`, or `organizationId` from request bodies without server validation
+- [ ] Message participant validation: verify user is participant in conversation before inserting messages
 
 ---
 

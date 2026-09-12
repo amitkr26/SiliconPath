@@ -97,16 +97,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "content is required" }, { status: 400 });
   }
 
-  if (conversationId && !participantId) {
+  if (conversationId) {
     const { data: conv } = await supabaseAdmin
       .from("conversations")
       .select("participant_a, participant_b")
       .eq("id", conversationId)
       .maybeSingle();
 
-    if (conv) {
-      participantId = conv.participant_a === user.id ? conv.participant_b : conv.participant_a;
+    if (!conv) {
+      return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
     }
+
+    if (conv.participant_a !== user.id && conv.participant_b !== user.id) {
+      return NextResponse.json({ error: "Forbidden: Not a participant in this conversation" }, { status: 403 });
+    }
+
+    participantId = conv.participant_a === user.id ? conv.participant_b : conv.participant_a;
   }
 
   if (!conversationId && (!participantId || !participantId.includes("-"))) {

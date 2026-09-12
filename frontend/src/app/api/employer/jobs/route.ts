@@ -188,7 +188,7 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ error: "Opportunity not found" }, { status: 404 });
       }
 
-      if (existingOpp.created_by && existingOpp.created_by !== user.id) {
+      if (!existingOpp.created_by || existingOpp.created_by !== user.id) {
         return NextResponse.json({ error: "Forbidden: You do not own this opportunity" }, { status: 403 });
       }
     }
@@ -253,7 +253,7 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({ error: "Opportunity not found" }, { status: 404 });
       }
 
-      if (existingOpp.created_by && existingOpp.created_by !== user.id) {
+      if (!existingOpp.created_by || existingOpp.created_by !== user.id) {
         return NextResponse.json({ error: "Forbidden: You do not own this opportunity" }, { status: 403 });
       }
     }

@@ -65,6 +65,7 @@ jest.mock("@/lib/supabase-admin", () => {
 import { NextRequest } from "next/server";
 import { PATCH as patchJob, DELETE as deleteJob } from "@/app/api/employer/jobs/route";
 import { PATCH as patchApplicant } from "@/app/api/employer/applicants/route";
+import { GET as getApplicantById, PATCH as patchApplicantById } from "@/app/api/employer/applicants/[id]/route";
 import { PATCH as patchApplication } from "@/app/api/applications/route";
 import { PATCH as patchCompany } from "@/app/api/employer/company/route";
 
@@ -305,5 +306,83 @@ describe("Employer & Candidate IDOR Prevention Gates", () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.success).toBe(true);
+  });
+
+  it("9. Employer A CANNOT mutate or delete an opportunity where created_by is null (returns 403)", async () => {
+    mockCurrentUser = { id: "employer-a-id", user_metadata: { role: "employer" } };
+
+    supabaseAdmin.from.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      maybeSingle: jest.fn().mockResolvedValue({
+        data: { id: "scraped-opp-id", created_by: null },
+        error: null,
+      }),
+    });
+
+    const patchReq = new NextRequest("http://localhost:3000/api/employer/jobs", {
+      method: "PATCH",
+      body: JSON.stringify({ id: "scraped-opp-id", title: "Hijacked Title" }),
+    });
+    const patchRes = await patchJob(patchReq);
+    expect(patchRes.status).toBe(403);
+
+    const deleteReq = new NextRequest("http://localhost:3000/api/employer/jobs?id=scraped-opp-id", {
+      method: "DELETE",
+    });
+    const deleteRes = await deleteJob(deleteReq);
+    expect(deleteRes.status).toBe(403);
+  });
+
+  it("10. Employer A CANNOT mutate applicant on an opportunity where created_by is null (returns 403)", async () => {
+    mockCurrentUser = { id: "employer-a-id", user_metadata: { role: "employer" } };
+
+    supabaseAdmin.from.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      maybeSingle: jest.fn().mockResolvedValue({
+        data: {
+          id: "app-id",
+          opportunity_id: "scraped-opp-id",
+          opportunity: { id: "scraped-opp-id", created_by: null },
+        },
+        error: null,
+      }),
+    });
+
+    const req = new NextRequest("http://localhost:3000/api/employer/applicants", {
+      method: "PATCH",
+      body: JSON.stringify({ id: "app-id", status: "shortlisted" }),
+    });
+    const res = await patchApplicant(req);
+    expect(res.status).toBe(403);
+  });
+
+  it("11. Employer A CANNOT access applicant via applicants/[id] when opportunity relation is null (returns 403)", async () => {
+    mockCurrentUser = { id: "employer-a-id", user_metadata: { role: "employer" } };
+
+    supabaseAdmin.from.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: {
+          id: "app-id",
+          opportunity_id: "orphan-id",
+          opportunity: null,
+        },
+        error: null,
+      }),
+    });
+
+    const getReq = new NextRequest("http://localhost:3000/api/employer/applicants/app-id", { method: "GET" });
+    const getRes = await getApplicantById(getReq, { params: { id: "app-id" } });
+    expect(getRes.status).toBe(403);
+
+    const patchReq = new NextRequest("http://localhost:3000/api/employer/applicants/app-id", {
+      method: "PATCH",
+      body: JSON.stringify({ status: "shortlisted" }),
+    });
+    const patchRes = await patchApplicantById(patchReq, { params: { id: "app-id" } });
+    expect(patchRes.status).toBe(403);
   });
 });
