@@ -132,10 +132,46 @@ export async function PATCH(request: NextRequest) {
         updated_at: new Date().toISOString(),
       })
       .eq("id", claimId)
-      .select()
+      .select("*, organization:organizations(id, name, slug, website, description)")
       .single();
 
     if (error) throw error;
+
+    // When approved, link claimed_by to company_pages and mark is_verified = true
+    if (status === "approved" && data?.organization_id && data?.claimed_by) {
+      const org = (data as any).organization;
+      await supabaseAdmin
+        .from("company_pages")
+        .upsert({
+          organization_id: data.organization_id,
+          name: org?.name || "Company",
+          slug: org?.slug || `company-${Date.now()}`,
+          website: org?.website || "",
+          description: org?.description || "",
+          claimed_by: data.claimed_by,
+          is_verified: true,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "organization_id" });
+
+      try {
+        await supabaseAdmin.from("notifications").insert([{
+          user_id: data.claimed_by,
+          type: "system",
+          message: `Your ownership claim for ${org?.name || "organization"} has been approved! You now have administrative access.`,
+          is_read: false,
+        }]);
+      } catch { /* ignore notification failure */ }
+    } else if (status === "rejected" && data?.claimed_by) {
+      const org = (data as any).organization;
+      try {
+        await supabaseAdmin.from("notifications").insert([{
+          user_id: data.claimed_by,
+          type: "system",
+          message: `Your ownership claim for ${org?.name || "organization"} was not approved. Please contact support with official credentials.`,
+          is_read: false,
+        }]);
+      } catch { /* ignore notification failure */ }
+    }
 
     return NextResponse.json({ success: true, claim: data });
   } catch (err: any) {

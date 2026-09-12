@@ -5,7 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
----
+- **2026-09-12 — Full-Stack Product Hardening, Fail-Closed Security & Discovery Remediation:**
+  - **Fail-Closed IDOR & Authorization Remediation**:
+    - `frontend/src/app/api/employer/jobs/route.ts`: Fixed vulnerability in `PATCH` and `DELETE` where `if (existingOpp.created_by && existingOpp.created_by !== user.id)` allowed unauthorized editing or deletion of scraped/unattributed opportunities. Replaced with fail-closed gate `if (!existingOpp.created_by || existingOpp.created_by !== user.id) return 403;`.
+    - `frontend/src/app/api/employer/applicants/route.ts`: Fixed unbounded fallback query in `GET` where employers with 0 posted jobs would execute an unconstrained query across all applicants in the database. In `PATCH`, fixed `if (!oppOwner || oppOwner !== user.id) return 403;`.
+    - `frontend/src/app/api/employer/applicants/[id]/route.ts`: Fixed fail-open check in `GET` and `PATCH` that permitted access when the related opportunity was null. Replaced with strict fail-closed gate returning 403.
+    - `frontend/src/app/api/applications/[id]/route.ts`: Fixed candidate application status update gate to strictly fail closed.
+  - **Company Hijacking & Auto-Verification Protection**:
+    - `frontend/src/app/api/employer/company/route.ts`: Prevented employers from claiming existing institutional organizations unless they are the verified claimant (`claimed_by === user.id`) or original creator. Prohibited self-serve auto-verification by regular users (`is_verified` is only set true for platform admins or pre-verified claims).
+  - **Company Claim Lifecycle Completion**:
+    - `frontend/src/app/api/employer/claim/route.ts`: Completed the full end-to-end claim approval workflow. When a platform admin approves a claim, the route updates `company_claims`, writes `claimed_by` and `is_verified: true` into `company_pages`, and creates real-time system notifications for the claimant.
+  - **Messaging Participant Gate**:
+    - `frontend/src/app/api/messages/route.ts`: Sealed message injection vulnerability where a caller could supply an arbitrary `conversationId` without verifying participation. Now strictly verifies `participant_a === user.id || participant_b === user.id` and returns 403 Forbidden on foreign conversation IDs.
+  - **Social Feed Schema Alignment**:
+    - `frontend/src/app/api/feed/route.ts`: Updated query to select and return `post_type`, `tags`, and `reposts_count`.
+  - **Ask AI Guest Access Alignment**:
+    - `frontend/src/app/ask-ai/page.tsx`: Removed client-side router push redirecting unauthenticated users to `/login`, restoring Guest access with IP rate-limiting per `PRODUCT.md`.
+  - **Test Suite Expansion**:
+    - `frontend/src/__tests__/api/claim-and-message-security.test.ts`: Added 4 tests validating message participant checks and company claim lifecycle approval.
+    - `frontend/src/__tests__/api/employer-idor.test.ts`: Added 3 tests (Tests 9-11) validating fail-closed gates on null `created_by` and missing relations.
+  - **Verification**:
+    - Monorepo Typecheck: `npm run typecheck` -> 0 errors across 5 workspaces.
+    - Monorepo Tests: `npm test` -> 309 tests passing (218 frontend across 24 suites, 46 server, 30 worker, 15 ai-gateway).
+    - Production Build: `npm run build` -> Clean compilation of 273 static and dynamic routes.
 
 - **2026-09-12 — Master Product Audit, Professional UI/UX Redesign & Full-Stack Remediation:**
   - **Baseline & Repository Separation**:

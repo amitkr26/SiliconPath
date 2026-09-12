@@ -82,23 +82,29 @@ export async function PATCH(request: NextRequest) {
         .eq("name", name)
         .maybeSingle();
 
+      let existingPage: { id: string; claimed_by: string | null; is_verified?: boolean } | null = null;
       if (existingOrg) {
         orgId = existingOrg.id;
 
         // Check if organization or company page is already claimed by someone else
-        const { data: existingPage } = await supabaseAdmin
+        const { data: foundPage } = await supabaseAdmin
           .from("company_pages")
-          .select("id, claimed_by")
+          .select("id, claimed_by, is_verified")
           .eq("organization_id", orgId)
           .maybeSingle();
+        existingPage = foundPage;
 
         const isAdmin = isUserAdmin(user);
         if (!isAdmin) {
           if (existingPage && existingPage.claimed_by && existingPage.claimed_by !== user.id) {
             return NextResponse.json({ error: "Forbidden: This organization is already claimed by another administrator" }, { status: 403 });
           }
-          if (existingOrg.created_by && existingOrg.created_by !== user.id && !existingPage) {
-            return NextResponse.json({ error: "Forbidden: You do not own this organization" }, { status: 403 });
+          const isCreator = existingOrg.created_by && existingOrg.created_by === user.id;
+          const isClaimant = existingPage && existingPage.claimed_by === user.id;
+          if (!isCreator && !isClaimant) {
+            return NextResponse.json({
+              error: "Forbidden: This organization is an official institutional entity or managed by another account. Please submit an official claim request via the Company Claim portal to verify ownership."
+            }, { status: 403 });
           }
         }
 
@@ -123,6 +129,8 @@ export async function PATCH(request: NextRequest) {
 
       // 3. Upsert company_pages record linked to claimed_by
       if (orgId) {
+        const isAdmin = isUserAdmin(user);
+        const isVerified = isAdmin ? true : (existingPage?.is_verified ?? false);
         await supabaseAdmin
           .from("company_pages")
           .upsert({
@@ -134,7 +142,7 @@ export async function PATCH(request: NextRequest) {
             industry: "Semiconductor & VLSI",
             headquarters: location,
             claimed_by: user.id,
-            is_verified: true,
+            is_verified: isVerified,
             updated_at: new Date().toISOString(),
           }, { onConflict: "organization_id" });
       }

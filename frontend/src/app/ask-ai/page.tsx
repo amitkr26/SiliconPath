@@ -90,21 +90,6 @@ export default function OpportunityIntelligencePage() {
     triggerAutoScroll();
   }, [activeSession.messages, loading, triggerAutoScroll]);
 
-  // Auth guard: redirect to login if not authenticated
-  useEffect(() => {
-    if (!userLoading && !user) {
-      router.push("/login?redirect=/ask-ai");
-    }
-  }, [user, userLoading, router]);
-
-  if (userLoading || !user) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-      </div>
-    );
-  }
-
   const toggleSaveOpportunity = (id: string) => {
     setSavedOpportunityIds((prev) => {
       const updated = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id];

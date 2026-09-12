@@ -55,7 +55,10 @@ export async function GET(
     // IDOR check: Verify the user is an admin OR owns the opportunity
     const isAdmin = isUserAdmin(user);
     const opp = application.opportunity as any;
-    if (!isAdmin && opp) {
+    if (!isAdmin) {
+      if (!opp) {
+        return NextResponse.json({ error: "Forbidden: You do not have access to this applicant." }, { status: 403 });
+      }
       const isOwner = (opp.created_by && opp.created_by === user.id) || (opp.employer_id && opp.employer_id === user.id);
       // ponytail: fail-closed — if both owner fields are null, deny access
       if (!isOwner) {
@@ -113,7 +116,10 @@ export async function PATCH(
 
     const isAdmin = isUserAdmin(user);
     const opp = existingApp.opportunity as any;
-    if (!isAdmin && opp) {
+    if (!isAdmin) {
+      if (!opp) {
+        return NextResponse.json({ error: "Forbidden: You do not have permission to mutate this applicant." }, { status: 403 });
+      }
       const isOwner = (opp.created_by && opp.created_by === user.id) || (opp.employer_id && opp.employer_id === user.id);
       // ponytail: fail-closed — if both owner fields are null, deny access
       if (!isOwner) {

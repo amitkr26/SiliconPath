@@ -80,6 +80,10 @@ export async function GET(request: NextRequest) {
     const { data: applications, error } = await appsQuery;
 
     if (error) {
+      if (!isAdmin && jobIds.length === 0) {
+        return NextResponse.json({ applicants: [], applications: [], total: 0 });
+      }
+
       let fallbackQuery = supabaseAdmin
         .from("applications")
         .select("*, opportunity:opportunities(*)")
@@ -87,7 +91,7 @@ export async function GET(request: NextRequest) {
 
       if (jobId && jobId !== "all") {
         fallbackQuery = fallbackQuery.eq("opportunity_id", jobId);
-      } else if (jobIds.length > 0) {
+      } else if (!isAdmin) {
         fallbackQuery = fallbackQuery.in("opportunity_id", jobIds);
       }
 
@@ -140,7 +144,7 @@ export async function PATCH(request: NextRequest) {
       }
 
       const oppOwner = (appData as any).opportunity?.created_by;
-      if (oppOwner && oppOwner !== user.id) {
+      if (!oppOwner || oppOwner !== user.id) {
         return NextResponse.json({ error: "Forbidden: You do not own the opportunity for this application" }, { status: 403 });
       }
     }
