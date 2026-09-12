@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Zap, Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
@@ -17,6 +17,19 @@ export default function UpdatePasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  // ponytail: Verify recovery session exists before allowing password update.
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setChecking(false);
+      if (!session) {
+        toast.error("No active session. Please use the recovery link from your email.");
+        router.replace("/login");
+      }
+    });
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +73,11 @@ export default function UpdatePasswordPage() {
         </div>
 
         <Card className="p-8 space-y-5">
-          {done ? (
+          {checking ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+            </div>
+          ) : done ? (
             <div className="text-center space-y-4 py-4">
               <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
               <p className="text-sm font-medium text-slate-700">

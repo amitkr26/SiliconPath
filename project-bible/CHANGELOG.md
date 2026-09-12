@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-12 — P1 Gap Fixes (Repost Button, Follow Button, Test Coverage):**
+  - **Feed Repost Button (`FEED-01`)**:
+    - Added `useRepostFeedPost()` hook to `hooks/useFeed.ts` — POSTs to `/api/feed/posts/[id]/repost`.
+    - Wired repost button in `feed/page.tsx` — was displaying count only, now clickable to toggle repost.
+  - **Network Follow Button (`NET-01`)**:
+    - Added `handleFollow(targetUserId)` to `network/page.tsx` — calls `POST /api/network/follow/[userId]`.
+    - Wired "Follow" button in Recommendations tab — was rendered with no `onClick`.
+  - **useRealtimeChannel Performance Fix (`RT-01`)**:
+    - Replaced array literal in `useEffect` deps with `useRef` pattern in `hooks/useRealtimeChannel.ts` — prevents unnecessary channel recreation every render.
+  - **update-password Session Check (`AUTH-04`)**:
+    - Added `useEffect` in `update-password/page.tsx` to verify recovery session exists before allowing password update; redirects to `/login` if no session.
+  - **Test Coverage (`TEST-01`)**:
+    - Added `__tests__/api/feed-network.test.ts` — 7 tests covering like toggle, follow self-guard, follow 409, 401, and success paths.
+  - **Verification**: 23 test suites, 211 tests all passing. TypeScript 0 errors.
+
 - **2026-09-12 — P3 Cleanups (Scraper Controls, DB2 Dead Code):**
   - **Scraper Admin Controls (`SCRAPER-01`)**:
     - Fixed `POST /api/admin/scrape` — was a no-op that only queried sources. Now actually triggers `runOpportunityScrape()` in background.
