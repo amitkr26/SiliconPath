@@ -105,8 +105,20 @@ In `/api/employer/company/route.ts` and `/api/employer/company/logo/route.ts`:
     Redesigned to modern design tokens, added logo upload and preview, and added clear disclaimer distinguishing branding from official verification.
 11. **`frontend/src/app/api/og/route.tsx` & `frontend/src/app/api/og/opportunity/[slug]/route.tsx`**:
     Cleaned branding text from SiliconPath to BerojgarDegreeWala.
-12. **`frontend/src/middleware.ts`**:
-    Updated CSP `img-src` to permit legitimate external avatars and institutional logos.
+12. **`frontend/src/middleware.ts` & `frontend/next.config.mjs`**:
+    Updated CSP `img-src` and `images.remotePatterns` to permit legitimate external avatars (including `api.dicebear.com` for preset avatars) and institutional logos.
+13. **Complete Elimination of Raw `<img>` and Unprotected `<Image />` Tags**:
+    - `src/app/search/page.tsx`: Candidates, organization logos, and news thumbnails converted to `ImageWithFallback`.
+    - `src/components/profile/EditProfileModal.tsx`: Avatar upload preview and preset avatars converted to `ImageWithFallback`.
+    - `src/components/profile/ProfileEditor.tsx`: Main user profile card converted to `ImageWithFallback`.
+    - `src/components/profile/PublicProfile.tsx`: Public candidate dossier header converted to `ImageWithFallback` with graceful monogram fallback.
+    - `src/app/feed/page.tsx`: Left sidebar user avatar, post author avatars, and comment author avatars converted to `ImageWithFallback`.
+    - `src/app/employer/messages/page.tsx`: Sidebar conversation avatars and thread header avatars converted to `ImageWithFallback`.
+    - `src/app/employer/talent/page.tsx` & `src/app/employer/talent/[username]/page.tsx`: Candidate cards and profile headers converted to `ImageWithFallback`.
+    - `src/app/employer/dashboard/page.tsx`: Recent applicant rows converted to `ImageWithFallback`.
+    - `src/app/employer/jobs/[id]/applicants/page.tsx` & `src/app/employer/applicants/page.tsx` & `src/app/employer/applicants/[id]/page.tsx`: Applicant cards, candidate dossiers, and pipeline views converted to `ImageWithFallback`.
+    - `src/app/admin/users/page.tsx`: Admin user table avatars converted to `ImageWithFallback`.
+    - `src/app/messages/page.tsx` & `src/components/MessageThread.tsx`: Replaced unhandled Next.js `Image` tags with error-recovering `ImageWithFallback`.
 
 ---
 
@@ -128,15 +140,26 @@ In `/api/employer/company/route.ts` and `/api/employer/company/logo/route.ts`:
 - **IMAGE-13**: `next.config.mjs` does NOT allow arbitrary wildcard remote hosts (`**`) (`PASS`)
 - **IMAGE-14**: `getDeterministicInitials` and `getDeterministicPalette` produce stable outputs (`PASS`)
 - **IMAGE-15**: `mapDbOpportunityToClient` provides backwards-compatible `organization_logo_url` (`PASS`)
+- **IMAGE-16**: `next.config.mjs` and `middleware.ts` include `api.dicebear.com` for preset avatars (`PASS`)
+- **IMAGE-17**: `ImageWithFallback` with `fallbackType="avatar"` renders deterministic monogram when `src` is null (`PASS`)
+- **IMAGE-18**: Zero raw `<img>` elements in `frontend/src` outside of tests (`PASS`)
 
 ### Full Regression Test Summary
-- **Frontend Test Suites**: 25 passed, 25 total (233/233 tests passed).
+- **Frontend Test Suites**: 25 passed, 25 total (236/236 tests passed).
 - **Monorepo Typecheck**: 0 errors across all 5 packages (`@berojgardegreewala/api`, `@berojgardegreewala/ai-gateway`, `@berojgardegreewala/server`, `@berojgardegreewala/worker`, `frontend`).
-- **Production Build**: `next build` compiled cleanly with 0 errors across 273 static and dynamic routes.
+- **Production Build**: `next build` compiled cleanly with 0 errors across all 273 static and dynamic routes.
 
 ---
 
-## 7. Known Limitations & Next Steps
+## 7. Production Database State & Architectural Limitations
 
-1. **Storage Buckets**: In local development environments without an active Supabase storage bucket `organization-logos`, the API automatically falls back to `avatars` or logs a descriptive warning without crashing.
-2. **Third-Party RSS Feeds**: Certain syndicated RSS feeds do not provide `media:content` or `enclosure` tags in their XML payload; for these items, the platform intentionally renders the high-contrast editorial fallback rather than attempting unauthorized web scraping of third-party article pages.
+1. **Production Data Reality**:
+   - `organizations`: All 104 rows currently in the database have `logo_url = null`.
+   - `news_articles`: Legacy articles currently in the database have `image_url = null` because the prior RSS ingestion pipeline hardcoded `null`.
+   - `user_profiles`: 1 profile has a user-uploaded avatar; the remainder have `avatar_url = null`.
+   - **Conclusion**: The web app visually appeared to "have no images" because the database genuine data contains nulls, and previous components rendered either blank boxes or attempted to pull stock photos. The deterministic fallback architecture (`ImageWithFallback`) guarantees that every organization, news item, and profile has a crisp, branded, high-contrast visual identity without fabricating database data or injecting misleading stock photography.
+2. **Ingestion Media Upgrades**:
+   - Going forward, `frontend/src/lib/scrapers/rss-parser.ts` extracts legitimate `<enclosure url="...">` and `<media:content url="...">` from RSS feeds. As newly ingested news arrives, articles with legitimate media attachments will automatically display remote imagery.
+3. **Storage Buckets**:
+   - In local development environments without an active Supabase storage bucket `organization-logos`, the API automatically falls back to `avatars` or logs a descriptive warning without crashing.
+

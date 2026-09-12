@@ -8,10 +8,13 @@ export interface ImageWithFallbackProps {
   src?: string | null;
   alt: string;
   name?: string;
-  variant?: "avatar" | "monogram" | "logo" | "editorial";
+  fallbackName?: string;
+  variant?: "avatar" | "monogram" | "logo" | "editorial" | "news";
+  fallbackType?: "avatar" | "monogram" | "logo" | "editorial" | "news";
   width?: number;
   height?: number;
   size?: number;
+  fill?: boolean;
   className?: string;
   priority?: boolean;
   editorialMeta?: {
@@ -61,23 +64,29 @@ export function getDeterministicPalette(name?: string) {
   return MONOGRAM_PALETTES[index];
 }
 
-export default function ImageWithFallback({
+export function ImageWithFallback({
   src,
   alt,
   name,
+  fallbackName,
   variant = "logo",
+  fallbackType,
   width,
   height,
   size,
+  fill,
   className = "",
   priority = false,
   editorialMeta,
 }: ImageWithFallbackProps) {
   const [hasError, setHasError] = useState(false);
 
+  const resolvedVariant = fallbackType || variant;
+  const resolvedName = fallbackName || name;
+
   // Derive initials and colors
-  const initials = useMemo(() => getDeterministicInitials(name || alt), [name, alt]);
-  const palette = useMemo(() => getDeterministicPalette(name || alt), [name, alt]);
+  const initials = useMemo(() => getDeterministicInitials(resolvedName || alt), [resolvedName, alt]);
+  const palette = useMemo(() => getDeterministicPalette(resolvedName || alt), [resolvedName, alt]);
 
   const resolvedWidth = width || size;
   const resolvedHeight = height || size;
@@ -90,7 +99,7 @@ export default function ImageWithFallback({
   );
 
   // 1. Editorial News Fallback Banner
-  if (variant === "editorial" && (!isValidUrl || hasError)) {
+  if ((resolvedVariant === "editorial" || resolvedVariant === "news") && (!isValidUrl || hasError)) {
     return (
       <div
         className={`w-full h-full min-h-[140px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-4 flex flex-col justify-between select-none relative overflow-hidden ${className}`}
@@ -101,7 +110,7 @@ export default function ImageWithFallback({
         <div className="relative z-10 flex items-center justify-between gap-2">
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/10 backdrop-blur-xs text-[10px] font-bold text-blue-300 border border-white/10">
             <Newspaper className="w-3 h-3 text-blue-400" />
-            {editorialMeta?.sourceName || name || "Semiconductor Editorial"}
+            {editorialMeta?.sourceName || resolvedName || "Semiconductor Editorial"}
           </span>
           {editorialMeta?.category && (
             <span className="text-[10px] font-semibold text-slate-400">
@@ -112,7 +121,7 @@ export default function ImageWithFallback({
 
         <div className="relative z-10 my-auto py-2">
           <div className="text-xl font-black text-slate-100 tracking-tight leading-snug line-clamp-2">
-            {alt || name || "Semiconductor Engineering Report"}
+            {alt || resolvedName || "Semiconductor Engineering Report"}
           </div>
         </div>
 
@@ -126,13 +135,13 @@ export default function ImageWithFallback({
 
   // 2. Organization Monogram / Compact Fallback
   if (!isValidUrl || hasError) {
-    if (variant === "avatar") {
+    if (resolvedVariant === "avatar") {
       return (
         <div
-          className={`flex items-center justify-center rounded-full border ${palette.bg} ${palette.text} font-bold text-xs select-none ${className}`}
-          style={{ width: resolvedWidth ? `${resolvedWidth}px` : undefined, height: resolvedHeight ? `${resolvedHeight}px` : undefined }}
+          className={`flex items-center justify-center rounded-full border ${palette.bg} ${palette.text} font-bold text-xs select-none ${fill ? "w-full h-full" : ""} ${className}`}
+          style={{ width: !fill && resolvedWidth ? `${resolvedWidth}px` : undefined, height: !fill && resolvedHeight ? `${resolvedHeight}px` : undefined }}
           role="img"
-          aria-label={alt || name || "User avatar"}
+          aria-label={alt || resolvedName || "User avatar"}
         >
           {initials !== "?" ? (
             <span>{initials}</span>
@@ -146,10 +155,10 @@ export default function ImageWithFallback({
     // Default logo / monogram fallback
     return (
       <div
-        className={`flex items-center justify-center rounded-lg border ${palette.bg} ${palette.text} font-bold text-xs select-none ${className}`}
-        style={{ width: resolvedWidth ? `${resolvedWidth}px` : undefined, height: resolvedHeight ? `${resolvedHeight}px` : undefined }}
+        className={`flex items-center justify-center rounded-lg border ${palette.bg} ${palette.text} font-bold text-xs select-none ${fill ? "w-full h-full" : ""} ${className}`}
+        style={{ width: !fill && resolvedWidth ? `${resolvedWidth}px` : undefined, height: !fill && resolvedHeight ? `${resolvedHeight}px` : undefined }}
         role="img"
-        aria-label={alt || name || "Organization monogram"}
+        aria-label={alt || resolvedName || "Organization monogram"}
       >
         {initials !== "?" ? (
           <span>{initials}</span>
@@ -164,10 +173,25 @@ export default function ImageWithFallback({
   // Using unoptimized if it's an external URL to prevent Next.js image proxy crashes on arbitrary domains
   const isInternal = src!.startsWith("/");
 
+  if (fill) {
+    return (
+      <Image
+        src={src!}
+        alt={alt || resolvedName || "Image"}
+        fill
+        sizes="(max-width: 768px) 100vw, 300px"
+        className={className}
+        priority={priority}
+        unoptimized={!isInternal}
+        onError={() => setHasError(true)}
+      />
+    );
+  }
+
   return (
     <Image
       src={src!}
-      alt={alt || name || "Image"}
+      alt={alt || resolvedName || "Image"}
       width={resolvedWidth || 48}
       height={resolvedHeight || 48}
       className={className}
@@ -177,3 +201,5 @@ export default function ImageWithFallback({
     />
   );
 }
+
+export default ImageWithFallback;

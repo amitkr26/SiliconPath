@@ -13,6 +13,7 @@ import { useSearch } from "@/hooks/useSearch";
 import { Input, Select } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { cn } from "@/lib/utils";
 
 function getInitials(name: string): string {
@@ -240,13 +241,15 @@ export default function SearchPage() {
               {people.map((p: any) => (
                 <Card key={p.id} className="p-5 border-2 border-slate-900 shadow-brutal-sm flex flex-col justify-between space-y-3">
                   <Link href={`/profile/${p.username || p.id}`} className="flex items-start gap-3 group">
-                    <div className="w-12 h-12 rounded-xl bg-blue-600 text-white border-2 border-slate-900 flex items-center justify-center font-black text-sm shrink-0 shadow-brutal-sm overflow-hidden">
-                      {p.avatar_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.avatar_url} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        getInitials(p.display_name || "")
-                      )}
+                    <div className="w-12 h-12 rounded-xl border-2 border-slate-900 flex items-center justify-center font-black text-sm shrink-0 shadow-brutal-sm overflow-hidden relative">
+                      <ImageWithFallback
+                        src={p.avatar_url}
+                        alt={p.display_name || "Candidate avatar"}
+                        fallbackType="avatar"
+                        fallbackName={p.display_name || "User"}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-slate-900 text-sm font-black group-hover:text-blue-600 transition-colors truncate">
@@ -300,13 +303,15 @@ export default function SearchPage() {
               {organizations.map((org: any) => (
                 <Card key={org.id} className="p-5 border-2 border-slate-900 shadow-brutal-sm space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-slate-100 border-2 border-slate-900 flex items-center justify-center font-black text-sm shrink-0 shadow-brutal-sm overflow-hidden">
-                      {org.logo_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={org.logo_url} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <Building2 className="w-6 h-6 text-slate-600" />
-                      )}
+                    <div className="w-12 h-12 rounded-xl border-2 border-slate-900 flex items-center justify-center font-black text-sm shrink-0 shadow-brutal-sm overflow-hidden relative">
+                      <ImageWithFallback
+                        src={org.logo_url}
+                        alt={`${org.name} logo`}
+                        fallbackType="logo"
+                        fallbackName={org.name}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5">
@@ -353,9 +358,15 @@ export default function SearchPage() {
                       </div>
                     </div>
                     {item.image_url && (
-                      <div className="w-16 h-16 rounded-xl border border-slate-200 overflow-hidden shrink-0">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={item.image_url} alt="" className="w-full h-full object-cover" />
+                      <div className="w-16 h-16 rounded-xl border border-slate-200 overflow-hidden shrink-0 relative">
+                        <ImageWithFallback
+                          src={item.image_url}
+                          alt={item.title || "News thumbnail"}
+                          fallbackType="news"
+                          fallbackName={item.source_name || "BerojgarDegreeWala News"}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
                     )}
                   </div>

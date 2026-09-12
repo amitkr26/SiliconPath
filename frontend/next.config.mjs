@@ -32,6 +32,7 @@ const nextConfig = {
       { protocol: "https", hostname: "www.electronicsweekly.com" },
       { protocol: "https", hostname: "theelectronicsmedia.com" },
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+      { protocol: "https", hostname: "api.dicebear.com" },
     ],
   },
   async redirects() {

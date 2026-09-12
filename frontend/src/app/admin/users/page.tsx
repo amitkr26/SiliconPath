@@ -6,6 +6,7 @@ import { Loader2, Users, Shield, ShieldOff, ShieldCheck, Search, ArrowLeft } fro
 import Link from "next/link";
 import { toast } from "sonner";
 import { api } from "@/lib/api-client";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 
 const ADMIN_TOKEN_KEY = "admin_token";
 
@@ -144,8 +145,15 @@ export default function AdminUsersPage() {
                 <tr key={u.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-600">
-                        {u.avatar_url ? <img src={u.avatar_url} alt="" className="w-8 h-8 rounded-full" /> : getInitials(u.display_name || u.username || "?")}
+                      <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs font-semibold relative">
+                        <ImageWithFallback
+                          src={u.avatar_url}
+                          alt={u.display_name || u.username || "User"}
+                          fallbackType="avatar"
+                          fallbackName={u.display_name || u.username || "User"}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">{u.display_name || u.username}</p>

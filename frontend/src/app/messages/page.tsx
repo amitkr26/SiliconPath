@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Loader2, MessageCircle, Search, ArrowLeft, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@/hooks/useUser";
@@ -210,12 +210,15 @@ export default function MessagesPage() {
                         c.unread_count > 0 && "border-l-2 border-l-blue-500 bg-blue-50/30"
                       )}
                     >
-                      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold shrink-0 overflow-hidden">
-                        {c.other_user?.avatar_url ? (
-                          <Image src={c.other_user.avatar_url} alt={c.other_user.display_name || "User avatar"} width={40} height={40} className="w-10 h-10 rounded-full object-cover" unoptimized />
-                        ) : (
-                          initials(c.other_user?.display_name)
-                        )}
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-gray-600 text-sm font-semibold shrink-0 overflow-hidden relative">
+                        <ImageWithFallback
+                          src={c.other_user?.avatar_url}
+                          alt={c.other_user?.display_name || "User avatar"}
+                          fallbackType="avatar"
+                          fallbackName={c.other_user?.display_name || "User"}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex justify-between gap-1">
@@ -265,12 +268,15 @@ export default function MessagesPage() {
                   >
                     <ArrowLeft size={18} />
                   </button>
-                  <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold shrink-0 overflow-hidden">
-                    {activeOtherUser.avatar_url ? (
-                      <Image src={activeOtherUser.avatar_url} alt={activeOtherUser.display_name || "User avatar"} width={36} height={36} className="w-9 h-9 rounded-full object-cover" unoptimized />
-                    ) : (
-                      initials(activeOtherUser.display_name)
-                    )}
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-gray-600 text-sm font-semibold shrink-0 overflow-hidden relative">
+                    <ImageWithFallback
+                      src={activeOtherUser.avatar_url}
+                      alt={activeOtherUser.display_name || "User avatar"}
+                      fallbackType="avatar"
+                      fallbackName={activeOtherUser.display_name || "User"}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-gray-900 truncate">
@@ -299,10 +305,15 @@ export default function MessagesPage() {
                         className={cn("flex items-end gap-2", isMine ? "flex-row-reverse" : "flex-row")}
                       >
                         {!isMine && (
-                          <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-xs font-semibold overflow-hidden">
-                            {activeOtherUser.avatar_url ? (
-                              <Image src={activeOtherUser.avatar_url} alt={activeOtherUser.display_name || "User avatar"} width={28} height={28} className="w-7 h-7 rounded-full object-cover" unoptimized />
-                            ) : initials(activeOtherUser.display_name)}
+                          <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-gray-600 text-xs font-semibold overflow-hidden relative">
+                            <ImageWithFallback
+                              src={activeOtherUser.avatar_url}
+                              alt={activeOtherUser.display_name || "User avatar"}
+                              fallbackType="avatar"
+                              fallbackName={activeOtherUser.display_name || "User"}
+                              fill
+                              className="object-cover"
+                            />
                           </div>
                         )}
                         <div
