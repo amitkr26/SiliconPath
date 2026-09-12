@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased] — 2026-09-12
+
+### Added
+- Complete SiliconPath branding (replaced all BerojgarDegreeWala references)
+- 15 learning paths with 148 modules (5 Foundation + 6 Backend + 4 Tools & Career)
+- Engineering Lab with 4 real violation debugging cases
+- 128 STA interview questions across 11 topics
+- Free Resources page (OpenLane guide, Career Roadmap, Resume Tips)
+- About page describing SiliconPath mission
+- Do-follow backlinks to BerojgarDegreeWala and ElectroBridge in footer
+- Navigation: Learn dropdown with all 15 paths, Academy link
+- Footer: 6-column layout with Our Ecosystem section
+
+### Removed
+- All pricing and course-selling content
+- All authentication requirements for learning content
+- Mentorship section
+- Newsletter signup
+- All "Buy", "Purchase", "Bundle" references
+
+### Changed
+- "Courses" → "Resources" throughout
+- "Browse Courses" → "Start Learning Free"
+- All testimonials reference "SiliconPath" not "the course"
+- Layout title: "SiliconPath — Free VLSI Learning Platform"
+- Metadata: keywords emphasize free learning
+
+### Migrated from BerojgarDegreeWala
+- Academy system (tracks, days, assessments, progress tracking)
+- 9 API routes for academy functionality
+- PracticeQuiz and YoutubeEmbed components
+- Academy library (types, queries, progress-local, fallback)
+
+---
+
 - **2026-09-08 — Admin Portal Functionality & Edge Runtime Compatibility Fix:**
   - **Edge Runtime Crypto Neutralization**:
     - Removed Node.js built-in `crypto` (`createHmac`, `timingSafeEqual`) and `Buffer` imports from `frontend/src/lib/admin-auth.ts` and `backend/api/src/auth/index.ts`.

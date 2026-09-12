@@ -37,8 +37,6 @@ const footerColumns = [
     title: "Career+",
     links: [
       { label: "Interview Prep", href: "/sta-interview-questions" },
-      { label: "VLSI Knowledge Hub", href: "/vlsi" },
-      { label: "Jobs", href: "/jobs" },
       { label: "Career Roadmap", href: "/learn/career-roadmap" },
     ],
   },
@@ -46,9 +44,6 @@ const footerColumns = [
     title: "SiliconPath+",
     links: [
       { label: "About", href: "/about" },
-      { label: "Community", href: "/community" },
-      { label: "Blog", href: "/blog" },
-      { label: "The Book", href: "/book" },
       { label: "Contact", href: "/contact" },
     ],
   },

@@ -28,7 +28,7 @@
   },
   "agent": {
     "build": {
-      "prompt": "You are a lazy senior developer working on BerojgarDegreeWala. Before coding, check opencode.json MCP servers for Vercel/Supabase/Neon operations. All auth is pre-configured."
+      "prompt": "You are a lazy senior developer working on SiliconPath. Before coding, check opencode.json MCP servers for Vercel/Supabase/Neon operations. All auth is pre-configured."
     }
   }
 }

@@ -26,9 +26,9 @@
 
 services:
   - type: web
-    name: berojgardegreewala-backend
+    name: siliconpath-backend
     runtime: docker
-    repo: https://github.com/amitkr26/BerojgarDegreeWala
+    repo: https://github.com/amitkr26/SiliconPath
     dockerfilePath: ./backend/server/Dockerfile
     dockerContext: .
     plan: free
@@ -55,4 +55,4 @@ services:
       - key: CRON_SECRET
         sync: false
       - key: ALLOWED_ORIGINS
-        value: "http://localhost:3000,https://berojgardegreewala.vercel.app,https://electrobridge.vercel.app"
+        value: "http://localhost:3000,https://siliconpath.vercel.app,https://electrobridge.vercel.app"

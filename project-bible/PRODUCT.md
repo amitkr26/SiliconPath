@@ -1,51 +1,64 @@
-# Product Specification
+# SiliconPath — Product Definition
 
-## Overview
+## Vision
+SiliconPath is a 100% free VLSI learning platform for semiconductor engineers. No paywalls, no premium tiers, no course selling.
 
-BerojgarDegreeWala is a career and knowledge platform for the Electronics, Semiconductor, VLSI, Embedded, Research, and Academia ecosystem — career intelligence infrastructure for that space. It consists of four integrated products inside a single web application.
+## Core Products
 
-## The Four Products
+### 1. VLSI Learning Academy (`/academy`)
+- 7 structured learning tracks (Digital Logic, Verilog, SystemVerilog, UVM, RTL Design, Physical Design, Interview Prep)
+- Day-by-day curriculum with hands-on labs
+- Practice quizzes and assessments
+- Progress tracking with local storage
+- YouTube video embeds for visual learning
 
-### 1. Opportunity Aggregator & Intelligence System (`/opportunities` & `/ask-ai`)
-Users should never need to manually visit hundreds of company, university, DRDO, ISRO, BARC, CSIR, IIT, NIT, IIIT, government, or private career pages. BerojgarDegreeWala aggregates live opportunities into one searchable platform and powers a dedicated Opportunity Intelligence Engine (`/ask-ai`) with 4 operating modes (Ask AI, Discover, Saved, Alerts), strict date-aware freshness validation, and institutional source tracking.
+### 2. Learning Paths (`/learn`)
+- 15 career-focused learning paths organized into 3 tiers:
+  - **Foundation (5):** Digital Electronics, Verilog HDL, CMOS VLSI Design, FPGA Design, Embedded Systems
+  - **Backend (6):** ASIC Physical Design, STA & Timing, DFT, Verification, Analog IC Design, Custom Layout
+  - **Tools & Career (4):** EDA Tools, Scripting for VLSI, VLSI Career Roadmap, Interview Preparation
+- 148 total modules across all paths
+- Each module: theory, examples, practice problems, key takeaways
 
-- Browse and search opportunities without login; registration is optional.
-- Applying redirects users directly to the original official source.
-- Multi-criteria filtering by category, eligibility, location, and deadline.
-- AI-powered natural language search and semantic matching.
+### 3. Engineering Lab (`/engineering-lab`)
+- 4 real-world violation debugging cases
+- Timing violations (setup/hold), congestion, DRC errors
+- Step-by-step debugging walkthroughs
+- Before/after snapshots
 
-### 2. Resume Studio (`/resume`)
-An independent, FlowCV-grade resume engineering workspace tailored for semiconductor, VLSI, embedded, and research professionals.
-- 10 tailored templates with 8 rendering primitives.
-- 3 workspace modes: Content, Customize, AI Tools.
-- Live A4 print preview and PDF generation.
-- Role-targeted ATS scoring and multi-resume version storage.
+### 4. STA Interview Questions (`/sta-interview-questions`)
+- 128 interview questions across 11 topics
+- Static Timing Analysis focus
+- Expandable answers with code examples
+- Difficulty badges (Beginner/Intermediate/Advanced)
 
-### 3. BerojgarDegreeWala Academy (`/academy`)
-A completely free VLSI, Electronics, and Semiconductor learning platform:
-- 7 learning tracks covering core VLSI, Digital Design, Analog, Embedded, Verification, Physical Design, and Architecture.
-- Sequential day-wise progression with video lectures, reading material, and interactive quizzes.
-- Gated assessments and certificate generation on completion.
+### 5. Free Resources (`/courses`)
+- Curated external learning resources
+- OpenLane RTL-to-GDS guide
+- VLSI Career Roadmap
+- Resume Tips for VLSI engineers
+- All resources are free and open-source
 
-### 4. BerojgarDegreeWala Network (`/network` & `/feed`)
-A domain-specific professional networking and community platform:
-- User profiles with verified skills, experience, and educational background.
-- Connection requests, direct messaging, and community interactions.
-- Specialized social feed for technical discussions, papers, and opportunity sharing.
-- Employer portal for job postings, applicant tracking (ATS), and candidate discovery.
+### 6. Career Resources (`/resources`)
+- VLSI career guides
+- Interview preparation
+- Salary information
+- Company directory
 
-## User Tiers & Feature Matrix
+## Platform Features
+- **No Authentication Required:** All learning content is freely accessible
+- **No Pricing:** Zero paid content, no premium tiers
+- **Mobile Responsive:** Works on all devices
+- **Dark Theme:** Professional dark UI with blue/slate palette
+- **SEO Optimized:** Dynamic sitemap, structured data, meta tags
 
-| Feature | Guest | Seeker | Provider / Employer | Admin |
-| :--- | :---: | :---: | :---: | :---: |
-| Browse opportunities | ✓ | ✓ | ✓ | ✓ |
-| Opportunity Intelligence (`/ask-ai`) | ✓ | ✓ | ✓ | ✓ |
-| Academy (Learn) | ✓ | ✓ | ✓ | ✓ |
-| Academy progress persistence | LocalStorage | DB Sync | DB Sync | ✓ |
-| Resume Studio | ✓ | ✓ | ✓ | ✓ |
-| Save opportunities & alert preferences | — | ✓ | — | ✓ |
-| Profile & Networking | — | ✓ | ✓ | ✓ |
-| Messaging & Social Feed | — | ✓ | ✓ | ✓ |
-| Post opportunities & ATS management | — | — | ✓ | ✓ |
-| Talent pool search | — | — | ✓ | ✓ |
-| Admin dashboard & scraper management | — | — | — | ✓ |
+## Tech Stack
+- Next.js 14 (App Router)
+- React 18 + TypeScript
+- Tailwind CSS
+- Supabase (optional, for progress persistence)
+- Vercel (hosting)
+
+## Partner Platforms
+- [BerojgarDegreeWala](https://berojgardegreewala.vercel.app) — Opportunity aggregator for semiconductor careers
+- [ElectroBridge](https://electrobridge.vercel.app) — AI resume builder for engineers

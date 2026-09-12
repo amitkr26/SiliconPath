@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-SiliconPath / BerojgarDegreeWala is a monorepo containing the Next.js 14 frontend application, backend microservices, scrapers, and shared libraries.
+SiliconPath is a monorepo containing the Next.js 14 frontend application, backend microservices, scrapers, and shared libraries.
 
 ### Prerequisites
 - Node.js >= 20
@@ -30,10 +30,10 @@ npm install
 npm run dev --workspace=frontend
 
 # Standalone backend server
-npm run dev --workspace=@berojgardegreewala/server
+npm run dev --workspace=@siliconpath/server
 
 # AI Gateway
-npm run dev --workspace=@berojgardegreewala/ai-gateway
+npm run dev --workspace=@siliconpath/ai-gateway
 ```
 
 ### Quality & Verification Gates

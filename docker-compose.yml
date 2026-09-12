@@ -4,14 +4,14 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
-    container_name: berojgardegreewala_frontend
+    container_name: siliconpath_frontend
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_APP_NAME=BerojgarDegreeWala
-      - NEXT_PUBLIC_SITE_URL=https://berojgardegreewala.vercel.app
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-postgres_dev_secret}@postgres:5432/berojgardegreewala_db?sslmode=disable
+      - NEXT_PUBLIC_APP_NAME=SiliconPath
+      - NEXT_PUBLIC_SITE_URL=https://siliconpath.vercel.app
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-postgres_dev_secret}@postgres:5432/siliconpath_db?sslmode=disable
       - REDIS_URL=redis://redis:6379
     depends_on:
       - postgres
@@ -25,7 +25,7 @@ services:
     build:
       context: .
       dockerfile: backend/server/Dockerfile
-    container_name: berojgardegreewala_api
+    container_name: siliconpath_api
     ports:
       - "8080:8080"
     environment:
@@ -40,13 +40,13 @@ services:
   # PostgreSQL Database Container
   postgres:
     image: postgres:16-alpine
-    container_name: berojgardegreewala_postgres
+    container_name: siliconpath_postgres
     ports:
       - "5432:5432"
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres_dev_secret}
-      - POSTGRES_DB=${POSTGRES_DB:-berojgardegreewala_db}
+      - POSTGRES_DB=${POSTGRES_DB:-siliconpath_db}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
@@ -54,7 +54,7 @@ services:
   # Redis Cache Container
   redis:
     image: redis:7-alpine
-    container_name: berojgardegreewala_redis
+    container_name: siliconpath_redis
     ports:
       - "6379:6379"
     volumes:
