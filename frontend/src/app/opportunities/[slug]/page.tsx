@@ -18,6 +18,7 @@ import OpenToWorkBanner from "@/components/OpenToWorkBanner";
 import SaveShareBar from "@/components/opportunities/SaveShareBar";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
 
 export const revalidate = 3600;
 
@@ -222,9 +223,14 @@ export default async function OpportunityDetailPage({ params }: Props) {
           {/* HEADER CARD */}
           <Card className="p-6">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-accent text-sm font-bold">{getInitials(orgName || "BDW")}</span>
-              </div>
+              <ImageWithFallback
+                src={opportunity.organization_logo_url}
+                alt={`${orgName || "Organization"} logo`}
+                name={orgName || "BDW"}
+                variant="monogram"
+                size={44}
+                className="w-11 h-11 rounded-lg border border-slate-200 shadow-xs flex-shrink-0"
+              />
               <div className="flex-1 min-w-0">
                 <h1 className="font-display text-xl sm:text-2xl font-black text-text-primary">{opportunity.title}</h1>
                 <p className="text-text-secondary text-sm mt-0.5">{orgName || "BerojgarDegreeWala"}</p>

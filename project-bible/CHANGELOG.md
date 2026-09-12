@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-12 — Production Image & Media Architecture & Security Hardening:**
+  - **Remote Image Host Hardening**:
+    - `frontend/next.config.mjs`: Removed `{ protocol: "https", hostname: "**" }` wildcard. Restriced to verified origins (Supabase, GitHub avatars, Google user content, LinkedIn media, `*.gov.in`, `*.res.in`, `*.ac.in`, and certified semiconductor news sources).
+  - **Deterministic Monogram & Fallback System**:
+    - `frontend/src/components/ui/ImageWithFallback.tsx`: Created universal fallback component supporting deterministic monograms (`getDeterministicInitials`, `getDeterministicPalette`), error boundary recovery, unoptimized proxy safety, and high-contrast editorial fallbacks.
+  - **Elimination of Fabricated Imagery & Stock Photos**:
+    - `frontend/src/components/NewsCard.tsx`: Replaced hardcoded Unsplash stock photo with designed editorial fallback.
+    - `frontend/src/app/network/page.tsx`: Eradicated `FALLBACK_AVATAR` (Unsplash woman photo); integrated deterministic monogram avatars.
+    - `frontend/src/components/OpportunityCard.tsx` & `frontend/src/app/opportunities/[slug]/page.tsx`: Integrated organization logo with monogram fallback. Opportunity cards remain data-driven without large decorative images.
+  - **Organization Directory Branding**:
+    - `frontend/src/app/organizations/page.tsx` & `OrganizationsClient.tsx`: Added verified organization logo and monogram support.
+    - `frontend/src/app/organizations/[slug]/page.tsx`: Redesigned organization detail header with logo, website, location, and active opportunity counts.
+  - **Profile & Employer Storage Hardening**:
+    - `frontend/src/app/api/profile/avatar/route.ts`: Hardened avatar upload with size check (<= 2MB), URL scheme validation (http/https only, rejecting `javascript:`/`data:`/SVG), and magic byte validation for JPEG, PNG, and WebP.
+    - `frontend/src/app/api/employer/company/route.ts`: Supported validated `logo_url` updates while preserving `is_verified` as strictly an administrative decision.
+    - `frontend/src/app/api/employer/company/logo/route.ts`: Added authenticated multipart logo upload with magic byte inspection and ownership checks.
+    - `frontend/src/app/employer/company/page.tsx`: Upgraded employer company profile with logo upload, live preview, and clear verification separation disclaimer.
+  - **OpenGraph Identity**:
+    - `frontend/src/app/api/og/route.tsx` & `frontend/src/app/api/og/opportunity/[slug]/route.tsx`: Replaced lingering SiliconPath branding with BerojgarDegreeWala.
+  - **Content Security Policy**:
+    - `frontend/src/middleware.ts`: Aligned `img-src` with trusted `remotePatterns`.
+  - **Automated Media Testing & Verification**:
+    - `frontend/src/__tests__/media/image-system.test.tsx`: Added 15 comprehensive automated tests (IMAGE-01 through IMAGE-15).
+    - Verification: 233/233 frontend tests passing across 25 suites; 0 errors on monorepo `npm run typecheck`; clean compilation on `next build`.
+
 - **2026-09-12 — Full-Stack Product Hardening, Fail-Closed Security & Discovery Remediation:**
   - **Fail-Closed IDOR & Authorization Remediation**:
     - `frontend/src/app/api/employer/jobs/route.ts`: Fixed vulnerability in `PATCH` and `DELETE` where `if (existingOpp.created_by && existingOpp.created_by !== user.id)` allowed unauthorized editing or deletion of scraped/unattributed opportunities. Replaced with fail-closed gate `if (!existingOpp.created_by || existingOpp.created_by !== user.id) return 403;`.

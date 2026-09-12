@@ -152,6 +152,10 @@
 - [ ] Fail-closed authorization: every mutation/read gate checks `!owner || owner !== user.id` (never allow access when `created_by` or relation is null)
 - [ ] Direct Object Reference protection: never trust user-supplied `userId`, `role`, or `organizationId` from request bodies without server validation
 - [ ] Message participant validation: verify user is participant in conversation before inserting messages
+- [ ] Media upload security: enforce magic byte inspection (PNG, JPEG, WebP only), strict <= 2MB size limit, reject SVG and executable files
+- [ ] Remote image host restriction: maintain explicit `remotePatterns` in `next.config.mjs`, never allow arbitrary `**` host wildcards
+- [ ] Image URL validation: strictly validate URL scheme (`http:`/`https:`) and reject `javascript:`, `data:`, or malicious protocols
+- [ ] Verification decoupling: user/employer logo uploads must NEVER auto-verify organizations; `is_verified` remains strictly an administrative action
 
 ---
 

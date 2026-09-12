@@ -223,6 +223,7 @@ export function mapDbOpportunityToClient(dbRow: any): any {
     description: cleanedDesc,
     eligibility: cleanedElig !== "Detailed position responsibilities and eligibility criteria are provided on the official organization portal." ? cleanedElig : null,
     org_slug: dbRow.organizations?.slug || dbRow.org_slug || (org ? org.toLowerCase().replace(/[^a-z0-9]+/g, "-") : (dbRow.organization_id || "")),
+    organization_logo_url: dbRow.organizations?.logo_url || dbRow.organization_logo_url || dbRow.logo_url || null,
     stipend: dbRow.salary_range || dbRow.stipend || null,
     apply_link: dbRow.apply_url || dbRow.apply_link || dbRow.source_url || "#",
     posted_at: dbRow.created_at || dbRow.posted_date || dbRow.posted_at || null,

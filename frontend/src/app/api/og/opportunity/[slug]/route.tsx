@@ -78,7 +78,7 @@ export async function GET(_request: Request, { params }: { params: { slug: strin
             BDW
           </div>
           <span style={{ fontSize: 20, color: "white", fontWeight: 600 }}>
-            Silicon<span style={{ color: "#0EA5E9" }}>Path</span>
+            Berojgar<span style={{ color: "#3B82F6" }}>DegreeWala</span>
           </span>
         </div>
       </div>

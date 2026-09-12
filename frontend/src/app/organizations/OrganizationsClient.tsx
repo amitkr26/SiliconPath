@@ -2,15 +2,18 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Search, MapPin, ArrowRight, Building2, Sparkles, Filter } from "lucide-react";
+import { Search, MapPin, ArrowRight, Building2, Sparkles, Filter, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
 
 export interface OrgItem {
   name: string;
   slug: string;
   type?: string;
   location?: string;
+  website?: string | null;
+  logo_url?: string | null;
   description?: string;
   count: number;
 }
@@ -86,27 +89,27 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
   return (
     <div className="space-y-6">
       {/* SEARCH AND FILTER BAR */}
-      <Card className="p-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      <Card className="p-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 border border-slate-200 shadow-xs">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name, type, or city (e.g. ISRO, DRDO, IIT, Bengaluru, Qualcomm)..."
-            className="w-full pl-12 pr-4 py-3 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-accent shadow-brutal-sm"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600"
           />
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`whitespace-nowrap px-3.5 py-2.5 rounded-xl text-xs font-black border-2 border-slate-900 transition-all ${
+              className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 selectedCategory === cat
-                  ? "bg-accent text-white shadow-brutal-sm"
-                  : "bg-white text-slate-700 hover:bg-slate-100"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
               }`}
             >
               {cat}
@@ -117,13 +120,13 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
 
       {/* COUNT SUMMARY */}
       <div className="flex items-center justify-between px-1">
-        <span className="text-xs font-black text-slate-600 uppercase tracking-wider">
+        <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
           Showing {filtered.length} verified organizations
         </span>
         {search && (
           <button
             onClick={() => setSearch("")}
-            className="text-xs font-bold text-accent hover:underline"
+            className="text-xs font-semibold text-blue-600 hover:underline"
           >
             Clear Search
           </button>
@@ -132,42 +135,43 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
 
       {/* ORGANIZATIONS GRID */}
       {filtered.length === 0 ? (
-        <Card className="p-12 text-center">
-          <Building2 className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-lg font-black text-slate-900">No organizations found</h3>
+        <Card className="p-12 text-center border border-slate-200 shadow-xs">
+          <Building2 className="w-10 h-10 text-slate-400 mx-auto mb-2" />
+          <h3 className="text-base font-bold text-slate-900">No organizations found</h3>
           <p className="text-slate-600 text-xs mt-1">Try adjusting your search keywords or filter category.</p>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((org) => (
             <Link
               key={org.slug}
               href={`/opportunities?search=${encodeURIComponent(org.name)}`}
-              className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-1 transition-all duration-300 group block flex flex-col justify-between"
+              className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 group block flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center flex-shrink-0 group-hover:bg-accent group-hover:text-white transition-all shadow-brutal-sm">
-                    <span className="text-accent font-black text-sm group-hover:text-white transition-colors">
-                      {org.name
-                        .split(" ")
-                        .map((w) => w[0])
-                        .join("")
-                        .substring(0, 2)
-                        .toUpperCase()}
-                    </span>
+                <div className="flex items-start gap-3.5">
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden border border-slate-100 bg-white">
+                    <ImageWithFallback
+                      src={org.logo_url}
+                      alt={`${org.name} logo`}
+                      name={org.name}
+                      variant="logo"
+                      width={48}
+                      height={48}
+                      className="w-12 h-12 rounded-lg object-contain p-1"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-slate-900 font-black text-base group-hover:text-accent transition-colors truncate">
+                    <h3 className="text-slate-900 font-bold text-sm sm:text-base group-hover:text-blue-600 transition-colors truncate">
                       {org.name}
                     </h3>
                     {org.type && (
-                      <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 border border-slate-300 text-slate-700 text-[10px] font-bold mt-1">
+                      <span className="inline-block px-2 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-600 text-[10px] font-medium mt-1">
                         {org.type}
                       </span>
                     )}
                     {org.location && (
-                      <p className="text-slate-500 text-xs mt-2 flex items-center gap-1 font-semibold">
+                      <p className="text-slate-500 text-xs mt-1.5 flex items-center gap-1 font-medium">
                         <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span className="truncate">{org.location}</span>
                       </p>
@@ -176,17 +180,17 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
                 </div>
 
                 {org.description && (
-                  <p className="text-slate-600 text-xs leading-relaxed mt-4 line-clamp-2 font-medium">
+                  <p className="text-slate-600 text-xs leading-relaxed mt-3 line-clamp-2 font-normal">
                     {org.description}
                   </p>
                 )}
               </div>
 
-              <div className="pt-4 mt-4 border-t-2 border-slate-100 flex items-center justify-between">
+              <div className="pt-3.5 mt-3.5 border-t border-slate-100 flex items-center justify-between text-xs">
                 <Badge tone="accent">
                   {org.count} Openings
                 </Badge>
-                <span className="text-xs font-black text-slate-900 group-hover:text-accent flex items-center gap-1">
+                <span className="font-semibold text-slate-900 group-hover:text-blue-600 flex items-center gap-1">
                   View Jobs <ArrowRight className="w-3.5 h-3.5" />
                 </span>
               </div>

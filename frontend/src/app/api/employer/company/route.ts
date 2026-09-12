@@ -57,7 +57,30 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, website, location, description, researchDomains, facilities } = body;
+    const { name, website, location, description, researchDomains, facilities, logo_url } = body;
+
+    // Validate logo_url if provided
+    let validLogoUrl: string | null | undefined = undefined;
+    if (logo_url !== undefined) {
+      if (logo_url === null || logo_url === "") {
+        validLogoUrl = null;
+      } else if (typeof logo_url === "string") {
+        if (logo_url.length > 2048) {
+          return NextResponse.json({ error: "Logo URL exceeds maximum length of 2048 characters" }, { status: 400 });
+        }
+        try {
+          const parsed = new URL(logo_url.trim());
+          if (!["http:", "https:"].includes(parsed.protocol)) {
+            return NextResponse.json({ error: "Logo URL must use http or https protocol" }, { status: 400 });
+          }
+          validLogoUrl = logo_url.trim();
+        } catch {
+          return NextResponse.json({ error: "Invalid logo URL format" }, { status: 400 });
+        }
+      } else {
+        return NextResponse.json({ error: "Invalid logo URL format" }, { status: 400 });
+      }
+    }
 
     // 1. Update user_profile
     await supabaseAdmin
@@ -108,9 +131,14 @@ export async function PATCH(request: NextRequest) {
           }
         }
 
+        const orgUpdatePayload: Record<string, any> = { website, description };
+        if (validLogoUrl !== undefined) {
+          orgUpdatePayload.logo_url = validLogoUrl;
+        }
+
         await supabaseAdmin
           .from("organizations")
-          .update({ website, description })
+          .update(orgUpdatePayload)
           .eq("id", orgId);
       } else {
         const { data: newOrg } = await supabaseAdmin
@@ -121,6 +149,7 @@ export async function PATCH(request: NextRequest) {
             website,
             description,
             created_by: user.id,
+            ...(validLogoUrl !== undefined ? { logo_url: validLogoUrl } : {}),
           })
           .select("id")
           .single();
@@ -128,6 +157,8 @@ export async function PATCH(request: NextRequest) {
       }
 
       // 3. Upsert company_pages record linked to claimed_by
+      // Critical security rule: Employer updating/uploading logo NEVER auto-verifies company.
+      // is_verified remains strictly an administrative trust decision.
       if (orgId) {
         const isAdmin = isUserAdmin(user);
         const isVerified = isAdmin ? true : (existingPage?.is_verified ?? false);
@@ -143,6 +174,7 @@ export async function PATCH(request: NextRequest) {
             headquarters: location,
             claimed_by: user.id,
             is_verified: isVerified,
+            ...(validLogoUrl !== undefined ? { logo_url: validLogoUrl } : {}),
             updated_at: new Date().toISOString(),
           }, { onConflict: "organization_id" });
       }

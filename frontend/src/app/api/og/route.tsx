@@ -39,10 +39,10 @@ export async function GET() {
           BDW
         </div>
         <div style={{ fontSize: 56, fontWeight: 700, color: "white", textAlign: "center" }}>
-          Silicon<span style={{ color: "#0EA5E9" }}>Path</span>
+          Berojgar<span style={{ color: "#3B82F6" }}>DegreeWala</span>
         </div>
         <div style={{ fontSize: 24, color: "#94A3B8", marginTop: 16, textAlign: "center", maxWidth: 800 }}>
-          Electronics & Semiconductor Opportunities
+          India's Hardware &amp; Engineering Career Intelligence Platform
         </div>
         <div style={{ marginTop: 32, display: "flex", gap: 16 }}>
           {["JRF", "PhD", "DRDO", "ISRO", "CSIR", "VLSI"].map((tag) => (

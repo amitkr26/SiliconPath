@@ -15,20 +15,22 @@ interface OrgItem {
   slug: string;
   type?: string;
   location?: string;
+  website?: string | null;
+  logo_url?: string | null;
   description?: string;
   count: number;
 }
 
 const FEATURED_ORGS: OrgItem[] = [
-  { name: "DRDO", slug: "drdo", type: "Government Defence Research Lab", location: "New Delhi / Pan India", description: "Defence Research and Development Organisation hiring Scientist B/C, JRF, and SRF.", count: 8 },
-  { name: "ISRO", slug: "isro", type: "Space Research Centre", location: "Bengaluru / Ahmedabad", description: "Indian Space Research Organisation recruiting for satellite, avionics & VLSI payloads.", count: 8 },
-  { name: "CSIR Labs", slug: "csir", type: "National Research Institute", location: "Pilani / Pune / New Delhi", description: "Council of Scientific and Industrial Research labs (CEERI, NPL, NCL).", count: 12 },
-  { name: "IIT Bombay", slug: "iit-bombay", type: "Premier Academic Institution", location: "Mumbai, Maharashtra", description: "IRCC R&D project positions and PhD research fellowships in Microelectronics.", count: 15 },
-  { name: "IIT Madras", slug: "iit-madras", type: "Premier Academic Institution", location: "Chennai, Tamil Nadu", description: "ICSR IC design, SHAKTI RISC-V processor, and semiconductor research openings.", count: 14 },
-  { name: "IISc Bangalore", slug: "iisc-bangalore", type: "Premier Research University", location: "Bengaluru, Karnataka", description: "Centre for Nano Science and Engineering (CeNSE) & DESE research Fellowships.", count: 18 },
-  { name: "Arm Ltd", slug: "arm-ltd", type: "Semiconductor IP Leader", location: "Bengaluru / Global", description: "CPU design, SoC security, physical IP verification, and graphics engineering.", count: 24 },
-  { name: "Intel Corporation", slug: "intel", type: "Semiconductor IDM", location: "Bengaluru / Hyderabad", description: "Logic design, structural design, post-silicon validation, and EDA software.", count: 32 },
-  { name: "Qualcomm", slug: "qualcomm", type: "Fabless Semiconductor Giant", location: "Hyderabad / Bengaluru", description: "Snapdragon modem design, 5G RFIC, GPU verification, and firmware development.", count: 28 },
+  { name: "DRDO", slug: "drdo", type: "Government Defence Research Lab", location: "New Delhi / Pan India", website: "https://drdo.gov.in", logo_url: null, description: "Defence Research and Development Organisation hiring Scientist B/C, JRF, and SRF.", count: 8 },
+  { name: "ISRO", slug: "isro", type: "Space Research Centre", location: "Bengaluru / Ahmedabad", website: "https://isro.gov.in", logo_url: null, description: "Indian Space Research Organisation recruiting for satellite, avionics & VLSI payloads.", count: 8 },
+  { name: "CSIR Labs", slug: "csir", type: "National Research Institute", location: "Pilani / Pune / New Delhi", website: "https://csir.res.in", logo_url: null, description: "Council of Scientific and Industrial Research labs (CEERI, NPL, NCL).", count: 12 },
+  { name: "IIT Bombay", slug: "iit-bombay", type: "Premier Academic Institution", location: "Mumbai, Maharashtra", website: "https://iitb.ac.in", logo_url: null, description: "IRCC R&D project positions and PhD research fellowships in Microelectronics.", count: 15 },
+  { name: "IIT Madras", slug: "iit-madras", type: "Premier Academic Institution", location: "Chennai, Tamil Nadu", website: "https://iitm.ac.in", logo_url: null, description: "ICSR IC design, SHAKTI RISC-V processor, and semiconductor research openings.", count: 14 },
+  { name: "IISc Bangalore", slug: "iisc-bangalore", type: "Premier Research University", location: "Bengaluru, Karnataka", website: "https://iisc.ac.in", logo_url: null, description: "Centre for Nano Science and Engineering (CeNSE) & DESE research Fellowships.", count: 18 },
+  { name: "Arm Ltd", slug: "arm-ltd", type: "Semiconductor IP Leader", location: "Bengaluru / Global", website: "https://arm.com", logo_url: null, description: "CPU design, SoC security, physical IP verification, and graphics engineering.", count: 24 },
+  { name: "Intel Corporation", slug: "intel", type: "Semiconductor IDM", location: "Bengaluru / Hyderabad", website: "https://intel.com", logo_url: null, description: "Logic design, structural design, post-silicon validation, and EDA software.", count: 32 },
+  { name: "Qualcomm", slug: "qualcomm", type: "Fabless Semiconductor Giant", location: "Hyderabad / Bengaluru", website: "https://qualcomm.com", logo_url: null, description: "Snapdragon modem design, 5G RFIC, GPU verification, and firmware development.", count: 28 },
 ];
 
 async function getOrganizations(): Promise<OrgItem[]> {
@@ -36,7 +38,7 @@ async function getOrganizations(): Promise<OrgItem[]> {
 
   const { data: orgs } = await supabaseAdmin
     .from("organizations")
-    .select("id, name, slug, type, location, description")
+    .select("id, name, slug, type, location, website, logo_url, description")
     .order("name", { ascending: true });
 
   if (!orgs || orgs.length === 0) return FEATURED_ORGS;
@@ -60,6 +62,8 @@ async function getOrganizations(): Promise<OrgItem[]> {
     slug: org.slug || org.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
     type: org.type,
     location: org.location,
+    website: org.website || null,
+    logo_url: org.logo_url || null,
     description: org.description,
     count: countMap[org.id] || 0,
   })).sort((a: OrgItem, b: OrgItem) => b.count - a.count || a.name.localeCompare(b.name));
@@ -71,20 +75,20 @@ export default async function OrganizationsPage() {
   const organizations = await getOrganizations();
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* HEADER */}
-        <Card className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <Card className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-slate-200 shadow-xs">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-black uppercase text-blue-600 mb-1 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg shadow-brutal-sm">
-              <Sparkles className="w-4 h-4 stroke-[2.5]" />
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase text-blue-600 mb-1 px-2.5 py-1 bg-blue-50 border border-blue-200 rounded-md">
+              <Sparkles className="w-3.5 h-3.5" />
               <span>OFFICIAL DIRECTORY</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
               Semiconductor &amp; Hardware Organizations
             </h1>
-            <p className="text-slate-600 text-xs sm:text-sm font-semibold mt-1">
+            <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1">
               Explore active research labs, defense establishments (DRDO, ISRO, CSIR), IIT microelectronics centres, and global fabless/IDM giants.
             </p>
           </div>
