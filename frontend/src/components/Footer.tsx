@@ -65,15 +65,12 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* COLUMN 1: GUIDES & ACADEMY */}
+          {/* COLUMN 1: GUIDES */}
           <div className="space-y-3.5">
             <h4 className="text-xs font-black text-white tracking-widest uppercase pb-1 border-b-2 border-blue-500 inline-block">
-              Guides &amp; Academy
+              Guides
             </h4>
             <div className="flex flex-col gap-2 font-semibold text-xs">
-              <Link href="/academy" className="text-slate-400 hover:text-white transition-colors">
-                VLSI Courses &amp; EDA Labs
-              </Link>
               <Link href="/resources/jrf-guide" className="text-slate-400 hover:text-white transition-colors">
                 JRF Complete Guide (DST Norms)
               </Link>
@@ -115,9 +112,6 @@ export default function Footer() {
               </Link>
               <Link href="/ask-ai" className="text-slate-400 hover:text-white transition-colors">
                 Deep-Tech AI Assistant
-              </Link>
-              <Link href="/resume" className="text-slate-400 hover:text-white transition-colors">
-                AI Resume Builder (ATS Scored)
               </Link>
               <Link href="/news" className="text-slate-400 hover:text-white transition-colors">
                 Daily Industry News &amp; Circulars

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Briefcase, Menu, X, User, LogOut, CircuitBoard, Building2, ChevronDown,
-  GraduationCap, Users, MessageSquare, PlusCircle, Bookmark, FileText,
+  Users, MessageSquare, PlusCircle, Bookmark,
   LayoutDashboard, LogIn, Settings, Search, Bell, Home, Newspaper,
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
@@ -57,7 +57,6 @@ export default function Navbar() {
   const navItems = !user
     ? [
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
-        { href: "/academy", label: "Academy", icon: GraduationCap },
         { href: "/news", label: "News", icon: Newspaper },
         { href: "/about", label: "About", icon: Building2 },
       ]
@@ -66,7 +65,7 @@ export default function Navbar() {
         { href: "/employer/dashboard", label: "Dashboard", icon: LayoutDashboard },
         { href: "/employer/jobs", label: "Jobs", icon: Briefcase },
         { href: "/employer/applicants", label: "Applicants", icon: Users },
-        { href: "/employer/talent", label: "Talent", icon: GraduationCap },
+        { href: "/employer/talent", label: "Talent", icon: Users },
         { href: "/opportunities", label: "Browse Main Site", icon: Home },
       ]
     : [
@@ -74,7 +73,6 @@ export default function Navbar() {
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
         { href: "/feed", label: "Feed", icon: Newspaper },
         { href: "/network", label: "Network", icon: Users },
-        { href: "/academy", label: "Academy", icon: GraduationCap },
       ];
 
   const Badge = ({ count }: { count: number }) =>
@@ -225,10 +223,6 @@ export default function Navbar() {
                   <DropdownLink href="/saved" icon={Bookmark} onClick={() => setUserDropdownOpen(false)}>
                     Saved Jobs
                   </DropdownLink>
-                  <DropdownLink href="/resume" icon={FileText} onClick={() => setUserDropdownOpen(false)}>
-                    AI Resume Studio
-                  </DropdownLink>
-
                   {/* Employer Capabilities Section */}
                   {isEmployer && (
                     <>
@@ -246,7 +240,7 @@ export default function Navbar() {
                       <DropdownLink href="/employer/applicants" icon={Users} onClick={() => setUserDropdownOpen(false)}>
                         ATS Applicants
                       </DropdownLink>
-                      <DropdownLink href="/employer/talent" icon={GraduationCap} onClick={() => setUserDropdownOpen(false)}>
+                      <DropdownLink href="/employer/talent" icon={Users} onClick={() => setUserDropdownOpen(false)}>
                         Talent Sourcing
                       </DropdownLink>
                       <DropdownLink href="/employer/post-job" icon={PlusCircle} onClick={() => setUserDropdownOpen(false)}>

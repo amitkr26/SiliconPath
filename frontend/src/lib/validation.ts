@@ -141,19 +141,6 @@ export const applicationStatusUpdateSchema = z.object({
   notes: z.string().max(2000).optional(),
 });
 
-export const resumeSchema = z.object({
-  full_name: z.string().max(200).optional(),
-  headline: z.string().max(300).optional(),
-  summary: z.string().max(5000).optional(),
-  location: z.string().max(200).optional(),
-  email: z.string().email().optional(),
-  phone: z.string().max(50).optional(),
-  education: z.array(z.any()).max(20).optional(),
-  experience: z.array(z.any()).max(20).optional(),
-  projects: z.array(z.any()).max(20).optional(),
-  skills: z.array(z.string().max(100)).max(50).optional(),
-});
-
 export function validateOrThrow<T>(schema: z.ZodSchema<T>, data: unknown): T {
   const result = schema.safeParse(data);
   if (!result.success) {

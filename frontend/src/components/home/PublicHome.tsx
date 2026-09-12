@@ -202,9 +202,6 @@ export default function PublicHome({
               <Button href="/organizations" variant="secondary" size="lg" className="flex-1 sm:flex-initial text-center font-bold">
                 <Building2 className="w-4 h-4 text-slate-700" /> <span className="hidden sm:inline">Browse by</span> Organizations
               </Button>
-              <Button href="/academy" variant="ghost" size="lg" className="flex-1 sm:flex-initial text-center font-bold">
-                <GraduationCap className="w-4 h-4 text-slate-700" /> Academy
-              </Button>
             </div>
           </div>
 

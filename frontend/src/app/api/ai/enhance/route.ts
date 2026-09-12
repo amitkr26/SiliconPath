@@ -41,7 +41,7 @@ Instructions:
       return NextResponse.json({ error: "Invalid section type" }, { status: 400 });
     }
 
-    const aiRes = await callAI(aiPrompt, undefined, { feature: "resume_enhance" });
+    const aiRes = await callAI(aiPrompt, undefined, { feature: "ai_enhance" });
     const enhancedText = aiRes.text.trim();
 
     return NextResponse.json({ success: true, enhancedText });

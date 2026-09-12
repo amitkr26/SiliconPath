@@ -22,7 +22,6 @@ const GATED_PATHS = [
   '/api/messages',
   '/api/notifications',
   '/api/people',
-  '/api/resume',
   '/api/applications',
   '/applications',
   '/saved',

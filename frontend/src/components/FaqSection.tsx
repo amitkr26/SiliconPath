@@ -26,11 +26,6 @@ const FAQS: FaqItem[] = [
     answer: "As per updated DST/CSIR guidelines, JRF positions receive ₹37,000/month + HRA (ranging from 9% to 27% depending on city tier). Senior Research Fellowships (SRF) receive ₹42,000/month + HRA. Many IIT/IISc JRF roles can also be converted directly into full PhD registrations.",
   },
   {
-    category: "VLSI Academy",
-    question: "How does the self-paced VLSI Academy curriculum work?",
-    answer: "Our VLSI Academy offers structured tracks in Digital Design & Verilog, SystemVerilog & UVM Verification, and Physical Design (RTL-to-GDSII). Every module integrates verified NPTEL lectures, open-source EDA tools (EDA Playground, ChipVerify, OpenLANE), interactive theory, and auto-graded quizzes.",
-  },
-  {
     category: "Alerts & Notifications",
     question: "How do I receive instant alerts for new openings matching my exact profile?",
     answer: "You can subscribe to our free Email & Telegram notification system. Specify your target keywords (e.g. 'SystemVerilog', 'IIT Bombay', 'DRDO') and categories ('JRF', 'PhD', 'Private Sector') to receive automated real-time alerts when matching listings are detected by our scrapers.",

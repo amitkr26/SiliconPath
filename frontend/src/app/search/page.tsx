@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   Search as SearchIcon, Users, Briefcase, Building2, Newspaper,
-  GraduationCap, BookOpen, MapPin, Loader2, ExternalLink, Calendar, CheckCircle2, ArrowRight
+  BookOpen, MapPin, Loader2, ExternalLink, Calendar, CheckCircle2, ArrowRight
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -38,7 +38,6 @@ const TABS = [
   { key: "people", label: "People & Engineers", icon: Users },
   { key: "organizations", label: "Organizations", icon: Building2 },
   { key: "news", label: "Hardware News", icon: Newspaper },
-  { key: "academy", label: "Academy Courses", icon: GraduationCap },
   { key: "resources", label: "Research Guides", icon: BookOpen },
 ];
 
@@ -99,7 +98,7 @@ export default function SearchPage() {
       <div>
         <h1 className="font-display text-3xl font-black text-slate-900 tracking-tight">Global Search</h1>
         <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1">
-          Search across semiconductor jobs, research fellows, organizations, technical news, and academy tracks.
+          Search across semiconductor jobs, research fellows, organizations, technical news, and research guides.
         </p>
       </div>
 
@@ -371,35 +370,7 @@ export default function SearchPage() {
             </div>
           )}
 
-          {/* 5. ACADEMY TAB */}
-          {activeTab === "academy" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { title: "RTL Design with Verilog & SystemVerilog", days: 30, level: "Beginner to Advanced", href: "/academy" },
-                { title: "Universal Verification Methodology (UVM)", days: 21, level: "Advanced Verification", href: "/academy" },
-                { title: "Physical Design & Static Timing Analysis (STA)", days: 28, level: "ASIC Implementation", href: "/academy" },
-                { title: "RISC-V Microarchitecture & Processor Design", days: 14, level: "Computer Architecture", href: "/academy" },
-              ].map((course) => (
-                <Card key={course.title} className="p-5 border-2 border-slate-900 shadow-brutal-sm space-y-3 flex flex-col justify-between">
-                  <div className="space-y-1">
-                    <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[10px] border border-blue-200">
-                      {course.days} Days Interactive
-                    </span>
-                    <h3 className="text-sm font-black text-slate-900 pt-1">{course.title}</h3>
-                    <p className="text-xs text-slate-500 font-medium">{course.level}</p>
-                  </div>
-                  <Link
-                    href={course.href}
-                    className="w-full py-2 bg-blue-600 text-white rounded-xl text-xs font-black text-center border-2 border-slate-900 shadow-brutal-sm hover:bg-blue-700"
-                  >
-                    Start Learning →
-                  </Link>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* 6. RESOURCES TAB */}
+          {/* 5. RESOURCES TAB */}
           {activeTab === "resources" && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[

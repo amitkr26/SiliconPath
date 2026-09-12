@@ -119,15 +119,7 @@ export default function CandidateHome({
               <p className="text-2xl font-black text-slate-900 mt-1">{stats.connectionsCount}</p>
             </Link>
 
-            <Link href="/resume" className="p-3.5 bg-slate-50 border-2 border-slate-900 rounded-xl shadow-brutal-sm hover:bg-blue-50 transition-all">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700">ATS Resume Studio</span>
-                <GraduationCap className="w-4 h-4 text-purple-600" />
-              </div>
-              <p className="text-xs font-bold text-blue-600 mt-2 flex items-center gap-1">
-                Optimize ATS Score →
-              </p>
-            </Link>
+
           </div>
 
         </div>
@@ -229,44 +221,6 @@ export default function CandidateHome({
             </div>
           </div>
         )}
-
-        {/* SECTION D: ACADEMY LEARNING TRACKS */}
-        <div className="bg-white border-2 border-slate-900 rounded-2xl p-6 sm:p-8 shadow-brutal">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600">Free Curriculum &amp; Interview Prep</span>
-              <h3 className="text-xl font-black text-slate-900 tracking-tight mt-0.5">
-                Master Semiconductor Engineering with VLSI Academy
-              </h3>
-            </div>
-            <Link
-              href="/academy"
-              className="inline-flex items-center gap-2 bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-slate-800 transition-colors self-start sm:self-auto"
-            >
-              Enter Academy <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Link href="/academy/digital-logic" className="p-4 rounded-xl border border-slate-200 hover:border-slate-900 hover:bg-blue-50/50 transition-all">
-              <span className="text-xs font-black text-blue-600">Track 01</span>
-              <p className="text-sm font-bold text-slate-900 mt-1">Digital RTL &amp; Verilog</p>
-              <p className="text-xs text-slate-500 mt-0.5">FSMs, synthesizable Verilog, and AXI4 bus protocols.</p>
-            </Link>
-
-            <Link href="/academy/verilog" className="p-4 rounded-xl border border-slate-200 hover:border-slate-900 hover:bg-blue-50/50 transition-all">
-              <span className="text-xs font-black text-purple-600">Track 02</span>
-              <p className="text-sm font-bold text-slate-900 mt-1">SystemVerilog &amp; UVM</p>
-              <p className="text-xs text-slate-500 mt-0.5">Constrained-random testbenches and SVA assertions.</p>
-            </Link>
-
-            <Link href="/academy/systemverilog" className="p-4 rounded-xl border border-slate-200 hover:border-slate-900 hover:bg-blue-50/50 transition-all">
-              <span className="text-xs font-black text-emerald-600">Track 03</span>
-              <p className="text-sm font-bold text-slate-900 mt-1">Physical Design &amp; STA</p>
-              <p className="text-xs text-slate-500 mt-0.5">Floorplanning, CTS, Primetime STA, and DRC/LVS closure.</p>
-            </Link>
-          </div>
-        </div>
 
       </div>
 

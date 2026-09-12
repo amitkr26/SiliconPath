@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Bookmark, FileText, Bell, Target,
+  Bookmark, FileText, Bell,
   Loader2, Clock, MapPin
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
@@ -105,8 +105,6 @@ export default function DashboardPage() {
   }));
 
   const appCount = appsData?.count ?? applications.length;
-  const resumeScore = (profile as any)?.resume_ats_score ?? 0;
-
   const upcomingDeadlines = applications
     .filter((a) => a.opportunity?.deadline)
     .sort((a, b) => new Date(a.opportunity.deadline!).getTime() - new Date(b.opportunity.deadline!).getTime())
@@ -116,8 +114,6 @@ export default function DashboardPage() {
     updateStatus.mutate({ id: appId, status: newStatus });
   };
 
-  const resumeCircularProgress = resumeScore;
-
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-bg-primary py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -125,12 +121,6 @@ export default function DashboardPage() {
           eyebrow="Career Hub"
           title="My Dashboard"
           description="Track your applications and career progress"
-          action={
-            <Button href="/resume">
-              <FileText className="w-4 h-4" />
-              Build Resume
-            </Button>
-          }
         />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
@@ -154,15 +144,7 @@ export default function DashboardPage() {
             <p className="text-xs sm:text-sm font-bold text-slate-600">Applications</p>
           </Card>
 
-          <Card className="p-4 sm:p-5">
-            <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
-                <Target className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-              </div>
-              <span className="text-2xl sm:text-3xl font-black text-slate-900">{resumeScore}</span>
-            </div>
-            <p className="text-xs sm:text-sm font-bold text-slate-600">ATS Score</p>
-          </Card>
+
 
           <Card className="p-4 sm:p-5">
             <div className="flex items-center justify-between mb-2 sm:mb-3">
@@ -237,38 +219,6 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-6">
-            <Card className="p-6">
-              <h2 className="text-lg font-black text-slate-900 mb-4">Resume Score</h2>
-              <div className="flex flex-col items-center">
-                <div className="relative w-32 h-32 mb-4">
-                  <svg className="w-32 h-32 -rotate-90" viewBox="0 0 128 128">
-                    <circle cx="64" cy="64" r="54" fill="none" stroke="#E2E8F0" strokeWidth="8" />
-                    <circle
-                      cx="64" cy="64" r="54" fill="none" stroke="#2563EB" strokeWidth="8"
-                      strokeLinecap="round"
-                      strokeDasharray={`${(resumeCircularProgress / 100) * 339.292} 339.292`}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-3xl font-black text-slate-900">{resumeCircularProgress}</span>
-                  </div>
-                </div>
-                {resumeCircularProgress === 0 && (
-                  <div className="text-center">
-                    <p className="text-slate-500 text-xs font-medium text-center mb-4">Build your resume to receive an ATS score and improvement suggestions</p>
-                    <Button href="/resume" size="sm">
-                      <FileText className="w-3 h-3" /> Build Resume
-                    </Button>
-                  </div>
-                )}
-                {resumeCircularProgress > 0 && (
-                  <Link href="/resume" className="text-blue-600 text-xs font-bold hover:underline flex items-center justify-center gap-1">
-                    <FileText className="w-3 h-3" /> View Resume
-                  </Link>
-                )}
-              </div>
-            </Card>
-
             <Card className="p-6">
               <h2 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
                 <Clock className="w-4 h-4 text-amber-600" />
