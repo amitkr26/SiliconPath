@@ -89,3 +89,40 @@ export async function POST(request: NextRequest, { params }: { params: { convers
 
   return NextResponse.json(message, { status: 201 });
 }
+
+/** Mark specific messages as read (per-message read receipts). */
+export async function PATCH(request: NextRequest, { params }: { params: { conversationId: string } | Promise<{ conversationId: string }> }) {
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const conversationId = resolvedParams?.conversationId;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const check = await assertParticipant(supabase, conversationId, user.id);
+  if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status });
+
+  let raw: Record<string, unknown>;
+  try {
+    raw = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+  const messageIds = raw.messageIds as string[] | undefined;
+  if (!Array.isArray(messageIds) || messageIds.length === 0) {
+    return NextResponse.json({ error: "messageIds array required" }, { status: 400 });
+  }
+
+  // Only mark messages sent by the OTHER user as read (can't mark your own as unread).
+  const { error } = await supabaseAdmin
+    .from("messages")
+    .update({ is_read: true })
+    .in("id", messageIds)
+    .eq("conversation_id", conversationId)
+    .neq("sender_id", user.id)
+    .eq("is_read", false);
+
+  if (error) return apiError(error, "messages-mark-read");
+  return NextResponse.json({ ok: true });
+}

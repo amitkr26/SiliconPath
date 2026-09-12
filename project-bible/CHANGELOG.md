@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-12 — P2 Feature Additions (OAuth, Admin Users, Read Receipts):**
+  - **GitHub & LinkedIn OAuth (`AUTH-03`)**:
+    - Refactored login page OAuth handler to support multiple providers via shared `handleOAuthLogin(provider)` function.
+    - Added GitHub and LinkedIn OAuth buttons with SVG icons to `frontend/src/app/login/page.tsx`.
+    - Auth callback already handles generic OAuth code exchange — no callback changes needed.
+    - **Supabase dashboard config required:** Enable GitHub and LinkedIn providers in Authentication → Providers.
+  - **Admin User Management (`ADMIN-02`)**:
+    - Created migration `frontend/supabase/migrations/20260912000001_add_account_status.sql` — adds `account_status` (active/suspended/banned), `banned_at`, `banned_reason` to `user_profiles`.
+    - Created `frontend/src/app/api/admin/users/route.ts` — GET with status filter, search, pagination.
+    - Created `frontend/src/app/api/admin/users/[id]/route.ts` — PATCH for ban/suspend/reactivate with reason.
+    - Created `frontend/src/app/admin/users/page.tsx` — full admin UI with user table, status badges, action modal.
+    - Added "User Management" link to admin dashboard sidebar.
+    - Added account status check in `frontend/src/middleware.ts` — banned/suspended users blocked from gated paths with redirect to login.
+  - **Per-Message Read Receipts (`MSG-01`)**:
+    - Added PATCH handler to `frontend/src/app/api/messages/[conversationId]/route.ts` — accepts `messageIds` array, marks specific messages as read (only incoming, not own).
+    - Added `useMarkMessagesRead(conversationId)` hook to `frontend/src/hooks/useMessages.ts`.
+  - **Verification Findings**: Onboarding flow (511 lines, fully functional) and Opportunity Intelligence modes (all 4: Ask AI, Discover, Saved, Alerts) were falsely reported as missing — both were complete.
+
 - **2026-09-12 — P1 Feature Additions (Password Reset + Real-time):**
   - **Password Reset Flow (`AUTH-02`)**:
     - Created `frontend/src/app/forgot-password/page.tsx` — email input form calling `supabase.auth.resetPasswordForEmail` with redirect through `/auth/callback?next=/update-password`.
