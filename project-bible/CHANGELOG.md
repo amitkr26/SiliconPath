@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-12 — P3 Cleanups (Scraper Controls, DB2 Dead Code):**
+  - **Scraper Admin Controls (`SCRAPER-01`)**:
+    - Fixed `POST /api/admin/scrape` — was a no-op that only queried sources. Now actually triggers `runOpportunityScrape()` in background.
+    - Added `PATCH /api/admin/scrape` — toggles `is_active` on individual scrape sources.
+    - Updated `admin/scrape-health/page.tsx` — added "Run All Active" button, per-source "Run Now" refresh button, and per-source start/stop toggle (Pause/Play icons).
+  - **DB2 Dead Code Cleanup (`DB-01`)**:
+    - Removed `getDb1Anon()`, `getDb2Anon()`, `getDB()` purpose router, and `syncProfile()` from `lib/db/index.ts` — all were never imported or called.
+    - Updated DB2 comment to reflect actual usage: archive sink for old news articles only.
+    - Retained `db2` export (used by `archive-news` and `health` routes).
+
 - **2026-09-12 — P2 Feature Additions (OAuth, Admin Users, Read Receipts):**
   - **GitHub & LinkedIn OAuth (`AUTH-03`)**:
     - Refactored login page OAuth handler to support multiple providers via shared `handleOAuthLogin(provider)` function.
