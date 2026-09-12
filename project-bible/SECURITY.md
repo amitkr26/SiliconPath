@@ -106,7 +106,7 @@
 | `CRON_SECRET` | Server only | Generate: `openssl rand -hex 32` | Quarterly |
 | `ADMIN_PASSWORD` | Server only | Generate: `openssl rand -base64 24` | Quarterly |
 | `ADMIN_HMAC_SECRET` | Server only | Generate: `openssl rand -hex 32` | Quarterly |
-| `NEXT_PUBLIC_SITE_URL` | All | `https://berojgardegreewala.vercel.app` | On domain change |
+| `NEXT_PUBLIC_SITE_URL` | All | `https://siliconpath.vercel.app` | On domain change |
 | `NEXT_PUBLIC_SENTRY_DSN` | All | Sentry Project Settings | On project change |
 | `GOOGLE_CLOUD_CREDENTIALS_BASE64` | Server only | GCP IAM → Service Account Key | Quarterly |
 | `GCP_PROJECT_ID` | Server only | GCP Console | Rare |
@@ -125,7 +125,7 @@
 | `SUPABASE_2_SERVICE_ROLE_KEY` | Supabase DB2 Dashboard |
 | `PORT` | `8080` |
 | `NODE_ENV` | `production` |
-| `ALLOWED_ORIGINS` | `https://berojgardegreewala.vercel.app,http://localhost:3000` |
+| `ALLOWED_ORIGINS` | `https://siliconpath.vercel.app,http://localhost:3000` |
 | `ADMIN_PASSWORD` | Same as frontend |
 | `ADMIN_HMAC_SECRET` | Same as frontend |
 | `GROQ_API_KEY` | Same as frontend |
@@ -157,7 +157,7 @@
 
 **Do not file public GitHub issues for security vulnerabilities.**
 
-Email: **security@berojgardegreewala.vercel.app** (or use GitHub Security Advisories private reporting)
+Email: **security@siliconpath.vercel.app** (or use GitHub Security Advisories private reporting)
 
 Include:
 - Description of the vulnerability
