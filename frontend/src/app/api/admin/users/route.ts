@@ -5,8 +5,9 @@ import { apiError } from "@/lib/api-utils";
 
 /** GET /api/admin/users — List users with optional status filter */
 export async function GET(request: NextRequest) {
-  const adminErr = await verifyAdmin(request);
-  if (adminErr) return adminErr;
+  if (!await verifyAdmin(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status"); // "active", "suspended", "banned", or null for all

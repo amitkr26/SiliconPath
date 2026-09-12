@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-12 — Audit-Driven Bugfixes (P0/P1):**
+  - **P0-1: Network Received/Sent tabs broken**:
+    - `network/page.tsx` called `GET /api/network/requests` — route did not exist. Received/Sent tabs returned 404 at runtime.
+    - Fixed URL to `GET /api/network/connect` (which returns pending requests with correct shape).
+  - **P0-2: Repost count always 0**:
+    - No DB trigger existed on `feed_post_reposts` to maintain `reposts_count` on `feed_posts`.
+    - Created migration `20260912000002_fix_reposts_count_trigger.sql` — adds `update_post_reposts_count()` function (SECURITY DEFINER, matches likes/comments pattern) + trigger + backfill.
+  - **P0-2b: Repost notification broken**:
+    - `api/feed/posts/[id]/repost/route.ts` selected `user_id` from `feed_posts` but the column is `author_id`. Notification silently failed.
+    - Fixed to select `author_id` (matching the comment route pattern).
+  - **P0-3: Admin user management guard dead code**:
+    - `api/admin/users/route.ts` and `api/admin/users/[id]/route.ts` used `const adminErr = await verifyAdmin(request); if (adminErr) return adminErr;` — but `verifyAdmin` returns `boolean`, not `Response`. Guard never fired.
+    - Fixed to `if (!await verifyAdmin(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });` (matching `scrape/route.ts` pattern). Middleware admin gate provides backup protection.
+  - **P1-7: Stale TypeScript types**:
+    - `Conversation` type used `participant_1`/`participant_2` (v1 schema) — DB has `participant_a`/`participant_b`.
+    - `Message` type used `content` — DB has `body`.
+    - Updated both types to match actual DB schema and API response shape.
+  - **Verification**: 23 test suites / 211 tests passing. TypeScript 0 errors. Build clean (274 pages). 39 security tests passing.
+
 - **2026-09-12 — P1 Gap Fixes (Repost Button, Follow Button, Test Coverage):**
   - **Feed Repost Button (`FEED-01`)**:
     - Added `useRepostFeedPost()` hook to `hooks/useFeed.ts` — POSTs to `/api/feed/posts/[id]/repost`.

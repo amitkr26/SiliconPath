@@ -181,21 +181,20 @@ export interface Notification {
 
 export interface Conversation {
   id: string;
-  participant_1: string;
-  participant_2: string;
+  participant_a: string;
+  participant_b: string;
   last_message_at: string;
   last_message_preview: string | null;
-  unread_count_1: number;
-  unread_count_2: number;
+  unread_count: number;
   created_at: string;
-  other_user?: Pick<UserProfile, 'display_name' | 'avatar_url' | 'headline' | 'username'>;
+  other_user?: Pick<UserProfile, 'id' | 'display_name' | 'avatar_url' | 'headline'>;
 }
 
 export interface Message {
   id: string;
   conversation_id: string;
   sender_id: string;
-  content: string;
+  body: string;
   is_read: boolean;
   created_at: string;
 }

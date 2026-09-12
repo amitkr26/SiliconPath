@@ -87,7 +87,7 @@ export default function NetworkPage() {
   const loadRequests = useCallback(async () => {
     try {
       setRequestsLoading(true);
-      const res = await api.get<{ requests: any[] }>("/api/network/requests");
+      const res = await api.get<{ requests: any[] }>("/api/network/connect");
       setRequests(res.requests || []);
     } catch {
       // ignore

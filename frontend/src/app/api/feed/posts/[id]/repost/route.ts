@@ -35,13 +35,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   // Notify post author
   const { data: post } = await supabase
     .from("feed_posts")
-    .select("user_id")
+    .select("author_id")
     .eq("id", id)
     .single();
 
-  if (post && post.user_id !== user.id) {
+  if (post && post.author_id !== user.id) {
     await createNotification({
-      userId: post.user_id,
+      userId: post.author_id,
       type: "post_repost",
       actorId: user.id,
       entityType: "feed_post",
