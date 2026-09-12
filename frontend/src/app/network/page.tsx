@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
 
 type TabKey = "suggestions" | "received" | "sent" | "connections" | "followers" | "following";
 
@@ -27,8 +28,6 @@ const TAB_LABELS: Record<TabKey, string> = {
   followers: "Followers",
   following: "Following",
 };
-
-const FALLBACK_AVATAR = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80";
 
 function CardSkeleton() {
   return (
@@ -363,14 +362,14 @@ export default function NetworkPage() {
                       <Card key={person.id} tone="flat" className="p-5 flex flex-col justify-between">
                         <div>
                           <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-slate-200">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={person.avatar_url || FALLBACK_AVATAR}
-                                alt={person.display_name || "Engineer"}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
+                            <ImageWithFallback
+                              src={person.avatar_url}
+                              alt={person.display_name || "Engineer"}
+                              name={person.display_name || "Engineer"}
+                              variant="avatar"
+                              size={48}
+                              className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0"
+                            />
                             <div className="min-w-0">
                               <Link href={`/profile/${person.username || person.id}`} className="font-semibold text-sm text-slate-900 hover:text-blue-600 transition-colors block truncate">
                                 {person.display_name || "Semiconductor Engineer"}
@@ -453,11 +452,13 @@ export default function NetworkPage() {
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-3 min-w-0">
                               <Link href={`/profile/${person.username || person.id}`}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={person.avatar_url || FALLBACK_AVATAR}
-                                  alt=""
-                                  className="w-11 h-11 rounded-full object-cover"
+                                <ImageWithFallback
+                                  src={person.avatar_url}
+                                  alt={person.display_name || "Engineer"}
+                                  name={person.display_name || "Engineer"}
+                                  variant="avatar"
+                                  size={44}
+                                  className="w-11 h-11 rounded-full overflow-hidden"
                                 />
                               </Link>
                               <div className="min-w-0">
@@ -508,11 +509,13 @@ export default function NetworkPage() {
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-3 min-w-0">
                               <Link href={`/profile/${person.username || person.id}`}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={person.avatar_url || FALLBACK_AVATAR}
-                                  alt=""
-                                  className="w-11 h-11 rounded-full object-cover"
+                                <ImageWithFallback
+                                  src={person.avatar_url}
+                                  alt={person.display_name || "Engineer"}
+                                  name={person.display_name || "Engineer"}
+                                  variant="avatar"
+                                  size={44}
+                                  className="w-11 h-11 rounded-full overflow-hidden"
                                 />
                               </Link>
                               <div className="min-w-0">
@@ -570,11 +573,13 @@ export default function NetworkPage() {
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3 min-w-0">
                             <Link href={`/profile/${c.username || c.user_id}`}>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={c.avatar_url || FALLBACK_AVATAR}
-                                alt=""
-                                className="w-11 h-11 rounded-full object-cover"
+                              <ImageWithFallback
+                                src={c.avatar_url}
+                                alt={c.display_name || "Engineer"}
+                                name={c.display_name || "Engineer"}
+                                variant="avatar"
+                                size={44}
+                                className="w-11 h-11 rounded-full overflow-hidden"
                               />
                             </Link>
                             <div className="min-w-0">
@@ -632,11 +637,13 @@ export default function NetworkPage() {
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3 min-w-0">
                             <Link href={`/profile/${f.username || f.id}`}>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={f.avatar_url || FALLBACK_AVATAR}
-                                alt=""
-                                className="w-11 h-11 rounded-full object-cover"
+                              <ImageWithFallback
+                                src={f.avatar_url}
+                                alt={f.display_name || "Engineer"}
+                                name={f.display_name || "Engineer"}
+                                variant="avatar"
+                                size={44}
+                                className="w-11 h-11 rounded-full overflow-hidden"
                               />
                             </Link>
                             <div className="min-w-0">
@@ -682,11 +689,13 @@ export default function NetworkPage() {
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3 min-w-0">
                             <Link href={`/profile/${f.username || f.id}`}>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={f.avatar_url || FALLBACK_AVATAR}
-                                alt=""
-                                className="w-11 h-11 rounded-full object-cover"
+                              <ImageWithFallback
+                                src={f.avatar_url}
+                                alt={f.display_name || "Engineer"}
+                                name={f.display_name || "Engineer"}
+                                variant="avatar"
+                                size={44}
+                                className="w-11 h-11 rounded-full overflow-hidden"
                               />
                             </Link>
                             <div className="min-w-0">

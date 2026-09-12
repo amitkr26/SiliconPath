@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Clock, ExternalLink, ArrowRight, X, Newspaper } from "lucide-react";
 import type { NewsArticle } from "@/types";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
 
 interface NewsCardProps {
   article: NewsArticle;
@@ -23,7 +24,6 @@ function timeAgo(dateString: string): string {
 
 export default function NewsCard({ article }: NewsCardProps) {
   const [showModal, setShowModal] = useState(false);
-  const [imgError, setImgError] = useState(false);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
 
   // Close modal on Escape key
@@ -47,19 +47,28 @@ export default function NewsCard({ article }: NewsCardProps) {
     <>
       <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 flex flex-col justify-between group h-full">
         <div>
-          {/* TOP BANNER IMAGE */}
+          {/* TOP BANNER IMAGE OR EDITORIAL FALLBACK */}
           <div className="w-full h-36 rounded-lg overflow-hidden border border-slate-100 mb-4 relative bg-slate-100">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={!imgError && article.image_url ? article.image_url : "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80"}
+            <ImageWithFallback
+              src={article.image_url}
               alt={article.title}
+              name={sourceName}
+              variant="editorial"
+              width={600}
+              height={240}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              onError={() => setImgError(true)}
+              editorialMeta={{
+                sourceName,
+                category: tags[0] ? `#${tags[0]}` : "Semiconductor",
+                date: article.published_at ? timeAgo(article.published_at) : undefined,
+              }}
             />
-            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/95 backdrop-blur-xs border border-slate-200 rounded-md text-[11px] font-semibold text-slate-800 shadow-xs">
-              <Newspaper size={11} className="text-blue-600" />
-              {sourceName}
-            </span>
+            {article.image_url && (
+              <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/95 backdrop-blur-xs border border-slate-200 rounded-md text-[11px] font-semibold text-slate-800 shadow-xs">
+                <Newspaper size={11} className="text-blue-600" />
+                {sourceName}
+              </span>
+            )}
           </div>
 
           <div className="flex-1 min-w-0">
@@ -164,10 +173,15 @@ export default function NewsCard({ article }: NewsCardProps) {
 
             {/* Modal Image */}
             <div className="w-full h-56 rounded-lg overflow-hidden border border-slate-100 mb-5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={!imgError && article.image_url ? article.image_url : "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"}
+              <ImageWithFallback
+                src={article.image_url}
                 alt={article.title}
+                variant="editorial"
+                editorialMeta={{
+                  sourceName,
+                  category: article.tags?.[0],
+                  date: article.published_at ? timeAgo(article.published_at) : undefined,
+                }}
                 className="w-full h-full object-cover"
               />
             </div>

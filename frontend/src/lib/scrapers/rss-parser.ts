@@ -137,13 +137,16 @@ async function fetchRSSFeed(
       const autoTags = autoTagArticle(title, summary || "");
       const mergedTags = Array.from(new Set([...defaultTags, ...autoTags]));
 
+      const rawImg = item.enclosure?.url || (item as any)["media:content"]?.$?.url || (item as any)["media:thumbnail"]?.$?.url || (item as any)["media:content"]?.url || null;
+      const imageUrl = rawImg && typeof rawImg === "string" && (rawImg.startsWith("http://") || rawImg.startsWith("https://")) ? rawImg : null;
+
       results.push({
         title,
         summary,
         source_name: source,
         url: item.link || null,
         published_at: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
-        image_url: null,
+        image_url: imageUrl,
         tags: mergedTags,
       });
     }

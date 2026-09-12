@@ -95,15 +95,19 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
           Back to Semiconductor News
         </Link>
 
-        <article className="rounded-2xl p-6 sm:p-10 bg-white border-2 border-slate-900 shadow-brutal">
-          {article.image_url && (
-            <div className="mb-6 -mx-6 sm:-mx-10 -mt-6 sm:-mt-10 rounded-t-2xl overflow-hidden border-b-2 border-slate-900">
-              <NewsImage src={article.image_url} alt={article.title} />
-            </div>
-          )}
+        <article className="rounded-xl p-6 sm:p-10 bg-white border border-slate-200 shadow-xs">
+          <div className="mb-6 -mx-6 sm:-mx-10 -mt-6 sm:-mt-10 rounded-t-xl overflow-hidden border-b border-slate-200">
+            <NewsImage
+              src={article.image_url}
+              alt={article.title}
+              sourceName={article.source || "Official Source"}
+              category={tags[0] ? `#${tags[0]}` : "Semiconductor"}
+              date={article.published_at ? formatDate(article.published_at) : undefined}
+            />
+          </div>
 
           <div className="flex items-center gap-3 mb-4 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-full text-xs font-bold text-slate-900">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 border border-blue-200 rounded-md text-xs font-semibold text-blue-800">
               <span className={`w-2 h-2 rounded-full ${sourceDotColor}`} />
               {article.source || "Official Source"}
             </span>

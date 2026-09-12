@@ -26,6 +26,21 @@ export interface Opportunity {
   link_check_status?: number;
   admin_notes?: string;
   company_page_id?: string;
+  organization_logo_url?: string | null;
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  slug: string;
+  type?: string;
+  country?: string;
+  location?: string;
+  website?: string | null;
+  logo_url?: string | null;
+  description?: string | null;
+  is_verified?: boolean;
+  count?: number;
 }
 
 export interface NewsArticle {

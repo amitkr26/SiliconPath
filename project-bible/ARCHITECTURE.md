@@ -127,9 +127,29 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
 
 ---
 
-## 6. Verification Baseline
+## 6. Production Image & Media Architecture
+
+1. **Information-Dense Discipline**:
+   - BDW avoids decorative visual noise, large stock images, or AI-generated blobs.
+   - Opportunity cards remain strictly data-driven with compact logo or deterministic monogram.
+2. **Universal Fallback Hierarchy**:
+   - Tier 1: Real verified image (rendered via Next.js `Image` with safe remote host patterns).
+   - Tier 2: Official verified logo or avatar.
+   - Tier 3: Deterministic monogram (`getDeterministicInitials`, `getDeterministicPalette`) derived from name hash.
+   - Tier 4: Designed editorial fallback banner with newspaper icon, source tag, category, and date.
+3. **Storage & Media Security**:
+   - `next.config.mjs`: Strict `remotePatterns` without wildcard hosts (`**`), confined to Supabase storage, GitHub avatars, Google user content, LinkedIn media, `*.gov.in`/`*.res.in`/`*.ac.in`, and certified publishers.
+   - Magic Byte Validation: Upload routes (`/api/profile/avatar`, `/api/employer/company/logo`) check binary headers for JPEG (`0xFFD8FF`), PNG (`0x89504E47`), and WebP (`RIFF...WEBP`). Disguised SVG, HTML, and executables are rejected with HTTP 400.
+   - Size limit: Capped at 2MB per image.
+   - Decoupling of Logo Upload from Verification: User and employer logo uploads update visual branding only; `is_verified` remains strictly an administrative trust decision.
+4. **OpenGraph & SEO**:
+   - Edge routes (`/api/og`, `/api/og/opportunity/[slug]`) dynamically render self-contained PNG cards with official BerojgarDegreeWala branding.
+
+---
+
+## 7. Verification Baseline
 
 - **TypeScript Type Safety**: `npx tsc --noEmit` (0 errors across monorepo workspaces)
-- **Unit & Integration Tests**: 24 frontend test suites, 218 tests passing; 309 tests passing monorepo-wide (46 server + 15 ai-gateway + 30 worker + 218 frontend)
+- **Unit & Integration Tests**: 25 frontend test suites, 233 tests passing; 324 tests passing monorepo-wide (46 server + 15 ai-gateway + 30 worker + 233 frontend)
 - **Production Build**: `npm run build` (compiles cleanly, 273 static and dynamic routes generated)
-- **Security**: Fail-closed IDOR protection, message participant guards, company claim integrity, RBAC middleware, RLS, CSRF protection, and rate limiting.
+- **Security**: Fail-closed IDOR protection, message participant guards, company claim integrity, media magic byte validation, RBAC middleware, RLS, CSRF protection, and rate limiting.

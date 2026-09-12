@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { MapPin, IndianRupee, ExternalLink, Heart } from "lucide-react";
 import type { Opportunity } from "@/types";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import CategoryBadge from "./CategoryBadge";
 import DeadlineCountdown from "./DeadlineCountdown";
 import { cn, getDaysAgo, isNew, isExpired } from "@/lib/utils";
@@ -133,8 +134,16 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
     >
       <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all h-full flex flex-col justify-between">
         <div className="flex items-start gap-3.5">
-          <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
-            {getInitials(opportunity.organization)}
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <ImageWithFallback
+              src={opportunity.organization_logo_url}
+              alt={`${opportunity.organization || "Organization"} logo`}
+              name={opportunity.organization}
+              variant="logo"
+              width={40}
+              height={40}
+              className="w-10 h-10 rounded-lg object-contain p-0.5"
+            />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">

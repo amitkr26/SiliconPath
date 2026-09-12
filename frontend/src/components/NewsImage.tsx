@@ -1,24 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
 
 interface Props {
-  src: string;
+  src?: string | null;
   alt: string;
+  sourceName?: string;
+  category?: string;
+  date?: string;
 }
 
-export default function NewsImage({ src, alt }: Props) {
-  const [hidden, setHidden] = useState(false);
-
-  if (hidden) return null;
-
+export default function NewsImage({ src, alt, sourceName, category, date }: Props) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={alt}
-      className="w-full h-64 sm:h-80 object-cover"
-      onError={() => setHidden(true)}
-    />
+    <div className="w-full h-64 sm:h-80 overflow-hidden relative bg-slate-900">
+      <ImageWithFallback
+        src={src}
+        alt={alt}
+        name={sourceName || alt}
+        variant="editorial"
+        width={900}
+        height={400}
+        className="w-full h-full object-cover"
+        editorialMeta={{
+          sourceName: sourceName || "Semiconductor Editorial",
+          category: category || "Semiconductor",
+          date,
+        }}
+      />
+    </div>
   );
 }
