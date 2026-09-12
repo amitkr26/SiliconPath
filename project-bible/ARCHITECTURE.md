@@ -32,7 +32,7 @@ The application serves a single focused purpose: **free VLSI learning for semico
 
 ---
 
-## 2. Six Learning Surfaces
+## 2. Five Learning Surfaces
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
@@ -54,9 +54,6 @@ The application serves a single focused purpose: **free VLSI learning for semico
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │ 5. Free Resources         /courses                                             │
 │                           OpenLane guide, Career Roadmap, Resume Tips          │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│ 6. Career Resources       /resources                                           │
-│                           VLSI career guides, salary info, company directory   │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 

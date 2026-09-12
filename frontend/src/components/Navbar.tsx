@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Menu, X, ChevronDown, CircuitBoard } from "lucide-react";
+import { Menu, X, ChevronDown, CircuitBoard, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /* ------------------------------------------------------------------ */
@@ -35,6 +35,7 @@ const learnDropdown = [
   {
     title: "Tools & Career",
     links: [
+      { label: "Academy", href: "/academy" },
       { label: "TCL for EDA", href: "/learn/tcl-for-eda" },
       { label: "Linux for VLSI", href: "/learn/linux-for-vlsi" },
       { label: "Interview Q&A", href: "/learn/interview" },
@@ -45,10 +46,8 @@ const learnDropdown = [
 ];
 
 const navLinks = [
-  { href: "/academy", label: "Academy" },
   { href: "/engineering-lab", label: "Engineering Lab" },
   { href: "/courses", label: "Resources" },
-  { href: "/sta-interview-questions", label: "STA Interview Q&A" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -148,6 +147,16 @@ export default function Navbar() {
           ))}
         </nav>
 
+        {/* Desktop CTA */}
+        <div className="hidden lg:flex items-center">
+          <Link
+            href="/learn"
+            className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors text-sm"
+          >
+            Start Learning Free <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
         {/* Mobile toggle */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
@@ -202,6 +211,16 @@ export default function Navbar() {
                 {label}
               </Link>
             ))}
+          </div>
+
+          <div className="border-t border-slate-100 mt-2 pt-3 px-1">
+            <Link
+              href="/learn"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-lg transition-colors text-sm w-full"
+            >
+              Start Learning Free <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       )}

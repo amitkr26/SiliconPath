@@ -1,12 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ArrowRight,
-  GitBranch,
-  Layers,
-  Timer,
-} from "lucide-react";
+import { ArrowRight, GitBranch, Layers, Timer } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /*  Data                                                               */
@@ -71,23 +66,7 @@ const toolsGrid = [
   { category: "Open source", names: "OpenROAD · OpenLane" },
 ];
 
-const testimonials = [
-  { name: "Rahul Menon", role: "STA Engineer · Qualcomm India, Bangalore", text: "I cracked my Qualcomm STA round purely on the back of this site. The OCV vs AOCV explanation, the CPPR section, the timing equation diagrams — all exactly what was asked. No other free resource comes close to this depth." },
-  { name: "Priya Krishnamurthy", role: "Physical Design Engineer · MediaTek, Hyderabad", text: "The resume template from SiliconPath got me shortlisted at MediaTek within 3 days of applying. Before this, I had been applying for 2 months with zero callbacks." },
-  { name: "Aditya Sharma", role: "VLSI Design Engineer · Samsung R&D, Noida", text: "As a fresher from NIT, I had no real tool exposure. The 16-week study plan was my bible. I followed it from week 1 to week 16 and landed an offer at Samsung." },
-  { name: "Sneha Rao", role: "DFT Engineer · Capgemini Engineering", text: "Free content alone is better than any VLSI YouTube playlist. The depth of explanation on DFT concepts is unmatched." },
-  { name: "Karthik Iyer", role: "PD Engineer · Samsung R&D, Noida", text: "16-week plan actually works. Got my first offer in month 4. The structured approach made all the difference." },
-  { name: "Divya Nair", role: "Low Power Engineer · Astra Silica", text: "UPF section explained better than my M.Tech textbook. The practical examples from real tape-outs are gold." },
-  { name: "Arjun Pillai", role: "STA Engineer · Wipro VLSI, Bangalore", text: "Best VLSI resource in India. Real depth, zero click-bait. Every section is written by someone who's actually done the work." },
-  { name: "Meghana Tiwari", role: "Verification Engineer · Texas Instruments", text: "Cracked TI written test after 2 weeks on SiliconPath. The interview questions are exactly what gets asked." },
-];
 
-const resources = [
-  { name: "OpenLane RTL-to-GDS", level: "Intermediate", detail: "Step-by-step guide", desc: "Full RTL to GDSII flow using OpenLane on a real design, step by step. Free.", href: "/courses/openlane-rtl-to-gds" },
-  { name: "Interview Q&A", level: "All levels", detail: "90+ questions", desc: "90+ real interview questions with detailed answers across PD, Synthesis, STA, and PV. Free.", href: "/sta-interview-questions" },
-  { name: "Career Roadmap", level: "Beginner", detail: "Structured plan", desc: "Complete beginner roadmap for VLSI freshers, with an 8-week structured study plan. Free.", href: "/learn/career-roadmap" },
-  { name: "Resume Tips", level: "All levels", detail: "Templates", desc: "VLSI-specific resume templates and tips that get you shortlisted. Free.", href: "/courses/resume-tips" },
-];
 
 /* ------------------------------------------------------------------ */
 /*  Page                                                               */
@@ -117,10 +96,10 @@ export default function HomePage() {
               Start Learning Free <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/vlsi"
+              href="/sta-interview-questions"
               className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm"
             >
-              Explore the knowledge hub <ArrowRight className="w-4 h-4" />
+              128 STA interview questions <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
           <div className="mt-6 flex items-center justify-center gap-6 text-sm text-slate-400 font-medium">
@@ -306,8 +285,8 @@ export default function HomePage() {
           </div>
 
           <div className="mt-8 text-center">
-            <Link href="/vlsi" className="text-sm font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
-              Knowledge hub <ArrowRight className="w-3.5 h-3.5" />
+            <Link href="/learn" className="text-sm font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
+              Browse all paths <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
@@ -346,55 +325,26 @@ export default function HomePage() {
       </section>
 
       {/* ============================================================ */}
-      {/* CAREER                                                       */}
+      {/* WHY SILICONPATH                                              */}
       {/* ============================================================ */}
       <section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold text-blue-600 tracking-wide uppercase mb-2">Career</p>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 mb-4">From learning to a silicon role</h2>
-          <p className="text-slate-500 mb-10">Learn. Practice. Prove. Get hired.</p>
+          <p className="text-sm font-semibold text-blue-600 tracking-wide uppercase mb-2">Why SiliconPath</p>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Built for engineers, by an engineer</h2>
+          <p className="text-slate-500 mb-12 max-w-xl">Every path, every lab case, every interview question is drawn from real industry experience in physical design and timing signoff.</p>
 
-          <div className="flex flex-col sm:flex-row items-start gap-6 mb-10">
-            {["Learn", "Practice", "Prove", "Get hired"].map((step, i) => (
-              <div key={step} className="flex items-center gap-3">
-                <span className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0">
-                  {i + 1}
-                </span>
-                <span className="text-sm font-semibold text-slate-700">{step}</span>
-                {i < 3 && <ArrowRight className="w-4 h-4 text-slate-300 hidden sm:block" />}
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
-            <Link href="/jobs" className="bg-white border border-slate-200 hover:border-blue-300 rounded-xl p-5 transition-all hover:shadow-md">
-              <h3 className="font-display font-bold text-slate-900 mb-1">A VLSI job board</h3>
-              <p className="text-sm text-slate-500">Physical Design · STA · Verification · DFT</p>
-            </Link>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================ */}
-      {/* TESTIMONIALS                                                 */}
-      {/* ============================================================ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 mb-2">Engineers choose SiliconPath</h2>
-          <p className="text-slate-500 mb-10">1k+ engineers · 4.9★ average</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {testimonials.map((t) => (
-              <div key={t.name} className="bg-slate-50 border border-slate-200 rounded-xl p-5 flex flex-col">
-                <div className="flex items-center gap-1 text-amber-400 text-sm mb-3">
-                  {"★★★★★"}
-                </div>
-                <p className="text-sm text-slate-600 leading-relaxed flex-1 italic">&ldquo;{t.text}&rdquo;</p>
-                <div className="mt-4 pt-3 border-t border-slate-200">
-                  <p className="text-sm font-bold text-slate-900">{t.name}</p>
-                  <p className="text-xs text-slate-400">{t.role}</p>
-                </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { label: "Structured", desc: "15 paths organized into a coherent progression — Foundations → Backend → Tools & Career. Follow the sequence or jump to what you need." },
+              { label: "Practical", desc: "Engineering Lab cases come from real EDA reports. Interview questions are drawn from real VLSI interviews. No textbook filler." },
+              { label: "Free — always", desc: "No paywall. No premium tier. No login required. Every module, every question, every lab case is open to everyone." },
+              { label: "RTL to GDSII", desc: "The full chip-design flow in one place — from writing your first Verilog module to signing off timing at the last metal layer." },
+              { label: "Tool-aware", desc: "Content explicitly covers industry EDA tools — PrimeTime, ICC2, Innovus, Design Compiler, Calibre — alongside open-source alternatives." },
+              { label: "Career-focused", desc: "128 STA interview questions. A structured 8-week study plan. Resume guidance specific to VLSI roles. Built to get you hired." },
+            ].map((item) => (
+              <div key={item.label} className="bg-white border border-slate-200 rounded-xl p-6">
+                <h3 className="font-display font-bold text-slate-900 mb-2">{item.label}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -410,7 +360,12 @@ export default function HomePage() {
           <p className="text-slate-500 mb-10">Everything you need. No paywall.</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {resources.map((c) => (
+            {[
+              { name: "OpenLane RTL-to-GDS", level: "Intermediate", detail: "Step-by-step guide", desc: "Full RTL to GDSII flow using OpenLane on a real design, step by step. Free.", href: "/courses/openlane-rtl-to-gds" },
+              { name: "Interview Q&A", level: "All levels", detail: "90+ questions", desc: "90+ real interview questions with detailed answers across PD, Synthesis, STA, and PV. Free.", href: "/sta-interview-questions" },
+              { name: "Career Roadmap", level: "Beginner", detail: "Structured plan", desc: "Complete beginner roadmap for VLSI freshers, with an 8-week structured study plan. Free.", href: "/learn/career-roadmap" },
+              { name: "Resume Tips", level: "All levels", detail: "Templates", desc: "VLSI-specific resume templates and tips that get you shortlisted. Free.", href: "/courses/resume-tips" },
+            ].map((c) => (
               <Link
                 key={c.name}
                 href={c.href}
@@ -429,6 +384,7 @@ export default function HomePage() {
         </div>
       </section>
 
+
       {/* ============================================================ */}
       {/* CTA                                                          */}
       {/* ============================================================ */}
@@ -440,8 +396,8 @@ export default function HomePage() {
             <Link href="/learn" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm">
               Start Learning Free <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href="/vlsi" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm">
-              Explore VLSI topics
+            <Link href="/sta-interview-questions" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm">
+              STA Interview Q&amp;A
             </Link>
           </div>
         </div>

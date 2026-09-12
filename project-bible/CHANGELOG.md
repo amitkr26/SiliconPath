@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — 2026-09-12
 
+### Fixed
+- homepage: `/vlsi` broken links (×3) → replaced with `/learn` and `/sta-interview-questions`
+- homepage: `/jobs` broken link → removed dead Career section
+- homepage: fabricated testimonials section removed (8 hardcoded names/companies)
+- homepage: hardcoded "1k+ engineers · 4.9★" fake stat removed
+- footer: removed broken links `/contact`, `/privacy`, `/terms` (pages don't exist)
+- robots.ts: removed BDW-era disallow paths (`/dashboard`, `/saved`, `/messages`, etc.)
+- sitemap.ts: normalized BASE_URL from `siliconpath.vercel.app` → `siliconpath.in`
+- sitemap.ts: fixed learning path slugs to match actual `/learn/[path]` routes
+
+### Changed
+- homepage: replaced fake testimonials with honest "Why SiliconPath" value props section
+- navbar: moved Academy into Learn dropdown; reduced top-level items from 5 → 3
+- navbar: added visible "Start Learning Free" primary CTA button on desktop + mobile
+- footer: restructured from 6 quirky "Learn+" columns to 4 clean columns (Learn, Practice, Career, About)
+- footer: added tagline "Free VLSI learning for semiconductor engineers"
+- globals.css: removed stale "BerojgarDegreeWala — Neo-Brutalist" comment header
+- globals.css: updated CSS vars — border, shadow now use standard values (not brutal offset)
+- design-tokens.ts: softened shadow.card from hard offset to standard drop shadow
+- types/index.ts: removed 19 unused BDW-era types (dead code since fork)
+
+
 ### Added
 - Complete SiliconPath branding (replaced all BerojgarDegreeWala references)
 - 15 learning paths with 148 modules (5 Foundation + 6 Backend + 4 Tools & Career)

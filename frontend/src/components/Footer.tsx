@@ -3,55 +3,41 @@ import { CircuitBoard } from "lucide-react";
 
 const footerColumns = [
   {
-    title: "Learn+",
+    title: "Learn",
     links: [
+      { label: "Learning Paths", href: "/learn" },
       { label: "Academy", href: "/academy" },
       { label: "Digital Electronics", href: "/learn/digital-electronics" },
       { label: "Verilog", href: "/learn/verilog" },
-      { label: "Design Verification", href: "/learn/design-verification" },
-      { label: "Clock Domain Crossing", href: "/learn/clock-domain-crossing" },
-      { label: "Hardware Protocols", href: "/learn/hardware-protocols" },
-    ],
-  },
-  {
-    title: "Design+",
-    links: [
-      { label: "Synthesis", href: "/learn/synthesis" },
       { label: "Physical Design", href: "/learn/physical-design" },
       { label: "Static Timing Analysis", href: "/learn/static-timing-analysis" },
-      { label: "Physical Verification", href: "/learn/physical-verification" },
-      { label: "Design for Test", href: "/learn/design-for-test" },
-      { label: "Low Power", href: "/learn/low-power" },
     ],
   },
   {
-    title: "Build+",
+    title: "Practice",
     links: [
       { label: "Engineering Lab", href: "/engineering-lab" },
+      { label: "STA Interview Q&A", href: "/sta-interview-questions" },
+      { label: "Design Verification", href: "/learn/design-verification" },
+      { label: "Design for Test", href: "/learn/design-for-test" },
+      { label: "Low Power Design", href: "/learn/low-power" },
+    ],
+  },
+  {
+    title: "Career",
+    links: [
+      { label: "Career Roadmap", href: "/learn/career-roadmap" },
+      { label: "Resources", href: "/courses" },
       { label: "TCL for EDA", href: "/learn/tcl-for-eda" },
       { label: "Linux for VLSI", href: "/learn/linux-for-vlsi" },
-      { label: "Open-source Flows", href: "/courses" },
     ],
   },
   {
-    title: "Career+",
+    title: "About",
     links: [
-      { label: "Interview Prep", href: "/sta-interview-questions" },
-      { label: "Career Roadmap", href: "/learn/career-roadmap" },
-    ],
-  },
-  {
-    title: "SiliconPath+",
-    links: [
-      { label: "About", href: "/about" },
-      { label: "Contact", href: "/contact" },
-    ],
-  },
-  {
-    title: "Our Ecosystem",
-    links: [
-      { label: "BerojgarDegreeWala — Opportunities & Career Hub", href: "https://berojgardegreewala.vercel.app" },
-      { label: "ElectroBridge — AI Resume Builder for Engineers", href: "https://electrobridge.vercel.app" },
+      { label: "About SiliconPath", href: "/about" },
+      { label: "BerojgarDegreeWala — Opportunities", href: "https://berojgardegreewala.vercel.app" },
+      { label: "ElectroBridge — Resume Builder", href: "https://electrobridge.vercel.app" },
     ],
   },
 ];
@@ -61,7 +47,7 @@ export default function Footer() {
     <footer className="bg-slate-950 text-slate-400 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         {/* Top: Logo + columns */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8">
           {/* Logo column */}
           <div className="col-span-2 sm:col-span-3 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 group">
@@ -72,6 +58,9 @@ export default function Footer() {
                 Silicon<span className="text-blue-400">Path</span>
               </span>
             </Link>
+            <p className="mt-3 text-sm text-slate-500 leading-relaxed max-w-[200px]">
+              Free VLSI learning for semiconductor engineers.
+            </p>
           </div>
 
           {footerColumns.map((col) => (
@@ -104,11 +93,9 @@ export default function Footer() {
           <p className="text-slate-500">
             &copy; {new Date().getFullYear()} SiliconPath. Learn. Build. Sign Off.
           </p>
-          <div className="flex items-center gap-4 text-slate-500">
-            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-            <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
-          </div>
+          <p className="text-slate-600 text-xs">
+            Built for India&apos;s semiconductor and electronics ecosystem.
+          </p>
         </div>
       </div>
     </footer>

@@ -11,11 +11,11 @@
 // SHADOW SYSTEM — exactly 3 semantic levels
 // ============================================================
 export const shadow = {
-  // Subtle surface elevation (cards, boxes) — 3px offset
-  card: "3px 3px 0px 0px #0F172A",
-  // Interactive/important surface (buttons, hover states) — 4px offset
-  elevated: "4px 4px 0px 0px #0F172A",
-  // Dialogs/popovers/overlays — standard drop shadow (no brutal offset)
+  // Subtle surface elevation (cards, boxes)
+  card: "0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04)",
+  // Interactive/important surface (buttons, hover states)
+  elevated: "0 4px 12px rgba(0, 0, 0, 0.10), 0 2px 4px rgba(0, 0, 0, 0.06)",
+  // Dialogs/popovers/overlays
   modal: "0 4px 24px rgba(0, 0, 0, 0.15)",
 } as const
 

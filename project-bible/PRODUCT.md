@@ -32,18 +32,12 @@ SiliconPath is a 100% free VLSI learning platform for semiconductor engineers. N
 - Expandable answers with code examples
 - Difficulty badges (Beginner/Intermediate/Advanced)
 
-### 5. Free Resources (`/courses`)
+### 5. Free Resources & Guides (`/courses`)
 - Curated external learning resources
 - OpenLane RTL-to-GDS guide
 - VLSI Career Roadmap
 - Resume Tips for VLSI engineers
 - All resources are free and open-source
-
-### 6. Career Resources (`/resources`)
-- VLSI career guides
-- Interview preparation
-- Salary information
-- Company directory
 
 ## Platform Features
 - **No Authentication Required:** All learning content is freely accessible

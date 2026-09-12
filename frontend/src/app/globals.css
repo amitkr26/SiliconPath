@@ -3,13 +3,12 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   BerojgarDegreeWala - Neo-Brutalist ("Brutalish") Design System
-   High-contrast, bold borders, hard offset shadows, zero glassmorphism.
+   SiliconPath — Design System
+   Clean, professional design for a VLSI learning platform.
 
-   Single source of truth for tokens: frontend/tailwind.config.ts.
-   These :root vars MUST mirror the config values exactly — used only by
-   components that reference var(--...) directly (AskAIModal, MessageThread,
-   shared/*). New components must use Tailwind classes, not raw vars.
+   Single source of truth for tokens: frontend/src/styles/design-tokens.ts.
+   These :root vars mirror the config values — used only by components that
+   reference var(--...) directly. New components must use Tailwind classes.
    ========================================================================== */
 
 :root {
@@ -20,29 +19,21 @@
   --text:             #0F172A;
   --text-secondary:   #334155;
   --text-tertiary:    #64748B;
-  --border:           #0F172A;
+  --border:           #E2E8F0;
   --border-subtle:    #E2E8F0;
-  --border-hover:     #000000;
+  --border-hover:     #94A3B8;
 
   --primary:          #2563EB;
   --primary-hover:    #1D4ED8;
   --primary-light:    #DBEAFE;
 
-  --accent-yellow:    #FACC15;
-  --accent-blue:      #3B82F6;
-  --accent-cyan:      #06B6D4;
-  --accent-emerald:   #10B981;
-  --accent-purple:    #8B5CF6;
-  --accent-pink:      #EC4899;
-  --accent-orange:    #F97316;
-
   --success:          #059669;
   --warning:          #D97706;
   --error:            #DC2626;
 
-  --shadow-brutal:    4px 4px 0px 0px #0F172A;
-  --shadow-brutal-lg: 6px 6px 0px 0px #0F172A;
-  --shadow-brutal-sm: 2px 2px 0px 0px #0F172A;
+  --shadow-card:      0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-elevated:  0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-modal:     0 4px 24px rgba(0,0,0,0.15);
 
   --radius-sm: 6px;
   --radius:    10px;
@@ -119,37 +110,11 @@ html, body {
    Neo-Brutalist Component Classes
    ========================================================================== */
 
-/* Brutal Card */
-.brutal-card {
-  background: #FFFFFF;
-  border: 2px solid #0F172A;
-  box-shadow: 4px 4px 0px 0px #0F172A;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.brutal-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px #0F172A;
-  border-color: #000000;
-}
-
-.brutal-card:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px 0px #0F172A;
-}
-
-/* Legacy aliases kept for pre-redesign components still referencing them.
-   They map onto the brutal styles so nothing breaks until page agents
-   migrate off (audit §6). Remove once migrated. */
+/* Legacy aliases — map to neutral white surface. Remove once all pages migrated. */
 .glass-premium,
-.brutal-card,
-.glass-nav,
-.btn-glow,
-.btn-brutal {
+.glass-nav {
   background: #FFFFFF;
-  border: 2px solid #0F172A;
-  box-shadow: 4px 4px 0px 0px #0F172A;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border: 1px solid #E2E8F0;
 }
 
 .btn-glow,
@@ -162,6 +127,4 @@ html, body {
 .btn-glow:hover,
 .btn-brutal:hover {
   background: #1D4ED8;
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px #0F172A;
 }
