@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-12 — P1 Feature Additions (Password Reset + Real-time):**
+  - **Password Reset Flow (`AUTH-02`)**:
+    - Created `frontend/src/app/forgot-password/page.tsx` — email input form calling `supabase.auth.resetPasswordForEmail` with redirect through `/auth/callback?next=/update-password`.
+    - Created `frontend/src/app/update-password/page.tsx` — new password form calling `supabase.auth.updateUser({ password })` with 8-char minimum, confirmation match, and auto-redirect to dashboard on success.
+    - Added "Forgot your password?" link to login page (`frontend/src/app/login/page.tsx`).
+    - Auth callback (`frontend/src/app/auth/callback/route.ts`) already handles recovery code exchange — no changes needed.
+  - **Real-time Messaging & Notifications (`RT-01`)**:
+    - Created `frontend/src/hooks/useRealtimeChannel.ts` — generic Supabase Realtime `postgres_changes` subscription hook with React Query cache invalidation and graceful fallback when Realtime is unavailable.
+    - Updated `frontend/src/hooks/useMessages.ts` — added Realtime subscription to `messages` table for active conversation and `conversations` query invalidation on any message change. Reduced polling fallback from 3s/5s to 10s.
+    - Updated `frontend/src/hooks/useNotifications.ts` — added Realtime subscription to `notifications` table for both list and count queries. Reduced polling fallback to 30s/60s.
+    - All existing `refetchInterval` values retained as polling safety net.
+  - **Audit Findings**: Phase A codebase audit verified zero P0 ship blockers. OAuth callback, feed post likes, feed comments, and feed repost were all falsely reported as missing by automated audit — all were complete implementations.
+
 - **2026-09-08 — Admin Portal Functionality & Edge Runtime Compatibility Fix:**
   - **Edge Runtime Crypto Neutralization**:
     - Removed Node.js built-in `crypto` (`createHmac`, `timingSafeEqual`) and `Buffer` imports from `frontend/src/lib/admin-auth.ts` and `backend/api/src/auth/index.ts`.
