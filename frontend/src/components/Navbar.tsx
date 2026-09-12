@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
   Briefcase, Menu, X, User, LogOut, CircuitBoard, Building2, ChevronDown,
   Users, MessageSquare, PlusCircle, Bookmark,
-  LayoutDashboard, LogIn, Settings, Search, Bell, Home, Newspaper,
+  LayoutDashboard, LogIn, Settings, Search, Bell, Home, Newspaper, Sparkles,
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { useNotificationCount } from "@/hooks/useNotifications";
@@ -57,6 +57,8 @@ export default function Navbar() {
   const navItems = !user
     ? [
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
+        { href: "/organizations", label: "Organizations", icon: Building2 },
+        { href: "/ask-ai", label: "Ask AI", icon: Sparkles },
         { href: "/news", label: "News", icon: Newspaper },
         { href: "/about", label: "About", icon: Building2 },
       ]
@@ -71,6 +73,7 @@ export default function Navbar() {
     : [
         { href: "/", label: "Home", icon: Home },
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
+        { href: "/ask-ai", label: "Ask AI", icon: Sparkles },
         { href: "/feed", label: "Feed", icon: Newspaper },
         { href: "/network", label: "Network", icon: Users },
       ];

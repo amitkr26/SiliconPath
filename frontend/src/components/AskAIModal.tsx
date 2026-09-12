@@ -95,8 +95,8 @@ export default function AskAIModal({ isOpen, onClose }: AskAIModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)] bg-[var(--surface-raised)]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white shadow-brutal-sm">
-              <Sparkles size={20} />
+            <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+              <Sparkles size={18} />
             </div>
             <div>
               <h2 className="font-semibold text-base text-[var(--text)] flex items-center gap-2">
@@ -198,7 +198,7 @@ export default function AskAIModal({ isOpen, onClose }: AskAIModalProps) {
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl border-2 border-slate-900 disabled:opacity-50 transition shadow-brutal-sm flex items-center justify-center"
+              className="bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-lg disabled:opacity-50 transition shadow-xs flex items-center justify-center"
             >
               <Send size={18} />
             </button>

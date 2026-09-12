@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-12 — Master Product Audit, Professional UI/UX Redesign & Full-Stack Remediation:**
+  - **Baseline & Repository Separation**:
+    - Identified and isolated `bdw-main` tracking `bdw/main` (`https://github.com/amitkr26/BerojgarDegreeWala.git` @ `becf137`) from `origin` (SiliconPath).
+    - Preserved zero-regression contract across full-stack systems: Dual-auth, ATS applicant pipeline, scraper ingest, and real-time social networking.
+  - **Design System & Visual Language Overhaul**:
+    - Eliminated neo-brutalist styling (2px black borders, 4px hard drop-shadows, pill buttons/badges, and repetitive card patterns).
+    - Established modern engineering visual tokens: Slate 50 neutral canvas (`#F8FAFC`), Slate 900 text (`#0F172A`), precision Royal Blue primary (`#2563EB`), crisp 1px borders (`#E2E8F0` / `#CBD5E1`), geometric radii (4px, 6px, 8px, 12px), and subtle elevation (`shadow-xs`, `shadow-sm`, `shadow-md`).
+  - **Component & Surface Remediation**:
+    - `frontend/src/styles/design-tokens.ts`: Defined semantic color tokens, subtle elevations, geometric radii, and typography scales.
+    - `frontend/tailwind.config.ts`: Mapped `boxShadow` tokens to subtle modern elevations.
+    - `frontend/src/app/globals.css`: Replaced `--shadow-brutal` and heavy offset borders with modern CSS variables.
+    - `frontend/src/components/ui/Card.tsx`: Replaced 2px black border and hard offset shadows with subtle 1px border (`border-slate-200`) and smooth hover elevation.
+    - `frontend/src/components/ui/Button.tsx`: Replaced `rounded-pill` with geometric `rounded-lg`, refined sizes and hover transitions.
+    - `frontend/src/components/ui/Badge.tsx`: Replaced 2px black borders and pills with clean 1px `rounded-md` semantic tags.
+    - `frontend/src/components/ui/SectionHeader.tsx`: Refined uppercase label typography and header spacing.
+    - `frontend/src/components/ui/Input.tsx`: Updated `Input` and `Select` with subtle borders, `rounded-lg`, and smooth focus rings.
+    - `frontend/src/components/Navbar.tsx`: Added `Organizations` and `Ask AI` to navigation links, cleaned styling.
+    - `frontend/src/components/Footer.tsx`: Disciplined 4-column layout, subtle dark slate borders (`border-slate-800`), verified source trust strip.
+    - `frontend/src/components/ReviewsSection.tsx`: Redesigned "Transparency Over Testimonials" with subtle 1px cards.
+    - `frontend/src/components/FaqSection.tsx`: Clean border accordion with smooth focus states.
+    - `frontend/src/components/SubscribeSection.tsx`: Deep blue subtle gradient with clean inputs and badges.
+    - `frontend/src/components/OpportunityCard.tsx`: High-density scannable card layout, clean organization initials, 1px border, direct apply CTA.
+    - `frontend/src/components/NewsCard.tsx`: Editorial news layout, clean modal with full article summary link.
+    - `frontend/src/components/OpportunityRow.tsx`: Refined list/table view.
+    - `frontend/src/components/SubscribeModal.tsx` & `ReportIssueModal.tsx`: Subtle modern modal styling.
+    - `frontend/src/components/AskAIModal.tsx`: Refined header icon and send button.
+    - `frontend/src/components/OpportunityDisclaimer.tsx`: Subtle card design.
+    - `frontend/src/components/home/PublicHome.tsx`: Overhauled hero, domain pathways, research guide, and portal cards.
+    - `frontend/src/app/opportunities/[slug]/page.tsx`: Modernized detail tags and sidebar official website link.
+  - **Verification**:
+    - TypeScript: `npx tsc --noEmit` -> 0 errors.
+    - Tests: `npm test` -> 23 test suites, 211 tests passed.
+    - Production Build: `npm run build` -> 0 errors, 273 static and dynamic routes compiled.
+
 - **2026-09-12 — P1 Feature Gaps Closed (Visibility, Comments, Posts, Feed Scroll, Notifications):**
   - **P1-4: Profile visibility toggle**:
     - Added `is_profile_public` checkbox to `EditProfileModal.tsx` general tab.

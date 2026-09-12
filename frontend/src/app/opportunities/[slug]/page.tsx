@@ -404,7 +404,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
                   <Link
                     key={tag}
                     href={`/opportunities?search=${tag}`}
-                    className="px-3 py-1 bg-white border-2 border-slate-900 rounded-full text-xs font-medium text-slate-700 hover:bg-blue-600 hover:text-white shadow-brutal-sm transition-colors"
+                    className="px-2.5 py-1 bg-white border border-slate-200 rounded-md text-xs font-medium text-slate-700 hover:border-blue-500 hover:text-blue-600 transition-colors shadow-xs"
                   >
                     {tag}
                   </Link>
@@ -433,7 +433,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
               href={opportunity.official_page_url || opportunity.apply_link || "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 bg-white text-slate-900 border-2 border-slate-900 shadow-brutal hover:bg-blue-50 hover:text-accent hover:shadow-brutal-lg hover:-translate-y-0.5 font-black uppercase tracking-wide text-sm rounded-xl px-4 py-3 w-full transition-all"
+              className="inline-flex items-center justify-center gap-2 bg-white text-slate-800 border border-slate-300 hover:bg-slate-50 hover:border-slate-400 font-semibold text-sm rounded-lg px-4 py-2.5 w-full transition-colors shadow-xs"
             >
               <ExternalLink className="w-4 h-4" />
               Visit Official Organization Website
@@ -519,7 +519,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
             <Share2 className="w-4 h-4" /> Share
           </span>
         </div>
-        <div className="bg-white border-2 border-slate-900 rounded-2xl shadow-brutal p-4">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-xs p-4">
           <h3 className="font-display text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Quick Facts</h3>
           <div className="grid grid-cols-2 gap-3 text-xs">
             {opportunity.location && (

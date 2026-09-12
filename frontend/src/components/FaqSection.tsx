@@ -74,19 +74,19 @@ export default function FaqSection() {
   );
 
   return (
-    <div className="bg-white border-2 border-slate-900 rounded-2xl p-5 sm:p-8 lg:p-10 shadow-brutal-lg">
-      <div className="flex items-center gap-2 text-xs font-black uppercase text-blue-600 mb-2">
-        <HelpCircle className="w-4 h-4 stroke-[3]" />
+    <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 lg:p-10 shadow-xs">
+      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600 mb-2">
+        <HelpCircle className="w-4 h-4" />
         <span>Got Questions? We Have Answers</span>
       </div>
-      <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
         Frequently Asked Questions
       </h2>
-      <p className="text-slate-600 text-sm mt-1 mb-6 sm:mb-8 font-semibold">
+      <p className="text-slate-600 text-sm mt-1 mb-6 sm:mb-8 font-normal">
         Everything you need to know about JRF fellowships, PhD admissions, and semiconductor careers.
       </p>
 
-      <div className="space-y-3 sm:space-y-4" role="list">
+      <div className="space-y-3" role="list">
         {FAQS.map((faq, idx) => {
           const isOpen = openIndex === idx;
           const panelId = `faq-panel-${idx}`;
@@ -94,7 +94,7 @@ export default function FaqSection() {
           return (
             <div
               key={idx}
-              className="border-2 border-slate-900 rounded-xl overflow-hidden shadow-brutal-sm transition-all bg-white"
+              className="border border-slate-200 rounded-lg overflow-hidden transition-all bg-white"
               role="listitem"
             >
               <h3>
@@ -105,19 +105,15 @@ export default function FaqSection() {
                   aria-controls={panelId}
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
                   onKeyDown={(e) => handleKeyDown(e, idx)}
-                  className={`w-full p-3 sm:p-4 lg:p-5 text-left font-extrabold text-sm sm:text-base flex items-center justify-between gap-3 sm:gap-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${
-                    isOpen ? "bg-blue-600 text-white" : "bg-white text-slate-900 hover:bg-slate-50"
-                  }`}
+                  className="w-full p-4 lg:p-5 text-left font-semibold text-sm sm:text-base flex items-center justify-between gap-3 sm:gap-4 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20"
                 >
-                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <span className={`text-[10px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded-md border-2 shrink-0 ${
-                      isOpen ? "bg-white text-blue-600 border-white" : "bg-blue-50 text-blue-600 border-blue-200"
-                    }`}>
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100 shrink-0">
                       {faq.category}
                     </span>
-                    <span className="truncate">{faq.question}</span>
+                    <span className="text-slate-900 truncate">{faq.question}</span>
                   </div>
-                  <ChevronDown className={`w-5 h-5 flex-shrink-0 transition-transform stroke-[2.5] ${isOpen ? "rotate-180 text-white" : "text-slate-900"}`} />
+                  <ChevronDown className={`w-4 h-4 flex-shrink-0 transition-transform text-slate-500 ${isOpen ? "rotate-180 text-blue-600" : ""}`} />
                 </button>
               </h3>
               <div
@@ -127,7 +123,7 @@ export default function FaqSection() {
                 hidden={!isOpen}
               >
                 {isOpen && (
-                  <div className="p-3 sm:p-4 lg:p-5 bg-blue-50/40 border-t-2 border-slate-900 text-slate-800 text-xs sm:text-sm leading-relaxed font-semibold">
+                  <div className="p-4 lg:p-5 bg-slate-50/60 border-t border-slate-200 text-slate-700 text-xs sm:text-sm leading-relaxed font-normal">
                     {faq.answer}
                   </div>
                 )}

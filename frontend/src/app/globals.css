@@ -3,26 +3,23 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   BerojgarDegreeWala - Neo-Brutalist ("Brutalish") Design System
-   High-contrast, bold borders, hard offset shadows, zero glassmorphism.
+   BerojgarDegreeWala — Technical Design System
+   High-density, calm neutral canvas, subtle elevation, restrained blue accents.
 
-   Single source of truth for tokens: frontend/tailwind.config.ts.
-   These :root vars MUST mirror the config values exactly — used only by
-   components that reference var(--...) directly (AskAIModal, MessageThread,
-   shared/*). New components must use Tailwind classes, not raw vars.
+   Single source of truth for tokens: frontend/src/styles/design-tokens.ts.
    ========================================================================== */
 
 :root {
-  --bg:               #FAF9F6;
+  --bg:               #F8FAFC;
   --surface:          #FFFFFF;
-  --surface-raised:   #F1F5F9;
+  --surface-raised:   #FFFFFF;
   --surface-sunken:   #F1F5F9;
   --text:             #0F172A;
-  --text-secondary:   #334155;
-  --text-tertiary:    #64748B;
-  --border:           #0F172A;
-  --border-subtle:    #E2E8F0;
-  --border-hover:     #000000;
+  --text-secondary:   #475569;
+  --text-tertiary:    #94A3B8;
+  --border:           #E2E8F0;
+  --border-subtle:    #F1F5F9;
+  --border-hover:     #94A3B8;
 
   --primary:          #2563EB;
   --primary-hover:    #1D4ED8;
@@ -40,13 +37,13 @@
   --warning:          #D97706;
   --error:            #DC2626;
 
-  --shadow-brutal:    4px 4px 0px 0px #0F172A;
-  --shadow-brutal-lg: 6px 6px 0px 0px #0F172A;
-  --shadow-brutal-sm: 2px 2px 0px 0px #0F172A;
+  --shadow-brutal:    0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-brutal-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-brutal-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
-  --radius-sm: 6px;
-  --radius:    10px;
-  --radius-lg: 14px;
+  --radius-sm: 4px;
+  --radius:    8px;
+  --radius-lg: 12px;
 }
 
 * { box-sizing: border-box; }

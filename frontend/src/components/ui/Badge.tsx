@@ -4,13 +4,13 @@ type BadgeTone = "accent" | "success" | "warning" | "danger" | "neutral" | "inve
 type BadgeVariant = "default" | "dot";
 
 const toneClasses: Record<BadgeTone, string> = {
-  accent: "border-slate-900 text-blue-900 bg-blue-50 border-2",
-  success: "border-slate-900 text-emerald-900 bg-emerald-50 border-2",
-  warning: "border-slate-900 text-amber-900 bg-amber-50 border-2",
-  danger: "border-slate-900 text-red-900 bg-red-50 border-2",
-  neutral: "border-slate-300 text-slate-700 bg-slate-100 border",
-  inverse: "border-slate-900 text-white bg-slate-900 border-2",
-  purple: "border-slate-900 text-purple-900 bg-purple-50 border-2",
+  accent: "border-blue-200 text-blue-700 bg-blue-50/80 border",
+  success: "border-emerald-200 text-emerald-700 bg-emerald-50/80 border",
+  warning: "border-amber-200 text-amber-800 bg-amber-50/80 border",
+  danger: "border-red-200 text-red-700 bg-red-50/80 border",
+  neutral: "border-slate-200 text-slate-600 bg-slate-100/80 border",
+  inverse: "border-slate-800 text-white bg-slate-900 border",
+  purple: "border-purple-200 text-purple-700 bg-purple-50/80 border",
 };
 
 const dotColor: Record<BadgeTone, string> = {
@@ -35,7 +35,7 @@ export function Badge({ tone = "accent", variant = "default", className, childre
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-pill border border-slate-200 text-[11px] font-medium bg-white",
+          "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-slate-200 text-[11px] font-medium bg-white",
           className,
         )}
       >
@@ -48,7 +48,7 @@ export function Badge({ tone = "accent", variant = "default", className, childre
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[11px] font-semibold uppercase tracking-wider",
+        "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium",
         toneClasses[tone],
         className,
       )}

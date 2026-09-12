@@ -10,15 +10,15 @@ export function Input({ label, error, className, id, ...props }: InputProps) {
   return (
     <div className="space-y-1.5">
       {label && (
-        <label htmlFor={inputId} className={cn("block text-xs font-semibold uppercase tracking-wider text-slate-800")}>
+        <label htmlFor={inputId} className={cn("block text-xs font-semibold uppercase tracking-wider text-slate-700")}>
           {label}
         </label>
       )}
       <input
         id={inputId}
         className={cn(
-          "w-full px-3.5 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-brutal-sm focus:outline-none focus:border-blue-600 focus:shadow-brutal transition-all",
-          error && "border-red-600 shadow-[2px_2px_0px_0px_#DC2626]",
+          "w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-xs focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition-all",
+          error && "border-red-500 focus:border-red-600 focus:ring-red-500/20",
           className,
         )}
         {...props}
@@ -37,14 +37,14 @@ export function Select({ label, className, id, children, ...props }: SelectProps
   return (
     <div className="space-y-1.5">
       {label && (
-        <label htmlFor={selectId} className={cn("block text-xs font-semibold uppercase tracking-wider text-slate-800")}>
+        <label htmlFor={selectId} className={cn("block text-xs font-semibold uppercase tracking-wider text-slate-700")}>
           {label}
         </label>
       )}
       <select
         id={selectId}
         className={cn(
-          "w-full px-3.5 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-sm font-medium text-slate-900 shadow-brutal-sm focus:outline-none focus:border-blue-600 focus:shadow-brutal transition-all",
+          "w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-900 shadow-xs focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition-all",
           className,
         )}
         {...props}

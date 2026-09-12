@@ -14,11 +14,11 @@ export default function OpportunityDisclaimer({ opportunityId, officialPageUrl }
 
   return (
     <>
-      <div className="bg-slate-50 border-2 border-slate-900 rounded-2xl p-5 shadow-brutal-sm">
+      <div className="bg-slate-50/70 border border-slate-200 rounded-xl p-5 shadow-xs">
         <div className="flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
           <div className="flex-1 min-w-0">
-            <h3 className="text-slate-900 text-sm font-black mb-2">Before you apply</h3>
+            <h3 className="text-slate-900 text-sm font-bold mb-2">Before you apply</h3>
             <ul className="space-y-1.5 text-xs text-slate-600 font-medium">
               <li>• Always verify details on the official website</li>
               <li>• Check for any updates or changes to the advertisement</li>

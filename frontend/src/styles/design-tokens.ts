@@ -1,49 +1,46 @@
 /*
- * SiliconPath — Central Design Tokens (v2.0 Professional Neo-Brutalism)
+ * BerojgarDegreeWala — Central Design Tokens
+ * Professional Career & Opportunity Intelligence Platform
  * Single source of truth for shadows, radii, colors, typography, spacing, icons.
- * All components should reference these tokens instead of ad-hoc Tailwind values.
- *
- * Do NOT add competing token definitions. If a new semantic is needed, add it
- * to the appropriate category here — do NOT create a second file.
  */
 
 // ============================================================
-// SHADOW SYSTEM — exactly 3 semantic levels
+// SHADOW SYSTEM — restrained technical elevation
 // ============================================================
 export const shadow = {
-  // Subtle surface elevation (cards, boxes) — 3px offset
-  card: "3px 3px 0px 0px #0F172A",
-  // Interactive/important surface (buttons, hover states) — 4px offset
-  elevated: "4px 4px 0px 0px #0F172A",
-  // Dialogs/popovers/overlays — standard drop shadow (no brutal offset)
-  modal: "0 4px 24px rgba(0, 0, 0, 0.15)",
-} as const
+  // Flat/subtle surface elevation (cards, boxes)
+  card: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+  // Interactive surface (hover states, dropdown menus)
+  elevated: "0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05)",
+  // Dialogs, modals, floating popovers
+  modal: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)",
+} as const;
 
-export type ShadowKey = keyof typeof shadow
+export type ShadowKey = keyof typeof shadow;
 
 // ============================================================
-// RADIUS SYSTEM — semantic + numeric levels
+// RADIUS SYSTEM — restrained geometric hierarchy (no bubble shapes)
 // ============================================================
 export const radius = {
-  sm: "6px",
-  md: "8px",
-  lg: "12px",
-  xl: "16px",
-  card: "12px",
+  sm: "4px",
+  md: "6px",
+  lg: "8px",
+  xl: "12px",
+  card: "10px",
   pill: "9999px",
-  input: "12px",
-} as const
+  input: "8px",
+} as const;
 
-export type RadiusKey = keyof typeof radius
+export type RadiusKey = keyof typeof radius;
 
 // ============================================================
-// COLOR SYSTEM — one primary accent + semantic status colors
+// COLOR SYSTEM — calm technical palette with intentional accents
 // ============================================================
 export const color = {
-  // Single primary brand accent — Electric Blue
+  // Brand accent — Precision Royal Blue (reserved for primary actions & active links)
   primary: "#2563EB",
   primaryHover: "#1D4ED8",
-  primarySubtle: "rgba(37, 99, 235, 0.1)",
+  primarySubtle: "rgba(37, 99, 235, 0.08)",
 
   // Semantic status colors
   success: "#059669",
@@ -51,57 +48,51 @@ export const color = {
   danger: "#DC2626",
   neutral: "#64748B",
 
-  // Surface/background — Warm off-white + white cards
-  bg: "#FAF9F6",
+  // Background & Surfaces — clean technical neutrals
+  bg: "#F8FAFC",
   surface: "#FFFFFF",
   surfaceElevated: "#F1F5F9",
+  terminal: "#0B1120",
 
-  // Text — Deep Navy hierarchy
+  // Text hierarchy
   text: "#0F172A",
-  textSecondary: "#334155",
-  textMuted: "#64748B",
+  textSecondary: "#475569",
+  textMuted: "#94A3B8",
   textInverted: "#FFFFFF",
 
-  // Border — Deep Navy
-  border: "#0F172A",
-  borderHover: "#000000",
-  borderSubtle: "#E2E8F0",
+  // Subtle borders — standard 1px clean separators
+  border: "#E2E8F0",
+  borderHover: "#94A3B8",
+  borderSubtle: "#F1F5F9",
 
-  // Org colors — preserve as semantic keys
+  // Org colors — preserved for ecosystem tags
   orgIsro: "#A0784C",
   orgIntel: "#5B7DB1",
   orgTifr: "#8B6CB4",
   orgTata: "#4A8C6F",
   orgDrdo: "#B85450",
-} as const
+} as const;
 
-export type ColorKey = keyof typeof color
+export type ColorKey = keyof typeof color;
 
 // ============================================================
 // TYPOGRAPHY SYSTEM — semantic weight + size hierarchy
 // ============================================================
 export const typography = {
-  // display: strong headline (28-32px, font-bold)
-  display: "font-bold tracking-tight text-[30px] leading-tight",
-  // heading: section headline (20-24px, font-bold)
-  heading: "font-bold tracking-tight text-[22px] leading-snug",
-  // subheading: card/section subheading (16-18px, font-semibold)
-  subheading: "font-semibold text-[17px] leading-snug",
-  // body: regular/medium for readability (14-15px, font-normal)
-  body: "font-normal text-[15px] leading-relaxed",
-  // label: semibold for form alignment
+  display: "font-bold tracking-tight text-[28px] sm:text-[32px] leading-tight",
+  heading: "font-bold tracking-tight text-[20px] sm:text-[22px] leading-snug",
+  subheading: "font-semibold text-[16px] leading-snug",
+  body: "font-normal text-[14px] leading-relaxed",
   label: "font-semibold text-xs uppercase tracking-wider",
-  // caption: smaller, muted (12-13px, font-medium)
   caption: "font-medium text-[12px] text-slate-500",
-} as const
+} as const;
 
-export type TypographyKey = keyof typeof typography
+export type TypographyKey = keyof typeof typography;
 
 // ============================================================
 // SPACING SYSTEM — 4pt base scale
 // ============================================================
 export const spacing = {
-  // 4pt base: 1rem = 16px
   xs: "4px",
   sm: "8px",
   md: "12px",
@@ -110,34 +101,40 @@ export const spacing = {
   xxl: "32px",
   xxxl: "48px",
   xxxxl: "64px",
-} as const
+} as const;
 
-export type SpacingKey = keyof typeof spacing
+export type SpacingKey = keyof typeof spacing;
 
 // ============================================================
-// ICON SYSTEM — semantic size scale
+// ICON SYSTEM — standard inline proportions
 // ============================================================
 export const icon = {
-  // 14px — tiny inline actions
   xs: "w-3 h-3",
-  // 18px — small inline
   sm: "w-4 h-4",
-  // 22px — default inline
   md: "w-5 h-5",
-  // 28px — interactive accent
   lg: "w-6 h-6",
-  // 40px — hero/section accent
   xl: "w-8 h-8",
-} as const
+} as const;
 
-export type IconKey = keyof typeof icon
+export type IconKey = keyof typeof icon;
 
 // ============================================================
-// TYPE ALIASES — for TypeScript reuse
+// TYPE ALIASES & COMPOSITE EXPORT
 // ============================================================
-export type ShadowValue = typeof shadow[keyof typeof shadow]
-export type RadiusValue = typeof radius[keyof typeof radius]
-export type ColorValue = typeof color[keyof typeof color]
-export type TypographyValue = typeof typography[keyof typeof typography]
-export type SpacingValue = typeof spacing[keyof typeof spacing]
-export type IconValue = typeof icon[keyof typeof icon]
+export type ShadowValue = typeof shadow[keyof typeof shadow];
+export type RadiusValue = typeof radius[keyof typeof radius];
+export type ColorValue = typeof color[keyof typeof color];
+export type TypographyValue = typeof typography[keyof typeof typography];
+export type SpacingValue = typeof spacing[keyof typeof spacing];
+export type IconValue = typeof icon[keyof typeof icon];
+
+export const designTokens = {
+  shadow,
+  radius,
+  color,
+  typography,
+  spacing,
+  icon,
+} as const;
+
+export default designTokens;

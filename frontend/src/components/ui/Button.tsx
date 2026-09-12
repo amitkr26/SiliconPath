@@ -5,17 +5,17 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "success";
 type ButtonSize = "sm" | "md" | "lg" | "icon";
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "text-white bg-blue-600 border border-transparent shadow-card-sm hover:bg-blue-700 hover:shadow-card hover:-translate-y-0.5",
-  secondary: "text-slate-900 bg-white border border-slate-900 shadow-none hover:bg-slate-50 hover:text-blue-600",
-  ghost: "text-slate-700 border border-transparent hover:bg-slate-100 hover:text-slate-900",
-  danger: "text-white bg-red-600 border border-transparent shadow-card-sm hover:bg-red-700 hover:shadow-card hover:-translate-y-0.5",
-  success: "text-white bg-emerald-600 border border-transparent shadow-card-sm hover:bg-emerald-700 hover:shadow-card hover:-translate-y-0.5",
+  primary: "text-white bg-blue-600 border border-transparent shadow-sm hover:bg-blue-700 transition-colors",
+  secondary: "text-slate-800 bg-white border border-slate-200 shadow-sm hover:bg-slate-50 hover:text-blue-600 transition-colors",
+  ghost: "text-slate-700 border border-transparent hover:bg-slate-100 hover:text-slate-900 transition-colors",
+  danger: "text-white bg-red-600 border border-transparent shadow-sm hover:bg-red-700 transition-colors",
+  success: "text-white bg-emerald-600 border border-transparent shadow-sm hover:bg-emerald-700 transition-colors",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5",
-  md: "px-4 py-2",
-  lg: "px-6 py-3",
+  sm: "px-3 py-1.5 text-xs",
+  md: "px-4 py-2 text-sm",
+  lg: "px-5 py-2.5 text-sm",
   icon: "p-2 aspect-square",
 };
 
@@ -43,7 +43,7 @@ export function Button({
   ariaLabel,
 }: ButtonProps) {
   const classes = cn(
-    "inline-flex items-center justify-center gap-2 rounded-pill transition-all active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-50 disabled:pointer-events-none font-medium",
+    "inline-flex items-center justify-center gap-2 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none font-medium text-center",
     variantClasses[variant],
     sizeClasses[size],
     className,

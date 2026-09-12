@@ -45,10 +45,10 @@ export default function NewsCard({ article }: NewsCardProps) {
 
   return (
     <>
-      <div className="bg-white rounded-2xl p-5 border-2 border-slate-900 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group h-full">
+      <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 flex flex-col justify-between group h-full">
         <div>
           {/* TOP BANNER IMAGE */}
-          <div className="w-full h-36 rounded-xl overflow-hidden border-2 border-slate-900 shadow-brutal-sm mb-4 relative bg-slate-100">
+          <div className="w-full h-36 rounded-lg overflow-hidden border border-slate-100 mb-4 relative bg-slate-100">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={!imgError && article.image_url ? article.image_url : "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80"}
@@ -56,7 +56,7 @@ export default function NewsCard({ article }: NewsCardProps) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={() => setImgError(true)}
             />
-            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border-2 border-slate-900 rounded-lg text-[11px] font-bold text-slate-900 shadow-brutal-sm">
+            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/95 backdrop-blur-xs border border-slate-200 rounded-md text-[11px] font-semibold text-slate-800 shadow-xs">
               <Newspaper size={11} className="text-blue-600" />
               {sourceName}
             </span>
@@ -74,8 +74,8 @@ export default function NewsCard({ article }: NewsCardProps) {
 
             <div className="flex items-center gap-2.5 mt-2 flex-wrap text-xs">
               {article.published_at && (
-                <span className="flex items-center gap-1 text-slate-600 text-[11px] font-bold">
-                  <Clock size={12} className="" />
+                <span className="flex items-center gap-1 text-slate-500 text-[11px] font-medium">
+                  <Clock size={12} />
                   {timeAgo(article.published_at)}
                 </span>
               )}
@@ -84,7 +84,7 @@ export default function NewsCard({ article }: NewsCardProps) {
 
           {/* Article Summary */}
           {article.summary && (
-            <p className="text-slate-700 text-xs mt-3 line-clamp-2 leading-relaxed font-medium">
+            <p className="text-slate-600 text-xs mt-3 line-clamp-2 leading-relaxed font-normal">
               {article.summary}
             </p>
           )}
@@ -95,7 +95,7 @@ export default function NewsCard({ article }: NewsCardProps) {
               {tags.slice(0, 3).map((tag: string, i: number) => (
                 <span
                   key={`${tag}-${i}`}
-                  className="px-2 py-0.5 bg-blue-50 text-blue-900 rounded-md text-[10px] font-bold border border-slate-900 shadow-[1px_1px_0px_0px_#0F172A]"
+                  className="px-2 py-0.5 bg-slate-50 text-slate-600 rounded-md text-[10px] font-medium border border-slate-200"
                 >
                   #{tag}
                 </span>
@@ -105,23 +105,23 @@ export default function NewsCard({ article }: NewsCardProps) {
         </div>
 
         {/* Action Footer */}
-        <div className="flex items-center justify-between pt-4 mt-4 border-t-2 border-slate-900">
+        <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-100">
           <button
             onClick={() => setShowModal(true)}
-            className="text-xs font-bold text-slate-900 hover:text-blue-600 transition flex items-center gap-1"
+            className="text-xs font-semibold text-slate-700 hover:text-blue-600 transition flex items-center gap-1"
           >
             <span>Read Summary</span>
-            <ArrowRight size={13} className="" />
+            <ArrowRight size={13} />
           </button>
 
           <a
             href={sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-xl border-2 border-slate-900 transition shadow-brutal-sm"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition-colors shadow-xs"
           >
             <span>Official Source</span>
-            <ExternalLink size={13} className="" />
+            <ExternalLink size={13} />
           </a>
         </div>
       </div>
@@ -129,30 +129,30 @@ export default function NewsCard({ article }: NewsCardProps) {
       {/* MODAL VIEW */}
       {showModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-200"
           onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
           role="dialog"
           aria-modal="true"
           aria-label={article.title}
         >
-          <div className="bg-white rounded-2xl border-2 border-slate-900 shadow-brutal-lg max-w-2xl w-full max-h-[85vh] overflow-y-auto p-5 sm:p-6 relative">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-5 sm:p-6 relative">
             <button
               ref={closeBtnRef}
               onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-xl border-2 border-slate-900 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold transition shadow-brutal-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              className="absolute top-4 right-4 p-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               aria-label="Close modal"
             >
-              <X size={18} className="" />
+              <X size={18} />
             </button>
 
             <div className="flex items-center gap-2 mb-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-lg text-xs font-bold text-slate-900 shadow-brutal-sm">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 border border-blue-100 rounded-md text-xs font-semibold text-blue-700">
                 <Newspaper size={12} className="text-blue-600" />
                 {sourceName}
               </span>
               {article.published_at && (
-                <span className="text-slate-600 text-xs font-bold flex items-center gap-1">
-                  <Clock size={12} className="" />
+                <span className="text-slate-500 text-xs font-medium flex items-center gap-1">
+                  <Clock size={12} />
                   {timeAgo(article.published_at)}
                 </span>
               )}
@@ -163,7 +163,7 @@ export default function NewsCard({ article }: NewsCardProps) {
             </h2>
 
             {/* Modal Image */}
-            <div className="w-full h-56 rounded-xl overflow-hidden border-2 border-slate-900 shadow-brutal mb-5">
+            <div className="w-full h-56 rounded-lg overflow-hidden border border-slate-100 mb-5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={!imgError && article.image_url ? article.image_url : "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"}
@@ -172,23 +172,23 @@ export default function NewsCard({ article }: NewsCardProps) {
               />
             </div>
 
-            <div className="prose prose-slate max-w-none text-slate-800 text-sm font-medium leading-relaxed whitespace-pre-line mb-6">
+            <div className="prose prose-slate max-w-none text-slate-700 text-sm font-normal leading-relaxed whitespace-pre-line mb-6">
               {articleContent}
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t-2 border-slate-900">
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
               <a
                 href={sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0F172A] transition"
+                className="inline-flex items-center gap-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors shadow-xs"
               >
                 <span>Read Full Article on {sourceName}</span>
-                <ExternalLink size={14} className="" />
+                <ExternalLink size={14} />
               </a>
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-xs font-bold text-slate-900 border-2 border-slate-900 rounded-xl hover:bg-slate-100 transition shadow-brutal-sm"
+                className="px-4 py-2 text-xs font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 Close
               </button>
