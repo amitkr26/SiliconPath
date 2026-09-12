@@ -73,36 +73,37 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-      <div className="bg-white border-2 border-slate-900 rounded-2xl p-6 sm:p-8 w-full max-w-lg relative shadow-brutal-lg">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 w-full max-w-lg relative shadow-xl">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-500 hover:text-slate-900 transition-colors p-1 bg-slate-100 border-2 border-slate-900 rounded-lg"
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 transition-colors p-1.5 hover:bg-slate-100 rounded-lg"
+          aria-label="Close"
         >
-          <X className="w-5 h-5 stroke-[2.5]" />
+          <X className="w-5 h-5" />
         </button>
 
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-white shadow-brutal-sm">
-            <Bell className="w-5 h-5 stroke-[2.5]" />
+          <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+            <Bell className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-slate-900">
+            <h2 className="text-xl font-bold text-slate-900">
               Customize Alert Preferences
             </h2>
-            <p className="text-xs text-slate-600 font-semibold">Select your target categories &amp; key search terms</p>
+            <p className="text-xs text-slate-500 font-normal">Select your target categories &amp; key search terms</p>
           </div>
         </div>
 
         {status === "success" ? (
-          <div className="text-center py-6 bg-blue-50 border-2 border-slate-900 rounded-xl shadow-brutal-sm">
-            <Check className="w-12 h-12 text-emerald-600 mx-auto mb-2 stroke-[3]" />
-            <p className="text-slate-900 font-extrabold text-sm">{message}</p>
+          <div className="text-center py-6 bg-blue-50/50 border border-blue-100 rounded-lg">
+            <Check className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
+            <p className="text-slate-900 font-semibold text-sm">{message}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-slate-900 text-xs font-extrabold mb-1.5 uppercase">
+              <label className="block text-slate-700 text-xs font-semibold mb-1.5 uppercase tracking-wider">
                 Email Address
               </label>
               <input
@@ -111,12 +112,12 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full bg-white border-2 border-slate-900 text-slate-900 font-bold text-sm rounded-xl px-3.5 py-2.5 shadow-brutal-sm focus:shadow-brutal outline-none"
+                className="w-full bg-white border border-slate-300 text-slate-900 font-normal text-sm rounded-lg px-3.5 py-2.5 shadow-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 outline-none transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-slate-900 text-xs font-extrabold mb-1.5 uppercase">
+              <label className="block text-slate-700 text-xs font-semibold mb-1.5 uppercase tracking-wider">
                 Target Categories
               </label>
               <div className="flex flex-wrap gap-2">
@@ -128,10 +129,10 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
                       type="button"
                       onClick={() => toggleCategory(cat)}
                       className={cn(
-                        "px-3 py-1.5 rounded-lg text-xs font-extrabold border-2 border-slate-900 transition-all shadow-brutal-sm",
+                        "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors",
                         selected
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-slate-800 hover:bg-slate-50"
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
                       )}
                     >
                       {cat}
@@ -142,7 +143,7 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
             </div>
 
             <div>
-              <label className="block text-slate-900 text-xs font-extrabold mb-1.5 uppercase">
+              <label className="block text-slate-700 text-xs font-semibold mb-1.5 uppercase tracking-wider">
                 Target Keywords (comma-separated)
               </label>
               <input
@@ -150,20 +151,20 @@ export default function SubscribeModal({ isOpen, onClose }: SubscribeModalProps)
                 value={keywords}
                 onChange={(e) => setKeywords(e.target.value)}
                 placeholder="e.g. VLSI, SystemVerilog, IIT Bombay, DRDO, UVM"
-                className="w-full bg-white border-2 border-slate-900 text-slate-900 font-bold text-sm rounded-xl px-3.5 py-2.5 shadow-brutal-sm focus:shadow-brutal outline-none"
+                className="w-full bg-white border border-slate-300 text-slate-900 font-normal text-sm rounded-lg px-3.5 py-2.5 shadow-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 outline-none transition-all"
               />
             </div>
 
             {status === "error" && (
-              <p className="text-red-600 text-xs font-extrabold">{message}</p>
+              <p className="text-red-600 text-xs font-medium">{message}</p>
             )}
 
             <button
               type="submit"
               disabled={status === "loading"}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl py-3 text-sm border-2 border-slate-900 shadow-brutal hover:shadow-brutal-lg transition-all disabled:opacity-50"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg py-2.5 text-sm transition-colors shadow-xs disabled:opacity-50"
             >
-              {status === "loading" ? "Saving Preferences..." : "Save &amp; Activate Alerts"}
+              {status === "loading" ? "Saving Preferences..." : "Save & Activate Alerts"}
             </button>
           </form>
         )}

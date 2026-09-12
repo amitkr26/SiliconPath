@@ -27,17 +27,17 @@ export function SectionHeader({ eyebrow, eyebrowTone = "accent", title, descript
         {eyebrow && (
           <span
             className={cn(
-              "inline-flex items-center px-3 py-1 rounded-lg border-2 border-slate-900 text-xs font-bold uppercase shadow-brutal-sm",
-              eyebrowTone === "accent" && "bg-blue-600 text-white",
-              eyebrowTone === "success" && "bg-emerald-400 text-slate-900",
-              eyebrowTone === "warning" && "bg-amber-400 text-slate-900",
-              eyebrowTone === "neutral" && "bg-slate-100 text-slate-700"
+              "text-xs font-semibold uppercase tracking-wider block mb-1",
+              eyebrowTone === "accent" && "text-blue-600",
+              eyebrowTone === "success" && "text-emerald-600",
+              eyebrowTone === "warning" && "text-amber-600",
+              eyebrowTone === "neutral" && "text-slate-500"
             )}
           >
             {eyebrow}
           </span>
         )}
-        <h2 className={cn("text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-3")}>{title}</h2>
+        <h2 className={cn("text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight")}>{title}</h2>
         {description && <p className={cn("text-sm font-medium text-slate-600 mt-1.5 max-w-2xl")}>{description}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}

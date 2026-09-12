@@ -1,22 +1,18 @@
-# SiliconPath (BerojgarDegreeWala) — Technical Architecture
+# BerojgarDegreeWala — Technical Architecture
 
-**Version:** 2026-08-30 (Reconciled & Production Certified) · **Pattern:** Modular Monolith on Next.js & Supabase + Dedicated Employer Suite & Independent Backend Replication
+**Version:** 2026-09-12 (Production Certified & UI/UX Redesigned) · **Pattern:** Modular Monolith on Next.js & Supabase + Dedicated Employer Suite & Independent Backend Replication
 
 ---
 
 ## 1. Architectural Overview
 
-SiliconPath operates as a **modular monolith** on Next.js 14 (App Router) deployed to Vercel, backed by a Supabase PostgreSQL database and Neon analytics database.
+BerojgarDegreeWala operates as a **modular monolith** on Next.js 14 (App Router) deployed to Vercel, backed by a Supabase PostgreSQL database and Neon analytics database.
 
-> **DB topology note:** The codebase contains a legacy dual-DB config (`supabase-db2.ts`), but in production both DB1 and DB2 point to the same Supabase instance. The split is not enforced.
-
-The application serves three discrete, authoritative user experiences from a single codebase and authentication system:
-1. **Public Portal**: Deep-tech intelligence, news, opportunities, and search.
+The application serves four discrete, authoritative user experiences from a single codebase and authentication system:
+1. **Public Portal**: Deep-tech intelligence, news, opportunities, organizations, and search.
 2. **Candidate Portal**: Career management, applications, saved jobs, networking, messaging, and profile.
 3. **Employer / Recruiter Suite**: Full recruitment cockpit, job posting studio, multi-stage ATS pipeline, talent sourcing, recruiter messaging, company branding, team seats, settings, and analytics.
 4. **Admin Console**: Opportunity verification, scraping fleet health, announcements, and platform performance.
-
-> **Note:** Resume Studio is hosted on ElectroBridge; Academy is hosted on SiliconPath.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -51,7 +47,7 @@ The application serves three discrete, authoritative user experiences from a sin
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │ Surface             Layout Shell            Key Pages                           │
 ├─────────────────────────────────────────────────────────────────────────────────┤
-│ 1. Public Portal    Navbar + Footer         /, /opportunities, /news, /academy, │
+│ 1. Public Portal    Navbar + Footer         /, /opportunities, /news, /ask-ai,  │
 │                                             /organizations, /resources, /search │
 │ 2. Candidate Portal Candidate Layout        /dashboard, /applications, /saved,  │
 │                                             /network, /messages, /profile,      │
@@ -67,32 +63,44 @@ The application serves three discrete, authoritative user experiences from a sin
 
 ---
 
-## 3. Database Architecture
+## 3. Design System & Visual Language Architecture
+
+The visual presentation model is engineered for high information density, rapid scanning, and institutional credibility:
+
+### Design Tokens (`frontend/src/styles/design-tokens.ts`, `globals.css`)
+- **Color Palette**:
+  - **Canvas / Neutral**: `#F8FAFC` (Slate 50) page background, `#FFFFFF` card surfaces, `#0F172A` (Slate 900) primary text, `#475569` (Slate 600) secondary text, `#94A3B8` (Slate 400) muted labels.
+  - **Primary Brand / Precision Blue**: `#2563EB` (Blue 600) for primary actions, `#1D4ED8` (Blue 700) for active/hover states, `#EFF6FF` (Blue 50) for subtle selections.
+  - **Semantic Accents**: Verified Emerald (`#059669`), Deadline Amber (`#D97706`), Destructive Rose (`#E11D48`), Informational Cyan (`#0891B2`).
+- **Typography**: Inter / system font stack with strict typographic hierarchy (`text-xs` badges, `text-sm` metadata/descriptions, `text-base` body, `text-lg` card headers, `text-2xl` section titles, `text-4xl` page hero).
+- **Elevation & Geometry**:
+  - Crisp 1px borders (`#E2E8F0` / `#CBD5E1`) replacing legacy 2px neo-brutalist borders.
+  - Micro-elevations (`shadow-xs`: `0 1px 2px 0 rgba(0,0,0,0.05)`, `shadow-sm`: `0 1px 3px 0 rgba(0,0,0,0.08)`, `shadow-md`: `0 4px 6px -1px rgba(0,0,0,0.07)`) replacing legacy 4px hard offset drop-shadows.
+  - Geometric corner radii (`rounded-md` 6px, `rounded-lg` 8px, `rounded-xl` 12px) replacing pill buttons and pill cards.
+
+---
+
+## 4. Database Architecture
 
 The live database infrastructure uses a dual-Supabase + Neon architecture:
 
 ### DB1 — Supabase (Consolidated Platform & User Data)
 - **Provider**: Supabase Project 1 (`aqauempuwmbizqoaolop`)
-- **Role**: Production authoritative database hosting core platform, opportunities, organizations, news, admin logs, as well as consolidated user profiles, social features, applications, and academy content.
-- **Key Tables**: `opportunities`, `organizations`, `news_articles`, `user_profiles`, `applications`, `saved_opportunities`, `feed_posts`, `learning_tracks`, `learning_days`, `learning_questions`, `company_claims`, `recruiter_saved_candidates`, `employer_settings`, `workspace_members`, `ai_usage_log`.
+- **Role**: Production authoritative database hosting core platform, opportunities, organizations, news, admin logs, user profiles, social features, applications, and workspace settings.
+- **Key Tables**: `opportunities`, `organizations`, `news_articles`, `user_profiles`, `applications`, `saved_opportunities`, `feed_posts`, `company_claims`, `recruiter_saved_candidates`, `employer_settings`, `workspace_members`, `ai_usage_log`.
 
 ### DB2 — Supabase (Legacy Split Architecture)
 - **Provider**: Supabase Project 2 (`jbqjipwanfsxyqkfrrpx` — optional / legacy)
-- **Role**: Historically planned user/social partition. In current runtime, when `NEXT_PUBLIC_SUPABASE_DB2_URL` is unset, `frontend/src/lib/supabase-db2.ts` automatically falls back to DB1, operating as a unified single-database instance.
+- **Role**: In current runtime, `frontend/src/lib/supabase-db2.ts` automatically falls back to DB1 when `NEXT_PUBLIC_SUPABASE_DB2_URL` is unset, operating as a unified single-database instance.
 
 ### Neon DB1 — Analytics & Cache
 - **Provider**: Neon PostgreSQL
 - **Role**: Analytics, click tracking, trending cache
 - **Key Tables**: `page_views`, `search_queries`, `click_events`, `trending_cache`, `keyword_stats`
 
-### Cross-DB References
-- `saved_opportunities.opportunity_id` references DB1's `opportunities.id` — enforced at application level, not FK-constrained
-- `applications.opportunity_id` references DB1's `opportunities.id` — same pattern
-- `feed_posts.opportunity_id` references DB1's `opportunities.id` — same pattern
-
 ---
 
-## 4. Security, Dual Auth & IDOR Protection
+## 5. Security, Dual Auth & IDOR Protection
 
 1. **Dual Authentication & Authoritative RBAC (`frontend/src/lib/employer-auth.ts`, `backend/api/src/auth/index.ts`)**:
    - Accepts both browser session cookies (`sb-...-auth-token`) and programmatic Bearer tokens (`Authorization: Bearer <jwt>`).
@@ -104,9 +112,9 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
    - Every mutation and review endpoint verifies that the authenticated user owns the referenced opportunity (`created_by === user.id || employer_id === user.id` or `role === 'admin'`).
    - Cross-employer access attempts return HTTP 403 Forbidden.
 4. **RBAC Middleware**:
-   - Role-based access control with three roles: `candidate`, `employer`, `admin`
-   - Capability-based progressive permissions model
-   - Middleware enforces role checks at route boundaries
+   - Role-based access control with three roles: `candidate`, `employer`, `admin`.
+   - Capability-based progressive permissions model.
+   - Middleware enforces role checks at route boundaries.
 5. **Security Response Headers**:
    - `X-Frame-Options: DENY`
    - `X-Content-Type-Options: nosniff`
@@ -116,10 +124,10 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
 
 ---
 
-## 5. Verification Baseline
+## 6. Verification Baseline
 
 - **TypeScript Type Safety**: `npx tsc --noEmit` (0 errors)
-- **Unit & Integration Tests**: `npx jest` (passing)
+- **Unit & Integration Tests**: `npx jest` (23 suites, 211 tests passing)
 - **Backend Test Baseline**: All passing (46 server + 15 ai-gateway + 97 api)
-- **Production Build**: `npm run build` (compiles successfully)
+- **Production Build**: `npm run build` (compiles successfully, 273 static and dynamic routes)
 - **Security**: IDOR protection, RBAC middleware, RLS on all tables, CSRF protection, rate limiting

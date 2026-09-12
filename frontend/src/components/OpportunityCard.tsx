@@ -131,15 +131,15 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
       onClick={handleCardClick}
       className={`block group cursor-pointer ${linkUnavailable ? "opacity-70" : ""}`}
     >
-      <div className="bg-white border-2 border-slate-900 rounded-2xl p-5 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-1 transition-all h-full flex flex-col justify-between">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all h-full flex flex-col justify-between">
         <div className="flex items-start gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 border-2 border-slate-900 flex items-center justify-center flex-shrink-0 text-white font-black text-sm shadow-brutal-sm">
+          <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
             {getInitials(opportunity.organization)}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <h3 className="text-slate-900 font-bold text-sm sm:text-base leading-snug group-hover:text-accent transition-colors line-clamp-2">
+                <h3 className="text-slate-900 font-bold text-sm sm:text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
                   {opportunity.title}
                 </h3>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -151,7 +151,7 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
                         e.stopPropagation();
                         router.push(`/opportunities?search=${encodeURIComponent(opportunity.organization!)}`);
                       }}
-                      className="text-xs text-slate-700 hover:text-accent font-black hover:underline transition-colors text-left"
+                      className="text-xs text-slate-600 hover:text-blue-600 font-semibold hover:underline transition-colors text-left"
                       title={`View all opportunities from ${opportunity.organization}`}
                     >
                       {opportunity.organization}
@@ -164,8 +164,8 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
               </div>
               <button
                 onClick={handleBookmark}
-                className={`transition-colors flex-shrink-0 p-1.5 rounded-lg border-2 border-slate-900 shadow-brutal-sm ${
-                  isBookmarked ? "bg-red-500 text-white" : "bg-slate-100 text-slate-600 hover:text-red-500"
+                className={`transition-colors flex-shrink-0 p-1.5 rounded-lg border border-slate-200 ${
+                  isBookmarked ? "bg-red-500 text-white border-red-500" : "bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-red-500"
                 }`}
                 title={isBookmarked ? "Remove bookmark" : "Bookmark"}
               >
@@ -176,23 +176,23 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
             <div className="flex flex-wrap items-center gap-2 mt-3">
               <CategoryBadge category={opportunity.category} />
               {opportunity.experience_required ? (
-                <span className="flex items-center gap-1 text-slate-800 text-xs font-bold bg-amber-50 px-2 py-0.5 rounded border border-slate-900">
+                <span className="flex items-center gap-1 text-amber-800 text-xs font-medium bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
                   {opportunity.experience_required}
                 </span>
               ) : opportunity.category === "JRF" || opportunity.category === "Internship" || (opportunity.category as string) === "Trainee" ? (
-                <span className="flex items-center gap-1 text-emerald-800 text-[11px] font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-400">
+                <span className="flex items-center gap-1 text-emerald-800 text-[11px] font-medium bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                   Fresher Eligible
                 </span>
               ) : null}
               {opportunity.location && (
-                <span className="flex items-center gap-1 text-slate-700 text-xs font-semibold bg-slate-100 px-2 py-0.5 rounded border border-slate-900">
+                <span className="flex items-center gap-1 text-slate-600 text-xs font-medium bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
                   <MapPin className="w-3 h-3" />
                   {opportunity.location}
                 </span>
               )}
               {opportunity.stipend && (
-                <span className="flex items-center gap-1 text-slate-900 text-xs font-bold bg-blue-100 px-2 py-0.5 rounded border border-slate-900">
-                  <IndianRupee className="w-3 h-3 text-blue-700" />
+                <span className="flex items-center gap-1 text-blue-800 text-xs font-medium bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+                  <IndianRupee className="w-3 h-3 text-blue-600" />
                   {opportunity.stipend}
                 </span>
               )}
@@ -208,7 +208,7 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
                   .map((e, i) => (
                     <span
                       key={`${e}-${i}`}
-                      className="px-2 py-0.5 bg-slate-50 border border-slate-300 rounded text-slate-600 text-[10px] font-bold"
+                      className="px-2 py-0.5 bg-slate-50 border border-slate-200 rounded text-slate-600 text-[10px] font-medium"
                     >
                       {e}
                     </span>
@@ -218,18 +218,18 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
           </div>
         </div>
 
-        <div className="mt-4 pt-3 border-t-2 border-slate-100 flex items-center justify-between">
+        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
           {opportunity.deadline ? (
             <DeadlineCountdown deadline={opportunity.deadline} />
           ) : (
-            <span className="text-[11px] font-bold text-slate-500">Regular Active Listing</span>
+            <span className="text-[11px] font-medium text-slate-500">Regular Active Listing</span>
           )}
           {isExpired(opportunity.deadline) || opportunity.verification_status === "expired" ? (
-            <span className="text-slate-400 text-xs font-bold flex items-center gap-1">
+            <span className="text-slate-400 text-xs font-semibold flex items-center gap-1">
               Closed
             </span>
           ) : (
-            <span className="text-blue-600 text-xs font-bold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+            <span className="text-blue-600 text-xs font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
               Apply <ExternalLink className="w-3.5 h-3.5" />
             </span>
           )}

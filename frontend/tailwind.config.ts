@@ -81,11 +81,12 @@ const config: Config = {
       boxShadow: {
         brutal: shadowTokens.card,
         "brutal-lg": shadowTokens.elevated,
-        "brutal-sm": shadowTokens.card, // alias to card
+        "brutal-sm": shadowTokens.card,
         card: shadowTokens.card,
-        "card-sm": "1px 1px 0px 0px #0F172A", // subtle elevation for badges, small elements
+        "card-sm": shadowTokens.card,
         "card-hover": shadowTokens.elevated,
         elevated: shadowTokens.elevated,
+        modal: shadowTokens.modal,
       },
 
       // --- backgroundImage: remove decorative gradients ---

@@ -85,11 +85,11 @@ export default function OpportunityRow({ opportunity }: OpportunityRowProps) {
       onClick={handleRowClick}
       className="block group cursor-pointer"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3.5 rounded-xl border-2 border-slate-900 bg-white shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all duration-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3.5 rounded-xl border border-slate-200 bg-white shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-150">
         {/* Left: Organization Avatar + Title & Org */}
         <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-          <div className="w-9 h-9 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-0">
-            <span className="text-xs font-black text-blue-600">
+          <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-0">
+            <span className="text-xs font-bold text-blue-600">
               {getInitials(opportunity.organization)}
             </span>
           </div>

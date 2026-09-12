@@ -6,8 +6,8 @@ type CardPadding = "none" | "sm" | "md" | "lg";
 const toneClasses: Record<CardTone, string> = {
   default: "bg-white border border-slate-200 shadow-card",
   flat: "bg-white border border-slate-200 shadow-none",
-  inverse: "bg-slate-900 border-2 border-slate-900 text-white shadow-card",
-  accent: "bg-blue-600 border-2 border-slate-900 text-white shadow-card",
+  inverse: "bg-slate-900 border border-slate-800 text-white shadow-card",
+  accent: "bg-blue-600 border border-blue-500 text-white shadow-card",
 };
 
 const paddingClasses: Record<CardPadding, string> = {
@@ -43,8 +43,8 @@ export function Card({
         "rounded-card",
         toneClasses[tone],
         paddingClasses[padding],
-        hover && "transition-all hover:-translate-y-1 hover:shadow-elevated",
-        interactive && "cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-elevated hover:border-slate-900",
+        hover && "transition-all hover:border-slate-300 hover:shadow-elevated",
+        interactive && "cursor-pointer transition-all hover:border-slate-400 hover:shadow-elevated",
         className,
       )}
     >
