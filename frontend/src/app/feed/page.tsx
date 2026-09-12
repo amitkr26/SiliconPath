@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -103,7 +103,7 @@ function SidebarSkeleton() {
 export default function FeedPage() {
   const router = useRouter();
   const { user, displayName: userDisplayName, username: currentUsername, loading: userLoading } = useUser();
-  const { data: feedData, isLoading: feedLoading, refetch: refetchFeed } = useFeed(30);
+  const { data: feedData, isLoading: feedLoading, refetch: refetchFeed, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeed(30);
   const createPost = useCreatePost();
   const likePost = useLikePost();
   const repostPost = useRepostFeedPost();
@@ -163,6 +163,19 @@ export default function FeedPage() {
   useEffect(() => {
     loadSidebarData();
   }, [loadSidebarData]);
+
+  // Infinite scroll: load more posts when sentinel is visible
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasNextPage || isFetchingNextPage) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) fetchNextPage(); },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleSubmit = async () => {
     if (!content.trim()) return;
@@ -261,6 +274,19 @@ export default function FeedPage() {
 
   const togglePostExpansion = (postId: string) => {
     setExpandedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  };
+
+  const deleteComment = async (postId: string, commentId: string) => {
+    try {
+      await api.delete(`/api/feed/posts/${postId}/comment?commentId=${commentId}`);
+      setPostComments((prev) => ({
+        ...prev,
+        [postId]: (prev[postId] || []).filter((c) => c.id !== commentId),
+      }));
+      toast.success("Comment deleted");
+    } catch {
+      toast.error("Failed to delete comment");
+    }
   };
 
   if (userLoading) {
@@ -655,7 +681,7 @@ export default function FeedPage() {
                           ) : (
                             <div className="space-y-2">
                               {comments.map((c) => (
-                                <div key={c.id} className="flex gap-2">
+                                <div key={c.id} className="flex gap-2 group/comment">
                                   <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[9px] font-semibold flex-shrink-0">
                                     {initials(c.user_profile?.display_name)}
                                   </div>
@@ -668,6 +694,15 @@ export default function FeedPage() {
                                         {c.user_profile?.display_name || "Engineer"}
                                       </Link>
                                       <span className="text-[10px] text-slate-400">{timeAgo(c.created_at)}</span>
+                                      {c.user_id === user?.id && (
+                                        <button
+                                          onClick={() => deleteComment(post.id, c.id)}
+                                          className="ml-auto p-0.5 text-slate-300 hover:text-red-500 opacity-0 group-hover/comment:opacity-100 transition-opacity"
+                                          title="Delete comment"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </button>
+                                      )}
                                     </div>
                                     <p className="text-xs text-slate-700 leading-relaxed mt-0.5">{c.content}</p>
                                   </div>
@@ -680,6 +715,14 @@ export default function FeedPage() {
                     </Card>
                   );
                 })}
+              </div>
+            )}
+
+            {/* Infinite scroll sentinel */}
+            <div ref={sentinelRef} className="h-1" />
+            {isFetchingNextPage && (
+              <div className="flex justify-center py-4">
+                <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
               </div>
             )}
           </div>

@@ -27,6 +27,7 @@ export interface EditProfileData {
   github_url?: string;
   is_open_to_work?: boolean;
   open_to_work_types?: string[];
+  is_profile_public?: boolean;
   avatar_url?: string | null;
   skills?: string[];
 }
@@ -371,6 +372,7 @@ export default function EditProfileModal({
           linkedin_url: form.linkedin_url,
           github_url: form.github_url,
           is_open_to_work: form.is_open_to_work,
+          is_profile_public: form.is_profile_public,
           avatar_url: form.avatar_url,
           skills: skills,
         }),
@@ -650,6 +652,19 @@ export default function EditProfileModal({
               />
               <label htmlFor="is_open_to_work" className="text-xs font-bold text-slate-900">
                 Open to work / hiring opportunities
+              </label>
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="checkbox"
+                id="is_profile_public"
+                checked={form.is_profile_public !== false}
+                onChange={(e) => setField("is_profile_public", e.target.checked)}
+                className="w-4 h-4 rounded border-2 border-slate-900 text-blue-600 focus:ring-0"
+              />
+              <label htmlFor="is_profile_public" className="text-xs font-bold text-slate-900">
+                Public profile (visible in search and recommendations)
               </label>
             </div>
 

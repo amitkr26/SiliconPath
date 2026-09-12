@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+- **2026-09-12 — P1 Feature Gaps Closed (Visibility, Comments, Posts, Feed Scroll, Notifications):**
+  - **P1-4: Profile visibility toggle**:
+    - Added `is_profile_public` checkbox to `EditProfileModal.tsx` general tab.
+    - Wired to existing `PATCH /api/profile/[userId]` (field was already in `UPDATABLE_FIELDS`).
+    - Defaults to `true` (public). Unchecking hides profile from search, recommendations, and suggestions.
+  - **P1-3: Comment deletion**:
+    - Added `DELETE` handler to `api/feed/posts/[id]/comment/route.ts` — ownership check, deletes comment, trigger auto-decrements `comment_count`.
+    - Added delete button (trash icon, hover-visible) to comment list in `feed/page.tsx` — only shown to comment author.
+  - **P1-2: Post type and tags passthrough**:
+    - `POST /api/feed` now passes `post_type` and `tags` from validated request body to the DB insert (was silently discarding them).
+    - Return payload now includes `post_type` and `tags` fields.
+  - **P1-1: Feed infinite scroll**:
+    - Added `IntersectionObserver` sentinel to `feed/page.tsx` — triggers `fetchNextPage` when sentinel is within 200px of viewport.
+    - Added loading spinner at bottom of feed during next-page fetch.
+  - **P1-8: Missing notification types**:
+    - Added `connection_accepted` notification in `api/network/connect/[id]/route.ts` — sent to requester when addressee accepts.
+    - Added `message` notification in `api/messages/route.ts` — sent to recipient when a new message is sent.
+  - **Verification**: 23 test suites / 211 tests passing. TypeScript 0 errors. Build clean (274 pages).
+
 - **2026-09-12 — Audit-Driven Bugfixes (P0/P1):**
   - **P0-1: Network Received/Sent tabs broken**:
     - `network/page.tsx` called `GET /api/network/requests` — route did not exist. Received/Sent tabs returned 404 at runtime.

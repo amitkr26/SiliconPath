@@ -59,3 +59,34 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (error) return apiError(error, "feed-comments-list");
   return NextResponse.json({ comments: data || [] });
 }
+
+/** DELETE /api/feed/posts/[id]/comment?commentId=X — delete own comment */
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { searchParams } = new URL(request.url);
+  const commentId = searchParams.get("commentId");
+  if (!commentId) return NextResponse.json({ error: "commentId required" }, { status: 400 });
+
+  // Verify ownership
+  const { data: comment } = await supabaseAdmin
+    .from("feed_post_comments")
+    .select("id, user_id")
+    .eq("id", commentId)
+    .eq("post_id", id)
+    .maybeSingle();
+
+  if (!comment) return NextResponse.json({ error: "Comment not found" }, { status: 404 });
+  if (comment.user_id !== user.id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const { error } = await supabaseAdmin
+    .from("feed_post_comments")
+    .delete()
+    .eq("id", commentId);
+
+  if (error) return apiError(error, "feed-comment-delete");
+  return NextResponse.json({ success: true });
+}
