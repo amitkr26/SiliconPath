@@ -74,3 +74,16 @@ export function useSendMessage() {
     },
   });
 }
+
+/** Mark specific messages as read (per-message read receipts). */
+export function useMarkMessagesRead(conversationId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (messageIds: string[]) =>
+      api.patch(`/api/messages/${conversationId}`, { messageIds }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
+  });
+}

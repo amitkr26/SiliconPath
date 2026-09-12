@@ -155,6 +155,25 @@ export async function middleware(request: NextRequest) {
   // A candidate can become an employer later. An employer can also be a candidate.
   // Admin role is additive — it doesn't remove candidate/employer capabilities.
 
+  // Account status check: block banned/suspended users from gated paths.
+  if (user && (isGated || isEmployerOnly) && !isAdminRequest) {
+    const { data: profile } = await supabase
+      .from("user_profiles")
+      .select("account_status")
+      .eq("id", user.id)
+      .maybeSingle();
+    const status = profile?.account_status || "active";
+    if (status === "banned" || status === "suspended") {
+      if (path.startsWith("/api/")) {
+        return NextResponse.json({ error: "Account suspended" }, { status: 403 });
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.searchParams.set("error", status === "banned" ? "account_banned" : "account_suspended");
+      return NextResponse.redirect(url);
+    }
+  }
+
   // P0.5 RBAC: server-side employer role gate (was login-only — any logged-in
   // user could hit employer pages/APIs). Role lives in auth user_metadata
   // (set at signup from accountType, editable via profile/me which rejects

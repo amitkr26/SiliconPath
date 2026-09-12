@@ -554,6 +554,13 @@ export default function AdminPage() {
             <span>Talent Pool</span>
           </Link>
           <Link
+            href="/admin/users"
+            className="flex items-center gap-2.5 px-3.5 py-2 text-slate-400 hover:bg-slate-800/60 hover:text-white rounded-xl text-xs font-semibold transition"
+          >
+            <Users className="w-4 h-4 text-rose-400" />
+            <span>User Management</span>
+          </Link>
+          <Link
             href="/admin/applications"
             className="flex items-center gap-2.5 px-3.5 py-2 text-slate-400 hover:bg-slate-800/60 hover:text-white rounded-xl text-xs font-semibold transition"
           >
