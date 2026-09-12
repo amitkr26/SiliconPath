@@ -29,6 +29,7 @@ import type {
 import EditProfileModal from "@/components/profile/EditProfileModal";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { cn } from "@/lib/utils";
 
 function getInitials(name: string): string {
@@ -295,19 +296,14 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                       profile.is_open_to_work && "ring-4 ring-emerald-500 ring-offset-2"
                     )}
                   >
-                    {profile.avatar_url && !imgError ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={profile.avatar_url}
-                        alt={profile.display_name || "Profile"}
-                        onError={() => setImgError(true)}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-3xl sm:text-4xl font-black text-slate-900 bg-blue-100 w-full h-full flex items-center justify-center">
-                        {getInitials(profile.display_name || "")}
-                      </span>
-                    )}
+                    <ImageWithFallback
+                      src={profile.avatar_url}
+                      alt={profile.display_name || "Profile"}
+                      fallbackType="avatar"
+                      fallbackName={profile.display_name || "User"}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   {profile.is_open_to_work && (
                     <span className="absolute bottom-1 right-1 px-2 py-0.5 bg-emerald-600 text-white text-[9px] font-black uppercase tracking-wider rounded-full border border-white shadow-sm">

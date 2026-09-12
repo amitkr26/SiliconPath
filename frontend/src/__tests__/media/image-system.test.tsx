@@ -304,4 +304,65 @@ describe('Production Image & Media System Test Suite', () => {
     const mapped2 = mapDbOpportunityToClient(dbRowWithLogo);
     expect(mapped2.organization_logo_url).toBe('https://example.com/synopsys.png');
   });
+
+  // IMAGE-16: Remote image allowlist and CSP include api.dicebear.com
+  it('IMAGE-16: next.config.mjs and middleware.ts include api.dicebear.com for avatar presets', () => {
+    const nextConfig = fs.readFileSync(path.resolve(__dirname, '../../../next.config.mjs'), 'utf8');
+    const middleware = fs.readFileSync(path.resolve(__dirname, '../../middleware.ts'), 'utf8');
+
+    expect(nextConfig).toContain('api.dicebear.com');
+    expect(middleware).toContain('https://api.dicebear.com');
+  });
+
+  // IMAGE-17: Avatar fallback type renders deterministic monogram
+  it('IMAGE-17: ImageWithFallback with fallbackType="avatar" renders initial monogram when src is null', () => {
+    const { container } = render(
+      <ImageWithFallback
+        src={null}
+        alt="Ajeet Kumar avatar"
+        fallbackType="avatar"
+        fallbackName="Ajeet Kumar"
+      />
+    );
+
+    expect(container.querySelector('img')).toBeNull();
+    expect(screen.getByText('AK')).toBeInTheDocument();
+  });
+
+  // IMAGE-18: Zero raw img tags in frontend application pages/components
+  it('IMAGE-18: Zero raw <img> elements in frontend/src outside of tests', () => {
+    const srcDir = path.resolve(__dirname, '../..');
+    const filesToScan: string[] = [];
+
+    function findFiles(dir: string) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          if (entry.name !== '__tests__' && entry.name !== 'node_modules' && entry.name !== '.next') {
+            findFiles(fullPath);
+          }
+        } else if (entry.isFile() && (entry.name.endsWith('.tsx') || entry.name.endsWith('.jsx'))) {
+          filesToScan.push(fullPath);
+        }
+      }
+    }
+
+    findFiles(srcDir);
+
+    const violations: { file: string; line: number }[] = [];
+    const rawImgRegex = /<img\s/g;
+
+    for (const file of filesToScan) {
+      const content = fs.readFileSync(file, 'utf8');
+      const lines = content.split('\n');
+      lines.forEach((line, idx) => {
+        if (rawImgRegex.test(line)) {
+          violations.push({ file: path.relative(srcDir, file), line: idx + 1 });
+        }
+      });
+    }
+
+    expect(violations).toEqual([]);
+  });
 });

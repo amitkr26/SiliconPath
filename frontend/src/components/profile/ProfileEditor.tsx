@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 
 export interface Profile {
@@ -153,12 +154,15 @@ export default function ProfileEditor({ userId, initialProfile, authName }: Prop
             <div className="px-6 pb-6 relative">
               <div className="flex justify-between items-end -mt-14 mb-4">
                 <div className="relative">
-                  <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-sm flex items-center justify-center text-2xl font-bold text-gray-700 overflow-hidden">
-                    {profile.avatar_url ? (
-                      <img src={profile.avatar_url} alt={displayName} className="w-full h-full object-cover" />
-                    ) : (
-                      initials(displayName)
-                    )}
+                  <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-sm flex items-center justify-center text-2xl font-bold text-gray-700 overflow-hidden relative">
+                    <ImageWithFallback
+                      src={profile.avatar_url}
+                      alt={displayName}
+                      fallbackType="avatar"
+                      fallbackName={displayName}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   <button
                     onClick={() => setIsEditModalOpen(true)}

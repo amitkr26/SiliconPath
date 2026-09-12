@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, KeyboardEvent } from "react";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Loader2, Send } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -74,10 +74,15 @@ export default function MessageThread({
             >
               {/* Avatar (other only) */}
               {!isMine && (
-                <div className="flex-shrink-0 w-7 h-7 rounded-full bg-blue-100 border-2 border-slate-900 flex items-center justify-center text-blue-600 text-xs font-bold">
-                  {otherUserAvatar ? (
-                    <Image src={otherUserAvatar} alt={otherUserName || "User"} width={28} height={28} className="w-7 h-7 rounded-full object-cover" unoptimized />
-                  ) : initials(otherUserName)}
+                <div className="flex-shrink-0 w-7 h-7 rounded-full border-2 border-slate-900 flex items-center justify-center text-blue-600 text-xs font-bold overflow-hidden relative">
+                  <ImageWithFallback
+                    src={otherUserAvatar}
+                    alt={otherUserName || "User"}
+                    fallbackType="avatar"
+                    fallbackName={otherUserName || "User"}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
               )}
 

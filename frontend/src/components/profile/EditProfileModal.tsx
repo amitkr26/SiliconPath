@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2, Pencil, Plus, X, Briefcase, GraduationCap, Code2, Award, Sparkles, Trash2, Check, Camera, Upload, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { RESERVED_USERNAMES } from "@/lib/utils";
 import { api } from "@/lib/api-client";
 import type {
@@ -479,17 +480,14 @@ export default function EditProfileModal({
 
               <div className="flex items-center gap-4">
                 <div className="relative w-16 h-16 rounded-full border-2 border-slate-900 overflow-hidden bg-white shrink-0 shadow-brutal-sm flex items-center justify-center">
-                  {form.avatar_url ? (
-                    <img
-                      src={form.avatar_url}
-                      alt="Profile Avatar"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white font-black text-lg">
-                      {form.display_name?.slice(0, 2).toUpperCase() || "??"}
-                    </div>
-                  )}
+                  <ImageWithFallback
+                    src={form.avatar_url}
+                    alt={form.display_name || "Profile Avatar"}
+                    fallbackType="avatar"
+                    fallbackName={form.display_name || "User"}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
 
                 <div className="flex-1 space-y-2">
@@ -533,13 +531,20 @@ export default function EditProfileModal({
                       type="button"
                       onClick={() => setField("avatar_url", preset.url)}
                       title={preset.label}
-                      className={`w-10 h-10 rounded-full border-2 overflow-hidden shrink-0 transition-all ${
+                      className={`w-10 h-10 rounded-full border-2 overflow-hidden shrink-0 transition-all relative ${
                         form.avatar_url === preset.url
                           ? "border-blue-600 ring-2 ring-blue-600 scale-110 shadow-brutal-sm"
                           : "border-slate-900 hover:border-blue-600 bg-white"
                       }`}
                     >
-                      <img src={preset.url} alt={preset.label} className="w-full h-full object-cover" />
+                      <ImageWithFallback
+                        src={preset.url}
+                        alt={preset.label}
+                        fallbackType="avatar"
+                        fallbackName={preset.label}
+                        fill
+                        className="object-cover"
+                      />
                     </button>
                   ))}
                 </div>

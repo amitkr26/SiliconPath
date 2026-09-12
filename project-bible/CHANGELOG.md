@@ -5,11 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-- **2026-09-12 — Production Image & Media Architecture & Security Hardening:**
+- **2026-09-12 — Production Image & Media Architecture, Repository-Wide Replacement & Security Hardening:**
   - **Remote Image Host Hardening**:
-    - `frontend/next.config.mjs`: Removed `{ protocol: "https", hostname: "**" }` wildcard. Restriced to verified origins (Supabase, GitHub avatars, Google user content, LinkedIn media, `*.gov.in`, `*.res.in`, `*.ac.in`, and certified semiconductor news sources).
+    - `frontend/next.config.mjs`: Removed `{ protocol: "https", hostname: "**" }` wildcard. Restricted to verified origins (Supabase, GitHub avatars, Google user content, LinkedIn media, `api.dicebear.com`, `*.gov.in`, `*.res.in`, `*.ac.in`, and certified semiconductor news sources).
   - **Deterministic Monogram & Fallback System**:
-    - `frontend/src/components/ui/ImageWithFallback.tsx`: Created universal fallback component supporting deterministic monograms (`getDeterministicInitials`, `getDeterministicPalette`), error boundary recovery, unoptimized proxy safety, and high-contrast editorial fallbacks.
+    - `frontend/src/components/ui/ImageWithFallback.tsx`: Created universal fallback component supporting deterministic monograms (`getDeterministicInitials`, `getDeterministicPalette`), error boundary recovery, unoptimized proxy safety, `fill` prop support, alias support for `fallbackType`/`fallbackName`, and high-contrast editorial fallbacks.
+  - **Complete Elimination of Raw `<img>` and Unprotected `<Image />` Tags**:
+    - Converted all 14 remaining raw `<img>` instances across `search/page.tsx`, `EditProfileModal.tsx`, `ProfileEditor.tsx`, `PublicProfile.tsx`, `feed/page.tsx`, `employer/messages/page.tsx`, `employer/talent/page.tsx`, `employer/talent/[username]/page.tsx`, `employer/dashboard/page.tsx`, `employer/jobs/[id]/applicants/page.tsx`, `employer/applicants/page.tsx`, `employer/applicants/[id]/page.tsx`, and `admin/users/page.tsx` to `ImageWithFallback`.
+    - Replaced raw unhandled `next/image` tags in `messages/page.tsx` and `MessageThread.tsx` with `ImageWithFallback`.
+    - Automated test `IMAGE-18` enforces zero raw `<img>` elements anywhere in `frontend/src` outside of test mocks.
   - **Elimination of Fabricated Imagery & Stock Photos**:
     - `frontend/src/components/NewsCard.tsx`: Replaced hardcoded Unsplash stock photo with designed editorial fallback.
     - `frontend/src/app/network/page.tsx`: Eradicated `FALLBACK_AVATAR` (Unsplash woman photo); integrated deterministic monogram avatars.
@@ -25,10 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **OpenGraph Identity**:
     - `frontend/src/app/api/og/route.tsx` & `frontend/src/app/api/og/opportunity/[slug]/route.tsx`: Replaced lingering SiliconPath branding with BerojgarDegreeWala.
   - **Content Security Policy**:
-    - `frontend/src/middleware.ts`: Aligned `img-src` with trusted `remotePatterns`.
+    - `frontend/src/middleware.ts`: Aligned `img-src` with trusted `remotePatterns`, including `https://api.dicebear.com`.
   - **Automated Media Testing & Verification**:
-    - `frontend/src/__tests__/media/image-system.test.tsx`: Added 15 comprehensive automated tests (IMAGE-01 through IMAGE-15).
-    - Verification: 233/233 frontend tests passing across 25 suites; 0 errors on monorepo `npm run typecheck`; clean compilation on `next build`.
+    - `frontend/src/__tests__/media/image-system.test.tsx`: Added 18 comprehensive automated tests (IMAGE-01 through IMAGE-18).
+    - Verification: 236/236 frontend tests passing across 25 suites; 0 errors on monorepo `npm run typecheck`; clean compilation on `next build` across all 273 routes.
 
 - **2026-09-12 — Full-Stack Product Hardening, Fail-Closed Security & Discovery Remediation:**
   - **Fail-Closed IDOR & Authorization Remediation**:

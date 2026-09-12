@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import type { FeedPost } from "@/types";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { cn } from "@/lib/utils";
 
 interface Opp {
@@ -307,8 +308,15 @@ export default function FeedPage() {
             {/* Profile Card */}
             <Card tone="flat" className="p-5">
               <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-bold mx-auto">
-                  {initials(displayName)}
+                <div className="w-16 h-16 rounded-full overflow-hidden mx-auto relative border-2 border-slate-200">
+                  <ImageWithFallback
+                    src={(user as any)?.avatar_url || (user as any)?.user_metadata?.avatar_url}
+                    alt={displayName}
+                    fallbackType="avatar"
+                    fallbackName={displayName}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
                 <Link href={currentUsername ? `/profile/${currentUsername}` : "/profile"} className="block mt-3 font-semibold text-sm text-slate-900 hover:text-blue-600 transition-colors truncate">
                   {displayName}
@@ -482,17 +490,15 @@ export default function FeedPage() {
                           href={authorUsername ? `/profile/${authorUsername}` : "#"}
                           className="flex items-center gap-3 min-w-0 group"
                         >
-                          <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0 overflow-hidden">
-                            {(post.author?.avatar_url || (post as any).user_profile?.avatar_url) ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={post.author?.avatar_url || (post as any).user_profile?.avatar_url}
-                                alt={post.author?.display_name || (post as any).user_profile?.display_name || "User avatar"}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              initials(post.author?.display_name || (post as any).user_profile?.display_name)
-                            )}
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 overflow-hidden relative border border-slate-200">
+                            <ImageWithFallback
+                              src={post.author?.avatar_url || (post as any).user_profile?.avatar_url}
+                              alt={post.author?.display_name || (post as any).user_profile?.display_name || "User avatar"}
+                              fallbackType="avatar"
+                              fallbackName={post.author?.display_name || (post as any).user_profile?.display_name || "User"}
+                              fill
+                              className="object-cover"
+                            />
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
@@ -682,8 +688,15 @@ export default function FeedPage() {
                             <div className="space-y-2">
                               {comments.map((c) => (
                                 <div key={c.id} className="flex gap-2 group/comment">
-                                  <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[9px] font-semibold flex-shrink-0">
-                                    {initials(c.user_profile?.display_name)}
+                                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-semibold flex-shrink-0 overflow-hidden relative border border-slate-200">
+                                    <ImageWithFallback
+                                      src={c.user_profile?.avatar_url}
+                                      alt={c.user_profile?.display_name || "User"}
+                                      fallbackType="avatar"
+                                      fallbackName={c.user_profile?.display_name || "User"}
+                                      fill
+                                      className="object-cover"
+                                    />
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">

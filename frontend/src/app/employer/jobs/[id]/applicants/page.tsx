@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 
 export default function EmployerJobApplicantsPage() {
   const router = useRouter();
@@ -115,12 +116,15 @@ export default function EmployerJobApplicantsPage() {
                 >
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-full border-2 border-slate-900 bg-blue-100 text-blue-700 flex items-center justify-center font-black text-base shrink-0 shadow-brutal-sm">
-                        {candidate.avatar_url ? (
-                          <img src={candidate.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-                        ) : (
-                          (candidate.display_name?.[0] || "C").toUpperCase()
-                        )}
+                      <div className="w-11 h-11 rounded-full border-2 border-slate-900 flex items-center justify-center font-black text-base shrink-0 shadow-brutal-sm overflow-hidden relative">
+                        <ImageWithFallback
+                          src={candidate.avatar_url}
+                          alt={candidate.display_name || "Applicant"}
+                          fallbackType="avatar"
+                          fallbackName={candidate.display_name || "Applicant"}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">

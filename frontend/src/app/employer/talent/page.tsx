@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 
 const HARDWARE_DOMAINS = [
   { id: "all", label: "All Specializations" },
@@ -188,12 +189,15 @@ export default function EmployerTalentSearchPage() {
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full border-2 border-slate-900 bg-blue-100 text-blue-700 flex items-center justify-center font-black text-base shrink-0 shadow-brutal-sm">
-                        {c.avatar_url ? (
-                          <img src={c.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-                        ) : (
-                          (c.display_name?.[0] || "C").toUpperCase()
-                        )}
+                      <div className="w-12 h-12 rounded-full border-2 border-slate-900 flex items-center justify-center font-black text-base shrink-0 shadow-brutal-sm overflow-hidden relative">
+                        <ImageWithFallback
+                          src={c.avatar_url}
+                          alt={c.display_name || "Scholar"}
+                          fallbackType="avatar"
+                          fallbackName={c.display_name || "Scholar"}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
                       <div>
                         <h3 className="text-sm font-black text-slate-900">{c.display_name || "Scholar"}</h3>
