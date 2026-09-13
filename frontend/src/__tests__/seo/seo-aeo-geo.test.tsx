@@ -17,6 +17,7 @@ import { metadata as searchMetadata } from '@/app/search/layout';
 import { metadata as loginMetadata } from '@/app/login/layout';
 import { metadata as signupMetadata } from '@/app/signup/layout';
 import { metadata as companiesMetadata } from '@/app/companies/layout';
+import { metadata as opportunitiesMetadata } from '@/app/opportunities/page';
 
 // Mock Supabase admin for sitemap execution
 jest.mock('@/lib/supabase-admin', () => ({
@@ -135,16 +136,17 @@ describe('Technical SEO, AEO & GEO Verification Suite', () => {
 
   describe('4. Robots.txt Compliance', () => {
     const robotsConfig = robots();
+    const rulesList = (Array.isArray(robotsConfig.rules) ? robotsConfig.rules : [robotsConfig.rules]) as any[];
 
     it('allows general crawling of public pages', () => {
-      const generalRule = robotsConfig.rules?.find((r: any) => r.userAgent === '*');
+      const generalRule = rulesList.find((r: any) => r?.userAgent === '*');
       expect(generalRule).toBeDefined();
       expect(generalRule?.allow).toBe('/');
     });
 
     it('disallows all private, authenticated, internal, and parameter search paths', () => {
-      const generalRule = robotsConfig.rules?.find((r: any) => r.userAgent === '*');
-      const disallowed = generalRule?.disallow as string[];
+      const generalRule = rulesList.find((r: any) => r?.userAgent === '*');
+      const disallowed = (generalRule?.disallow || []) as string[];
       expect(disallowed).toContain('/admin');
       expect(disallowed).toContain('/api/');
       expect(disallowed).toContain('/dashboard');
@@ -293,6 +295,33 @@ describe('Technical SEO, AEO & GEO Verification Suite', () => {
       expect(parseSalaryForTest('Competitive based on experience')).toBeNull();
       expect(parseSalaryForTest(null)).toBeNull();
       expect(parseSalaryForTest('')).toBeNull();
+    });
+
+    it('differentiates between employment JobPosting and academic EducationalOccupationalProgram schema', () => {
+      function resolveSchemaType(opp: { title: string; category?: string }) {
+        const isAcademicAdmissionOrScholarship =
+          opp.category?.toLowerCase() === 'phd' ||
+          /\b(phd admission|admissions|scholarship|fellowship program|degree program)\b/i.test(opp.title);
+        return isAcademicAdmissionOrScholarship ? 'EducationalOccupationalProgram' : 'JobPosting';
+      }
+
+      // Verified jobs and research fellowships should be JobPosting
+      expect(resolveSchemaType({ title: 'Staff Engineer, RISC-V', category: 'industry' })).toBe('JobPosting');
+      expect(resolveSchemaType({ title: 'Junior Research Fellow (JRF) - VLSI', category: 'jrf' })).toBe('JobPosting');
+      expect(resolveSchemaType({ title: 'Scientist B Electronics', category: 'government' })).toBe('JobPosting');
+
+      // Academic admissions and degree programs must NOT be labeled as JobPosting
+      expect(resolveSchemaType({ title: 'PhD Admissions Results 2026–2027', category: 'phd' })).toBe('EducationalOccupationalProgram');
+      expect(resolveSchemaType({ title: 'IIT Bombay PhD Admissions - Microelectronics', category: 'fellowship' })).toBe('EducationalOccupationalProgram');
+      expect(resolveSchemaType({ title: 'M.Tech Postgraduate Scholarship', category: 'scholarship' })).toBe('EducationalOccupationalProgram');
+    });
+  });
+
+  describe('7. Opportunities Search Intent Metadata', () => {
+    it('opportunities feed title and description match semiconductor and JRF user intent', () => {
+      expect(opportunitiesMetadata.title).toContain('Semiconductor Jobs, JRF Positions & VLSI Opportunities');
+      expect(opportunitiesMetadata.alternates?.canonical).toBe('https://berojgardegreewala.vercel.app/opportunities');
+      expect(opportunitiesMetadata.description).toContain('semiconductor engineering jobs, JRF and SRF fellowships');
     });
   });
 });

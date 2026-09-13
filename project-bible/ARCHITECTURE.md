@@ -169,11 +169,11 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
    - Excluded from sitemap: faceted search (`/search`), authentication (`/login`, `/signup`), legacy duplicates (`/companies`), and redirects (`/match`).
 
 3. **Structured Data / Schema.org Graph Architecture**:
-   - **JobPosting**: Validated ISO 8601 deadlines (`validThrough`), numeric `MonetaryAmount` parsing (`unitText: "MONTH"` or `"YEAR"`), `applicantLocationRequirements` for India, and `directApply: true`. Non-numeric stipends cleanly omit salary schema to avoid GSC syntax errors.
+   - **JobPosting vs EducationalOccupationalProgram**: Validates employment intent per Google Search Central policies. Real employment, internships, and research staff roles (JRF/SRF) emit `JobPosting` with validated ISO 8601 deadlines (`validThrough`), numeric `MonetaryAmount` parsing (`unitText: "MONTH"` or `"YEAR"`), `applicantLocationRequirements` for India, and `directApply: true`. Non-numeric stipends cleanly omit salary schema to avoid GSC syntax errors. Academic degree programs, PhD admissions, and scholarships emit `EducationalOccupationalProgram` to prevent Google Jobs policy violations and rich result penalties.
    - **NewsArticle**: Author attribution to original publisher, publisher metadata, headline, publication timestamps, and canonical page reference.
    - **Organization**: Official legal entity metadata without hallucinated headcount. Zero-opening state returns HTTP 200 with directory navigation to prevent soft-404 crawl errors.
    - **FAQPage**: Direct question-answer matching between semantic HTML and JSON-LD schema on homepage, `/about`, and research resource guides.
-   - **ItemList & BreadcrumbList**: Hierarchical navigational trail across all directory, category, location, and article pages.
+   - **ItemList & BreadcrumbList**: Hierarchical navigational trail across all directory, category, location, and article pages. Individual opportunity pages link directly to employer organization profiles (`/organizations/${org_slug}`) and include semantic breadcrumbs.
 
 4. **Answer Engine Optimization (AEO) & GEO Graphs**:
    - Plain semantic HTML answers for high-value user queries (DST stipend rules: ₹37,000/month JRF, ₹42,000/month SRF; DRDO/ISRO GATE/NET eligibility; direct official application portal links).
@@ -186,8 +186,8 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
 ## 8. Verification Baseline
 
 - **TypeScript Type Safety**: `npm run typecheck` (0 errors across all 5 monorepo workspaces: `api`, `ai-gateway`, `server`, `worker`, `frontend`)
-- **Unit & Integration Tests**: 26 frontend test suites, 257 tests passing (including 18 dedicated SEO/AEO/GEO tests in `seo-aeo-geo.test.tsx` and 21 comprehensive media tests in `image-system.test.tsx`); 348 tests passing monorepo-wide (46 server + 15 ai-gateway + 30 worker + 257 frontend)
-- **Production Build**: `npm run build` (compiles cleanly, 273 static and dynamic routes generated)
+- **Unit & Integration Tests**: 26 frontend test suites, 259 tests passing (including 20 dedicated SEO/AEO/GEO tests in `seo-aeo-geo.test.tsx` and 21 comprehensive media tests in `image-system.test.tsx`); 350 tests passing monorepo-wide (46 server + 15 ai-gateway + 30 worker + 259 frontend)
+- **Production Build**: `npm run build` (compiles cleanly, 280 static and dynamic routes generated)
 - **Browser Audit**: Verified across desktop (1280x800) and mobile (375x812) viewports on `/`, `/opportunities`, `/organizations`, `/news` with zero broken image icon boxes and zero layout shifts.
 - **Security & Boundaries**: Fail-closed IDOR protection, message participant guards, company claim integrity, media magic byte validation, RBAC middleware, RLS, CSRF protection, and robots/sitemap boundary separation.
 

@@ -155,42 +155,65 @@ export default async function OpportunityDetailPage({ params }: Props) {
     }
   }
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: opportunity.title,
-    description:
-      opportunity.description && opportunity.description.trim().length > 20
-        ? opportunity.description
-        : `${opportunity.title} at ${orgName || "Official Organization"}. Category: ${opportunity.category}. Eligibility: ${opportunity.eligibility || "Check official portal"}. Apply directly on official website.`,
-    hiringOrganization: orgName
-      ? {
-          "@type": "Organization",
-          name: orgName,
-          sameAs: opportunity.official_page_url || opportunity.apply_link,
-        }
-      : undefined,
-    jobLocation: opportunity.location
-      ? {
-          "@type": "Place",
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: opportunity.location,
-            addressCountry: opportunity.location && opportunity.location.match(/India|Delhi|Bangalore|Mumbai|Hyderabad|Noida|Pune|Chennai/i) ? "IN" : opportunity.location === "Germany" ? "DE" : "SG",
-          },
-        }
-      : undefined,
-    applicantLocationRequirements: {
-      "@type": "Country",
-      name: "IN",
-    },
-    directApply: true,
-    employmentType: opportunity.category === "Private Job" ? "FULL_TIME" : opportunity.category === "JRF" || opportunity.category === "SRF" ? "CONTRACTOR" : undefined,
-    validThrough: isoDeadline,
-    baseSalary: parseSalary(opportunity.stipend, opportunity.location),
-    datePosted: opportunity.posted_at || opportunity.created_at || new Date().toISOString(),
-    url: `https://berojgardegreewala.vercel.app/opportunities/${opportunity.slug}`,
-  };
+  const isAcademicAdmissionOrScholarship =
+    opportunity.category?.toLowerCase() === "phd" ||
+    /\b(phd admission|admissions|scholarship|fellowship program|degree program)\b/i.test(opportunity.title);
+
+  const jsonLd = isAcademicAdmissionOrScholarship
+    ? {
+        "@context": "https://schema.org",
+        "@type": "EducationalOccupationalProgram",
+        name: opportunity.title,
+        description:
+          opportunity.description && opportunity.description.trim().length > 20
+            ? opportunity.description
+            : `${opportunity.title} at ${orgName || "Official Organization"}. Category: ${opportunity.category}. Eligibility: ${opportunity.eligibility || "Check official portal"}. Apply directly on official website.`,
+        provider: orgName
+          ? {
+              "@type": "EducationalOrganization",
+              name: orgName,
+              sameAs: opportunity.official_page_url || opportunity.apply_link,
+            }
+          : undefined,
+        applicationDeadline: isoDeadline,
+        url: `https://berojgardegreewala.vercel.app/opportunities/${opportunity.slug}`,
+      }
+    : {
+        "@context": "https://schema.org",
+        "@type": "JobPosting",
+        title: opportunity.title,
+        description:
+          opportunity.description && opportunity.description.trim().length > 20
+            ? opportunity.description
+            : `${opportunity.title} at ${orgName || "Official Organization"}. Category: ${opportunity.category}. Eligibility: ${opportunity.eligibility || "Check official portal"}. Apply directly on official website.`,
+        hiringOrganization: orgName
+          ? {
+              "@type": "Organization",
+              name: orgName,
+              sameAs: opportunity.official_page_url || opportunity.apply_link,
+            }
+          : undefined,
+        jobLocation: opportunity.location
+          ? {
+              "@type": "Place",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: opportunity.location,
+                addressCountry: opportunity.location && opportunity.location.match(/India|Delhi|Bangalore|Mumbai|Hyderabad|Noida|Pune|Chennai/i) ? "IN" : opportunity.location === "Germany" ? "DE" : "SG",
+              },
+            }
+          : undefined,
+        applicantLocationRequirements: {
+          "@type": "Country",
+          name: "IN",
+        },
+        directApply: true,
+        employmentType: opportunity.category === "Private Job" || opportunity.category === "Job" ? "FULL_TIME" : opportunity.category === "JRF" || opportunity.category === "SRF" ? "CONTRACTOR" : opportunity.category === "Internship" ? "INTERN" : undefined,
+        validThrough: isoDeadline,
+        baseSalary: parseSalary(opportunity.stipend, opportunity.location),
+        datePosted: opportunity.posted_at || opportunity.created_at || new Date().toISOString(),
+        url: `https://berojgardegreewala.vercel.app/opportunities/${opportunity.slug}`,
+      };
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -216,6 +239,27 @@ export default async function OpportunityDetailPage({ params }: Props) {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+
+      {/* Semantic Breadcrumbs */}
+      <nav aria-label="Breadcrumb" className="mb-4">
+        <ol className="flex items-center gap-2 text-xs font-semibold text-slate-500 flex-wrap">
+          <li>
+            <Link href="/" className="hover:text-slate-900 transition-colors">
+              Home
+            </Link>
+          </li>
+          <li>/</li>
+          <li>
+            <Link href="/opportunities" className="hover:text-slate-900 transition-colors">
+              Opportunities
+            </Link>
+          </li>
+          <li>/</li>
+          <li className="text-slate-900 truncate max-w-xs sm:max-w-md" aria-current="page">
+            {opportunity.title}
+          </li>
+        </ol>
+      </nav>
 
       <div className="flex gap-8">
         {/* Left Column */}
@@ -269,7 +313,17 @@ export default async function OpportunityDetailPage({ params }: Props) {
               />
               <div className="flex-1 min-w-0">
                 <h1 className="font-display text-xl sm:text-2xl font-black text-text-primary">{opportunity.title}</h1>
-                <p className="text-text-secondary text-sm mt-0.5">{orgName || "BerojgarDegreeWala"}</p>
+                {opportunity.org_slug ? (
+                  <Link
+                    href={`/organizations/${opportunity.org_slug}`}
+                    className="text-blue-600 hover:text-blue-800 text-sm mt-0.5 inline-flex items-center gap-1 font-semibold hover:underline"
+                  >
+                    <span>{orgName || "BerojgarDegreeWala"}</span>
+                    <span className="text-xs">&rarr;</span>
+                  </Link>
+                ) : (
+                  <p className="text-text-secondary text-sm mt-0.5">{orgName || "BerojgarDegreeWala"}</p>
+                )}
                 <div className="flex items-center gap-2 mt-3 flex-wrap">
                   <CategoryBadge category={opportunity.category} />
                   {opportunity.verification_status && <VerificationBadge status={opportunity.verification_status} />}
