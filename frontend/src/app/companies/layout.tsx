@@ -1,8 +1,17 @@
-// Force /companies to render at request time, not at build.
-// The page is a client component that constructs a Supabase client on render;
-// static prerendering at build (where CI has no real Supabase env) throws
-// "@supabase/ssr: Your project's URL and API key are required". This segment
-// config opts the whole route out of static generation.
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Companies Directory",
+  description: "Browse and follow semiconductor companies, fabless design houses, and hardware enterprises.",
+  robots: {
+    index: false,
+    follow: true,
+  },
+  alternates: {
+    canonical: "https://berojgardegreewala.vercel.app/organizations",
+  },
+};
+
 export const dynamic = "force-dynamic";
 
 export default function CompaniesLayout({ children }: { children: React.ReactNode }) {

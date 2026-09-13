@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
 interface Props {
-  params: { city: string };
+  params: Promise<{ city: string }>;
 }
 
 // Convert "bangalore" to "Bangalore"
@@ -21,16 +21,18 @@ function formatCity(citySlug: string): string {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const cityName = formatCity(params.city);
+  const { city } = await params;
+  const cityName = formatCity(city);
   return {
     title: `VLSI & Semiconductor Jobs in ${cityName}`,
     description: `Browse verified VLSI, embedded systems, and semiconductor jobs and internships in ${cityName}. Find active opportunities from top organizations.`,
-    alternates: { canonical: `https://berojgardegreewala.vercel.app/opportunities/location/${params.city.toLowerCase()}` },
+    alternates: { canonical: `https://berojgardegreewala.vercel.app/opportunities/location/${city.toLowerCase()}` },
   };
 }
 
 export default async function LocationPage({ params }: Props) {
-  const cityName = formatCity(params.city);
+  const { city } = await params;
+  const cityName = formatCity(city);
   let opportunities: any[] = [];
   
   if (supabaseAdmin?.from) {
@@ -56,6 +58,8 @@ export default async function LocationPage({ params }: Props) {
   // If no opportunities exist for this city, we still render the page but show empty state.
   // This is better for SEO than throwing a 404 for valid cities that just happen to be empty right now.
 
+  const locationUrl = `https://berojgardegreewala.vercel.app/opportunities/location/${city.toLowerCase()}`;
+
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -66,9 +70,55 @@ export default async function LocationPage({ params }: Props) {
     }))
   };
 
+  const breadcrumbsSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://berojgardegreewala.vercel.app",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Opportunities",
+        item: "https://berojgardegreewala.vercel.app/opportunities",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: `Jobs in ${cityName}`,
+        item: locationUrl,
+      },
+    ],
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }} />
+
+      <nav aria-label="Breadcrumb" className="mb-4">
+        <ol className="flex items-center gap-2 text-xs font-semibold text-slate-500 flex-wrap">
+          <li>
+            <Link href="/" className="hover:text-slate-900 transition-colors">
+              Home
+            </Link>
+          </li>
+          <li>/</li>
+          <li>
+            <Link href="/opportunities" className="hover:text-slate-900 transition-colors">
+              Opportunities
+            </Link>
+          </li>
+          <li>/</li>
+          <li className="text-slate-900" aria-current="page">
+            {cityName}
+          </li>
+        </ol>
+      </nav>
 
       <Link href="/opportunities" className="inline-flex items-center gap-1 text-text-secondary hover:text-accent transition-colors text-sm mb-6 font-medium">
         <ArrowLeft className="w-4 h-4" />

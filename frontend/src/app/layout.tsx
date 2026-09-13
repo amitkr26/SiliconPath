@@ -54,7 +54,6 @@ export const metadata: Metadata = {
       "noarchive": true
     },
   },
-  alternates: { canonical: "https://berojgardegreewala.vercel.app" },
   verification: {
     google: "QnEIBEpKxP_ZiQxtneegX-6WWKxO_FZ8Yzzxp4kOqxA",
   },

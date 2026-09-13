@@ -101,9 +101,34 @@ export async function generateMetadata({ params }: Props) {
     twitter: {
       card: "summary_large_image",
       title: orgName ? `${opportunity.title} | ${orgName}` : opportunity.title,
-      images: [`https://berojgardegreewala.vercel.app/api/og/opportunity/${params.slug}`],
+      images: [`https://berojgardegreewala.vercel.app/api/og/opportunity/${opportunity.slug || params.slug}`],
     },
-    alternates: { canonical: `https://berojgardegreewala.vercel.app/opportunities/${params.slug}` },
+    alternates: { canonical: `https://berojgardegreewala.vercel.app/opportunities/${opportunity.slug || params.slug}` },
+  };
+}
+
+function parseSalary(stipendStr?: string | null, location?: string | null) {
+  if (!stipendStr) return undefined;
+  const cleaned = stipendStr.replace(/,/g, "");
+  const numMatch = cleaned.match(/\d+(\.\d+)?/);
+  if (!numMatch) return undefined;
+  const numValue = parseFloat(numMatch[0]);
+  if (isNaN(numValue) || numValue <= 0) return undefined;
+
+  let unitText: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR" = "MONTH";
+  if (/lpa|per annum|year|annually/i.test(stipendStr)) unitText = "YEAR";
+  else if (/week/i.test(stipendStr)) unitText = "WEEK";
+  else if (/day/i.test(stipendStr)) unitText = "DAY";
+  else if (/hour/i.test(stipendStr)) unitText = "HOUR";
+
+  return {
+    "@type": "MonetaryAmount",
+    currency: location === "Germany" ? "EUR" : location === "Singapore" ? "SGD" : "INR",
+    value: {
+      "@type": "QuantitativeValue",
+      value: numValue,
+      unitText,
+    },
   };
 }
 
@@ -121,11 +146,23 @@ export default async function OpportunityDetailPage({ params }: Props) {
   if (!opportunity) notFound();
   const orgName = opportunity.organization || "";
 
+  let isoDeadline: string | undefined = undefined;
+  if (opportunity.deadline && !isExpired(opportunity.deadline)) {
+    try {
+      isoDeadline = new Date(opportunity.deadline).toISOString();
+    } catch {
+      isoDeadline = undefined;
+    }
+  }
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: opportunity.title,
-    description: opportunity.description,
+    description:
+      opportunity.description && opportunity.description.trim().length > 20
+        ? opportunity.description
+        : `${opportunity.title} at ${orgName || "Official Organization"}. Category: ${opportunity.category}. Eligibility: ${opportunity.eligibility || "Check official portal"}. Apply directly on official website.`,
     hiringOrganization: orgName
       ? {
           "@type": "Organization",
@@ -139,20 +176,19 @@ export default async function OpportunityDetailPage({ params }: Props) {
           address: {
             "@type": "PostalAddress",
             addressLocality: opportunity.location,
-            addressCountry: opportunity.location && opportunity.location.match(/India|Delhi|Bangalore|Mumbai/i) ? "IN" : opportunity.location === "Germany" ? "DE" : "SG",
+            addressCountry: opportunity.location && opportunity.location.match(/India|Delhi|Bangalore|Mumbai|Hyderabad|Noida|Pune|Chennai/i) ? "IN" : opportunity.location === "Germany" ? "DE" : "SG",
           },
         }
       : undefined,
+    applicantLocationRequirements: {
+      "@type": "Country",
+      name: "IN",
+    },
+    directApply: true,
     employmentType: opportunity.category === "Private Job" ? "FULL_TIME" : opportunity.category === "JRF" || opportunity.category === "SRF" ? "CONTRACTOR" : undefined,
-    validThrough: opportunity.deadline && !isExpired(opportunity.deadline) ? opportunity.deadline : undefined,
-    baseSalary: opportunity.stipend
-      ? {
-          "@type": "MonetaryAmount",
-          currency: opportunity.location === "Germany" ? "EUR" : opportunity.location === "Singapore" ? "SGD" : "INR",
-          value: { "@type": "QuantitativeValue", value: opportunity.stipend },
-        }
-      : undefined,
-    datePosted: opportunity.posted_at,
+    validThrough: isoDeadline,
+    baseSalary: parseSalary(opportunity.stipend, opportunity.location),
+    datePosted: opportunity.posted_at || opportunity.created_at || new Date().toISOString(),
     url: `https://berojgardegreewala.vercel.app/opportunities/${opportunity.slug}`,
   };
 

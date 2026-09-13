@@ -5,9 +5,10 @@ import { Card } from "@/components/ui/Card";
 import OrganizationsClient from "./OrganizationsClient";
 
 export const metadata: Metadata = {
-  title: "Organizations — BerojgarDegreeWala",
+  title: "Semiconductor & Hardware Organizations Directory",
   description:
     "Browse electronics and semiconductor research opportunities by organization — DRDO, ISRO, CSIR, IITs, Intel, Qualcomm, AMD, TSMC, and more.",
+  alternates: { canonical: "https://berojgardegreewala.vercel.app/organizations" },
 };
 
 interface OrgItem {
@@ -74,8 +75,37 @@ async function getOrganizations(): Promise<OrgItem[]> {
 export default async function OrganizationsPage() {
   const organizations = await getOrganizations();
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://berojgardegreewala.vercel.app" },
+      { "@type": "ListItem", position: 2, name: "Organizations", item: "https://berojgardegreewala.vercel.app/organizations" },
+    ],
+  };
+
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Semiconductor & Hardware Organizations in India",
+    itemListElement: organizations.slice(0, 30).map((org, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: org.name,
+      url: `https://berojgardegreewala.vercel.app/organizations/${org.slug}`,
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* HEADER */}

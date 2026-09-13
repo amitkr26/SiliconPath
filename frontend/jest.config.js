@@ -6,6 +6,7 @@ const config = {
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '\\.(css|less|scss|sass)$': '<rootDir>/src/__tests__/styleMock.js',
     // @berojgardegreewala/api is consumed as TS source with NodeNext-style
     // ".js" import specifiers — map them back to extensionless for jest.
     '^(\\.{1,2}/.*)\\.js$': '$1',

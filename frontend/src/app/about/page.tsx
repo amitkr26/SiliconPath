@@ -9,8 +9,8 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 
 export const metadata: Metadata = {
-  title: "About — BerojgarDegreeWala | Electronics & Semiconductor Opportunities",
-  description: "Learn about BerojgarDegreeWala — a free platform aggregating JRF, PhD, government, and private sector opportunities in electronics and semiconductor research across India and internationally.",
+  title: "About Us — Semiconductor & VLSI Intelligence Platform",
+  description: "Learn about BerojgarDegreeWala — India's verified platform aggregating JRF, PhD, government, and private sector opportunities in electronics and semiconductor engineering.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/about" },
   openGraph: {
     title: "About BerojgarDegreeWala",

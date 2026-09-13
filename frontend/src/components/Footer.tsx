@@ -44,28 +44,61 @@ export default function Footer() {
             </p>
 
             <div className="pt-2 flex flex-wrap gap-2 text-[11px] font-medium">
-              <Link href="/opportunities?search=ISRO" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
+              <Link href="/organizations/isro" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
                 ISRO Careers
               </Link>
-              <Link href="/opportunities?search=DRDO" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
-                DRDO JRF 2026
+              <Link href="/organizations/drdo" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
+                DRDO Fellowships
               </Link>
-              <Link href="/opportunities?search=CSIR" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
-                CSIR Labs Fellowships
+              <Link href="/organizations/iit-bombay" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
+                IIT Bombay Research
               </Link>
-              <Link href="/opportunities?search=IIT" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
-                IIT Microelectronics PhD
+              <Link href="/category/jrf" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
+                JRF Positions
               </Link>
-              <Link href="/opportunities?search=Verification" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
-                RTL &amp; UVM Verification
+              <Link href="/category/phd" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
+                PhD Admissions
               </Link>
-              <Link href="/opportunities?search=Physical%20Design" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
-                Physical Design &amp; STA
+              <Link href="/opportunities/location/bengaluru" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
+                Jobs in Bengaluru
               </Link>
             </div>
           </div>
 
-          {/* COLUMN 1: GUIDES */}
+          {/* COLUMN 1: CATEGORIES & HUBS */}
+          <div className="space-y-3.5">
+            <h4 className="text-xs font-bold text-white tracking-wider uppercase pb-1 border-b border-blue-500/50 inline-block">
+              Categories &amp; Hubs
+            </h4>
+            <div className="flex flex-col gap-2 font-medium text-xs">
+              <Link href="/categories" className="text-blue-400 hover:text-blue-300 transition-colors font-bold">
+                &rarr; All Categories Directory
+              </Link>
+              <Link href="/category/jrf" className="text-slate-400 hover:text-white transition-colors">
+                Junior Research Fellowships (JRF)
+              </Link>
+              <Link href="/category/srf" className="text-slate-400 hover:text-white transition-colors">
+                Senior Research Fellowships (SRF)
+              </Link>
+              <Link href="/category/phd" className="text-slate-400 hover:text-white transition-colors">
+                PhD Research Positions
+              </Link>
+              <Link href="/category/govt-job" className="text-slate-400 hover:text-white transition-colors">
+                Government &amp; PSU Opportunities
+              </Link>
+              <Link href="/opportunities/location/bengaluru" className="text-slate-400 hover:text-white transition-colors">
+                Semiconductor in Bengaluru
+              </Link>
+              <Link href="/opportunities/location/hyderabad" className="text-slate-400 hover:text-white transition-colors">
+                VLSI in Hyderabad
+              </Link>
+              <Link href="/opportunities/location/noida" className="text-slate-400 hover:text-white transition-colors">
+                Electronics in Noida / NCR
+              </Link>
+            </div>
+          </div>
+
+          {/* COLUMN 2: GUIDES */}
           <div className="space-y-3.5">
             <h4 className="text-xs font-bold text-white tracking-wider uppercase pb-1 border-b border-blue-500/50 inline-block">
               Guides
@@ -84,10 +117,7 @@ export default function Footer() {
                 IIT/IISc PhD Admission Guide
               </Link>
               <Link href="/resources/fully-funded-phd-vlsi-abroad" className="text-slate-400 hover:text-white transition-colors">
-                Fully-Funded PhD Abroad (Europe/US)
-              </Link>
-              <Link href="/resources/international-fellowships" className="text-slate-400 hover:text-white transition-colors">
-                Global Semiconductor Fellowships
+                Fully-Funded PhD Abroad
               </Link>
               <Link href="/resources/net-vs-gate" className="text-slate-400 hover:text-white transition-colors">
                 CSIR NET vs GATE Comparison
@@ -98,7 +128,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* COLUMN 2: PORTALS & TOOLS */}
+          {/* COLUMN 3: PORTALS & ECOSYSTEM */}
           <div className="space-y-3.5">
             <h4 className="text-xs font-bold text-white tracking-wider uppercase pb-1 border-b border-blue-500/50 inline-block">
               Portals &amp; Tools
@@ -110,11 +140,11 @@ export default function Footer() {
               <Link href="/organizations" className="text-slate-400 hover:text-white transition-colors">
                 Organizations &amp; Labs Directory
               </Link>
-              <Link href="/ask-ai" className="text-slate-400 hover:text-white transition-colors">
-                Deep-Tech AI Assistant
-              </Link>
               <Link href="/news" className="text-slate-400 hover:text-white transition-colors">
                 Daily Industry News &amp; Circulars
+              </Link>
+              <Link href="/ask-ai" className="text-slate-400 hover:text-white transition-colors">
+                Deep-Tech AI Assistant
               </Link>
               <Link href="/resources" className="text-slate-400 hover:text-white transition-colors">
                 All Research Resources Hub
@@ -122,20 +152,11 @@ export default function Footer() {
               <Link href="/contact" className="text-slate-400 hover:text-white transition-colors">
                 Contact &amp; Support
               </Link>
-            </div>
-          </div>
-
-          {/* COLUMN 3: OUR ECOSYSTEM */}
-          <div className="space-y-3.5">
-            <h4 className="text-xs font-bold text-white tracking-wider uppercase pb-1 border-b border-blue-500/50 inline-block">
-              Our Ecosystem
-            </h4>
-            <div className="flex flex-col gap-2 font-medium text-xs">
-              <a href="https://siliconpath.vercel.app" target="_blank" rel="noopener" className="text-slate-400 hover:text-white transition-colors">
-                SiliconPath — Free VLSI Learning Platform
+              <a href="https://siliconpath.vercel.app" target="_blank" rel="noopener" className="text-slate-400 hover:text-white transition-colors pt-1 border-t border-slate-800">
+                SiliconPath &mdash; VLSI Learning
               </a>
               <a href="https://electrobridge.vercel.app" target="_blank" rel="noopener" className="text-slate-400 hover:text-white transition-colors">
-                ElectroBridge — AI Resume Builder for Engineers
+                ElectroBridge &mdash; AI Resumes
               </a>
             </div>
           </div>

@@ -7,18 +7,16 @@ const STATIC_PAGES: { url: string; freq: "daily" | "hourly" | "weekly" | "monthl
   { url: "https://berojgardegreewala.vercel.app/opportunities", freq: "daily", priority: 0.9 },
   { url: "https://berojgardegreewala.vercel.app/news", freq: "hourly", priority: 0.8 },
   { url: "https://berojgardegreewala.vercel.app/organizations", freq: "weekly", priority: 0.7 },
+  { url: "https://berojgardegreewala.vercel.app/categories", freq: "weekly", priority: 0.7 },
   { url: "https://berojgardegreewala.vercel.app/about", freq: "monthly", priority: 0.5 },
   { url: "https://berojgardegreewala.vercel.app/resources", freq: "monthly", priority: 0.5 },
   { url: "https://berojgardegreewala.vercel.app/contact", freq: "monthly", priority: 0.3 },
-  { url: "https://berojgardegreewala.vercel.app/match", freq: "monthly", priority: 0.4 },
   { url: "https://berojgardegreewala.vercel.app/ask-ai", freq: "monthly", priority: 0.5 },
-  { url: "https://berojgardegreewala.vercel.app/login", freq: "monthly", priority: 0.2 },
-  { url: "https://berojgardegreewala.vercel.app/signup", freq: "monthly", priority: 0.2 },
-  { url: "https://berojgardegreewala.vercel.app/companies", freq: "weekly", priority: 0.6 },
-  { url: "https://berojgardegreewala.vercel.app/search", freq: "weekly", priority: 0.5 },
 ];
 
 const CATEGORY_PAGES = ["jrf", "srf", "phd", "govt-job", "fellowship", "private", "international"];
+
+const LOCATION_HUBS = ["bengaluru", "hyderabad", "noida", "pune", "chennai", "ahmedabad"];
 
 const RESOURCE_PAGES = [
   "jrf-guide",
@@ -44,6 +42,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const cat of CATEGORY_PAGES) {
     urls.push({
       url: `https://berojgardegreewala.vercel.app/category/${cat}`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.7,
+    });
+  }
+
+  // Location Hub pages
+  for (const city of LOCATION_HUBS) {
+    urls.push({
+      url: `https://berojgardegreewala.vercel.app/opportunities/location/${city}`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.7,
@@ -83,9 +91,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     }
 
-    // Organization pages (canonical source: organizations table — the
-    // historical query read opportunities.org_slug, a column that does not
-    // exist, so the section silently produced nothing)
+    // Organization pages (canonical source: organizations table)
     const { data: orgs } = await supabaseAdmin
       .from("organizations")
       .select("slug, created_at");
@@ -95,22 +101,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         urls.push({
           url: `https://berojgardegreewala.vercel.app/organizations/${org.slug}`,
           lastModified: new Date(org.created_at || Date.now()),
-          changeFrequency: "weekly" as const,
-          priority: 0.6,
-        });
-      }
-    }
-
-    // Company detail pages
-    const { data: companies } = await supabaseAdmin
-      .from("company_pages")
-      .select("slug, created_at");
-
-    if (companies) {
-      for (const c of companies) {
-        urls.push({
-          url: `https://berojgardegreewala.vercel.app/companies/${c.slug}`,
-          lastModified: new Date(c.created_at || Date.now()),
           changeFrequency: "weekly" as const,
           priority: 0.6,
         });
