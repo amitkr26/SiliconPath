@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-13 — Repository-Wide Production-Grade SEO, AEO, GEO & Search Architecture Implementation:**
+  - **Canonical Inheritance & Title Sanitization**:
+    - `frontend/src/app/layout.tsx`: Removed root `alternates: { canonical: ... }` to prevent Next.js App Router from propagating the root domain to all child pages.
+    - Explicit canonical tags added to `/` (`frontend/src/app/page.tsx`), `/organizations`, `/news`, `/categories`, `/about`, `/contact`, `/ask-ai`, and `/category/[category]`.
+    - Sanitized all subpage `<title>` definitions to eliminate double branding (e.g. `"About Us — Semiconductor & VLSI Intelligence Platform"` without trailing site name).
+  - **Server-Side Rendered News & Category Hubs**:
+    - `frontend/src/app/news/page.tsx`: Converted from client shell to Server Component pre-fetching initial 40 articles via `supabaseAdmin`. Created `frontend/src/app/news/NewsClient.tsx` for client interactivity with zero loading flicker. Emits `ItemList` and `BreadcrumbList` schemas.
+    - `frontend/src/app/category/[category]/page.tsx`: Converted from client component to Server Component with `generateStaticParams`, dynamic `generateMetadata`, server data fetching, `ItemList` and `BreadcrumbList` schemas. Created `CategoryClient.tsx`.
+  - **Structured Data / Schema.org Compliance**:
+    - `frontend/src/app/opportunities/[slug]/page.tsx`: Implemented safe `parseSalary()` extracting numeric values and unitText (`MONTH`/`YEAR`) for valid `MonetaryAmount` schema; omitted baseSalary cleanly for non-numeric stipends ("As per DST norms"). Added `applicantLocationRequirements: { "@type": "Country", name: "IN" }` and `directApply: true`. Fixed canonical resolution for UUID aliases.
+    - `frontend/src/app/organizations/[slug]/page.tsx`: Removed `numberOfEmployees: { value: opportunities.length }` entity hallucination. Updated query to render an informative profile and directory navigation when active listings are 0, eliminating soft-404 crawl errors. Added `BreadcrumbList` schema.
+    - `frontend/src/app/news/[slug]/page.tsx`: Added `NewsArticle` schema with publisher, author, datePublished, image, and `BreadcrumbList` schema. Added semantic breadcrumb navigation.
+    - `frontend/src/app/page.tsx`: Integrated `FAQPage` schema matching `FaqSection.tsx` (stipends, DST rules, DRDO/ISRO eligibility).
+    - `frontend/src/app/opportunities/location/[city]/page.tsx`: Modernized params for Next.js 15 Promise resolution, added `BreadcrumbList` schema and semantic breadcrumbs.
+    - `frontend/src/app/contact/layout.tsx`: Created server layout with canonical URL, `ContactPage` schema, and `BreadcrumbList`.
+    - `frontend/src/app/ask-ai/layout.tsx`: Created server layout with canonical URL and `WebApplication` schema.
+    - `frontend/src/app/categories/page.tsx`: Fixed UTF-8 byte encoding (mojibake removal) and added `ItemList` + `BreadcrumbList` schemas.
+  - **Robots & Sitemap Architecture**:
+    - `frontend/src/app/robots.ts`: Added disallow directives for `/search`, `/onboarding`, `/notifications`, `/post-job`.
+    - `frontend/src/app/sitemap.ts`: Pruned noindex routes (`/search`, `/login`, `/signup`, `/companies`, `/match`). Added `/categories` and top 6 city location hubs (`bengaluru`, `hyderabad`, `noida`, `pune`, `chennai`, `ahmedabad`). Removed duplicate `/companies/[slug]` loop.
+    - `frontend/src/app/search/layout.tsx`, `login/layout.tsx`, `signup/layout.tsx`, `companies/[slug]/layout.tsx`: Created layouts enforcing `noindex, follow` and canonical tags.
+  - **Internal Linking Enhancement**:
+    - `frontend/src/components/Footer.tsx`: Replaced search parameter query links with static canonical routes (`/organizations/isro`, `/organizations/drdo`, `/category/jrf`, `/category/phd`, `/categories`, `/opportunities/location/bengaluru`). Added dedicated Categories & Hubs column.
+  - **Automated Testing & Build Verification**:
+    - `frontend/src/__tests__/seo/seo-aeo-geo.test.tsx`: Added 18 comprehensive automated tests verifying root canonicals, title templates, noindex boundaries, robots rules, sitemap generation, and salary parsing.
+    - `frontend/src/__tests__/styleMock.js` & `frontend/jest.config.js`: Added CSS module mapper for Jest.
+    - Verification: 26 frontend test suites passed, 257 tests passed (0 failures). Monorepo typecheck passed with 0 errors. Next.js production build succeeded across all 273+ routes.
+
 - **2026-09-13 — Production Media System Closure, Organization Logo Backfill & RSS Pipeline:**
   - **Organization Logo Storage & Backfill**:
     - Supabase Storage: Created public storage bucket `organization-logos` with 2MB size cap and image MIME restriction (`image/png`, `image/jpeg`, `image/webp`, `image/svg+xml`).

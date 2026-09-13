@@ -5,7 +5,7 @@ import { GraduationCap, FlaskConical, BookOpen, Building2, Award, Briefcase } fr
 import { Badge } from "@/components/ui/Badge";
 
 export const metadata: Metadata = {
-  title: "Browse Opportunities by Category � JRF, PhD, Govt Jobs",
+  title: "Browse Opportunities by Category — JRF, PhD, Govt Jobs",
   description: "Browse electronics and semiconductor opportunities by category: JRF, SRF, PhD, Government Jobs, Fellowships, and Private Sector positions. Updated daily.",
   alternates: { canonical: "https://berojgardegreewala.vercel.app/categories" },
 };
@@ -32,8 +32,38 @@ export default async function CategoriesPage() {
     }
   }
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://berojgardegreewala.vercel.app" },
+      { "@type": "ListItem", position: 2, name: "Categories", item: "https://berojgardegreewala.vercel.app/categories" },
+    ],
+  };
+
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Semiconductor Opportunity Categories",
+    itemListElement: CATEGORIES_CONFIG.map((cat, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      name: cat.label,
+      description: cat.description,
+      url: `https://berojgardegreewala.vercel.app/category/${cat.slug}`,
+    })),
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
       <h1 className="font-display text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2">Browse by Category</h1>
       <p className="text-slate-600 text-sm font-medium mb-10">Find opportunities across all electronics research categories.</p>
 

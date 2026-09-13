@@ -83,9 +83,93 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
   const tags: string[] = article.tags || [];
   const sourceDotColor = (article.source && SOURCE_COLORS[article.source]) || "bg-blue-600";
 
+  const articleUrl = `https://berojgardegreewala.vercel.app/news/${article.slug}`;
+
+  const newsArticleSchema = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: article.title,
+    description: (article.summary || article.content || "").slice(0, 200),
+    image: article.image_url ? [article.image_url] : ["https://berojgardegreewala.vercel.app/api/og"],
+    datePublished: article.published_at || new Date().toISOString(),
+    dateModified: article.published_at || new Date().toISOString(),
+    author: [
+      {
+        "@type": "Organization",
+        name: article.source || "Semiconductor News Publisher",
+        url: article.source_url || undefined,
+      },
+    ],
+    publisher: {
+      "@type": "Organization",
+      name: "BerojgarDegreeWala",
+      url: "https://berojgardegreewala.vercel.app",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://berojgardegreewala.vercel.app/icon.svg",
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": articleUrl,
+    },
+  };
+
+  const breadcrumbsSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://berojgardegreewala.vercel.app",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Semiconductor News",
+        item: "https://berojgardegreewala.vercel.app/news",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: article.title,
+        item: articleUrl,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-bg-primary py-10 px-4 sm:px-6 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+      />
       <div className="max-w-4xl mx-auto">
+        <nav aria-label="Breadcrumb" className="mb-6">
+          <ol className="flex items-center gap-2 text-xs font-semibold text-slate-500 flex-wrap">
+            <li>
+              <Link href="/" className="hover:text-slate-900 transition-colors">
+                Home
+              </Link>
+            </li>
+            <li>/</li>
+            <li>
+              <Link href="/news" className="hover:text-slate-900 transition-colors">
+                News
+              </Link>
+            </li>
+            <li>/</li>
+            <li className="text-slate-900 truncate max-w-xs sm:max-w-md" aria-current="page">
+              {article.title}
+            </li>
+          </ol>
+        </nav>
 
         <Link
           href="/news"

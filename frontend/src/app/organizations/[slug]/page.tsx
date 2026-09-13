@@ -30,20 +30,8 @@ interface OrgDetails {
 
 async function getOrganizationOpportunities(
   slug: string
-): Promise<OrgDetails> {
-  const fallbackDetails: OrgDetails = {
-    name: slugToOrgName(slug),
-    logo_url: null,
-    website: null,
-    location: null,
-    type: null,
-    description: null,
-    opportunities: [],
-  };
-
-  if (!supabaseAdmin?.from) return fallbackDetails;
-
-  const today = new Date().toISOString().split("T")[0];
+): Promise<OrgDetails | null> {
+  if (!supabaseAdmin?.from) return null;
 
   // 1. Fetch organization by slug
   const { data: orgData } = await supabaseAdmin
@@ -53,7 +41,7 @@ async function getOrganizationOpportunities(
     .maybeSingle();
 
   if (!orgData) {
-    return fallbackDetails;
+    return null;
   }
 
   // 2. Fetch opportunities by organization_id
@@ -70,19 +58,7 @@ async function getOrganizationOpportunities(
     .or(buildAvailabilityDbFilter(computeIstToday()))
     .order("created_at", { ascending: false });
 
-  if (!data || data.length === 0) {
-    return {
-      name: orgData.name,
-      logo_url: orgData.logo_url || null,
-      website: orgData.website || null,
-      location: orgData.location || null,
-      type: orgData.type || null,
-      description: orgData.description || null,
-      opportunities: [],
-    };
-  }
-
-  const mappedOpportunities = data.map((opp: any) => ({
+  const mappedOpportunities = (data || []).map((opp: any) => ({
     ...opp,
     organization: opp.organizations?.name || orgData.name,
     org_slug: opp.organizations?.slug || slug,
@@ -101,29 +77,44 @@ async function getOrganizationOpportunities(
 }
 
 export async function generateMetadata({ params }: Props) {
-  const { name, opportunities } = await getOrganizationOpportunities(params.slug);
-  if (!opportunities.length) return { title: "Organization Not Found" };
+  const orgDetails = await getOrganizationOpportunities(params.slug);
+  if (!orgDetails) return { title: "Organization Not Found" };
+
+  const { name, opportunities, description: orgDesc } = orgDetails;
+  const count = opportunities.length;
+  const title = count > 0 ? `${name} — ${count} Active Opportunities` : `${name} — Profile & Hardware Openings`;
+  const metaDesc = count > 0
+    ? `Browse ${count} active JRF, PhD, and research opportunities at ${name}. Find current openings and apply through BerojgarDegreeWala.`
+    : orgDesc
+    ? `${name}: ${orgDesc.slice(0, 140)}... Track upcoming verified hardware opportunities on BerojgarDegreeWala.`
+    : `Explore verified research profile, official circulars, and recruitment updates for ${name} on BerojgarDegreeWala.`;
+
   return {
-    title: `${name} — ${opportunities.length} Active Opportunities`,
-    description: `Browse ${opportunities.length} active JRF, PhD, and research opportunities at ${name}. Find current openings and apply through BerojgarDegreeWala.`,
+    title,
+    description: metaDesc,
     alternates: { canonical: `https://berojgardegreewala.vercel.app/organizations/${params.slug}` },
+    openGraph: {
+      title: `${name} | BerojgarDegreeWala`,
+      description: metaDesc,
+      url: `https://berojgardegreewala.vercel.app/organizations/${params.slug}`,
+    },
   };
 }
 
 export default async function OrganizationPage({ params }: Props) {
   const orgDetails = await getOrganizationOpportunities(params.slug);
-  const { name, logo_url, website, location, type, description, opportunities } = orgDetails;
+  if (!orgDetails) notFound();
 
-  if (opportunities.length === 0) notFound();
+  const { name, logo_url, website, location, type, description, opportunities } = orgDetails;
 
   const orgSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name,
-    description: `${name} — ${opportunities.length} active opportunities on BerojgarDegreeWala`,
+    description: description || `${name} — Semiconductor and hardware research organization on BerojgarDegreeWala`,
     url: `https://berojgardegreewala.vercel.app/organizations/${params.slug}`,
     ...(logo_url ? { logo: logo_url } : {}),
-    numberOfEmployees: { "@type": "QuantitativeValue", value: opportunities.length },
+    ...(website ? { sameAs: [website] } : {}),
   };
 
   const breadcrumbSchema = {
@@ -208,11 +199,35 @@ export default async function OrganizationPage({ params }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {opportunities.map((opp) => (
-          <OpportunityCard key={opp.id} opportunity={opp} />
-        ))}
-      </div>
+      {opportunities.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {opportunities.map((opp) => (
+            <OpportunityCard key={opp.id} opportunity={opp} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-16 px-4 bg-white border border-slate-200 rounded-xl shadow-xs">
+          <Building2 className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+          <h3 className="text-lg font-bold text-slate-900">No Active Openings Right Now</h3>
+          <p className="text-slate-600 text-sm max-w-md mx-auto mt-1 mb-6">
+            There are currently no active JRF, PhD, or job listings for {name}. Verified opportunities are refreshed daily from official circulars.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link
+              href="/opportunities"
+              className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors"
+            >
+              Browse All Active Opportunities
+            </Link>
+            <Link
+              href="/organizations"
+              className="inline-flex items-center justify-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors"
+            >
+              View Other Organizations
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

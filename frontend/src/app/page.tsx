@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { searchOpportunities } from "@/lib/opportunities-query";
@@ -8,6 +9,12 @@ import { mapDbOpportunityToClient } from "@/lib/utils";
 import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 import { classifyRoleRelevance } from "@/lib/scrapers/relevance";
 import type { Opportunity, NewsArticle } from "@/types";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 import PublicHome from "@/components/home/PublicHome";
 import CandidateHome from "@/components/home/CandidateHome";
@@ -182,12 +189,57 @@ export default async function HomePage() {
       getLatestNews(),
     ]);
 
+    const faqSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "How are JRF, PhD, and industry opportunities sourced and validated?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Every single listing ingested by BerojgarDegreeWala passes through automated scraper checks followed by link validation. We surface listings from official university domain portals (e.g. iitb.ac.in, iisc.ac.in, drdo.gov.in, isro.gov.in) and verified corporate career nodes (e.g. intel.com, qualcomm.com). Always confirm details on the original circular before applying.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Can I apply for DRDO or ISRO JRF positions as a final-year B.Tech / M.Tech student?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes! Most Junior Research Fellowship (JRF) positions in DRDO and ISRO accept candidates with a valid GATE score or NET qualification. Final-year students can apply provided they meet degree completion criteria by the document verification date specified in the official circular.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What is the standard stipend structure for JRF and SRF positions in India?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "As per updated DST/CSIR guidelines, JRF positions receive ₹37,000/month + HRA (ranging from 9% to 27% depending on city tier). Senior Research Fellowships (SRF) receive ₹42,000/month + HRA. Many IIT/IISc JRF roles can also be converted directly into full PhD registrations.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How do I receive instant alerts for new openings matching my exact profile?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "You can subscribe to our free Email & Telegram notification system. Specify your target keywords (e.g. 'SystemVerilog', 'IIT Bombay', 'DRDO') and categories ('JRF', 'PhD', 'Private Sector') to receive automated real-time alerts when matching listings are detected by our scrapers.",
+          },
+        },
+      ],
+    };
+
     return (
-      <PublicHome
-        stats={publicStats}
-        latestOpenings={homepageOpps.map((d: any) => mapDbOpportunityToClient(d))}
-        latestNews={latestNews}
-      />
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+        <PublicHome
+          stats={publicStats}
+          latestOpenings={homepageOpps.map((d: any) => mapDbOpportunityToClient(d))}
+          latestNews={latestNews}
+        />
+      </>
     );
   }
 

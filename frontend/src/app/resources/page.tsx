@@ -72,9 +72,45 @@ const SECTIONS = [
 ];
 
 export default function ResourcesPage() {
+  const breadcrumbsSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://berojgardegreewala.vercel.app",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Research Resources",
+        item: "https://berojgardegreewala.vercel.app/resources",
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-bg-primary py-10 px-4 sm:px-6 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+      />
       <div className="max-w-4xl mx-auto">
+        <nav aria-label="Breadcrumb" className="mb-6">
+          <ol className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <li>
+              <Link href="/" className="hover:text-slate-900 transition-colors">
+                Home
+              </Link>
+            </li>
+            <li>/</li>
+            <li className="text-slate-900 font-bold" aria-current="page">
+              Resources
+            </li>
+          </ol>
+        </nav>
         
         {/* HEADER */}
         <div className="mb-8 border-b-2 border-slate-200 pb-6">
