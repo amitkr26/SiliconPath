@@ -40,12 +40,6 @@ export const NEWS_SOURCES: NewsSourceConfig[] = [
     relevance_tier: 1,
   },
   {
-    name: "Chip Design Magazine",
-    url: "https://chipdesignmag.com/feed/",
-    tags: ["chip design", "VLSI", "ASIC"],
-    relevance_tier: 1,
-  },
-  {
     name: "SemiWiki",
     url: "https://semiwiki.com/feed/",
     tags: ["semiconductor", "EDA", "IP"],
@@ -55,12 +49,6 @@ export const NEWS_SOURCES: NewsSourceConfig[] = [
     name: "Electronics For You",
     url: "https://www.electronicsforu.com/feed",
     tags: ["electronics", "India", "DIY"],
-    relevance_tier: 1,
-  },
-  {
-    name: "The Electronics Media",
-    url: "https://theelectronicsmedia.com/feed/",
-    tags: ["electronics", "India", "industry"],
     relevance_tier: 1,
   },
   // ── TIER 2: Semiconductor Industry News ──
@@ -79,7 +67,7 @@ export const NEWS_SOURCES: NewsSourceConfig[] = [
   // ── TIER 3: Research & Academic ──
   {
     name: "Science Daily — Electronics",
-    url: "https://www.sciencedaily.com/rss/computers_math/semiconductors.xml",
+    url: "https://www.sciencedaily.com/rss/matter_energy/electronics.xml",
     tags: ["research", "academic", "electronics"],
     relevance_tier: 1,
   },
@@ -111,6 +99,50 @@ export interface ParsedArticle {
   tags: string[];
 }
 
+export function extractArticleImageUrl(item: any): string | null {
+  // 1. RSS Enclosure
+  if (item?.enclosure?.url && typeof item.enclosure.url === "string") {
+    const u = item.enclosure.url.trim();
+    if (u.startsWith("http://") || u.startsWith("https://")) return u;
+  }
+
+  // 2. Media content (handles array or single object, with or without $ namespace)
+  const media = item?.mediaContent || item?.["media:content"];
+  if (Array.isArray(media) && media.length > 0) {
+    for (const m of media) {
+      const u = m?.$?.url || m?.url;
+      if (u && typeof u === "string" && (u.startsWith("http://") || u.startsWith("https://"))) {
+        return u.trim();
+      }
+    }
+  } else if (media) {
+    const u = media?.$?.url || media?.url;
+    if (u && typeof u === "string" && (u.startsWith("http://") || u.startsWith("https://"))) {
+      return u.trim();
+    }
+  }
+
+  // 3. Media thumbnail
+  const thumb = item?.mediaThumbnail || item?.["media:thumbnail"];
+  if (thumb) {
+    const u = thumb?.$?.url || thumb?.url;
+    if (u && typeof u === "string" && (u.startsWith("http://") || u.startsWith("https://"))) {
+      return u.trim();
+    }
+  }
+
+  // 4. HTML img tag in content or content:encoded
+  const html = item?.contentEncoded || item?.["content:encoded"] || item?.content || "";
+  if (typeof html === "string" && html.length > 0) {
+    const match = html.match(/<img[^>]+src=["'](https?:\/\/[^"']+)["']/i);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+
+  return null;
+}
+
 async function fetchRSSFeed(
   source: string,
   feedUrl: string,
@@ -120,10 +152,18 @@ async function fetchRSSFeed(
 ): Promise<ParsedArticle[]> {
   try {
     const parser = new Parser({
-      timeout: 6000,
+      timeout: 8000,
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/rss+xml, application/xml, text/xml, */*",
+      },
+      customFields: {
+        item: [
+          ["media:content", "mediaContent", { keepArray: true }],
+          ["media:thumbnail", "mediaThumbnail"],
+          ["enclosure", "enclosure"],
+          ["content:encoded", "contentEncoded"],
+        ],
       },
     });
     const feed = await parser.parseURL(feedUrl);
@@ -137,8 +177,7 @@ async function fetchRSSFeed(
       const autoTags = autoTagArticle(title, summary || "");
       const mergedTags = Array.from(new Set([...defaultTags, ...autoTags]));
 
-      const rawImg = item.enclosure?.url || (item as any)["media:content"]?.$?.url || (item as any)["media:thumbnail"]?.$?.url || (item as any)["media:content"]?.url || null;
-      const imageUrl = rawImg && typeof rawImg === "string" && (rawImg.startsWith("http://") || rawImg.startsWith("https://")) ? rawImg : null;
+      const imageUrl = extractArticleImageUrl(item);
 
       results.push({
         title,

@@ -40,7 +40,7 @@ function addSecurityHeaders(response: NextResponse): void {
     "default-src 'self'",
     "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.supabase.co https://plausible.io https://js.sentry-cdn.com",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://*.supabase.co https://*.vercel.app https://img.youtube.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://media.licdn.com https://*.gov.in https://*.res.in https://*.ac.in https://*.unsplash.com https://images.unsplash.com https://api.dicebear.com",
+    "img-src 'self' data: blob: https://*.supabase.co https://*.vercel.app https://img.youtube.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://media.licdn.com https://*.gov.in https://*.res.in https://*.ac.in https://*.unsplash.com https://images.unsplash.com https://api.dicebear.com https://*.powerelectronicsnews.com https://*.sciencedaily.com https://*.semiengineering.com https://*.eetimes.com https://*.electronicsweekly.com https://*.ieee.org https://*.phys.org https://*.theregister.com https://*.wikimedia.org https://*.wikipedia.org",
     "font-src 'self'",
     "connect-src 'self' https://*.supabase.co https://plausible.io https://o4506458839588864.ingest.us.sentry.io",
     "frame-src 'self' https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com https://youtube-nocookie.com",

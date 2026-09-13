@@ -44,6 +44,14 @@ export async function GET(request: NextRequest) {
         .maybeSingle();
 
       if (existingUrl || existingTitle) {
+        const existingId = existingUrl?.id || existingTitle?.id;
+        if (existingId && article.image_url) {
+          await supabaseAdmin
+            .from("news_articles")
+            .update({ image_url: article.image_url })
+            .eq("id", existingId)
+            .is("image_url", null);
+        }
         newsSkipped++;
         continue;
       }
