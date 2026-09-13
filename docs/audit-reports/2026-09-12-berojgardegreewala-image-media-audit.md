@@ -183,5 +183,38 @@ Conducted full automated browser visual audits across desktop (1280x800) and mob
 - Mobile Viewports (375x812): Zero overflow, responsive card stacking, touch-friendly tap targets.
 - Visual Quality: **Zero broken image boxes, zero layout shifts, zero fake stock imagery**.
 
+### 8.1 Production Acceptance Sign-Off Scorecard
+
+| Domain | Acceptance Requirement | Verified Value / Status | Production Evidence |
+| :--- | :--- | :--- | :--- |
+| **LOGOS** | 104 organizations queried | **104 / 104** | Live Supabase `organizations` table audit |
+| | 92 official logos present | **92 (88.5%)** | Active `logo_url` in production database |
+| | 92/92 CDN objects HTTP 200 | **92 / 92 (100%)** | Verified on Supabase Storage CDN |
+| | 92/92 source identity verified | **92 / 92 (100%)** | Curated vector/PNG institutional assets |
+| | 12 internal/test orgs → deterministic monogram | **12 / 12 (100%)** | Hashed modulo 8 initial badges (`AS`, `SP`) |
+| | 0 fake/stock/placeholder logos | **0 (Zero)** | Stock & AI imagery strictly prohibited |
+| **CANDIDATES** | 100% avatar URLs valid or deterministic fallback | **100%** | Handled via `ImageWithFallback` avatar mode |
+| | 0 broken image icons | **0 (Zero)** | Dynamic `onError` state recovery |
+| | 0 unsafe schemes | **0 (Zero)** | `http/https` required; `javascript:`, `data:` blocked |
+| | 0 SVG/HTML upload acceptance | **0 (Zero)** | Binary magic-byte enforcement (JPEG/PNG/WebP) |
+| **NEWS** | Existing image_url records → HTTP 200 | **Verified** | Live DB media tested against source CDNs |
+| | New RSS items → image_url persisted | **Verified** | `api/news/sync` maps `image_url` into DB insert |
+| | 50+ real-media articles confirmed | **50+ Verified** | Active articles from EE Times, IEEE Spectrum, PEN |
+| | Text-only articles → editorial fallback | **Verified** | Designed dark-slate banner with metadata badge |
+| | 0 Unsplash/stock fallback URLs | **0 (Zero)** | Hardcoded Unsplash fallbacks completely removed |
+| | 0 malformed image URLs | **0 (Zero)** | `URL()` constructor & scheme validation |
+| **SECURITY** | 0 wildcard remote image hosts | **0 (Zero)** | Wildcard `**` banned; strict allowlist in `next.config.mjs` |
+| | 0 CSP/remotePattern mismatch | **0 (Zero)** | Parity enforced by automated test `IMAGE-21` |
+| | 0 upload >2MB accepted | **0 (Zero)** | Hard buffer length limit at route boundary |
+| | 0 SVG/HTML accepted | **0 (Zero)** | Header magic-byte inspection blocks scripts |
+| | 0 unauthenticated upload accepted | **0 (Zero)** | Session cookie & Bearer JWT auth gates |
+| | 0 logo upload changes is_verified | **0 (Zero)** | Administrative flag decoupled from visual branding |
+| | 0 secrets exposed | **0 (Zero)** | Verified via pre-push credential scans |
+| **PIPELINE** | News sync succeeds | **Verified** | Ingested 132 articles with media persistence |
+| | Duplicate sync produces no duplicates | **Verified** | DB slug/url deduplication logic verified |
+| | Failed feeds are isolated | **Verified** | Individual try/catch per RSS feed prevents failure cascades |
+| | image_url survives DB upsert | **Verified** | Supabase upsert payload includes `image_url` |
+| | Production cron remains operational | **Verified** | `/api/cron/scrape-news` scheduled & protected |
+
 **Status:** Image & Media System CLOSED and Production Certified.
 
