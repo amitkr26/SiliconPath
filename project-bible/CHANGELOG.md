@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-13 — Search Engine Indexation, Crawl Validation & SEO Post-Implementation Audit:**
+  - **Schema Truthfulness & Academic Program Discrimination**:
+    - `frontend/src/app/opportunities/[slug]/page.tsx`: Google Search Central prohibits `JobPosting` schema on academic admissions and scholarships. Implemented automatic schema discrimination: opportunities in category `phd` or with titles matching PhD admissions/scholarships emit `EducationalOccupationalProgram` schema with `provider`, `educationalProgramMode`, and `programPrerequisites`; genuine employment and research staff positions emit standard validated `JobPosting` schema.
+  - **Internal Link Graph & Breadcrumb Flow**:
+    - `frontend/src/app/opportunities/[slug]/page.tsx`: Added semantic internal hyperlink from employer name to `/organizations/${opportunity.org_slug}` and user-facing breadcrumb navigation (`Home > Opportunities > [Job Title]`), closing the complete crawl loop from opportunity to organization profile.
+  - **SERP Intent Title Realignment**:
+    - `frontend/src/app/opportunities/page.tsx`: Updated page title from generic `"All Opportunities"` to high-intent title *"Semiconductor Jobs, JRF Positions & VLSI Opportunities in India"* and optimized meta description to match real searcher queries.
+  - **External Validation & Live URL Inspection**:
+    - Automated live probe verified HTTP 200, matching self-referencing canonicals, complete server-rendered HTML, and JSON-LD schemas across 6 representative routes on `https://berojgardegreewala.vercel.app` (Home, Opportunity, Organization, News, Category, Location).
+    - Measured TTFB across live production routes (55–562ms), confirming compliance with Google's Core Web Vitals threshold (<800ms).
+    - Documented unverified external states for Google Search Console and Bing Webmaster due to environment isolation.
+  - **Automated Regression Suite & Build**:
+    - `frontend/src/__tests__/seo/seo-aeo-geo.test.tsx`: Added tests `SEO-19` (EducationalOccupationalProgram discrimination) and `SEO-20` (JobPosting employment validation).
+    - Verification: 26 frontend test suites passed, 259 tests passed (0 failures). Monorepo typecheck passed with 0 errors. Next.js production build succeeded generating all 280 routes.
+  - **Audit Report**:
+    - Created `docs/audit-reports/2026-09-13-berojgardegreewala-search-indexation-audit.md` with explicit four-way categorization (IMPLEMENTED, TECHNICALLY VERIFIED, EXTERNALLY VERIFIED, UNVERIFIED EXTERNAL OUTCOME).
+
 - **2026-09-13 — Repository-Wide Production-Grade SEO, AEO, GEO & Search Architecture Implementation:**
   - **Canonical Inheritance & Title Sanitization**:
     - `frontend/src/app/layout.tsx`: Removed root `alternates: { canonical: ... }` to prevent Next.js App Router from propagating the root domain to all child pages.

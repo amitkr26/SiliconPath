@@ -7,8 +7,9 @@ import { searchOpportunities } from "@/lib/opportunities-query";
 import OpportunitiesClient from "./OpportunitiesClient";
 
 export const metadata: Metadata = {
-  title: "All Opportunities",
-  description: "Browse verified semiconductor, VLSI, JRF, and PhD opportunities.",
+  title: "Semiconductor Jobs, JRF Positions & VLSI Opportunities in India",
+  description:
+    "Browse verified semiconductor engineering jobs, JRF and SRF fellowships, VLSI design openings, and PhD research positions across India. Updated daily from official portals.",
   openGraph: {
     url: "https://berojgardegreewala.vercel.app/opportunities",
   },
