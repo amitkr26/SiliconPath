@@ -7,6 +7,7 @@ import ImageWithFallback, {
 } from '@/components/ui/ImageWithFallback';
 import OpportunityCard from '@/components/OpportunityCard';
 import { mapDbOpportunityToClient } from '@/lib/utils';
+import { extractArticleImageUrl } from '@/lib/scrapers/rss-parser';
 import type { Opportunity } from '@/types';
 import fs from 'fs';
 import path from 'path';
@@ -364,5 +365,69 @@ describe('Production Image & Media System Test Suite', () => {
     }
 
     expect(violations).toEqual([]);
+  });
+
+  // IMAGE-19: RSS media extraction handles enclosures, media:content, media:thumbnail, and content:encoded
+  it('IMAGE-19: extractArticleImageUrl extracts valid image URLs across diverse RSS media formats', () => {
+    // 1. Standard RSS Enclosure
+    expect(extractArticleImageUrl({ enclosure: { url: 'https://example.com/photo.jpg' } })).toBe('https://example.com/photo.jpg');
+
+    // 2. Media content array (e.g. IEEE Spectrum)
+    expect(extractArticleImageUrl({
+      mediaContent: [{ $: { url: 'https://spectrum.ieee.org/sample.jpg', medium: 'image' } }]
+    })).toBe('https://spectrum.ieee.org/sample.jpg');
+
+    // 3. Media content object
+    expect(extractArticleImageUrl({
+      'media:content': { $: { url: 'https://example.com/media.png' } }
+    })).toBe('https://example.com/media.png');
+
+    // 4. Media thumbnail (e.g. EE Times)
+    expect(extractArticleImageUrl({
+      mediaThumbnail: { $: { url: 'https://eetimes.com/thumb.webp' } }
+    })).toBe('https://eetimes.com/thumb.webp');
+
+    // 5. Embedded HTML img tag in content:encoded (e.g. Power Electronics News)
+    expect(extractArticleImageUrl({
+      contentEncoded: '<p>Breaking news in GaN devices</p><img src="https://powerelectronicsnews.com/gan-hero.jpg" alt="hero" />'
+    })).toBe('https://powerelectronicsnews.com/gan-hero.jpg');
+
+    // 6. Non-http/https schemes rejected
+    expect(extractArticleImageUrl({ enclosure: { url: 'javascript:alert(1)' } })).toBeNull();
+    expect(extractArticleImageUrl({ enclosure: { url: 'data:image/png;base64,123' } })).toBeNull();
+    expect(extractArticleImageUrl(null)).toBeNull();
+  });
+
+  // IMAGE-20: Organization logo backfill script and Supabase CDN URL schema
+  it('IMAGE-20: Organization logo backfill script defines verified logos and Supabase CDN paths', () => {
+    const scriptPath = path.resolve(__dirname, '../../../../scripts/backfill-org-logos.mjs');
+    expect(fs.existsSync(scriptPath)).toBe(true);
+    const content = fs.readFileSync(scriptPath, 'utf8');
+
+    // Enforces verified organization dictionary
+    expect(content).toContain('organization-logos');
+    expect(content).toContain('"isro"');
+    expect(content).toContain('"drdo"');
+    expect(content).toContain('"intel"');
+    expect(content).toContain('"amd"');
+    expect(content).toContain('"nvidia"');
+
+    // Enforces preservation of verification status
+    expect(content).toContain('.update({ logo_url: publicUrl })');
+    expect(content).not.toContain('is_verified: true');
+  });
+
+  // IMAGE-21: Remote patterns and CSP allow verified news and wikimedia domains
+  it('IMAGE-21: next.config.mjs and middleware.ts permit verified news and wikimedia domains', () => {
+    const nextConfig = fs.readFileSync(path.resolve(__dirname, '../../../next.config.mjs'), 'utf8');
+    const middleware = fs.readFileSync(path.resolve(__dirname, '../../middleware.ts'), 'utf8');
+
+    expect(nextConfig).toContain('powerelectronicsnews.com');
+    expect(nextConfig).toContain('sciencedaily.com');
+    expect(nextConfig).toContain('wikimedia.org');
+
+    expect(middleware).toContain('powerelectronicsnews.com');
+    expect(middleware).toContain('sciencedaily.com');
+    expect(middleware).toContain('wikimedia.org');
   });
 });

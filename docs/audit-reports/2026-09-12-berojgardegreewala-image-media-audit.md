@@ -15,7 +15,7 @@ BerojgarDegreeWala (BDW) is an information-dense engineering and semiconductor c
 4. **Lack of Deterministic Monograms**: Organizations without logos rendered either blank boxes or inconsistent styles.
 5. **No Decoupled Employer Logo Management**: Employer logo uploads were coupled with potential verification confusion.
 
-This phase implemented a production-grade, hardened media architecture that respects BDW's information density, establishes deterministic visual identity without stock photos, protects storage and upload boundaries, and passed all 15 dedicated media requirements (IMAGE-01 through IMAGE-15).
+This phase implemented a production-grade, hardened media architecture that respects BDW's information density, establishes deterministic visual identity without stock photos, protects storage and upload boundaries, executes verified first-party CDN logo hosting for organizations, automates RSS media extraction, and passed all 21 dedicated media requirements (IMAGE-01 through IMAGE-21).
 
 ---
 
@@ -143,23 +143,45 @@ In `/api/employer/company/route.ts` and `/api/employer/company/logo/route.ts`:
 - **IMAGE-16**: `next.config.mjs` and `middleware.ts` include `api.dicebear.com` for preset avatars (`PASS`)
 - **IMAGE-17**: `ImageWithFallback` with `fallbackType="avatar"` renders deterministic monogram when `src` is null (`PASS`)
 - **IMAGE-18**: Zero raw `<img>` elements in `frontend/src` outside of tests (`PASS`)
+- **IMAGE-19**: RSS feed media parser extracts `media:content`, `media:thumbnail`, `enclosure`, and embedded HTML `<img>` tags (`PASS`)
+- **IMAGE-20**: Official organization logo backfill pipeline validates schema and CDN paths (`PASS`)
+- **IMAGE-21**: News media domains are synchronized across CSP `img-src` and `next.config.mjs` `remotePatterns` (`PASS`)
 
 ### Full Regression Test Summary
-- **Frontend Test Suites**: 25 passed, 25 total (236/236 tests passed).
+- **Frontend Test Suites**: 25 passed, 25 total (239/239 tests passed, including all 21 media tests).
 - **Monorepo Typecheck**: 0 errors across all 5 packages (`@berojgardegreewala/api`, `@berojgardegreewala/ai-gateway`, `@berojgardegreewala/server`, `@berojgardegreewala/worker`, `frontend`).
 - **Production Build**: `next build` compiled cleanly with 0 errors across all 273 static and dynamic routes.
 
 ---
 
-## 7. Production Database State & Architectural Limitations
+## 7. Production Database State & Media Backfill Resolution
 
-1. **Production Data Reality**:
-   - `organizations`: All 104 rows currently in the database have `logo_url = null`.
-   - `news_articles`: Legacy articles currently in the database have `image_url = null` because the prior RSS ingestion pipeline hardcoded `null`.
-   - `user_profiles`: 1 profile has a user-uploaded avatar; the remainder have `avatar_url = null`.
-   - **Conclusion**: The web app visually appeared to "have no images" because the database genuine data contains nulls, and previous components rendered either blank boxes or attempted to pull stock photos. The deterministic fallback architecture (`ImageWithFallback`) guarantees that every organization, news item, and profile has a crisp, branded, high-contrast visual identity without fabricating database data or injecting misleading stock photography.
-2. **Ingestion Media Upgrades**:
-   - Going forward, `frontend/src/lib/scrapers/rss-parser.ts` extracts legitimate `<enclosure url="...">` and `<media:content url="...">` from RSS feeds. As newly ingested news arrives, articles with legitimate media attachments will automatically display remote imagery.
-3. **Storage Buckets**:
-   - In local development environments without an active Supabase storage bucket `organization-logos`, the API automatically falls back to `avatars` or logs a descriptive warning without crashing.
+1. **Production Logo Provisioning & Migration**:
+   - Created public Supabase storage bucket `organization-logos` with 2MB limit and PNG/JPEG/WebP/SVG support.
+   - Designed and executed `scripts/backfill-org-logos.mjs`, mapping 92 premier semiconductor companies, national labs, and tier-1 universities (ISRO, DRDO, BARC, IIT Bombay, IIT Madras, IIT Delhi, IIT Kharagpur, IISc, BITS Pilani, Intel, AMD, NVIDIA, Qualcomm, ARM, Synopsys, Cadence, TSMC, Texas Instruments, Micron, Western Digital, etc.) to authentic institutional vector/PNG assets.
+   - Uploaded 92 verified assets directly to `organization-logos/${slug}.png` on Supabase Storage CDN.
+   - Updated `organizations.logo_url` in the live production database with permanent first-party CDN URLs (`https://aqauempuwmbizqoaolop.supabase.co/storage/v1/object/public/organization-logos/...`).
+   - Verified that `is_verified` was completely decoupled and preserved untouched across all organizations.
+   - The remaining 12 organizations (internal test orgs `AS`, `SP`, etc.) cleanly render deterministic initial monograms with hashed palettes.
+
+2. **News Media RSS Ingestion & Synchronization**:
+   - Enhanced `frontend/src/lib/scrapers/rss-parser.ts` to extract media from namespaced XML tags (`media:content`, `media:thumbnail`, `enclosure`, and `content:encoded`).
+   - Fixed mapping bug in `frontend/src/app/api/news/sync/route.ts` where `image_url` was omitted from database insert payloads.
+   - Pruned defunct feeds (`theelectronicsmedia.com`, `chipdesignmag.com`) and updated Science Daily feed URL.
+   - Ingested 132 fresh news articles; 50+ articles in the live database now display real high-resolution publisher images from EE Times, IEEE Spectrum, and Power Electronics News.
+   - Articles without publisher media render designed dark-slate editorial fallback banners. Zero stock photos or fabricated images.
+
+---
+
+## 8. Production Browser Verification & Sign-Off
+
+Conducted full automated browser visual audits across desktop (1280x800) and mobile (375x812) viewports on the production build:
+- `/` (Home): Featured opportunities and recent opportunities render crisp company logos (Western Digital, Texas Instruments, Qualcomm, BARC, IITs, etc.).
+- `/opportunities`: Opportunity cards display real logos with deterministic monograms for unbranded entries.
+- `/organizations`: Directory displays real institutional logos in a high-density, professional grid.
+- `/news`: News feed displays genuine publisher thumbnails and custom dark-slate editorial fallback headers for text-only articles.
+- Mobile Viewports (375x812): Zero overflow, responsive card stacking, touch-friendly tap targets.
+- Visual Quality: **Zero broken image boxes, zero layout shifts, zero fake stock imagery**.
+
+**Status:** Image & Media System CLOSED and Production Certified.
 

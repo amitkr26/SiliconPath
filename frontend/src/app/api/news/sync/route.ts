@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
         source_name: item.source_name || "Industry Source",
         published_at: item.published_at || new Date().toISOString(),
         summary: item.summary || item.title,
+        image_url: item.image_url || null,
         tags: item.tags || ["Semiconductor", "VLSI"],
         is_active: true,
       }))
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
 
     const { data, error } = await supabaseAdmin
       .from("news_articles")
-      .upsert(recordsToInsert, { onConflict: "url", ignoreDuplicates: true })
+      .upsert(recordsToInsert, { onConflict: "url", ignoreDuplicates: false })
       .select("id");
 
     if (error) {

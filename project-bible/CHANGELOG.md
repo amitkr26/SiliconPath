@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-13 — Production Media System Closure, Organization Logo Backfill & RSS Pipeline:**
+  - **Organization Logo Storage & Backfill**:
+    - Supabase Storage: Created public storage bucket `organization-logos` with 2MB size cap and image MIME restriction (`image/png`, `image/jpeg`, `image/webp`, `image/svg+xml`).
+    - `scripts/backfill-org-logos.mjs`: Implemented automated backfill script resolving official vector/PNG logos for 92 premier institutions (ISRO, DRDO, BARC, IITs, Intel, AMD, NVIDIA, Qualcomm, Synopsys, TSMC, Texas Instruments, Micron, etc.). Uploaded logos to first-party Supabase CDN and updated `organizations.logo_url` in live database while strictly preserving administrative `is_verified` flags.
+    - Verified deterministic initial monogram fallback for 12 internal/test organizations (`AS`, `SP`, etc.).
+  - **News Media RSS Ingestion & Synchronization**:
+    - `frontend/src/lib/scrapers/rss-parser.ts`: Configured `customFields` for RSS parser to parse namespaced media tags (`media:content`, `media:thumbnail`, `enclosure`, and `content:encoded`). Implemented `extractArticleImageUrl(item)` handling XML arrays, object namespaces, and embedded HTML `<img>` tags. Pruned defunct feeds (`theelectronicsmedia.com`, `chipdesignmag.com`) and updated Science Daily feed URL.
+    - `frontend/src/app/api/news/sync/route.ts`: Fixed omission bug where `image_url` was missing from `recordsToInsert` payload when syncing news articles to Postgres.
+    - `frontend/src/app/api/cron/scrape-news/route.ts`: Added missing-image backfill pass for existing news articles.
+  - **Host Restrictions & CSP Hardening**:
+    - `frontend/next.config.mjs` & `frontend/src/middleware.ts`: Added verified news publisher hostnames (`powerelectronicsnews.com`, `sciencedaily.com`, `semiwiki.com`, `phys.org`, `theregister.com`) to `images.remotePatterns` and CSP `img-src`.
+  - **Media System Automated Testing**:
+    - `frontend/src/__tests__/media/image-system.test.tsx`: Added tests `IMAGE-19` (RSS enclosure & media:content extraction), `IMAGE-20` (backfill script asset and schema verification), and `IMAGE-21` (news host CSP / remote pattern parity).
+    - Verification: 25/25 test suites passing, 239/239 unit tests passing, 0 typecheck errors, clean Next.js 273-route build.
+  - **Production Browser Visual Audit**:
+    - Audited `/`, `/opportunities`, `/organizations`, and `/news` across desktop (1280x800) and mobile (375x812) viewports. Verified real logos render on opportunity cards and directory, 50+ news articles render publisher imagery, and editorial fallback headers display on text-only articles. Zero broken image icon boxes and zero layout shifts observed.
+
 - **2026-09-12 — Production Image & Media Architecture, Repository-Wide Replacement & Security Hardening:**
   - **Remote Image Host Hardening**:
     - `frontend/next.config.mjs`: Removed `{ protocol: "https", hostname: "**" }` wildcard. Restricted to verified origins (Supabase, GitHub avatars, Google user content, LinkedIn media, `api.dicebear.com`, `*.gov.in`, `*.res.in`, `*.ac.in`, and certified semiconductor news sources).

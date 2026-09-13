@@ -134,14 +134,17 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
    - Opportunity cards remain strictly data-driven with compact logo or deterministic monogram.
 2. **Universal Fallback Hierarchy**:
    - Tier 1: Real verified image (rendered via Next.js `Image` with safe remote host patterns).
-   - Tier 2: Official verified logo or avatar.
-   - Tier 3: Deterministic monogram (`getDeterministicInitials`, `getDeterministicPalette`) derived from name hash.
+   - Tier 2: Official verified logo or avatar hosted on first-party Supabase Storage CDN (`organization-logos` bucket).
+   - Tier 3: Deterministic monogram (`getDeterministicInitials`, `getDeterministicPalette`) derived from name hash modulo 8 palette.
    - Tier 4: Designed editorial fallback banner with newspaper icon, source tag, category, and date.
 3. **Storage & Media Security**:
-   - `next.config.mjs`: Strict `remotePatterns` without wildcard hosts (`**`), confined to Supabase storage, GitHub avatars, Google user content, LinkedIn media, `*.gov.in`/`*.res.in`/`*.ac.in`, and certified publishers.
-   - Magic Byte Validation: Upload routes (`/api/profile/avatar`, `/api/employer/company/logo`) check binary headers for JPEG (`0xFFD8FF`), PNG (`0x89504E47`), and WebP (`RIFF...WEBP`). Disguised SVG, HTML, and executables are rejected with HTTP 400.
-   - Size limit: Capped at 2MB per image.
-   - Decoupling of Logo Upload from Verification: User and employer logo uploads update visual branding only; `is_verified` remains strictly an administrative trust decision.
+   - **Public Storage Bucket (`organization-logos`)**: Hosted on production Supabase (`aqauempuwmbizqoaolop`), public read, 2MB size limit, MIME-restricted to `image/png`, `image/jpeg`, `image/webp`, `image/svg+xml`. Permanent CDN path: `/storage/v1/object/public/organization-logos/${slug}.png`.
+   - **Logo Backfill Pipeline (`scripts/backfill-org-logos.mjs`)**: Verified vector/PNG assets sourced from official institutional archives and Wikimedia Commons (via descriptive User-Agent and Special:FilePath 300px thumbnails), uploaded to Supabase Storage, updating `organizations.logo_url` without touching administrative `is_verified` flags.
+   - **News Media RSS Pipeline (`frontend/src/lib/scrapers/rss-parser.ts`)**: Configured with `customFields` extracting XML namespaces (`media:content`, `media:thumbnail`, `enclosure`, and embedded HTML `<img>` in `content:encoded`). Ingestion sync persists `image_url` to Postgres `news_articles`.
+   - **Remote Patterns & CSP**: `next.config.mjs` and `frontend/src/middleware.ts` strictly allow trusted origins (Supabase CDN, GitHub avatars, Google user content, LinkedIn media, `*.gov.in`/`*.res.in`/`*.ac.in`, `api.dicebear.com`, and certified news publishers: `images.eetimes.com`, `spectrum.ieee.org`, `powerelectronicsnews.com`, `sciencedaily.com`, `semiwiki.com`, `phys.org`, `theregister.com`). Wildcards (`**`) are prohibited.
+   - **Magic Byte Validation**: Upload routes (`/api/profile/avatar`, `/api/employer/company/logo`) check binary headers for JPEG (`0xFFD8FF`), PNG (`0x89504E47`), and WebP (`RIFF...WEBP`). Disguised SVG, HTML, and executables are rejected with HTTP 400.
+   - **Size limit**: Capped at 2MB per image.
+   - **Decoupling of Logo Upload from Verification**: User and employer logo uploads update visual branding only; `is_verified` remains strictly an administrative trust decision.
 4. **OpenGraph & SEO**:
    - Edge routes (`/api/og`, `/api/og/opportunity/[slug]`) dynamically render self-contained PNG cards with official BerojgarDegreeWala branding.
 
@@ -149,7 +152,8 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
 
 ## 7. Verification Baseline
 
-- **TypeScript Type Safety**: `npx tsc --noEmit` (0 errors across monorepo workspaces)
-- **Unit & Integration Tests**: 25 frontend test suites, 233 tests passing; 324 tests passing monorepo-wide (46 server + 15 ai-gateway + 30 worker + 233 frontend)
+- **TypeScript Type Safety**: `npm run typecheck` (0 errors across all 5 monorepo workspaces: `api`, `ai-gateway`, `server`, `worker`, `frontend`)
+- **Unit & Integration Tests**: 25 frontend test suites, 239 tests passing (including 21 comprehensive media tests: IMAGE-01 through IMAGE-21); 330 tests passing monorepo-wide (46 server + 15 ai-gateway + 30 worker + 239 frontend)
 - **Production Build**: `npm run build` (compiles cleanly, 273 static and dynamic routes generated)
+- **Browser Audit**: Verified across desktop (1280x800) and mobile (375x812) viewports on `/`, `/opportunities`, `/organizations`, `/news` with zero broken image icon boxes and zero layout shifts.
 - **Security**: Fail-closed IDOR protection, message participant guards, company claim integrity, media magic byte validation, RBAC middleware, RLS, CSRF protection, and rate limiting.
