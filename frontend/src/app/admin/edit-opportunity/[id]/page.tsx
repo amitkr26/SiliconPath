@@ -6,9 +6,10 @@ import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { CATEGORIES } from "@/lib/utils";
 import { toast } from "sonner";
-import { Loader2, Save, Trash2, ArrowLeft } from "lucide-react";
+import { Loader2, Save, Trash2, ArrowLeft, Edit3 } from "lucide-react";
 import type { Opportunity } from "@/types";
 import Link from "next/link";
+import AdminNav from "../../_components/AdminNav";
 
 export default function EditOpportunityPage() {
   const params = useParams();
@@ -161,23 +162,20 @@ export default function EditOpportunityPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Link href="/admin" className="text-slate-400 hover:text-slate-200 transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <h1 className="font-display text-2xl font-bold text-white">Edit Opportunity</h1>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <AdminNav title="Edit Opportunity" subtitle="Update opportunity details, deadlines, and stipend" icon={Edit3} />
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="font-display text-2xl font-bold text-white">Opportunity Configuration</h1>
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="flex items-center gap-2 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg px-4 py-2 text-sm font-medium hover:bg-red-500/20 transition-colors disabled:opacity-50"
+          >
+            {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+            Delete
+          </button>
         </div>
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          className="flex items-center gap-2 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg px-4 py-2 text-sm font-medium hover:bg-red-500/20 transition-colors disabled:opacity-50"
-        >
-          {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-          Delete
-        </button>
-      </div>
 
       <form onSubmit={handleSave} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -241,5 +239,6 @@ export default function EditOpportunityPage() {
         </div>
       </form>
     </div>
-  );
+  </div>
+);
 }

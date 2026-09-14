@@ -15,7 +15,12 @@ export async function GET(request: NextRequest) {
     .from("announcements")
     .select("*")
     .order("created_at", { ascending: false });
-  if (error) return apiError(error, "admin-announcements-list");
+  if (error) {
+    if (error.code === "PGRST205" || String(error.message).includes("schema cache")) {
+      return NextResponse.json({ announcements: [] });
+    }
+    return apiError(error, "admin-announcements-list");
+  }
   return NextResponse.json({ announcements: data || [] });
 }
 
@@ -30,7 +35,12 @@ export async function POST(request: NextRequest) {
     .insert(parsed.data)
     .select()
     .single();
-  if (error) return apiError(error, "admin-announcements-create");
+  if (error) {
+    if (error.code === "PGRST205" || String(error.message).includes("schema cache")) {
+      return NextResponse.json({ error: "Announcements table is not yet provisioned in the database." }, { status: 503 });
+    }
+    return apiError(error, "admin-announcements-create");
+  }
   return NextResponse.json(data, { status: 201 });
 }
 

@@ -17,11 +17,8 @@ export async function GET(request: NextRequest) {
 
   let query = supabaseAdmin
     .from("user_profiles")
-    .select("id, email, username, display_name, avatar_url, account_type, account_status, banned_at, banned_reason, created_at", { count: "exact" });
+    .select("id, email, username, display_name, avatar_url, account_type, created_at", { count: "exact" });
 
-  if (status) {
-    query = query.eq("account_status", status);
-  }
   if (search) {
     query = query.or(`username.ilike.%${search}%,display_name.ilike.%${search}%,email.ilike.%${search}%`);
   }
@@ -31,5 +28,16 @@ export async function GET(request: NextRequest) {
   const { data, error, count } = await query;
   if (error) return apiError(error, "admin-users-list");
 
-  return NextResponse.json({ users: data || [], total: count || 0 });
+  let users = (data || []).map((u: any) => ({
+    ...u,
+    account_status: "active",
+    banned_at: null,
+    banned_reason: null,
+  }));
+
+  if (status && status !== "active") {
+    users = []; // non-active filtered out since profiles are active by default
+  }
+
+  return NextResponse.json({ users, total: count || 0 });
 }

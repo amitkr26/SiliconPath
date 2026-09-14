@@ -8,6 +8,7 @@ import { api } from "@/lib/api-client";
 import { CATEGORIES } from "@/lib/utils";
 import { toast } from "sonner";
 import { Loader2, Plus, ArrowLeft } from "lucide-react";
+import AdminNav from "../_components/AdminNav";
 
 export default function AddOpportunityPage() {
   const router = useRouter();
@@ -118,13 +119,9 @@ export default function AddOpportunityPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="text-slate-400 hover:text-slate-200 transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <h1 className="font-display text-2xl font-bold text-white">Add New Opportunity</h1>
-      </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <AdminNav title="Publish Opportunity" subtitle="Create verified job, JRF, or fellowship listing" icon={Plus} />
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -198,5 +195,6 @@ export default function AddOpportunityPage() {
         </div>
       </form>
     </div>
-  );
+  </div>
+);
 }

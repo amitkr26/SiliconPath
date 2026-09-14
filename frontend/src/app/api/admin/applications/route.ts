@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     .from("applications")
     .select("*, opportunity:opportunities(id, title, organization:organizations(name), slug), user:user_profiles!applications_user_id_fkey(id, display_name, avatar_url, headline)");
   if (opportunityId) query = query.eq("opportunity_id", opportunityId);
-  query = query.order("created_at", { ascending: false }).limit(100);
+  query = query.order("applied_at", { ascending: false }).limit(100);
 
   const { data, error } = await query;
   if (error) return apiError(error, "admin-applications-list");

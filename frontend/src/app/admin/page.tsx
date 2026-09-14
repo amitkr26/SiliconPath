@@ -481,7 +481,7 @@ export default function AdminPage() {
 
         {/* PRIMARY TABS */}
         <div className="p-3 space-y-1">
-          <p className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">Core Engine</p>
+          <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Core Engine</p>
           {[
             { id: "scrapers", label: "Scraper Stream Logs", icon: Radio, count: scrapeLogs.length },
             { id: "sources", label: "Monitored Web & RSS", icon: Rss, count: MONITORED_SCRAPER_SOURCES.length },
@@ -517,7 +517,7 @@ export default function AdminPage() {
 
         {/* DEDICATED MANAGEMENT SUB-PAGES */}
         <div className="p-3 border-t border-slate-800 space-y-1 flex-1">
-          <p className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">Specialized Hubs</p>
+          <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Specialized Hubs</p>
           <Link
             href="/admin/add-opportunity"
             className="flex items-center gap-2.5 px-3.5 py-2 text-slate-400 hover:bg-slate-800/60 hover:text-white rounded-xl text-xs font-semibold transition"
@@ -573,6 +573,13 @@ export default function AdminPage() {
           >
             <Activity className="w-4 h-4 text-emerald-400" />
             <span>Scraper Telemetry</span>
+          </Link>
+          <Link
+            href="/admin/performance"
+            className="flex items-center gap-2.5 px-3.5 py-2 text-slate-400 hover:bg-slate-800/60 hover:text-white rounded-xl text-xs font-semibold transition"
+          >
+            <TrendingUp className="w-4 h-4 text-indigo-400" />
+            <span>Performance Vitals</span>
           </Link>
         </div>
 

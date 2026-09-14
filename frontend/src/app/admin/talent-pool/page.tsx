@@ -1,22 +1,37 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Search, MapPin, Briefcase, Check, ExternalLink, ArrowLeft } from "lucide-react";
+import { Loader2, Search, MapPin, Briefcase, Check, ExternalLink, UserCheck } from "lucide-react";
+import AdminNav from "../_components/AdminNav";
 
 function getInitials(name: string): string {
   return name.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase();
 }
 
 export default function TalentPoolPage() {
+  const router = useRouter();
   const [candidates, setCandidates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState(false);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+    const pw = typeof window !== "undefined" ? sessionStorage.getItem("admin_password") : null;
+    if (!token && !pw) {
+      router.push("/admin");
+      return;
+    }
+    setAuthed(true);
+  }, [router]);
+
+  useEffect(() => {
+    if (!authed) return;
     const load = async () => {
       let query = `/api/people/search?limit=50`;
-      if (search) query += `&q=${search}`;
+      if (search) query += `&q=${encodeURIComponent(search)}`;
       const res = await fetch(query);
       if (res.ok) {
         const data = await res.json();
@@ -25,20 +40,18 @@ export default function TalentPoolPage() {
       setLoading(false);
     };
     load();
-  }, [search]);
+  }, [authed, search]);
+
+  if (!authed) return (
+    <div className="max-w-5xl mx-auto px-4 py-20 flex justify-center">
+      <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+    </div>
+  );
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center gap-3 mb-6">
-        <Link href="/admin" className="text-slate-400 hover:text-white transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <Briefcase className="w-6 h-6 text-blue-400" />
-        <div>
-          <h1 className="font-display text-2xl font-bold text-white">Talent Pool</h1>
-          <p className="text-slate-400 text-sm">Candidates who are open to work</p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <AdminNav title="Talent Pool" subtitle="Semiconductor candidates open to opportunities" icon={UserCheck} />
+      <div className="max-w-5xl mx-auto px-4 py-8">
 
       <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -98,6 +111,7 @@ export default function TalentPoolPage() {
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

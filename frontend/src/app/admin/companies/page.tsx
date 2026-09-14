@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, Building2, Trash2, ExternalLink, ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { Loader2, Plus, Building2, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api-client";
+import AdminNav from "../_components/AdminNav";
 
 const ADMIN_TOKEN_KEY = "admin_token";
 
@@ -78,20 +78,22 @@ export default function AdminCompaniesPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Building2 className="w-6 h-6 text-blue-400" />
-          <div>
-            <h1 className="font-display text-2xl font-bold text-white">Companies</h1>
-            <p className="text-slate-400 text-sm">Manage company profiles</p>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <AdminNav title="Companies & Organizations" subtitle="Manage registered corporate and lab profiles" icon={Building2} />
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Building2 className="w-6 h-6 text-blue-400" />
+            <div>
+              <h1 className="font-display text-2xl font-bold text-white">Companies</h1>
+              <p className="text-slate-400 text-sm">Manage company profiles</p>
+            </div>
           </div>
+          <button onClick={() => setShowForm(!showForm)}
+            className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-semibold transition-colors">
+            <Plus className="w-4 h-4" /> Add Company
+          </button>
         </div>
-        <button onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-1 px-4 py-2 bg-blue-600/10 text-blue-400 rounded-lg text-sm font-semibold hover:bg-blue-600/20 border border-blue-500/30">
-          <Plus className="w-4 h-4" /> Add Company
-        </button>
-      </div>
 
       {showForm && (
         <form onSubmit={handleCreate} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-6 space-y-4">
@@ -174,6 +176,7 @@ export default function AdminCompaniesPage() {
           {companies.length === 0 && <p className="text-center py-12 text-slate-400">No companies yet</p>}
         </div>
       )}
+      </div>
     </div>
   );
 }
