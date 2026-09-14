@@ -216,7 +216,7 @@ export default async function AboutPage() {
           <Link
             key={card.title}
             href={card.href}
-            className="bg-white border-2 border-slate-900 rounded-2xl p-5 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-1 transition-all group block"
+            className="bg-white border border-slate-200 rounded-2xl p-5 shadow-card hover:shadow-elevated hover:border-slate-300 hover:-translate-y-0.5 transition-all group block"
           >
             <card.icon className="w-8 h-8 text-blue-600 mb-3" />
             <h3 className="font-display text-base font-bold text-slate-900 mb-2">{card.title}</h3>
@@ -233,7 +233,7 @@ export default async function AboutPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
         {verificationSteps.map((vs) => (
           <Card key={vs.step} className="p-5 flex gap-4">
-            <span className="w-8 h-8 rounded-full bg-blue-600 text-white border-2 border-slate-900 font-black text-sm flex items-center justify-center flex-shrink-0 shadow-brutal-sm">
+            <span className="w-8 h-8 rounded-full bg-blue-600 text-white border border-blue-500 font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-xs">
               {vs.step}
             </span>
             <div>
@@ -270,7 +270,7 @@ export default async function AboutPage() {
         </p>
         <Link
           href="/contact"
-          className="inline-flex items-center gap-2 bg-white text-blue-700 font-black rounded-xl px-6 py-3 text-sm border-2 border-slate-900 shadow-brutal hover:bg-blue-50 hover:shadow-brutal-lg hover:-translate-y-0.5 transition-all"
+          className="inline-flex items-center gap-2 bg-white text-blue-700 font-bold rounded-xl px-6 py-3 text-sm border border-blue-200 shadow-sm hover:bg-blue-50 hover:shadow-card hover:-translate-y-0.5 transition-all"
         >
           <MessageSquare className="w-4 h-4" />
           Contact Us

@@ -94,28 +94,28 @@ export default function SavedOpportunitiesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50/50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* HEADER */}
-        <Card className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-400 text-slate-900 text-xs font-black rounded-lg border-2 border-slate-900 shadow-brutal-sm">
-              <Bookmark className="w-4 h-4 fill-slate-900 stroke-[2]" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 text-xs font-semibold rounded-full border border-amber-200/60">
+              <Bookmark className="w-3.5 h-3.5 fill-amber-500 stroke-amber-700" />
               <span>SAVED BOOKMARKS</span>
             </div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight mt-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-2">
               My Saved Opportunities
             </h1>
-            <p className="text-slate-600 text-xs font-semibold mt-1">
+            <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1">
               Quick access to bookmarked JRF research fellowships, semiconductor jobs, and internships.
             </p>
           </div>
 
-          <Button href="/opportunities" size="sm" className="shrink-0">
+          <Button href="/opportunities" size="sm" className="shrink-0 shadow-sm">
             <Briefcase className="w-4 h-4" /> Explore All Opportunities
           </Button>
-        </Card>
+        </div>
 
         {/* SEARCH BAR */}
         {savedItems.length > 0 && (
@@ -126,68 +126,74 @@ export default function SavedOpportunitiesPage() {
               placeholder="Search saved opportunities by title or keyword..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-white border-2 border-slate-900 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 shadow-brutal-sm focus:outline-none focus:border-accent"
+              className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
             />
           </div>
         )}
 
         {/* CONTENT GRID */}
         {savedItems.length === 0 ? (
-          <Card className="p-12 text-center">
-            <Bookmark className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="text-lg font-black text-slate-900">No saved opportunities yet</h3>
-            <p className="text-slate-600 text-xs mt-1 mb-6">
+          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-card">
+            <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-3">
+              <Bookmark className="w-6 h-6 text-slate-400" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900">No saved opportunities yet</h3>
+            <p className="text-slate-500 text-xs mt-1 mb-6 max-w-md mx-auto">
               When you bookmark positions in the aggregator, they will appear here for easy reference and tracking.
             </p>
-            <Button href="/opportunities" size="md">
+            <Button href="/opportunities" size="md" className="shadow-sm">
               <Search className="w-4 h-4" /> Browse Verified Opportunities
             </Button>
-          </Card>
+          </div>
         ) : filtered.length === 0 ? (
-          <Card className="p-8 text-center">
-            <p className="text-slate-600 text-xs font-semibold">No saved opportunities match your search query &apos;{searchQuery}&apos;.</p>
-          </Card>
+          <div className="bg-white rounded-xl border border-slate-200 p-8 text-center shadow-sm">
+            <p className="text-slate-600 text-xs font-medium">No saved opportunities match your search query &apos;{searchQuery}&apos;.</p>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {filtered.map((item) => {
               const opp = item.opportunities!;
               return (
-                <Card
+                <div
                   key={item.id}
-                  hover
-                  className="p-6 flex flex-col justify-between space-y-4"
+                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-card hover:shadow-elevated transition-all flex flex-col justify-between space-y-4 group"
                 >
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <Badge tone="accent" className="mb-1.5">
+                        <Badge tone="accent" className="mb-1.5 text-[11px] font-medium">
                           {opp.category || "JRF / Research"}
                         </Badge>
-                        <h3 className="font-black text-base text-slate-900 leading-snug">{opp.title}</h3>
-                        <p className="text-xs font-bold text-slate-600">{opp.organization || "India Semiconductor Initiative"}</p>
+                        <h3 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
+                          {opp.title}
+                        </h3>
+                        <p className="text-xs font-semibold text-slate-600 mt-0.5">
+                          {opp.organization || "India Semiconductor Initiative"}
+                        </p>
                       </div>
                       <button
                         onClick={() => removeBookmark(item.id, item.opportunity_id)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg border border-slate-200 transition-all"
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-slate-100 hover:border-rose-100 transition-all shrink-0"
                         title="Remove Bookmark"
+                        aria-label="Remove Bookmark"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
 
-                    <p className="text-xs text-slate-700 font-medium line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-600 font-normal line-clamp-2 leading-relaxed">
                       {opp.description || opp.eligibility || "High-impact VLSI & microelectronics research position."}
                     </p>
 
                     {opp.salary_range && (
-                      <Badge tone="success">
+                      <Badge tone="success" className="text-[11px] font-medium">
                         💰 {opp.salary_range}
                       </Badge>
                     )}
                   </div>
 
-                  <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-3">
-                    <span className="text-[11px] font-bold text-slate-500">
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                    <span className="text-[11px] font-medium text-slate-500">
                       📍 {opp.location || "India"}
                     </span>
 
@@ -195,13 +201,13 @@ export default function SavedOpportunitiesPage() {
                       href={opp.apply_url || `/opportunities/${opp.slug || opp.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black border-2 border-slate-900 shadow-brutal-sm transition-all flex items-center gap-1.5"
+                      className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5"
                     >
                       <span>Apply Now</span>
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>
-                </Card>
+                </div>
               );
             })}
           </div>

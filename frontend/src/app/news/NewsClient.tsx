@@ -97,73 +97,74 @@ export default function NewsClient({
     <div className="min-h-screen bg-bg-primary py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* HERO BANNER */}
-        <div className="p-6 sm:p-8 rounded-2xl bg-blue-600 border-2 border-slate-900 text-white shadow-brutal-lg relative overflow-hidden">
+        <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-blue-600 via-blue-600 to-indigo-700 text-white shadow-elevated border border-blue-500/30 relative overflow-hidden">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3 max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-white border-2 border-slate-900 text-slate-900 rounded-lg text-xs font-black shadow-brutal-sm">
-                <Sparkles className="w-4 h-4 text-blue-600 stroke-[2.5]" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-white/15 backdrop-blur-sm border border-white/20 text-white rounded-full text-xs font-semibold">
+                <Sparkles className="w-3.5 h-3.5 text-blue-200" />
                 <span>DAILY &amp; MONTHLY LIVE AGGREGATION ENGINE</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white">
                 Semiconductor &amp; VLSI Industry Intelligence
               </h1>
-              <p className="text-blue-50 text-xs sm:text-sm font-medium leading-relaxed">
+              <p className="text-blue-100 text-xs sm:text-sm font-normal leading-relaxed">
                 Live automated feeds from IEEE Spectrum, EE Times, and Semiconductor Engineering. Real-time updates on India Semiconductor Mission ($15B Fabs), TSMC 2nm N2 GAA, Intel 18A, and academic research circulars.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0">
-              <Button
-                variant="secondary"
+              <button
+                type="button"
                 onClick={handleForceSync}
                 disabled={syncing}
+                className="px-4 py-2.5 rounded-xl bg-white text-slate-900 hover:bg-blue-50 text-xs font-semibold shadow-sm transition-all flex items-center gap-2"
               >
                 {syncing ? (
                   <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
                 ) : (
-                  <Zap className="w-4 h-4 text-amber-500 fill-amber-400 stroke-[2]" />
+                  <Zap className="w-4 h-4 text-amber-500 fill-amber-400" />
                 )}
                 <span>{syncing ? "Syncing Live RSS..." : "Sync Daily Live Feeds"}</span>
-              </Button>
+              </button>
 
-              <Button
-                variant="secondary"
-                className="bg-blue-700 hover:bg-blue-800 text-white"
+              <button
+                type="button"
+                className="px-4 py-2.5 rounded-xl bg-blue-700/80 hover:bg-blue-700 text-white text-xs font-semibold border border-white/20 transition-all flex items-center gap-2"
                 onClick={fetchNews}
               >
-                <RefreshCw className="w-4 h-4 text-white stroke-[2.5]" />
+                <RefreshCw className="w-4 h-4 text-white" />
                 Refresh
-              </Button>
+              </button>
             </div>
           </div>
         </div>
 
         {/* FREQUENCY VIEW SWITCHER & SEARCH */}
-        <Card className="p-6">
+        <div className="bg-white border border-slate-200/80 rounded-2xl shadow-card p-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             {/* VIEW MODE TOGGLE BUTTONS */}
-            <div className="inline-flex items-center gap-1 p-1.5 bg-slate-100 border-2 border-slate-900 rounded-full shadow-brutal-sm">
+            <div className="inline-flex items-center gap-1 p-1 bg-slate-100 border border-slate-200/80 rounded-full">
               <button
                 onClick={() => setViewMode("daily")}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black transition-all",
+                  "flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all",
                   viewMode === "daily"
-                    ? "bg-blue-600 text-white border-2 border-slate-900 shadow-brutal-sm"
-                    : "text-slate-700 hover:text-slate-900"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
                 )}
               >
-                <Clock className="w-4 h-4 stroke-[2.5]" /> Daily Live Feed
+                <Clock className="w-3.5 h-3.5" /> Daily Live Feed
               </button>
               <button
                 onClick={() => setViewMode("monthly")}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black transition-all",
+                  "flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all",
                   viewMode === "monthly"
-                    ? "bg-blue-600 text-white border-2 border-slate-900 shadow-brutal-sm"
-                    : "text-slate-700 hover:text-slate-900"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
                 )}
               >
-                <Calendar className="w-4 h-4 stroke-[2.5]" /> Monthly Digest &amp; Analysis
+                <Calendar className="w-3.5 h-3.5" /> Monthly Digest &amp; Analysis
               </button>
             </div>
 
@@ -178,14 +179,14 @@ export default function NewsClient({
 
           {/* MOBILE CATEGORY SELECT */}
           <div className="mt-5 sm:hidden">
-            <label htmlFor="news-category-select" className="block text-xs font-bold text-slate-700 uppercase mb-1.5">
+            <label htmlFor="news-category-select" className="block text-xs font-semibold text-slate-700 uppercase mb-1.5">
               Filter by Category
             </label>
             <select
               id="news-category-select"
               value={activeTag}
               onChange={(e) => setActiveTag(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-brutal-sm outline-none"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 shadow-sm focus:outline-none focus:border-blue-500"
             >
               {CATEGORY_TABS.map((tab) => (
                 <option key={tab.value} value={tab.value}>
@@ -196,16 +197,16 @@ export default function NewsClient({
           </div>
 
           {/* DESKTOP CATEGORY TABS */}
-          <div className="hidden sm:flex gap-2.5 mt-6 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="hidden sm:flex gap-2 mt-5 overflow-x-auto pb-1 scrollbar-hide">
             {CATEGORY_TABS.map((tab) => (
               <button
                 key={tab.value}
                 onClick={() => setActiveTag(tab.value)}
                 className={cn(
-                  "whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold border-2 border-slate-900 transition-all",
+                  "whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium transition-all",
                   activeTag === tab.value
-                    ? "bg-blue-600 text-white shadow-brutal-sm"
-                    : "bg-white text-slate-800 hover:bg-slate-100"
+                    ? "bg-blue-600 text-white shadow-sm border border-blue-600"
+                    : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200"
                 )}
               >
                 {tab.label}
@@ -214,8 +215,8 @@ export default function NewsClient({
           </div>
 
           {lastSynced && (
-            <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-600 font-semibold border-t-2 border-slate-100 pt-3">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+            <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500 font-normal border-t border-slate-100 pt-3">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>
                 Auto-synced with live IEEE Spectrum, EE Times &amp; SemiEngineering feeds on{" "}
                 {new Date(lastSynced).toLocaleDateString("en-IN", {
@@ -227,7 +228,7 @@ export default function NewsClient({
               </span>
             </div>
           )}
-        </Card>
+        </div>
 
         {/* ARTICLES FEED */}
         {loading ? (

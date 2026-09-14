@@ -122,14 +122,14 @@ export default function EmployerJobDetailPage() {
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             <Link
               href={`/employer/applicants?jobId=${job.id}`}
-              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black shadow-brutal hover:shadow-brutal-lg transition-all flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm hover:shadow transition-all flex items-center gap-1.5"
             >
               <Users className="w-4 h-4" /> View Applicants ({applications.length})
             </Link>
 
             <Link
               href={`/employer/jobs/${job.id}/edit`}
-              className="p-2 bg-white border-2 border-slate-900 rounded-xl text-slate-700 hover:bg-slate-50 shadow-brutal-sm"
+              className="p-2 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 shadow-xs transition-colors"
               title="Edit Position"
             >
               <Edit className="w-4 h-4" />
@@ -137,7 +137,7 @@ export default function EmployerJobDetailPage() {
 
             <button
               onClick={handleToggleActive}
-              className="p-2 bg-white border-2 border-slate-900 rounded-xl text-slate-700 hover:bg-slate-50 shadow-brutal-sm"
+              className="p-2 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 shadow-xs transition-colors"
               title={job.is_active ? "Pause Posting" : "Resume Posting"}
             >
               {job.is_active ? <PauseCircle className="w-4 h-4 text-amber-600" /> : <PlayCircle className="w-4 h-4 text-emerald-600" />}
@@ -145,7 +145,7 @@ export default function EmployerJobDetailPage() {
 
             <button
               onClick={handleDelete}
-              className="p-2 bg-white border-2 border-slate-900 rounded-xl text-red-600 hover:bg-red-50 shadow-brutal-sm"
+              className="p-2 bg-white border border-slate-200 rounded-xl text-red-600 hover:bg-red-50 shadow-xs transition-colors"
               title="Delete Position"
             >
               <Trash2 className="w-4 h-4" />
@@ -184,7 +184,7 @@ export default function EmployerJobDetailPage() {
 
         {/* DETAILS CARD */}
         <Card className="p-6 sm:p-8 space-y-5">
-          <h2 className="text-lg font-black text-slate-900 border-b-2 border-slate-900 pb-3">
+          <h2 className="text-lg font-black text-slate-900 border-b border-slate-200 pb-3">
             Position Scope &amp; Requirements
           </h2>
 

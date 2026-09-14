@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "success";
+type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "success";
 type ButtonSize = "sm" | "md" | "lg" | "icon";
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: "text-white bg-blue-600 border border-transparent shadow-sm hover:bg-blue-700 transition-colors",
   secondary: "text-slate-800 bg-white border border-slate-200 shadow-sm hover:bg-slate-50 hover:text-blue-600 transition-colors",
+  outline: "text-blue-600 bg-blue-50/60 border border-blue-200 hover:bg-blue-100/80 hover:border-blue-300 transition-colors",
   ghost: "text-slate-700 border border-transparent hover:bg-slate-100 hover:text-slate-900 transition-colors",
   danger: "text-white bg-red-600 border border-transparent shadow-sm hover:bg-red-700 transition-colors",
   success: "text-white bg-emerald-600 border border-transparent shadow-sm hover:bg-emerald-700 transition-colors",

@@ -55,22 +55,22 @@ export default async function InternationalFellowshipsPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Fellowship Comparison Table</h2>
-          <div className="overflow-x-auto bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-sm">
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Fellowship Comparison Table</h2>
+          <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-card">
             <table className="w-full text-sm border-collapse">
-              <thead><tr className="border-b-2 border-slate-900 bg-slate-100"><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Fellowship</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Country</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Stipend</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Duration</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Deadline</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Eligibility</th></tr></thead>
+              <thead className="bg-slate-50 border-b border-slate-200"><tr><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Fellowship</th><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Country</th><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Stipend</th><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Duration</th><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Deadline</th><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Eligibility</th></tr></thead>
               <tbody>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">DAAD</td><td className="py-2.5 px-3">Germany</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹861-1,200/mo</td><td className="py-2.5 px-3">1-2 years</td><td className="py-2.5 px-3">Oct-Nov</td><td className="py-2.5 px-3">MSc, under 32</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">DAAD</td><td className="py-2.5 px-3">Germany</td><td className="py-2.5 px-3 text-blue-600 font-bold">€861-1,200/mo</td><td className="py-2.5 px-3">1-2 years</td><td className="py-2.5 px-3">Oct-Nov</td><td className="py-2.5 px-3">MSc, under 32</td></tr>
                 <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">SINGA</td><td className="py-2.5 px-3">Singapore</td><td className="py-2.5 px-3 text-blue-600 font-bold">SGD 2,000/mo</td><td className="py-2.5 px-3">4 years (PhD)</td><td className="py-2.5 px-3">Mar-May</td><td className="py-2.5 px-3">MSc/BE, strong academics</td></tr>
-                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">MEXT</td><td className="py-2.5 px-3">Japan</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹143,000/mo</td><td className="py-2.5 px-3">1.5-2 years</td><td className="py-2.5 px-3">Apr-Jun</td><td className="py-2.5 px-3">MSc, under 35</td></tr>
-                <tr><td className="py-2.5 px-3 font-semibold text-slate-900">Marie Curie</td><td className="py-2.5 px-3">EU</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹2,700+/mo</td><td className="py-2.5 px-3">2-3 years</td><td className="py-2.5 px-3">Varies</td><td className="py-2.5 px-3">PhD or post-PhD</td></tr>
+                <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">MEXT</td><td className="py-2.5 px-3">Japan</td><td className="py-2.5 px-3 text-blue-600 font-bold">¥143,000/mo</td><td className="py-2.5 px-3">1.5-2 years</td><td className="py-2.5 px-3">Apr-Jun</td><td className="py-2.5 px-3">MSc, under 35</td></tr>
+                <tr><td className="py-2.5 px-3 font-semibold text-slate-900">Marie Curie</td><td className="py-2.5 px-3">EU</td><td className="py-2.5 px-3 text-blue-600 font-bold">€2,700+/mo</td><td className="py-2.5 px-3">2-3 years</td><td className="py-2.5 px-3">Varies</td><td className="py-2.5 px-3">PhD or post-PhD</td></tr>
               </tbody>
             </table>
           </div>
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">How Indian Researchers Get International Fellowships — Tips</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">How Indian Researchers Get International Fellowships — Tips</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>Start early: Research proposals take 2-3 months to prepare</li>
             <li>Contact professors directly: Send concise, targeted emails with your CV</li>
@@ -83,10 +83,10 @@ export default async function InternationalFellowshipsPage() {
 
         {intlOpps.length > 0 && (
           <Card className="p-6">
-            <h2 className="font-display text-xl font-black text-slate-900 mb-4">Current International Openings</h2>
+            <h2 className="font-display text-xl font-bold text-slate-900 mb-4">Current International Openings</h2>
             <div className="space-y-3">
               {intlOpps.map((opp: any) => (
-                <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border-2 border-slate-900 rounded-xl p-3.5 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all">
+                <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border border-slate-200 rounded-xl p-3.5 shadow-card hover:border-slate-300 hover:shadow-elevated transition-all">
                   <h3 className="text-slate-900 text-sm font-semibold">{opp.title}</h3>
                   <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization} {opp.location ? `— ${opp.location}` : ""} {opp.stipend ? `— ${opp.stipend}` : ""}</p>
                 </Link>

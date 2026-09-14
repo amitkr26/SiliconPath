@@ -64,10 +64,10 @@ export default async function JRFGuidePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">JRF Stipend 2026 — How Much Will You Earn?</h2>
-          <div className="overflow-x-auto bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-sm">
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">JRF Stipend 2026 — How Much Will You Earn?</h2>
+          <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-card">
             <table className="w-full text-sm border-collapse">
-              <thead><tr className="border-b-2 border-slate-900 bg-slate-100"><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Component</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Amount</th></tr></thead>
+              <thead className="bg-slate-50 border-b border-slate-200"><tr className="bg-slate-50 border-b border-slate-200"><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Component</th><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Amount</th></tr></thead>
               <tbody>
                 <tr className="border-b border-slate-200"><td className="py-2.5 px-3">JRF Stipend (Year 1-2)</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹37,000/month</td></tr>
                 <tr className="border-b border-slate-200"><td className="py-2.5 px-3">SRF Stipend (Year 3-5)</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹42,000/month</td></tr>
@@ -80,10 +80,10 @@ export default async function JRFGuidePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Types of JRF in Electronics</h2>
-          <div className="overflow-x-auto bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-sm">
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Types of JRF in Electronics</h2>
+          <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-card">
             <table className="w-full text-sm border-collapse">
-              <thead><tr className="border-b-2 border-slate-900 bg-slate-100"><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Type</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Conducting Body</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Tenable At</th></tr></thead>
+              <thead className="bg-slate-50 border-b border-slate-200"><tr><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Type</th><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Conducting Body</th><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Tenable At</th></tr></thead>
               <tbody>
                 <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">UGC-NET JRF</td><td className="py-2.5 px-3">UGC / NTA</td><td className="py-2.5 px-3">Any recognized university/college</td></tr>
                 <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">CSIR-JRF (GATE)</td><td className="py-2.5 px-3">CSIR HRDG</td><td className="py-2.5 px-3">CSIR labs only (AcSIR PhD)</td></tr>
@@ -95,7 +95,7 @@ export default async function JRFGuidePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Documents Required for JRF Application</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Documents Required for JRF Application</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>Updated CV (2-4 pages)</li>
             <li>MSc marksheets (semester-wise) and degree certificate</li>
@@ -109,12 +109,12 @@ export default async function JRFGuidePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">JRF Interview Process — What to Expect</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">JRF Interview Process — What to Expect</h2>
           <p>The JRF selection process typically involves a written test followed by an interview. The written test covers subject knowledge in electronics (electronic devices, circuit theory, analog/digital electronics, VLSI basics). The interview panel assesses your research aptitude, academic background, and motivation. Be prepared to discuss your MSc project, research interests, and why you want to pursue this specific JRF.</p>
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Common Mistakes in JRF Applications</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Common Mistakes in JRF Applications</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>Applying without checking eligibility criteria (age, qualification, NET/GATE validity)</li>
             <li>Submitting incomplete documents (missing marksheets, certificates)</li>
@@ -125,11 +125,11 @@ export default async function JRFGuidePage() {
         </section>
 
         <Card className="p-6">
-          <h2 className="font-display text-xl font-black text-slate-900 mb-4">Current Open JRF Positions</h2>
+          <h2 className="font-display text-xl font-bold text-slate-900 mb-4">Current Open JRF Positions</h2>
           {jrfOpps.length > 0 ? (
             <div className="space-y-3">
               {jrfOpps.map((opp: any) => (
-                <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border-2 border-slate-900 rounded-xl p-3.5 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all">
+                <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border border-slate-200 rounded-xl p-3.5 shadow-card hover:border-slate-300 hover:shadow-elevated transition-all">
                   <h3 className="text-slate-900 text-sm font-semibold">{opp.title}</h3>
                   <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization} {opp.deadline ? `— Deadline: ${new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""} {opp.stipend ? `— ${opp.stipend}` : ""}</p>
                 </Link>
@@ -138,7 +138,7 @@ export default async function JRFGuidePage() {
           ) : (
             <p className="text-slate-600 text-sm font-medium">No JRF positions currently listed. Check back soon.</p>
           )}
-          <Link href="/opportunities?category=JRF" className="inline-flex items-center gap-1 text-blue-600 text-sm font-bold mt-4 hover:underline">View all JRF positions ?</Link>
+          <Link href="/opportunities?category=JRF" className="inline-flex items-center gap-1 text-blue-600 text-sm font-bold mt-4 hover:underline">View all JRF positions →</Link>
         </Card>
       </div>
     </div>

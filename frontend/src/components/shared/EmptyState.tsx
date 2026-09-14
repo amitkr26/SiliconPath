@@ -20,7 +20,7 @@ export default function EmptyState({
     <div
       className={`flex flex-col items-center justify-center gap-4 py-16 px-6 text-center ${className}`}
     >
-      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-slate-100 border-2 border-slate-200 text-slate-500">
+      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-slate-100 border border-slate-200 text-slate-500 shadow-xs">
         {icon ?? <AlertCircle size={28} />}
       </div>
       <div className="space-y-1.5">

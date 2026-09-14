@@ -58,18 +58,18 @@ export default function FullyFundedPhdAbroadGuide() {
       </div>
 
       <div className="space-y-8 text-slate-800 text-sm leading-relaxed font-medium">
-        <div className="bg-emerald-50 border-2 border-slate-900 rounded-xl p-5 shadow-brutal-sm">
+        <div className="bg-emerald-50 border border-slate-200 rounded-xl p-5 shadow-card">
           <p className="text-base text-slate-900 font-bold">
             <strong>The secret to a fully-funded PhD:</strong> In many top global semiconductor hubs (like Europe and Singapore), a PhD is not considered &quot;studying&quot; — it is a full-time research job with a competitive salary, full benefits, and zero tuition fees. Here is exactly how to find and secure these positions.
           </p>
         </div>
 
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 mb-4">1. Top Regions for VLSI &amp; Semiconductor PhDs</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">1. Top Regions for VLSI &amp; Semiconductor PhDs</h2>
           
           <div className="space-y-4">
             <Card className="p-6">
-              <h3 className="text-base font-black text-slate-900 mb-2">Europe (The &quot;Employee&quot; Model)</h3>
+              <h3 className="text-base font-bold text-slate-900 mb-2">Europe (The &quot;Employee&quot; Model)</h3>
               <p className="text-xs sm:text-sm text-slate-700 mb-3">
                 In countries like the Netherlands, Germany, and Belgium, PhD candidates are hired as university employees. You receive a monthly salary (typically €2,300 - €3,000 before tax).
               </p>
@@ -81,29 +81,29 @@ export default function FullyFundedPhdAbroadGuide() {
             </Card>
 
             <Card className="p-6">
-              <h3 className="text-base font-black text-slate-900 mb-2">Singapore (SINGA Fellowship)</h3>
+              <h3 className="text-base font-bold text-slate-900 mb-2">Singapore (SINGA Fellowship)</h3>
               <p className="text-xs sm:text-sm text-slate-700 mb-3">
                 Singapore is a global semiconductor manufacturing hub. The Singapore International Graduate Award (SINGA) offers fully-funded PhDs at NTU, NUS, and A*STAR.
               </p>
               <ul className="space-y-2 list-none text-xs sm:text-sm text-slate-700">
                 <li className="flex items-start gap-2"><Landmark className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> <span><strong>Stipend:</strong> SGD 2,200/month (increasing to SGD 2,700 after qualifying exam).</span></li>
                 <li className="flex items-start gap-2"><GraduationCap className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> <span><strong>Requirements:</strong> BTech or MTech. Excellent academic record.</span></li>
-                <li className="flex items-start gap-2"><Globe className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> <span><strong>How to Apply:</strong> Apply via the centralized SINGA portal. <em><a href="https://www.a-star.edu.sg/Scholarships/for-graduate-studies/singapore-international-graduate-award-singa" target="_blank" rel="noopener noreferrer" className="text-accent font-bold hover:underline">Official SINGA Portal <ExternalLink className="inline w-3 h-3" /></a></em></span></li>
+                <li className="flex items-start gap-2"><Globe className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> <span><strong>How to Apply:</strong> Apply via the centralized SINGA portal. <em><a href="https://www.a-star.edu.sg/Scholarships/for-graduate-studies/singapore-international-graduate-award-singa" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold hover:underline">Official SINGA Portal <ExternalLink className="inline w-3 h-3" /></a></em></span></li>
               </ul>
             </Card>
           </div>
         </div>
 
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 mb-3">2. Step-by-Step Application Strategy</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">2. Step-by-Step Application Strategy</h2>
           
           <div className="space-y-4">
             <Card className="p-6">
-              <h3 className="text-base font-black text-slate-900 mb-2">Step 1: The &quot;Cold Email&quot; to Professors</h3>
+              <h3 className="text-base font-bold text-slate-900 mb-2">Step 1: The &quot;Cold Email&quot; to Professors</h3>
               <p className="text-xs sm:text-sm text-slate-700 mb-3">
                 For US universities and many European labs, securing funding requires a professor to sponsor you. You must write a highly targeted email:
               </p>
-              <div className="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs leading-relaxed border-2 border-slate-900">
+              <div className="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs leading-relaxed border border-slate-800 shadow-sm">
                 Subject: Prospective PhD Student — Fall 2027 — [Your Area, e.g., Analog IC Design]<br/><br/>
                 Dear Prof. [Name],<br/><br/>
                 I recently read your paper on [Specific Paper Topic] presented at ISSCC. I am very interested in your approach to [Specific Technical Detail].<br/><br/>
@@ -115,7 +115,7 @@ export default function FullyFundedPhdAbroadGuide() {
             </Card>
 
             <Card className="p-6">
-              <h3 className="text-base font-black text-slate-900 mb-2">Step 2: Securing External Fellowships</h3>
+              <h3 className="text-base font-bold text-slate-900 mb-2">Step 2: Securing External Fellowships</h3>
               <p className="text-xs sm:text-sm text-slate-700 mb-3">If the professor lacks funding, you can secure your own through international fellowships:</p>
               <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-700">
                 <li><strong>DAAD (Germany):</strong> Funds Indian students for doctoral studies in Germany. Applications usually close in October.</li>
@@ -126,16 +126,16 @@ export default function FullyFundedPhdAbroadGuide() {
           </div>
         </div>
 
-        <div className="pt-6 border-t-2 border-slate-200">
-          <h2 className="text-xl font-black text-slate-900 mb-4">Frequently Asked Questions</h2>
+        <div className="pt-6 border-t border-slate-200">
+          <h2 className="text-xl font-bold text-slate-900 mb-4">Frequently Asked Questions</h2>
           <div className="space-y-4">
             <Card className="p-5">
-              <h3 className="text-sm font-black text-slate-900">Which countries offer the best fully-funded PhDs in VLSI?</h3>
+              <h3 className="text-sm font-bold text-slate-900">Which countries offer the best fully-funded PhDs in VLSI?</h3>
               <p className="text-xs text-slate-700 mt-1">Top destinations for fully-funded VLSI PhDs include Germany (TU Munich, TU Dresden), Netherlands (TU Delft), Belgium (KU Leuven / imec), Singapore (NTU, NUS), and the USA. These programs often treat PhD students as salaried employees.</p>
             </Card>
 
             <Card className="p-5">
-              <h3 className="text-sm font-black text-slate-900">Do I need a Master&apos;s degree to apply for a PhD abroad?</h3>
+              <h3 className="text-sm font-bold text-slate-900">Do I need a Master&apos;s degree to apply for a PhD abroad?</h3>
               <p className="text-xs text-slate-700 mt-1">In Europe, a Master&apos;s degree (MTech/MS) is almost strictly required. In the US and Singapore, you can often apply directly after a 4-year BTech/BE degree, provided you have excellent academic records and research experience.</p>
             </Card>
           </div>

@@ -132,7 +132,7 @@ export default function EmployerEditJobPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card className="p-6 sm:p-8 space-y-5">
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Job / Fellowship Title *
               </label>
               <input
@@ -140,19 +140,19 @@ export default function EmployerEditJobPage() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
-                className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Category *
                 </label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white"
                 >
                   <option value="JRF">Junior Research Fellow (JRF)</option>
                   <option value="SRF">Senior Research Fellow (SRF)</option>
@@ -164,79 +164,79 @@ export default function EmployerEditJobPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Location / Lab Site
                 </label>
                 <input
                   type="text"
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Stipend / Salary
                 </label>
                 <input
                   type="text"
                   value={formData.stipend}
                   onChange={(e) => setFormData({ ...formData, stipend: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Application Deadline
                 </label>
                 <input
                   type="date"
                   value={formData.deadline}
                   onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Eligibility &amp; GATE/NET Criteria
               </label>
               <input
                 type="text"
                 value={formData.eligibility}
                 onChange={(e) => setFormData({ ...formData, eligibility: e.target.value })}
-                className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Skill Tags (Comma separated)
               </label>
               <input
                 type="text"
                 value={formData.tagsInput}
                 onChange={(e) => setFormData({ ...formData, tagsInput: e.target.value })}
-                className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Detailed Scope of Work &amp; Project Description
               </label>
               <textarea
                 rows={5}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full p-4 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none resize-none"
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white resize-none"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t-2 border-slate-900">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
               <Button variant="ghost" type="button" onClick={() => router.back()}>
                 Cancel
               </Button>

@@ -122,14 +122,14 @@ export default function EmployerJobsPage() {
 
           <Link
             href="/employer/post-job"
-            className="px-5 py-2.5 rounded-xl bg-blue-600 border-2 border-slate-900 text-white text-xs font-black shadow-brutal hover:shadow-brutal-lg hover:bg-blue-700 transition-all flex items-center gap-2 shrink-0 self-start sm:self-center"
+            className="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-semibold shadow-sm hover:bg-blue-700 transition-all flex items-center gap-2 shrink-0 self-start sm:self-center"
           >
             <Plus className="w-4 h-4" /> Post New Position
           </Link>
         </div>
 
         {/* SEARCH & STATUS FILTER BAR */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3 border-2 border-slate-900 rounded-xl shadow-brutal-sm">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3 border border-slate-200 rounded-xl shadow-card">
           <div className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
@@ -137,7 +137,7 @@ export default function EmployerJobsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by title, category, location..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs font-bold bg-slate-50 border border-slate-900 rounded-lg focus:outline-none"
+              className="w-full pl-9 pr-3 py-1.5 text-xs font-medium bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white"
             />
           </div>
 
@@ -146,9 +146,9 @@ export default function EmployerJobsPage() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
                   filter === f
-                    ? "bg-blue-600 text-white border-2 border-slate-900 shadow-brutal-sm"
+                    ? "bg-blue-600 text-white shadow-sm"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
               >
@@ -163,14 +163,14 @@ export default function EmployerJobsPage() {
           <Card className="p-12 text-center space-y-4">
             <Briefcase className="w-12 h-12 text-slate-300 mx-auto" />
             <div>
-              <h2 className="text-base font-black text-slate-900">No postings found</h2>
+              <h2 className="text-base font-bold text-slate-900">No postings found</h2>
               <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
                 {search ? "No openings match your search filter." : "You haven't posted any positions yet."}
               </p>
             </div>
             <Link
               href="/employer/post-job"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-brutal-sm hover:shadow-brutal"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold shadow-xs hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" /> Post Your First Position
             </Link>
@@ -180,32 +180,32 @@ export default function EmployerJobsPage() {
             {filteredJobs.map((job) => (
               <div
                 key={job.id}
-                className="p-5 bg-white border-2 border-slate-900 rounded-2xl shadow-brutal hover:shadow-brutal-lg transition-all flex flex-col md:flex-row md:items-center justify-between gap-6"
+                className="p-5 bg-white border border-slate-200 rounded-xl shadow-card hover:shadow-elevated hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6"
               >
                 <div className="space-y-2 max-w-2xl">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge tone={job.is_active ? "accent" : "neutral"}>
                       {job.is_active ? "Live & Accepting" : "Paused"}
                     </Badge>
-                    <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-300 text-[10px] font-bold text-slate-700 uppercase tracking-wider">
+                    <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-700 uppercase tracking-wider">
                       {job.category || "JRF"}
                     </span>
                     {job.location && (
-                      <span className="text-xs font-semibold text-slate-500">• {job.location}</span>
+                      <span className="text-xs font-medium text-slate-500">• {job.location}</span>
                     )}
                     {job.salary_range && (
-                      <span className="text-xs font-bold text-emerald-700">• {job.salary_range}</span>
+                      <span className="text-xs font-semibold text-emerald-700">• {job.salary_range}</span>
                     )}
                   </div>
 
-                  <h3 className="text-base sm:text-lg font-black text-slate-900 hover:text-blue-600 transition-colors">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 hover:text-blue-600 transition-colors">
                     {job.title}
                   </h3>
 
                   {job.tags && job.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {job.tags.slice(0, 5).map((tag: string) => (
-                        <span key={tag} className="px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-[10px] font-bold text-blue-700">
+                        <span key={tag} className="px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-[10px] font-semibold text-blue-700">
                           {tag}
                         </span>
                       ))}
@@ -217,14 +217,14 @@ export default function EmployerJobsPage() {
                 <div className="flex flex-wrap items-center gap-2 shrink-0 self-end md:self-center pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 w-full md:w-auto justify-end">
                   <Link
                     href={`/employer/applicants?jobId=${job.id}`}
-                    className="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-2 border-slate-900 text-xs font-black shadow-brutal-sm hover:shadow-brutal transition-all flex items-center gap-1.5"
+                    className="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold shadow-xs transition-all flex items-center gap-1.5"
                   >
                     <Users className="w-3.5 h-3.5 text-emerald-700" /> View Applicants
                   </Link>
 
                   <button
                     onClick={() => handleToggleActive(job)}
-                    className="p-2 rounded-xl bg-white border-2 border-slate-900 hover:bg-slate-100 text-slate-700 shadow-brutal-sm"
+                    className="p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 shadow-xs transition-colors"
                     title={job.is_active ? "Pause Job" : "Activate Job"}
                   >
                     {job.is_active ? (
@@ -236,7 +236,7 @@ export default function EmployerJobsPage() {
 
                   <button
                     onClick={() => handleCopyLink(job.slug, job.id)}
-                    className="p-2 rounded-xl bg-white border-2 border-slate-900 hover:bg-slate-100 text-slate-700 shadow-brutal-sm"
+                    className="p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 shadow-xs transition-colors"
                     title="Copy Public Link"
                   >
                     {copiedId === job.id ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
@@ -244,7 +244,7 @@ export default function EmployerJobsPage() {
 
                   <Link
                     href={`/opportunities/${job.slug || job.id}`}
-                    className="p-2 rounded-xl bg-white border-2 border-slate-900 hover:bg-slate-100 text-slate-700 shadow-brutal-sm"
+                    className="p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 shadow-xs transition-colors"
                     title="Preview Public Page"
                   >
                     <ExternalLink className="w-4 h-4" />
@@ -252,7 +252,7 @@ export default function EmployerJobsPage() {
 
                   <button
                     onClick={() => handleDelete(job.id)}
-                    className="p-2 rounded-xl bg-white border-2 border-slate-900 hover:bg-red-50 text-red-600 shadow-brutal-sm"
+                    className="p-2 rounded-xl bg-white border border-slate-200 hover:bg-red-50 text-red-600 shadow-xs transition-colors"
                     title="Delete Job"
                   >
                     <Trash2 className="w-4 h-4" />

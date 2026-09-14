@@ -16,6 +16,8 @@ import { toast } from "sonner";
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
+  compact?: boolean;
+  className?: string;
 }
 
 interface BookmarkResponse {
@@ -63,7 +65,7 @@ function setLocalBookmarks(ids: string[]) {
   localStorage.setItem("BerojgarDegreeWala_bookmarks", JSON.stringify(ids));
 }
 
-export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
+export default function OpportunityCard({ opportunity, compact = false, className }: OpportunityCardProps) {
   const router = useRouter();
   const oppId = opportunity.id!;
   const { user, loading: userLoading } = useUser();
@@ -130,9 +132,12 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
   return (
     <div
       onClick={handleCardClick}
-      className={`block group cursor-pointer ${linkUnavailable ? "opacity-70" : ""}`}
+      className={cn("block group cursor-pointer", linkUnavailable && "opacity-70", className)}
     >
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all h-full flex flex-col justify-between">
+      <div className={cn(
+        "bg-white border border-slate-200 rounded-xl shadow-xs hover:border-slate-300 hover:shadow-sm transition-all h-full flex flex-col justify-between",
+        compact ? "p-4" : "p-5"
+      )}>
         <div className="flex items-start gap-3.5">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
             <ImageWithFallback
@@ -207,7 +212,7 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
               )}
             </div>
 
-            {opportunity.eligibility && (
+            {opportunity.eligibility && !compact && (
               <div className="flex flex-wrap gap-1.5 mt-2.5">
                 {opportunity.eligibility
                   .split(",")
@@ -227,7 +232,7 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
           </div>
         </div>
 
-        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+        <div className={cn("border-t border-slate-100 flex items-center justify-between", compact ? "mt-3 pt-2.5" : "mt-4 pt-3")}>
           {opportunity.deadline ? (
             <DeadlineCountdown deadline={opportunity.deadline} />
           ) : (
@@ -237,9 +242,19 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
             <span className="text-slate-400 text-xs font-semibold flex items-center gap-1">
               Closed
             </span>
+          ) : opportunity.apply_link ? (
+            <a
+              href={opportunity.apply_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-blue-600 text-xs font-semibold flex items-center gap-1 hover:text-blue-700 group-hover:translate-x-0.5 transition-transform"
+            >
+              Apply <ExternalLink className="w-3.5 h-3.5" />
+            </a>
           ) : (
             <span className="text-blue-600 text-xs font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-              Apply <ExternalLink className="w-3.5 h-3.5" />
+              View <ExternalLink className="w-3.5 h-3.5" />
             </span>
           )}
         </div>

@@ -113,52 +113,48 @@ html, body {
 }
 
 /* ==========================================================================
-   Neo-Brutalist Component Classes
+   Precision Component Classes & Smooth Elevation
    ========================================================================== */
 
-/* Brutal Card */
-.brutal-card {
-  background: #FFFFFF;
-  border: 2px solid #0F172A;
-  box-shadow: 4px 4px 0px 0px #0F172A;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+/* Card surface elevation */
+.shadow-card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
 }
 
-.brutal-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px #0F172A;
-  border-color: #000000;
+.shadow-elevated {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 }
 
-.brutal-card:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px 0px #0F172A;
-}
-
-/* Legacy aliases kept for pre-redesign components still referencing them.
-   They map onto the brutal styles so nothing breaks until page agents
-   migrate off (audit §6). Remove once migrated. */
-.glass-premium,
+/* Graceful compatibility aliases for components transitioning to unified system */
 .brutal-card,
-.glass-nav,
-.btn-glow,
-.btn-brutal {
+.glass-premium,
+.glass-nav {
   background: #FFFFFF;
-  border: 2px solid #0F172A;
-  box-shadow: 4px 4px 0px 0px #0F172A;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.brutal-card:hover,
+.glass-premium:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 }
 
 .btn-glow,
 .btn-brutal {
   background: #2563EB;
   color: #FFFFFF;
-  font-weight: 700;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .btn-glow:hover,
 .btn-brutal:hover {
   background: #1D4ED8;
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px #0F172A;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
 }

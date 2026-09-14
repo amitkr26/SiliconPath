@@ -24,6 +24,7 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const userRef = useRef<HTMLDivElement>(null);
   const joinRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const { data: notifCountData } = useNotificationCount();
   const { data: conversationsData } = useConversations();
@@ -41,8 +42,18 @@ export default function Navbar() {
         setJoinDropdownOpen(false);
       }
     };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
     document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, []);
 
   const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -86,7 +97,7 @@ export default function Navbar() {
     ) : null;
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
 
         {/* BRAND LOGO */}
@@ -94,7 +105,7 @@ export default function Navbar() {
           href={isEmployer ? "/employer/dashboard" : "/"}
           className="flex items-center gap-2.5 group shrink-0"
         >
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm">
             <CircuitBoard className="w-4.5 h-4.5 text-white stroke-[2]" />
           </div>
           <div className="flex flex-col">
@@ -103,7 +114,7 @@ export default function Navbar() {
                 Berojgar<span className="text-blue-600">DegreeWala</span>
               </span>
               {isEmployer && (
-                <span className="px-1.5 py-0.5 rounded bg-blue-50 text-[9px] font-bold text-blue-600 uppercase tracking-wider">
+                <span className="px-1.5 py-0.5 rounded bg-blue-50 text-[9px] font-bold text-blue-600 uppercase tracking-wider border border-blue-100">
                   Employer
                 </span>
               )}
@@ -146,13 +157,17 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center relative">
             <Search className="absolute left-3 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
+              ref={searchInputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearchSubmit}
               placeholder="Search..."
-              className="w-52 pl-9 pr-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-sm font-body text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+              className="w-56 pl-9 pr-8 py-1.5 rounded-xl border border-slate-200/90 bg-slate-50/80 text-xs font-body text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
             />
+            <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-mono font-medium text-slate-400 bg-white border border-slate-200 rounded pointer-events-none">
+              /
+            </kbd>
           </div>
 
           {/* NOTIFICATION BELL */}

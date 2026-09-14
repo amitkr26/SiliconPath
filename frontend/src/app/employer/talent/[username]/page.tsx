@@ -139,7 +139,7 @@ export default function EmployerTalentCandidatePage() {
           <div className="lg:col-span-2 space-y-6">
             <Card className="p-6 sm:p-8 space-y-6">
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 rounded-2xl border-2 border-slate-900 flex items-center justify-center font-black text-2xl shrink-0 shadow-brutal-sm overflow-hidden relative">
+                <div className="w-16 h-16 rounded-2xl border border-slate-200 flex items-center justify-center font-bold text-2xl shrink-0 shadow-xs overflow-hidden relative">
                   <ImageWithFallback
                     src={candidate.avatar_url}
                     alt={candidate.display_name || "Scholar"}
@@ -165,17 +165,17 @@ export default function EmployerTalentCandidatePage() {
 
               {candidate.bio && (
                 <div className="space-y-1.5">
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">About Candidate</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">About Candidate</h3>
                   <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">{candidate.bio}</p>
                 </div>
               )}
 
               <div className="space-y-2">
-                <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">Specialized Skills &amp; Tools</h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">Specialized Skills &amp; Tools</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {candidate.skills && candidate.skills.length > 0 ? (
                     candidate.skills.map((sk: string) => (
-                      <span key={sk} className="px-3 py-1 rounded-lg bg-blue-50 border-2 border-slate-900 text-xs font-bold text-blue-700 shadow-brutal-sm">
+                      <span key={sk} className="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-700">
                         {sk}
                       </span>
                     ))
@@ -189,7 +189,7 @@ export default function EmployerTalentCandidatePage() {
                 <Link
                   href={`/profile/${candidate.username}`}
                   target="_blank"
-                  className="px-3 py-1.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-brutal-sm hover:bg-slate-50 flex items-center gap-1.5"
+                  className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center gap-1.5"
                 >
                   <ExternalLink className="w-3.5 h-3.5" /> Public Portfolio
                 </Link>
@@ -198,7 +198,7 @@ export default function EmployerTalentCandidatePage() {
                     href={candidate.github_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3 py-1.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-brutal-sm hover:bg-slate-50 flex items-center gap-1.5"
+                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center gap-1.5"
                   >
                     GitHub
                   </a>
@@ -208,7 +208,7 @@ export default function EmployerTalentCandidatePage() {
                     href={candidate.linkedin_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3 py-1.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-brutal-sm hover:bg-slate-50 flex items-center gap-1.5"
+                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center gap-1.5"
                   >
                     LinkedIn
                   </a>
@@ -220,7 +220,7 @@ export default function EmployerTalentCandidatePage() {
           {/* RIGHT: RECRUITER ACTIONS */}
           <div className="space-y-6">
             <Card className="p-6 space-y-4">
-              <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 border-b-2 border-slate-900 pb-2">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-2">
                 Recruiter Outreach
               </h3>
 
@@ -238,7 +238,7 @@ export default function EmployerTalentCandidatePage() {
 
               <Link
                 href={`/employer/messages`}
-                className="w-full py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-brutal-sm hover:bg-slate-50 flex items-center justify-center gap-1.5"
+                className="w-full py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-1.5"
               >
                 <MessageSquare className="w-4 h-4 text-blue-600" /> Send Message
               </Link>
@@ -250,8 +250,8 @@ export default function EmployerTalentCandidatePage() {
         {/* INVITATION MODAL */}
         {inviteModalOpen && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white border-2 border-slate-900 rounded-2xl max-w-md w-full p-6 shadow-brutal-lg space-y-4">
-              <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3">
+            <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-elevated space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                 <h3 className="text-base font-black text-slate-900">
                   Invite @{candidate.username} to Apply
                 </h3>
@@ -276,13 +276,13 @@ export default function EmployerTalentCandidatePage() {
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-black uppercase text-slate-700 mb-1">
+                    <label className="block text-xs font-semibold uppercase text-slate-700 mb-1">
                       Select Position
                     </label>
                     <select
                       value={selectedJob}
                       onChange={(e) => setSelectedJob(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
                     >
                       {jobs.map((j) => (
                         <option key={j.id} value={j.id}>{j.title}</option>
@@ -291,7 +291,7 @@ export default function EmployerTalentCandidatePage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-black uppercase text-slate-700 mb-1">
+                    <label className="block text-xs font-semibold uppercase text-slate-700 mb-1">
                       Personalized Message Note
                     </label>
                     <textarea
@@ -299,7 +299,7 @@ export default function EmployerTalentCandidatePage() {
                       value={inviteNote}
                       onChange={(e) => setInviteNote(e.target.value)}
                       placeholder="Hi, your RTL / UVM profile stood out. We'd love to review your application for our JRF position..."
-                      className="w-full p-3 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs font-medium text-slate-900 focus:outline-none resize-none"
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all resize-none"
                     />
                   </div>
 

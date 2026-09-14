@@ -112,11 +112,11 @@ export default function EmployerJobApplicantsPage() {
               return (
                 <div
                   key={app.id}
-                  className="p-5 bg-white border-2 border-slate-900 rounded-2xl shadow-brutal hover:shadow-brutal-lg transition-all flex flex-col md:flex-row md:items-center justify-between gap-6"
+                  className="p-5 bg-white border border-slate-200 rounded-xl shadow-card hover:shadow-elevated hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-full border-2 border-slate-900 flex items-center justify-center font-black text-base shrink-0 shadow-brutal-sm overflow-hidden relative">
+                      <div className="w-11 h-11 rounded-full border border-slate-200 flex items-center justify-center font-bold text-base shrink-0 shadow-xs overflow-hidden relative">
                         <ImageWithFallback
                           src={candidate.avatar_url}
                           alt={candidate.display_name || "Applicant"}
@@ -130,7 +130,7 @@ export default function EmployerJobApplicantsPage() {
                         <div className="flex items-center gap-2">
                           <Link
                             href={`/employer/applicants/${app.id}`}
-                            className="text-base font-black text-slate-900 hover:text-blue-600 transition-colors"
+                            className="text-base font-bold text-slate-900 hover:text-blue-600 transition-colors"
                           >
                             {candidate.display_name || "Applicant"}
                           </Link>
@@ -145,7 +145,7 @@ export default function EmployerJobApplicantsPage() {
                     {candidate.skills && candidate.skills.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {candidate.skills.slice(0, 5).map((sk: string) => (
-                          <span key={sk} className="px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-[10px] font-bold text-blue-700">
+                          <span key={sk} className="px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-[10px] font-semibold text-blue-700">
                             {sk}
                           </span>
                         ))}
@@ -157,7 +157,7 @@ export default function EmployerJobApplicantsPage() {
                     <select
                       value={app.status || "applied"}
                       onChange={(e) => handleStageChange(app.id, e.target.value)}
-                      className="px-3 py-2 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-brutal-sm focus:outline-none"
+                      className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:border-blue-500"
                     >
                       <option value="applied">Applied</option>
                       <option value="screening">Screening</option>
@@ -169,7 +169,7 @@ export default function EmployerJobApplicantsPage() {
 
                     <Link
                       href={`/employer/applicants/${app.id}`}
-                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black shadow-brutal hover:shadow-brutal-lg transition-all"
+                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs hover:shadow-sm transition-all"
                     >
                       Review Application
                     </Link>

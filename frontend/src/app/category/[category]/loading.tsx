@@ -6,7 +6,7 @@ export default function CategoryLoading() {
       <LoadingSkeleton className="h-10 w-64 mb-8" />
       <div className="space-y-4">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="bg-white border-2 border-slate-900 rounded-2xl p-6 space-y-3">
+          <div key={i} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-card space-y-3">
             <LoadingSkeleton className="h-5 w-3/4" />
             <LoadingSkeleton className="h-4 w-full" />
             <LoadingSkeleton className="h-4 w-1/3" />

@@ -74,7 +74,7 @@ export default function MessageThread({
             >
               {/* Avatar (other only) */}
               {!isMine && (
-                <div className="flex-shrink-0 w-7 h-7 rounded-full border-2 border-slate-900 flex items-center justify-center text-blue-600 text-xs font-bold overflow-hidden relative">
+                <div className="flex-shrink-0 w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-blue-600 text-xs font-bold overflow-hidden relative shadow-xs">
                   <ImageWithFallback
                     src={otherUserAvatar}
                     alt={otherUserName || "User"}
@@ -91,8 +91,8 @@ export default function MessageThread({
                 className={cn(
                   "max-w-[72%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed break-words",
                   isMine
-                    ? "bg-blue-600 text-white rounded-br-sm border-2 border-slate-900 shadow-brutal-sm"
-                    : "bg-white text-slate-900 rounded-bl-sm border-2 border-slate-900",
+                    ? "bg-blue-600 text-white rounded-br-sm shadow-xs"
+                    : "bg-white text-slate-900 rounded-bl-sm border border-slate-200 shadow-xs",
                 )}
               >
                 {msg.body}
@@ -107,21 +107,21 @@ export default function MessageThread({
       </div>
 
       {/* Input */}
-      <div className="border-t-2 border-slate-900 p-3 flex items-end gap-2 bg-white">
+      <div className="border-t border-slate-200 p-3 flex items-end gap-2 bg-white">
         <textarea
           value={text}
           onChange={(e) => onTextChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={`Message ${otherUserName || ""}…`}
           rows={1}
-          className="flex-1 resize-none bg-white border-2 border-slate-900 text-slate-900 text-sm font-medium rounded-xl px-3.5 py-2.5 placeholder:text-slate-400 shadow-brutal-sm focus:outline-none focus:border-accent focus:shadow-brutal transition max-h-32 overflow-y-auto"
+          className="flex-1 resize-none bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-xl px-3.5 py-2.5 placeholder:text-slate-400 shadow-xs focus:outline-none focus:border-blue-500 focus:bg-white transition max-h-32 overflow-y-auto"
           style={{ minHeight: 44 }}
         />
         <button
           onClick={onSend}
           disabled={!text.trim() || isSending}
           aria-label="Send message"
-          className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 text-white hover:bg-blue-700 border-2 border-slate-900 shadow-brutal-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+          className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow-xs disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0"
         >
           {isSending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
         </button>

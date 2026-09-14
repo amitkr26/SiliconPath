@@ -123,78 +123,78 @@ export default function DashboardPage() {
           description="Track your applications and career progress"
         />
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
-          <Card className="p-4 sm:p-5">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-8">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-card">
             <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center">
                 <Bookmark className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               </div>
-              <span className="text-2xl sm:text-3xl font-black text-slate-900">{savedCount}</span>
+              <span className="text-2xl sm:text-3xl font-bold text-slate-900">{savedCount}</span>
             </div>
-            <p className="text-xs sm:text-sm font-bold text-slate-600">Saved</p>
-          </Card>
+            <p className="text-xs sm:text-sm font-semibold text-slate-600">Saved Positions</p>
+          </div>
 
-          <Card className="p-4 sm:p-5">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-card">
             <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center">
                 <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               </div>
-              <span className="text-2xl sm:text-3xl font-black text-slate-900">{appCount}</span>
+              <span className="text-2xl sm:text-3xl font-bold text-slate-900">{appCount}</span>
             </div>
-            <p className="text-xs sm:text-sm font-bold text-slate-600">Applications</p>
-          </Card>
+            <p className="text-xs sm:text-sm font-semibold text-slate-600">Active Applications</p>
+          </div>
 
-
-
-          <Card className="p-4 sm:p-5">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-card">
             <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center shadow-brutal-sm">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center">
                 <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               </div>
-              <span className="text-2xl sm:text-3xl font-black text-slate-900">{alertCount}</span>
+              <span className="text-2xl sm:text-3xl font-bold text-slate-900">{alertCount}</span>
             </div>
-            <p className="text-xs sm:text-sm font-bold text-slate-600">Alerts</p>
-          </Card>
+            <p className="text-xs sm:text-sm font-semibold text-slate-600">Alerts &amp; Updates</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <Card className="p-6">
-              <h2 className="text-lg font-black text-slate-900 mb-4">Application Tracker</h2>
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-card">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 mb-4">Application Tracker</h2>
               {applications.length === 0 ? (
                 <div className="text-center py-12">
-                  <FileText className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                  <p className="text-slate-600 text-sm font-semibold">No applications yet</p>
-                  <p className="text-slate-400 text-xs mt-1">Start applying to opportunities to track them here</p>
-                  <Button href="/opportunities" size="sm" className="mt-4">
+                  <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-3">
+                    <FileText className="w-6 h-6 text-slate-400" />
+                  </div>
+                  <p className="text-slate-800 text-sm font-semibold">No applications yet</p>
+                  <p className="text-slate-500 text-xs mt-1">Start applying to opportunities to track them here</p>
+                  <Button href="/opportunities" size="sm" className="mt-4 shadow-sm">
                     Browse Opportunities
                   </Button>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {applications.map((app) => (
-                    <div key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-bg-primary border-2 border-slate-900 rounded-xl shadow-brutal-sm">
+                    <div key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-white border border-slate-200 rounded-xl shadow-card hover:shadow-elevated transition-all">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="w-9 h-9 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center flex-shrink-0">
-                          <span className="text-blue-700 text-xs font-black">{getInitials(app.opportunity?.organization || "")}</span>
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0">
+                          <span className="text-blue-700 text-xs font-bold">{getInitials(app.opportunity?.organization || "")}</span>
                         </div>
                         <div className="flex-1 min-w-0">
                           <Link
                             href={`/opportunities/${app.opportunity?.slug}`}
-                            className="text-slate-900 text-sm font-bold hover:text-blue-600 line-clamp-1"
+                            className="text-slate-900 text-sm font-bold hover:text-blue-600 line-clamp-1 transition-colors"
                           >
                             {app.opportunity?.title}
                           </Link>
-                          <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
+                          <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500 font-normal">
                             <Link
                               href={`/organizations/${orgSlug(app.opportunity?.organization || "")}`}
-                              className="font-semibold hover:text-blue-600 truncate"
+                              className="font-medium hover:text-blue-600 truncate"
                             >
                               {app.opportunity?.organization}
                             </Link>
                             {app.opportunity?.location && (
-                              <span className="flex items-center gap-0.5 truncate">
-                                <MapPin className="w-3 h-3" />
+                              <span className="flex items-center gap-0.5 truncate text-slate-400">
+                                <MapPin className="w-3 h-3 text-slate-400" />
                                 {app.opportunity.location}
                               </span>
                             )}
@@ -205,38 +205,38 @@ export default function DashboardPage() {
                         value={app.status}
                         onChange={(e) => handleStatusChange(app.id, e.target.value)}
                         disabled={updateStatus.isPending}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border-2 border-slate-900 shadow-brutal-sm outline-none cursor-pointer min-h-[38px] ${STATUS_STYLES[app.status] || STATUS_STYLES.applied}`}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 shadow-sm outline-none cursor-pointer min-h-[38px] ${STATUS_STYLES[app.status] || STATUS_STYLES.applied}`}
                       >
                         {Object.entries(STATUS_LABELS).map(([key, label]) => (
-                          <option key={key} value={key} className="bg-white text-slate-900">{label}</option>
+                          <option key={key} value={key} className="bg-white text-slate-900 font-medium">{label}</option>
                         ))}
                       </select>
                     </div>
                   ))}
                 </div>
               )}
-            </Card>
+            </div>
           </div>
 
           <div className="space-y-6">
-            <Card className="p-6">
-              <h2 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-card">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                 <Clock className="w-4 h-4 text-amber-600" />
                 Upcoming Deadlines
               </h2>
               {upcomingDeadlines.length === 0 ? (
-                <p className="text-slate-500 text-sm font-medium text-center py-6">No deadlines from your applications</p>
+                <p className="text-slate-500 text-xs sm:text-sm font-normal text-center py-6">No deadlines from your applications</p>
               ) : (
                 <div className="space-y-3">
                   {upcomingDeadlines.map((app) => (
-                    <div key={app.id} className="p-3 bg-bg-primary border-2 border-slate-900 rounded-xl">
+                    <div key={app.id} className="p-3.5 bg-slate-50/50 border border-slate-200 rounded-xl space-y-1">
                       <Link
                         href={`/opportunities/${app.opportunity?.slug}`}
-                        className="text-slate-900 text-sm font-bold hover:text-blue-600 line-clamp-1"
+                        className="text-slate-900 text-xs sm:text-sm font-bold hover:text-blue-600 line-clamp-1 transition-colors"
                       >
                         {app.opportunity?.title}
                       </Link>
-                      <p className="text-slate-500 text-xs font-medium mt-0.5">{app.opportunity?.organization}</p>
+                      <p className="text-slate-500 text-xs font-normal">{app.opportunity?.organization}</p>
                       {app.opportunity?.deadline && (
                         <div className="mt-2">
                           <DeadlineCountdown deadline={app.opportunity.deadline} variant="progress" />
@@ -246,7 +246,7 @@ export default function DashboardPage() {
                   ))}
                 </div>
               )}
-            </Card>
+            </div>
           </div>
         </div>
       </div>

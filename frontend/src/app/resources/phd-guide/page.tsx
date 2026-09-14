@@ -40,24 +40,24 @@ export default async function PhDGuidePage() {
 
       <div className="space-y-10 text-slate-600 text-sm sm:text-base font-medium leading-relaxed">
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">PhD Admission Routes in India</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">PhD Admission Routes in India</h2>
           <p className="mb-4">There are three main routes to secure a PhD position in electronics in India, depending on your qualifications and career goals:</p>
           <div className="space-y-4">
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <div className="flex items-center gap-2 mb-2">
                 <GraduationCap className="w-5 h-5 text-blue-600" />
                 <h3 className="font-display text-base font-bold text-slate-900">Route 1: GATE/NET Fellowship</h3>
               </div>
               <p>Clear GATE (ECE) or UGC-NET (Electronic Science) to qualify for JRF. Use the fellowship to pursue PhD at CSIR labs (AcSIR), IITs, IISc, or universities. This is the most common route — you get a stipend of ₹37,000/month from day one of your PhD.</p>
             </div>
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <div className="flex items-center gap-2 mb-2">
                 <BookOpen className="w-5 h-5 text-blue-600" />
                 <h3 className="font-display text-base font-bold text-slate-900">Route 2: Direct Institute PhD Entrance Exam</h3>
               </div>
               <p>Many IITs, IISc, IISERs, and TIFR conduct their own PhD entrance exams. You apply directly to the institute, appear for their test, and if selected, receive an institute fellowship. No prior GATE/NET required, though a valid score strengthens your application.</p>
             </div>
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <div className="flex items-center gap-2 mb-2">
                 <Award className="w-5 h-5 text-blue-600" />
                 <h3 className="font-display text-base font-bold text-slate-900">Route 3: JRF-to-PhD (Project-based)</h3>
@@ -68,15 +68,15 @@ export default async function PhDGuidePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Top Institutions for Electronics PhD</h2>
-          <div className="overflow-x-auto bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-sm">
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Top Institutions for Electronics PhD</h2>
+          <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-card">
             <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="border-b-2 border-slate-900 bg-slate-100">
-                  <th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Institution</th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Research Strengths</th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Application Window</th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Stipend</th>
+              <thead className="bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Institution</th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Research Strengths</th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Application Window</th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Stipend</th>
                 </tr>
               </thead>
               <tbody>
@@ -94,15 +94,15 @@ export default async function PhDGuidePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Funding Options & Stipends</h2>
-          <div className="overflow-x-auto bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-sm">
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Funding Options & Stipends</h2>
+          <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-card">
             <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="border-b-2 border-slate-900 bg-slate-100">
-                  <th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Fellowship</th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Stipend</th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Tenable At</th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Key Requirement</th>
+              <thead className="bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Fellowship</th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Stipend</th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Tenable At</th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Key Requirement</th>
                 </tr>
               </thead>
               <tbody>
@@ -118,9 +118,9 @@ export default async function PhDGuidePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">How to Contact Professors (Email Template)</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">How to Contact Professors (Email Template)</h2>
           <p className="mb-3">Before applying to a PhD program, it is critical to contact potential supervisors. Professors receive dozens of emails — here is a template that works:</p>
-          <div className="bg-slate-50 border-2 border-slate-900 rounded-xl p-4 font-mono text-xs leading-relaxed shadow-brutal-sm">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 font-mono text-xs leading-relaxed shadow-card">
             <p className="text-slate-900 mb-2"><strong>Subject:</strong> PhD Inquiry — [Your Name] — Electronics — [Research Area]</p>
             <p>Dear Prof. [Last Name],</p>
             <p className="mt-2">I am writing to express my interest in pursuing a PhD in [specific area] under your guidance at [Institution].</p>
@@ -133,44 +133,44 @@ export default async function PhDGuidePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Application Timeline Calendar</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Application Timeline Calendar</h2>
           <div className="space-y-3">
-            <div className="flex items-start gap-3 bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="flex items-start gap-3 bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <Calendar className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-slate-900 font-bold">July-August</p>
                 <p className="text-xs font-medium mt-0.5">Prepare for GATE/NET. Start reaching out to professors via email. Research potential supervisors and read their recent publications.</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="flex items-start gap-3 bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <Calendar className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-slate-900 font-bold">September-December</p>
                 <p className="text-xs font-medium mt-0.5">Submit PhD applications for spring admissions. Most IITs open their PhD portal during this period. IISc and TIFR have their application windows open.</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="flex items-start gap-3 bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <Calendar className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-slate-900 font-bold">January-February</p>
                 <p className="text-xs font-medium mt-0.5">Give GATE exam. Attend PhD interviews at institutes. Monitor DRDO/CSIR JRF notifications.</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="flex items-start gap-3 bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <Calendar className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-slate-900 font-bold">March-April</p>
                 <p className="text-xs font-medium mt-0.5">GATE results out. Main PhD admission cycle for July intake. Apply for CSIR-JRF via GATE score. Most IITs conduct written tests and interviews.</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="flex items-start gap-3 bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <Calendar className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-slate-900 font-bold">May-June</p>
                 <p className="text-xs font-medium mt-0.5">UGC-NET exam. Final admission offers for July intake. Prepare for PhD program start.</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="flex items-start gap-3 bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <Calendar className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-slate-900 font-bold">July-August</p>
@@ -181,11 +181,11 @@ export default async function PhDGuidePage() {
         </section>
 
         <Card className="p-6">
-          <h2 className="font-display text-xl font-black text-slate-900 mb-4">Current PhD Openings</h2>
+          <h2 className="font-display text-xl font-bold text-slate-900 mb-4">Current PhD Openings</h2>
           {phdOpps.length > 0 ? (
             <div className="space-y-3">
               {phdOpps.map((opp: any) => (
-                <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border-2 border-slate-900 rounded-xl p-3.5 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all">
+                <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border border-slate-200 rounded-xl p-3.5 shadow-card hover:border-slate-300 hover:shadow-elevated transition-all">
                   <h3 className="text-slate-900 text-sm font-semibold">{opp.title}</h3>
                   <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization}{opp.stipend ? ` — ${opp.stipend}` : ""}{opp.deadline ? ` — Deadline: ${new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""}</p>
                 </Link>

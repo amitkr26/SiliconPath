@@ -40,11 +40,11 @@ export default function ForgotPasswordPage() {
       <div className="max-w-md w-full space-y-6">
         {/* BRAND HEADER */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full shadow-brutal-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-50/80 border border-blue-100 rounded-full">
             <Zap className="w-4 h-4 text-blue-600 fill-blue-600" />
-            <span className="text-xs font-black text-slate-900 uppercase tracking-wider">BerojgarDegreeWala</span>
+            <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">BerojgarDegreeWala</span>
           </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Reset Password</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Reset Password</h1>
           <p className="text-slate-600 text-sm font-medium">
             Enter your email and we&apos;ll send you a recovery link
           </p>
@@ -83,9 +83,10 @@ export default function ForgotPasswordPage() {
             </form>
           )}
 
-          <div className="pt-4 border-t-2 border-slate-900 text-center">
-            <p className="text-xs font-bold">
-              <Link href="/login" className="text-blue-600 hover:underline">
+          <div className="pt-4 border-t border-slate-100 text-center">
+            <p className="text-xs font-medium text-slate-600">
+              Remember your password?{" "}
+              <Link href="/login" className="text-blue-600 font-semibold hover:underline">
                 Back to Sign In
               </Link>
             </p>

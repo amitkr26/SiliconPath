@@ -64,11 +64,11 @@ export default function UpdatePasswordPage() {
       <div className="max-w-md w-full space-y-6">
         {/* BRAND HEADER */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border-2 border-slate-900 rounded-full shadow-brutal-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-50/80 border border-blue-100 rounded-full">
             <Zap className="w-4 h-4 text-blue-600 fill-blue-600" />
-            <span className="text-xs font-black text-slate-900 uppercase tracking-wider">BerojgarDegreeWala</span>
+            <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">BerojgarDegreeWala</span>
           </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Set New Password</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Set New Password</h1>
           <p className="text-slate-600 text-sm font-medium">Choose a strong password for your account</p>
         </div>
 
@@ -101,7 +101,7 @@ export default function UpdatePasswordPage() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute right-3 bottom-3.5 text-slate-600 hover:text-slate-900"
+                  className="absolute right-3 bottom-3.5 text-slate-400 hover:text-slate-700"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -123,9 +123,9 @@ export default function UpdatePasswordPage() {
             </form>
           )}
 
-          <div className="pt-4 border-t-2 border-slate-900 text-center">
-            <p className="text-xs font-bold">
-              <Link href="/login" className="text-blue-600 hover:underline">
+          <div className="pt-4 border-t border-slate-100 text-center">
+            <p className="text-xs font-medium text-slate-600">
+              <Link href="/login" className="text-blue-600 font-semibold hover:underline">
                 Back to Sign In
               </Link>
             </p>

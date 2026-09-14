@@ -181,6 +181,12 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
      - Entity Graph A: Organization → Opportunity → Attributes (Stipend, Deadline, Location, Eligibility) → Official Circular
      - Entity Graph B: Publisher → NewsArticle → Technical Topic → Publication Date → Original Source URL
 
+5. **Search Demand Taxonomy & Programmatic Quality Gate (Phase 2 Strategy)**:
+   - **Dual-Pillar Strategy**: Dominates academic/government fellowships (2,834 JRF listings with DST stipend rules) and specialized chip design careers (497 industry roles: 145 Verification, 138 Physical Design, 87 RTL, 51 DFT, 42 Embedded).
+   - **Role Hub Architecture (`/opportunities/role/[role]`)**: Dedicated canonical collections planned for the 6 core disciplines with static generation, `ItemList` schema, and semantic breadcrumbs.
+   - **Programmatic Quality Gate**: Any programmatic page combination (Role × Location, Category × Location) must require &ge; 3 active verified opportunities to be indexed; combinations with < 3 listings fail closed with `noindex, follow` to prevent doorway-page / thin-content penalties.
+   - **Negative Keyword Boundaries**: Explicitly excludes generic IT/software terms ("Python developer", "web developer") and broad non-technical Sarkari terms ("railway jobs", "bank PO") to maintain 100% domain authority in deep-tech hardware.
+
 ---
 
 ## 8. Verification Baseline

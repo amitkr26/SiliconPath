@@ -159,43 +159,43 @@ export default function PostJobPage() {
         </div>
 
         {/* QUICK TEMPLATE FILLER */}
-        <div className="bg-white p-4 border-2 border-slate-900 rounded-2xl shadow-brutal-sm space-y-2">
-          <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+        <div className="bg-white p-4 border border-slate-200 rounded-2xl shadow-card space-y-2.5">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Quick-Fill Standard Semiconductor Templates:
           </span>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => applyTemplate("jrf")}
-              className="px-3 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-600 text-blue-800 text-xs font-bold transition-all"
+              className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100/80 border border-blue-200 text-blue-700 text-xs font-semibold transition-all shadow-xs"
             >
               DST JRF Fellowship (₹37k/mo)
             </button>
             <button
               type="button"
               onClick={() => applyTemplate("srf")}
-              className="px-3 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 border border-purple-600 text-purple-800 text-xs font-bold transition-all"
+              className="px-3 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100/80 border border-purple-200 text-purple-700 text-xs font-semibold transition-all shadow-xs"
             >
               SRF RISC-V Fellow (₹42k/mo)
             </button>
             <button
               type="button"
               onClick={() => applyTemplate("rtl")}
-              className="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-900 text-slate-900 text-xs font-bold transition-all"
+              className="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold transition-all shadow-xs"
             >
               Digital RTL Engineer
             </button>
             <button
               type="button"
               onClick={() => applyTemplate("uvm")}
-              className="px-3 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-600 text-emerald-800 text-xs font-bold transition-all"
+              className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 text-emerald-700 text-xs font-semibold transition-all shadow-xs"
             >
               UVM Verification Lead
             </button>
             <button
               type="button"
               onClick={() => applyTemplate("intern")}
-              className="px-3 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-600 text-amber-800 text-xs font-bold transition-all"
+              className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100/80 border border-amber-200 text-amber-700 text-xs font-semibold transition-all shadow-xs"
             >
               VLSI Semester Intern
             </button>
@@ -208,7 +208,7 @@ export default function PostJobPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                   Job / Fellowship Title *
                 </label>
                 <input
@@ -217,12 +217,12 @@ export default function PostJobPage() {
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="e.g. Junior Research Fellow (JRF) - Analog Mixed-Signal IC Design"
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                   Organization / Lab Name *
                 </label>
                 <input
@@ -230,18 +230,18 @@ export default function PostJobPage() {
                   value={formData.organization}
                   onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                   Category *
                 </label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
                 >
                   <option value="JRF">Junior Research Fellow (JRF)</option>
                   <option value="SRF">Senior Research Fellow (SRF)</option>
@@ -253,7 +253,7 @@ export default function PostJobPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                   Location / Lab Site
                 </label>
                 <input
@@ -261,12 +261,12 @@ export default function PostJobPage() {
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   placeholder="e.g. Bengaluru / IIT Bombay / Hybrid"
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                   Monthly Stipend / Annual CTC
                 </label>
                 <input
@@ -274,24 +274,24 @@ export default function PostJobPage() {
                   value={formData.stipend}
                   onChange={(e) => setFormData({ ...formData, stipend: e.target.value })}
                   placeholder="e.g. ₹37,000/month + HRA or ₹14-20 LPA"
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                   Application Deadline
                 </label>
                 <input
                   type="date"
                   value={formData.deadline}
                   onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                   External Official Link (Optional)
                 </label>
                 <input
@@ -299,13 +299,13 @@ export default function PostJobPage() {
                   value={formData.apply_link}
                   onChange={(e) => setFormData({ ...formData, apply_link: e.target.value })}
                   placeholder="https://isro.gov.in/advt-102 or leave blank for In-App ATS"
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 Eligibility &amp; GATE/NET Criteria
               </label>
               <input
@@ -313,12 +313,12 @@ export default function PostJobPage() {
                 value={formData.eligibility}
                 onChange={(e) => setFormData({ ...formData, eligibility: e.target.value })}
                 placeholder="e.g. B.Tech/M.Tech with valid GATE (EC/EE) score or NET qualification"
-                className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 Skill Tags (Comma separated)
               </label>
               <input
@@ -326,12 +326,12 @@ export default function PostJobPage() {
                 value={formData.tagsInput}
                 onChange={(e) => setFormData({ ...formData, tagsInput: e.target.value })}
                 placeholder="SystemVerilog, UVM, Cadence, RTL, Physical Design"
-                className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 Detailed Scope of Work &amp; Project Description
               </label>
               <textarea
@@ -339,11 +339,11 @@ export default function PostJobPage() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe the research project, semiconductor tools used (Cadence Virtuoso, Synopsys ICC2, Siemens Questa), deliverables, and selection interview process..."
-                className="w-full p-4 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none resize-none"
+                className="w-full p-4 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all resize-none"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t-2 border-slate-900">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
               <Button variant="ghost" type="button" onClick={() => router.back()}>
                 Cancel
               </Button>

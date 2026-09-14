@@ -120,7 +120,7 @@ export default function EmployerApplicantDetailPage() {
             <Card className="p-6 sm:p-8 space-y-6">
               {/* CANDIDATE HEADER */}
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 rounded-2xl border-2 border-slate-900 flex items-center justify-center font-black text-2xl shrink-0 shadow-brutal-sm overflow-hidden relative">
+                <div className="w-16 h-16 rounded-2xl border border-slate-200 flex items-center justify-center font-bold text-2xl shrink-0 shadow-xs overflow-hidden relative">
                   <ImageWithFallback
                     src={candidate.avatar_url}
                     alt={candidate.display_name || "Applicant"}
@@ -147,9 +147,9 @@ export default function EmployerApplicantDetailPage() {
               </div>
 
               {/* APPLIED ROLE CONTEXT */}
-              <div className="p-4 bg-slate-50 border-2 border-slate-900 rounded-xl space-y-1">
-                <span className="text-[10px] font-black uppercase text-slate-400">Position Applied For</span>
-                <p className="text-sm font-black text-slate-900">{opp.title || "Semiconductor Position"}</p>
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                <span className="text-[10px] font-bold uppercase text-slate-400">Position Applied For</span>
+                <p className="text-sm font-bold text-slate-900">{opp.title || "Semiconductor Position"}</p>
                 <p className="text-xs text-slate-500">
                   Applied on {new Date(application.applied_at).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
                 </p>
@@ -158,18 +158,18 @@ export default function EmployerApplicantDetailPage() {
               {/* BIO / BACKGROUND */}
               {candidate.bio && (
                 <div className="space-y-1.5">
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">About Candidate</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">About Candidate</h3>
                   <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">{candidate.bio}</p>
                 </div>
               )}
 
               {/* VERIFIED SKILLS */}
               <div className="space-y-2">
-                <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">Hardware &amp; EDA Skills</h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">Hardware &amp; EDA Skills</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {candidate.skills && candidate.skills.length > 0 ? (
                     candidate.skills.map((sk: string) => (
-                      <span key={sk} className="px-3 py-1 rounded-lg bg-blue-50 border-2 border-slate-900 text-xs font-bold text-blue-700 shadow-brutal-sm">
+                      <span key={sk} className="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-700">
                         {sk}
                       </span>
                     ))
@@ -185,7 +185,7 @@ export default function EmployerApplicantDetailPage() {
                   <Link
                     href={`/profile/${candidate.username}`}
                     target="_blank"
-                    className="px-3 py-1.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-brutal-sm hover:bg-slate-50 flex items-center gap-1.5"
+                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center gap-1.5"
                   >
                     <ExternalLink className="w-3.5 h-3.5" /> Public Portfolio
                   </Link>
@@ -195,7 +195,7 @@ export default function EmployerApplicantDetailPage() {
                     href={candidate.github_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3 py-1.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-brutal-sm hover:bg-slate-50 flex items-center gap-1.5"
+                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center gap-1.5"
                   >
                     GitHub
                   </a>
@@ -205,7 +205,7 @@ export default function EmployerApplicantDetailPage() {
                     href={candidate.linkedin_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3 py-1.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-brutal-sm hover:bg-slate-50 flex items-center gap-1.5"
+                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center gap-1.5"
                   >
                     LinkedIn
                   </a>
@@ -217,16 +217,16 @@ export default function EmployerApplicantDetailPage() {
           {/* RIGHT: RECRUITER ACTIONS & NOTES */}
           <div className="space-y-6">
             <Card className="p-6 space-y-5">
-              <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 border-b-2 border-slate-900 pb-2">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-2">
                 Hiring Pipeline Stage
               </h3>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase text-slate-600 block">Current Stage</label>
+                <label className="text-xs font-semibold uppercase text-slate-600 block">Current Stage</label>
                 <select
                   value={stage}
                   onChange={(e) => setStage(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-brutal-sm focus:outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 shadow-xs focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
                 >
                   <option value="applied">1. Applied (New)</option>
                   <option value="screening">2. Screening &amp; Background</option>
@@ -238,13 +238,13 @@ export default function EmployerApplicantDetailPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase text-slate-600 block">Private Recruiter Notes</label>
+                <label className="text-xs font-semibold uppercase text-slate-600 block">Private Recruiter Notes</label>
                 <textarea
                   rows={4}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add interview feedback, GATE verification, or notes..."
-                  className="w-full p-3 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs font-medium text-slate-900 focus:outline-none resize-none"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all resize-none"
                 />
               </div>
 
@@ -257,10 +257,10 @@ export default function EmployerApplicantDetailPage() {
                 <span>Save Stage &amp; Notes</span>
               </Button>
 
-              <div className="pt-2 border-t-2 border-slate-900 space-y-2">
+              <div className="pt-2 border-t border-slate-200 space-y-2">
                 <Link
                   href={`/employer/messages`}
-                  className="w-full py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-brutal-sm hover:bg-slate-50 flex items-center justify-center gap-1.5"
+                  className="w-full py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-1.5"
                 >
                   <MessageSquare className="w-4 h-4 text-blue-600" /> Send Message
                 </Link>

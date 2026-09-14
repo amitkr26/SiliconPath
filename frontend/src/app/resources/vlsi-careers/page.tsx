@@ -46,10 +46,10 @@ export default async function VLSICareersPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Top Companies Hiring VLSI Engineers in India</h2>
-          <div className="overflow-x-auto bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-sm">
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Top Companies Hiring VLSI Engineers in India</h2>
+          <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-card">
             <table className="w-full text-sm border-collapse">
-              <thead><tr className="border-b-2 border-slate-900 bg-slate-100"><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Company</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Primary Location</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Key Roles</th></tr></thead>
+              <thead className="bg-slate-50 border-b border-slate-200"><tr><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Company</th><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Primary Location</th><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Key Roles</th></tr></thead>
               <tbody>
                 <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">Intel</td><td className="py-2.5 px-3">Bangalore, Hyderabad</td><td className="py-2.5 px-3">RTL, PD, DFT, Verification</td></tr>
                 <tr className="border-b border-slate-200"><td className="py-2.5 px-3 font-semibold text-slate-900">Qualcomm</td><td className="py-2.5 px-3">Bangalore, Hyderabad, Chennai</td><td className="py-2.5 px-3">RTL, Verification, Analog</td></tr>
@@ -65,10 +65,10 @@ export default async function VLSICareersPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Salary Guide — VLSI India 2026</h2>
-          <div className="overflow-x-auto bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-sm">
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Salary Guide — VLSI India 2026</h2>
+          <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-card">
             <table className="w-full text-sm border-collapse">
-              <thead><tr className="border-b-2 border-slate-900 bg-slate-100"><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Experience</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Role</th><th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Salary Range</th></tr></thead>
+              <thead className="bg-slate-50 border-b border-slate-200"><tr><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Experience</th><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Role</th><th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Salary Range</th></tr></thead>
               <tbody>
                 <tr className="border-b border-slate-200"><td className="py-2.5 px-3">0-1 year (fresher)</td><td className="py-2.5 px-3">RTL/Verification</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹5-12 LPA</td></tr>
                 <tr className="border-b border-slate-200"><td className="py-2.5 px-3">2-4 years</td><td className="py-2.5 px-3">RTL/PD/DFT</td><td className="py-2.5 px-3 text-blue-600 font-bold">₹12-25 LPA</td></tr>
@@ -80,7 +80,7 @@ export default async function VLSICareersPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Skills Required for VLSI Jobs 2026</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Skills Required for VLSI Jobs 2026</h2>
           <ul className="list-disc list-inside space-y-1">
             <li><strong className="text-slate-900">Languages</strong>: Verilog, SystemVerilog, VHDL, C/C++, Python (for EDA scripting)</li>
             <li><strong className="text-slate-900">Tools</strong>: Synopsys Design Compiler, ICC2, PrimeTime; Cadence Genus, Innovus, Virtuoso</li>
@@ -91,10 +91,10 @@ export default async function VLSICareersPage() {
 
         {vlsiOpps.length > 0 && (
           <Card className="p-6">
-            <h2 className="font-display text-xl font-black text-slate-900 mb-4">Current Private Sector Openings</h2>
+            <h2 className="font-display text-xl font-bold text-slate-900 mb-4">Current Private Sector Openings</h2>
             <div className="space-y-3">
               {vlsiOpps.map((opp: any) => (
-                <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border-2 border-slate-900 rounded-xl p-3.5 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all">
+                <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border border-slate-200 rounded-xl p-3.5 shadow-card hover:border-slate-300 hover:shadow-elevated transition-all">
                   <h3 className="text-slate-900 text-sm font-semibold">{opp.title}</h3>
                   <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization} {opp.location ? `— ${opp.location}` : ""} {opp.stipend ? `— ${opp.stipend}` : ""}</p>
                 </Link>

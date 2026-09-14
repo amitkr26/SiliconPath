@@ -312,7 +312,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
                 className="w-11 h-11 rounded-lg border border-slate-200 shadow-xs flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <h1 className="font-display text-xl sm:text-2xl font-black text-text-primary">{opportunity.title}</h1>
+                <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900">{opportunity.title}</h1>
                 {opportunity.org_slug ? (
                   <Link
                     href={`/organizations/${opportunity.org_slug}`}
@@ -322,7 +322,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
                     <span className="text-xs">&rarr;</span>
                   </Link>
                 ) : (
-                  <p className="text-text-secondary text-sm mt-0.5">{orgName || "BerojgarDegreeWala"}</p>
+                  <p className="text-slate-600 text-sm mt-0.5">{orgName || "BerojgarDegreeWala"}</p>
                 )}
                 <div className="flex items-center gap-2 mt-3 flex-wrap">
                   <CategoryBadge category={opportunity.category} />
@@ -351,10 +351,10 @@ export default async function OpportunityDetailPage({ params }: Props) {
           {opportunity.description && (
             <div className="mt-6">
               <div className="flex items-start gap-3">
-                <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
+                <div className="w-1 h-8 bg-blue-600 rounded-full flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <h2 className="font-display text-lg font-black text-text-primary mb-2">Description</h2>
-                  <p className="text-text-secondary text-sm leading-relaxed whitespace-pre-wrap">{opportunity.description}</p>
+                  <h2 className="font-display text-lg font-bold text-slate-900 mb-2">Description</h2>
+                  <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">{opportunity.description}</p>
                 </div>
               </div>
             </div>
@@ -364,13 +364,13 @@ export default async function OpportunityDetailPage({ params }: Props) {
           {eligibilityItems.length > 0 && (
             <div className="mt-6">
               <div className="flex items-start gap-3">
-                <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
+                <div className="w-1 h-8 bg-blue-600 rounded-full flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <h2 className="font-display text-lg font-black text-text-primary mb-2">Eligibility</h2>
+                  <h2 className="font-display text-lg font-bold text-slate-900 mb-2">Eligibility</h2>
                   <ul className="space-y-2">
                     {eligibilityItems.map((item: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2 text-text-secondary text-sm">
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0 mt-1.5" />
+                      <li key={i} className="flex items-start gap-2 text-slate-600 text-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600 flex-shrink-0 mt-1.5" />
                         {item}
                       </li>
                     ))}
@@ -381,52 +381,52 @@ export default async function OpportunityDetailPage({ params }: Props) {
           )}
 
           {/* QUICK FACTS */}
-          <div className="mt-6 p-4 bg-surface border border-border rounded-lg">
-            <h3 className="font-display text-sm font-bold text-text-primary mb-3 flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-accent" />
+          <div className="mt-6 p-4 bg-white border border-slate-200 rounded-xl shadow-card">
+            <h3 className="font-display text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-blue-600" />
               Quick Facts
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
               <div>
-                <span className="text-text-muted">Position Type</span>
-                <p className="text-text-primary font-medium">{opportunity.category}</p>
+                <span className="text-slate-400">Position Type</span>
+                <p className="text-slate-900 font-medium">{opportunity.category}</p>
               </div>
               <div>
-                <span className="text-text-muted">Organization Type</span>
-                <p className="text-text-primary font-medium">{orgType}</p>
+                <span className="text-slate-400">Organization Type</span>
+                <p className="text-slate-900 font-medium">{orgType}</p>
               </div>
               <div>
-                <span className="text-text-muted">Work Location</span>
-                <p className="text-text-primary font-medium">{opportunity.location || "On-site"}</p>
+                <span className="text-slate-400">Work Location</span>
+                <p className="text-slate-900 font-medium">{opportunity.location || "On-site"}</p>
               </div>
               {opportunity.eligibility?.match(/NET|GATE/i) && (
                 <div>
-                  <span className="text-text-muted">NET/GATE Required</span>
-                  <p className="text-success font-medium">Yes</p>
+                  <span className="text-slate-400">NET/GATE Required</span>
+                  <p className="text-emerald-600 font-medium">Yes</p>
                 </div>
               )}
               {opportunity.stipend && (
                 <div>
-                  <span className="text-text-muted">Compensation / Stipend</span>
-                  <p className="text-text-primary font-medium">{opportunity.stipend}</p>
+                  <span className="text-slate-400">Compensation / Stipend</span>
+                  <p className="text-slate-900 font-medium">{opportunity.stipend}</p>
                 </div>
               )}
               {opportunity.duration && (
                 <div>
-                  <span className="text-text-muted">Duration</span>
-                  <p className="text-text-primary font-medium">{opportunity.duration}</p>
+                  <span className="text-slate-400">Duration</span>
+                  <p className="text-slate-900 font-medium">{opportunity.duration}</p>
                 </div>
               )}
               {opportunity.experience_required && (
                 <div>
-                  <span className="text-text-muted">Experience</span>
-                  <p className="text-text-primary font-medium">{opportunity.experience_required}</p>
+                  <span className="text-slate-400">Experience</span>
+                  <p className="text-slate-900 font-medium">{opportunity.experience_required}</p>
                 </div>
               )}
               {opportunity.min_qualification && (
                 <div className="col-span-2 sm:col-span-1">
-                  <span className="text-text-muted">Min Qualification</span>
-                  <p className="text-text-primary font-medium truncate" title={opportunity.min_qualification}>{opportunity.min_qualification}</p>
+                  <span className="text-slate-400">Min Qualification</span>
+                  <p className="text-slate-900 font-medium truncate" title={opportunity.min_qualification}>{opportunity.min_qualification}</p>
                 </div>
               )}
             </div>
@@ -436,13 +436,13 @@ export default async function OpportunityDetailPage({ params }: Props) {
           {opportunity.responsibilities && Array.isArray(opportunity.responsibilities) && opportunity.responsibilities.length > 0 && (
             <div className="mt-6">
               <div className="flex items-start gap-3">
-                <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
+                <div className="w-1 h-8 bg-blue-600 rounded-full flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <h2 className="font-display text-lg font-black text-text-primary mb-2">Key Responsibilities</h2>
+                  <h2 className="font-display text-lg font-bold text-slate-900 mb-2">Key Responsibilities</h2>
                   <ul className="space-y-2">
                     {opportunity.responsibilities.map((item: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2 text-text-secondary text-sm">
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent/80 flex-shrink-0 mt-1.5" />
+                      <li key={i} className="flex items-start gap-2 text-slate-600 text-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600/80 flex-shrink-0 mt-1.5" />
                         {item}
                       </li>
                     ))}
@@ -456,13 +456,13 @@ export default async function OpportunityDetailPage({ params }: Props) {
           {opportunity.requirements && Array.isArray(opportunity.requirements) && opportunity.requirements.length > 0 && (
             <div className="mt-6">
               <div className="flex items-start gap-3">
-                <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
+                <div className="w-1 h-8 bg-blue-600 rounded-full flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <h2 className="font-display text-lg font-black text-text-primary mb-2">Specific Requirements</h2>
+                  <h2 className="font-display text-lg font-bold text-slate-900 mb-2">Specific Requirements</h2>
                   <ul className="space-y-2">
                     {opportunity.requirements.map((item: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2 text-text-secondary text-sm">
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent/80 flex-shrink-0 mt-1.5" />
+                      <li key={i} className="flex items-start gap-2 text-slate-600 text-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600/80 flex-shrink-0 mt-1.5" />
                         {item}
                       </li>
                     ))}
@@ -476,9 +476,9 @@ export default async function OpportunityDetailPage({ params }: Props) {
           {opportunity.skills_required && Array.isArray(opportunity.skills_required) && opportunity.skills_required.length > 0 && (
             <div className="mt-6">
               <div className="flex items-start gap-3">
-                <div className="w-1 h-8 bg-accent rounded-full flex-shrink-0 mt-1" />
+                <div className="w-1 h-8 bg-blue-600 rounded-full flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <h2 className="font-display text-lg font-black text-text-primary mb-2">Required Skills</h2>
+                  <h2 className="font-display text-lg font-bold text-slate-900 mb-2">Required Skills</h2>
                   <div className="flex flex-wrap gap-2">
                     {opportunity.skills_required.map((skill: string, i: number) => (
                       <Badge key={i} tone="neutral">
@@ -494,7 +494,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
           {/* Tags */}
           {opportunity.tags && opportunity.tags.length > 0 && (
             <div className="mt-6">
-              <h2 className="font-display text-sm font-bold text-text-primary mb-3">Tags</h2>
+              <h2 className="font-display text-sm font-bold text-slate-900 mb-3">Tags</h2>
               <div className="flex flex-wrap gap-2">
                 {opportunity.tags.map((tag: string) => (
                   <Link
@@ -548,36 +548,36 @@ export default async function OpportunityDetailPage({ params }: Props) {
             <OpenToWorkBanner />
 
             {/* Quick Facts Card */}
-            <Card tone="flat" className="p-4">
-              <h3 className="font-display text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Quick Facts</h3>
+            <Card tone="flat" className="p-4 bg-white border border-slate-200 shadow-card">
+              <h3 className="font-display text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Quick Facts</h3>
               <div className="space-y-2.5">
                 {opportunity.location && (
                   <div className="flex items-center justify-between">
-                    <span className="text-text-muted text-xs">Location</span>
-                    <span className="text-text-primary text-sm font-medium">{opportunity.location}</span>
+                    <span className="text-slate-400 text-xs">Location</span>
+                    <span className="text-slate-900 text-sm font-medium">{opportunity.location}</span>
                   </div>
                 )}
                 {opportunity.category && (
                   <div className="flex items-center justify-between">
-                    <span className="text-text-muted text-xs">Type</span>
-                    <span className="text-text-primary text-sm font-medium">{opportunity.category}</span>
+                    <span className="text-slate-400 text-xs">Type</span>
+                    <span className="text-slate-900 text-sm font-medium">{opportunity.category}</span>
                   </div>
                 )}
                 {opportunity.deadline && (
                   <div className="flex items-center justify-between">
-                    <span className="text-text-muted text-xs">Deadline</span>
-                    <span className="text-text-primary text-sm font-medium">{formatDate(opportunity.deadline)}</span>
+                    <span className="text-slate-400 text-xs">Deadline</span>
+                    <span className="text-slate-900 text-sm font-medium">{formatDate(opportunity.deadline)}</span>
                   </div>
                 )}
                 {opportunity.stipend && (
                   <div className="flex items-center justify-between">
-                    <span className="text-text-muted text-xs">Stipend</span>
-                    <span className="text-text-primary text-sm font-medium">{opportunity.stipend}</span>
+                    <span className="text-slate-400 text-xs">Stipend</span>
+                    <span className="text-slate-900 text-sm font-medium">{opportunity.stipend}</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
-                  <span className="text-text-muted text-xs">Org. Type</span>
-                  <span className="text-text-primary text-sm font-medium">{orgType}</span>
+                  <span className="text-slate-400 text-xs">Org. Type</span>
+                  <span className="text-slate-900 text-sm font-medium">{orgType}</span>
                 </div>
               </div>
             </Card>

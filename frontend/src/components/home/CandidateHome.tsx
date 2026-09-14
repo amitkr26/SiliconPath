@@ -50,15 +50,15 @@ export default function CandidateHome({
   const candidateName = profile?.display_name || profile?.username || user.email?.split("@")[0] || "Candidate";
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] pb-20">
+    <div className="min-h-screen bg-bg-primary pb-20">
       
       {/* 1. CANDIDATE COCKPIT HERO */}
-      <section className="bg-white border-b-2 border-slate-900 py-10">
+      <section className="bg-white border-b border-slate-200 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border-2 border-slate-900 text-blue-800 text-xs font-black uppercase tracking-wider mb-3 shadow-brutal-sm">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold uppercase tracking-wider mb-3 shadow-xs">
                 <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Candidate Portal Dashboard
               </div>
               <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
@@ -71,13 +71,13 @@ export default function CandidateHome({
 
             {/* QUICK METRICS & COMPLETENESS */}
             <div className="flex flex-wrap items-center gap-3">
-              <Card className="p-3.5 flex items-center gap-3 shadow-brutal-sm">
-                <div className="w-9 h-9 rounded-xl bg-blue-100 border border-blue-300 flex items-center justify-center font-black text-blue-700 text-sm">
+              <Card className="p-3.5 flex items-center gap-3 shadow-card border border-slate-200">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center font-bold text-blue-700 text-sm">
                   {completenessScore}%
                 </div>
                 <div>
                   <p className="text-xs font-bold text-slate-900">Profile Completeness</p>
-                  <Link href="/profile" className="text-[11px] font-bold text-blue-600 hover:underline">
+                  <Link href="/profile" className="text-[11px] font-semibold text-blue-600 hover:underline">
                     {completenessScore < 100 ? "Complete Profile →" : "View Profile →"}
                   </Link>
                 </div>
@@ -85,7 +85,7 @@ export default function CandidateHome({
 
               <Link
                 href="/opportunities"
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl px-5 py-3 border-2 border-slate-900 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-0.5 transition-all text-xs uppercase tracking-wider"
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-5 py-2.5 shadow-sm hover:shadow transition-all text-xs"
               >
                 <Search className="w-4 h-4" /> Browse All Opportunities
               </Link>
@@ -95,31 +95,29 @@ export default function CandidateHome({
 
           {/* QUICK DASHBOARD STATS BAR */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 pt-6 border-t border-slate-200">
-            <Link href="/applications" className="p-3.5 bg-slate-50 border-2 border-slate-900 rounded-xl shadow-brutal-sm hover:bg-blue-50 transition-all">
+            <Link href="/applications" className="p-4 bg-white border border-slate-200 rounded-xl shadow-card hover:border-blue-300 hover:shadow-md transition-all">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700">My Applications</span>
+                <span className="text-xs font-semibold text-slate-600">My Applications</span>
                 <FileText className="w-4 h-4 text-blue-600" />
               </div>
-              <p className="text-2xl font-black text-slate-900 mt-1">{stats.applicationsCount}</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{stats.applicationsCount}</p>
             </Link>
 
-            <Link href="/saved" className="p-3.5 bg-slate-50 border-2 border-slate-900 rounded-xl shadow-brutal-sm hover:bg-blue-50 transition-all">
+            <Link href="/saved" className="p-4 bg-white border border-slate-200 rounded-xl shadow-card hover:border-blue-300 hover:shadow-md transition-all">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700">Saved Openings</span>
+                <span className="text-xs font-semibold text-slate-600">Saved Openings</span>
                 <Bookmark className="w-4 h-4 text-red-500" />
               </div>
-              <p className="text-2xl font-black text-slate-900 mt-1">{stats.savedCount}</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{stats.savedCount}</p>
             </Link>
 
-            <Link href="/network" className="p-3.5 bg-slate-50 border-2 border-slate-900 rounded-xl shadow-brutal-sm hover:bg-blue-50 transition-all">
+            <Link href="/network" className="p-4 bg-white border border-slate-200 rounded-xl shadow-card hover:border-blue-300 hover:shadow-md transition-all">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700">Connections</span>
+                <span className="text-xs font-semibold text-slate-600">Connections</span>
                 <Users className="w-4 h-4 text-emerald-600" />
               </div>
-              <p className="text-2xl font-black text-slate-900 mt-1">{stats.connectionsCount}</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{stats.connectionsCount}</p>
             </Link>
-
-
           </div>
 
         </div>
@@ -160,7 +158,7 @@ export default function CandidateHome({
 
         {/* SECTION B: CLOSING SOON (URGENT DEADLINES) */}
         {closingSoonOpportunities.length > 0 && (
-          <div className="bg-amber-50/60 border-2 border-slate-900 rounded-2xl p-6 shadow-brutal">
+          <div className="bg-amber-50/40 border border-amber-200 rounded-2xl p-6 shadow-card">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <div className="flex items-center gap-2">
