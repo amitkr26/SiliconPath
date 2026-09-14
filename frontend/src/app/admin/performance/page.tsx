@@ -1,14 +1,29 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, Activity, Clock, Zap, AlertTriangle, Server, Database } from "lucide-react";
 import { api } from "@/lib/api-client";
+import AdminNav from "../_components/AdminNav";
 
 export default function AdminPerformancePage() {
+  const router = useRouter();
   const [metrics, setMetrics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+    const pw = typeof window !== "undefined" ? sessionStorage.getItem("admin_password") : null;
+    if (!token && !pw) {
+      router.push("/admin");
+      return;
+    }
+    setAuthed(true);
+  }, [router]);
+
+  useEffect(() => {
+    if (!authed) return;
     const load = async () => {
       try {
         const d = await api.get<any>("/api/admin/performance");
@@ -17,20 +32,18 @@ export default function AdminPerformancePage() {
       setLoading(false);
     };
     load();
-  }, []);
+  }, [authed]);
 
-  if (loading) return (
+  if (!authed || loading) return (
     <div className="max-w-5xl mx-auto px-4 py-20 flex justify-center">
       <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
     </div>
   );
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center gap-3 mb-6">
-        <Activity className="w-6 h-6 text-blue-400" />
-        <h1 className="font-display text-2xl font-bold text-white">Performance</h1>
-      </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <AdminNav title="System Performance" subtitle="Infrastructure telemetry & API responsiveness" icon={Activity} />
+      <div className="max-w-5xl mx-auto px-4 py-8">
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
@@ -70,5 +83,6 @@ export default function AdminPerformancePage() {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }

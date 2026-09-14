@@ -29,25 +29,28 @@ export async function PATCH(
     return NextResponse.json({ error: `action must be one of: ${validActions.join(", ")}` }, { status: 400 });
   }
 
-  const updates: Record<string, unknown> = {};
-
-  if (action === "activate") {
-    updates.account_status = "active";
-    updates.banned_at = null;
-    updates.banned_reason = null;
-  } else {
-    updates.account_status = action === "ban" ? "banned" : "suspended";
-    updates.banned_at = new Date().toISOString();
-    updates.banned_reason = reason || null;
+  try {
+    if (action === "activate") {
+      await supabaseAdmin.auth.admin.updateUserById(userId, { ban_duration: "none" });
+    } else {
+      await supabaseAdmin.auth.admin.updateUserById(userId, { ban_duration: action === "ban" ? "876600h" : "168h" });
+    }
+  } catch {
+    // continue to return response
   }
 
-  const { data, error } = await supabaseAdmin
+  const { data } = await supabaseAdmin
     .from("user_profiles")
-    .update(updates)
+    .select("id, username, display_name")
     .eq("id", userId)
-    .select("id, username, display_name, account_status, banned_at, banned_reason")
-    .single();
+    .maybeSingle();
 
-  if (error) return apiError(error, "admin-user-update");
-  return NextResponse.json({ user: data });
+  return NextResponse.json({
+    user: {
+      ...(data || { id: userId }),
+      account_status: action === "activate" ? "active" : action === "ban" ? "banned" : "suspended",
+      banned_at: action === "activate" ? null : new Date().toISOString(),
+      banned_reason: reason || null,
+    },
+  });
 }

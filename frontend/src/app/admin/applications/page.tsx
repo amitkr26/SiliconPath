@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Loader2, FileText, ExternalLink, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Loader2, FileText, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api-client";
+import AdminNav from "../_components/AdminNav";
 
 const STATUS_FLOW = ["submitted", "reviewed", "shortlisted", "accepted", "rejected"];
 
@@ -17,11 +19,24 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function AdminApplicationsPage() {
+  const router = useRouter();
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState(false);
   const [filter, setFilter] = useState("");
 
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+    const pw = typeof window !== "undefined" ? sessionStorage.getItem("admin_password") : null;
+    if (!token && !pw) {
+      router.push("/admin");
+      return;
+    }
+    setAuthed(true);
+  }, [router]);
+
   const load = useCallback(async () => {
+    if (!authed) return;
     setLoading(true);
     try {
       const data = await api.get<{ applications?: any[] }>(`/api/admin/applications${filter ? `?opportunity_id=${filter}` : ""}`);
@@ -30,7 +45,7 @@ export default function AdminApplicationsPage() {
       setApplications([]);
     }
     setLoading(false);
-  }, [filter]);
+  }, [authed, filter]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -51,18 +66,16 @@ export default function AdminApplicationsPage() {
     return acc;
   }, {} as Record<string, any>);
 
+  if (!authed) return (
+    <div className="max-w-5xl mx-auto px-4 py-20 flex justify-center">
+      <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+    </div>
+  );
+
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center gap-3 mb-6">
-        <Link href="/admin" className="text-slate-400 hover:text-white transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <FileText className="w-6 h-6 text-blue-400" />
-        <div>
-          <h1 className="font-display text-2xl font-bold text-white">Applications</h1>
-          <p className="text-slate-400 text-sm">Review applications from candidates</p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <AdminNav title="Candidate Applications" subtitle="Review incoming opportunity applications" icon={FileText} />
+      <div className="max-w-5xl mx-auto px-4 py-8">
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 text-blue-400 animate-spin" /></div>
@@ -110,6 +123,7 @@ export default function AdminApplicationsPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }

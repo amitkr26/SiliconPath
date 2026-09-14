@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Loader2, Activity, AlertTriangle, CheckCircle2, Lock, ArrowLeft, Play, Pause, RefreshCw } from "lucide-react";
+import { Loader2, Activity, AlertTriangle, CheckCircle2, Lock, ArrowLeft, Play, Pause, RefreshCw, Radio } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import AdminNav from "../_components/AdminNav";
 
 interface Summary {
   total_sources: number;
@@ -165,12 +166,9 @@ export default function ScrapeHealthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 py-8 px-4">
-      <div className="max-w-5xl mx-auto space-y-6">
-        <div className="flex items-center gap-2">
-          <Activity className="w-6 h-6 text-blue-400" />
-          <h1 className="text-2xl font-bold text-white">Scrape Health Monitor</h1>
-        </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <AdminNav title="Scraper Health & Telemetry" subtitle="Live ingestion pipelines, source adapters & error rates" icon={Radio} />
+      <div className="max-w-5xl mx-auto py-8 px-4 space-y-6">
 
         {summary && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

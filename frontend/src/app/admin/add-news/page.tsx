@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, Plus } from "lucide-react";
+import { Loader2, ArrowLeft, Plus, Newspaper } from "lucide-react";
 import Link from "next/link";
+import AdminNav from "../_components/AdminNav";
 
 const ADMIN_TOKEN_KEY = "admin_token";
 
@@ -96,13 +97,9 @@ export default function AddNewsPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="text-slate-400 hover:text-slate-200 transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <h1 className="font-display text-2xl font-bold text-white">Add News Article</h1>
-      </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <AdminNav title="Publish News" subtitle="Curate and publish semiconductor industry news & technical articles" icon={Newspaper} />
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -166,5 +163,6 @@ export default function AddNewsPage() {
         </div>
       </form>
     </div>
-  );
+  </div>
+);
 }
