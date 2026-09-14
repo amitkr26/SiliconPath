@@ -204,13 +204,13 @@ export default function EmployerProfilePage() {
   const publicProfileUrl = `/profile/${username || originalUsername || user?.id}`;
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] py-10">
+    <div className="min-h-screen bg-bg-primary py-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* HEADER BAR */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b-2 border-slate-900">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-200">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 border border-blue-300 text-blue-800 text-xs font-bold mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold mb-2">
               <Building2 className="w-3.5 h-3.5" /> Employer Profile Studio
             </div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">Organization &amp; Recruiter Profile</h1>
@@ -221,7 +221,7 @@ export default function EmployerProfilePage() {
             <Link
               href={publicProfileUrl}
               target="_blank"
-              className="inline-flex items-center gap-2 bg-white text-slate-900 border-2 border-slate-900 font-bold rounded-xl px-4 py-2.5 shadow-brutal-sm hover:bg-slate-50 transition-all text-xs"
+              className="inline-flex items-center gap-2 bg-white text-slate-900 border border-slate-200 font-semibold rounded-xl px-4 py-2.5 shadow-xs hover:bg-slate-50 hover:border-slate-300 transition-all text-xs"
             >
               <ExternalLink className="w-3.5 h-3.5 text-blue-600" /> Preview Public Profile
             </Link>
@@ -256,7 +256,7 @@ export default function EmployerProfilePage() {
                     Public Username / Slug
                   </label>
                   <div className="flex items-center">
-                    <span className="bg-slate-100 border-2 border-r-0 border-slate-900 rounded-l-xl px-3 py-2.5 text-xs font-bold text-slate-500">
+                    <span className="bg-slate-50 border border-r-0 border-slate-200 rounded-l-xl px-3 py-2.5 text-xs font-semibold text-slate-500">
                       berojgardegreewala.com/profile/
                     </span>
                     <input
@@ -265,7 +265,7 @@ export default function EmployerProfilePage() {
                       value={username}
                       onChange={(e) => handleUsernameChange(e.target.value)}
                       placeholder="company-name"
-                      className="flex-1 border-2 border-slate-900 rounded-r-xl px-3 py-2.5 text-xs font-bold text-slate-900 bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600 disabled:bg-slate-50"
+                      className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-xs font-medium text-slate-900 bg-white focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 disabled:bg-slate-50 transition-all"
                     />
                   </div>
                   {usernameError && (
@@ -284,7 +284,7 @@ export default function EmployerProfilePage() {
                       value={currentCompany}
                       onChange={(e) => setCurrentCompany(e.target.value)}
                       placeholder="e.g. Apex Semiconductor Labs"
-                      className="w-full border-2 border-slate-900 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 bg-white focus:outline-hidden disabled:bg-slate-50"
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-900 bg-white focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 disabled:bg-slate-50 transition-all"
                     />
                   </div>
 
@@ -298,7 +298,7 @@ export default function EmployerProfilePage() {
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="e.g. Amit Sharma"
-                      className="w-full border-2 border-slate-900 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 bg-white focus:outline-hidden disabled:bg-slate-50"
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-900 bg-white focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 disabled:bg-slate-50 transition-all"
                     />
                   </div>
                 </div>
@@ -314,7 +314,7 @@ export default function EmployerProfilePage() {
                       value={jobTitle}
                       onChange={(e) => setJobTitle(e.target.value)}
                       placeholder="e.g. Lead Technical Recruiter"
-                      className="w-full border-2 border-slate-900 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 bg-white focus:outline-hidden disabled:bg-slate-50"
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-900 bg-white focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 disabled:bg-slate-50 transition-all"
                     />
                   </div>
 
@@ -328,7 +328,7 @@ export default function EmployerProfilePage() {
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       placeholder="e.g. Bangalore, India"
-                      className="w-full border-2 border-slate-900 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 bg-white focus:outline-hidden disabled:bg-slate-50"
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-900 bg-white focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 disabled:bg-slate-50 transition-all"
                     />
                   </div>
                 </div>
@@ -342,8 +342,8 @@ export default function EmployerProfilePage() {
                     disabled={!isEditing}
                     value={headline}
                     onChange={(e) => setHeadline(e.target.value)}
-                    placeholder="e.g. Hiring RTL Design & Verification Engineers for Next-Gen RISC-V Silicon"
-                    className="w-full border-2 border-slate-900 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 bg-white focus:outline-hidden disabled:bg-slate-50"
+                    placeholder="e.g. Hiring RTL Design &amp; Verification Engineers for Next-Gen RISC-V Silicon"
+                    className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-900 bg-white focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 disabled:bg-slate-50 transition-all"
                   />
                 </div>
 
@@ -357,7 +357,7 @@ export default function EmployerProfilePage() {
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     placeholder="Describe your organization, semiconductor domains, culture, and what kind of freshers/engineers you seek..."
-                    className="w-full border-2 border-slate-900 rounded-xl p-3 text-xs font-medium text-slate-900 bg-white focus:outline-hidden disabled:bg-slate-50"
+                    className="w-full border border-slate-200 rounded-xl p-3 text-xs font-medium text-slate-900 bg-white focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 disabled:bg-slate-50 transition-all resize-none"
                   />
                 </div>
               </div>
@@ -378,7 +378,7 @@ export default function EmployerProfilePage() {
                     {skills.map((s) => (
                       <span
                         key={s}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border-2 border-slate-900 rounded-full text-xs font-bold text-slate-900"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full text-xs font-semibold text-blue-800"
                       >
                         {s}
                         {isEditing && (
@@ -397,7 +397,7 @@ export default function EmployerProfilePage() {
                         onChange={(e) => setNewSkill(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSkill())}
                         placeholder="Add domain (e.g. SystemVerilog, STA, Analog)"
-                        className="flex-1 border-2 border-slate-900 rounded-xl px-3 py-2 text-xs font-bold text-slate-900"
+                        className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                       />
                       <Button onClick={addSkill} variant="secondary" size="sm">Add</Button>
                     </div>
@@ -412,7 +412,7 @@ export default function EmployerProfilePage() {
                     {interests.map((i) => (
                       <span
                         key={i}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border-2 border-slate-900 rounded-full text-xs font-bold text-emerald-900"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-xs font-semibold text-emerald-800"
                       >
                         {i}
                         {isEditing && (
@@ -431,7 +431,7 @@ export default function EmployerProfilePage() {
                         onChange={(e) => setNewInterest(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addInterest())}
                         placeholder="Add role (e.g. RTL Intern, JRF Fellow, GET)"
-                        className="flex-1 border-2 border-slate-900 rounded-xl px-3 py-2 text-xs font-bold text-slate-900"
+                        className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                       />
                       <Button onClick={addInterest} variant="secondary" size="sm">Add</Button>
                     </div>
@@ -457,7 +457,7 @@ export default function EmployerProfilePage() {
                     value={websiteUrl}
                     onChange={(e) => setWebsiteUrl(e.target.value)}
                     placeholder="https://company.com"
-                    className="w-full border-2 border-slate-900 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 bg-white focus:outline-hidden disabled:bg-slate-50"
+                    className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-900 bg-white focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 disabled:bg-slate-50 transition-all"
                   />
                 </div>
 
@@ -471,7 +471,7 @@ export default function EmployerProfilePage() {
                     value={linkedinUrl}
                     onChange={(e) => setLinkedinUrl(e.target.value)}
                     placeholder="https://linkedin.com/company/..."
-                    className="w-full border-2 border-slate-900 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 bg-white focus:outline-hidden disabled:bg-slate-50"
+                    className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-900 bg-white focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 disabled:bg-slate-50 transition-all"
                   />
                 </div>
               </div>
@@ -483,7 +483,7 @@ export default function EmployerProfilePage() {
           <div className="space-y-6">
             
             {/* OPTIMIZE PROFILE WIDGET */}
-            <Card className="p-6 bg-gradient-to-br from-white to-blue-50 border-2 border-slate-900">
+            <Card className="p-6 bg-gradient-to-br from-white to-blue-50/40 border border-slate-200">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-black uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-blue-600" /> Profile Optimization
@@ -492,7 +492,7 @@ export default function EmployerProfilePage() {
               </div>
 
               {/* Progress bar */}
-              <div className="w-full h-3 bg-slate-200 border border-slate-900 rounded-full overflow-hidden mb-4">
+              <div className="w-full h-2.5 bg-slate-100 border border-slate-200 rounded-full overflow-hidden mb-4">
                 <div
                   className="h-full bg-blue-600 transition-all duration-500 rounded-full"
                   style={{ width: `${completenessScore}%` }}
@@ -530,7 +530,7 @@ export default function EmployerProfilePage() {
               
               <Link
                 href="/employer/jobs/new"
-                className="flex items-center justify-between p-3 rounded-xl border-2 border-slate-900 bg-white hover:bg-blue-50 text-xs font-bold text-slate-900 shadow-brutal-sm transition-all"
+                className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-xs font-semibold text-slate-900 shadow-xs transition-all"
               >
                 <span>Post New Opportunity</span>
                 <ArrowRight className="w-4 h-4 text-blue-600" />
@@ -538,7 +538,7 @@ export default function EmployerProfilePage() {
 
               <Link
                 href="/employer/talent"
-                className="flex items-center justify-between p-3 rounded-xl border-2 border-slate-900 bg-white hover:bg-blue-50 text-xs font-bold text-slate-900 shadow-brutal-sm transition-all"
+                className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-xs font-semibold text-slate-900 shadow-xs transition-all"
               >
                 <span>Search Candidate Talent</span>
                 <ArrowRight className="w-4 h-4 text-blue-600" />
@@ -546,7 +546,7 @@ export default function EmployerProfilePage() {
 
               <Link
                 href="/employer/settings"
-                className="flex items-center justify-between p-3 rounded-xl border-2 border-slate-900 bg-white hover:bg-blue-50 text-xs font-bold text-slate-900 shadow-brutal-sm transition-all"
+                className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-xs font-semibold text-slate-900 shadow-xs transition-all"
               >
                 <span>Notification Settings</span>
                 <ArrowRight className="w-4 h-4 text-blue-600" />

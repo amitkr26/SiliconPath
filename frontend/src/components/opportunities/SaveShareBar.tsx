@@ -152,30 +152,30 @@ export default function SaveShareBar({
           type="button"
           onClick={handleSaveToggle}
           disabled={saving}
-          className={`flex-1 inline-flex items-center justify-center gap-2 border-2 font-bold rounded-xl px-4 py-2.5 text-sm transition-all shadow-sm ${
+          className={`flex-1 inline-flex items-center justify-center gap-2 border font-semibold rounded-xl px-4 py-2.5 text-sm transition-all shadow-xs ${
             isSaved
-              ? "bg-accent/10 border-accent text-accent hover:bg-accent/20"
-              : "bg-surface border-slate-900 text-slate-900 hover:bg-slate-100 hover:border-accent"
+              ? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+              : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300"
           }`}
         >
-          <Bookmark className={`w-4 h-4 ${isSaved ? "fill-accent text-accent" : "text-slate-900"}`} />
+          <Bookmark className={`w-4 h-4 ${isSaved ? "fill-blue-600 text-blue-600" : "text-slate-600"}`} />
           {saving ? "Updating..." : isSaved ? "Saved" : "Save"}
         </button>
 
         <button
           type="button"
           onClick={handleShareClick}
-          className="flex-1 inline-flex items-center justify-center gap-2 border-2 border-slate-900 bg-surface text-slate-900 font-bold rounded-xl px-4 py-2.5 text-sm hover:bg-slate-100 hover:border-accent transition-all shadow-sm"
+          className="flex-1 inline-flex items-center justify-center gap-2 border border-slate-200 bg-white text-slate-700 font-semibold rounded-xl px-4 py-2.5 text-sm hover:bg-slate-50 hover:border-slate-300 transition-all shadow-xs"
         >
-          <Share2 className="w-4 h-4 text-slate-900" />
+          <Share2 className="w-4 h-4 text-slate-600" />
           Share
         </button>
       </div>
 
       {/* Share Modal / Dropdown */}
       {showShareMenu && (
-        <div className="bg-surface border-2 border-slate-900 rounded-xl p-3 shadow-lg space-y-2 animate-in fade-in slide-in-from-top-2">
-          <div className="text-xs font-black text-slate-900 mb-1 uppercase tracking-wider">Share this opportunity</div>
+        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-card space-y-2 animate-in fade-in slide-in-from-top-2">
+          <div className="text-xs font-bold text-slate-900 mb-1 uppercase tracking-wider">Share this opportunity</div>
           <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
             <a
               href={whatsappUrl}
@@ -204,7 +204,7 @@ export default function SaveShareBar({
             <button
               type="button"
               onClick={handleCopyLink}
-              className="flex items-center gap-2 p-2 rounded-lg bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-300 transition-colors text-left"
+              className="flex items-center gap-2 p-2 rounded-lg bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-200 transition-colors text-left font-semibold"
             >
               {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-600" />}
               {copied ? "Copied!" : "Copy Link"}
@@ -218,9 +218,9 @@ export default function SaveShareBar({
         <button
           type="button"
           onClick={handleAddToCalendar}
-          className="w-full inline-flex items-center justify-center gap-2 border border-slate-300 bg-white text-slate-700 font-semibold rounded-xl px-4 py-2.5 text-xs hover:border-slate-900 hover:bg-slate-50 transition-all shadow-sm"
+          className="w-full inline-flex items-center justify-center gap-2 border border-slate-200 bg-white text-slate-700 font-semibold rounded-xl px-4 py-2.5 text-xs hover:border-blue-500 hover:bg-slate-50 transition-all shadow-xs"
         >
-          <CalendarDays className="w-4 h-4 text-accent" />
+          <CalendarDays className="w-4 h-4 text-blue-600" />
           Add Deadline to Calendar
         </button>
       )}
@@ -229,7 +229,7 @@ export default function SaveShareBar({
       <button
         type="button"
         onClick={handleCopyLink}
-        className="w-full flex items-center justify-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg py-2 transition-colors"
+        className="w-full flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg py-2 transition-colors"
       >
         {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
         {copied ? "Copied to Clipboard!" : "Copy Opportunity Link"}

@@ -74,12 +74,12 @@ export default async function CategoriesPage() {
             <Link
               key={cat.slug}
               href={`/category/${cat.slug}`}
-              className="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-1 transition-all group block"
+              className="bg-white border border-slate-200 rounded-2xl p-6 shadow-card hover:shadow-elevated hover:border-slate-300 transition-all group block"
             >
-              <div className={`w-12 h-12 rounded-xl border-2 border-slate-900 ${cat.chip} flex items-center justify-center mb-4 shadow-brutal-sm`}>
+              <div className={`w-12 h-12 rounded-xl border border-slate-200 ${cat.chip} flex items-center justify-center mb-4 shadow-xs`}>
                 <Icon className="w-6 h-6" />
               </div>
-              <h2 className="font-display text-lg font-black text-slate-900 mb-2">{cat.label}</h2>
+              <h2 className="font-display text-lg font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">{cat.label}</h2>
               <p className="text-slate-600 text-sm font-medium leading-relaxed mb-4">{cat.description}</p>
               <div className="flex items-center justify-between">
                 <Badge tone={cat.badge}>{counts[cat.slug] || 0} active</Badge>

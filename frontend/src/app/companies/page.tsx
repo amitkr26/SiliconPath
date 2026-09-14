@@ -78,7 +78,7 @@ export default function CompaniesPage() {
           {companies.map((c) => (
             <Card key={c.id} hover className="p-5">
               <Link href={`/companies/${c.slug || c.id}`} className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-xl bg-blue-50 border-2 border-slate-900 flex items-center justify-center flex-shrink-0 shadow-brutal-sm">
+                <div className="w-14 h-14 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0 shadow-xs">
                   <span className="text-lg font-black text-blue-700">{getInitials(c.name)}</span>
                 </div>
                 <div className="min-w-0 flex-1">
@@ -106,10 +106,10 @@ export default function CompaniesPage() {
                 </span>
                 <button
                   onClick={(e) => { e.preventDefault(); handleFollow(c.id, c.is_following); }}
-                  className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all border-2 border-slate-900 shadow-brutal-sm ${
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-xl transition-all border shadow-xs ${
                     c.is_following
-                      ? "bg-white text-slate-700 hover:bg-slate-50"
-                      : "bg-blue-600 text-white hover:bg-blue-700"
+                      ? "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                      : "bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
                   }`}
                 >
                   {c.is_following ? "Following" : "Follow"}

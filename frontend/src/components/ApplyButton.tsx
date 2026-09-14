@@ -48,7 +48,7 @@ export default function ApplyButton({
       <div className="w-full">
         <button
           disabled
-          className="inline-flex items-center justify-center gap-2 bg-slate-100 text-slate-500 font-bold rounded-xl px-6 py-3 border-2 border-slate-300 shadow-none cursor-not-allowed w-full text-sm"
+          className="inline-flex items-center justify-center gap-2 bg-slate-100 text-slate-500 font-semibold rounded-xl px-6 py-3 border border-slate-200 shadow-none cursor-not-allowed w-full text-sm"
         >
           <Clock className="w-4 h-4 text-slate-400" />
           Application Closed
@@ -70,7 +70,7 @@ export default function ApplyButton({
           href={officialPageUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 bg-amber-400 text-slate-900 border-2 border-slate-900 font-black rounded-xl px-6 py-3 hover:bg-amber-300 shadow-brutal-sm hover:shadow-brutal transition-all w-full text-sm"
+          className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl px-6 py-3 shadow-xs hover:shadow transition-all w-full text-sm"
         >
           <ShieldAlert className="w-4 h-4" />
           Visit Official Site →
@@ -86,7 +86,7 @@ export default function ApplyButton({
       <div className="w-full">
         <button
           disabled
-          className="inline-flex items-center justify-center gap-2 bg-amber-50 text-amber-800 font-bold rounded-xl px-6 py-3 border-2 border-amber-300 shadow-none cursor-not-allowed w-full text-sm"
+          className="inline-flex items-center justify-center gap-2 bg-amber-50 text-amber-800 font-semibold rounded-xl px-6 py-3 border border-amber-200 shadow-none cursor-not-allowed w-full text-sm"
         >
           <AlertTriangle className="w-4 h-4 text-amber-600" />
           Application Link Unavailable
@@ -102,7 +102,7 @@ export default function ApplyButton({
       target="_blank"
       rel="noopener noreferrer"
       onClick={trackClick}
-      className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl px-6 py-3 border-2 border-slate-900 shadow-brutal hover:shadow-brutal-lg hover:-translate-y-0.5 transition-all w-full text-sm"
+      className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-6 py-3 shadow-xs hover:shadow-sm transition-all w-full text-sm"
     >
       Apply Now
       <ExternalLink className="w-4 h-4" />

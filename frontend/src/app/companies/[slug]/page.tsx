@@ -130,12 +130,12 @@ export default function CompanyDetailPage() {
 
       <Card className="overflow-hidden">
         {/* Banner */}
-        <div className="h-32 sm:h-48 bg-blue-600 border-b-2 border-slate-900" />
+        <div className="h-32 sm:h-48 bg-gradient-to-r from-blue-600 to-indigo-600 border-b border-slate-200" />
 
         {/* Company header */}
         <div className="px-6 pb-6">
           <div className="flex items-end -mt-12 mb-4">
-            <div className="w-20 h-20 rounded-xl bg-blue-50 border-4 border-white flex items-center justify-center shadow-brutal">
+            <div className="w-20 h-20 rounded-xl bg-blue-50 border-4 border-white flex items-center justify-center shadow-md">
               <span className="text-2xl font-black text-blue-700">{getInitials(company.name)}</span>
             </div>
             <div className="ml-4 pb-1">
@@ -163,10 +163,10 @@ export default function CompanyDetailPage() {
 
           <button
             onClick={handleFollow}
-            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all border-2 border-slate-900 shadow-brutal-sm hover:shadow-brutal ${
+            className={`px-6 py-2 rounded-xl font-semibold text-sm transition-all border shadow-xs ${
               isFollowing
-                ? "bg-white text-slate-700 hover:bg-slate-50"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                : "bg-blue-600 text-white border-blue-600 hover:bg-blue-700 shadow-sm"
             }`}
           >
             {isFollowing ? "Following" : "Follow"}

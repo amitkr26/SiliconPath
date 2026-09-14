@@ -115,14 +115,14 @@ export default function CompanyClaimPage() {
             />
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-800 mb-1.5">Verification Details *</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Verification Details *</label>
               <textarea
                 required
                 value={formData.verificationDetails}
                 onChange={(e) => setFormData({ ...formData, verificationDetails: e.target.value })}
                 placeholder="Provide details proving your association, such as your position, employee ID, or verification code..."
                 rows={4}
-                className="w-full bg-white border-2 border-slate-900 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-brutal-sm focus:outline-none focus:border-accent resize-none"
+                className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-xs focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 resize-none transition-all"
               />
             </div>
 

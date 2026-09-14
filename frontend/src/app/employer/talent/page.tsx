@@ -120,7 +120,7 @@ export default function EmployerTalentSearchPage() {
         </div>
 
         {/* SEARCH & DOMAIN FILTER STRIP */}
-        <div className="bg-white p-4 border-2 border-slate-900 rounded-2xl shadow-brutal-sm space-y-4">
+        <div className="bg-white p-4 border border-slate-200 rounded-2xl shadow-card space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2 relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -129,7 +129,7 @@ export default function EmployerTalentSearchPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by candidate name, SystemVerilog, UVM, Cadence, Synopsys..."
-                className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm font-bold bg-slate-50 border-2 border-slate-900 rounded-xl focus:outline-none"
+                className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
               />
             </div>
 
@@ -137,7 +137,7 @@ export default function EmployerTalentSearchPage() {
               <select
                 value={minExp}
                 onChange={(e) => setMinExp(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
               >
                 <option value="0">All Experience Levels</option>
                 <option value="1">1+ Year Experience</option>
@@ -153,10 +153,10 @@ export default function EmployerTalentSearchPage() {
               <button
                 key={dom.id}
                 onClick={() => setSelectedDomain(dom.id)}
-                className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 transition-all border-2 ${
+                className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition-all border ${
                   selectedDomain === dom.id
-                    ? "bg-blue-600 text-white border-slate-900 shadow-brutal-sm"
-                    : "bg-slate-50 text-slate-700 border-slate-900 hover:bg-slate-100"
+                    ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                    : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
                 }`}
               >
                 {dom.label}
@@ -184,12 +184,12 @@ export default function EmployerTalentSearchPage() {
             {candidates.map((c) => (
               <div
                 key={c.id}
-                className="p-5 bg-white border-2 border-slate-900 rounded-2xl shadow-brutal hover:shadow-brutal-lg transition-all flex flex-col justify-between space-y-4"
+                className="p-5 bg-white border border-slate-200 rounded-2xl shadow-card hover:shadow-elevated hover:border-slate-300 transition-all flex flex-col justify-between space-y-4"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full border-2 border-slate-900 flex items-center justify-center font-black text-base shrink-0 shadow-brutal-sm overflow-hidden relative">
+                      <div className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center font-bold text-base shrink-0 shadow-xs overflow-hidden relative">
                         <ImageWithFallback
                           src={c.avatar_url}
                           alt={c.display_name || "Scholar"}
@@ -238,7 +238,7 @@ export default function EmployerTalentSearchPage() {
                   {c.username && (
                     <Link
                       href={`/profile/${c.username}`}
-                      className="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 text-slate-900 text-xs font-black shadow-brutal-sm hover:shadow-brutal transition-all text-center flex items-center justify-center gap-1"
+                      className="flex-1 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-900 text-xs font-semibold shadow-xs hover:shadow-card transition-all text-center flex items-center justify-center gap-1"
                     >
                       <ExternalLink className="w-3 h-3" /> Profile
                     </Link>
@@ -246,7 +246,7 @@ export default function EmployerTalentSearchPage() {
 
                   <button
                     onClick={() => setInviteModalCandidate(c)}
-                    className="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 border-2 border-slate-900 text-white text-xs font-black shadow-brutal-sm hover:shadow-brutal transition-all flex items-center justify-center gap-1"
+                    className="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 border border-blue-600 text-white text-xs font-semibold shadow-xs hover:shadow-card transition-all flex items-center justify-center gap-1"
                   >
                     <Send className="w-3 h-3" /> Invite
                   </button>
@@ -259,8 +259,8 @@ export default function EmployerTalentSearchPage() {
         {/* INVITE MODAL */}
         {inviteModalCandidate && (
           <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white border-4 border-slate-900 rounded-2xl max-w-md w-full p-6 shadow-brutal-lg space-y-4">
-              <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3">
+            <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-elevated space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                 <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
                   <Send className="w-4 h-4 text-blue-600" /> Invite Candidate to Apply
                 </h3>
@@ -279,7 +279,7 @@ export default function EmployerTalentSearchPage() {
                   value={inviteMessage}
                   onChange={(e) => setInviteMessage(e.target.value)}
                   placeholder="Hi! We came across your VLSI profile on BerojgarDegreeWala and would like to invite you to apply for our open position..."
-                  className="w-full p-3 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 focus:outline-none resize-none"
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all resize-none"
                 />
               </div>
 

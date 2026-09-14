@@ -102,16 +102,16 @@ export default function EmployerTeamPage() {
 
         {/* TEAM MEMBERS LIST */}
         <Card className="p-6 sm:p-8 space-y-6">
-          <div className="flex items-center justify-between border-b-2 border-slate-900 pb-4">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-4">
             <h2 className="text-base font-black text-slate-900">Active Workspace Members</h2>
             <Badge tone="accent">{members.length} of 5 Seats Active</Badge>
           </div>
 
           <div className="space-y-3">
             {members.map((m) => (
-              <div key={m.id || m.email} className="p-4 bg-slate-50 border-2 border-slate-900 rounded-xl flex items-center justify-between gap-4">
+              <div key={m.id || m.email} className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full border-2 border-slate-900 bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-brutal-sm">
+                  <div className="w-10 h-10 rounded-full border border-blue-600 bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
                     {(m.display_name?.[0] || m.email?.[0] || "U").toUpperCase()}
                   </div>
                   <div>
@@ -126,7 +126,7 @@ export default function EmployerTeamPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 border text-xs font-black rounded-lg ${
+                  <span className={`px-3 py-1 border text-xs font-semibold rounded-lg ${
                     m.is_owner
                       ? "bg-emerald-50 border-emerald-200 text-emerald-800"
                       : "bg-blue-50 border-blue-200 text-blue-800"
@@ -141,14 +141,14 @@ export default function EmployerTeamPage() {
 
         {/* INVITE CO-RECRUITER */}
         <Card className="p-6 sm:p-8 space-y-5">
-          <h2 className="text-base font-black text-slate-900 border-b-2 border-slate-900 pb-3">
+          <h2 className="text-base font-black text-slate-900 border-b border-slate-200 pb-3">
             Invite Hiring Manager or Co-Recruiter
           </h2>
 
           <form onSubmit={handleInvite} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2">
-                <label className="block text-xs font-black uppercase text-slate-700 mb-1">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                   Official Email Address
                 </label>
                 <input
@@ -157,18 +157,18 @@ export default function EmployerTeamPage() {
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="colleague@yourcompany.com"
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase text-slate-700 mb-1">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                   Workspace Role
                 </label>
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
                 >
                   <option value="recruiter">Recruiter (Post &amp; Screen)</option>
                   <option value="hiring_manager">Hiring Manager (Review Only)</option>

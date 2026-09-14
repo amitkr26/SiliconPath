@@ -102,52 +102,52 @@ export default function EmployerSettingsPage() {
         {/* NOTIFICATIONS PREFERENCES */}
         <form onSubmit={handleSave} className="space-y-6">
           <Card className="p-6 sm:p-8 space-y-6">
-            <h2 className="text-base font-black text-slate-900 border-b-2 border-slate-900 pb-3 flex items-center gap-2">
+            <h2 className="text-base font-black text-slate-900 border-b border-slate-200 pb-3 flex items-center gap-2">
               <Bell className="w-4 h-4 text-blue-600" /> Applicant &amp; Candidate Alerts
             </h2>
 
             <div className="space-y-4">
-              <label className="flex items-center justify-between p-4 bg-slate-50 border-2 border-slate-900 rounded-xl cursor-pointer">
+              <label className="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100/70 border border-slate-200 rounded-xl cursor-pointer transition-colors">
                 <div>
-                  <p className="text-xs font-black text-slate-900">Instant Application Notification</p>
+                  <p className="text-xs font-bold text-slate-900">Instant Application Notification</p>
                   <p className="text-[11px] text-slate-500 font-medium">Receive an email immediately when a candidate submits an application.</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={instantApplicantAlert}
                   onChange={(e) => setInstantApplicantAlert(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded border-slate-300"
+                  className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
                 />
               </label>
 
-              <label className="flex items-center justify-between p-4 bg-slate-50 border-2 border-slate-900 rounded-xl cursor-pointer">
+              <label className="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100/70 border border-slate-200 rounded-xl cursor-pointer transition-colors">
                 <div>
-                  <p className="text-xs font-black text-slate-900">Direct Candidate Message Alerts</p>
+                  <p className="text-xs font-bold text-slate-900">Direct Candidate Message Alerts</p>
                   <p className="text-[11px] text-slate-500 font-medium">Get notified when a candidate responds to your recruitment outreach.</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={emailAlerts}
                   onChange={(e) => setEmailAlerts(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded border-slate-300"
+                  className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
                 />
               </label>
 
-              <label className="flex items-center justify-between p-4 bg-slate-50 border-2 border-slate-900 rounded-xl cursor-pointer">
+              <label className="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100/70 border border-slate-200 rounded-xl cursor-pointer transition-colors">
                 <div>
-                  <p className="text-xs font-black text-slate-900">Weekly Talent Digest</p>
+                  <p className="text-xs font-bold text-slate-900">Weekly Talent Digest</p>
                   <p className="text-[11px] text-slate-500 font-medium">Summary of newly open-to-work hardware scholars matching your domain.</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={weeklyDigest}
                   onChange={(e) => setWeeklyDigest(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded border-slate-300"
+                  className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
                 />
               </label>
             </div>
 
-            <div className="flex justify-end pt-4 border-t-2 border-slate-900">
+            <div className="flex justify-end pt-4 border-t border-slate-200">
               <Button type="submit" disabled={saving}>
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 <span>Save Preferences</span>

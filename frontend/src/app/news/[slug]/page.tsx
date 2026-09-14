@@ -209,11 +209,11 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
           </h1>
 
           {article.source_url && (
-            <div className="mb-8 p-4 rounded-2xl bg-blue-50 border-2 border-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="mb-8 p-4 rounded-xl bg-blue-50/60 border border-blue-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
               <div className="flex items-center gap-3">
                 <Newspaper className="w-6 h-6 text-blue-600 flex-shrink-0" />
                 <div>
-                  <p className="text-xs font-black text-slate-900">Original Publication</p>
+                  <p className="text-xs font-bold text-slate-900">Original Publication</p>
                   <p className="text-xs text-slate-600 font-medium">{article.source || "Official Publisher"}</p>
                 </div>
               </div>
@@ -221,24 +221,24 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
                 href={article.source_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl border-2 border-slate-900 shadow-brutal-sm flex-shrink-0 transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-xs flex-shrink-0 transition-colors"
               >
                 Visit Official Article Source <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
           )}
 
-          <div className="space-y-4 text-slate-700 text-base leading-relaxed border-t-2 border-slate-200 pt-6 font-medium">
-            <h3 className="font-black text-slate-900 text-lg">Executive Briefing & Key Highlights</h3>
+          <div className="space-y-4 text-slate-700 text-base leading-relaxed border-t border-slate-200 pt-6 font-medium">
+            <h3 className="font-bold text-slate-900 text-lg">Executive Briefing &amp; Key Highlights</h3>
             <p className="whitespace-pre-wrap">{article.summary || article.content || "Detailed article content available at original source link."}</p>
           </div>
 
           {tags.length > 0 && (
-            <div className="mt-8 pt-6 border-t-2 border-slate-200 flex items-center gap-2 flex-wrap">
+            <div className="mt-8 pt-6 border-t border-slate-200 flex items-center gap-2 flex-wrap">
               <Tag className="w-4 h-4 text-slate-400" />
               <span className="text-xs font-bold text-slate-500">Topics:</span>
               {tags.map((t: string) => (
-                <span key={t} className="px-3 py-1 bg-white text-slate-700 rounded-full text-xs font-semibold border-2 border-slate-300">
+                <span key={t} className="px-3 py-1 bg-white text-slate-700 rounded-full text-xs font-medium border border-slate-200 shadow-xs">
                   {t}
                 </span>
               ))}

@@ -400,14 +400,14 @@ export default function EditProfileModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white border-4 border-slate-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-elevated space-y-5">
+      <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-elevated space-y-5">
         {/* Header */}
-        <div className="flex justify-between items-center border-b-2 border-slate-900 pb-3">
-          <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+        <div className="flex justify-between items-center border-b border-slate-200 pb-3">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
             <Pencil className="w-5 h-5 text-blue-600" /> Edit Professional Profile
           </h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700">
-            <X className="w-5 h-5 stroke-[2.5]" />
+          <button onClick={onClose} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-700 transition-colors">
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -416,8 +416,8 @@ export default function EditProfileModal({
           <button
             type="button"
             onClick={() => setActiveTab("general")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-black border-2 border-slate-900 transition-all ${
-              activeTab === "general" ? "bg-blue-600 text-white shadow-brutal-sm" : "bg-slate-50 text-slate-700 hover:bg-white"
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              activeTab === "general" ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
             }`}
           >
             General Info
@@ -425,8 +425,8 @@ export default function EditProfileModal({
           <button
             type="button"
             onClick={() => setActiveTab("experience")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-black border-2 border-slate-900 transition-all ${
-              activeTab === "experience" ? "bg-blue-600 text-white shadow-brutal-sm" : "bg-slate-50 text-slate-700 hover:bg-white"
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              activeTab === "experience" ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
             }`}
           >
             Experience ({experiences.length})
@@ -434,8 +434,8 @@ export default function EditProfileModal({
           <button
             type="button"
             onClick={() => setActiveTab("education")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-black border-2 border-slate-900 transition-all ${
-              activeTab === "education" ? "bg-blue-600 text-white shadow-brutal-sm" : "bg-slate-50 text-slate-700 hover:bg-white"
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              activeTab === "education" ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
             }`}
           >
             Education ({educations.length})
@@ -443,8 +443,8 @@ export default function EditProfileModal({
           <button
             type="button"
             onClick={() => setActiveTab("projects")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-black border-2 border-slate-900 transition-all ${
-              activeTab === "projects" ? "bg-blue-600 text-white shadow-brutal-sm" : "bg-slate-50 text-slate-700 hover:bg-white"
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              activeTab === "projects" ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
             }`}
           >
             Projects ({projects.length})
@@ -452,8 +452,8 @@ export default function EditProfileModal({
           <button
             type="button"
             onClick={() => setActiveTab("certifications")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-black border-2 border-slate-900 transition-all ${
-              activeTab === "certifications" ? "bg-blue-600 text-white shadow-brutal-sm" : "bg-slate-50 text-slate-700 hover:bg-white"
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              activeTab === "certifications" ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
             }`}
           >
             Awards ({certifications.length + achievements.length})
@@ -461,8 +461,8 @@ export default function EditProfileModal({
           <button
             type="button"
             onClick={() => setActiveTab("skills")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-black border-2 border-slate-900 transition-all ${
-              activeTab === "skills" ? "bg-blue-600 text-white shadow-brutal-sm" : "bg-slate-50 text-slate-700 hover:bg-white"
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              activeTab === "skills" ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
             }`}
           >
             Skills ({skills.length})
@@ -473,13 +473,13 @@ export default function EditProfileModal({
         {activeTab === "general" && (
           <form onSubmit={handleSaveGeneral} className="space-y-4">
             {/* PROFILE AVATAR / PHOTO SECTION */}
-            <div className="bg-slate-50 border-2 border-slate-900 rounded-xl p-4 space-y-3">
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+              <label className="block text-xs font-semibold text-slate-900 uppercase tracking-wider">
                 Profile Photo / Avatar
               </label>
 
               <div className="flex items-center gap-4">
-                <div className="relative w-16 h-16 rounded-full border-2 border-slate-900 overflow-hidden bg-white shrink-0 shadow-brutal-sm flex items-center justify-center">
+                <div className="relative w-16 h-16 rounded-full border border-slate-200 overflow-hidden bg-white shrink-0 shadow-sm flex items-center justify-center">
                   <ImageWithFallback
                     src={form.avatar_url}
                     alt={form.display_name || "Profile Avatar"}
@@ -492,7 +492,7 @@ export default function EditProfileModal({
 
                 <div className="flex-1 space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-lg border-2 border-slate-900 shadow-brutal-sm transition-all">
+                    <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-all">
                       <Upload className="w-3.5 h-3.5" />
                       <span>{uploadingAvatar ? "Uploading..." : "Upload Photo"}</span>
                       <input
@@ -507,7 +507,7 @@ export default function EditProfileModal({
                       <button
                         type="button"
                         onClick={() => setField("avatar_url", null)}
-                        className="px-2.5 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg border border-red-200"
+                        className="px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors"
                       >
                         Remove
                       </button>
@@ -521,7 +521,7 @@ export default function EditProfileModal({
 
               {/* PRESET AVATARS */}
               <div className="space-y-1.5 pt-2 border-t border-slate-200">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                   Or choose a free semiconductor / scholar avatar:
                 </span>
                 <div className="flex items-center gap-2 overflow-x-auto pb-1">
@@ -531,10 +531,10 @@ export default function EditProfileModal({
                       type="button"
                       onClick={() => setField("avatar_url", preset.url)}
                       title={preset.label}
-                      className={`w-10 h-10 rounded-full border-2 overflow-hidden shrink-0 transition-all relative ${
+                      className={`w-10 h-10 rounded-full border overflow-hidden shrink-0 transition-all relative ${
                         form.avatar_url === preset.url
-                          ? "border-blue-600 ring-2 ring-blue-600 scale-110 shadow-brutal-sm"
-                          : "border-slate-900 hover:border-blue-600 bg-white"
+                          ? "border-blue-600 ring-2 ring-blue-600/30 scale-105 shadow-sm"
+                          : "border-slate-200 hover:border-slate-400 bg-white"
                       }`}
                     >
                       <ImageWithFallback
@@ -552,7 +552,7 @@ export default function EditProfileModal({
             </div>
 
             <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-slate-900 uppercase tracking-wider mb-1">
                 Full Display Name *
               </label>
               <input
@@ -560,29 +560,29 @@ export default function EditProfileModal({
                 value={form.display_name || ""}
                 onChange={(e) => setField("display_name", e.target.value)}
                 required
-                className="w-full px-4 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-card focus:outline-none"
+                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-slate-900 uppercase tracking-wider mb-1">
                 Unique Hardware Handle (@username) *
               </label>
               <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-slate-400 text-xs">@</span>
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-xs">@</span>
                 <input
                   type="text"
                   value={form.username || ""}
                   onChange={(e) => handleUsernameChange(e.target.value)}
                   required
-                  className="w-full pl-8 pr-4 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-card focus:outline-none"
+                  className="w-full pl-8 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
-              {usernameError && <p className="text-[11px] font-bold text-red-600 mt-1">{usernameError}</p>}
+              {usernameError && <p className="text-[11px] font-semibold text-red-600 mt-1">{usernameError}</p>}
             </div>
 
             <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-slate-900 uppercase tracking-wider mb-1">
                 Professional Headline
               </label>
               <input
@@ -590,13 +590,13 @@ export default function EditProfileModal({
                 value={form.headline || ""}
                 onChange={(e) => setField("headline", e.target.value)}
                 placeholder="e.g. M.Tech VLSI @ IIT Bombay | RISC-V & ASIC Design Lead"
-                className="w-full px-4 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-card focus:outline-none"
+                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-900 uppercase tracking-wider mb-1">
                   Current Job Title
                 </label>
                 <input
@@ -604,11 +604,11 @@ export default function EditProfileModal({
                   value={form.job_title || ""}
                   onChange={(e) => setField("job_title", e.target.value)}
                   placeholder="e.g. Physical Design Engineer"
-                  className="w-full px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-900 uppercase tracking-wider mb-1">
                   Current Organization / Company
                 </label>
                 <input
@@ -616,13 +616,13 @@ export default function EditProfileModal({
                   value={form.current_company || ""}
                   onChange={(e) => setField("current_company", e.target.value)}
                   placeholder="e.g. Synopsys / DRDO"
-                  className="w-full px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-slate-900 uppercase tracking-wider mb-1">
                 Location
               </label>
               <input
@@ -630,12 +630,12 @@ export default function EditProfileModal({
                 value={form.location || ""}
                 onChange={(e) => setField("location", e.target.value)}
                 placeholder="e.g. Bengaluru, Karnataka, India"
-                className="w-full px-4 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-card focus:outline-none"
+                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-slate-900 uppercase tracking-wider mb-1">
                 About / Summary
               </label>
               <textarea
@@ -643,7 +643,7 @@ export default function EditProfileModal({
                 value={form.bio || ""}
                 onChange={(e) => setField("bio", e.target.value)}
                 placeholder="Write a brief overview of your background, research interests, & hardware skills..."
-                className="w-full px-4 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-card focus:outline-none resize-none"
+                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
               />
             </div>
 
@@ -653,9 +653,9 @@ export default function EditProfileModal({
                 id="is_open_to_work"
                 checked={!!form.is_open_to_work}
                 onChange={(e) => setField("is_open_to_work", e.target.checked)}
-                className="w-4 h-4 rounded border-2 border-slate-900 text-blue-600 focus:ring-0"
+                className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
               />
-              <label htmlFor="is_open_to_work" className="text-xs font-bold text-slate-900">
+              <label htmlFor="is_open_to_work" className="text-xs font-semibold text-slate-900">
                 Open to work / hiring opportunities
               </label>
             </div>
@@ -666,16 +666,16 @@ export default function EditProfileModal({
                 id="is_profile_public"
                 checked={form.is_profile_public !== false}
                 onChange={(e) => setField("is_profile_public", e.target.checked)}
-                className="w-4 h-4 rounded border-2 border-slate-900 text-blue-600 focus:ring-0"
+                className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
               />
-              <label htmlFor="is_profile_public" className="text-xs font-bold text-slate-900">
+              <label htmlFor="is_profile_public" className="text-xs font-semibold text-slate-900">
                 Public profile (visible in search and recommendations)
               </label>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-900 uppercase tracking-wider mb-1">
                   LinkedIn URL
                 </label>
                 <input
@@ -683,11 +683,11 @@ export default function EditProfileModal({
                   value={form.linkedin_url || ""}
                   onChange={(e) => setField("linkedin_url", e.target.value)}
                   placeholder="https://linkedin.com/in/username"
-                  className="w-full px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-900 uppercase tracking-wider mb-1">
                   GitHub URL
                 </label>
                 <input
@@ -695,23 +695,23 @@ export default function EditProfileModal({
                   value={form.github_url || ""}
                   onChange={(e) => setField("github_url", e.target.value)}
                   placeholder="https://github.com/username"
-                  className="w-full px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t-2 border-slate-900">
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-card-sm"
+                className="px-5 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-semibold text-slate-700 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white border-2 border-slate-900 rounded-xl text-xs font-black shadow-card flex items-center gap-2 transition disabled:opacity-50"
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm flex items-center gap-2 transition disabled:opacity-50"
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
               </button>
@@ -724,15 +724,15 @@ export default function EditProfileModal({
           <div className="space-y-5">
             {/* List existing */}
             <div className="space-y-3">
-              <h3 className="text-xs font-black text-slate-900 uppercase">Existing Experiences</h3>
+              <h3 className="text-xs font-bold text-slate-900 uppercase">Existing Experiences</h3>
               {experiences.length === 0 ? (
                 <p className="text-xs text-slate-400 font-medium">No experience items recorded.</p>
               ) : (
                 experiences.map((exp) => (
-                  <div key={exp.id} className="p-3 bg-slate-50 border-2 border-slate-900 rounded-xl flex items-start justify-between gap-3 shadow-brutal-sm">
+                  <div key={exp.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-start justify-between gap-3 shadow-sm">
                     <div>
-                      <p className="text-xs font-black text-slate-900">{exp.role_title} @ {exp.company_name}</p>
-                      <p className="text-[11px] font-semibold text-slate-600">
+                      <p className="text-xs font-bold text-slate-900">{exp.role_title} @ {exp.company_name}</p>
+                      <p className="text-[11px] font-medium text-slate-600">
                         {exp.start_date} – {exp.is_current ? "Present" : exp.end_date || "Present"}
                       </p>
                     </div>
@@ -750,8 +750,8 @@ export default function EditProfileModal({
             </div>
 
             {/* Add New Form */}
-            <form onSubmit={handleAddExperience} className="border-t-2 border-slate-200 pt-4 space-y-3">
-              <h3 className="text-xs font-black text-slate-900 uppercase flex items-center gap-1.5">
+            <form onSubmit={handleAddExperience} className="border-t border-slate-200 pt-4 space-y-3">
+              <h3 className="text-xs font-bold text-slate-900 uppercase flex items-center gap-1.5">
                 <Plus className="w-4 h-4 text-blue-600" /> Add Work or Research Experience
               </h3>
               <div className="grid grid-cols-2 gap-3">
@@ -761,7 +761,7 @@ export default function EditProfileModal({
                   value={newExp.company_name}
                   onChange={(e) => setNewExp({ ...newExp, company_name: e.target.value })}
                   required
-                  className="px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900"
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
                 <input
                   type="text"
@@ -769,7 +769,7 @@ export default function EditProfileModal({
                   value={newExp.role_title}
                   onChange={(e) => setNewExp({ ...newExp, role_title: e.target.value })}
                   required
-                  className="px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900"
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -779,7 +779,7 @@ export default function EditProfileModal({
                   value={newExp.start_date}
                   onChange={(e) => setNewExp({ ...newExp, start_date: e.target.value })}
                   required
-                  className="px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900"
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
                 <input
                   type="date"
@@ -787,7 +787,7 @@ export default function EditProfileModal({
                   value={newExp.end_date}
                   onChange={(e) => setNewExp({ ...newExp, end_date: e.target.value })}
                   disabled={newExp.is_current}
-                  className="px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 disabled:opacity-50"
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 disabled:opacity-50 focus:outline-none focus:border-blue-500"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -796,9 +796,9 @@ export default function EditProfileModal({
                   id="exp_current"
                   checked={newExp.is_current}
                   onChange={(e) => setNewExp({ ...newExp, is_current: e.target.checked, end_date: "" })}
-                  className="w-4 h-4 rounded border-2 border-slate-900 text-blue-600"
+                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                <label htmlFor="exp_current" className="text-xs font-bold text-slate-900">
+                <label htmlFor="exp_current" className="text-xs font-semibold text-slate-900">
                   I currently work here
                 </label>
               </div>
@@ -807,11 +807,11 @@ export default function EditProfileModal({
                 placeholder="Key contributions & responsibilities..."
                 value={newExp.description}
                 onChange={(e) => setNewExp({ ...newExp, description: e.target.value })}
-                className="w-full px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 resize-none"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 resize-none focus:outline-none focus:border-blue-500"
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 text-white font-black text-xs border-2 border-slate-900 rounded-xl shadow-card-sm"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-sm transition"
               >
                 + Add Experience
               </button>
@@ -823,15 +823,15 @@ export default function EditProfileModal({
         {activeTab === "education" && (
           <div className="space-y-5">
             <div className="space-y-3">
-              <h3 className="text-xs font-black text-slate-900 uppercase">Existing Education</h3>
+              <h3 className="text-xs font-bold text-slate-900 uppercase">Existing Education</h3>
               {educations.length === 0 ? (
                 <p className="text-xs text-slate-400 font-medium">No education items recorded.</p>
               ) : (
                 educations.map((edu) => (
-                  <div key={edu.id} className="p-3 bg-slate-50 border-2 border-slate-900 rounded-xl flex items-start justify-between gap-3 shadow-brutal-sm">
+                  <div key={edu.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-start justify-between gap-3 shadow-sm">
                     <div>
-                      <p className="text-xs font-black text-slate-900">{edu.institution}</p>
-                      <p className="text-[11px] font-semibold text-slate-600">{edu.degree} {edu.field_of_study && `(${edu.field_of_study})`}</p>
+                      <p className="text-xs font-bold text-slate-900">{edu.institution}</p>
+                      <p className="text-[11px] font-medium text-slate-600">{edu.degree} {edu.field_of_study && `(${edu.field_of_study})`}</p>
                     </div>
                     <button
                       type="button"
@@ -846,8 +846,8 @@ export default function EditProfileModal({
               )}
             </div>
 
-            <form onSubmit={handleAddEducation} className="border-t-2 border-slate-200 pt-4 space-y-3">
-              <h3 className="text-xs font-black text-slate-900 uppercase flex items-center gap-1.5">
+            <form onSubmit={handleAddEducation} className="border-t border-slate-200 pt-4 space-y-3">
+              <h3 className="text-xs font-bold text-slate-900 uppercase flex items-center gap-1.5">
                 <Plus className="w-4 h-4 text-blue-600" /> Add Education
               </h3>
               <div className="grid grid-cols-2 gap-3">
@@ -857,7 +857,7 @@ export default function EditProfileModal({
                   value={newEdu.institution}
                   onChange={(e) => setNewEdu({ ...newEdu, institution: e.target.value })}
                   required
-                  className="px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900"
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
                 <input
                   type="text"
@@ -865,7 +865,7 @@ export default function EditProfileModal({
                   value={newEdu.degree}
                   onChange={(e) => setNewEdu({ ...newEdu, degree: e.target.value })}
                   required
-                  className="px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900"
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
               </div>
               <div className="grid grid-cols-3 gap-3">
@@ -874,26 +874,26 @@ export default function EditProfileModal({
                   placeholder="Field of Study"
                   value={newEdu.field_of_study}
                   onChange={(e) => setNewEdu({ ...newEdu, field_of_study: e.target.value })}
-                  className="px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900"
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
                 <input
                   type="number"
                   placeholder="Start Year"
                   value={newEdu.start_year}
                   onChange={(e) => setNewEdu({ ...newEdu, start_year: e.target.value })}
-                  className="px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900"
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
                 <input
                   type="number"
                   placeholder="End Year"
                   value={newEdu.end_year}
                   onChange={(e) => setNewEdu({ ...newEdu, end_year: e.target.value })}
-                  className="px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900"
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
               </div>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 text-white font-black text-xs border-2 border-slate-900 rounded-xl shadow-card-sm"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-sm transition"
               >
                 + Add Education
               </button>
@@ -905,16 +905,16 @@ export default function EditProfileModal({
         {activeTab === "projects" && (
           <div className="space-y-5">
             <div className="space-y-3">
-              <h3 className="text-xs font-black text-slate-900 uppercase">Existing Projects</h3>
+              <h3 className="text-xs font-bold text-slate-900 uppercase">Existing Projects</h3>
               {projects.length === 0 ? (
                 <p className="text-xs text-slate-400 font-medium">No projects added yet.</p>
               ) : (
                 projects.map((proj) => (
-                  <div key={proj.id} className="p-3 bg-slate-50 border-2 border-slate-900 rounded-xl flex items-start justify-between gap-3 shadow-brutal-sm">
+                  <div key={proj.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-start justify-between gap-3 shadow-sm">
                     <div>
-                      <p className="text-xs font-black text-slate-900">{proj.title}</p>
+                      <p className="text-xs font-bold text-slate-900">{proj.title}</p>
                       {proj.technologies && proj.technologies.length > 0 && (
-                        <p className="text-[11px] font-semibold text-slate-500">{proj.technologies.join(", ")}</p>
+                        <p className="text-[11px] font-medium text-slate-500">{proj.technologies.join(", ")}</p>
                       )}
                     </div>
                     <button
@@ -930,8 +930,8 @@ export default function EditProfileModal({
               )}
             </div>
 
-            <form onSubmit={handleAddProject} className="border-t-2 border-slate-200 pt-4 space-y-3">
-              <h3 className="text-xs font-black text-slate-900 uppercase flex items-center gap-1.5">
+            <form onSubmit={handleAddProject} className="border-t border-slate-200 pt-4 space-y-3">
+              <h3 className="text-xs font-bold text-slate-900 uppercase flex items-center gap-1.5">
                 <Plus className="w-4 h-4 text-blue-600" /> Add Technical Project
               </h3>
               <input
@@ -940,21 +940,21 @@ export default function EditProfileModal({
                 value={newProj.title}
                 onChange={(e) => setNewProj({ ...newProj, title: e.target.value })}
                 required
-                className="w-full px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
               />
               <textarea
                 rows={2}
                 placeholder="Description & architectural highlights..."
                 value={newProj.description}
                 onChange={(e) => setNewProj({ ...newProj, description: e.target.value })}
-                className="w-full px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 resize-none"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 resize-none focus:outline-none focus:border-blue-500"
               />
               <input
                 type="text"
                 placeholder="Technologies (comma separated, e.g. SystemVerilog, UVM, Cocotb)"
                 value={newProj.technologies}
                 onChange={(e) => setNewProj({ ...newProj, technologies: e.target.value })}
-                className="w-full px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
               />
               <div className="grid grid-cols-2 gap-3">
                 <input
@@ -962,19 +962,19 @@ export default function EditProfileModal({
                   placeholder="GitHub Repository URL"
                   value={newProj.github_url}
                   onChange={(e) => setNewProj({ ...newProj, github_url: e.target.value })}
-                  className="px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900"
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
                 <input
                   type="url"
                   placeholder="Live Demo / Publication URL"
                   value={newProj.project_url}
                   onChange={(e) => setNewProj({ ...newProj, project_url: e.target.value })}
-                  className="px-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900"
+                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
               </div>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 text-white font-black text-xs border-2 border-slate-900 rounded-xl shadow-card-sm"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-sm transition"
               >
                 + Add Project
               </button>
@@ -987,14 +987,14 @@ export default function EditProfileModal({
           <div className="space-y-5">
             {/* Certifications list */}
             <div className="space-y-3">
-              <h3 className="text-xs font-black text-slate-900 uppercase">Certifications ({certifications.length})</h3>
+              <h3 className="text-xs font-bold text-slate-900 uppercase">Certifications ({certifications.length})</h3>
               {certifications.map((c) => (
-                <div key={c.id} className="p-2.5 bg-slate-50 border border-slate-300 rounded-xl flex items-center justify-between">
+                <div key={c.id} className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between shadow-sm">
                   <div>
-                    <p className="text-xs font-black text-slate-900">{c.name}</p>
+                    <p className="text-xs font-bold text-slate-900">{c.name}</p>
                     <p className="text-[10px] text-slate-600">{c.issuing_org}</p>
                   </div>
-                  <button type="button" onClick={() => handleDeleteCertification(c.id)} className="text-slate-400 hover:text-red-600">
+                  <button type="button" onClick={() => handleDeleteCertification(c.id)} className="text-slate-400 hover:text-red-600 transition">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -1007,7 +1007,7 @@ export default function EditProfileModal({
                   value={newCert.name}
                   onChange={(e) => setNewCert({ ...newCert, name: e.target.value })}
                   required
-                  className="flex-1 px-3 py-1.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold"
+                  className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
                 <input
                   type="text"
@@ -1015,24 +1015,24 @@ export default function EditProfileModal({
                   value={newCert.issuing_org}
                   onChange={(e) => setNewCert({ ...newCert, issuing_org: e.target.value })}
                   required
-                  className="flex-1 px-3 py-1.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold"
+                  className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
-                <button type="submit" className="px-3 py-1.5 bg-blue-600 text-white font-bold text-xs rounded-xl border-2 border-slate-900">
+                <button type="submit" className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-sm transition">
                   + Add
                 </button>
               </form>
             </div>
 
             {/* Achievements list */}
-            <div className="space-y-3 border-t-2 border-slate-200 pt-4">
-              <h3 className="text-xs font-black text-slate-900 uppercase">Honors &amp; Awards ({achievements.length})</h3>
+            <div className="space-y-3 border-t border-slate-200 pt-4">
+              <h3 className="text-xs font-bold text-slate-900 uppercase">Honors &amp; Awards ({achievements.length})</h3>
               {achievements.map((a) => (
-                <div key={a.id} className="p-2.5 bg-slate-50 border border-slate-300 rounded-xl flex items-center justify-between">
+                <div key={a.id} className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between shadow-sm">
                   <div>
-                    <p className="text-xs font-black text-slate-900">{a.title}</p>
+                    <p className="text-xs font-bold text-slate-900">{a.title}</p>
                     <p className="text-[10px] text-slate-600">{a.issuer}</p>
                   </div>
-                  <button type="button" onClick={() => handleDeleteAchievement(a.id)} className="text-slate-400 hover:text-red-600">
+                  <button type="button" onClick={() => handleDeleteAchievement(a.id)} className="text-slate-400 hover:text-red-600 transition">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -1045,16 +1045,16 @@ export default function EditProfileModal({
                   value={newAchieve.title}
                   onChange={(e) => setNewAchieve({ ...newAchieve, title: e.target.value })}
                   required
-                  className="flex-1 px-3 py-1.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold"
+                  className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
                 <input
                   type="text"
                   placeholder="Issuer"
                   value={newAchieve.issuer}
                   onChange={(e) => setNewAchieve({ ...newAchieve, issuer: e.target.value })}
-                  className="flex-1 px-3 py-1.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold"
+                  className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-blue-500"
                 />
-                <button type="submit" className="px-3 py-1.5 bg-blue-600 text-white font-bold text-xs rounded-xl border-2 border-slate-900">
+                <button type="submit" className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-sm transition">
                   + Add
                 </button>
               </form>
@@ -1066,17 +1066,17 @@ export default function EditProfileModal({
         {activeTab === "skills" && (
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-black text-slate-900 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
                 Core Engineering Skills
               </label>
               <div className="flex flex-wrap gap-2 mb-3">
                 {skills.length === 0 && (
-                  <span className="text-xs font-bold text-slate-400">No skills added yet.</span>
+                  <span className="text-xs font-medium text-slate-400">No skills added yet.</span>
                 )}
                 {skills.map((sk) => (
                   <span
                     key={sk}
-                    className="px-3 py-1.5 bg-slate-100 border-2 border-slate-900 rounded-xl text-xs font-black text-slate-900 shadow-card-sm flex items-center gap-2"
+                    className="px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 shadow-sm flex items-center gap-2"
                   >
                     {sk}
                     <button type="button" onClick={() => removeSkill(sk)} className="hover:text-red-600 transition">
@@ -1092,14 +1092,14 @@ export default function EditProfileModal({
                   onChange={(e) => setNewSkill(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSkill())}
                   placeholder="Add skill (e.g. RTL, Verilog, UVM, FPGA, STA)..."
-                  className="flex-1 px-4 py-2.5 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 shadow-card-sm focus:outline-none"
+                  className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 shadow-sm focus:outline-none focus:border-blue-500"
                 />
                 <button
                   type="button"
                   onClick={addSkill}
-                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs border-2 border-slate-900 rounded-xl shadow-card-sm flex items-center gap-1 transition"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-sm flex items-center gap-1 transition"
                 >
-                  <Plus className="w-4 h-4 stroke-[3]" /> Add
+                  <Plus className="w-4 h-4" /> Add
                 </button>
               </div>
             </div>

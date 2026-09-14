@@ -273,13 +273,13 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
         <div className="space-y-6 min-w-0">
 
           {/* IDENTITY CARD */}
-          <div className="bg-white border-2 border-slate-900 rounded-2xl shadow-card overflow-hidden">
+          <div className="bg-white border border-slate-200/80 rounded-2xl shadow-card overflow-hidden">
             {/* Tech Cover Banner */}
-            <div className="h-36 sm:h-48 bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 border-b-2 border-slate-900 relative flex items-end justify-end p-4">
+            <div className="h-36 sm:h-48 bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 border-b border-slate-200/80 relative flex items-end justify-end p-4">
               <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#60a5fa_1px,transparent_1px)] [background-size:16px_16px]" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
               <div className="relative z-10 hidden sm:flex items-center gap-2">
-                <span className="px-2.5 py-1 bg-black/60 backdrop-blur-sm text-[10px] font-black uppercase tracking-widest text-blue-400 border border-blue-500/30 rounded-lg">
+                <span className="px-2.5 py-1 bg-black/60 backdrop-blur-sm text-[10px] font-semibold uppercase tracking-widest text-blue-400 border border-blue-500/30 rounded-lg">
                   BerojgarDegreeWala Verified Engineer
                 </span>
               </div>
@@ -292,7 +292,7 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                 <div className="relative">
                   <div
                     className={cn(
-                      "w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-white border-4 border-slate-900 shadow-brutal flex items-center justify-center overflow-hidden flex-shrink-0 relative",
+                      "w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-white border-4 border-white shadow-elevated flex items-center justify-center overflow-hidden flex-shrink-0 relative",
                       profile.is_open_to_work && "ring-4 ring-emerald-500 ring-offset-2"
                     )}
                   >
@@ -306,7 +306,7 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                     />
                   </div>
                   {profile.is_open_to_work && (
-                    <span className="absolute bottom-1 right-1 px-2 py-0.5 bg-emerald-600 text-white text-[9px] font-black uppercase tracking-wider rounded-full border border-white shadow-sm">
+                    <span className="absolute bottom-1 right-1 px-2 py-0.5 bg-emerald-600 text-white text-[9px] font-bold uppercase tracking-wider rounded-full border border-white shadow-sm">
                       #OpenToWork
                     </span>
                   )}
@@ -315,13 +315,13 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                 {/* Top-Right Organization / Institution Badges */}
                 <div className="hidden md:flex flex-col items-end gap-1.5 pt-2 text-right">
                   {currentCompany && (
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-800 hover:text-blue-600 transition-colors">
                       <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
                       <span>{currentCompany}</span>
                     </div>
                   )}
                   {latestEducation && (
-                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-blue-600 transition-colors">
+                    <div className="flex items-center gap-2 text-xs font-medium text-slate-600 hover:text-blue-600 transition-colors">
                       <GraduationCap className="w-4 h-4 text-indigo-600 shrink-0" />
                       <span>{latestEducation}</span>
                     </div>
@@ -333,17 +333,17 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
               <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                       {profile.display_name}
                     </h1>
                     {profile.username && (
-                      <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                      <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
                         @{profile.username}
                       </span>
                     )}
                   </div>
                   {profile.headline && (
-                    <p className="text-slate-800 text-sm sm:text-base font-semibold leading-snug max-w-2xl">
+                    <p className="text-slate-700 text-sm sm:text-base font-medium leading-snug max-w-2xl">
                       {profile.headline}
                     </p>
                   )}
@@ -356,28 +356,28 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                       {!isConnected && connectionStatus !== "pending" && (
                         <button
                           onClick={handleConnect}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white font-black rounded-xl text-xs border-2 border-slate-900 shadow-brutal-sm hover:shadow-brutal transition-all"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl text-xs shadow-sm hover:bg-blue-700 transition-all"
                         >
                           <UserPlus className="w-4 h-4" /> Connect
                         </button>
                       )}
                       {connectionStatus === "pending" && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-50 text-amber-900 border-2 border-slate-900 rounded-xl text-xs font-bold shadow-brutal-sm">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-xs font-medium shadow-sm">
                           <UserCheck className="w-4 h-4 text-amber-600" /> Pending
                         </span>
                       )}
                       <Link
                         href={`/messages?userId=${profile.id}`}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-slate-900 border-2 border-slate-900 rounded-xl text-xs font-black shadow-brutal-sm hover:bg-slate-50 transition-all"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-slate-800 border border-slate-200 rounded-xl text-xs font-semibold shadow-sm hover:bg-slate-50 transition-all"
                       >
                         <MessageCircle className="w-4 h-4 text-blue-600" /> Message
                       </Link>
                       <button
                         onClick={handleFollow}
-                        className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border-2 border-slate-900 shadow-brutal-sm transition-all ${
+                        className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 shadow-sm transition-all ${
                           isFollowing
                             ? "bg-slate-100 text-slate-700 hover:text-red-600"
-                            : "bg-white text-slate-900 hover:bg-slate-50"
+                            : "bg-white text-slate-800 hover:bg-slate-50"
                         }`}
                       >
                         {isFollowing ? "Following" : "Follow"}
@@ -389,13 +389,13 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                     <>
                       <button
                         onClick={handleShare}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-slate-900 border-2 border-slate-900 rounded-xl text-xs font-black shadow-brutal-sm hover:bg-slate-50 transition-all"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-slate-800 border border-slate-200 rounded-xl text-xs font-semibold shadow-sm hover:bg-slate-50 transition-all"
                       >
                         <Share2 className="w-4 h-4 text-slate-600" /> Share
                       </button>
                       <button
                         onClick={() => setShowEditModal(true)}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white font-black rounded-xl text-xs border-2 border-slate-900 shadow-brutal-sm hover:shadow-brutal transition-all"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl text-xs shadow-sm hover:bg-blue-700 transition-all"
                       >
                         <Pencil className="w-4 h-4" /> Edit Profile
                       </button>
@@ -435,15 +435,15 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
 
               {/* Open to Work Showcase Card */}
               {profile.is_open_to_work && (
-                <div className="mt-4 p-3.5 bg-emerald-50/80 border-2 border-slate-900 rounded-xl shadow-brutal-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="mt-4 p-3.5 bg-emerald-50/80 border border-emerald-200 rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-                      <p className="text-xs font-black text-slate-900 uppercase tracking-wide">
+                      <p className="text-xs font-bold text-slate-900 uppercase tracking-wide">
                         Open to work · Recruiters &amp; Fellows
                       </p>
                     </div>
-                    <p className="text-xs text-slate-700 font-medium">
+                    <p className="text-xs text-slate-700 font-normal">
                       {profile.headline ? `${profile.headline} roles` : "Semiconductor & VLSI Engineering roles"}
                       {profile.location ? ` in ${profile.location} | On-site · Hybrid · Remote` : ""}
                     </p>
@@ -451,7 +451,7 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                   {isOwnProfile && (
                     <button
                       onClick={() => setShowEditModal(true)}
-                      className="text-xs font-bold text-emerald-800 hover:underline shrink-0"
+                      className="text-xs font-semibold text-emerald-800 hover:underline shrink-0"
                     >
                       Edit preferences →
                     </button>
@@ -463,76 +463,76 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
 
           {/* Profile Completeness Card (own profile only) */}
           {isOwnProfile && completeness && completeness.percentage < 100 && (
-            <Card className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 p-5 border-2 border-slate-900 shadow-brutal-sm">
+            <div className="bg-gradient-to-r from-blue-50/80 via-indigo-50/60 to-purple-50/80 p-5 border border-blue-100 rounded-2xl shadow-card">
               <div className="flex items-center justify-between gap-4 mb-2">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-blue-600" />
-                  <h2 className="text-sm font-black text-slate-900">Profile Strength: {completeness.percentage}%</h2>
+                  <h2 className="text-sm font-bold text-slate-900">Profile Strength: {completeness.percentage}%</h2>
                 </div>
                 <button
                   onClick={() => setShowEditModal(true)}
-                  className="text-xs font-black text-blue-600 hover:underline"
+                  className="text-xs font-bold text-blue-600 hover:underline"
                 >
                   Boost Profile →
                 </button>
               </div>
-              <div className="w-full h-2.5 bg-slate-200 rounded-full border border-slate-900 overflow-hidden mb-2">
+              <div className="w-full h-2.5 bg-slate-200/80 rounded-full border border-slate-200 overflow-hidden mb-2">
                 <div
                   className="h-full bg-blue-600 rounded-full transition-all duration-500"
                   style={{ width: `${completeness.percentage}%` }}
                 />
               </div>
               {completeness.missingItems.length > 0 && (
-                <p className="text-xs text-slate-600 font-medium">
+                <p className="text-xs text-slate-600 font-normal">
                   Add <strong>{completeness.missingItems[0]}</strong> to stand out to hardware recruiters.
                 </p>
               )}
-            </Card>
+            </div>
           )}
 
           {/* About / Summary */}
           {profile.bio && (
-            <Card className="p-6 border-2 border-slate-900 shadow-brutal-sm">
-              <h2 className="text-base font-black text-slate-900 mb-2">About</h2>
-              <p className="text-slate-700 text-sm font-medium leading-relaxed whitespace-pre-wrap">{profile.bio}</p>
-            </Card>
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-card">
+              <h2 className="text-base font-bold text-slate-900 mb-2">About</h2>
+              <p className="text-slate-700 text-xs sm:text-sm font-normal leading-relaxed whitespace-pre-wrap">{profile.bio}</p>
+            </div>
           )}
 
           {/* Experience Timeline */}
-          <Card className="p-6 border-2 border-slate-900 shadow-brutal-sm space-y-4">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-card space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Briefcase className="w-5 h-5 text-blue-600" />
-                <h2 className="text-base font-black text-slate-900">Experience</h2>
+                <h2 className="text-base font-bold text-slate-900">Experience</h2>
               </div>
               {isOwnProfile && (
-                <button onClick={() => setShowEditModal(true)} className="text-xs font-black text-blue-600 hover:underline">
+                <button onClick={() => setShowEditModal(true)} className="text-xs font-semibold text-blue-600 hover:underline">
                   + Add Experience
                 </button>
               )}
             </div>
 
             {experiences.length === 0 ? (
-              <p className="text-slate-400 text-xs font-medium">No experience records added yet.</p>
+              <p className="text-slate-400 text-xs font-normal">No experience records added yet.</p>
             ) : (
               <div className="space-y-4">
                 {experiences.map((exp) => (
-                  <div key={exp.id} className="border-l-2 border-slate-300 pl-4 relative space-y-1">
+                  <div key={exp.id} className="border-l-2 border-slate-200 pl-4 relative space-y-1">
                     <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-blue-600" />
-                    <h3 className="text-sm font-black text-slate-900">{exp.role_title}</h3>
-                    <p className="text-xs font-bold text-slate-700">{exp.company_name} {exp.employment_type && `· ${exp.employment_type}`}</p>
-                    <p className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+                    <h3 className="text-sm font-bold text-slate-900">{exp.role_title}</h3>
+                    <p className="text-xs font-semibold text-slate-700">{exp.company_name} {exp.employment_type && `· ${exp.employment_type}`}</p>
+                    <p className="text-[11px] font-normal text-slate-500 flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
                       {exp.start_date} – {exp.is_current ? "Present" : exp.end_date || "Present"}
                       {exp.location && ` · ${exp.location}`}
                     </p>
                     {exp.description && (
-                      <p className="text-xs text-slate-600 pt-1 leading-relaxed whitespace-pre-wrap">{exp.description}</p>
+                      <p className="text-xs text-slate-600 pt-1 leading-relaxed whitespace-pre-wrap font-normal">{exp.description}</p>
                     )}
                     {exp.skills_used && exp.skills_used.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 pt-1.5">
                         {exp.skills_used.map((s) => (
-                          <span key={s} className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-bold border border-slate-200">
+                          <span key={s} className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-semibold border border-slate-200">
                             {s}
                           </span>
                         ))}
@@ -542,83 +542,83 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                 ))}
               </div>
             )}
-          </Card>
+          </div>
 
           {/* Education */}
-          <Card className="p-6 border-2 border-slate-900 shadow-brutal-sm space-y-4">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-card space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <GraduationCap className="w-5 h-5 text-indigo-600" />
-                <h2 className="text-base font-black text-slate-900">Education</h2>
+                <h2 className="text-base font-bold text-slate-900">Education</h2>
               </div>
               {isOwnProfile && (
-                <button onClick={() => setShowEditModal(true)} className="text-xs font-black text-blue-600 hover:underline">
+                <button onClick={() => setShowEditModal(true)} className="text-xs font-semibold text-blue-600 hover:underline">
                   + Add Education
                 </button>
               )}
             </div>
 
             {educations.length === 0 ? (
-              <p className="text-slate-400 text-xs font-medium">No education history added yet.</p>
+              <p className="text-slate-400 text-xs font-normal">No education history added yet.</p>
             ) : (
               <div className="space-y-4">
                 {educations.map((edu) => (
-                  <div key={edu.id} className="border-l-2 border-slate-300 pl-4 relative space-y-1">
+                  <div key={edu.id} className="border-l-2 border-slate-200 pl-4 relative space-y-1">
                     <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-indigo-600" />
-                    <h3 className="text-sm font-black text-slate-900">{edu.institution}</h3>
-                    <p className="text-xs font-bold text-slate-700">
+                    <h3 className="text-sm font-bold text-slate-900">{edu.institution}</h3>
+                    <p className="text-xs font-semibold text-slate-700">
                       {edu.degree} {edu.field_of_study && `in ${edu.field_of_study}`}
                     </p>
-                    <p className="text-[11px] font-semibold text-slate-500">
+                    <p className="text-[11px] font-normal text-slate-500">
                       {edu.start_year && `${edu.start_year} – `}{edu.end_year || "Present"}
                       {edu.grade && ` · Grade: ${edu.grade}`}
                     </p>
                     {edu.description && (
-                      <p className="text-xs text-slate-600 pt-1 leading-relaxed whitespace-pre-wrap">{edu.description}</p>
+                      <p className="text-xs text-slate-600 pt-1 leading-relaxed whitespace-pre-wrap font-normal">{edu.description}</p>
                     )}
                   </div>
                 ))}
               </div>
             )}
-          </Card>
+          </div>
 
           {/* Projects */}
-          <Card className="p-6 border-2 border-slate-900 shadow-brutal-sm space-y-4">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-card space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Code2 className="w-5 h-5 text-purple-600" />
-                <h2 className="text-base font-black text-slate-900">Technical Projects &amp; Silicon Tapeouts</h2>
+                <h2 className="text-base font-bold text-slate-900">Technical Projects &amp; Silicon Tapeouts</h2>
               </div>
               {isOwnProfile && (
-                <button onClick={() => setShowEditModal(true)} className="text-xs font-black text-blue-600 hover:underline">
+                <button onClick={() => setShowEditModal(true)} className="text-xs font-semibold text-blue-600 hover:underline">
                   + Add Project
                 </button>
               )}
             </div>
 
             {projects.length === 0 ? (
-              <p className="text-slate-400 text-xs font-medium">No projects added yet.</p>
+              <p className="text-slate-400 text-xs font-normal">No projects added yet.</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {projects.map((proj) => (
-                  <div key={proj.id} className="bg-slate-50 border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm space-y-2 flex flex-col justify-between">
+                  <div key={proj.id} className="bg-slate-50/60 border border-slate-200 rounded-xl p-4 shadow-sm hover:border-slate-300 transition-all space-y-2 flex flex-col justify-between">
                     <div>
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-sm font-black text-slate-900">{proj.title}</h3>
+                        <h3 className="text-sm font-bold text-slate-900">{proj.title}</h3>
                         {proj.github_url && (
-                          <a href={proj.github_url} target="_blank" rel="noopener noreferrer" className="text-slate-700 hover:text-slate-900">
+                          <a href={proj.github_url} target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-800">
                             <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                         )}
                       </div>
                       {proj.description && (
-                        <p className="text-xs text-slate-600 mt-1 leading-relaxed line-clamp-3 font-medium">{proj.description}</p>
+                        <p className="text-xs text-slate-600 mt-1 leading-relaxed line-clamp-3 font-normal">{proj.description}</p>
                       )}
                     </div>
                     {proj.technologies && proj.technologies.length > 0 && (
                       <div className="flex flex-wrap gap-1 pt-2">
                         {proj.technologies.map((t) => (
-                          <span key={t} className="px-2 py-0.5 bg-white border border-slate-300 text-slate-700 rounded text-[10px] font-bold">
+                          <span key={t} className="px-2 py-0.5 bg-white border border-slate-200 text-slate-700 rounded text-[10px] font-semibold">
                             {t}
                           </span>
                         ))}
@@ -628,14 +628,14 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                 ))}
               </div>
             )}
-          </Card>
+          </div>
 
           {/* Skills & Endorsements */}
-          <Card className="p-6 border-2 border-slate-900 shadow-brutal-sm space-y-4">
-            <h2 className="text-base font-black text-slate-900">Skills &amp; Methodologies</h2>
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-card space-y-4">
+            <h2 className="text-base font-bold text-slate-900">Skills &amp; Methodologies</h2>
             <div className="flex flex-wrap gap-2">
               {(profile.skills || []).length === 0 ? (
-                <p className="text-slate-400 text-xs font-medium">No skills added yet.</p>
+                <p className="text-slate-400 text-xs font-normal">No skills added yet.</p>
               ) : (
                 (profile.skills || []).map((skill) => {
                   const count = endorsedSkills.get(skill) || 0;
@@ -643,10 +643,10 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                   return (
                     <span
                       key={skill}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-slate-900 border-2 border-slate-900 rounded-xl text-xs font-black shadow-brutal-sm"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-900 border border-blue-100 rounded-xl text-xs font-semibold shadow-sm"
                     >
                       {skill}
-                      {count > 0 && <span className="text-blue-700 font-black text-[10px]">· {count}</span>}
+                      {count > 0 && <span className="text-blue-700 font-bold text-[10px]">· {count}</span>}
                       {!isOwnProfile && currentUser && (
                         <button
                           onClick={() => handleEndorse(skill)}
@@ -661,43 +661,43 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                 })
               )}
             </div>
-          </Card>
+          </div>
 
           {/* Honors, Certifications & Awards */}
           {(certifications.length > 0 || achievements.length > 0) && (
-            <Card className="p-6 border-2 border-slate-900 shadow-brutal-sm space-y-4">
-              <h2 className="text-base font-black text-slate-900">Honors, Certifications &amp; Awards</h2>
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-card space-y-4">
+              <h2 className="text-base font-bold text-slate-900">Honors, Certifications &amp; Awards</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {certifications.map((c) => (
-                  <div key={c.id} className="flex items-start gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                  <div key={c.id} className="flex items-start gap-3 p-3 bg-slate-50/70 border border-slate-200 rounded-xl">
                     <Award className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h3 className="text-xs font-black text-slate-900">{c.name}</h3>
-                      <p className="text-[11px] font-semibold text-slate-600">{c.issuing_org} {c.issue_date && `· ${c.issue_date}`}</p>
+                      <h3 className="text-xs font-bold text-slate-900">{c.name}</h3>
+                      <p className="text-[11px] font-normal text-slate-600">{c.issuing_org} {c.issue_date && `· ${c.issue_date}`}</p>
                     </div>
                   </div>
                 ))}
                 {achievements.map((a) => (
-                  <div key={a.id} className="flex items-start gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                  <div key={a.id} className="flex items-start gap-3 p-3 bg-slate-50/70 border border-slate-200 rounded-xl">
                     <Trophy className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h3 className="text-xs font-black text-slate-900">{a.title}</h3>
-                      <p className="text-[11px] font-semibold text-slate-600">{a.issuer} {a.date_awarded && `· ${a.date_awarded}`}</p>
+                      <h3 className="text-xs font-bold text-slate-900">{a.title}</h3>
+                      <p className="text-[11px] font-normal text-slate-600">{a.issuer} {a.date_awarded && `· ${a.date_awarded}`}</p>
                     </div>
                   </div>
                 ))}
               </div>
-            </Card>
+            </div>
           )}
 
           {/* Recommendations */}
-          <Card className="p-6 border-2 border-slate-900 shadow-brutal-sm space-y-4">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-card space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-black text-slate-900">Recommendations ({recommendations.length})</h2>
+              <h2 className="text-base font-bold text-slate-900">Recommendations ({recommendations.length})</h2>
               {!isOwnProfile && currentUser && (
                 <button
                   onClick={() => setShowRecommendModal(true)}
-                  className="text-xs font-black text-blue-600 hover:underline"
+                  className="text-xs font-semibold text-blue-600 hover:underline"
                 >
                   + Write Recommendation
                 </button>
@@ -705,78 +705,78 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
             </div>
 
             {recommendations.length === 0 ? (
-              <p className="text-slate-400 text-xs font-medium">No recommendations received yet.</p>
+              <p className="text-slate-400 text-xs font-normal">No recommendations received yet.</p>
             ) : (
               <div className="space-y-3">
                 {recommendations.map((rec) => (
-                  <div key={rec.id} className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                  <div key={rec.id} className="p-3.5 bg-slate-50/70 border border-slate-200 rounded-xl space-y-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-black text-slate-900">{(rec as any).recommender?.display_name || "Colleague"}</p>
-                      <span className="text-[10px] text-slate-400 font-semibold">{rec.relationship || "Professional Peer"}</span>
+                      <p className="text-xs font-bold text-slate-900">{(rec as any).recommender?.display_name || "Colleague"}</p>
+                      <span className="text-[10px] text-slate-500 font-medium">{rec.relationship || "Professional Peer"}</span>
                     </div>
-                    <p className="text-xs text-slate-700 leading-relaxed italic">&quot;{rec.content}&quot;</p>
+                    <p className="text-xs text-slate-700 leading-relaxed italic font-normal">&quot;{rec.content}&quot;</p>
                   </div>
                 ))}
               </div>
             )}
-          </Card>
+          </div>
         </div>
 
         {/* RIGHT SIDEBAR */}
         <aside className="space-y-6">
           {/* Public Profile & URL Card */}
-          <Card className="p-5 border-2 border-slate-900 shadow-brutal-sm space-y-3">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-card space-y-3">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">Public Profile &amp; URL</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">Public Profile &amp; URL</h3>
               <Globe className="w-4 h-4 text-blue-600" />
             </div>
-            <p className="text-xs text-slate-600 font-medium break-all">
+            <p className="text-xs text-slate-600 font-normal break-all">
               {typeof window !== "undefined" ? `${window.location.host}/profile/${profile.username || username}` : `berojgardegreewala.vercel.app/profile/${profile.username || username}`}
             </p>
             <button
               onClick={handleShare}
-              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl text-xs font-black border-2 border-slate-900 shadow-brutal-sm flex items-center justify-center gap-1.5 transition-all"
+              className="w-full py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-semibold border border-slate-200 shadow-sm flex items-center justify-center gap-1.5 transition-all"
             >
               {copiedLink ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
               {copiedLink ? "Copied to Clipboard!" : "Copy Public Link"}
             </button>
-          </Card>
+          </div>
 
           {/* Hardware Badges Card */}
-          <Card className="p-5 border-2 border-slate-900 shadow-brutal-sm space-y-3">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-card space-y-3">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">Scholar &amp; VLSI Verification</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">Scholar &amp; VLSI Verification</h3>
             </div>
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-800">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 <span>Verified Candidate Identity</span>
               </div>
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-800">
                 <span className="w-2 h-2 rounded-full bg-blue-500" />
                 <span>Open to Direct Recruiter Outreach</span>
               </div>
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-800">
                 <span className="w-2 h-2 rounded-full bg-purple-500" />
                 <span>Semiconductor ATS Profile Active</span>
               </div>
             </div>
-          </Card>
+          </div>
 
           {/* Quick Discover Opportunities */}
-          <Card className="p-5 border-2 border-slate-900 shadow-brutal-sm space-y-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">Explore Relevant Openings</h3>
-            <p className="text-xs text-slate-600 font-medium">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-card space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">Explore Relevant Openings</h3>
+            <p className="text-xs text-slate-600 font-normal">
               Discover verified positions matching your specialization.
             </p>
             <Link
               href="/opportunities"
-              className="block w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black text-center border-2 border-slate-900 shadow-brutal-sm transition-all"
+              className="block w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold text-center shadow-sm transition-all"
             >
               Browse 3,600+ Openings →
             </Link>
-          </Card>
+          </div>
         </aside>
 
       </div>
@@ -784,36 +784,36 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
       {/* Contact Info Modal */}
       {showContactModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border-4 border-slate-900 rounded-2xl max-w-md w-full p-6 shadow-brutal-lg space-y-4">
-            <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3">
-              <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-elevated space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <Mail className="w-4 h-4 text-blue-600" /> {profile.display_name}&apos;s Contact Info
               </h3>
-              <button onClick={() => setShowContactModal(false)} className="text-slate-400 hover:text-slate-700 font-black">
+              <button onClick={() => setShowContactModal(false)} className="text-slate-400 hover:text-slate-700 font-semibold">
                 ✕
               </button>
             </div>
             <div className="space-y-3 text-xs">
               {(profile as any).email && (
-                <div className="flex items-center gap-2 font-bold text-slate-800">
+                <div className="flex items-center gap-2 font-medium text-slate-800">
                   <Mail className="w-4 h-4 text-slate-500" />
                   <a href={`mailto:${(profile as any).email}`} className="text-blue-600 hover:underline">{(profile as any).email}</a>
                 </div>
               )}
               {profile.linkedin_url && (
-                <div className="flex items-center gap-2 font-bold text-slate-800">
+                <div className="flex items-center gap-2 font-medium text-slate-800">
                   <Linkedin className="w-4 h-4 text-blue-700" />
                   <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">LinkedIn Profile</a>
                 </div>
               )}
               {profile.github_url && (
-                <div className="flex items-center gap-2 font-bold text-slate-800">
+                <div className="flex items-center gap-2 font-medium text-slate-800">
                   <Github className="w-4 h-4 text-slate-900" />
                   <a href={profile.github_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">GitHub Profile</a>
                 </div>
               )}
               {profile.website_url && (
-                <div className="flex items-center gap-2 font-bold text-slate-800">
+                <div className="flex items-center gap-2 font-medium text-slate-800">
                   <Globe className="w-4 h-4 text-indigo-600" />
                   <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{profile.website_url}</a>
                 </div>
@@ -846,12 +846,12 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
       {/* Recommendation Modal */}
       {showRecommendModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border-4 border-slate-900 rounded-2xl max-w-md w-full p-6 shadow-brutal-lg space-y-4">
-            <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3">
-              <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-elevated space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <Star className="w-4 h-4 text-amber-500" /> Write Recommendation
               </h3>
-              <button onClick={() => setShowRecommendModal(false)} className="text-slate-400 hover:text-slate-700 font-black">
+              <button onClick={() => setShowRecommendModal(false)} className="text-slate-400 hover:text-slate-700 font-semibold">
                 ✕
               </button>
             </div>
@@ -861,27 +861,27 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
                 placeholder="Relationship (e.g. Managed Amit directly at Sony India)"
                 value={recRelationship}
                 onChange={(e) => setRecRelationship(e.target.value)}
-                className="w-full p-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs font-bold"
+                className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-blue-500"
               />
               <textarea
                 rows={4}
                 placeholder="Write your recommendation..."
                 value={recContent}
                 onChange={(e) => setRecContent(e.target.value)}
-                className="w-full p-2.5 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs font-bold resize-none"
+                className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium resize-none focus:outline-none focus:border-blue-500"
               />
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowRecommendModal(false)}
-                  className="px-3 py-1.5 bg-slate-100 rounded-xl text-xs font-bold"
+                  className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-semibold text-slate-700 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting || !recContent.trim()}
-                  className="px-4 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-black border-2 border-slate-900 shadow-brutal-sm"
+                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors disabled:opacity-50"
                 >
                   {submitting ? "Submitting..." : "Send"}
                 </button>

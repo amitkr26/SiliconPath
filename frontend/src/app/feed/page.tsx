@@ -308,7 +308,7 @@ export default function FeedPage() {
             {/* Profile Card */}
             <Card tone="flat" className="p-5">
               <div className="text-center">
-                <div className="w-16 h-16 rounded-full overflow-hidden mx-auto relative border-2 border-slate-200">
+                <div className="w-16 h-16 rounded-full overflow-hidden mx-auto relative border border-slate-200 shadow-xs">
                   <ImageWithFallback
                     src={(user as any)?.avatar_url || (user as any)?.user_metadata?.avatar_url}
                     alt={displayName}

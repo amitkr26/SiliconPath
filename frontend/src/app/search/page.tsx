@@ -14,6 +14,7 @@ import { Input, Select } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import OpportunityCard from "@/components/OpportunityCard";
 import { cn } from "@/lib/utils";
 
 function getInitials(name: string): string {
@@ -95,16 +96,16 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-black text-slate-900 tracking-tight">Global Search</h1>
-        <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1">
-          Search across semiconductor jobs, research fellows, organizations, technical news, and research guides.
+        <h1 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Global Search</h1>
+        <p className="text-slate-500 text-xs sm:text-sm font-medium mt-1">
+          Search across verified semiconductor jobs, research fellows, organizations, technical news, and research guides.
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 overflow-x-auto border-b-2 border-slate-900 pb-px no-scrollbar scrollbar-none">
+      <div className="flex gap-2 overflow-x-auto border-b border-slate-200 pb-2 no-scrollbar">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -118,10 +119,10 @@ export default function SearchPage() {
                 setLocationFilter("");
               }}
               className={cn(
-                "flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm whitespace-nowrap font-black rounded-t-xl transition-all border-t-2 border-x-2 -mb-0.5",
+                "flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm whitespace-nowrap font-semibold rounded-lg transition-all shadow-xs",
                 isActive
-                  ? "bg-blue-600 text-white border-slate-900 shadow-brutal-sm"
-                  : "bg-white text-slate-600 border-transparent hover:text-slate-900 hover:bg-slate-50"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:text-slate-900 hover:bg-slate-50"
               )}
             >
               <Icon className="w-4 h-4" /> {tab.label}
@@ -131,7 +132,7 @@ export default function SearchPage() {
       </div>
 
       {/* Search Form */}
-      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
         <div className="relative flex-1 w-full">
           <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
@@ -148,7 +149,7 @@ export default function SearchPage() {
                 ? "Search semiconductor news, fab policies, and breakings..."
                 : "Search topics and keywords..."
             }
-            className="pl-10 text-xs sm:text-sm font-bold border-2 border-slate-900 shadow-brutal-sm"
+            className="pl-10 text-xs sm:text-sm font-medium border-slate-200 shadow-xs"
           />
         </div>
 
@@ -157,7 +158,7 @@ export default function SearchPage() {
             <Select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="sm:w-44 border-2 border-slate-900 text-xs font-bold shadow-brutal-sm"
+              className="sm:w-44 border-slate-200 text-xs font-medium shadow-xs"
             >
               <option value="">All Categories</option>
               {CATEGORIES.map((c) => (
@@ -170,12 +171,12 @@ export default function SearchPage() {
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
               placeholder="Location (e.g. Bangalore)..."
-              className="sm:w-40 border-2 border-slate-900 text-xs font-bold shadow-brutal-sm"
+              className="sm:w-40 border-slate-200 text-xs font-medium shadow-xs"
             />
           </>
         )}
 
-        <Button type="submit" className="shrink-0 border-2 border-slate-900 shadow-brutal-sm">
+        <Button type="submit" className="shrink-0">
           <SearchIcon className="w-4 h-4" /> Search
         </Button>
       </form>
@@ -184,53 +185,25 @@ export default function SearchPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-2" />
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Searching platform entities...</p>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Searching platform entities...</p>
         </div>
       ) : (
         <div className="space-y-4">
           {/* 1. OPPORTUNITIES TAB */}
           {activeTab === "opportunities" && (
-            <div className="space-y-3">
-              <p className="text-xs font-bold text-slate-500">{opportunities.length} opportunities found</p>
-              {opportunities.map((opp: any) => (
-                <Link
-                  key={opp.id}
-                  href={`/opportunities/${opp.slug || opp.id}`}
-                  className="block bg-white border-2 border-slate-900 rounded-2xl p-4 shadow-brutal hover:shadow-brutal-lg transition-all"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0 flex-1 space-y-1.5">
-                      <h3 className="text-slate-900 font-black text-sm sm:text-base hover:text-blue-600 transition-colors truncate">
-                        {opp.title}
-                      </h3>
-                      <p className="text-slate-600 text-xs font-bold">{opp.organization || "Semiconductor Organization"}</p>
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 font-semibold">
-                        {opp.category && (
-                          <span className={`px-2 py-0.5 rounded-full border-2 text-[10px] font-black ${getCategoryColor(opp.category)}`}>
-                            {opp.category}
-                          </span>
-                        )}
-                        {opp.location && (
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5" /> {opp.location}
-                          </span>
-                        )}
-                        {opp.deadline && (
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5" /> {new Date(opp.deadline).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <ExternalLink className="w-4 h-4 text-slate-400 shrink-0 mt-1" />
-                  </div>
-                </Link>
-              ))}
-              {opportunities.length === 0 && (
-                <Card className="p-12 text-center border-2 border-slate-900 shadow-brutal-sm">
-                  <p className="text-slate-900 font-black text-base">No opportunities matching &quot;{query}&quot;</p>
+            <div className="space-y-4">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{opportunities.length} opportunities found</p>
+              {opportunities.length === 0 ? (
+                <Card className="p-12 text-center border border-slate-200 shadow-card">
+                  <p className="text-slate-900 font-bold text-base">No opportunities matching &quot;{query}&quot;</p>
                   <p className="text-slate-500 text-xs mt-1 font-medium">Try broader keywords like &quot;VLSI&quot;, &quot;JRF&quot;, or &quot;DRDO&quot;.</p>
                 </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {opportunities.map((opp: any) => (
+                    <OpportunityCard key={opp.id} opportunity={opp} compact />
+                  ))}
+                </div>
               )}
             </div>
           )}
@@ -239,9 +212,9 @@ export default function SearchPage() {
           {activeTab === "people" && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {people.map((p: any) => (
-                <Card key={p.id} className="p-5 border-2 border-slate-900 shadow-brutal-sm flex flex-col justify-between space-y-3">
+                <Card key={p.id} className="p-5 border border-slate-200 rounded-xl shadow-card flex flex-col justify-between space-y-3 hover:border-slate-300 transition-all">
                   <Link href={`/profile/${p.username || p.id}`} className="flex items-start gap-3 group">
-                    <div className="w-12 h-12 rounded-xl border-2 border-slate-900 flex items-center justify-center font-black text-sm shrink-0 shadow-brutal-sm overflow-hidden relative">
+                    <div className="w-11 h-11 rounded-xl border border-slate-200 flex items-center justify-center font-bold text-sm shrink-0 shadow-xs overflow-hidden relative">
                       <ImageWithFallback
                         src={p.avatar_url}
                         alt={p.display_name || "Candidate avatar"}
@@ -252,10 +225,10 @@ export default function SearchPage() {
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-slate-900 text-sm font-black group-hover:text-blue-600 transition-colors truncate">
+                      <p className="text-slate-900 text-sm font-bold group-hover:text-blue-600 transition-colors truncate">
                         {p.display_name}
                       </p>
-                      {p.headline && <p className="text-slate-600 text-xs font-semibold line-clamp-1">{p.headline}</p>}
+                      {p.headline && <p className="text-slate-600 text-xs font-medium line-clamp-1">{p.headline}</p>}
                       {p.current_org && <p className="text-slate-500 text-[11px] font-medium">{p.current_org}</p>}
                       {p.city && (
                         <p className="text-slate-500 text-[11px] font-medium flex items-center gap-1 mt-0.5">
@@ -268,7 +241,7 @@ export default function SearchPage() {
                   {p.skills && p.skills.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {p.skills.slice(0, 3).map((s: string) => (
-                        <span key={s} className="text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded">
+                        <span key={s} className="text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-md">
                           {s}
                         </span>
                       ))}
@@ -276,20 +249,22 @@ export default function SearchPage() {
                   )}
 
                   {currentUser?.id !== p.id && (
-                    <button
+                    <Button
+                      size="sm"
+                      variant="outline"
                       onClick={() => handleConnect(p.id)}
                       disabled={connectionStatus[p.id]}
-                      className="w-full mt-2 py-1.5 bg-white hover:bg-blue-50 text-blue-600 border-2 border-slate-900 rounded-xl text-xs font-black shadow-brutal-sm disabled:opacity-50 transition-all text-center"
+                      className="w-full mt-2"
                     >
                       {connectionStatus[p.id] ? "Request Pending" : "Connect"}
-                    </button>
+                    </Button>
                   )}
                 </Card>
               ))}
               {people.length === 0 && (
                 <div className="col-span-full">
-                  <Card className="p-12 text-center border-2 border-slate-900 shadow-brutal-sm">
-                    <p className="text-slate-900 font-black text-base">No engineers found matching &quot;{query}&quot;</p>
+                  <Card className="p-12 text-center border border-slate-200 shadow-card">
+                    <p className="text-slate-900 font-bold text-base">No engineers found matching &quot;{query}&quot;</p>
                     <p className="text-slate-500 text-xs mt-1 font-medium">Try searching by skill (e.g. &quot;UVM&quot;) or organization name.</p>
                   </Card>
                 </div>
@@ -301,9 +276,9 @@ export default function SearchPage() {
           {activeTab === "organizations" && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {organizations.map((org: any) => (
-                <Card key={org.id} className="p-5 border-2 border-slate-900 shadow-brutal-sm space-y-3">
+                <Card key={org.id} className="p-5 border border-slate-200 rounded-xl shadow-card space-y-3 hover:border-slate-300 transition-all">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl border-2 border-slate-900 flex items-center justify-center font-black text-sm shrink-0 shadow-brutal-sm overflow-hidden relative">
+                    <div className="w-11 h-11 rounded-xl border border-slate-200 flex items-center justify-center font-bold text-sm shrink-0 shadow-xs overflow-hidden relative">
                       <ImageWithFallback
                         src={org.logo_url}
                         alt={`${org.name} logo`}
@@ -313,27 +288,27 @@ export default function SearchPage() {
                         className="object-cover"
                       />
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
-                        <h3 className="text-sm font-black text-slate-900">{org.name}</h3>
+                        <h3 className="text-sm font-bold text-slate-900 truncate">{org.name}</h3>
                         {org.is_verified && <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />}
                       </div>
-                      <p className="text-xs text-slate-500 font-medium">{org.type || "Semiconductor Organization"}</p>
+                      <p className="text-xs text-slate-500 font-medium truncate">{org.type || "Semiconductor Organization"}</p>
                       {org.location && <p className="text-[11px] text-slate-400">{org.location}</p>}
                     </div>
                   </div>
                   <Link
                     href={`/organizations/${org.slug || org.id}`}
-                    className="block w-full py-1.5 bg-white text-slate-900 border-2 border-slate-900 rounded-xl text-xs font-black text-center shadow-brutal-sm hover:bg-slate-50"
+                    className="block w-full py-2 bg-slate-50 text-slate-800 hover:bg-slate-100 hover:text-blue-600 border border-slate-200 rounded-lg text-xs font-semibold text-center transition-colors"
                   >
-                    View Organization Profile →
+                    View Organization Profile &rarr;
                   </Link>
                 </Card>
               ))}
               {organizations.length === 0 && (
                 <div className="col-span-full">
-                  <Card className="p-12 text-center border-2 border-slate-900 shadow-brutal-sm">
-                    <p className="text-slate-900 font-black text-base">No organizations found</p>
+                  <Card className="p-12 text-center border border-slate-200 shadow-card">
+                    <p className="text-slate-900 font-bold text-base">No organizations found</p>
                     <p className="text-slate-500 text-xs mt-1">Try searching for &quot;ISRO&quot;, &quot;DRDO&quot;, &quot;IIT&quot;, or &quot;CSIR&quot;.</p>
                   </Card>
                 </div>
@@ -345,10 +320,10 @@ export default function SearchPage() {
           {activeTab === "news" && (
             <div className="space-y-3">
               {news.map((item: any) => (
-                <Card key={item.id} className="p-4 border-2 border-slate-900 shadow-brutal-sm">
+                <Card key={item.id} className="p-4 border border-slate-200 rounded-xl shadow-card hover:border-slate-300 transition-all">
                   <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <Link href={`/news/${item.slug || item.id}`} className="text-sm font-black text-slate-900 hover:text-blue-600">
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <Link href={`/news/${item.slug || item.id}`} className="text-sm font-bold text-slate-900 hover:text-blue-600 transition-colors line-clamp-2">
                         {item.title}
                       </Link>
                       {item.summary && <p className="text-xs text-slate-600 line-clamp-2">{item.summary}</p>}
@@ -358,7 +333,7 @@ export default function SearchPage() {
                       </div>
                     </div>
                     {item.image_url && (
-                      <div className="w-16 h-16 rounded-xl border border-slate-200 overflow-hidden shrink-0 relative">
+                      <div className="w-16 h-16 rounded-lg border border-slate-200 overflow-hidden shrink-0 relative">
                         <ImageWithFallback
                           src={item.image_url}
                           alt={item.title || "News thumbnail"}
@@ -373,9 +348,9 @@ export default function SearchPage() {
                 </Card>
               ))}
               {news.length === 0 && (
-                <Card className="p-12 text-center border-2 border-slate-900 shadow-brutal-sm">
-                  <p className="text-slate-900 font-black text-base">No news articles found</p>
-                  <p className="text-slate-500 text-xs mt-1">Check the <Link href="/news" className="text-blue-600 font-bold hover:underline">News Feed</Link> for daily semiconductor breakings.</p>
+                <Card className="p-12 text-center border border-slate-200 shadow-card">
+                  <p className="text-slate-900 font-bold text-base">No news articles found</p>
+                  <p className="text-slate-500 text-xs mt-1">Check the <Link href="/news" className="text-blue-600 font-semibold hover:underline">News Feed</Link> for daily semiconductor circulars.</p>
                 </Card>
               )}
             </div>
@@ -390,14 +365,14 @@ export default function SearchPage() {
                 { title: "Fully Funded PhD in VLSI Abroad", href: "/resources/fully-funded-phd-vlsi-abroad", desc: "Admissions guide for US, Europe, and Singapore microelectronics doctoral positions." },
                 { title: "VLSI Career Guide & Industry Roadmap", href: "/resources/vlsi-careers", desc: "Salary benchmarks, core domains (Frontend vs Backend), and essential EDA skillsets." },
               ].map((guide) => (
-                <Card key={guide.title} className="p-5 border-2 border-slate-900 shadow-brutal-sm space-y-2 flex flex-col justify-between">
+                <Card key={guide.title} className="p-5 border border-slate-200 rounded-xl shadow-card hover:border-slate-300 space-y-2 flex flex-col justify-between transition-all">
                   <div>
-                    <h3 className="text-sm font-black text-slate-900">{guide.title}</h3>
-                    <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">{guide.desc}</p>
+                    <h3 className="text-sm font-bold text-slate-900">{guide.title}</h3>
+                    <p className="text-xs text-slate-600 font-normal mt-1 leading-relaxed">{guide.desc}</p>
                   </div>
                   <Link
                     href={guide.href}
-                    className="text-xs font-black text-blue-600 hover:underline flex items-center gap-1 pt-2"
+                    className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 pt-2"
                   >
                     Read Guide <ArrowRight className="w-3.5 h-3.5" />
                   </Link>

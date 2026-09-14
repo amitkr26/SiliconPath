@@ -114,52 +114,52 @@ export default function EmployerAnalyticsPage() {
 
         {/* HIRING FUNNEL BREAKDOWN */}
         <Card className="p-6 sm:p-8 space-y-6">
-          <h2 className="text-lg font-black text-slate-900 border-b-2 border-slate-900 pb-3">
+          <h2 className="text-lg font-black text-slate-900 border-b border-slate-200 pb-3">
             Hiring Funnel Progression
           </h2>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <div className="p-4 bg-slate-50 border-2 border-slate-900 rounded-xl space-y-1">
-              <span className="text-[10px] font-black uppercase text-slate-500">1. Applied</span>
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl shadow-xs space-y-1">
+              <span className="text-[10px] font-bold uppercase text-slate-500">1. Applied</span>
               <p className="text-xl font-black text-slate-900">{funnel.applied}</p>
-              <span className="text-[10px] font-bold text-slate-400">Top of funnel</span>
+              <span className="text-[10px] font-medium text-slate-400">Top of funnel</span>
             </div>
 
-            <div className="p-4 bg-blue-50/50 border-2 border-slate-900 rounded-xl space-y-1">
-              <span className="text-[10px] font-black uppercase text-blue-700">2. Screening</span>
+            <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl shadow-xs space-y-1">
+              <span className="text-[10px] font-bold uppercase text-blue-700">2. Screening</span>
               <p className="text-xl font-black text-slate-900">{funnel.screening}</p>
-              <span className="text-[10px] font-bold text-slate-400">Under review</span>
+              <span className="text-[10px] font-medium text-slate-400">Under review</span>
             </div>
 
-            <div className="p-4 bg-amber-50/50 border-2 border-slate-900 rounded-xl space-y-1">
-              <span className="text-[10px] font-black uppercase text-amber-700">3. Shortlisted</span>
+            <div className="p-4 bg-amber-50/50 border border-amber-100 rounded-xl shadow-xs space-y-1">
+              <span className="text-[10px] font-bold uppercase text-amber-700">3. Shortlisted</span>
               <p className="text-xl font-black text-slate-900">{funnel.shortlisted}</p>
-              <span className="text-[10px] font-bold text-slate-400">Qualified match</span>
+              <span className="text-[10px] font-medium text-slate-400">Qualified match</span>
             </div>
 
-            <div className="p-4 bg-indigo-50/50 border-2 border-slate-900 rounded-xl space-y-1">
-              <span className="text-[10px] font-black uppercase text-indigo-700">4. Interview</span>
+            <div className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl shadow-xs space-y-1">
+              <span className="text-[10px] font-bold uppercase text-indigo-700">4. Interview</span>
               <p className="text-xl font-black text-slate-900">{funnel.interview}</p>
-              <span className="text-[10px] font-bold text-slate-400">Technical round</span>
+              <span className="text-[10px] font-medium text-slate-400">Technical round</span>
             </div>
 
-            <div className="p-4 bg-emerald-50/50 border-2 border-slate-900 rounded-xl space-y-1">
-              <span className="text-[10px] font-black uppercase text-emerald-700">5. Hired</span>
+            <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl shadow-xs space-y-1">
+              <span className="text-[10px] font-bold uppercase text-emerald-700">5. Hired</span>
               <p className="text-xl font-black text-emerald-700">{funnel.accepted}</p>
-              <span className="text-[10px] font-bold text-emerald-600">Offer accepted</span>
+              <span className="text-[10px] font-medium text-emerald-600">Offer accepted</span>
             </div>
 
-            <div className="p-4 bg-red-50/50 border-2 border-slate-900 rounded-xl space-y-1">
-              <span className="text-[10px] font-black uppercase text-red-700">6. Rejected</span>
-              <p className="text-xl font-black text-red-700">{funnel.rejected}</p>
-              <span className="text-[10px] font-bold text-slate-400">Archived</span>
+            <div className="p-4 bg-rose-50/50 border border-rose-100 rounded-xl shadow-xs space-y-1">
+              <span className="text-[10px] font-bold uppercase text-rose-700">6. Rejected</span>
+              <p className="text-xl font-black text-rose-700">{funnel.rejected}</p>
+              <span className="text-[10px] font-medium text-slate-400">Archived</span>
             </div>
           </div>
         </Card>
 
         {/* PER-JOB PERFORMANCE TABLE */}
         <Card className="p-6 sm:p-8 space-y-4">
-          <h2 className="text-lg font-black text-slate-900 border-b-2 border-slate-900 pb-3">
+          <h2 className="text-lg font-black text-slate-900 border-b border-slate-200 pb-3">
             Position Performance Breakdown
           </h2>
 
@@ -169,7 +169,7 @@ export default function EmployerAnalyticsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b-2 border-slate-900 font-black text-slate-900 uppercase">
+                  <tr className="border-b border-slate-200 font-bold text-slate-700 uppercase">
                     <th className="pb-3">Position Title</th>
                     <th className="pb-3">Category</th>
                     <th className="pb-3">Status</th>

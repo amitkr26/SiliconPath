@@ -54,14 +54,14 @@ export default async function NetVsGatePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Comparison Table</h2>
-          <div className="overflow-x-auto bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-sm">
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Comparison Table</h2>
+          <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-card">
             <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="border-b-2 border-slate-900 bg-slate-100">
-                  <th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">Factor</th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">UGC-NET Electronic Science</th>
-                  <th className="text-left py-2.5 px-3 text-[11px] font-black uppercase tracking-wider text-slate-900">GATE ECE</th>
+              <thead className="bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">Factor</th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">UGC-NET Electronic Science</th>
+                  <th className="text-left py-2.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-700">GATE ECE</th>
                 </tr>
               </thead>
               <tbody>
@@ -81,30 +81,30 @@ export default async function NetVsGatePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Which to Choose by Career Goal</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Which to Choose by Career Goal</h2>
           <div className="space-y-3">
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm flex items-start gap-3">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-slate-900 font-bold">Choose NET if you want UGC-JRF at any university</p>
                 <p className="text-slate-500 text-xs font-medium mt-1">NET opens JRF positions at any recognized Indian university, giving you maximum flexibility in choosing your research institution and supervisor.</p>
               </div>
             </div>
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm flex items-start gap-3">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-slate-900 font-bold">Choose GATE if you want CSIR lab specifically</p>
                 <p className="text-slate-500 text-xs font-medium mt-1">GATE opens CSIR-JRF positions at CSIR labs like NPL, CEERI, CSIO, and CMERI, with PhD through AcSIR. Ideal if you want to work in a national lab environment.</p>
               </div>
             </div>
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm flex items-start gap-3">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-slate-900 font-bold">Choose GATE if you want PSU job + research option</p>
                 <p className="text-slate-500 text-xs font-medium mt-1">GATE scores are used by PSUs like BSNL, IOCL, GAIL, NTPC, and BARC for recruitment. You can also use your GATE score for M.Tech admissions as a backup.</p>
               </div>
             </div>
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm flex items-start gap-3">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-slate-900 font-bold">Choose NET if you want teaching + research</p>
@@ -115,7 +115,7 @@ export default async function NetVsGatePage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">Can You Appear for Both?</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">Can You Appear for Both?</h2>
           <p className="mb-3">Yes, and many successful researchers do exactly that. The syllabi of UGC-NET Electronic Science and GATE ECE overlap by 70-80%, so preparing for one naturally helps with the other. Here is a strategy:</p>
           <ul className="list-disc list-inside space-y-1">
             <li><strong className="text-slate-900">Start with GATE preparation</strong> (January-February exam) — the wider syllabus covers most NET topics plus additional engineering concepts.</li>
@@ -126,11 +126,11 @@ export default async function NetVsGatePage() {
         </section>
 
         <Card className="p-6">
-          <h2 className="font-display text-xl font-black text-slate-900 mb-4">Live Openings Requiring NET or GATE</h2>
+          <h2 className="font-display text-xl font-bold text-slate-900 mb-4">Live Openings Requiring NET or GATE</h2>
           {relevantOpps.length > 0 ? (
             <div className="space-y-3">
               {relevantOpps.map((opp: any) => (
-                <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border-2 border-slate-900 rounded-xl p-3.5 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all">
+                <Link key={opp.id} href={`/opportunities/${opp.slug}`} className="block bg-white border border-slate-200 rounded-xl p-3.5 shadow-card hover:border-slate-300 hover:shadow-elevated transition-all">
                   <h3 className="text-slate-900 text-sm font-semibold">{opp.title}</h3>
                   <p className="text-slate-500 text-xs font-medium mt-0.5">{opp.organization}{opp.stipend ? ` — ${opp.stipend}` : ""}{opp.deadline ? ` — Deadline: ${new Date(opp.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""}</p>
                 </Link>
@@ -143,29 +143,29 @@ export default async function NetVsGatePage() {
         </Card>
 
         <section>
-          <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-3">FAQs</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-3">FAQs</h2>
           <div className="space-y-4">
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <p className="font-bold text-slate-900 mb-1">Which is better for JRF — NET or GATE?</p>
               <p>Both are equally good but serve different paths. NET opens UGC-JRF at any university; GATE opens CSIR-JRF at CSIR labs. The stipend is identical (₹37,000/month). Choose based on where you want to do your PhD.</p>
             </div>
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <p className="font-bold text-slate-900 mb-1">Can I appear for both NET and GATE?</p>
               <p>Yes, many candidates do. NET is in June/December, GATE in February. Syllabus overlap is 70-80%, so preparing for one helps with the other.</p>
             </div>
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <p className="font-bold text-slate-900 mb-1">Which exam is harder?</p>
               <p>GATE ECE is more competitive due to more applicants and broader syllabus. NET Electronic Science has a narrower, research-focused syllabus.</p>
             </div>
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <p className="font-bold text-slate-900 mb-1">What is the stipend?</p>
               <p>Both offer ₹37,000/month (JRF) and ₹42,000/month (SRF) plus HRA and contingency — the exact same pay scale.</p>
             </div>
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <p className="font-bold text-slate-900 mb-1">Can I become a professor with GATE?</p>
               <p>No, only NET (or state SET) qualifies you for assistant professor positions. GATE does not confer teaching eligibility.</p>
             </div>
-            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-brutal-sm">
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
               <p className="font-bold text-slate-900 mb-1">What are the age limits?</p>
               <p>NET JRF: 30 years for General. GATE CSIR-JRF: 28 years for General. Relaxation available for OBC/SC/ST/Women.</p>
             </div>

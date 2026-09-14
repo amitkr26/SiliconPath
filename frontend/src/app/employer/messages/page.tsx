@@ -158,11 +158,11 @@ export default function EmployerMessagesPage() {
         </div>
 
         {/* MESSAGING COCKPIT */}
-        <div className="bg-white border-2 border-slate-900 rounded-2xl shadow-brutal-lg overflow-hidden grid grid-cols-1 md:grid-cols-3 min-h-[550px]">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-card overflow-hidden grid grid-cols-1 md:grid-cols-3 min-h-[550px]">
 
           {/* LEFT: CONVERSATION LIST */}
-          <div className="border-r-2 border-slate-900 flex flex-col">
-            <div className="p-4 border-b-2 border-slate-900 bg-slate-50">
+          <div className="border-r border-slate-200 flex flex-col">
+            <div className="p-4 border-b border-slate-200 bg-slate-50">
               <div className="relative">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input
@@ -170,7 +170,7 @@ export default function EmployerMessagesPage() {
                   placeholder="Search candidate conversations..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all"
                 />
               </div>
             </div>
@@ -204,7 +204,7 @@ export default function EmployerMessagesPage() {
                         isSelected ? "bg-blue-50/80" : "hover:bg-slate-50"
                       }`}
                     >
-                      <div className="w-10 h-10 rounded-full border-2 border-slate-900 flex items-center justify-center font-black text-sm shrink-0 shadow-brutal-sm overflow-hidden relative">
+                      <div className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center font-bold text-sm shrink-0 shadow-xs overflow-hidden relative">
                         <ImageWithFallback
                           src={other?.avatar_url}
                           alt={other?.display_name || "Candidate"}
@@ -241,9 +241,9 @@ export default function EmployerMessagesPage() {
             {currentOtherUser ? (
               <>
                 {/* THREAD HEADER */}
-                <div className="p-4 border-b-2 border-slate-900 bg-white flex items-center justify-between">
+                <div className="p-4 border-b border-slate-200 bg-white flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full border-2 border-slate-900 flex items-center justify-center font-black text-xs shadow-brutal-sm overflow-hidden relative">
+                    <div className="w-9 h-9 rounded-full border border-slate-200 flex items-center justify-center font-bold text-xs shadow-xs overflow-hidden relative">
                       <ImageWithFallback
                         src={currentOtherUser.avatar_url}
                         alt={currentOtherUser.display_name || "Candidate"}
@@ -276,10 +276,10 @@ export default function EmployerMessagesPage() {
                       return (
                         <div key={m.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                           <div
-                            className={`max-w-[75%] p-3 rounded-2xl border-2 border-slate-900 shadow-brutal-sm text-xs ${
+                            className={`max-w-[75%] p-3.5 rounded-2xl border text-xs shadow-xs ${
                               isMe
-                                ? "bg-blue-600 text-white font-medium"
-                                : "bg-white text-slate-900 font-medium"
+                                ? "bg-blue-600 border-blue-600 text-white font-medium"
+                                : "bg-white border-slate-200 text-slate-900 font-medium"
                             }`}
                           >
                             <p className="whitespace-pre-wrap">{m.body}</p>
@@ -298,14 +298,14 @@ export default function EmployerMessagesPage() {
                 </div>
 
                 {/* MESSAGE INPUT */}
-                <div className="p-4 border-t-2 border-slate-900 bg-white flex items-end gap-2">
+                <div className="p-4 border-t border-slate-200 bg-white flex items-end gap-2">
                   <textarea
                     rows={2}
                     placeholder="Type candidate message... (Press Enter to send)"
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 p-3 bg-slate-50 border-2 border-slate-900 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none resize-none"
+                    className="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all resize-none"
                   />
                   <Button
                     onClick={handleSend}

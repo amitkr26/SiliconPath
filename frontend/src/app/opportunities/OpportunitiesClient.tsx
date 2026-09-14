@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { Opportunity } from "@/types";
+import OpportunityCard from "@/components/OpportunityCard";
 import CategoryBadge from "@/components/CategoryBadge";
 import DeadlineCountdown from "@/components/DeadlineCountdown";
 import VerificationBadge from "@/components/VerificationBadge";
@@ -206,33 +207,33 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   const hasActiveFilters = category !== "All" || eligibility !== "All" || location !== "All" || deadline !== "All" || experience !== "All" || search;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-bg-primary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Opportunities</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Browse verified semiconductor, VLSI, and research opportunities
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Opportunities</h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Browse verified semiconductor, VLSI, and research opportunities across Indian deep-tech labs &amp; industries.
           </p>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Content */}
           <div className="flex-1 min-w-0">
             {/* Search Bar */}
             <div className="relative mb-4">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search opportunities by title, organization, or keyword..."
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
               />
               {search && (
                 <button
                   onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -246,10 +247,10 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                   key={filter.label}
                   onClick={() => handleQuickFilter(filter)}
                   className={cn(
-                    "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+                    "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors",
                     activeQuickFilter === filter.label
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                      ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                      : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50 shadow-xs"
                   )}
                 >
                   {filter.label}
@@ -258,7 +259,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
               {hasActiveFilters && (
                 <button
                   onClick={resetAll}
-                  className="px-3 py-1.5 rounded-full text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
                 >
                   Clear all
                 </button>
@@ -268,22 +269,23 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
             {/* Mobile Filter Toggle */}
             <button
               onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-              className="lg:hidden flex items-center gap-2 px-3 py-2 mb-4 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+              className="lg:hidden flex items-center justify-between w-full px-3 py-2 mb-4 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 shadow-xs"
             >
-              <Filter className="w-4 h-4" />
-              Filters
-              <ChevronDown className={cn("w-4 h-4 transition-transform", mobileFiltersOpen && "rotate-180")} />
+              <span className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-slate-500" /> Filters
+              </span>
+              <ChevronDown className={cn("w-4 h-4 transition-transform text-slate-400", mobileFiltersOpen && "rotate-180")} />
             </button>
 
             {/* Mobile Filters Panel */}
             {mobileFiltersOpen && (
-              <div className="lg:hidden bg-white border border-gray-200 rounded-lg p-4 mb-4 space-y-4">
+              <div className="lg:hidden bg-white border border-slate-200 rounded-xl p-4 mb-4 space-y-4 shadow-sm">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Domain</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Domain</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
                   >
                     {DOMAIN_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -291,11 +293,11 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Sort by</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Sort by</label>
                   <select
                     value={sort}
                     onChange={(e) => setSort(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
                   >
                     <option value="fresher">Fresher Relevance</option>
                     <option value="closing_soon">Closing Soon</option>
@@ -306,30 +308,30 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
             )}
 
             {/* Results Count */}
-            <p className="text-sm text-gray-600 mb-4">
-              {loading ? "Loading..." : `${totalCount} active opportunities`}
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
+              {loading ? "Loading opportunities..." : `${totalCount} verified active positions`}
             </p>
 
             {/* Opportunity Cards Grid */}
             {loading ? (
               <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+                <Loader2 className="w-7 h-7 text-blue-600 animate-spin" />
               </div>
             ) : opportunities.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-                <p className="text-gray-900 font-medium">No opportunities found</p>
-                <p className="text-sm text-gray-500 mt-1">Try adjusting your filters or search terms</p>
+              <div className="text-center py-16 bg-white rounded-xl border border-slate-200 shadow-card">
+                <p className="text-slate-900 font-bold text-base">No opportunities match your current filters</p>
+                <p className="text-xs text-slate-500 mt-1">Try adjusting your filters, location, or search keywords</p>
                 <button
                   onClick={resetAll}
-                  className="mt-4 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+                  className="mt-4 px-4 py-2 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                 >
-                  Reset filters
+                  Reset all filters
                 </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {opportunities.map((opp) => (
-                  <OpportunityCardCompact key={opp.id} opportunity={opp} />
+                  <OpportunityCard key={opp.id} opportunity={opp} compact />
                 ))}
               </div>
             )}
@@ -340,9 +342,9 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                 <button
                   onClick={() => setPage((p) => p + 1)}
                   disabled={loadingMore}
-                  className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                  className="px-6 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 shadow-xs transition-all disabled:opacity-50"
                 >
-                  {loadingMore ? "Loading..." : "Load more"}
+                  {loadingMore ? "Loading more..." : "Load more opportunities"}
                 </button>
               </div>
             )}
@@ -352,18 +354,18 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
           <aside className="hidden lg:block w-72 flex-shrink-0">
             <div className="sticky top-24 space-y-6">
               {/* Quick Filters */}
-              <div className="bg-white border border-gray-200 rounded-xl p-4">
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Quick Filters</h3>
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">Quick Filters</h3>
                 <div className="space-y-1">
                   {QUICK_FILTERS.map((filter) => (
                     <button
                       key={filter.label}
                       onClick={() => handleQuickFilter(filter)}
                       className={cn(
-                        "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
+                        "w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors",
                         activeQuickFilter === filter.label
-                          ? "bg-blue-50 text-blue-700 font-medium"
-                          : "text-gray-700 hover:bg-gray-50"
+                          ? "bg-blue-50 text-blue-700 font-semibold"
+                          : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
                       )}
                     >
                       {filter.label}
@@ -373,8 +375,8 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
               </div>
 
               {/* Domain Stats */}
-              <div className="bg-white border border-gray-200 rounded-xl p-4">
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Domain Stats</h3>
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">Domain Distribution</h3>
                 <div className="space-y-2">
                   {Object.entries(domainCounts)
                     .filter(([, count]) => count > 0)
@@ -382,8 +384,8 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                     .slice(0, 8)
                     .map(([domain, count]) => (
                       <div key={domain} className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">{domain}</span>
-                        <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                        <span className="text-xs text-slate-600 font-medium">{domain}</span>
+                        <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
                           {count}
                         </span>
                       </div>
@@ -392,14 +394,14 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
               </div>
 
               {/* Refine Filters */}
-              <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
-                <h3 className="text-sm font-semibold text-gray-900">Refine Filters</h3>
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">Refine Search</h3>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Eligibility</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1.5">Eligibility</label>
                   <select
                     value={eligibility}
                     onChange={(e) => setEligibility(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
                   >
                     <option value="All">All Eligibility</option>
                     <option value="B.Tech">B.Tech</option>
@@ -412,11 +414,11 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Location</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1.5">Location</label>
                   <select
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
                   >
                     <option value="All">All Locations</option>
                     <option value="Bangalore">Bangalore</option>
@@ -429,11 +431,11 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1.5">Deadline</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1.5">Deadline Window</label>
                   <select
                     value={deadline}
                     onChange={(e) => setDeadline(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
                   >
                     <option value="All">Any Deadline</option>
                     <option value="Within 7 days">Within 7 days</option>
@@ -444,99 +446,6 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
               </div>
             </div>
           </aside>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Compact Opportunity Card ─────────────────────────────────────── */
-
-function OpportunityCardCompact({ opportunity: opp }: { opportunity: Opportunity }) {
-  const router = useRouter();
-  const linkUnavailable = opp.verification_status === "link_unavailable" || opp.verification_status === "expired";
-
-  const daysLeft = opp.deadline ? getDaysUntilDeadline(opp.deadline) : null;
-  const expired = opp.deadline ? isExpired(opp.deadline) : false;
-
-  return (
-    <div
-      onClick={() => router.push(`/opportunities/${opp.slug}`)}
-      className={cn(
-        "bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md hover:border-gray-300 transition-all cursor-pointer group",
-        linkUnavailable && "opacity-70"
-      )}
-    >
-      <div className="flex items-start gap-3">
-        {/* Org Initials */}
-        <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-          <span className="text-sm font-semibold text-blue-600">{getInitials(opp.organization)}</span>
-        </div>
-
-        <div className="flex-1 min-w-0">
-          {/* Title */}
-          <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">
-            {opp.title}
-          </h3>
-
-          {/* Organization */}
-          {opp.organization && (
-            <p className="text-xs text-gray-500 mt-0.5 truncate">{opp.organization}</p>
-          )}
-
-          {/* Tags Row */}
-          <div className="flex flex-wrap items-center gap-1.5 mt-2">
-            <CategoryBadge category={opp.category} />
-            {opp.location && (
-              <span className="inline-flex items-center gap-1 text-xs text-gray-500">
-                <MapPin className="w-3 h-3" />
-                {opp.location}
-              </span>
-            )}
-            {opp.stipend && (
-              <span className="inline-flex items-center gap-1 text-xs text-gray-600 font-medium">
-                <IndianRupee className="w-3 h-3" />
-                {opp.stipend}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Verification */}
-        {opp.verification_status && (
-          <div className="flex-shrink-0">
-            <VerificationBadge status={opp.verification_status} compact />
-          </div>
-        )}
-      </div>
-
-      {/* Footer */}
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-        <div>
-          {opp.deadline ? (
-            <DeadlineCountdown deadline={opp.deadline} />
-          ) : (
-            <span className="text-xs text-gray-400">Open listing</span>
-          )}
-        </div>
-        <div>
-          {expired || opp.verification_status === "expired" ? (
-            <span className="text-xs text-gray-400 font-medium">Closed</span>
-          ) : opp.apply_link ? (
-            <a
-              href={opp.apply_link}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
-            >
-              Apply <ExternalLink className="w-3 h-3" />
-            </a>
-          ) : (
-            <span className="text-xs font-medium text-blue-600">
-              View Details <ExternalLink className="w-3 h-3 inline" />
-            </span>
-          )}
         </div>
       </div>
     </div>
