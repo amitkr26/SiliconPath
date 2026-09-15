@@ -23,7 +23,7 @@ import AdminHome from "@/components/home/AdminHome";
 
 async function getPublicStats() {
   if (!supabaseAdmin?.from) {
-    return { total: 0, jrf: 0, phd: 0, govt: 0, verified: 0 };
+    return { total: 0, jrf: 0, phd: 0, govt: 0, verified: 0, orgs: 0 };
   }
 
   const today = computeIstToday();
@@ -35,6 +35,7 @@ async function getPublicStats() {
     { count: phdCount },
     { count: govtCount },
     { count: verifiedCount },
+    { count: orgsCount },
   ] = await Promise.all([
     supabaseAdmin
       .from("opportunities")
@@ -82,6 +83,9 @@ async function getPublicStats() {
       .eq("verification_status", "verified")
       .neq("verification_status", "link_unavailable")
       .or(availFilter),
+    supabaseAdmin
+      .from("organizations")
+      .select("*", { count: "exact", head: true }),
   ]);
 
   return {
@@ -90,6 +94,7 @@ async function getPublicStats() {
     phd: phdCount || 0,
     govt: govtCount || 0,
     verified: verifiedCount || 0,
+    orgs: orgsCount || 0,
   };
 }
 
@@ -99,8 +104,8 @@ async function getLatestNews(): Promise<NewsArticle[]> {
     const { data } = await supabaseAdmin
       .from("news_articles")
       .select("*")
-      .order("created_at", { ascending: false })
-      .limit(3);
+      .order("published_at", { ascending: false })
+      .limit(6);
 
     if (!data) return [];
     return data.map((item: any) => ({
@@ -111,7 +116,7 @@ async function getLatestNews(): Promise<NewsArticle[]> {
       source_url: item.url || item.source_url || "https://semiengineering.com/",
       image_url: item.image_url || "",
       tags: item.tags || ["Semiconductor", "Research"],
-      published_at: item.created_at || new Date().toISOString(),
+      published_at: item.published_at || item.created_at || new Date().toISOString(),
     }));
   } catch {
     return [];
@@ -153,7 +158,7 @@ export default async function HomePage() {
     // Only "relevant" (not "possibly_relevant") makes the homepage.
 
     const HOMEPAGE_LIMIT = 200; // fetch enough for classification
-    const HOMEPAGE_TARGET = 6;
+    const HOMEPAGE_TARGET = 8;
 
     const { data: candidateOpps } = await supabaseAdmin
       .from("opportunities")
