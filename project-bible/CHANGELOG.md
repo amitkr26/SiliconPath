@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-15 — Official Brand Logo, Favicon Asset Pipeline & Direct Image Delivery:**
+  - **Brand Assets & Favicon Pipeline**:
+    - Extracted official brand assets from `img/`:
+      - `img/logo.png` (2172×724 horizontal brand wordmark with graduate cap icon and gold accent): deployed to `frontend/public/images/brand/logo.png` and `frontend/public/logo.png`.
+      - `img/favicon.png` (1262×1246 square gradient brand emblem with graduate cap): deployed to `frontend/public/favicon.ico`, `frontend/public/favicon.png`, `frontend/public/images/brand/favicon.png`, `frontend/src/app/favicon.ico`, and `frontend/src/app/icon.png`.
+  - **Component Integration & Zero-Lag Direct Delivery**:
+    - `frontend/src/app/layout.tsx`: Updated root layout `metadata.icons` to reference `/favicon.ico`, `/favicon.png`, and `/images/brand/favicon.png`.
+    - `frontend/src/components/Navbar.tsx`: Integrated official horizontal brand logo with Next.js `Image`, configuring `unoptimized` and `priority` for instant first-paint header rendering.
+    - `frontend/src/components/Footer.tsx`: Integrated official square brand emblem in the footer brand mark lockup with `unoptimized` to bypass runtime wasm compression bottlenecks.
+  - **Automated Verification**:
+    - Monorepo TypeScript check (`npm run typecheck`): 0 errors across all 5 workspaces.
+    - Automated Playwright screenshot audit: Verified sharp logo display in `<header>` and crisp brand emblem in `<footer>` with HTTP 200 responses across all asset endpoints.
+
 - **2026-09-15 — Final Visual Reconstruction & Architectural Single-Footer Unification:**
   - **Component Architecture & Duplicate Footer Fix**:
     - Root Cause Analysis: `AppLayout.tsx` rendered the global `<Footer />` while `PublicHome.tsx` also rendered an inline `<footer>` element, producing duplicate stacked footers in the DOM on `/`.
