@@ -93,10 +93,13 @@ All 11 sections have been constructed with responsive Tailwind CSS, high contras
 | Test Suite | Command | Result | Notes |
 | :--- | :--- | :--- | :--- |
 | **Monorepo Typecheck** | `npm run typecheck` | ✅ PASSED (0 errors) | All 5 workspaces passed `tsc --noEmit` |
+| **Full Jest & Node Test Suite** | `npm test` | ✅ PASSED (259/259 tests) | 26 test suites passed with zero failures |
 | **Next.js Production Build** | `npm run build --workspace=berojgardegreewala-frontend` | ✅ PASSED (code 0) | All routes compiled and optimized |
+| **DOM Footer Count** | `page.locator('footer').count()` | ✅ PASSED (exactly 1) | Single footer ownership in `AppLayout.tsx` |
+| **DOM Navbar Count** | `page.locator('nav').count()` | ✅ PASSED (exactly 1) | Single global navbar |
+| **Section Sequence** | Automated Playwright check | ✅ PASSED (12/12) | Verified chronological order and FAQ above Footer |
+| **Horizontal Overflow** | `scrollWidth <= clientWidth` | ✅ PASSED | 0px overflow across desktop & mobile (390px) |
 | **Local Server Runtime** | `http://localhost:3001` | ✅ PASSED (HTTP 200) | Server daemon operational |
-| **Browser Visual Audit (Desktop)** | `1440x900 maximized` | ✅ PASSED | All 11 sections rendered crisply without overlap |
-| **Browser Visual Audit (Mobile)** | `375x812 viewport` | ✅ PASSED | Responsive 1-column reflow & slide-out drawer menu |
 | **Asset Integrity** | `frontend/public/images/` | ✅ PASSED | 6 production assets verified and referenced correctly |
 
 ---
