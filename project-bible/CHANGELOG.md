@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-15 — Complete Homepage Redesign & Brand Asset Pipeline:**
+  - **Comprehensive Multi-Section Redesign**:
+    - `frontend/src/components/home/PublicHome.tsx`: Complete overhaul implementing 11 high-impact sections modeled after brand reference designs:
+      1. *Mission Announcement Bar*: Top banner highlighting India's deep-tech career ecosystem and *"Same Degree. A Brighter Tomorrow."*
+      2. *Split Hero Layout*: High-converting headline, live opportunity search bar with instant submit, popular search pills (`JRF`, `VLSI`, `Internship`, `DRDO`, `ISRO`, `PhD`), micro-metric indicators, and hero collaboration visual (`/images/homepage/heroimg.png`).
+      3. *Impact Stats Ribbon*: Elevated dark navy metric strip showcasing 25,000+ members, live organization count from DB, 100+ colleges, and 10+ countries.
+      4. *6 Aspiration Categories*: Interactive cards for Research Opportunities (JRF/SRF), Internships, Semiconductor & Core Jobs, Scholarships & Grants, Study Abroad, and Government & PSUs.
+      5. *Featured Opportunities Grid*: 8 live verified opportunities wired directly to Supabase with bookmarking, deadline indicators, tags, and direct circular view CTAs.
+      6. *Why BerojgarDegreeWala*: 6 value props (Focused & Relevant, Verified Opportunities, All Career Stages, AI-Powered Discovery, India & Global Reach, More Than Jobs) + campus entrance plaque photograph (`/images/homepage/campus-entrance.png`) with quote overlay.
+      7. *Real People. Real Journeys*: 3 community testimonials from engineering scholars at IIT Delhi, NIT Trichy, and IISc Bangalore.
+      8. *Stay Informed. Stay Ahead*: Live news section featuring 1 primary lead article card, 3 side cards, trending topics sidebar, and newsletter digest signup.
+      9. *Partner Institutions Strip*: Ingesting and monitoring circulars from IIT Delhi, IISc Bangalore, NIT Trichy, DRDO, ISRO, Intel India, Texas Instruments, and Qualcomm.
+      10. *Pre-Footer CTA*: Inspiring callout on *"Build a Stronger India with Knowledge and Innovation"* with direct registration links and campus background (`/images/homepage/campus-walk.png`).
+      11. *Interactive FAQ Accordion & Modernized Deep-Tech Footer*: Expandable accordion answering common applicant questions, coupled with a dark footer with live status indicators, categorized links, and patriotic taglines.
+  - **Server Ingestion & Backend Data Logic**:
+    - `frontend/src/app/page.tsx`: Updated `getPublicStats` to dynamically aggregate verified active organizations (`orgsCount`), expanded `getLatestNews` limit to 6 sorted by `published_at` descending, and tuned `HOMEPAGE_TARGET` to 8 verified, domain-relevant opportunities.
+    - `frontend/public/images/`: Organized brand and homepage assets (`favicon.png`, `logo.png`, `heroimg.png`, `campus-entrance.png`, `campus-walk.png`, `footer-banner.png`).
+    - `.gitignore`: Added `/img/` to ignore local uncompressed raw reference folder.
+  - **Automated & Visual Verification**:
+    - Monorepo TypeScript check (`npm run typecheck`): 0 errors across all 5 workspaces (`api`, `ai-gateway`, `server`, `worker`, `frontend`).
+    - Next.js production build (`npm run build --workspace=berojgardegreewala-frontend`): Compiled and generated all static and dynamic routes cleanly.
+    - Local server runtime (`http://localhost:3001`): Returned HTTP 200 OK.
+    - Browser Subagent Visual Audit: Verified all sections on desktop (1440x900) and mobile (375x812) viewports, verifying sharp imagery, responsive grid reflows, and interactive drawer menu.
+
 - **2026-09-14 — Admin Portal Dual-Environment Audit, API Schema Fixes & Dark Slate Subpage Unification:**
   - **API Root Cause & Schema Mismatch Fixes**:
     - `frontend/src/lib/api-utils.ts`: Fixed `apiError` response utility masking PostgrestError objects as `"[object Object]"` by extracting `error.message` and serializing complex error objects.

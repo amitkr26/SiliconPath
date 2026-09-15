@@ -39,3 +39,4 @@ Thumbs.db
 scripts/scratch/
 /scratch/
 .env*
+/img/
