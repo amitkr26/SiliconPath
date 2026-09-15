@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CircuitBoard, ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Footer() {
@@ -48,8 +49,15 @@ export default function Footer() {
           {/* LEFT: BRAND & MISSION (4 COLS) */}
           <div className="lg:col-span-4 space-y-4">
             <Link href="/" className="flex items-center gap-2.5 group inline-flex">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 border border-white/20 flex items-center justify-center shadow-xs">
-                <CircuitBoard className="w-4.5 h-4.5 text-white stroke-[2]" />
+              <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-slate-700/80 shadow-xs shrink-0 bg-slate-900">
+                <Image
+                  src="/images/brand/favicon.png"
+                  alt="BerojgarDegreeWala Icon"
+                  fill
+                  unoptimized
+                  className="object-cover"
+                  sizes="32px"
+                />
               </div>
               <span className="font-bold text-xl tracking-tight text-white group-hover:text-blue-400 transition-colors">
                 Berojgar<span className="text-blue-500">DegreeWala</span>

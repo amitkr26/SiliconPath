@@ -58,8 +58,13 @@ export const metadata: Metadata = {
     google: "QnEIBEpKxP_ZiQxtneegX-6WWKxO_FZ8Yzzxp4kOqxA",
   },
   icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/images/brand/favicon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/images/brand/favicon.png",
   },
   manifest: "/manifest.json",
 };

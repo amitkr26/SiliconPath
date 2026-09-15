@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Briefcase, Menu, X, User, LogOut, CircuitBoard, Building2, ChevronDown,
   Users, MessageSquare, PlusCircle, Bookmark,
@@ -103,26 +104,24 @@ export default function Navbar() {
         {/* BRAND LOGO */}
         <Link
           href={isEmployer ? "/employer/dashboard" : "/"}
-          className="flex items-center gap-2.5 group shrink-0"
+          className="flex items-center gap-2 group shrink-0"
         >
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm">
-            <CircuitBoard className="w-4.5 h-4.5 text-white stroke-[2]" />
+          <div className="relative h-9 w-36 sm:h-10 sm:w-44">
+            <Image
+              src="/images/brand/logo.png"
+              alt="BerojgarDegreeWala"
+              fill
+              priority
+              unoptimized
+              className="object-contain object-left"
+              sizes="(max-width: 640px) 144px, 176px"
+            />
           </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5">
-              <span className="font-display font-bold text-sm sm:text-base md:text-lg tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors leading-none">
-                Berojgar<span className="text-blue-600">DegreeWala</span>
-              </span>
-              {isEmployer && (
-                <span className="px-1.5 py-0.5 rounded bg-blue-50 text-[9px] font-bold text-blue-600 uppercase tracking-wider border border-blue-100">
-                  Employer
-                </span>
-              )}
-            </div>
-            <span className="text-[9px] sm:text-[10px] text-slate-400 mt-0.5 font-medium tracking-wider uppercase">
-              {isEmployer ? "Recruiter Portal" : "Semiconductor Careers"}
+          {isEmployer && (
+            <span className="px-1.5 py-0.5 rounded bg-blue-50 text-[9px] font-bold text-blue-600 uppercase tracking-wider border border-blue-100 shrink-0">
+              Employer
             </span>
-          </div>
+          )}
         </Link>
 
         {/* DESKTOP NAV LINKS */}

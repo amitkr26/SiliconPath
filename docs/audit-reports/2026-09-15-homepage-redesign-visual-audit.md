@@ -86,6 +86,17 @@ All 11 sections have been constructed with responsive Tailwind CSS, high contras
 - Expandable interactive accordion addressing applicant questions.
 - Deep-tech dark footer with live status indicators, categorized links, newsletter subscription with toast feedback, and patriotic closing tagline (*"Building a Brighter India, Together."*).
 
+### 12. Official Brand Logo & Favicon Asset Pipeline Integration
+- **Horizontal Wordmark (`logo.png` - 2172×724)**:
+  - Deployed to `frontend/public/images/brand/logo.png` and `frontend/public/logo.png`.
+  - Integrated into `frontend/src/components/Navbar.tsx` using Next.js `Image` with `priority` and `unoptimized` attributes to avoid wasm runtime bottlenecks.
+  - Verified natural dimensions: `2172×724`, rendered cleanly at `h-9 w-36 sm:h-10 sm:w-44`.
+- **Square Brand Emblem (`favicon.png` - 1262×1246)**:
+  - Deployed to `frontend/public/favicon.ico`, `frontend/public/favicon.png`, `frontend/public/images/brand/favicon.png`, `frontend/src/app/favicon.ico`, and `frontend/src/app/icon.png`.
+  - Configured in `frontend/src/app/layout.tsx` icons metadata.
+  - Integrated into `frontend/src/components/Footer.tsx` brand lockup with `unoptimized` flag.
+  - Verified natural dimensions: `1262×1246`, rendered cleanly at `32×32` badge with rounded corners.
+
 ---
 
 ## 3. Verification & Quality Assurance
@@ -94,16 +105,18 @@ All 11 sections have been constructed with responsive Tailwind CSS, high contras
 | :--- | :--- | :--- | :--- |
 | **Monorepo Typecheck** | `npm run typecheck` | ✅ PASSED (0 errors) | All 5 workspaces passed `tsc --noEmit` |
 | **Full Jest & Node Test Suite** | `npm test` | ✅ PASSED (259/259 tests) | 26 test suites passed with zero failures |
-| **Next.js Production Build** | `npm run build --workspace=berojgardegreewala-frontend` | ✅ PASSED (code 0) | All routes compiled and optimized |
+| **Next.js Production Build** | `npm run build --workspace=berojgardegreewala-frontend` | ✅ PASSED (code 0) | All routes compiled and optimized, registered `/icon.png` |
 | **DOM Footer Count** | `page.locator('footer').count()` | ✅ PASSED (exactly 1) | Single footer ownership in `AppLayout.tsx` |
 | **DOM Navbar Count** | `page.locator('nav').count()` | ✅ PASSED (exactly 1) | Single global navbar |
 | **Section Sequence** | Automated Playwright check | ✅ PASSED (12/12) | Verified chronological order and FAQ above Footer |
 | **Horizontal Overflow** | `scrollWidth <= clientWidth` | ✅ PASSED | 0px overflow across desktop & mobile (390px) |
 | **Local Server Runtime** | `http://localhost:3001` | ✅ PASSED (HTTP 200) | Server daemon operational |
-| **Asset Integrity** | `frontend/public/images/` | ✅ PASSED | 6 production assets verified and referenced correctly |
+| **Navbar Logo Asset** | `header img` naturalWidth | ✅ PASSED (2172px) | HTTP 200, `complete: true`, crisp vector-like render |
+| **Footer Icon Asset** | `footer img` naturalWidth | ✅ PASSED (1262px) | HTTP 200, `complete: true`, sharp blue emblem |
+| **Favicon Metadata** | `/favicon.ico`, `/icon.png` | ✅ PASSED (HTTP 200) | App Router and static icons responding |
 
 ---
 
 ## 4. Conclusion
 
-The homepage redesign satisfies all user requirements and visual references while preserving full backend integrity. The platform is ready for production push to `bdw/main`.
+The homepage redesign and official brand asset integration satisfy all user requirements and visual references while preserving full backend integrity. The platform is ready for production push to `bdw/main`.
