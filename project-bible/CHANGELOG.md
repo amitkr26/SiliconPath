@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-15 — Final Visual Reconstruction & Architectural Single-Footer Unification:**
+  - **Component Architecture & Duplicate Footer Fix**:
+    - Root Cause Analysis: `AppLayout.tsx` rendered the global `<Footer />` while `PublicHome.tsx` also rendered an inline `<footer>` element, producing duplicate stacked footers in the DOM on `/`.
+    - Fix: Removed the redundant `<footer>` from `PublicHome.tsx`. Centralized single footer ownership in `AppLayout.tsx` and rebuilt `frontend/src/components/Footer.tsx` as the authoritative, deep-tech footer featuring BDW branding, categorized directory links (Opportunities, Guides & Academy, Portals & Tools), active newsletter subscription handling via `/api/subscribe`, status indicators, and legal/motto links.
+    - Verified in automated Playwright test: `document.querySelectorAll('footer').length === 1` and `document.querySelectorAll('nav').length === 1`.
+  - **Editorial Visual Hierarchy & Composition Modernization**:
+    - `frontend/src/components/home/PublicHome.tsx`: Overhauled layout into a spacious, premium editorial structure:
+      1. *Split Hero Layout*: Left ~48% with confident H1, large opportunity search field, popular search tags, dual CTAs, and community social proof. Right ~52% with large cinematic `heroimg.png` in a refined frame with subtle elevation and integrated contextual badge.
+      2. *Impact Statistics Ribbon*: Dark navy metric ribbon featuring 4 prominent metrics (25,000+ Students & Professionals, live Organization count, 100+ Colleges, 10+ Countries Reached).
+      3. *Opportunity Categories*: Refined 3×2 grid with clean icons, strong headings, concise 1-sentence descriptions, and subtle arrows without oversized pills or paragraph walls.
+      4. *Featured Opportunities*: Transformed from dense 4-column layout into a readable, spacious 3-column desktop grid prioritized for immediate clarity (title, org, deadline, verification badge, and direct view CTA).
+      5. *Why BerojgarDegreeWala*: Rebalanced into brand storytelling with large campus entrance visual (`campus-entrance.png`) on the left and 6 compact rows on the right.
+      6. *Real People. Real Journeys*: Restrained, calm editorial trust section featuring 3 authentic researcher journeys with clean quote typography.
+      7. *Stay Informed. Stay Ahead*: Left 6-column dominating featured news story with 3 compact secondary cards and trending topics sidebar.
+      8. *Partner Institutions*: Minimal horizontal trust strip with institutional monograms/badges.
+      9. *Pre-Footer CTA*: Cinematic dark-blue panel with atmospheric background (`campus-walk.png`).
+      10. *FAQ Accordion*: Centered, clean divider layout positioned immediately before the single footer.
+  - **Automated Verification**:
+    - Monorepo TypeScript check (`npm run typecheck`): 0 errors across all 5 workspaces.
+    - Test suite (`npm test`): 26 passed test suites, 259 passed tests (0 failures).
+    - Next.js production build (`npm run build --workspace=berojgardegreewala-frontend`): Succeeded with exit code 0.
+    - Automated DOM assertion via Playwright: Confirmed exactly 1 navbar, exactly 1 footer, correct vertical sequence (FAQ immediately above footer), and 0 horizontal overflow across desktop (1440px) and mobile (390px) viewports.
+
 - **2026-09-15 — Complete Homepage Redesign & Brand Asset Pipeline:**
   - **Comprehensive Multi-Section Redesign**:
     - `frontend/src/components/home/PublicHome.tsx`: Complete overhaul implementing 11 high-impact sections modeled after brand reference designs:

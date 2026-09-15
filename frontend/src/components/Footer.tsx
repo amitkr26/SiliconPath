@@ -1,186 +1,263 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { CircuitBoard, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { CircuitBoard, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Footer() {
-  return (
-    <footer className="bg-slate-950 border-t border-slate-800 text-slate-300 mt-20 relative z-10">
-      
-      {/* TOP TRUST STRIP */}
-      <div className="border-b border-slate-800/80 bg-slate-900/40 py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-400">
-          <div className="flex items-center gap-2 text-white font-bold uppercase tracking-wider">
-            <ShieldCheck className="w-4.5 h-4.5 text-blue-500" />
-            <span>India&apos;s Semiconductor &amp; VLSI Career Gateway</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-5 text-slate-300 text-xs">
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Links to Official Sources
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Apply Directly to Portals
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Free Public Aggregator
-            </span>
-          </div>
-        </div>
-      </div>
+  const [email, setEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes("@")) {
+      toast.error("Please provide a valid email address.");
+      return;
+    }
+    setSubscribing(true);
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: cleanEmail }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        toast.success("Subscribed successfully! You'll receive real-time deep-tech opportunity digests.");
+        setEmail("");
+      } else if (res.status === 409) {
+        toast.info("This email is already subscribed to BerojgarDegreeWala digests.");
+        setEmail("");
+      } else {
+        toast.error(data.error || "Subscription failed. Please try again.");
+      }
+    } catch {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setSubscribing(false);
+    }
+  };
+
+  return (
+    <footer className="bg-slate-950 border-t border-slate-800 text-slate-300 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-12 border-b border-slate-800">
           
-          {/* BRAND COLUMN */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* LEFT: BRAND & MISSION (4 COLS) */}
+          <div className="lg:col-span-4 space-y-4">
             <Link href="/" className="flex items-center gap-2.5 group inline-flex">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 border border-white/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 border border-white/20 flex items-center justify-center shadow-xs">
                 <CircuitBoard className="w-4.5 h-4.5 text-white stroke-[2]" />
               </div>
               <span className="font-bold text-xl tracking-tight text-white group-hover:text-blue-400 transition-colors">
                 Berojgar<span className="text-blue-500">DegreeWala</span>
               </span>
             </Link>
+
             <p className="text-slate-400 text-xs font-normal leading-relaxed max-w-sm">
-              Empowering India&apos;s semiconductor, microelectronics, and deep-tech talent pool with aggregated opportunity notifications from DRDO, ISRO, CSIR, IITs, and premier fabless enterprises.
+              India&apos;s premier deep-tech career and research ecosystem. Connecting ambitious engineers, researchers, and graduates with verified circulars in semiconductors, VLSI, and core technologies.
             </p>
 
-            <div className="pt-2 flex flex-wrap gap-2 text-[11px] font-medium">
-              <Link href="/organizations/isro" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
-                ISRO Careers
+            <div className="pt-2">
+              <p className="font-serif italic text-amber-400 text-xs font-semibold">
+                #SameDegreeABrighterTomorrow
+              </p>
+            </div>
+
+            {/* Quick pill links */}
+            <div className="pt-1 flex flex-wrap gap-2 text-[11px] font-medium text-slate-400">
+              <Link href="/organizations/drdo" className="px-2 py-0.5 bg-slate-900 border border-slate-800 hover:border-blue-500 hover:text-white rounded transition">
+                DRDO
               </Link>
-              <Link href="/organizations/drdo" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
-                DRDO Fellowships
+              <Link href="/organizations/isro" className="px-2 py-0.5 bg-slate-900 border border-slate-800 hover:border-blue-500 hover:text-white rounded transition">
+                ISRO
               </Link>
-              <Link href="/organizations/iit-bombay" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
-                IIT Bombay Research
+              <Link href="/organizations/iit-bombay" className="px-2 py-0.5 bg-slate-900 border border-slate-800 hover:border-blue-500 hover:text-white rounded transition">
+                IITs &amp; IISc
               </Link>
-              <Link href="/category/jrf" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
-                JRF Positions
-              </Link>
-              <Link href="/category/phd" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
-                PhD Admissions
-              </Link>
-              <Link href="/opportunities/location/bengaluru" className="px-2.5 py-1 bg-slate-900/80 border border-slate-800 hover:border-blue-500/60 text-slate-300 hover:text-white rounded-md transition-colors">
-                Jobs in Bengaluru
+              <Link href="/opportunities?search=VLSI" className="px-2 py-0.5 bg-slate-900 border border-slate-800 hover:border-blue-500 hover:text-white rounded transition">
+                VLSI
               </Link>
             </div>
           </div>
 
-          {/* COLUMN 1: CATEGORIES & HUBS */}
-          <div className="space-y-3.5">
-            <h4 className="text-xs font-bold text-white tracking-wider uppercase pb-1 border-b border-blue-500/50 inline-block">
-              Categories &amp; Hubs
-            </h4>
-            <div className="flex flex-col gap-2 font-medium text-xs">
-              <Link href="/categories" className="text-blue-400 hover:text-blue-300 transition-colors font-bold">
-                &rarr; All Categories Directory
-              </Link>
-              <Link href="/category/jrf" className="text-slate-400 hover:text-white transition-colors">
-                Junior Research Fellowships (JRF)
-              </Link>
-              <Link href="/category/srf" className="text-slate-400 hover:text-white transition-colors">
-                Senior Research Fellowships (SRF)
-              </Link>
-              <Link href="/category/phd" className="text-slate-400 hover:text-white transition-colors">
-                PhD Research Positions
-              </Link>
-              <Link href="/category/govt-job" className="text-slate-400 hover:text-white transition-colors">
-                Government &amp; PSU Opportunities
-              </Link>
-              <Link href="/opportunities/location/bengaluru" className="text-slate-400 hover:text-white transition-colors">
-                Semiconductor in Bengaluru
-              </Link>
-              <Link href="/opportunities/location/hyderabad" className="text-slate-400 hover:text-white transition-colors">
-                VLSI in Hyderabad
-              </Link>
-              <Link href="/opportunities/location/noida" className="text-slate-400 hover:text-white transition-colors">
-                Electronics in Noida / NCR
-              </Link>
-            </div>
+          {/* COLUMN 1: OPPORTUNITIES (2 COLS) */}
+          <div className="lg:col-span-2 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-200">
+              Opportunities
+            </p>
+            <ul className="space-y-2 text-xs font-medium text-slate-400">
+              <li>
+                <Link href="/opportunities?category=jrf" className="hover:text-white transition">
+                  JRF &amp; SRF Fellowships
+                </Link>
+              </li>
+              <li>
+                <Link href="/opportunities?search=VLSI" className="hover:text-white transition">
+                  VLSI &amp; Semiconductor
+                </Link>
+              </li>
+              <li>
+                <Link href="/opportunities?category=phd" className="hover:text-white transition">
+                  PhD &amp; Research Openings
+                </Link>
+              </li>
+              <li>
+                <Link href="/opportunities?category=govt" className="hover:text-white transition">
+                  Government PSUs &amp; Labs
+                </Link>
+              </li>
+              <li>
+                <Link href="/opportunities?category=internship" className="hover:text-white transition">
+                  Hardware Internships
+                </Link>
+              </li>
+              <li>
+                <Link href="/opportunities?category=fellowship" className="hover:text-white transition">
+                  Study Abroad &amp; Grants
+                </Link>
+              </li>
+            </ul>
           </div>
 
-          {/* COLUMN 2: GUIDES */}
-          <div className="space-y-3.5">
-            <h4 className="text-xs font-bold text-white tracking-wider uppercase pb-1 border-b border-blue-500/50 inline-block">
-              Guides
-            </h4>
-            <div className="flex flex-col gap-2 font-medium text-xs">
-              <Link href="/resources/jrf-guide" className="text-slate-400 hover:text-white transition-colors">
-                JRF Complete Guide (DST Norms)
-              </Link>
-              <Link href="/resources/jrf-vs-srf-difference" className="text-slate-400 hover:text-white transition-colors">
-                JRF vs SRF vs RA Guide
-              </Link>
-              <Link href="/resources/drdo-recruitment-electronics" className="text-slate-400 hover:text-white transition-colors">
-                DRDO ECE Syllabus &amp; Exam
-              </Link>
-              <Link href="/resources/phd-guide" className="text-slate-400 hover:text-white transition-colors">
-                IIT/IISc PhD Admission Guide
-              </Link>
-              <Link href="/resources/fully-funded-phd-vlsi-abroad" className="text-slate-400 hover:text-white transition-colors">
-                Fully-Funded PhD Abroad
-              </Link>
-              <Link href="/resources/net-vs-gate" className="text-slate-400 hover:text-white transition-colors">
-                CSIR NET vs GATE Comparison
-              </Link>
-              <Link href="/resources/vlsi-careers" className="text-slate-400 hover:text-white transition-colors">
-                VLSI Career &amp; Salary Roadmap
-              </Link>
-            </div>
+          {/* COLUMN 2: GUIDES & ACADEMY (2 COLS) */}
+          <div className="lg:col-span-2 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-200">
+              Guides &amp; Academy
+            </p>
+            <ul className="space-y-2 text-xs font-medium text-slate-400">
+              <li>
+                <Link href="/resources/jrf-guide" className="hover:text-white transition">
+                  JRF Complete DST Guide
+                </Link>
+              </li>
+              <li>
+                <Link href="/resources/jrf-vs-srf-difference" className="hover:text-white transition">
+                  JRF vs SRF vs RA
+                </Link>
+              </li>
+              <li>
+                <Link href="/resources/drdo-recruitment-electronics" className="hover:text-white transition">
+                  DRDO ECE Syllabus
+                </Link>
+              </li>
+              <li>
+                <Link href="/resources/phd-guide" className="hover:text-white transition">
+                  IIT/IISc PhD Guide
+                </Link>
+              </li>
+              <li>
+                <Link href="/resources/fully-funded-phd-vlsi-abroad" className="hover:text-white transition">
+                  Funded PhD Abroad
+                </Link>
+              </li>
+              <li>
+                <Link href="/resources/vlsi-careers" className="hover:text-white transition">
+                  VLSI Career Roadmap
+                </Link>
+              </li>
+            </ul>
           </div>
 
-          {/* COLUMN 3: PORTALS & ECOSYSTEM */}
-          <div className="space-y-3.5">
-            <h4 className="text-xs font-bold text-white tracking-wider uppercase pb-1 border-b border-blue-500/50 inline-block">
+          {/* COLUMN 3: PORTALS & TOOLS (2 COLS) */}
+          <div className="lg:col-span-2 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-200">
               Portals &amp; Tools
-            </h4>
-            <div className="flex flex-col gap-2 font-medium text-xs">
-              <Link href="/opportunities" className="text-slate-400 hover:text-white transition-colors">
-                Verified Opportunities Feed
-              </Link>
-              <Link href="/organizations" className="text-slate-400 hover:text-white transition-colors">
-                Organizations &amp; Labs Directory
-              </Link>
-              <Link href="/news" className="text-slate-400 hover:text-white transition-colors">
-                Daily Industry News &amp; Circulars
-              </Link>
-              <Link href="/ask-ai" className="text-slate-400 hover:text-white transition-colors">
-                Deep-Tech AI Assistant
-              </Link>
-              <Link href="/resources" className="text-slate-400 hover:text-white transition-colors">
-                All Research Resources Hub
-              </Link>
-              <Link href="/contact" className="text-slate-400 hover:text-white transition-colors">
-                Contact &amp; Support
-              </Link>
-              <a href="https://siliconpath.vercel.app" target="_blank" rel="noopener" className="text-slate-400 hover:text-white transition-colors pt-1 border-t border-slate-800">
-                SiliconPath &mdash; VLSI Learning
-              </a>
-              <a href="https://electrobridge.vercel.app" target="_blank" rel="noopener" className="text-slate-400 hover:text-white transition-colors">
-                ElectroBridge &mdash; AI Resumes
-              </a>
+            </p>
+            <ul className="space-y-2 text-xs font-medium text-slate-400">
+              <li>
+                <Link href="/opportunities" className="hover:text-white transition">
+                  Verified Opportunities
+                </Link>
+              </li>
+              <li>
+                <Link href="/organizations" className="hover:text-white transition">
+                  Organizations Directory
+                </Link>
+              </li>
+              <li>
+                <Link href="/news" className="hover:text-white transition">
+                  Daily News &amp; Circulars
+                </Link>
+              </li>
+              <li>
+                <Link href="/ask-ai" className="hover:text-white transition">
+                  Deep-Tech AI Assistant
+                </Link>
+              </li>
+              <li>
+                <Link href="/resources" className="hover:text-white transition">
+                  Research Resources Hub
+                </Link>
+              </li>
+              <li>
+                <a href="https://siliconpath.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">
+                  SiliconPath Platform &rarr;
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* RIGHT: NEWSLETTER SIGNUP (2 COLS) */}
+          <div className="lg:col-span-2 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-200">
+              Stay Updated
+            </p>
+            <p className="text-xs text-slate-400 font-normal leading-relaxed">
+              Receive verified research circulars and core VLSI job alerts weekly.
+            </p>
+
+            <form onSubmit={handleSubscribe} className="space-y-2">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Your email address"
+                className="w-full bg-slate-900 border border-slate-700 text-slate-100 placeholder:text-slate-500 text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 transition"
+              />
+              <button
+                type="submit"
+                disabled={subscribing}
+                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs py-2 rounded-lg shadow-xs transition flex items-center justify-center gap-1 disabled:opacity-60"
+              >
+                <span>{subscribing ? "Subscribing..." : "Subscribe"}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </form>
+
+            <div className="pt-2 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-slate-400 text-[11px] font-medium">
+                Live Scrapers Active
+              </span>
             </div>
           </div>
 
         </div>
 
         {/* BOTTOM BAR */}
-        <div className="border-t border-slate-800/80 mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium text-slate-500">
-          <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-            <p>&copy; {new Date().getFullYear()} BerojgarDegreeWala. All rights reserved.</p>
-            <div className="flex items-center gap-3">
-              <Link href="/about" className="hover:text-slate-300 transition-colors">About</Link>
-              <span>&bull;</span>
-              <Link href="/contact" className="hover:text-slate-300 transition-colors">Contact</Link>
-            </div>
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-normal text-slate-500">
+          <div>
+            &copy; {new Date().getFullYear()} BerojgarDegreeWala. All rights reserved.
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-slate-400 text-[11px] font-medium">
-              Live Scrapers &amp; News Sync Active
-            </span>
+          <div className="flex items-center gap-3 text-slate-400 font-medium text-xs">
+            <Link href="/privacy" className="hover:text-white transition">Privacy</Link>
+            <span>&bull;</span>
+            <Link href="/terms" className="hover:text-white transition">Terms</Link>
+            <span>&bull;</span>
+            <Link href="/contact" className="hover:text-white transition">Contact</Link>
+            <span>&bull;</span>
+            <Link href="/about" className="hover:text-white transition">About</Link>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-slate-400 text-xs font-medium">
+            <span>🇮🇳 Building a Brighter India, Together.</span>
           </div>
         </div>
+
       </div>
     </footer>
   );
