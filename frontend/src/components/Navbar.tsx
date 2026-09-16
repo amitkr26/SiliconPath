@@ -10,6 +10,8 @@ import {
   LayoutDashboard, LogIn, Settings, Search, Bell, Home, Newspaper, Sparkles,
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
+import { FOOTER_SOCIAL_LINKS } from "@/config/socials";
+import { SocialIcon } from "@/components/ui/SocialIcons";
 import { useNotificationCount } from "@/hooks/useNotifications";
 import { useConversations } from "@/hooks/useMessages";
 import { cn } from "@/lib/utils";
@@ -68,11 +70,12 @@ export default function Navbar() {
 
   const navItems = !user
     ? [
+        { href: "/", label: "Home", icon: Home },
         { href: "/opportunities", label: "Opportunities", icon: Briefcase },
         { href: "/organizations", label: "Organizations", icon: Building2 },
-        { href: "/ask-ai", label: "Ask AI", icon: Sparkles },
         { href: "/news", label: "News", icon: Newspaper },
-        { href: "/about", label: "About", icon: Building2 },
+        { href: "/resources", label: "Resources", icon: Building2 },
+        { href: "/about", label: "About", icon: Users },
       ]
     : isEmployer && isEmployerRoute
     ? [
@@ -161,12 +164,9 @@ export default function Navbar() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearchSubmit}
-              placeholder="Search..."
-              className="w-56 pl-9 pr-8 py-1.5 rounded-xl border border-slate-200/90 bg-slate-50/80 text-xs font-body text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
+              placeholder="Search opportunities..."
+              className="w-56 pl-9 pr-3 py-1.5 rounded-full border border-slate-200 bg-slate-50/80 text-xs font-body text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-2xs"
             />
-            <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-mono font-medium text-slate-400 bg-white border border-slate-200 rounded pointer-events-none">
-              /
-            </kbd>
           </div>
 
           {/* NOTIFICATION BELL */}
@@ -203,7 +203,7 @@ export default function Navbar() {
             </Link>
           )}
 
-          {/* USER DROPDOWN */}
+          {/* USER DROPDOWN OR GUEST CTAS */}
           {user ? (
             <div className="relative" ref={userRef}>
               <button
@@ -280,42 +280,19 @@ export default function Navbar() {
               )}
             </div>
           ) : (
-            <div className="relative" ref={joinRef}>
-              <Button size="sm" onClick={() => setJoinDropdownOpen(!joinDropdownOpen)} ariaLabel="Sign in or join">
-                <LogIn className="w-4 h-4" />
-                <span>Sign In</span>
-                <ChevronDown className="w-3.5 h-3.5" />
-              </Button>
-
-              {joinDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-50">
-                  <Link
-                    href="/login"
-                    onClick={() => setJoinDropdownOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-                  >
-                    <LogIn className="w-4 h-4 text-slate-400" />
-                    Existing User Sign In
-                  </Link>
-                  <div className="my-1 border-t border-slate-100" />
-                  <Link
-                    href="/signup?role=candidate"
-                    onClick={() => setJoinDropdownOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-                  >
-                    <User className="w-4 h-4 text-slate-400" />
-                    Join as Candidate
-                  </Link>
-                  <Link
-                    href="/signup?role=employer"
-                    onClick={() => setJoinDropdownOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-                  >
-                    <Building2 className="w-4 h-4 text-slate-400" />
-                    Join as Employer
-                  </Link>
-                </div>
-              )}
+            <div className="flex items-center gap-2">
+              <Link
+                href="/login"
+                className="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 hover:text-blue-600 transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="px-4 py-1.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-full shadow-2xs transition-all"
+              >
+                Create Account
+              </Link>
             </div>
           )}
         </div>
@@ -397,6 +374,28 @@ export default function Navbar() {
               </Link>
             </div>
           )}
+
+          {/* MOBILE SOCIAL — FOLLOW US */}
+          <div className="pt-2 border-t border-slate-100">
+            <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Follow us
+            </p>
+            <div className="flex flex-wrap items-center gap-2 px-3">
+              {FOOTER_SOCIAL_LINKS.map((social) => (
+                <a
+                  key={social.platform}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`BerojgarDegreeWala on ${social.label}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="w-9 h-9 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-all"
+                >
+                  <SocialIcon platform={social.platform} className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
+          </div>
 
           {/* MOBILE AUTH ACTIONS */}
           {!user ? (

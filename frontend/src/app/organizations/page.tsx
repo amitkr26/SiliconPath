@@ -97,7 +97,7 @@ export default async function OrganizationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#F8FAFC]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
@@ -106,28 +106,7 @@ export default async function OrganizationsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
       />
-      <div className="max-w-7xl mx-auto space-y-8">
-        
-        {/* HEADER */}
-        <Card className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-slate-200 shadow-xs">
-          <div>
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase text-blue-600 mb-1 px-2.5 py-1 bg-blue-50 border border-blue-200 rounded-md">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>OFFICIAL DIRECTORY</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
-              Semiconductor &amp; Hardware Organizations
-            </h1>
-            <p className="text-slate-600 text-xs sm:text-sm font-medium mt-1">
-              Explore active research labs, defense establishments (DRDO, ISRO, CSIR), IIT microelectronics centres, and global fabless/IDM giants.
-            </p>
-          </div>
-        </Card>
-
-        {/* INTERACTIVE ORGANIZATIONS CLIENT */}
-        <OrganizationsClient initialOrganizations={organizations} />
-
-      </div>
-    </div>
+      <OrganizationsClient initialOrganizations={organizations} />
+    </main>
   );
 }

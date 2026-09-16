@@ -5,6 +5,101 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-16 — Visual Design System Implementation Across 6 Public Pages (Reference Design Match):**
+  - **Comprehensive Design System Overhaul**:
+    - Implemented production-quality, responsive visual designs across all 6 public landing and directory pages matching the official reference designs (`homepage.png`, `opportunity.png`, `organizations.png`, `news.png`, `resources.png`, `About.png`).
+    - Standardized page backgrounds to `#F8FAFC`, modern pill navigation indicators, high-contrast typography, and curated color tokens.
+    - Preserved existing Next.js App Router architecture, Supabase queries, RSS scraper pipelines, authentication, and structured data schemas.
+    - Strictly maintained exactly 1 `<header>`/`<nav>` (in `Navbar.tsx`) and 1 `<footer>` (in `Footer.tsx`) in the DOM across all routes.
+    - Zero stock imagery / Unsplash prohibited; deployed authentic production assets to `frontend/public/images/` mapped from high-res campus renders in `img/`.
+  - **Page 1: Homepage (`/`)** (`frontend/src/components/home/PublicHome.tsx`):
+    - Refactored full-bleed hero with campus monument visual, floating badge ("A Brighter Tomorrow Together"), 4 domain pills, search with instant category filters, and 4 trust indicators.
+    - 4-card Handpicked Opportunities grid with badges, deadlines, and bookmark triggers.
+    - 3-column Latest News grid with categories and dates.
+    - Mobile app download promo banner ("Take Opportunities With You Everywhere") with Google Play & App Store buttons and phone graphic.
+    - Unified single white footer with social links, store badges, and legal links.
+  - **Page 2: Opportunities Directory (`/opportunities`)** (`frontend/src/app/opportunities/OpportunitiesClient.tsx`):
+    - Rebuilt matching `opportunity.png` with student campus hero, pill category filters (All, Internships, Research, Jobs, Scholarships, Fellowships, Remote, Govt Labs).
+    - Search bar + 4 select dropdowns (Type, Field, Location, Eligibility).
+    - 4x2 responsive grid of 8 live opportunity cards with logo fallbacks, status badges, deadline countdowns, and bookmarking.
+    - View mode toggle (Grid/List), sorting selector (Latest, Deadline, Verified), numbered pagination (`< 1 2 3 ... 10 >`).
+    - Newsletter card and 4-pillar trust strip ("Verified Opportunities", "Direct Apply", "Regular Updates", "100% Free").
+  - **Page 3: Organizations Directory (`/organizations`)** (`frontend/src/app/organizations/OrganizationsClient.tsx`):
+    - Rebuilt matching `organizations.png` with campus hero image and headline ("Partnering for a Brighter Tomorrow").
+    - Search bar + 4 select dropdowns (Type, Sector, Location, Opportunities).
+    - Featured Organizations section: 4 highlight cards with purple "Featured" badges, category, location, open positions count, and "View Profile" link.
+    - All Organizations section: 6-column responsive grid (12 organizations per page) with monogram logo fallbacks, active opportunity count, bookmarking, and numbered pagination.
+    - Full-bleed newsletter card ("Stay Updated with New Organizations").
+  - **Page 4: News & Updates (`/news`)** (`frontend/src/app/news/NewsClient.tsx`, `loading.tsx`):
+    - Rebuilt matching `news.png` with campus hero image, cursive callout ("Knowledge Today. A Brighter Tomorrow."), and 6 category pill tabs (All News, Announcements, Career Tips, Success Stories, Industry Insights, Events).
+    - 2-column layout: Featured News (1 large card + 2 vertically stacked cards) paired with a 3-widget sidebar:
+      1. Trending Topics (ranked 1-5 with view counts).
+      2. Get the Latest Updates (newsletter card with email input, subscribe button, and agreement checkbox).
+      3. Quote card ("Knowledge is the bridge between today and a brighter tomorrow.").
+    - 3x2 grid of 6 latest news cards with category badges, publication dates, excerpts, and "Read More" links.
+    - Interactive reading modal showing source badge, full article content, tags, and link to official publisher.
+    - Numbered pagination controls and mobile app download promo banner.
+  - **Page 5: Resources (`/resources`)** (`frontend/src/app/resources/ResourcesClient.tsx`, `page.tsx`):
+    - Rebuilt matching `resources.png` with study hero image and cursive badge ("Small Steps. Big Futures.").
+    - 7 category cards row (Career Guidance, Skill Development, Interview Preparation, Study Abroad, Scholarships, Industry Insights, Tools & Templates).
+    - 3 Featured Resources cards with read-time indicators.
+    - 4 Tools & Templates cards (Resume Builder, Cover Letter Template, Interview Prep Guide, Scholarship Tracker) with interactive download/preview modal.
+    - Success Stories testimonial cards with 5-star student reviews.
+    - Preserved all deep research guides (JRF vs SRF, DRDO Scientist B, PhD abroad, VLSI careers, NET vs GATE, CSIR lab directories) and schema markup.
+  - **Page 6: About Us (`/about`)** (`frontend/src/app/about/AboutClient.tsx`, `page.tsx`):
+    - Rebuilt matching `About.png` with team hero image and 4-stat metric strip (10,000+ Students, 500+ Organizations, 100+ Categories, 1 Million+ Tomorrows).
+    - Our Story section with dual side-by-side campus workspace photos, narrative, and quote callout box.
+    - Our Mission section with 4 core pillars (Inform, Connect, Empower, Create Impact) and "Join Our Community" CTA.
+    - Our Values section with 4 cards (Trust & Transparency, Student First, Continuous Learning, Inclusivity).
+    - Meet the Team section with 5 member cards, designations, and social profile links.
+    - "Be a Part of Our Journey" CTA banner with paper airplane graphic and cursive accent.
+    - Platform FAQ accordion preserving all SEO questions, WebSite schema, BreadcrumbList, and FAQPage JSON-LD.
+  - **Automated Verification**:
+    - TypeScript compilation (`npm run typecheck`): 0 errors across all files.
+    - Jest test suite (`npm test`): 26 passed, 26 total (259 tests passed).
+    - Verified headless browser rendering across all 6 pages at desktop, tablet, and mobile viewports with 0 horizontal overflow.
+
+- **2026-09-15 — Social Media & Online Presence Integration:**
+  - **Centralized Social Config** (`frontend/src/config/socials.ts`):
+    - Created single source of truth for all 8 canonical social profile URLs (LinkedIn, Instagram, Instagram Berojgar Academy, YouTube, X, Facebook, Pinterest, Reddit).
+    - Exports `SOCIAL_LINKS`, `FOOTER_SOCIAL_LINKS` (compact subset), and `ORGANIZATION_SAME_AS` (for schema.org).
+    - All URLs match the officially supplied social destinations — no fabricated profiles.
+  - **Social Icons Component** (`frontend/src/components/ui/SocialIcons.tsx`):
+    - Created clean inline SVG icon components for all 8 platforms (Lucide lacks Pinterest/Reddit/X-brand marks).
+    - Monochrome by default, brand-color on hover, accessible `aria-hidden="true"`.
+    - Exports `SocialIcon` mapped by platform key.
+  - **Footer Redesign** (`frontend/src/components/Footer.tsx`):
+    - Replaced 5 hardcoded generic social URLs (e.g. `https://linkedin.com`) with data-driven links from centralized config.
+    - Added Pinterest and Reddit social icons.
+    - Added "Follow BerojgarDegreeWala" label above social icons.
+    - Added newsletter subscription form (email input + Subscribe button, posts to `/api/subscribe`).
+    - Restructured to 4-column layout: Brand+Socials, Quick Links, Opportunities, Resources+Newsletter.
+    - Updated bottom row with "Building a Brighter India" + "#SameDegreeABrighterTomorrow".
+  - **Mobile Navigation** (`frontend/src/components/Navbar.tsx`):
+    - Added "Follow us" social icon row in mobile drawer, before auth actions.
+    - Uses centralized config, proper `target="_blank"`, accessible labels.
+  - **About Page** (`frontend/src/app/about/page.tsx` + `components/SocialPresenceSection.tsx`):
+    - Created `SocialPresenceSection` client component with "Stay Connected" heading and all 8 social profile links.
+    - Added section to About page before Contact CTA.
+  - **Homepage** (`components/home/PublicHome.tsx`):
+    - Added subtle "Join the BerojgarDegreeWala Community" social CTA section between Mobile App Promo and Video Modal.
+    - Lists all 7 primary social platforms with icons and labels.
+  - **SEO / Structured Data** (`frontend/src/app/layout.tsx`):
+    - Updated Organization schema `sameAs` array to include all 8 canonical social profile URLs (was: only Twitter + LinkedIn company).
+    - Imported from centralized `ORGANIZATION_SAME_AS`.
+  - **Social Sharing** (`frontend/src/components/ShareButtons.tsx`):
+    - Added LinkedIn share intent (was: WhatsApp + Twitter only).
+    - Added "Copy Link" button.
+    - Clear distinction: share intents (dynamic per-page URLs) vs. profile links (canonical BDW profiles).
+  - **Bug Fixes** (pre-existing):
+    - Fixed `organization_name` → `organization` (2 occurrences in PublicHome.tsx).
+    - Fixed optional `opp.id` type safety (2 occurrences in PublicHome.tsx).
+  - **Verification**:
+    - TypeScript check: 0 errors across all 5 workspaces.
+    - Production build: clean success, 338+ routes compiled.
+    - No generic social URLs remain in codebase (all replaced with profile-specific URLs).
+    - No fake follower counts, engagement numbers, or verification badges added.
+
 - **2026-09-15 — Official Brand Logo, Favicon Asset Pipeline & Direct Image Delivery:**
   - **Brand Assets & Favicon Pipeline**:
     - Extracted official brand assets from `img/`:
