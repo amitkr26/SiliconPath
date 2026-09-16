@@ -10,7 +10,7 @@ export default defineConfig({
   workers: 1, // run sequentially to avoid state collisions between test users
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
   use: {
-    baseURL: process.env.BASE_URL || 'https://berojgardegreewala.vercel.app',
+    baseURL: process.env.BASE_URL || 'https://siliconpath.in',
     trace: 'on-first-retry',
     screenshot: 'on',
     video: 'off',

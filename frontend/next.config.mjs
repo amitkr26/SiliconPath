@@ -19,48 +19,9 @@ const nextConfig = {
     ],
   },
   async redirects() {
-    return [
-      {
-        source: "/auth/signin",
-        destination: "/login",
-        permanent: true,
-      },
-      {
-        source: "/community",
-        destination: "/feed",
-        permanent: true,
-      },
-      {
-        source: "/community/:path*",
-        destination: "/feed",
-        permanent: true,
-      },
-      {
-        source: "/chat",
-        destination: "/ask-ai",
-        permanent: true,
-      },
-      {
-        source: "/chat/:path*",
-        destination: "/ask-ai",
-        permanent: true,
-      },
-      {
-        source: "/post-job",
-        destination: "/employer/post-job",
-        permanent: true,
-      },
-      {
-        source: "/employers",
-        destination: "/employer",
-        permanent: true,
-      },
-      {
-        source: "/employers/:path*",
-        destination: "/employer/:path*",
-        permanent: true,
-      },
-    ];
+    // All legacy BerojgarDegreeWala-era routes (/auth, /community, /chat,
+    // /post-job, /employers) were removed with the product; no redirects remain.
+    return [];
   },
   async headers() {
     return [

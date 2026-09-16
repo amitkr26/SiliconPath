@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased] — 2026-09-16
+
+### Added
+- **Free Video Course Library (`/learn/video-courses`)**:
+  - New static, searchable library of 74 curated free video courses: 70 NPTEL courses (extracted from the live NPTEL catalog at `nptel.ac.in/courses`, 3,484-course audit, filtered to VLSI-relevant coverage across ECE/EE/CS) plus 4 YouTube playlists (Neso Academy Digital Electronics 202 videos, C Programming 169 videos, VHDL Programming; VLSI Academy VLSI Physical Design Full Course — all requested URLs verified live for title/channel/video count).
+  - Data source: `frontend/src/lib/video-references.ts` — single `VideoCourseReference` array with source (`nptel`/`youtube`), group, instructor, institute, and `paths` mapping to learn-path slugs; new sources are one-line additions here.
+  - 8 topic groups: Digital Logic & RTL, Verification/DFT/Formal, Synthesis/PD/Timing, Low Power, Analog/Mixed-Signal, Devices & Fabrication, Embedded/Arch/Programming, Core ECE Fundamentals.
+  - NPTEL coverage includes the four user-requested courses (VLSI Physical Design 106105161, Advanced VLSI Design 117101004, Linux Programming & Scripting 117106113, VLSI Technology 117106093) plus direct path matches: Low Power VLSI Circuits & Systems, Synthesis of Digital Systems, VLSI Design Flow: RTL to GDS, VLSI Physical Design with Timing Analysis.
+- **Companion video courses on `/learn/[path]` pages**: each path renders the NPTEL/YouTube courses mapped to its slug (`videoCoursesForPath`).
+- **Integrity test**: `curriculum-integrity.test.ts` now validates all video references (70+ count, NPTEL id/URL format, YouTube playlist URL format, path-slug mappings resolve to real paths) and every academy track slug maps to ≥1 embedded video reference with valid tags.
+
+### Changed
+- **VLSI Learning Academy UI redesign (`/academy/[track]`, `/academy/[track]/day/[day]`, `/academy/[track]/assessment`, `YoutubeEmbed`, `PracticeQuiz`, `Input`)**:
+  - Replaced all remaining neo-brutalist styling on academy drill-down pages (2px black borders, offset drop shadows, `font-black`) with the central design system from `design-tokens.ts` (1px `slate` borders, `rounded-lg/xl`, subtle shadows, `font-display` headings, restrained blue accents) — consistent with the `/academy` overview.
+- **Embedded video lectures on `/academy/[track]`**:
+  - New "Embedded Course Videos" section per track: full YouTube playlists embedded inline as click-to-play `videoseries` iframes (`PlaylistEmbed` component — iframe only loads on visitor opt-in) plus NPTEL course cards (instructor, institute, direct course links).
+- **Global content reconciliation (repo-wide "update everything" sweep)**:
+  - **STA question count**: every surface declaring "128" now states the actual **55** (11 topics × 5, verified by counting question objects): `layout.tsx` metadata, `Navbar`, `Footer`, homepage, `/sta-interview-questions`, `/about`, `/courses`, `/courses/resume-tips`, `/resources`; all 11 per-topic `count` fields corrected `12/11` → `5`.
+  - **Module count**: "148 modules" → **150** in `layout.tsx` metadata, `/courses`, `/about` (root README rewrite included).
+  - **Broken learn links in `/resources`**: `/learn/systemverilog` → `/learn/design-verification`, `/learn/dft` → `/learn/design-for-test` (both verified against `all-paths.ts`).
+  - **Dead config removed**: 8 legacy BDW redirects stripped from `frontend/next.config.mjs` (`/auth/signin`, `/community`, `/chat`, `/post-job`, `/employers` — none exist on SiliconPath); 3 dead crons + dead redirect removed from root `vercel.json` (`/api/cron/scrape-opportunities`, `/api/cron/check-links`, `/api/news/sync` belong to the legacy backend, not the frontend).
+  - **Branding to SiliconPath**: `frontend/public/llms.txt` rewritten truthfully (was full BDW aggregator description), `manifest.json` name/short_name, `Footer` "About" column (removed the external BerojgarDegreeWala link), `playwright.config.ts` baseURL `https://berojgardegreewala.vercel.app` → `https://siliconpath.in`, `scripts/category-normalize.js` + `scripts/org-backfill.js` workspace path, `scripts/delete-fake-jobs.js` fake apply-URLs.
+  - **Root `README.md` rewritten truthfully** (148→150 modules, 128→55 STA, corrected path lists, added repo layout incl. legacy-backend note); `frontend/README.md` rewritten (dropped BDW branding, live link → siliconpath.in); `project-bible/DEVELOPMENT.md` corrected workspace names (`@siliconpath/*` → actual `@berojgardegreewala/*`) and removed the false "400+ unit tests" claim.
+  - **PRODUCT.md**: STA section reconciled (128→55, cleanup note resolved).
+- **Audit & session reports**: added `docs/audit-reports/2026-09-16-codebase-consistency-audit.md` and `docs/session-reports/2026-09-16-video-integration-academy-redesign-sweep.md` documenting verified current state; supersede the 2026-09-12 reports whose claims were falsified.
+
+### Changed
+- **`/learn`**: corrected false claim "148 self-paced modules" → **150** (verified against `all-paths.ts`: 150 real modules); added NPTEL & YouTube library CTA banner.
+- **`/academy` `TRUSTED_SOURCES`**: replaced generic `onlinecourses.nptel.ac.in` landing URLs with real course pages — Digital Circuits → `/courses/108105113`, Hardware Modeling using Verilog → `/courses/106105165`.
+- **`sitemap.ts`**: added `/learn/video-courses` to static routes.
+
+---
+
 ## [Unreleased] — 2026-09-12
 
 ### Added

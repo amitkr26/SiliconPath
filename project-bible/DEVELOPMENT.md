@@ -30,10 +30,10 @@ npm install
 npm run dev --workspace=frontend
 
 # Standalone backend server
-npm run dev --workspace=@siliconpath/server
+npm run dev --workspace=@berojgardegreewala/server
 
 # AI Gateway
-npm run dev --workspace=@siliconpath/ai-gateway
+npm run dev --workspace=@berojgardegreewala/ai-gateway
 ```
 
 ### Quality & Verification Gates
@@ -43,7 +43,7 @@ Run all three gates before submitting changes:
 # 1. Typecheck all workspaces
 npm run typecheck
 
-# 2. Run automated test suites (400+ unit tests)
+# 2. Run automated test suites
 npm test
 
 # 3. Production build

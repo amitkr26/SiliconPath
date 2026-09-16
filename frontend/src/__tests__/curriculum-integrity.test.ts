@@ -1,6 +1,17 @@
 import { LEARNING_PATHS } from "../lib/academy/all-paths";
+import { VIDEO_COURSES, videoCoursesForAcademy } from "../lib/video-references";
 import sitemap from "../app/sitemap";
 import { designTokens } from "../styles/design-tokens";
+
+const ACADEMY_TRACK_SLUGS = [
+  "digital-logic",
+  "verilog",
+  "systemverilog",
+  "uvm",
+  "rtl-design",
+  "physical-design",
+  "interview-prep",
+];
 
 describe("SiliconPath Curriculum & Architecture Integrity", () => {
   test("contains exactly 15 learning paths", () => {
@@ -38,6 +49,7 @@ describe("SiliconPath Curriculum & Architecture Integrity", () => {
     expect(urls).toContain("https://siliconpath.in");
     expect(urls).toContain("https://siliconpath.in/about");
     expect(urls).toContain("https://siliconpath.in/learn");
+    expect(urls).toContain("https://siliconpath.in/learn/video-courses");
     expect(urls).toContain("https://siliconpath.in/academy");
     expect(urls).toContain("https://siliconpath.in/engineering-lab");
     expect(urls).toContain("https://siliconpath.in/sta-interview-questions");
@@ -49,6 +61,41 @@ describe("SiliconPath Curriculum & Architecture Integrity", () => {
     // All 15 learning paths in sitemap
     LEARNING_PATHS.forEach((path) => {
       expect(urls).toContain(`https://siliconpath.in/learn/${path.slug}`);
+    });
+  });
+
+  test("video course references are well-formed and map to real paths", () => {
+    const pathSlugs = new Set(LEARNING_PATHS.map((p) => p.slug));
+    expect(VIDEO_COURSES.length).toBeGreaterThanOrEqual(70);
+
+    VIDEO_COURSES.forEach((c) => {
+      expect(c.title).toBeTruthy();
+      expect(c.institute).toBeTruthy();
+      expect(c.paths.every((p) => pathSlugs.has(p))).toBe(true);
+      if (c.source === "nptel") {
+        expect(c.id).toMatch(/^\d{9}$/);
+        expect(c.url).toMatch(/^https:\/\/nptel\.ac\.in\/courses\/\d{9}$/);
+      } else {
+        expect(c.url).toMatch(/^https:\/\/www\.youtube\.com\/playlist\?list=[A-Za-z0-9_-]{20,}$/);
+      }
+    });
+  });
+
+  test("every academy track maps to embedded video references and all tags are valid", () => {
+    ACADEMY_TRACK_SLUGS.forEach((slug) => {
+      const refs = videoCoursesForAcademy(slug);
+      expect(refs.length).toBeGreaterThan(0); // every track has at least one embedded source
+      refs.forEach((c) => {
+        expect(c.academy).toContain(slug);
+      });
+    });
+
+    VIDEO_COURSES.forEach((c) => {
+      if (c.academy) {
+        c.academy.forEach((slug) => {
+          expect(ACADEMY_TRACK_SLUGS).toContain(slug);
+        });
+      }
     });
   });
 

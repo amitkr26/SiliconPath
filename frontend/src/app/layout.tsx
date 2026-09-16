@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s | SiliconPath",
   },
   description:
-    "100% free VLSI learning — 15 paths, 148 modules, 128 interview questions. No login required.",
+    "100% free VLSI learning — 15 paths, 150 modules, 55 interview questions. No login required.",
   keywords: [
     "VLSI", "physical design", "STA", "synthesis", "Verilog", "semiconductor",
     "ASIC", "RTL design", "digital logic", "EDA", "OpenLane", "OpenROAD",
@@ -31,13 +31,13 @@ export const metadata: Metadata = {
     siteName: "SiliconPath",
     title: "SiliconPath — Free VLSI Learning Platform",
     description:
-      "100% free VLSI learning — 15 paths, 148 modules, 128 interview questions. No login required.",
+      "100% free VLSI learning — 15 paths, 150 modules, 55 interview questions. No login required.",
   },
   twitter: {
     card: "summary_large_image",
     title: "SiliconPath — Free VLSI Learning Platform",
     description:
-      "100% free VLSI learning — 15 paths, 148 modules, 128 interview questions. No login required.",
+      "100% free VLSI learning — 15 paths, 150 modules, 55 interview questions. No login required.",
   },
   robots: {
     index: true,
@@ -77,7 +77,7 @@ export default function RootLayout({
         "@id": "https://siliconpath.in/#website",
         "url": "https://siliconpath.in",
         "name": "SiliconPath — Free VLSI Learning Platform",
-        "description": "100% free VLSI learning — 15 paths, 148 modules, 128 interview questions. No login required.",
+        "description": "100% free VLSI learning — 15 paths, 150 modules, 55 interview questions. No login required.",
         "inLanguage": "en-IN",
       },
       {

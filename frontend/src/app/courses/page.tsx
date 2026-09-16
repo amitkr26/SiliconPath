@@ -57,15 +57,15 @@ const RESOURCES: Resource[] = [
     level: "All levels",
     levelTone: "neutral",
     icon: <BookOpen className="w-5 h-5 text-indigo-600" />,
-    desc: "128 curated interview questions with detailed engineering answers covering setup/hold, clock skew, jitter, OCV, crosstalk, and SDC constraints.",
+    desc: "55 curated interview questions with detailed engineering answers covering setup/hold, clock skew, jitter, OCV, crosstalk, and SDC constraints.",
     features: [
-      "128 questions with expandable mathematical proofs & answers",
+      "55 questions with expandable mathematical proofs & answers",
       "Setup, Hold, Clock Tree, and Signal Integrity topics",
       "Real-world scenario & timing report analysis questions",
       "Instant keyword search and topic filtering",
     ],
     href: "/sta-interview-questions",
-    ctaText: "Practice 128 Questions",
+    ctaText: "Practice 55 Questions",
   },
   {
     id: "roadmap",
@@ -185,7 +185,7 @@ export default function CoursesPage() {
             <div className="space-y-1">
               <h3 className="text-lg font-bold text-white">Looking for the complete structured curriculum?</h3>
               <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
-                SiliconPath provides 15 structured learning paths covering 148 technical modules from Digital Logic and Verilog HDL to Clock Tree Synthesis and Physical Verification.
+                SiliconPath provides 15 structured learning paths covering 150 technical modules from Digital Logic and Verilog HDL to Clock Tree Synthesis and Physical Verification.
               </p>
             </div>
             <div className="flex items-center gap-3 shrink-0">

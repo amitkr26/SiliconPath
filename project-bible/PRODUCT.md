@@ -8,19 +8,25 @@ SiliconPath is a 100% free VLSI learning platform for semiconductor engineers. N
 ### 1. VLSI Learning Academy (`/academy`)
 - 7 structured learning tracks (Digital Logic, Verilog, SystemVerilog, UVM, RTL Design, Physical Design, Interview Prep)
 - Day-by-day curriculum with hands-on labs and NPTEL / Siemens EDA lecture references
+- **Embedded video lectures per track**: full YouTube playlists play inline (click-to-play `videoseries` embeds) + NPTEL course cards mapped via `video-references.ts` (`videoCoursesForAcademy`)
 - Practice quizzes and assessments
 - Progress tracking with local storage fallback and optional cloud sync
-- Clean technical dashboard with zero artificial locks
+- Clean technical dashboard (overview, track, day, and assessment pages) on the central design system — no neo-brutalist or artificial locks
 
 ### 2. Learning Paths (`/learn`)
 - 15 career-focused learning paths organized into 3 tiers:
   - **Foundations (5):** Digital Electronics, Verilog HDL, Hardware Protocols, Design Verification, Clock Domain Crossing
   - **Backend & Signoff (6):** Synthesis, ASIC Physical Design, Static Timing Analysis, Physical Verification, Low Power & UPF, Design For Test
   - **Tools & Career (4):** TCL for EDA, Linux for VLSI, Interview Q&A, Career Roadmap
-- 148 total modules across all paths
+- 150 total modules across all paths
 - Each module provides: concept overview, exact EDA tool commands (TCL/SDC), signoff verification checklist, interview focus points, and completion toggle
 
-### 3. Engineering Lab (`/engineering-lab`)
+### 3. Free Video Course Library (`/learn/video-courses`)
+- 70 curated NPTEL university courses + 4 full YouTube playlists (Neso Academy, VLSI Academy), 100% free and public
+- Filtered from the live NPTEL catalog to VLSI-relevant coverage, grouped into 8 topics
+- Every learning path page links its companion NPTEL/YouTube course(s)
+
+### 4. Engineering Lab (`/engineering-lab`)
 - Real-world diagnostic case studies modeled on authentic EDA timing and signoff reports:
   - Setup Time Violation on High-Fanout Reset Tree (PrimeTime report analysis, WNS -420ps closure)
   - Hold Time Race on Shift Register Datapath (Tempus min-delay violation, buffer insertion)
@@ -28,19 +34,19 @@ SiliconPath is a 100% free VLSI learning platform for semiconductor engineers. N
   - Clock Skew Imbalance in Mesochronous Clock Mesh (ICC2 CTS report, balanced H-tree insertion)
 - Raw tool terminal excerpts (`#0B1120`), root cause analysis, and signoff takeaways
 
-### 4. STA Interview Questions (`/sta-interview-questions`)
-- 128 curated interview questions across 11 static timing analysis topics
+### 5. STA Interview Questions (`/sta-interview-questions`)
+- 55 curated interview questions across 11 static timing analysis topics (11 topics × 5; previously declared as 128 across all surfaces — reconciled to the actual 55 on 2026-09-16)
 - Setup/Hold slack derivations, clock skew, jitter, OCV/AOCV, crosstalk noise, and SDC constraints
 - Instant search filter and topic selection chips
 - Expandable detailed engineering proofs and mathematical derivations
 
-### 5. Free Resources & Tapeout Guides (`/courses`)
+### 6. Free Resources & Tapeout Guides (`/courses`)
 - OpenLane RTL-to-GDSII Complete Flow Guide (`/courses/openlane-rtl-to-gds`): Full open-source tapeout walkthrough on SkyWater Sky130 PDK
 - Semiconductor Technical Resume & Portfolio Guide (`/courses/resume-tips`): Actionable bullet point formulas, EDA tool matrices, and ATS optimization
 - 8-Week VLSI Fresher Study Plan (`/learn/career-roadmap`)
 - 100% free and open access
 
-### 6. Career Resources & Roles (`/resources`)
+### 7. Career Resources & Roles (`/resources`)
 - Semiconductor Engineering Career Profiles: Physical Design, Design Verification (DV/UVM), RTL Design, and DFT Engineer
 - Required industry EDA toolchains (ICC2, Innovus, PrimeTime, Calibre, VCS, Tessent)
 - High-credibility portfolio project ideas (Sky130 macro tapeout, UVM AXI4 testbench, TCL STA automation)

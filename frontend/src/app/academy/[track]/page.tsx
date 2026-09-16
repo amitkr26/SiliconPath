@@ -6,11 +6,13 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft, Play, CheckCircle2, Lock,
-  BookOpen, AlertCircle, Trophy, Award
+  BookOpen, AlertCircle, Trophy, Award, MonitorPlay, ExternalLink
 } from "lucide-react";
 import { api } from "@/lib/api-client";
 import { LearningTrack, LearningDay, TrackSlug } from "@/lib/academy/types";
 import { getCompletedDaysLocal, getPassedTracksLocal } from "@/lib/academy/progress-local";
+import { videoCoursesForAcademy } from "@/lib/video-references";
+import { PlaylistEmbed } from "@/components/academy/PlaylistEmbed";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -28,6 +30,10 @@ export default function TrackOverview() {
   const [passedTracks, setPassedTracks] = useState<TrackSlug[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const academyVideos = videoCoursesForAcademy(trackSlug);
+  const embeddedPlaylists = academyVideos.filter((v) => v.source === "youtube");
+  const embeddedNptel = academyVideos.filter((v) => v.source === "nptel");
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -64,22 +70,22 @@ export default function TrackOverview() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center">
-        <div className="w-10 h-10 border-4 border-slate-900 border-t-blue-600 rounded-full animate-spin"></div>
-        <p className="mt-4 text-slate-600 text-sm font-medium">Loading curriculum tracks...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <div className="w-10 h-10 border-3 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+        <p className="mt-4 text-sm text-slate-500 font-medium">Loading curriculum tracks...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen flex flex-col items-center justify-center px-4">
         <Card className="max-w-md text-center space-y-4 p-8">
-          <div className="w-16 h-16 mx-auto rounded-full bg-red-100 border-2 border-slate-900 flex items-center justify-center">
-            <AlertCircle className="w-8 h-8 text-red-600" />
+          <div className="w-12 h-12 mx-auto rounded-lg bg-red-50 border border-red-200 flex items-center justify-center">
+            <AlertCircle className="w-6 h-6 text-red-600" />
           </div>
-          <h2 className="text-xl font-black text-slate-900">Failed to Load Track</h2>
-          <p className="text-slate-600 text-sm font-medium">{error}</p>
+          <h2 className="text-lg font-display font-bold text-slate-900">Failed to Load Track</h2>
+          <p className="text-sm text-slate-600">{error}</p>
           <div className="flex justify-center pt-2">
             <Button variant="danger" onClick={() => window.location.reload()}>
               Retry
@@ -100,12 +106,12 @@ export default function TrackOverview() {
   const allDaysCompleted = completedCount === totalDays && totalDays > 0;
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-12">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto space-y-10">
         {/* Back Link */}
         <Link
           href="/academy"
-          className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-700 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Academy Dashboard
@@ -114,26 +120,31 @@ export default function TrackOverview() {
         {/* Track Title Panel */}
         <Card className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3 flex-1">
-            <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
-              {track.title}
-            </h1>
-            <p className="text-sm md:text-base text-slate-600 font-medium leading-relaxed max-w-xl">
-              {track.description}
-            </p>
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-600 flex-wrap">
-              <span className="bg-slate-100 rounded-full px-3 py-1">{days.length} Days</span>
-              <span className="bg-slate-100 rounded-full px-3 py-1">{track.estimated_hours} Hours</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-mono font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                Track Curriculum
+              </span>
               {isTrackPassed && (
                 <Badge tone="success">
                   <CheckCircle2 className="w-3 h-3" /> Track Passed
                 </Badge>
               )}
             </div>
+            <h1 className="font-display text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+              {track.title}
+            </h1>
+            <p className="text-sm md:text-base text-slate-600 leading-relaxed max-w-xl">
+              {track.description}
+            </p>
+            <div className="flex items-center gap-2 text-xs font-medium text-slate-600 flex-wrap">
+              <span className="bg-slate-100 rounded-full px-3 py-1">{days.length} Days</span>
+              <span className="bg-slate-100 rounded-full px-3 py-1">{track.estimated_hours} Hours</span>
+            </div>
           </div>
 
           {/* Track Level Progress Card */}
-          <div className="w-full md:w-48 bg-slate-50 border-2 border-slate-900 rounded-2xl p-4 space-y-3 shadow-brutal-sm">
-            <div className="flex justify-between text-xs font-black text-slate-700">
+          <div className="w-full md:w-52 bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+            <div className="flex justify-between text-xs font-semibold text-slate-700">
               <span>Progress</span>
               <span>{progressPercent}%</span>
             </div>
@@ -149,9 +160,72 @@ export default function TrackOverview() {
           </div>
         </Card>
 
+        {/* Embedded Free Video Lectures */}
+        {academyVideos.length > 0 && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
+                Free Video Lectures
+              </p>
+              <h2 className="font-display text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                <MonitorPlay className="w-6 h-6 text-blue-600" />
+                Embedded Course Videos
+              </h2>
+              <p className="text-sm text-slate-600">
+                Full lecture series from NPTEL and YouTube, embedded right on this track — no search needed.
+              </p>
+            </div>
+
+            {embeddedPlaylists.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {embeddedPlaylists.map((p) => (
+                  <PlaylistEmbed
+                    key={p.id}
+                    playlistId={p.id}
+                    title={p.title}
+                    channel={p.instructor}
+                    channelUrl={p.url}
+                  />
+                ))}
+              </div>
+            )}
+
+            {embeddedNptel.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {embeddedNptel.map((c) => (
+                  <a
+                    key={c.id}
+                    href={c.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:border-slate-300 hover:shadow-md transition-all flex flex-col"
+                  >
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
+                          NPTEL COURSE
+                        </span>
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                      </div>
+                      <h3 className="text-sm font-semibold text-slate-900 group-hover:text-blue-700 transition-colors leading-snug">
+                        {c.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 leading-snug">{c.instructor}</p>
+                    </div>
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-xs text-slate-400">{c.institute}</span>
+                      <span className="text-xs font-semibold text-blue-700">Watch on NPTEL</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Days List */}
         <div className="space-y-4">
-          <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
+          <h2 className="font-display text-xl font-bold text-slate-900 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-blue-600" />
             Curriculum Path & Day-wise Outline
           </h2>
@@ -175,9 +249,9 @@ export default function TrackOverview() {
                     "p-5 transition-colors duration-300",
                     isDayUnlocked
                       ? isCompleted
-                        ? "bg-emerald-50 border-emerald-600"
+                        ? "bg-emerald-50/60 border-emerald-200"
                         : "bg-white"
-                      : "bg-slate-100 opacity-60"
+                      : "bg-slate-50/60 opacity-75"
                   )}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -185,20 +259,20 @@ export default function TrackOverview() {
                     <div className="flex items-start gap-4 min-w-0">
                       <div
                         className={cn(
-                          "w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center font-black text-lg border-2 border-slate-900 shadow-brutal-sm",
+                          "w-11 h-11 rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-base",
                           isDayUnlocked
                             ? isCompleted
                               ? "bg-emerald-500 text-white"
-                              : "bg-white"
-                            : "bg-slate-200 text-slate-500 border-slate-300 shadow-none"
+                              : "text-white"
+                            : "bg-slate-200 text-slate-500"
                         )}
-                        style={isDayUnlocked && !isCompleted ? { backgroundColor: track.color, color: "#fff" } : {}}
+                        style={isDayUnlocked && !isCompleted ? { backgroundColor: track.color } : {}}
                       >
                         {day.day_number}
                       </div>
 
                       <div className="space-y-1.5 min-w-0">
-                        <h4 className={cn("text-base font-bold truncate", isDayUnlocked ? "text-slate-900" : "text-slate-500")}>
+                        <h4 className={cn("text-base font-semibold truncate", isDayUnlocked ? "text-slate-900" : "text-slate-500")}>
                           {day.title}
                         </h4>
 
@@ -206,7 +280,7 @@ export default function TrackOverview() {
                         {day.key_concepts && day.key_concepts.length > 0 && (
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {day.key_concepts.slice(0, 3).map((concept, cIdx) => (
-                              <span key={cIdx} className="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
+                              <span key={cIdx} className="text-[10px] font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
                                 {concept}
                               </span>
                             ))}
@@ -241,7 +315,7 @@ export default function TrackOverview() {
                           </Button>
                         )
                       ) : (
-                        <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-slate-400 bg-slate-200 border-2 border-slate-300">
+                        <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-slate-400 bg-slate-100 border border-slate-200">
                           <Lock className="w-3.5 h-3.5" />
                           Locked
                         </div>
@@ -256,13 +330,13 @@ export default function TrackOverview() {
 
         {/* End of Track Gating Assessment CTA */}
         {allDaysCompleted && (
-          <Card className="p-6 bg-emerald-50 flex flex-col md:flex-row items-center justify-between gap-6">
+          <Card className="p-6 bg-emerald-50/60 border-emerald-200 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-2 flex-1">
-              <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
-                <Trophy className="w-6 h-6 text-emerald-600" />
+              <h3 className="font-display text-xl font-bold text-slate-900 flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-emerald-600" />
                 Track Assessment Unlocked!
               </h3>
-              <p className="text-sm text-slate-600 font-medium leading-relaxed max-w-xl">
+              <p className="text-sm text-slate-600 leading-relaxed max-w-xl">
                 Congratulations on completing all daily lessons in this track! To pass this track and permanently unlock the next stage, you must score 70% or higher on the comprehensive gating assessment.
               </p>
             </div>

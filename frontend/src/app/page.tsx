@@ -160,7 +160,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
-              Master the full digital design flow from writing your first Verilog module to signing off timing at the foundry level. 15 learning paths, 7 academy tracks, 128 interview questions, and hands-on signoff labs. No paywalls, no login required.
+              Master the full digital design flow from writing your first Verilog module to signing off timing at the foundry level. 15 learning paths, 7 academy tracks, 55 interview questions, and hands-on signoff labs. No paywalls, no login required.
             </p>
 
             <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -174,7 +174,7 @@ export default function HomePage() {
                 href="/sta-interview-questions"
                 className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium px-5 py-2.5 rounded-lg text-sm transition-colors shadow-sm"
               >
-                128 STA Interview Questions
+                55 STA Interview Questions
               </Link>
             </div>
 
@@ -458,14 +458,14 @@ export default function HomePage() {
               Test Your Engineering Reasoning
             </h2>
             <p className="text-sm text-slate-500 mt-1 max-w-xl">
-              128 real interview questions covering physical design, synthesis, clock domain crossing, and signoff timing.
+              55 real interview questions covering physical design, synthesis, clock domain crossing, and signoff timing.
             </p>
           </div>
           <Link
             href="/sta-interview-questions"
             className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 shrink-0"
           >
-            Open All 128 Questions <ArrowRight className="w-3.5 h-3.5" />
+            Open All 55 Questions <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 

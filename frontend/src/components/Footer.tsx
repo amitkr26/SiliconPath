@@ -32,7 +32,7 @@ export default function Footer() {
                 href="/sta-interview-questions"
                 className="text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors"
               >
-                128 STA Questions
+                55 STA Questions
               </Link>
             </div>
           </div>
@@ -105,16 +105,6 @@ export default function Footer() {
                 <Link href="/about" className="text-slate-500 hover:text-slate-900 transition-colors">
                   About SiliconPath
                 </Link>
-              </li>
-              <li>
-                <a
-                  href="https://berojgardegreewala.vercel.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-slate-500 hover:text-slate-900 transition-colors"
-                >
-                  BerojgarDegreeWala
-                </a>
               </li>
               <li>
                 <a

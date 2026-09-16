@@ -240,11 +240,11 @@ export default function ResumeTipsPage() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-white border border-slate-200 rounded-xl">
           <div>
             <h3 className="font-bold text-slate-900 text-base">Pair your resume with real interview practice</h3>
-            <p className="text-xs text-slate-500 mt-0.5">Test yourself against our curated 128 Static Timing Analysis interview questions.</p>
+            <p className="text-xs text-slate-500 mt-0.5">Test yourself against our curated 55 Static Timing Analysis interview questions.</p>
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <Button href="/sta-interview-questions" variant="primary" size="md">
-              Practice 128 STA Q&A <ArrowRight className="w-4 h-4 ml-1" />
+              Practice 55 STA Q&A <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
             <Button href="/learn/career-roadmap" variant="secondary" size="md">
               Career Roadmap

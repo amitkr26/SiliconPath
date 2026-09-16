@@ -67,7 +67,7 @@ const learnHighlights: QuickLink[] = [
 
 const practiceDropdown = [
   {
-    label: "128 STA Interview Questions",
+    label: "55 STA Interview Questions",
     description: "Categorized questions with expandable detailed solutions",
     href: "/sta-interview-questions",
     icon: CheckCircle2,
@@ -399,7 +399,7 @@ export default function Navbar() {
                 onClick={() => setMenuOpen(false)}
                 className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
-                128 STA Interview Questions
+                55 STA Interview Questions
               </Link>
               <Link
                 href="/learn/interview-qa"

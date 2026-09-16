@@ -65,8 +65,8 @@ async function cleanFakeTestPostings() {
       fullStr.includes("22,00,000");
 
     const isSelfLink =
-      applyUrl === "https://berojgardegreewala.vercel.app" ||
-      applyUrl === "https://berojgardegreewala.vercel.app/" ||
+      applyUrl === "https://siliconpath.in" ||
+      applyUrl === "https://siliconpath.in/" ||
       applyUrl === "http://localhost:3000";
 
     return isTestTitle || isTestOrg || isFakeSalary || isSelfLink;

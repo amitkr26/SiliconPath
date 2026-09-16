@@ -27,7 +27,7 @@ const PILLARS = [
   {
     icon: <BookOpen className="w-5 h-5 text-blue-600" />,
     title: "15 Structured Learning Paths",
-    desc: "148 structured technical modules spanning the full VLSI spectrum — from digital logic gates and Verilog HDL to clock tree synthesis, low power UPF, and physical verification.",
+    desc: "150 structured technical modules spanning the full VLSI spectrum — from digital logic gates and Verilog HDL to clock tree synthesis, low power UPF, and physical verification.",
     href: "/learn",
     cta: "Browse Paths",
   },
@@ -40,7 +40,7 @@ const PILLARS = [
   },
   {
     icon: <GraduationCap className="w-5 h-5 text-emerald-600" />,
-    title: "128 STA Interview Questions",
+    title: "55 STA Interview Questions",
     desc: "Curated static timing analysis questions with rigorous engineering answers, setup/hold derivations, OCV/AOCV explanations, and crosstalk noise analysis.",
     href: "/sta-interview-questions",
     cta: "Practice STA Questions",

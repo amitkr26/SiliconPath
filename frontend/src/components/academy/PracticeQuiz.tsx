@@ -70,12 +70,12 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
 
   return (
     <div className="space-y-8">
-      <div className="border-b-2 border-slate-900 pb-4">
-        <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
-          <HelpCircle className="w-6 h-6 text-blue-600 stroke-[2.5]" />
+      <div className="border-b border-slate-100 pb-4">
+        <h3 className="text-xl font-display font-bold text-slate-900 flex items-center gap-2">
+          <HelpCircle className="w-5 h-5 text-blue-600" />
           Daily Practice & Concept Verification
         </h3>
-        <p className="text-sm font-medium text-slate-600 mt-1">
+        <p className="text-sm text-slate-600 mt-1">
           Verify your knowledge of today&apos;s topics. Submit each answer to see detailed explanations.
         </p>
       </div>
@@ -138,18 +138,18 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
                         opt.value.toLowerCase() === strCorrectAns ||
                         opt.altValue === strCorrectAns;
 
-                      let btnStyle = "bg-white border-2 border-slate-900 text-slate-900 hover:bg-blue-50 font-bold shadow-brutal-sm";
+                      let btnStyle = "bg-white border border-slate-200 text-slate-900 hover:bg-blue-50/50 hover:border-blue-200 font-medium";
 
                       if (isSubmitted) {
                         if (isCorrectOption) {
-                          btnStyle = "bg-emerald-100 border-2 border-slate-900 text-emerald-950 font-black shadow-brutal-sm";
+                          btnStyle = "bg-emerald-50 border border-emerald-300 text-emerald-900 font-semibold";
                         } else if (isSelected) {
-                          btnStyle = "bg-red-100 border-2 border-slate-900 text-red-950 font-black shadow-brutal-sm";
+                          btnStyle = "bg-red-50 border border-red-300 text-red-900 font-semibold";
                         } else {
-                          btnStyle = "bg-slate-100 border-2 border-slate-300 text-slate-400 opacity-60 shadow-none";
+                          btnStyle = "bg-slate-50 border border-slate-100 text-slate-400 opacity-70";
                         }
                       } else if (isSelected) {
-                        btnStyle = "bg-blue-600 border-2 border-slate-900 text-white font-black shadow-brutal";
+                        btnStyle = "bg-blue-600 border border-blue-600 text-white font-semibold shadow-sm";
                       }
 
                       return (
@@ -158,7 +158,7 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
                           type="button"
                           onClick={() => handleSelectOption(q.id, opt.value)}
                           disabled={isSubmitted}
-                          className={`w-full p-4 text-left rounded-xl text-sm transition-all duration-200 flex items-center justify-between ${btnStyle}`}
+                          className={`w-full p-4 text-left rounded-lg text-sm transition-all duration-200 flex items-center justify-between ${btnStyle}`}
                         >
                           <span>{opt.label}</span>
                           {isSubmitted && isCorrectOption && <CheckCircle2 className="w-4 h-4 text-emerald-700 stroke-[3]" />}
@@ -203,9 +203,9 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ questions, onQuizCom
 
               {/* Detailed Explanation */}
               {isSubmitted && q.explanation && (
-                <div className="mt-4 p-4 bg-blue-50 border-2 border-slate-900 rounded-xl shadow-brutal-sm">
-                  <div className="flex gap-2 text-xs text-blue-700 font-black items-center uppercase tracking-wider mb-2">
-                    <AlertCircle className="w-4 h-4 text-blue-600 stroke-[2.5]" />
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex gap-2 text-xs text-blue-700 font-semibold items-center uppercase tracking-wider mb-2">
+                    <AlertCircle className="w-4 h-4 text-blue-600" />
                     <span>Explanation</span>
                   </div>
                   <p className="text-sm text-slate-900 font-medium leading-relaxed whitespace-pre-wrap">

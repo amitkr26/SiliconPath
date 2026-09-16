@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Layers, Zap, BookOpen, Clock, Search } from "lucide-react";
 import { LEARNING_PATHS } from "@/lib/academy/all-paths";
+import { VIDEO_COURSES } from "@/lib/video-references";
 import { Badge } from "@/components/ui/Badge";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { cn } from "@/lib/utils";
@@ -62,7 +63,7 @@ export default function LearnIndex() {
             15 Structured Learning Paths
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            From digital logic foundations to advanced physical design and timing signoff. 148 self-paced modules, completely free and open.
+            From digital logic foundations to advanced physical design and timing signoff. 150 self-paced modules, completely free and open.
           </p>
         </div>
 
@@ -185,6 +186,24 @@ export default function LearnIndex() {
           </div>
         );
       })}
+
+      {/* Video Course Library CTA */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="font-display font-bold text-lg text-white">
+            NPTEL &amp; YouTube Video Course Library
+          </h2>
+          <p className="text-xs text-blue-100 leading-relaxed max-w-xl">
+            {`${VIDEO_COURSES.length} curated free video courses from NPTEL IITs and Neso Academy / VLSI Academy playlists, mapped to these learning paths.`}
+          </p>
+        </div>
+        <Link
+          href="/learn/video-courses"
+          className="inline-flex items-center gap-1.5 bg-white text-blue-700 font-semibold px-4 py-2 rounded-lg text-sm shadow-sm hover:bg-blue-50 transition-colors shrink-0 w-fit"
+        >
+          Browse Video Courses <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
 
       {filteredPaths.length === 0 && (
         <div className="text-center py-16 bg-white border border-slate-200 rounded-xl p-8 space-y-3">

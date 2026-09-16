@@ -1,18 +1,23 @@
-# BerojgarDegreeWala (formerly BerojgarDegreeWala)
+# SiliconPath
 
-BerojgarDegreeWala is the premier global aggregator for semiconductor and VLSI career opportunities, fellowships, and research positions.
+SiliconPath is a 100% free learning platform for VLSI and semiconductor engineers — no paywalls, no premium tiers, no course selling, no login required.
 
 ## Core Features
-- Complete aggregation of semiconductor and VLSI career opportunities without requiring login.
-- Real-time updates on JRF, SRF, RA, and PhD positions from top Indian institutions (IITs, IISc, NITs, DRDO, ISRO, CSIR).
-- International fellowships (DAAD, SINGA, MEXT) and PhD opportunities for electronics researchers.
-- Private sector roles (VLSI Design, Physical Design, Verification, DFT, Embedded Systems).
+- 7 structured **VLSI Learning Academy** tracks with day-by-day curricula, practice quizzes, gated assessments, and embedded NPTEL + YouTube course videos per track.
+- 15 career-focused **learning paths** (150 modules) spanning digital logic, Verilog, design verification, synthesis, physical design, static timing analysis, low power, DFT, and tools/career.
+- **Free video course library** of 70 NPTEL courses and 4 YouTube playlists (Neso Academy, VLSI Academy) mapped per path and per academy track.
+- **Engineering Lab** with real-world signoff violation debugging cases.
+- **55 STA interview questions** with expandable engineering answers.
+- OpenLane/Sky130 tapeout guide and career resources.
 
 ## Main Sections
-- [Opportunities](https://berojgardegreewala.vercel.app/opportunities): Browse all active opportunities.
-- [Resources](https://berojgardegreewala.vercel.app/resources): Comprehensive guides on career paths, exams (GATE, NET), and interview preparation for ISRO/DRDO.
-- [Organizations](https://berojgardegreewala.vercel.app/organizations): Directory of top universities, labs, and semiconductor companies.
-- [News](https://berojgardegreewala.vercel.app/news): Latest updates in the global semiconductor industry.
+- [Academy](https://siliconpath.in/academy): 7 structured curriculum tracks with embedded video lectures.
+- [Learning Paths](https://siliconpath.in/learn): 15 paths / 150 modules.
+- [Video Course Library](https://siliconpath.in/learn/video-courses): 74 curated free courses.
+- [Engineering Lab](https://siliconpath.in/engineering-lab): signoff violation case studies.
+- [STA Interview Questions](https://siliconpath.in/sta-interview-questions): 55 Q&A.
+- [Courses & Guides](https://siliconpath.in/courses): tapeout guide, resume tips, career roadmap.
+- [Resources](https://siliconpath.in/resources): VLSI role profiles and EDA toolchains.
 
 ## Target Audience
-Electronics Engineers, VLSI Researchers, Embedded Systems Professionals, and Students seeking higher education (MTech/PhD) or research roles globally.
+VLSI design, verification, physical design, DFT, and EDA engineers; students preparing for semiconductor careers.

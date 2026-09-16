@@ -36,7 +36,7 @@ const TOPICS: Topic[] = [
   {
     id: "sta-fundamentals",
     title: "STA Fundamentals",
-    count: 12,
+    count: 5,
     questions: [
       {
         id: "sf-1",
@@ -73,7 +73,7 @@ const TOPICS: Topic[] = [
   {
     id: "timing-paths",
     title: "Timing Paths & Path Types",
-    count: 12,
+    count: 5,
     questions: [
       {
         id: "tp-1",
@@ -110,7 +110,7 @@ const TOPICS: Topic[] = [
   {
     id: "setup-hold",
     title: "Setup & Hold Checks",
-    count: 12,
+    count: 5,
     questions: [
       {
         id: "sh-1",
@@ -147,7 +147,7 @@ const TOPICS: Topic[] = [
   {
     id: "clocks",
     title: "Clocks: Skew, Jitter, Latency, Uncertainty",
-    count: 12,
+    count: 5,
     questions: [
       {
         id: "ck-1",
@@ -184,7 +184,7 @@ const TOPICS: Topic[] = [
   {
     id: "slack-slew",
     title: "Slack, Slew & Transition",
-    count: 12,
+    count: 5,
     questions: [
       {
         id: "ss-1",
@@ -221,7 +221,7 @@ const TOPICS: Topic[] = [
   {
     id: "exceptions",
     title: "Timing Exceptions",
-    count: 12,
+    count: 5,
     questions: [
       {
         id: "ex-1",
@@ -258,7 +258,7 @@ const TOPICS: Topic[] = [
   {
     id: "ocv",
     title: "OCV, AOCV, POCV & Derating",
-    count: 11,
+    count: 5,
     questions: [
       {
         id: "ocv-1",
@@ -295,7 +295,7 @@ const TOPICS: Topic[] = [
   {
     id: "crpr",
     title: "CRPR & Clock Reconvergence",
-    count: 12,
+    count: 5,
     questions: [
       {
         id: "cr-1",
@@ -332,7 +332,7 @@ const TOPICS: Topic[] = [
   {
     id: "crosstalk",
     title: "Crosstalk & Signal Integrity",
-    count: 11,
+    count: 5,
     questions: [
       {
         id: "ct-1",
@@ -369,7 +369,7 @@ const TOPICS: Topic[] = [
   {
     id: "sdc",
     title: "SDC Constraints",
-    count: 11,
+    count: 5,
     questions: [
       {
         id: "sd-1",
@@ -406,7 +406,7 @@ const TOPICS: Topic[] = [
   {
     id: "advanced",
     title: "Advanced & Signoff",
-    count: 11,
+    count: 5,
     questions: [
       {
         id: "ad-1",
@@ -547,7 +547,7 @@ export default function STAInterviewPage() {
             Practice Repository
           </p>
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
-            128 STA Interview Questions &amp; Answers
+            55 STA Interview Questions &amp; Answers
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
             Exhaustive Static Timing Analysis interview preparation. Covering setup/hold closure, clock uncertainty, CRPR, crosstalk noise, multi-corner analysis, and SDC constraints.
@@ -563,7 +563,7 @@ export default function STAInterviewPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search 128 questions... (e.g. CRPR, crosstalk, OCV, setup slack, jitter)"
+              placeholder="Search 55 questions... (e.g. CRPR, crosstalk, OCV, setup slack, jitter)"
               className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900 placeholder:text-slate-400 shadow-sm"
             />
           </div>

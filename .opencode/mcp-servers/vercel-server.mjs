@@ -87,7 +87,7 @@ startMcpServer({
       inputSchema: {
         type: "object",
         properties: {
-          url: { type: "string", description: "Deployment URL, e.g. https://berojgardegreewala.vercel.app" },
+          url: { type: "string", description: "Deployment URL, e.g. https://siliconpath.in" },
           query: { type: "string", description: "Log filter query" },
         },
         required: ["url"],

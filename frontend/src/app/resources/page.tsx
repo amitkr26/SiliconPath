@@ -36,7 +36,7 @@ const CAREER_TRACKS = [
     scope: "Pre-silicon functional verification: architecting constrained-random testbenches, writing assertions (SVA), building UVM scoreboards, and achieving 100% coverage.",
     tools: ["Synopsys VCS", "Cadence Xcelium", "Synopsys Verdi", "Siemens Questa"],
     keySkills: ["SystemVerilog / UVM", "Constrained-random testing", "Functional & code coverage", "DPI-C"],
-    learnPath: "/learn/systemverilog",
+    learnPath: "/learn/design-verification",
   },
   {
     role: "RTL Design Engineer",
@@ -50,7 +50,7 @@ const CAREER_TRACKS = [
     scope: "Test architecture design: scan insertion, ATPG (Automatic Test Pattern Generation), BIST (Memory/Logic BIST), and boundary scan (JTAG) for silicon bring-up.",
     tools: ["Siemens Tessent", "Synopsys TestMAX", "Synopsys DFT Compiler"],
     keySkills: ["Scan chain stitching", "Fault modeling (Stuck-at, At-speed)", "IEEE 1149.1 JTAG", "MBIST"],
-    learnPath: "/learn/dft",
+    learnPath: "/learn/design-for-test",
   },
 ];
 
@@ -70,7 +70,7 @@ const CURATED_GUIDES = [
     badge: "Roadmap",
   },
   {
-    title: "128 Static Timing Analysis (STA) Interview Questions",
+    title: "55 Static Timing Analysis (STA) Interview Questions",
     category: "Interview Prep",
     desc: "Detailed answers with setup/hold math, clock jitter, crosstalk delay, and SDC constraints asked by Intel, Qualcomm, Nvidia, and TI.",
     href: "/sta-interview-questions",

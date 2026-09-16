@@ -25,8 +25,8 @@ const TRUSTED_SOURCES = [
   {
     category: "Digital Design & RTL (Track 1)",
     resources: [
-      { name: "NPTEL - Digital Circuits (IIT Kharagpur, Prof. Santanu Chattopadhyay)", url: "https://onlinecourses.nptel.ac.in/", type: "Course", tag: "NPTEL / IIT" },
-      { name: "NPTEL - Hardware Modeling using Verilog (IIT Kharagpur, Prof. Indranil Sengupta)", url: "https://onlinecourses.nptel.ac.in/", type: "Course", tag: "NPTEL / IIT" },
+      { name: "NPTEL - Digital Circuits (IIT Kharagpur, Prof. Santanu Chattopadhyay)", url: "https://nptel.ac.in/courses/108105113", type: "Course", tag: "NPTEL / IIT" },
+      { name: "NPTEL - Hardware Modeling using Verilog (IIT Kharagpur, Prof. Indranil Sengupta)", url: "https://nptel.ac.in/courses/106105165", type: "Course", tag: "NPTEL / IIT" },
       { name: "HDLBits Interactive Practice (01xz)", url: "https://hdlbits.01xz.net/", type: "Interactive Practice", tag: "Auto-graded" },
       { name: "ChipVerify - Verilog & Digital Design Tutorials", url: "https://chipverify.com/", type: "Tutorial & Lab", tag: "Self-Paced" },
       { name: "ARM Education Media Architecture References", url: "https://www.arm.com/resources/education", type: "Official Reference", tag: "ARM Architecture" },

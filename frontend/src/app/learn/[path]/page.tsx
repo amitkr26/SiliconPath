@@ -12,6 +12,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { LEARNING_PATHS } from "@/lib/academy/all-paths";
+import { videoCoursesForPath } from "@/lib/video-references";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -191,6 +192,51 @@ export default function LearningPathPage() {
           })}
         </div>
       </div>
+    {/* Companion Video Courses */}
+      {videoCoursesForPath(path.slug).length > 0 && (
+        <div className="space-y-4">
+          <div>
+            <h2 className="font-display text-lg font-bold text-slate-900">
+              Companion Video Courses
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Free NPTEL university lectures and full YouTube playlists that deepen this path.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {videoCoursesForPath(path.slug).map((course) => (
+              <a
+                key={`${course.source}-${course.id}`}
+                href={course.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group bg-white border border-slate-200 hover:border-blue-300 rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-3"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <Badge tone={course.source === "nptel" ? "accent" : "success"}>
+                        {course.source === "nptel" ? "NPTEL" : "YouTube"}
+                      </Badge>
+                      {course.companion && <Badge tone="neutral">Companion</Badge>}
+                    </div>
+                    <h3 className="font-display font-semibold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">
+                      {course.title}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {course.instructor} · {course.institute}
+                    </p>
+                  </div>
+                  <Play className="w-4 h-4 text-slate-400 group-hover:text-blue-600 shrink-0 mt-1" />
+                </div>
+                <span className="text-[10px] font-semibold text-blue-600 group-hover:text-blue-700 inline-flex items-center gap-1">
+                  Watch free <ChevronRight className="w-3 h-3" />
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
