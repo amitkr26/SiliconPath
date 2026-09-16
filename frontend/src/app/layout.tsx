@@ -6,6 +6,7 @@ import "./globals.css";
 import AppLayout from "@/components/AppLayout";
 import Providers from "@/components/Providers";
 import { AuthSync } from "@/components/AuthSync";
+import { ORGANIZATION_SAME_AS } from "@/config/socials";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap" });
@@ -106,10 +107,7 @@ export default function RootLayout({
         "url": "https://berojgardegreewala.vercel.app",
         "logo": "https://berojgardegreewala.vercel.app/icon.svg",
         "description": "Semiconductor and VLSI opportunity aggregator covering DRDO, ISRO, CSIR, IITs, and fabless companies.",
-        "sameAs": [
-          "https://twitter.com/berojgardegreewala",
-          "https://linkedin.com/company/berojgardegreewala"
-        ]
+        "sameAs": ORGANIZATION_SAME_AS
       }
     ]
   };

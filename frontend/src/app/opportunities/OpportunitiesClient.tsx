@@ -1,43 +1,75 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import type { Opportunity } from "@/types";
-import OpportunityCard from "@/components/OpportunityCard";
-import CategoryBadge from "@/components/CategoryBadge";
-import DeadlineCountdown from "@/components/DeadlineCountdown";
-import VerificationBadge from "@/components/VerificationBadge";
-import { Loader2, Search, X, MapPin, IndianRupee, ExternalLink, ShieldCheck, Filter, ChevronDown } from "lucide-react";
-import { cn, getDaysUntilDeadline, isExpired } from "@/lib/utils";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
+import {
+  Search, X, MapPin, Calendar, ArrowRight, Bookmark, BookmarkCheck,
+  ChevronLeft, ChevronRight, LayoutGrid, List, Microscope, Briefcase,
+  UserCheck, GraduationCap, Star, Globe, Trophy, Zap, Mail, Shield,
+  Users, Loader2, CheckCircle2, Sparkles, Building2
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
-const QUICK_FILTERS = [
-  { label: "Fresher First", experience: "Fresher" },
-  { label: "Closing Soon", sort: "closing_soon" },
-  { label: "VLSI RTL", search: "RTL" },
-  { label: "Research/JRF", category: "jrf" },
-  { label: "Govt/PSU", category: "government" },
+const CATEGORY_TABS = [
+  { id: "All", label: "All", icon: LayoutGrid },
+  { id: "jrf", label: "Research", icon: Microscope },
+  { id: "internship", label: "Internships", icon: Briefcase },
+  { id: "job", label: "Jobs", icon: UserCheck },
+  { id: "scholarship", label: "Scholarships", icon: GraduationCap },
+  { id: "fellowship", label: "Fellowships", icon: Star },
+  { id: "study-abroad", label: "Study Abroad", icon: Globe },
+  { id: "competition", label: "Competitions", icon: Trophy },
 ];
 
-const DOMAIN_OPTIONS = [
-  { value: "All", label: "All Domains" },
-  { value: "RTL", label: "VLSI RTL Design" },
-  { value: "Verification", label: "Verification (UVM)" },
-  { value: "Physical Design", label: "Physical Design" },
-  { value: "Embedded", label: "Embedded Systems" },
-  { value: "Analog", label: "Analog/Mixed-Signal" },
-  { value: "DFT", label: "DFT" },
+const TYPE_OPTIONS = [
+  { value: "All", label: "All Types" },
+  { value: "internship", label: "Internships" },
+  { value: "job", label: "Full-time Jobs" },
+  { value: "jrf", label: "Research / JRF" },
+  { value: "srf", label: "Senior Research / SRF" },
+  { value: "phd", label: "PhD Research" },
+  { value: "scholarship", label: "Scholarships" },
+  { value: "fellowship", label: "Fellowships" },
+  { value: "govt-job", label: "Government / PSU" },
 ];
 
-function getInitials(name?: string): string {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .substring(0, 2)
-    .toUpperCase();
-}
+const FIELD_OPTIONS = [
+  { value: "All", label: "All Fields" },
+  { value: "vlsi", label: "VLSI & Digital Design" },
+  { value: "semiconductor", label: "Semiconductor Fabrication" },
+  { value: "embedded", label: "Embedded Systems & Firmware" },
+  { value: "verification", label: "Design Verification (UVM)" },
+  { value: "analog", label: "Analog & Mixed Signal" },
+  { value: "software", label: "Software & AI Systems" },
+  { value: "research", label: "Applied Research & JRF" },
+];
+
+const LOCATION_OPTIONS = [
+  { value: "All", label: "All Locations" },
+  { value: "Bengaluru", label: "Bengaluru, India" },
+  { value: "Hyderabad", label: "Hyderabad, India" },
+  { value: "Pune", label: "Pune, India" },
+  { value: "Delhi / NCR", label: "Delhi / NCR, India" },
+  { value: "Mumbai", label: "Mumbai, India" },
+  { value: "Chennai", label: "Chennai, India" },
+  { value: "Remote", label: "Remote / Work From Home" },
+];
+
+const ELIGIBILITY_OPTIONS = [
+  { value: "All", label: "All Eligibility" },
+  { value: "B.Tech", label: "B.Tech / B.E." },
+  { value: "M.Tech", label: "M.Tech / M.E." },
+  { value: "PhD", label: "PhD / Doctoral" },
+  { value: "B.Sc", label: "B.Sc / BCA" },
+  { value: "M.Sc", label: "M.Sc / MCA" },
+  { value: "Diploma", label: "Diploma Holders" },
+  { value: "Any Graduate", label: "Any Graduate" },
+];
 
 function getLocalBookmarks(): string[] {
   if (typeof window === "undefined") return [];
@@ -49,405 +81,862 @@ function getLocalBookmarks(): string[] {
   }
 }
 
+function setLocalBookmarks(ids: string[]) {
+  localStorage.setItem("BerojgarDegreeWala_bookmarks", JSON.stringify(ids));
+}
+
 export default function OpportunitiesClient({ initialData }: { initialData: Opportunity[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialSearchParam = searchParams.get("search") || "";
-  const initialCategoryParam = searchParams.get("category") || "All";
-  const initialExperienceParam = searchParams.get("experience") || "All";
 
   const [opportunities, setOpportunities] = useState<Opportunity[]>(initialData);
   const [loading, setLoading] = useState(false);
-  const [category, setCategory] = useState(initialCategoryParam);
-  const [eligibility, setEligibility] = useState("All");
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [category, setCategory] = useState(searchParams.get("category") || "All");
+  const [oppType, setOppType] = useState("All");
+  const [field, setField] = useState("All");
   const [location, setLocation] = useState("All");
-  const [deadline, setDeadline] = useState("All");
-  const [experience, setExperience] = useState(initialExperienceParam);
+  const [eligibility, setEligibility] = useState("All");
   const [sort, setSort] = useState("fresher");
-  const [search, setSearch] = useState(initialSearchParam);
-  const [showUnverified, setShowUnverified] = useState(false);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(initialData.length);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [totalPages, setTotalPages] = useState(Math.max(1, Math.ceil(initialData.length / 8)));
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  // Bookmarks
+  const [bookmarkedIds, setBookmarkedIds] = useState<Record<string, boolean>>({});
+
+  // Newsletter
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterAgreed, setNewsletterAgreed] = useState(true);
+  const [newsletterSubmitting, setNewsletterSubmitting] = useState(false);
+
   const requestToken = useRef(0);
-  const [matchInfo, setMatchInfo] = useState<{ type?: string; query?: string }>({});
+  const PAGE_LIMIT = 8;
 
+  // Initialize bookmarks from storage
   useEffect(() => {
-    const s = searchParams.get("search") || "";
-    const c = searchParams.get("category") || "All";
-    const e = searchParams.get("experience") || "All";
-    setSearch(s);
-    setCategory(c);
-    setExperience(e);
-  }, [searchParams]);
+    const saved = getLocalBookmarks();
+    const map: Record<string, boolean> = {};
+    saved.forEach((id) => {
+      map[id] = true;
+    });
+    setBookmarkedIds(map);
+  }, []);
 
-  const fetchOpportunities = useCallback(async (pageNum = 1, append = false) => {
-    const token = ++requestToken.current;
-    if (append) setLoadingMore(true);
-    else setLoading(true);
+  const toggleBookmark = (id: string, title?: string) => {
+    const current = getLocalBookmarks();
+    let updated: string[];
+    const isSaved = current.includes(id);
 
-    try {
-      const params = new URLSearchParams();
-      if (category && category !== "All") params.set("category", category);
-      if (eligibility && eligibility !== "All") params.set("eligibility", eligibility);
-      if (location && location !== "All") params.set("location", location);
-      if (deadline && deadline !== "All") params.set("deadline", deadline);
-      if (experience && experience !== "All") params.set("experience", experience);
-      if (sort && sort !== "fresher") params.set("sort", sort);
-      if (search) params.set("search", search);
-      if (showUnverified) params.set("verified", "all");
-      if (pageNum > 1) params.set("page", String(pageNum));
-
-      const res = await fetch(`/api/opportunities?${params}`);
-      const data = await res.json();
-      if (token !== requestToken.current) return;
-
-      if (data.opportunities) {
-        setOpportunities((prev) =>
-          append
-            ? Array.from(new Map([...prev, ...data.opportunities].map((o: Opportunity) => [o.id, o])).values())
-            : data.opportunities
-        );
-        setTotalPages(data.total_pages || 1);
-        setTotalCount(data.total_count || data.opportunities.length);
-        setPage(data.page || pageNum);
-        setMatchInfo({ type: data.match_type, query: data.matched_query });
-      } else {
-        setOpportunities([]);
-        setTotalPages(1);
-        setTotalCount(0);
-        setMatchInfo({});
-      }
-    } catch (error) {
-      if (token !== requestToken.current) return;
-      console.error("Error fetching opportunities:", error);
-      setOpportunities([]);
-      setTotalPages(1);
-      setTotalCount(0);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [category, eligibility, location, deadline, experience, sort, search, showUnverified]);
-
-  useEffect(() => {
-    fetchOpportunities(1);
-  }, [category, eligibility, location, deadline, experience, sort, search, showUnverified, fetchOpportunities]);
-
-  useEffect(() => {
-    if (page > 1) fetchOpportunities(page, true);
-  }, [page, fetchOpportunities]);
-
-  const domainCounts = useMemo(() => {
-    const counts: Record<string, number> = { All: opportunities.length };
-    for (const opp of opportunities) {
-      const tags = opp.tags || [];
-      for (const tag of tags) {
-        const normalized = tag.toLowerCase();
-        if (normalized.includes("rtl") || normalized.includes("verilog") || normalized.includes("vhdl")) {
-          counts["RTL"] = (counts["RTL"] || 0) + 1;
-        }
-        if (normalized.includes("verification") || normalized.includes("uvm")) {
-          counts["Verification"] = (counts["Verification"] || 0) + 1;
-        }
-        if (normalized.includes("physical") || normalized.includes("layout")) {
-          counts["Physical Design"] = (counts["Physical Design"] || 0) + 1;
-        }
-        if (normalized.includes("embedded") || normalized.includes("firmware")) {
-          counts["Embedded"] = (counts["Embedded"] || 0) + 1;
-        }
-      }
-      const cat = (opp.category || "").toLowerCase();
-      if (cat.includes("jrf") || cat.includes("research")) {
-        counts["Research/JRF"] = (counts["Research/JRF"] || 0) + 1;
-      }
-    }
-    return counts;
-  }, [opportunities]);
-
-  const activeQuickFilter = useMemo(() => {
-    if (experience === "Fresher") return "Fresher First";
-    if (sort === "closing_soon") return "Closing Soon";
-    if (search.toLowerCase() === "rtl") return "VLSI RTL";
-    if (category === "jrf") return "Research/JRF";
-    if (category === "government") return "Govt/PSU";
-    return null;
-  }, [experience, sort, search, category]);
-
-  const handleQuickFilter = (filter: (typeof QUICK_FILTERS)[number]) => {
-    if (activeQuickFilter === filter.label) {
-      setExperience("All");
-      setSort("fresher");
-      setSearch("");
-      setCategory("All");
+    if (isSaved) {
+      updated = current.filter((item) => item !== id);
+      setBookmarkedIds((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      toast.success(`Removed "${title || "Opportunity"}" from bookmarks.`);
     } else {
-      if (filter.experience) setExperience(filter.experience);
-      else setExperience("All");
-      if (filter.sort) setSort(filter.sort);
-      else setSort("fresher");
-      if (filter.search) setSearch(filter.search);
-      else setSearch("");
-      if (filter.category) setCategory(filter.category);
-      else if (!filter.search) setCategory("All");
+      updated = [...current, id];
+      setBookmarkedIds((prev) => ({ ...prev, [id]: true }));
+      toast.success(`Bookmarked "${title || "Opportunity"}".`);
+    }
+    setLocalBookmarks(updated);
+  };
+
+  const fetchOpportunities = useCallback(
+    async (pageNum = 1) => {
+      const token = ++requestToken.current;
+      setLoading(true);
+
+      try {
+        const params = new URLSearchParams();
+        params.set("page", String(pageNum));
+        params.set("limit", String(PAGE_LIMIT));
+
+        // Priority for type/category
+        if (oppType !== "All") {
+          params.set("category", oppType);
+        } else if (category !== "All" && category !== "study-abroad" && category !== "competition") {
+          params.set("category", category);
+        }
+
+        if (eligibility !== "All") params.set("eligibility", eligibility);
+        if (location !== "All") params.set("location", location);
+        if (sort !== "fresher") params.set("sort", sort);
+
+        // Build combined query from search, field, and study abroad / competition
+        let combinedSearch = search.trim();
+        if (field !== "All") {
+          combinedSearch = combinedSearch ? `${combinedSearch} ${field}` : field;
+        }
+        if (category === "study-abroad") {
+          combinedSearch = combinedSearch ? `${combinedSearch} study abroad` : "study abroad";
+        } else if (category === "competition") {
+          combinedSearch = combinedSearch ? `${combinedSearch} competition` : "competition";
+        }
+        if (combinedSearch) {
+          params.set("search", combinedSearch);
+        }
+
+        const res = await fetch(`/api/opportunities?${params.toString()}`);
+        if (!res.ok) throw new Error("Failed to fetch opportunities");
+        const data = await res.json();
+
+        if (token !== requestToken.current) return;
+
+        if (data.opportunities) {
+          setOpportunities(data.opportunities);
+          setTotalCount(data.total_count || data.opportunities.length);
+          setTotalPages(Math.max(1, Math.ceil((data.total_count || data.opportunities.length) / PAGE_LIMIT)));
+          setPage(data.page || pageNum);
+        }
+      } catch (err) {
+        if (token !== requestToken.current) return;
+        console.error("Opportunities search error:", err);
+      } finally {
+        if (token === requestToken.current) {
+          setLoading(false);
+        }
+      }
+    },
+    [category, oppType, field, location, eligibility, sort, search]
+  );
+
+  // Trigger search on filter changes
+  useEffect(() => {
+    setPage(1);
+    fetchOpportunities(1);
+  }, [category, oppType, field, location, eligibility, sort, fetchOpportunities]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(1);
+    fetchOpportunities(1);
+  };
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail || !newsletterEmail.includes("@")) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+    if (!newsletterAgreed) {
+      toast.error("Please agree to receive updates.");
+      return;
+    }
+
+    setNewsletterSubmitting(true);
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newsletterEmail }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Subscribed successfully! You will receive opportunity updates.");
+        setNewsletterEmail("");
+      } else {
+        toast.error(data.error || "Subscription failed. Please try again.");
+      }
+    } catch {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setNewsletterSubmitting(false);
     }
   };
-
-  const resetAll = () => {
-    setCategory("All");
-    setEligibility("All");
-    setLocation("All");
-    setDeadline("All");
-    setExperience("All");
-    setSort("fresher");
-    setSearch("");
-  };
-
-  const hasActiveFilters = category !== "All" || eligibility !== "All" || location !== "All" || deadline !== "All" || experience !== "All" || search;
 
   return (
-    <div className="min-h-screen bg-bg-primary">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Opportunities</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Browse verified semiconductor, VLSI, and research opportunities across Indian deep-tech labs &amp; industries.
-          </p>
-        </div>
+    <main className="min-h-screen bg-[#F8FAFC]">
+      {/* ========================================================================= */}
+      {/* 1. HERO SECTION & INTEGRATED SEARCH                                      */}
+      {/* ========================================================================= */}
+      <section className="relative pt-6 pb-12 sm:pt-10 sm:pb-16 bg-white border-b border-slate-200/80 overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-50/60 rounded-full blur-3xl pointer-events-none -mr-40 -mt-20" />
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Main Content */}
-          <div className="flex-1 min-w-0">
-            {/* Search Bar */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center mb-8 sm:mb-12">
+            
+            {/* Hero Text */}
+            <div className="lg:col-span-7 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-bold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                <span>Opportunities</span>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+                Find Your Next <br />
+                <span className="text-blue-600">Big Opportunity</span>
+              </h1>
+
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl">
+                Explore internships, research positions, jobs, scholarships and fellowships from top organizations across India and worldwide.
+              </p>
+            </div>
+
+            {/* Hero Image Card */}
+            <div className="lg:col-span-5 relative">
+              <div className="relative h-[260px] sm:h-[300px] lg:h-[340px] w-full rounded-2xl overflow-hidden shadow-elevated border border-slate-200 bg-slate-100">
+                <Image
+                  src="/images/hero-student-campus.png"
+                  alt="Student on campus exploring opportunities"
+                  fill
+                  unoptimized
+                  priority
+                  className="object-cover object-top"
+                  sizes="(max-width: 1024px) 100vw, 500px"
+                />
+
+                {/* Overlay Floating Tagline */}
+                <div className="absolute right-4 top-4 bg-white/90 backdrop-blur-xs px-3 py-1.5 rounded-xl border border-slate-200/80 shadow-xs hidden sm:block">
+                  <div className="font-serif italic text-xs font-bold text-slate-800 leading-tight">
+                    Learn &bull; Explore <br />
+                    <span className="text-blue-600">Grow &bull; Succeed</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Search & Filter Container (Integrated Box) */}
+          <form
+            onSubmit={handleSearchSubmit}
+            className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-elevated space-y-3.5"
+          >
+            {/* Top Search Input */}
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search opportunities by title, organization, or keyword..."
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                placeholder="Search opportunities (e.g., internships, AI, ISRO, scholarships...)"
+                className="w-full pl-11 pr-10 py-3 bg-slate-50/70 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all font-normal"
               />
               {search && (
                 <button
-                  onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setPage(1);
+                  }}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
                 >
                   <X className="w-4 h-4" />
                 </button>
               )}
             </div>
 
-            {/* Filter Chips */}
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              {QUICK_FILTERS.map((filter) => (
+            {/* Dropdown Filters Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              {/* 1. Opportunity Type */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Opportunity Type
+                </label>
+                <select
+                  value={oppType}
+                  onChange={(e) => setOppType(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+                >
+                  {TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 2. Field of Interest */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Field of Interest
+                </label>
+                <select
+                  value={field}
+                  onChange={(e) => setField(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+                >
+                  {FIELD_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 3. Location */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Location
+                </label>
+                <select
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+                >
+                  {LOCATION_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 4. Eligibility */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Eligibility
+                </label>
+                <select
+                  value={eligibility}
+                  onChange={(e) => setEligibility(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+                >
+                  {ELIGIBILITY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 5. Search Action Button */}
+              <div className="flex items-end">
                 <button
-                  key={filter.label}
-                  onClick={() => handleQuickFilter(filter)}
+                  type="submit"
+                  className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-2xs hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer h-[38px]"
+                >
+                  <Search className="w-4 h-4" />
+                  <span>Search Opportunities</span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+        </div>
+      </section>
+
+
+      {/* ========================================================================= */}
+      {/* 2. CATEGORY FILTER TABS ROW                                              */}
+      {/* ========================================================================= */}
+      <section className="py-6 border-b border-slate-200/80 bg-[#F8FAFC]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
+            {CATEGORY_TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = category === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => {
+                    setCategory(tab.id);
+                    setPage(1);
+                  }}
                   className={cn(
-                    "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors",
-                    activeQuickFilter === filter.label
-                      ? "bg-blue-600 text-white border-blue-600 shadow-xs"
-                      : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50 shadow-xs"
+                    "flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer",
+                    isActive
+                      ? "bg-white border-blue-600 text-blue-600 shadow-sm ring-1 ring-blue-600"
+                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900 shadow-2xs"
                   )}
                 >
-                  {filter.label}
+                  <Icon className={cn("w-5 h-5 mb-1.5", isActive ? "text-blue-600" : "text-slate-500")} />
+                  <span className="text-xs font-bold leading-tight truncate w-full">
+                    {tab.label}
+                  </span>
                 </button>
-              ))}
-              {hasActiveFilters && (
-                <button
-                  onClick={resetAll}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
-                >
-                  Clear all
-                </button>
-              )}
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+
+      {/* ========================================================================= */}
+      {/* 3. OPPORTUNITIES DIRECTORY & GRID                                        */}
+      {/* ========================================================================= */}
+      <section className="py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* Results Bar & View Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
+                {totalCount.toLocaleString()} Opportunities Found
+              </h2>
+              {loading && <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />}
             </div>
 
-            {/* Mobile Filter Toggle */}
-            <button
-              onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-              className="lg:hidden flex items-center justify-between w-full px-3 py-2 mb-4 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 shadow-xs"
-            >
-              <span className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-slate-500" /> Filters
-              </span>
-              <ChevronDown className={cn("w-4 h-4 transition-transform text-slate-400", mobileFiltersOpen && "rotate-180")} />
-            </button>
-
-            {/* Mobile Filters Panel */}
-            {mobileFiltersOpen && (
-              <div className="lg:hidden bg-white border border-slate-200 rounded-xl p-4 mb-4 space-y-4 shadow-sm">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Domain</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
-                  >
-                    {DOMAIN_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Sort by</label>
-                  <select
-                    value={sort}
-                    onChange={(e) => setSort(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
-                  >
-                    <option value="fresher">Fresher Relevance</option>
-                    <option value="closing_soon">Closing Soon</option>
-                    <option value="newest">Newest First</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* Results Count */}
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
-              {loading ? "Loading opportunities..." : `${totalCount} verified active positions`}
-            </p>
-
-            {/* Opportunity Cards Grid */}
-            {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-7 h-7 text-blue-600 animate-spin" />
-              </div>
-            ) : opportunities.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-xl border border-slate-200 shadow-card">
-                <p className="text-slate-900 font-bold text-base">No opportunities match your current filters</p>
-                <p className="text-xs text-slate-500 mt-1">Try adjusting your filters, location, or search keywords</p>
-                <button
-                  onClick={resetAll}
-                  className="mt-4 px-4 py-2 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+            <div className="flex items-center gap-3">
+              {/* Sort By Dropdown */}
+              <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                <span>Sort by</span>
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 >
-                  Reset all filters
+                  <option value="fresher">Latest First</option>
+                  <option value="closing_soon">Closing Soon</option>
+                  <option value="newest">Newest First</option>
+                </select>
+              </div>
+
+              {/* View Mode Toggle */}
+              <div className="flex items-center border border-slate-200 rounded-lg bg-white p-0.5 shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  aria-label="Grid view"
+                  className={cn(
+                    "p-1.5 rounded-md transition-colors",
+                    viewMode === "grid" ? "bg-blue-50 text-blue-600" : "text-slate-400 hover:text-slate-600"
+                  )}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("list")}
+                  aria-label="List view"
+                  className={cn(
+                    "p-1.5 rounded-md transition-colors",
+                    viewMode === "list" ? "bg-blue-50 text-blue-600" : "text-slate-400 hover:text-slate-600"
+                  )}
+                >
+                  <List className="w-4 h-4" />
                 </button>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {opportunities.map((opp) => (
-                  <OpportunityCard key={opp.id} opportunity={opp} compact />
-                ))}
-              </div>
-            )}
-
-            {/* Load More */}
-            {!loading && page < totalPages && (
-              <div className="flex justify-center mt-8">
-                <button
-                  onClick={() => setPage((p) => p + 1)}
-                  disabled={loadingMore}
-                  className="px-6 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 shadow-xs transition-all disabled:opacity-50"
-                >
-                  {loadingMore ? "Loading more..." : "Load more opportunities"}
-                </button>
-              </div>
-            )}
+            </div>
           </div>
 
-          {/* Right Sidebar */}
-          <aside className="hidden lg:block w-72 flex-shrink-0">
-            <div className="sticky top-24 space-y-6">
-              {/* Quick Filters */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">Quick Filters</h3>
-                <div className="space-y-1">
-                  {QUICK_FILTERS.map((filter) => (
+          {/* Opportunities Cards */}
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-slate-200/80 shadow-2xs">
+              <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
+              <p className="text-sm font-semibold text-slate-700">Loading opportunities...</p>
+            </div>
+          ) : opportunities.length === 0 ? (
+            <div className="text-center py-20 bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-8">
+              <Building2 className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+              <h3 className="text-base font-bold text-slate-900">No opportunities found</h3>
+              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                No active positions match your current search and filter selections. Try clearing filters or broadening your terms.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setCategory("All");
+                  setOppType("All");
+                  setField("All");
+                  setLocation("All");
+                  setEligibility("All");
+                  setSort("fresher");
+                  setPage(1);
+                }}
+                className="mt-4 px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors"
+              >
+                Reset All Filters
+              </button>
+            </div>
+          ) : viewMode === "grid" ? (
+            /* 4-COLUMN RESPONSIVE GRID */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+              {opportunities.map((opp, idx) => {
+                const oppId = (opp.id || opp.slug || `opp-${idx}`).toString();
+                const oppTitle = opp.title || "Opportunity";
+                const isSaved = !!bookmarkedIds[oppId];
+                const catLabel = opp.category ? opp.category.toUpperCase() : "OPPORTUNITY";
+
+                return (
+                  <div
+                    key={oppId}
+                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs hover:shadow-lg hover:border-blue-200 transition-all flex flex-col justify-between group"
+                  >
+                    <div>
+                      {/* Top Row: Logo & Category Badge & Bookmark */}
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-slate-100 bg-slate-50 flex items-center justify-center">
+                          <ImageWithFallback
+                            src={opp.organization_logo_url}
+                            alt={`${opp.organization || "Organization"} logo`}
+                            name={opp.organization}
+                            variant="logo"
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 rounded-lg object-contain p-0.5"
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider bg-blue-50 text-blue-700 border-blue-200">
+                            {catLabel}
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={() => toggleBookmark(oppId, oppTitle)}
+                            aria-label={isSaved ? "Remove bookmark" : "Bookmark opportunity"}
+                            className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
+                          >
+                            {isSaved ? (
+                              <BookmarkCheck className="w-4 h-4 text-blue-600 fill-current" />
+                            ) : (
+                              <Bookmark className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Organization Name */}
+                      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider truncate mb-1">
+                        {opp.organization || "Verified Organization"}
+                      </p>
+
+                      {/* Role Title */}
+                      <Link href={`/opportunities/${opp.slug || oppId}`}>
+                        <h3 className="font-bold text-slate-900 text-sm leading-snug group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
+                          {oppTitle}
+                        </h3>
+                      </Link>
+
+                      {/* Snippet / Description */}
+                      <p className="text-xs text-slate-500 font-normal line-clamp-2 leading-relaxed mb-4">
+                        {opp.description ||
+                          `Explore verified opening at ${opp.organization || "top institution"} with career mentorship.`}
+                      </p>
+
+                      {/* Key Metadata */}
+                      <div className="space-y-1.5 text-xs text-slate-600 border-t border-slate-100 pt-3">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">{opp.location || "Multiple Locations, India"}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 truncate">
+                          <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">{opp.category || "Full-time"}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 truncate">
+                          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">
+                            {opp.deadline
+                              ? new Date(opp.deadline).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+                              : "Rolling Applications"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom CTA Link */}
+                    <div className="pt-4 mt-2 border-t border-slate-100">
+                      <Link
+                        href={`/opportunities/${opp.slug || oppId}`}
+                        className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center justify-between group/link"
+                      >
+                        <span>View Details</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover/link:translate-x-1 transition-transform" />
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* LIST VIEW */
+            <div className="space-y-3">
+              {opportunities.map((opp, idx) => {
+                const oppId = (opp.id || opp.slug || `opp-list-${idx}`).toString();
+                const oppTitle = opp.title || "Opportunity";
+                const isSaved = !!bookmarkedIds[oppId];
+                return (
+                  <div
+                    key={oppId}
+                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs hover:shadow-md hover:border-blue-200 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+                  >
+                    <div className="flex items-start gap-4 min-w-0">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-slate-100 bg-slate-50 flex items-center justify-center">
+                        <ImageWithFallback
+                          src={opp.organization_logo_url}
+                          alt={`${opp.organization || "Organization"} logo`}
+                          name={opp.organization}
+                          variant="logo"
+                          width={48}
+                          height={48}
+                          className="w-12 h-12 rounded-xl object-contain p-1"
+                        />
+                      </div>
+
+                      <div className="min-w-0 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            {opp.organization || "Verified Organization"}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider bg-blue-50 text-blue-700 border-blue-200">
+                            {opp.category || "OPPORTUNITY"}
+                          </span>
+                        </div>
+
+                        <Link href={`/opportunities/${opp.slug || oppId}`}>
+                          <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors truncate">
+                            {oppTitle}
+                          </h3>
+                        </Link>
+
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                            {opp.location || "Multiple Locations"}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                            {opp.deadline
+                              ? new Date(opp.deadline).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+                              : "Rolling Applications"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 shrink-0 pt-2 sm:pt-0">
+                      <button
+                        type="button"
+                        onClick={() => toggleBookmark(oppId, oppTitle)}
+                        aria-label={isSaved ? "Remove bookmark" : "Bookmark opportunity"}
+                        className="p-2 text-slate-400 hover:text-blue-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+                      >
+                        {isSaved ? (
+                          <BookmarkCheck className="w-4 h-4 text-blue-600 fill-current" />
+                        ) : (
+                          <Bookmark className="w-4 h-4" />
+                        )}
+                      </button>
+
+                      <Link
+                        href={`/opportunities/${opp.slug || oppId}`}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors flex items-center gap-1.5 shadow-2xs"
+                      >
+                        <span>View Details</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-10 pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+              {/* Numeric Pagination */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (page > 1) {
+                      setPage(page - 1);
+                      fetchOpportunities(page - 1);
+                    }
+                  }}
+                  disabled={page <= 1}
+                  aria-label="Previous page"
+                  className="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pNum = i + 1;
+                  if (totalPages > 5 && page > 3) {
+                    pNum = page - 3 + i;
+                    if (pNum > totalPages) pNum = totalPages - 4 + i;
+                  }
+                  const isCurrent = pNum === page;
+                  return (
                     <button
-                      key={filter.label}
-                      onClick={() => handleQuickFilter(filter)}
+                      key={pNum}
+                      type="button"
+                      onClick={() => {
+                        setPage(pNum);
+                        fetchOpportunities(pNum);
+                      }}
                       className={cn(
-                        "w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors",
-                        activeQuickFilter === filter.label
-                          ? "bg-blue-50 text-blue-700 font-semibold"
-                          : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                        "w-9 h-9 rounded-lg text-xs font-bold transition-all shadow-2xs",
+                        isCurrent
+                          ? "bg-blue-600 text-white shadow-xs"
+                          : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
                       )}
                     >
-                      {filter.label}
+                      {pNum}
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
+
+                {totalPages > 5 && page < totalPages - 2 && (
+                  <>
+                    <span className="px-1 text-slate-400 text-xs">...</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPage(totalPages);
+                        fetchOpportunities(totalPages);
+                      }}
+                      className="w-9 h-9 rounded-lg text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all shadow-2xs"
+                    >
+                      {totalPages}
+                    </button>
+                  </>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (page < totalPages) {
+                      setPage(page + 1);
+                      fetchOpportunities(page + 1);
+                    }
+                  }}
+                  disabled={page >= totalPages}
+                  aria-label="Next page"
+                  className="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
 
-              {/* Domain Stats */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">Domain Distribution</h3>
-                <div className="space-y-2">
-                  {Object.entries(domainCounts)
-                    .filter(([, count]) => count > 0)
-                    .sort(([, a], [, b]) => b - a)
-                    .slice(0, 8)
-                    .map(([domain, count]) => (
-                      <div key={domain} className="flex items-center justify-between">
-                        <span className="text-xs text-slate-600 font-medium">{domain}</span>
-                        <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
-                          {count}
-                        </span>
-                      </div>
-                    ))}
-                </div>
+              {/* Showing stats */}
+              <p className="text-xs text-slate-500 font-medium">
+                Showing {totalCount > 0 ? (page - 1) * PAGE_LIMIT + 1 : 0}&ndash;
+                {Math.min(page * PAGE_LIMIT, totalCount)} of {totalCount.toLocaleString()} opportunities
+              </p>
+            </div>
+          )}
+
+        </div>
+      </section>
+
+
+      {/* ========================================================================= */}
+      {/* 4. NEWSLETTER / SUBSCRIBE BANNER                                          */}
+      {/* ========================================================================= */}
+      <section className="py-8 bg-white border-t border-slate-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative rounded-3xl bg-linear-to-r from-blue-50/90 via-sky-50/60 to-blue-100/50 border border-blue-200/80 p-8 sm:p-12 overflow-hidden shadow-xs">
+            
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+              {/* Left Copy */}
+              <div className="lg:col-span-6 space-y-2">
+                <div className="w-10 h-1 rounded-full bg-blue-600 mb-4" />
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                  Stay Updated with New Opportunities
+                </h3>
+                <p className="text-slate-600 text-sm font-normal max-w-md">
+                  Get the latest internships, jobs, scholarships and research opportunities delivered to your inbox.
+                </p>
               </div>
 
-              {/* Refine Filters */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-card space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">Refine Search</h3>
-                <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">Eligibility</label>
-                  <select
-                    value={eligibility}
-                    onChange={(e) => setEligibility(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
-                  >
-                    <option value="All">All Eligibility</option>
-                    <option value="B.Tech">B.Tech</option>
-                    <option value="M.Tech">M.Tech</option>
-                    <option value="PhD">PhD</option>
-                    <option value="M.Sc">M.Sc</option>
-                    <option value="B.Sc">B.Sc</option>
-                    <option value="Diploma">Diploma</option>
-                    <option value="Any Graduate">Any Graduate</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">Location</label>
-                  <select
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
-                  >
-                    <option value="All">All Locations</option>
-                    <option value="Bangalore">Bangalore</option>
-                    <option value="Hyderabad">Hyderabad</option>
-                    <option value="Pune">Pune</option>
-                    <option value="Mumbai">Mumbai</option>
-                    <option value="Delhi / NCR">Delhi / NCR</option>
-                    <option value="Chennai">Chennai</option>
-                    <option value="Remote / WFH">Remote / WFH</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">Deadline Window</label>
-                  <select
-                    value={deadline}
-                    onChange={(e) => setDeadline(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
-                  >
-                    <option value="All">Any Deadline</option>
-                    <option value="Within 7 days">Within 7 days</option>
-                    <option value="Within 14 days">Within 14 days</option>
-                    <option value="Within 30 days">Within 30 days</option>
-                  </select>
+              {/* Right Form & Graphic */}
+              <div className="lg:col-span-6 flex flex-col sm:flex-row items-center justify-end gap-6">
+                <form onSubmit={handleNewsletterSubmit} className="w-full sm:max-w-md space-y-2.5">
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="email"
+                        value={newsletterEmail}
+                        onChange={(e) => setNewsletterEmail(e.target.value)}
+                        placeholder="Enter your email address"
+                        required
+                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all shadow-2xs"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={newsletterSubmitting}
+                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl transition-colors shrink-0 shadow-2xs disabled:opacity-60 cursor-pointer"
+                    >
+                      {newsletterSubmitting ? "..." : "Subscribe"}
+                    </button>
+                  </div>
+
+                  <label className="flex items-start gap-2 cursor-pointer pt-1">
+                    <input
+                      type="checkbox"
+                      checked={newsletterAgreed}
+                      onChange={(e) => setNewsletterAgreed(e.target.checked)}
+                      className="mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5"
+                    />
+                    <span className="text-[11px] text-slate-500 font-normal leading-tight">
+                      I agree to receive updates from BerojgarDegreeWala.
+                    </span>
+                  </label>
+                </form>
+
+                {/* Floating Note Badge */}
+                <div className="hidden sm:block text-center font-serif italic text-blue-800 rotate-6 shrink-0">
+                  <div className="text-xl sm:text-2xl font-bold leading-tight">
+                    Don&apos;t <br />
+                    <span className="text-blue-600">Miss Out!</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </aside>
+
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+
+      {/* ========================================================================= */}
+      {/* 5. VALUE / TRUST STRIP                                                   */}
+      {/* ========================================================================= */}
+      <section className="py-12 bg-white border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            
+            <div className="flex flex-col items-center text-center p-4">
+              <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center mb-3 shadow-2xs">
+                <Zap className="w-5 h-5 fill-current" />
+              </div>
+              <h4 className="font-bold text-slate-900 text-sm mb-1">Be the First to Know</h4>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Get early access to verified notifications &amp; deadlines.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center text-center p-4">
+              <div className="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mb-3 shadow-2xs">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <h4 className="font-bold text-slate-900 text-sm mb-1">Curated for You</h4>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Only relevant and verified career opportunities.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center text-center p-4">
+              <div className="w-12 h-12 rounded-full bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center mb-3 shadow-2xs">
+                <Shield className="w-5 h-5" />
+              </div>
+              <h4 className="font-bold text-slate-900 text-sm mb-1">No Spam</h4>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                We value your inbox. Zero marketing clutter.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center text-center p-4">
+              <div className="w-12 h-12 rounded-full bg-orange-50 border border-orange-200 text-orange-600 flex items-center justify-center mb-3 shadow-2xs">
+                <Users className="w-5 h-5" />
+              </div>
+              <h4 className="font-bold text-slate-900 text-sm mb-1">Join Our Community</h4>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                10,000+ students &amp; scholars actively advancing.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
+

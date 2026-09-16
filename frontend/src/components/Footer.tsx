@@ -1,271 +1,161 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
-import { toast } from "sonner";
+import { FOOTER_SOCIAL_LINKS } from "@/config/socials";
+import { SocialIcon } from "@/components/ui/SocialIcons";
+
+const QUICK_LINKS = [
+  { label: "Home", href: "/" },
+  { label: "Opportunities", href: "/opportunities" },
+  { label: "Organizations", href: "/organizations" },
+  { label: "News", href: "/news" },
+  { label: "Resources", href: "/resources" },
+  { label: "About", href: "/about" },
+];
+
+const SUPPORT_LINKS = [
+  { label: "Help Center", href: "/about#help" },
+  { label: "Contact Us", href: "/contact" },
+  { label: "FAQs", href: "/about#faq" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Use", href: "/terms" },
+  { label: "Report an Issue", href: "/contact?topic=issue" },
+];
 
 export default function Footer() {
-  const [email, setEmail] = useState("");
-  const [subscribing, setSubscribing] = useState(false);
-
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanEmail = email.trim().toLowerCase();
-    if (!cleanEmail || !cleanEmail.includes("@")) {
-      toast.error("Please provide a valid email address.");
-      return;
-    }
-    setSubscribing(true);
-    try {
-      const res = await fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: cleanEmail }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        toast.success("Subscribed successfully! You'll receive real-time deep-tech opportunity digests.");
-        setEmail("");
-      } else if (res.status === 409) {
-        toast.info("This email is already subscribed to BerojgarDegreeWala digests.");
-        setEmail("");
-      } else {
-        toast.error(data.error || "Subscription failed. Please try again.");
-      }
-    } catch {
-      toast.error("Network error. Please try again.");
-    } finally {
-      setSubscribing(false);
-    }
-  };
-
   return (
-    <footer className="bg-slate-950 border-t border-slate-800 text-slate-300 relative z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-12 border-b border-slate-800">
-          
-          {/* LEFT: BRAND & MISSION (4 COLS) */}
-          <div className="lg:col-span-4 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5 group inline-flex">
-              <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-slate-700/80 shadow-xs shrink-0 bg-slate-900">
+    <footer className="bg-white border-t border-slate-200 text-slate-600 relative z-10 font-sans">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 pb-12 border-b border-slate-100">
+
+          {/* 1. BRAND IDENTITY & SOCIALS */}
+          <div className="lg:col-span-5 space-y-4">
+            <Link href="/" className="inline-block">
+              <div className="relative h-9 w-44 sm:h-10 sm:w-52">
                 <Image
-                  src="/images/brand/favicon.png"
-                  alt="BerojgarDegreeWala Icon"
+                  src="/images/brand/logo.png"
+                  alt="BerojgarDegreeWala"
                   fill
                   unoptimized
-                  className="object-cover"
-                  sizes="32px"
+                  className="object-contain object-left"
+                  sizes="(max-width: 640px) 176px, 208px"
                 />
               </div>
-              <span className="font-bold text-xl tracking-tight text-white group-hover:text-blue-400 transition-colors">
-                Berojgar<span className="text-blue-500">DegreeWala</span>
-              </span>
             </Link>
 
-            <p className="text-slate-400 text-xs font-normal leading-relaxed max-w-sm">
-              India&apos;s premier deep-tech career and research ecosystem. Connecting ambitious engineers, researchers, and graduates with verified circulars in semiconductors, VLSI, and core technologies.
+            <p className="text-slate-500 text-xs sm:text-sm font-normal leading-relaxed max-w-sm">
+              Connecting students with real opportunities in internships, research, jobs, scholarships and more &mdash; across India and worldwide.
             </p>
 
-            <div className="pt-2">
-              <p className="font-serif italic text-amber-400 text-xs font-semibold">
-                #SameDegreeABrighterTomorrow
-              </p>
-            </div>
-
-            {/* Quick pill links */}
-            <div className="pt-1 flex flex-wrap gap-2 text-[11px] font-medium text-slate-400">
-              <Link href="/organizations/drdo" className="px-2 py-0.5 bg-slate-900 border border-slate-800 hover:border-blue-500 hover:text-white rounded transition">
-                DRDO
-              </Link>
-              <Link href="/organizations/isro" className="px-2 py-0.5 bg-slate-900 border border-slate-800 hover:border-blue-500 hover:text-white rounded transition">
-                ISRO
-              </Link>
-              <Link href="/organizations/iit-bombay" className="px-2 py-0.5 bg-slate-900 border border-slate-800 hover:border-blue-500 hover:text-white rounded transition">
-                IITs &amp; IISc
-              </Link>
-              <Link href="/opportunities?search=VLSI" className="px-2 py-0.5 bg-slate-900 border border-slate-800 hover:border-blue-500 hover:text-white rounded transition">
-                VLSI
-              </Link>
-            </div>
-          </div>
-
-          {/* COLUMN 1: OPPORTUNITIES (2 COLS) */}
-          <div className="lg:col-span-2 space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-200">
-              Opportunities
-            </p>
-            <ul className="space-y-2 text-xs font-medium text-slate-400">
-              <li>
-                <Link href="/opportunities?category=jrf" className="hover:text-white transition">
-                  JRF &amp; SRF Fellowships
-                </Link>
-              </li>
-              <li>
-                <Link href="/opportunities?search=VLSI" className="hover:text-white transition">
-                  VLSI &amp; Semiconductor
-                </Link>
-              </li>
-              <li>
-                <Link href="/opportunities?category=phd" className="hover:text-white transition">
-                  PhD &amp; Research Openings
-                </Link>
-              </li>
-              <li>
-                <Link href="/opportunities?category=govt" className="hover:text-white transition">
-                  Government PSUs &amp; Labs
-                </Link>
-              </li>
-              <li>
-                <Link href="/opportunities?category=internship" className="hover:text-white transition">
-                  Hardware Internships
-                </Link>
-              </li>
-              <li>
-                <Link href="/opportunities?category=fellowship" className="hover:text-white transition">
-                  Study Abroad &amp; Grants
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* COLUMN 2: GUIDES & ACADEMY (2 COLS) */}
-          <div className="lg:col-span-2 space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-200">
-              Guides &amp; Academy
-            </p>
-            <ul className="space-y-2 text-xs font-medium text-slate-400">
-              <li>
-                <Link href="/resources/jrf-guide" className="hover:text-white transition">
-                  JRF Complete DST Guide
-                </Link>
-              </li>
-              <li>
-                <Link href="/resources/jrf-vs-srf-difference" className="hover:text-white transition">
-                  JRF vs SRF vs RA
-                </Link>
-              </li>
-              <li>
-                <Link href="/resources/drdo-recruitment-electronics" className="hover:text-white transition">
-                  DRDO ECE Syllabus
-                </Link>
-              </li>
-              <li>
-                <Link href="/resources/phd-guide" className="hover:text-white transition">
-                  IIT/IISc PhD Guide
-                </Link>
-              </li>
-              <li>
-                <Link href="/resources/fully-funded-phd-vlsi-abroad" className="hover:text-white transition">
-                  Funded PhD Abroad
-                </Link>
-              </li>
-              <li>
-                <Link href="/resources/vlsi-careers" className="hover:text-white transition">
-                  VLSI Career Roadmap
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* COLUMN 3: PORTALS & TOOLS (2 COLS) */}
-          <div className="lg:col-span-2 space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-200">
-              Portals &amp; Tools
-            </p>
-            <ul className="space-y-2 text-xs font-medium text-slate-400">
-              <li>
-                <Link href="/opportunities" className="hover:text-white transition">
-                  Verified Opportunities
-                </Link>
-              </li>
-              <li>
-                <Link href="/organizations" className="hover:text-white transition">
-                  Organizations Directory
-                </Link>
-              </li>
-              <li>
-                <Link href="/news" className="hover:text-white transition">
-                  Daily News &amp; Circulars
-                </Link>
-              </li>
-              <li>
-                <Link href="/ask-ai" className="hover:text-white transition">
-                  Deep-Tech AI Assistant
-                </Link>
-              </li>
-              <li>
-                <Link href="/resources" className="hover:text-white transition">
-                  Research Resources Hub
-                </Link>
-              </li>
-              <li>
-                <a href="https://siliconpath.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">
-                  SiliconPath Platform &rarr;
+            {/* Circular Social Media Icons */}
+            <div className="flex items-center gap-2.5 pt-2">
+              {FOOTER_SOCIAL_LINKS.slice(0, 5).map((social) => (
+                <a
+                  key={social.platform}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`BerojgarDegreeWala on ${social.label}`}
+                  className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50/50 transition-all shadow-2xs"
+                >
+                  <SocialIcon platform={social.platform} className="w-3.5 h-3.5" />
                 </a>
-              </li>
+              ))}
+            </div>
+          </div>
+
+          {/* 2. QUICK LINKS */}
+          <div className="lg:col-span-2 space-y-3">
+            <h4 className="text-sm font-bold text-slate-900 tracking-tight">
+              Quick Links
+            </h4>
+            <ul className="space-y-2 text-xs sm:text-sm font-normal text-slate-500">
+              {QUICK_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="hover:text-blue-600 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* RIGHT: NEWSLETTER SIGNUP (2 COLS) */}
+          {/* 3. SUPPORT */}
           <div className="lg:col-span-2 space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-200">
-              Stay Updated
-            </p>
-            <p className="text-xs text-slate-400 font-normal leading-relaxed">
-              Receive verified research circulars and core VLSI job alerts weekly.
-            </p>
+            <h4 className="text-sm font-bold text-slate-900 tracking-tight">
+              Support
+            </h4>
+            <ul className="space-y-2 text-xs sm:text-sm font-normal text-slate-500">
+              {SUPPORT_LINKS.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="hover:text-blue-600 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            <form onSubmit={handleSubscribe} className="space-y-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email address"
-                className="w-full bg-slate-900 border border-slate-700 text-slate-100 placeholder:text-slate-500 text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 transition"
-              />
-              <button
-                type="submit"
-                disabled={subscribing}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs py-2 rounded-lg shadow-xs transition flex items-center justify-center gap-1 disabled:opacity-60"
+          {/* 4. DOWNLOAD OUR APP */}
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="text-sm font-bold text-slate-900 tracking-tight">
+              Download Our App
+            </h4>
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 pt-1">
+              <a
+                href="https://play.google.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get it on Google Play"
+                className="inline-flex items-center gap-2.5 px-3 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors w-fit shadow-2xs"
               >
-                <span>{subscribing ? "Subscribing..." : "Subscribe"}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </form>
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                  <path d="M3.609 1.814L13.792 12 3.61 22.186a1.984 1.984 0 0 1-.61-.925V2.739c0-.337.217-.655.609-.925zm11.233 11.233l2.096-2.096-10.98-6.34 8.884 8.436zm0 1.906L5.958 23.39l10.98-6.34-2.096-2.097zm1.047-.953l2.766-1.597a1.037 1.037 0 0 0 0-1.796l-2.766-1.598-1.758 1.758 1.758 1.793z" />
+                </svg>
+                <div className="text-left">
+                  <div className="text-[9px] uppercase tracking-wider text-slate-300 font-medium leading-none">GET IT ON</div>
+                  <div className="text-xs font-bold leading-tight">Google Play</div>
+                </div>
+              </a>
 
-            <div className="pt-2 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-slate-400 text-[11px] font-medium">
-                Live Scrapers Active
-              </span>
+              <a
+                href="https://apple.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Download on the App Store"
+                className="inline-flex items-center gap-2.5 px-3 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors w-fit shadow-2xs"
+              >
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.98.6-2.62 1.35-.57.65-1.07 1.72-.94 2.74 1 .08 2.02-.49 2.64-1.24z" />
+                </svg>
+                <div className="text-left">
+                  <div className="text-[9px] uppercase tracking-wider text-slate-300 font-medium leading-none">Download on the</div>
+                  <div className="text-xs font-bold leading-tight">App Store</div>
+                </div>
+              </a>
             </div>
           </div>
 
         </div>
 
-        {/* BOTTOM BAR */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-normal text-slate-500">
+        {/* BOTTOM ROW */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          <div className="flex items-center gap-1 font-medium">
+            <span>Made with</span>
+            <span className="text-red-500">❤️</span>
+            <span>for a brighter tomorrow.</span>
+          </div>
           <div>
             &copy; {new Date().getFullYear()} BerojgarDegreeWala. All rights reserved.
           </div>
-
-          <div className="flex items-center gap-3 text-slate-400 font-medium text-xs">
-            <Link href="/privacy" className="hover:text-white transition">Privacy</Link>
-            <span>&bull;</span>
-            <Link href="/terms" className="hover:text-white transition">Terms</Link>
-            <span>&bull;</span>
-            <Link href="/contact" className="hover:text-white transition">Contact</Link>
-            <span>&bull;</span>
-            <Link href="/about" className="hover:text-white transition">About</Link>
-          </div>
-
-          <div className="flex items-center gap-1.5 text-slate-400 text-xs font-medium">
-            <span>🇮🇳 Building a Brighter India, Together.</span>
-          </div>
         </div>
-
       </div>
     </footer>
   );
