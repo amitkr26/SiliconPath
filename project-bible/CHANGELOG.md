@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-17 — Integration of 100 Verified Semiconductor Companies (Bangalore Edition):**
+  - **Verified Semiconductor Directory Expansion**:
+    - Extracted, cleaned, and verified all 100 semiconductor companies from Silicon Bharat 100 Verified Bangalore R&D directory (`Semiconductor_x5f_100_x5f_VERIFIED_x5f_Bangalore_x5f_SiliconBharat_x5f_2Page (1).pdf`).
+    - Created database seed `05_semiconductor_bangalore_100.sql` with full upsert semantics (`ON CONFLICT (slug) DO UPDATE SET`) preserving existing slugs and adding verified Bangalore operations data.
+    - Created single source of truth `frontend/src/data/semiconductor-orgs.ts` exporting `ALL_ORGANIZATIONS` (106 verified premier institutes + semiconductor companies) and `getStaticOrgBySlug`.
+    - Integrated with `frontend/src/app/organizations/page.tsx` and `frontend/src/app/organizations/[slug]/page.tsx` ensuring offline, local dev, and production availability with rich search and filtering.
+    - Added high-confidence domain mappings for Indian semiconductor entities (`mindgrovetech.in`, `signalchip.com`, `incoresemi.com`, `tessolve.com`, `saankhyalabs.com`, `aurasemi.com`, etc.) to `frontend/src/lib/organizations/resolve.ts`.
+
 - **2026-09-16 — Visual Design System Implementation Across 6 Public Pages (Reference Design Match):**
   - **Comprehensive Design System Overhaul**:
     - Implemented production-quality, responsive visual designs across all 6 public landing and directory pages matching the official reference designs (`homepage.png`, `opportunity.png`, `organizations.png`, `news.png`, `resources.png`, `About.png`).
