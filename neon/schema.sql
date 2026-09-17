@@ -6,6 +6,10 @@
 -- keyword_stats (verified 2026-08-16). Note: ai_usage_log lives on Supabase
 -- db1, NOT Neon. Run via psql or the Neon SQL Editor.
 -- ============================================================================
+-- WARNING: The DROP TABLE statements below will DESTROY all existing data
+-- in these tables. Do NOT run this file against production without a backup.
+-- For safe table creation only, use the CREATE TABLE statements below.
+-- ============================================================================
 
 DROP TABLE IF EXISTS page_views CASCADE;
 DROP TABLE IF EXISTS search_queries CASCADE;

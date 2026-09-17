@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     let news: any[] = [];
 
     if (q && supabaseAdmin) {
-      const cleanQ = q.replace(/[{}()"\\,.]/g, "").slice(0, 100);
+      const cleanQ = q.replace(/[{}()"\\,%_.]/g, "").slice(0, 100);
       const [peopleRes, orgsRes, newsRes] = await Promise.all([
         supabaseAdmin
           .from("user_profiles")

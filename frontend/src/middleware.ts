@@ -5,6 +5,8 @@ import { verifyAdmin } from './lib/admin-auth';
 
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
+  'https://www.berojgardegreewala.app',
+  'https://berojgardegreewala.app',
   'https://berojgardegreewala.vercel.app',
   'https://www.berojgardegreewala.vercel.app',
   'https://ponytail.dev',

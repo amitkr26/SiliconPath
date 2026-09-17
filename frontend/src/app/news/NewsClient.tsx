@@ -33,60 +33,41 @@ interface NewsClientProps {
 
 const CATEGORY_TABS = [
   { label: "All News", value: "", icon: ListFilter },
-  { label: "Announcements", value: "Announcements", icon: Megaphone },
-  { label: "Career Tips", value: "Career Tips", icon: Lightbulb },
-  { label: "Success Stories", value: "Success Stories", icon: Award },
-  { label: "Industry Insights", value: "Industry Insights", icon: BarChart3 },
-  { label: "Events", value: "Events", icon: Calendar },
+  { label: "Semiconductors & Fabs", value: "Semiconductor", icon: BarChart3 },
+  { label: "VLSI & Chip Design", value: "VLSI", icon: Award },
+  { label: "Embedded & Firmware", value: "Embedded", icon: Lightbulb },
+  { label: "Defence & Space", value: "Defence", icon: Megaphone },
+  { label: "Research & IEEE", value: "Research", icon: Calendar },
 ];
 
 const TRENDING_TOPICS = [
-  { id: 1, title: "ISRO Fellowships 2026", views: "12.5K views", query: "ISRO" },
-  { id: 2, title: "Study Abroad Guide", views: "9.8K views", query: "Study Abroad" },
-  { id: 3, title: "Top Skills in 2026", views: "8.2K views", query: "Skills" },
-  { id: 4, title: "Government Job Updates", views: "7.1K views", query: "Government" },
-  { id: 5, title: "Scholarship Opportunities", views: "6.4K views", query: "Scholarship" },
+  { id: 1, title: "India Semiconductor Mission", query: "Semiconductor" },
+  { id: 2, title: "RISC-V Architecture", query: "RISC-V" },
+  { id: 3, title: "VLSI Physical Design", query: "VLSI" },
+  { id: 4, title: "ISRO Payload Systems", query: "ISRO" },
+  { id: 5, title: "Silicon Photonics & AI Chips", query: "Chip" },
 ];
 
-// Curated stock fallback images from authentic local assets
-const AUTHENTIC_NEWS_IMAGES = [
-  "/images/news/news-team-study.png",
-  "/images/news/news-campus-walk.png",
-  "/images/news/news-campus-monument.png",
-  "/images/study-learning-female.png",
-  "/images/study-learning-male.png",
-  "/images/about/story-books.png",
-  "/images/about/story-workspace.png",
-];
+import { resolveHardwareNewsImage, resolveNewsDomainBadge } from "@/lib/hardware-images";
 
 function getArticleImage(article: NewsArticle, index: number): string {
-  if (article.image_url && !article.image_url.includes("placeholder")) {
-    return article.image_url;
-  }
-  return AUTHENTIC_NEWS_IMAGES[index % AUTHENTIC_NEWS_IMAGES.length];
+  return resolveHardwareNewsImage(article, index);
 }
 
 function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "Sep 12, 2026";
+  if (!dateStr) return "";
   try {
     const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return "Sep 12, 2026";
+    if (isNaN(d.getTime())) return "";
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   } catch {
-    return "Sep 12, 2026";
+    return "";
   }
 }
 
-function getCategoryBadge(article: NewsArticle, defaultCategory = "ANNOUNCEMENT") {
-  if (article.tags && article.tags.length > 0) {
-    const t = article.tags[0].toUpperCase();
-    if (t.includes("CHIP") || t.includes("SEMI") || t.includes("FAB")) return { label: "ANNOUNCEMENT", color: "bg-emerald-50 text-emerald-700 border-emerald-200" };
-    if (t.includes("VLSI") || t.includes("DESIGN") || t.includes("EDA")) return { label: "CAREER TIPS", color: "bg-purple-50 text-purple-700 border-purple-200" };
-    if (t.includes("RESEARCH") || t.includes("JRF")) return { label: "SUCCESS STORY", color: "bg-blue-50 text-blue-700 border-blue-200" };
-    if (t.includes("INDIA")) return { label: "PARTNERSHIP", color: "bg-cyan-50 text-cyan-700 border-cyan-200" };
-    return { label: t, color: "bg-slate-100 text-slate-700 border-slate-200" };
-  }
-  return { label: defaultCategory, color: "bg-emerald-50 text-emerald-700 border-emerald-200" };
+function getCategoryBadge(article: NewsArticle) {
+  const badge = resolveNewsDomainBadge(article);
+  return { label: badge.label, color: badge.badgeClass };
 }
 
 export default function NewsClient({
@@ -191,8 +172,8 @@ export default function NewsClient({
           <div className="lg:col-span-5">
             <div className="relative w-full h-[280px] sm:h-[320px] lg:h-[350px] rounded-3xl overflow-hidden shadow-xl border border-slate-100 bg-slate-100">
               <Image
-                src="/images/hero-student-campus.png"
-                alt="Stay Informed with BerojgarDegreeWala"
+                src="/images/hardware/semiconductor-cleanroom-fab.jpg"
+                alt="Silicon & Hardware Intelligence with BerojgarDegreeWala"
                 fill
                 priority
                 unoptimized
@@ -202,10 +183,10 @@ export default function NewsClient({
               {/* Floating cursive accent badge */}
               <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-lg border border-white/60 text-right">
                 <p className="font-serif italic text-blue-950 text-base sm:text-lg font-bold leading-tight">
-                  Knowledge Today.
+                  Silicon Intelligence.
                 </p>
                 <p className="font-serif italic text-blue-600 text-base sm:text-lg font-bold leading-tight">
-                  A Brighter Tomorrow.
+                  Deep-Tech Real-Time.
                 </p>
                 <div className="w-20 h-1 bg-amber-400 rounded-full mt-1.5 ml-auto" />
               </div>
@@ -284,8 +265,8 @@ export default function NewsClient({
                         </div>
                         {/* Category pill */}
                         <div className="absolute bottom-3 left-3">
-                          <span className="bg-emerald-500/90 text-white text-[11px] font-bold px-3 py-1 rounded-md backdrop-blur-xs uppercase tracking-wider shadow-sm">
-                            ANNOUNCEMENT
+                          <span className={`text-white text-[11px] font-bold px-3 py-1 rounded-md backdrop-blur-xs uppercase tracking-wider shadow-sm ${getCategoryBadge(featuredArticles[0]).color}`}>
+                            {getCategoryBadge(featuredArticles[0]).label}
                           </span>
                         </div>
                       </div>
@@ -300,9 +281,24 @@ export default function NewsClient({
                       </p>
                     </div>
 
-                    <div className="pt-2 flex items-center text-xs font-bold text-blue-600 group-hover:text-blue-700 gap-1.5">
-                      <span>Read More</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
+                      <div className="flex items-center text-blue-600 group-hover:text-blue-700 gap-1.5">
+                        <span>Read Executive Briefing</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                      {(featuredArticles[0].source_url || (featuredArticles[0] as any).url) && (
+                        <a
+                          href={featuredArticles[0].source_url || (featuredArticles[0] as any).url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 px-2.5 py-1 rounded-md border border-slate-200 transition"
+                          title="Open official publisher source"
+                        >
+                          <span>{featuredArticles[0].source || (featuredArticles[0] as any).source_name || "Official Source"}</span>
+                          <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-blue-600" />
+                        </a>
+                      )}
                     </div>
                   </div>
                 )}
@@ -330,8 +326,8 @@ export default function NewsClient({
                             <span>{formatDate(featuredArticles[1].published_at)}</span>
                           </div>
                           <div className="absolute bottom-2.5 left-2.5">
-                            <span className="bg-purple-600/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md backdrop-blur-xs uppercase tracking-wider shadow-sm">
-                              CAREER TIPS
+                            <span className={`text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md backdrop-blur-xs uppercase tracking-wider shadow-sm ${getCategoryBadge(featuredArticles[1]).color}`}>
+                              {getCategoryBadge(featuredArticles[1]).label}
                             </span>
                           </div>
                         </div>
@@ -341,9 +337,24 @@ export default function NewsClient({
                         </h3>
                       </div>
 
-                      <div className="pt-1 flex items-center text-xs font-bold text-blue-600 group-hover:text-blue-700 gap-1.5">
-                        <span>Read More</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
+                        <div className="flex items-center text-blue-600 group-hover:text-blue-700 gap-1.5">
+                          <span>Read Briefing</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                        {(featuredArticles[1].source_url || (featuredArticles[1] as any).url) && (
+                          <a
+                            href={featuredArticles[1].source_url || (featuredArticles[1] as any).url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-600 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 px-2 py-0.5 rounded-md border border-slate-200 transition"
+                            title="Open official publisher source"
+                          >
+                            <span className="truncate max-w-[80px]">{featuredArticles[1].source || (featuredArticles[1] as any).source_name || "Source"}</span>
+                            <ExternalLink className="w-3 h-3 text-slate-400" />
+                          </a>
+                        )}
                       </div>
                     </div>
                   )}
@@ -369,8 +380,8 @@ export default function NewsClient({
                             <span>{formatDate(featuredArticles[2].published_at)}</span>
                           </div>
                           <div className="absolute bottom-2.5 left-2.5">
-                            <span className="bg-amber-600/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md backdrop-blur-xs uppercase tracking-wider shadow-sm">
-                              GUIDE
+                            <span className={`text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md backdrop-blur-xs uppercase tracking-wider shadow-sm ${getCategoryBadge(featuredArticles[2]).color}`}>
+                              {getCategoryBadge(featuredArticles[2]).label}
                             </span>
                           </div>
                         </div>
@@ -380,9 +391,24 @@ export default function NewsClient({
                         </h3>
                       </div>
 
-                      <div className="pt-1 flex items-center text-xs font-bold text-blue-600 group-hover:text-blue-700 gap-1.5">
-                        <span>Read More</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
+                        <div className="flex items-center text-blue-600 group-hover:text-blue-700 gap-1.5">
+                          <span>Read Briefing</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                        {(featuredArticles[2].source_url || (featuredArticles[2] as any).url) && (
+                          <a
+                            href={featuredArticles[2].source_url || (featuredArticles[2] as any).url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-600 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 px-2 py-0.5 rounded-md border border-slate-200 transition"
+                            title="Open official publisher source"
+                          >
+                            <span className="truncate max-w-[80px]">{featuredArticles[2].source || (featuredArticles[2] as any).source_name || "Source"}</span>
+                            <ExternalLink className="w-3 h-3 text-slate-400" />
+                          </a>
+                        )}
                       </div>
                     </div>
                   )}
@@ -426,9 +452,6 @@ export default function NewsClient({
                         {topic.title}
                       </span>
                     </div>
-                    <span className="text-[11px] font-medium text-slate-400 shrink-0 ml-2">
-                      {topic.views}
-                    </span>
                   </button>
                 ))}
               </div>
@@ -561,10 +584,25 @@ export default function NewsClient({
                     )}
                   </div>
 
-                  {/* Read More Link */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center text-xs font-bold text-blue-600 group-hover:text-blue-700 gap-1.5">
-                    <span>Read More</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  {/* Read More Link & Official Source Link */}
+                  <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
+                    <div className="flex items-center text-blue-600 group-hover:text-blue-700 gap-1.5">
+                      <span>Read Briefing</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                    {(article.source_url || (article as any).url) && (
+                      <a
+                        href={article.source_url || (article as any).url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-600 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 px-2 py-0.5 rounded-md border border-slate-200 transition"
+                        title={`Open official publisher source: ${article.source || (article as any).source_name || "Official Source"}`}
+                      >
+                        <span className="truncate max-w-[90px]">{article.source || (article as any).source_name || "Source"}</span>
+                        <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-blue-600" />
+                      </a>
+                    )}
                   </div>
                 </div>
               );
@@ -646,82 +684,76 @@ export default function NewsClient({
           </div>
         )}
       </section>
-
-      {/* 6. MOBILE APP CTA SECTION */}
+      {/* 6. HARDWARE RADAR CTA SECTION (No fake app store claims) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="bg-gradient-to-r from-blue-50/80 via-blue-50/50 to-indigo-50/80 border border-blue-100 rounded-3xl p-6 sm:p-10 shadow-xs relative overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-indigo-50/80 border border-blue-200/80 rounded-3xl p-6 sm:p-10 shadow-xs relative overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 space-y-4">
               <div className="w-10 h-1 bg-blue-600 rounded-full" />
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-                Take Opportunities With You{" "}
-                <span className="text-blue-600">Everywhere</span>
+                Track India&apos;s Silicon Revolution{" "}
+                <span className="text-blue-600">In Real Time</span>
               </h2>
               <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-lg">
-                Download our mobile app for the latest updates, personalized recommendations and more.
+                Verified research calls, fab hiring sprees, and hardware grants from ISRO, DRDO, Micron, and premier semiconductor labs — refreshed directly via automated scrapers.
               </p>
 
-              {/* App Store / Google Play Buttons */}
+              {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
-                <a
-                  href="#download-play"
-                  className="inline-flex items-center gap-2.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition shadow-xs"
+                <Link
+                  href="/opportunities"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl transition shadow-md shadow-blue-600/20"
                 >
-                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
-                  </svg>
-                  <div className="text-left leading-none">
-                    <p className="text-[9px] uppercase tracking-wider text-slate-400">GET IT ON</p>
-                    <p className="text-xs font-bold text-white mt-0.5">Google Play</p>
-                  </div>
-                </a>
+                  <span>Explore Hardware Opportunities</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
 
-                <a
-                  href="#download-ios"
-                  className="inline-flex items-center gap-2.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition shadow-xs"
+                <Link
+                  href="/resources"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-xl border border-slate-200 shadow-2xs transition"
                 >
-                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M15.97,4.86C16.62,4.07 17.06,2.97 16.94,1.87C15.97,1.91 14.81,2.52 14.12,3.32C13.53,4.01 13,5.13 13.15,6.22C14.23,6.3 15.32,5.65 15.97,4.86Z" />
-                  </svg>
-                  <div className="text-left leading-none">
-                    <p className="text-[9px] uppercase tracking-wider text-slate-400">Download on the</p>
-                    <p className="text-xs font-bold text-white mt-0.5">App Store</p>
-                  </div>
-                </a>
+                  <span>VLSI &amp; Embedded Roadmaps</span>
+                </Link>
               </div>
             </div>
 
-            {/* Right: Phone mockup visual */}
+            {/* Right: Real Intelligence Features card */}
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
-              <div className="relative w-56 sm:w-64 h-72 sm:h-80 bg-white rounded-3xl shadow-xl border-4 border-slate-900/10 p-3 flex flex-col justify-between">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-5 h-5 rounded bg-blue-600 flex items-center justify-center text-[10px] text-white font-bold">
+              <div className="relative w-full max-w-xs bg-white rounded-3xl shadow-xl border border-slate-200/90 p-5 space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-xs text-white font-bold">
                       B
                     </div>
-                    <span className="text-[11px] font-bold text-slate-800">BerojgarDegreeWala</span>
+                    <div>
+                      <span className="text-xs font-bold text-slate-900 block leading-tight">BDW Career Intelligence</span>
+                      <span className="text-[10px] text-slate-400">Deep-Tech Hardware Verified</span>
+                    </div>
                   </div>
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
                 </div>
 
-                <div className="space-y-2 py-2">
-                  <div className="p-2 rounded-xl bg-blue-50/80 border border-blue-100 text-[11px] font-semibold text-blue-800 flex items-center gap-2">
-                    <ListFilter className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Opportunities</span>
+                <div className="space-y-2.5">
+                  <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 text-xs font-semibold text-blue-900 flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span>Direct ATS Scrapers (ISRO, DRDO, CSIR)</span>
                   </div>
-                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 text-[11px] font-medium text-slate-700 flex items-center gap-2">
-                    <Megaphone className="w-3.5 h-3.5 text-slate-500" />
-                    <span>News &amp; Updates</span>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs font-medium text-slate-700 flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Real-time Semiconductor &amp; VLSI Openings</span>
                   </div>
-                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 text-[11px] font-medium text-slate-700 flex items-center gap-2">
-                    <Award className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Saved Items</span>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs font-medium text-slate-700 flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
+                    <span>Zero Spam &bull; Zero Dead Links</span>
                   </div>
                 </div>
 
-                <div className="text-center pt-2 border-t border-slate-100">
+                <div className="pt-2 border-t border-slate-100 text-center">
                   <p className="font-serif italic text-blue-600 text-xs font-bold">
-                    Opportunities Anytime. Anywhere.
+                    Built for India&apos;s Hardware Engineers
                   </p>
                 </div>
               </div>
@@ -803,27 +835,33 @@ export default function NewsClient({
             )}
 
             {/* Modal Actions */}
-            <div className="flex items-center justify-between pt-5 border-t border-slate-100">
-              {selectedArticle.source_url ? (
-                <a
-                  href={selectedArticle.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs"
-                >
-                  <span>Read Full Article on {selectedArticle.source || "Official Publisher"}</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              ) : (
-                <span />
-              )}
-              <button
-                onClick={() => setSelectedArticle(null)}
-                className="px-4 py-2.5 text-xs font-bold text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50 transition"
-              >
-                Close
-              </button>
-            </div>
+            {(() => {
+              const modalSourceUrl = selectedArticle.source_url || (selectedArticle as any).url;
+              const modalSourceName = selectedArticle.source || (selectedArticle as any).source_name || "Official Source";
+              return (
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-5 border-t border-slate-100">
+                  {modalSourceUrl ? (
+                    <a
+                      href={modalSourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold transition shadow-md shadow-blue-600/20"
+                    >
+                      <span>Read Full Article on {modalSourceName}</span>
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  ) : (
+                    <span />
+                  )}
+                  <button
+                    onClick={() => setSelectedArticle(null)}
+                    className="px-5 py-2.5 text-xs font-bold text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50 transition text-center"
+                  >
+                    Close
+                  </button>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}

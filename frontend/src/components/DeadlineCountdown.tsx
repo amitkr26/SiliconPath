@@ -40,7 +40,7 @@ export default function DeadlineCountdown({
           </span>
           {!expired && days <= 3 && (
             <span className="text-xs font-black text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded">
-              {days <= 0 ? "Last day" : `Last ${days} days`}
+              {days === 0 ? "Last day" : days < 0 ? "Expired" : `Last ${days} days`}
             </span>
           )}
         </div>
@@ -81,7 +81,7 @@ export default function DeadlineCountdown({
     return (
       <span className="danger inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-red-100 text-red-700 text-xs font-black border border-red-300 animate-pulse">
         <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
-        {days <= 0 ? "Last day" : `Last ${days} days`} ({formattedDate})
+        {days === 0 ? "Last day" : days < 0 ? "Expired" : `Last ${days} days`} ({formattedDate})
       </span>
     );
   }

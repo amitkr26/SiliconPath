@@ -326,7 +326,7 @@ export default function FeedPage() {
 
               <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
                 <div>
-                  <p className="text-sm font-bold text-slate-900">26</p>
+                  <p className="text-sm font-bold text-slate-900">—</p>
                   <p className="text-[10px] text-slate-500 uppercase tracking-wide">Views</p>
                 </div>
                 <div>

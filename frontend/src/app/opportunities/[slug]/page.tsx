@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Calendar, ExternalLink, Briefcase, Bookmark, Share2 } from "lucide-react";
+import { ArrowLeft, Calendar, ExternalLink, Briefcase, Bookmark, Share2, Clock } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { formatDate, isExpired, mapDbOpportunityToClient } from "@/lib/utils";
+import { formatDate, getDaysAgo, isExpired, mapDbOpportunityToClient } from "@/lib/utils";
 import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
 import CategoryBadge from "@/components/CategoryBadge";
 import DeadlineCountdown from "@/components/DeadlineCountdown";
@@ -328,6 +328,14 @@ export default async function OpportunityDetailPage({ params }: Props) {
                   <CategoryBadge category={opportunity.category} />
                   {opportunity.verification_status && <VerificationBadge status={opportunity.verification_status} />}
                   {opportunity.deadline && <DeadlineCountdown deadline={opportunity.deadline} />}
+                  {(opportunity.posted_date || opportunity.posted_at || opportunity.created_at) && (
+                    <span className="inline-flex items-center gap-1.5 text-xs text-slate-600 font-medium bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                      <Clock className="w-3.5 h-3.5 text-blue-600" />
+                      <span>
+                        Posted {formatDate(opportunity.posted_date || opportunity.posted_at || opportunity.created_at)}
+                      </span>
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -569,6 +577,14 @@ export default async function OpportunityDetailPage({ params }: Props) {
                     <span className="text-slate-900 text-sm font-medium">{formatDate(opportunity.deadline)}</span>
                   </div>
                 )}
+                {(opportunity.posted_date || opportunity.posted_at || opportunity.created_at) && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 text-xs">Posted Date</span>
+                    <span className="text-slate-900 text-sm font-medium">
+                      {formatDate(opportunity.posted_date || opportunity.posted_at || opportunity.created_at)}
+                    </span>
+                  </div>
+                )}
                 {opportunity.stipend && (
                   <div className="flex items-center justify-between">
                     <span className="text-slate-400 text-xs">Stipend</span>
@@ -626,6 +642,14 @@ export default async function OpportunityDetailPage({ params }: Props) {
             )}
             {opportunity.deadline && (
               <div><span className="text-text-muted">Deadline</span><p className="text-text-primary font-medium">{formatDate(opportunity.deadline)}</p></div>
+            )}
+            {(opportunity.posted_date || opportunity.posted_at || opportunity.created_at) && (
+              <div>
+                <span className="text-text-muted">Posted Date</span>
+                <p className="text-text-primary font-medium">
+                  {formatDate(opportunity.posted_date || opportunity.posted_at || opportunity.created_at)}
+                </p>
+              </div>
             )}
             {opportunity.stipend && (
               <div><span className="text-text-muted">Stipend</span><p className="text-text-primary font-medium">{opportunity.stipend}</p></div>

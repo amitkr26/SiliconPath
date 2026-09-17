@@ -21,6 +21,7 @@ import {
   Briefcase,
   Layers,
   ChevronRight,
+  Mail,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -118,7 +119,7 @@ const FEATURED_RESOURCES = [
     title: "Top 10 Skills to Boost Your Career in 2026",
     description:
       "Discover the most in-demand semiconductor, VLSI, AI hardware, and software skills and how you can start learning them today.",
-    image: "/images/news/news-team-study.png",
+    image: "/images/hardware/vlsi-microchip-die.jpg",
     link: "/resources/vlsi-career-guide",
   },
   {
@@ -184,7 +185,7 @@ const TOOLS_AND_TEMPLATES = [
       title: "Technical & HR Interview Question Bank",
       category: "Interview Prep",
       description:
-        "Comprehensive collection of 150+ frequently asked questions in VLSI, Digital Electronics, Embedded C, and HR screening rounds.",
+        "Comprehensive collection of frequently asked questions in VLSI, Digital Electronics, Embedded C, and HR screening rounds.",
       items: [
         "Setup & Hold Time violations and resolution techniques",
         "Verilog state machine design & clock domain crossing questions",
@@ -213,35 +214,13 @@ const TOOLS_AND_TEMPLATES = [
   },
 ];
 
-const SUCCESS_STORIES = [
-  {
-    id: 1,
-    quote:
-      "The resume template helped me land my first internship at a top company. Thank you BDW!",
-    name: "Sneha Verma",
-    education: "B.Tech, Delhi University",
-    image: "/images/study-learning-female.png",
-    stars: 5,
-  },
-  {
-    id: 2,
-    quote:
-      "The interview preparation resources were a game-changer. I cleared 3 interviews!",
-    name: "Arjun Mehta",
-    education: "BCA, Pune",
-    image: "/images/study-learning-male.png",
-    stars: 5,
-  },
-  {
-    id: 3,
-    quote:
-      "The study abroad guide gave me clarity and confidence. I'm now pursuing my master's in Canada!",
-    name: "Riya Kapoor",
-    education: "B.Com, Mumbai",
-    image: "/images/hero-student-campus.png",
-    stars: 5,
-  },
-];
+const SUCCESS_STORIES: Array<{
+  id: number;
+  quote: string;
+  name: string;
+  education: string;
+  stars: number;
+}> = [];
 
 const DETAILED_GUIDES = [
   {
@@ -284,14 +263,51 @@ const DETAILED_GUIDES = [
 
 export default function ResourcesClient() {
   const [activeModal, setActiveModal] = useState<ToolModalData | null>(null);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterAgreed, setNewsletterAgreed] = useState(true);
+  const [newsletterSubmitting, setNewsletterSubmitting] = useState(false);
 
   const handleToolClick = (tool: (typeof TOOLS_AND_TEMPLATES)[0]) => {
     setActiveModal(tool.details);
   };
 
   const handleDownload = () => {
-    toast.success("Template package downloaded successfully!");
+    toast.info("Download functionality coming soon — resources are being finalized.");
     setActiveModal(null);
+  };
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail || !newsletterEmail.includes("@")) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+    if (!newsletterAgreed) {
+      toast.error("Please agree to receive updates.");
+      return;
+    }
+    setNewsletterSubmitting(true);
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newsletterEmail }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Subscribed successfully! Check your inbox for weekly resource updates.");
+        setNewsletterEmail("");
+      } else if (res.status === 409) {
+        toast.info("This email is already subscribed to updates.");
+        setNewsletterEmail("");
+      } else {
+        toast.error(data.error || "Subscription failed. Please try again.");
+      }
+    } catch {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setNewsletterSubmitting(false);
+    }
   };
 
   return (
@@ -329,7 +345,7 @@ export default function ResourcesClient() {
               />
 
               {/* Floating cursive accent badge */}
-              <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-lg border border-white/60 text-right">
+              <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-lg border border-white/60 text-right hidden sm:block">
                 <p className="font-serif italic text-blue-950 text-base sm:text-lg font-bold leading-tight">
                   Small Steps.
                 </p>
@@ -337,6 +353,20 @@ export default function ResourcesClient() {
                   Big Futures.
                 </p>
                 <div className="w-16 h-1 bg-amber-400 rounded-full mt-1.5 ml-auto" />
+              </div>
+
+              {/* Bottom-right overlay items */}
+              <div className="absolute bottom-4 right-4 hidden sm:flex flex-col items-end gap-2">
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2 shadow-sm border border-white/60">
+                  <p className="font-serif italic text-[11px] font-bold text-slate-800 leading-tight">
+                    Better Skills<br />Brighter Futures
+                  </p>
+                </div>
+                <div className="bg-blue-600/90 backdrop-blur-sm rounded-xl px-3 py-2 shadow-sm">
+                  <p className="text-[10px] font-bold text-white leading-tight">
+                    Plan<br />Learn<br />Grow<br />Succeed
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -526,42 +556,40 @@ export default function ResourcesClient() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {SUCCESS_STORIES.map((story) => (
-            <div
-              key={story.id}
-              className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs flex flex-col justify-between"
-            >
-              <div>
-                <p className="text-slate-700 text-xs sm:text-sm font-normal leading-relaxed italic mb-6">
-                  &ldquo;{story.quote}&rdquo;
-                </p>
-              </div>
+          {SUCCESS_STORIES.length > 0 ? (
+            SUCCESS_STORIES.map((story) => (
+              <div
+                key={story.id}
+                className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs flex flex-col justify-between"
+              >
+                <div>
+                  <p className="text-slate-700 text-xs sm:text-sm font-normal leading-relaxed italic mb-6">
+                    &ldquo;{story.quote}&rdquo;
+                  </p>
+                </div>
 
-              <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-                <div className="relative w-11 h-11 rounded-full overflow-hidden shrink-0 border border-slate-200">
-                  <Image
-                    src={story.image}
-                    alt={story.name}
-                    fill
-                    unoptimized
-                    className="object-cover"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                    {story.name}
-                  </h3>
-                  <p className="text-[11px] text-slate-500 truncate">{story.education}</p>
-                </div>
-                {/* 5-star rating */}
-                <div className="flex items-center gap-0.5 text-amber-400">
-                  {Array.from({ length: story.stars }).map((_, idx) => (
-                    <Star key={idx} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  ))}
+                <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                      {story.name}
+                    </h3>
+                    <p className="text-[11px] text-slate-500 truncate">{story.education}</p>
+                  </div>
+                  <div className="flex items-center gap-0.5 text-amber-400">
+                    {Array.from({ length: story.stars }).map((_, idx) => (
+                      <Star key={idx} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+              <Star className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+              <p className="text-sm font-semibold text-slate-700">Success stories coming soon.</p>
+              <p className="text-xs text-slate-500 mt-1">Real stories from students who used our resources will appear here.</p>
             </div>
-          ))}
+          )}
         </div>
       </section>
 
@@ -601,79 +629,71 @@ export default function ResourcesClient() {
         </div>
       </section>
 
-      {/* 7. MOBILE APP CTA BANNER */}
+      {/* 7. HARDWARE CAREER ACCELERATION BANNER (Replaces fake mobile app section) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="bg-gradient-to-r from-blue-50/80 via-blue-50/50 to-indigo-50/80 border border-blue-100 rounded-3xl p-6 sm:p-10 shadow-xs relative overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-indigo-50/80 border border-blue-200/80 rounded-3xl p-6 sm:p-10 shadow-xs relative overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 space-y-4">
               <div className="w-10 h-1 bg-blue-600 rounded-full" />
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-                Take Your Next Step with the{" "}
-                <span className="text-blue-600">Right Resources.</span>
+                Empowering India&apos;s Hardware Engineers &amp;{" "}
+                <span className="text-blue-600">Researchers</span>
               </h2>
               <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-lg">
-                Explore, learn and grow — all in one place. Download our mobile app for anytime access to career roadmaps and verified opportunities.
+                Explore open-access semiconductor roadmaps, VLSI interview workbooks, and deep-tech project blueprints curated by silicon industry professionals.
               </p>
 
-              {/* App Store / Google Play Badges */}
+              {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
-                <a
-                  href="#download-play"
-                  className="inline-flex items-center gap-2.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition shadow-xs"
+                <Link
+                  href="/opportunities"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl transition shadow-md shadow-blue-600/20"
                 >
-                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
-                  </svg>
-                  <div className="text-left leading-none">
-                    <p className="text-[9px] uppercase tracking-wider text-slate-400">GET IT ON</p>
-                    <p className="text-xs font-bold text-white mt-0.5">Google Play</p>
-                  </div>
-                </a>
+                  <span>Explore Hardware Opportunities</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
 
-                <a
-                  href="#download-ios"
-                  className="inline-flex items-center gap-2.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition shadow-xs"
+                <Link
+                  href="/news"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-xl border border-slate-200 shadow-2xs transition"
                 >
-                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M15.97,4.86C16.62,4.07 17.06,2.97 16.94,1.87C15.97,1.91 14.81,2.52 14.12,3.32C13.53,4.01 13,5.13 13.15,6.22C14.23,6.3 15.32,5.65 15.97,4.86Z" />
-                  </svg>
-                  <div className="text-left leading-none">
-                    <p className="text-[9px] uppercase tracking-wider text-slate-400">Download on the</p>
-                    <p className="text-xs font-bold text-white mt-0.5">App Store</p>
-                  </div>
-                </a>
+                  <span>Latest Silicon News</span>
+                </Link>
               </div>
             </div>
 
-            {/* Right: Phone mockup visual */}
+            {/* Right: Hardware Blueprint Card */}
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
-              <div className="relative w-56 sm:w-64 h-72 sm:h-80 bg-white rounded-3xl shadow-xl border-4 border-slate-900/10 p-3 flex flex-col justify-between">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-5 h-5 rounded bg-blue-600 flex items-center justify-center text-[10px] text-white font-bold">
+              <div className="relative w-full max-w-xs bg-white rounded-3xl shadow-xl border border-slate-200/90 p-5 space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-xs text-white font-bold">
                       B
                     </div>
-                    <span className="text-[11px] font-bold text-slate-800">BerojgarDegreeWala</span>
+                    <div>
+                      <span className="text-xs font-bold text-slate-900 block leading-tight">Hardware Skill Radar</span>
+                      <span className="text-[10px] text-slate-400">Industry-Aligned Roadmaps</span>
+                    </div>
                   </div>
                   <div className="w-2 h-2 rounded-full bg-emerald-500" />
                 </div>
 
-                <div className="space-y-2 py-2">
-                  <div className="p-2 rounded-xl bg-blue-50/80 border border-blue-100 text-[11px] font-semibold text-blue-800 flex items-center gap-2">
-                    <GraduationCap className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Learn &amp; Upskill</span>
+                <div className="space-y-2.5">
+                  <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 text-xs font-semibold text-blue-900 flex items-center gap-2.5">
+                    <GraduationCap className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span>VLSI Design &bull; Verilog &bull; STA</span>
                   </div>
-                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 text-[11px] font-medium text-slate-700 flex items-center gap-2">
-                    <Compass className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Explore Roadmaps</span>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs font-medium text-slate-700 flex items-center gap-2.5">
+                    <Compass className="w-4 h-4 text-slate-600 shrink-0" />
+                    <span>Embedded Systems &bull; RTOS &bull; PCB</span>
                   </div>
-                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 text-[11px] font-medium text-slate-700 flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Succeed Together</span>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs font-medium text-slate-700 flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>100% Free &amp; Open-Access</span>
                   </div>
                 </div>
 
-                <div className="text-center pt-2 border-t border-slate-100">
+                <div className="pt-2 border-t border-slate-100 text-center">
                   <p className="font-serif italic text-blue-600 text-xs font-bold">
                     Knowledge Today. Opportunities Tomorrow.
                   </p>
@@ -684,7 +704,71 @@ export default function ResourcesClient() {
         </div>
       </section>
 
-      {/* 8. INTERACTIVE TOOL MODAL */}
+      {/* 8. NEWSLETTER / SUBSCRIBE BANNER */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div className="relative rounded-3xl bg-linear-to-r from-blue-50/90 via-sky-50/60 to-blue-100/50 border border-blue-200/80 p-8 sm:p-12 overflow-hidden shadow-xs">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+            {/* Left Copy */}
+            <div className="lg:col-span-6 space-y-2">
+              <div className="w-10 h-1 rounded-full bg-blue-600 mb-4" />
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Stay Updated with New Resources
+              </h3>
+              <p className="text-slate-600 text-sm font-normal max-w-md">
+                Get the latest guides, career tips, templates and scholarship opportunities delivered to your inbox.
+              </p>
+            </div>
+
+            {/* Right Form & Graphic */}
+            <div className="lg:col-span-6 flex flex-col sm:flex-row items-center justify-end gap-6">
+              <form onSubmit={handleNewsletterSubmit} className="w-full sm:max-w-md space-y-2.5">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="email"
+                      value={newsletterEmail}
+                      onChange={(e) => setNewsletterEmail(e.target.value)}
+                      placeholder="Enter your email address"
+                      required
+                      className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all shadow-2xs"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={newsletterSubmitting}
+                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl transition-colors shrink-0 shadow-2xs disabled:opacity-60 cursor-pointer"
+                  >
+                    {newsletterSubmitting ? "..." : "Subscribe"}
+                  </button>
+                </div>
+
+                <label className="flex items-start gap-2 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={newsletterAgreed}
+                    onChange={(e) => setNewsletterAgreed(e.target.checked)}
+                    className="mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5"
+                  />
+                  <span className="text-[11px] text-slate-500 font-normal leading-tight">
+                    I agree to receive updates from BerojgarDegreeWala.
+                  </span>
+                </label>
+              </form>
+
+              {/* Floating Note Badge */}
+              <div className="hidden sm:block text-center font-serif italic text-blue-800 rotate-6 shrink-0">
+                <div className="text-xl sm:text-2xl font-bold leading-tight">
+                  Learn Today. <br />
+                  <span className="text-blue-600">Succeed Tomorrow!</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. INTERACTIVE TOOL MODAL */}
       {activeModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"

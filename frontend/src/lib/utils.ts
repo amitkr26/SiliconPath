@@ -134,6 +134,66 @@ export function formatDeadline(deadline?: string | null): string {
   return `Apply by ${formatted}`;
 }
 
+export function formatIndiaDate(dateStr?: string | null): string {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return String(dateStr);
+    return d.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return String(dateStr || "");
+  }
+}
+
+export function formatPostedDate(postedDate?: string | null, createdAt?: string | null): string {
+  const target = postedDate || createdAt;
+  if (!target) return "Recently Posted";
+  try {
+    const d = new Date(target);
+    if (isNaN(d.getTime())) return "Recently Posted";
+    const now = new Date();
+    // Validate future dates (more than 1 day in the future)
+    if (d.getTime() - now.getTime() > 24 * 60 * 60 * 1000) {
+      return "Recently Posted";
+    }
+    const diffDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 0) return "Posted Today";
+    if (diffDays === 1) return "Posted 1d ago";
+    if (diffDays < 7) return `Posted ${diffDays}d ago`;
+    return `Posted ${d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`;
+  } catch {
+    return "Recently Posted";
+  }
+}
+
+export function formatDeadlineTelemetry(deadline?: string | null): { text: string; isUrgent: boolean; isRolling: boolean } {
+  if (!deadline) {
+    return { text: "Rolling Applications", isUrgent: false, isRolling: true };
+  }
+  try {
+    const d = new Date(deadline);
+    if (isNaN(d.getTime())) {
+      return { text: "Rolling Applications", isUrgent: false, isRolling: true };
+    }
+    const now = new Date();
+    const diffDays = Math.ceil((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const formatted = d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+    if (diffDays < 0) {
+      return { text: `Closed (${formatted})`, isUrgent: false, isRolling: false };
+    }
+    if (diffDays >= 0 && diffDays <= 5) {
+      return { text: `Apply by ${formatted} (${diffDays}d left)`, isUrgent: true, isRolling: false };
+    }
+    return { text: `Apply by ${formatted}`, isUrgent: false, isRolling: false };
+  } catch {
+    return { text: "Rolling Applications", isUrgent: false, isRolling: true };
+  }
+}
+
 export function getDaysAgo(date: string): string {
   const now = new Date();
   const posted = new Date(date);

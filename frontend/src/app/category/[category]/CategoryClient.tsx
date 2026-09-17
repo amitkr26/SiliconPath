@@ -79,7 +79,7 @@ export default function CategoryClient({
           <Briefcase className="w-12 h-12 text-slate-400 mx-auto mb-3" />
           <p className="text-slate-900 text-lg font-bold mb-1">No active positions under this tag right now.</p>
           <p className="text-slate-600 text-sm font-medium max-w-md mx-auto mb-4">
-            New verified opportunities are added daily. Browse all open roles across 104 semiconductor organizations.
+            New verified opportunities are added daily. Browse all open roles across our partner semiconductor organizations.
           </p>
           <div className="flex justify-center">
             <Button href="/opportunities">Browse All Opportunities</Button>

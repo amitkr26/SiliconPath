@@ -42,12 +42,13 @@ async function verifyAdminToken(token: string, secret: string): Promise<boolean>
 }
 
 export async function verifyAdmin(request: NextRequest | Request): Promise<boolean> {
-  const adminPassword = process.env.ADMIN_PASSWORD || "amitkr2622002";
+  const adminPassword = process.env.ADMIN_PASSWORD;
   const cronSecret = process.env.CRON_SECRET;
+  if (!adminPassword && !cronSecret) return false;
   const hmacKey = process.env.ADMIN_HMAC_SECRET || adminPassword;
 
   const directPassword = request.headers.get("x-admin-password");
-  if (directPassword && (safeEqual(directPassword, adminPassword) || safeEqual(directPassword, "amitkr2622002") || safeEqual(directPassword, "siliconpath-admin-2026"))) {
+  if (directPassword && adminPassword && safeEqual(directPassword, adminPassword)) {
     return true;
   }
 
@@ -55,7 +56,7 @@ export async function verifyAdmin(request: NextRequest | Request): Promise<boole
   const match = authHeader.match(/^Bearer\s+(.+)$/);
   if (match) {
     const token = match[1];
-    if (safeEqual(token, adminPassword) || safeEqual(token, "amitkr2622002") || safeEqual(token, "siliconpath-admin-2026")) return true;
+    if (adminPassword && safeEqual(token, adminPassword)) return true;
     if (hmacKey && (await verifyAdminToken(token, hmacKey))) return true;
     if (cronSecret && safeEqual(token, cronSecret)) return true;
   }

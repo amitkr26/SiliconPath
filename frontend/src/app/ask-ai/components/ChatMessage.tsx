@@ -10,6 +10,13 @@ import {
   ShieldCheck,
   ExternalLink,
   Sparkles,
+  Search,
+  Target,
+  Map,
+  Wrench,
+  Newspaper,
+  Building2,
+  BookOpen,
 } from "lucide-react";
 import { ChatMessageItem } from "../hooks/useChatSessions";
 import { MarkdownContent } from "./MarkdownContent";
@@ -82,6 +89,16 @@ export function ChatMessage({
               {/* Grounded text explanation */}
               <MarkdownContent content={message.content} />
 
+              {/* Domain Badge (when BDW AI detected intent) */}
+              {message.domain && message.domain !== "general" && (
+                <DomainBadge domain={message.domain} />
+              )}
+
+              {/* Tool Activity Indicator */}
+              {message.toolResults && message.toolResults.length > 0 && (
+                <ToolActivityIndicator toolResults={message.toolResults} />
+              )}
+
               {/* Structured Opportunity Cards if present */}
               {message.opportunities && message.opportunities.length > 0 && (
                 <div className="pt-3 border-t border-slate-100 space-y-3">
@@ -117,6 +134,28 @@ export function ChatMessage({
                       className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 bg-blue-50/70 border border-blue-200/60 px-2 py-0.5 rounded-md text-[11px] font-semibold"
                     >
                       <span>{src.name}</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {/* BDW Citations (additional reference links from RAG) */}
+              {message.citations && message.citations.length > 0 && !(message.sources && message.sources.length > 0) && (
+                <div className="pt-2 border-t border-slate-100 flex items-center gap-2 flex-wrap text-xs">
+                  <span className="font-bold text-slate-500 text-[11px] uppercase tracking-wider flex items-center gap-1">
+                    <BookOpen className="w-3.5 h-3.5 text-violet-600" /> References:
+                  </span>
+                  {message.citations.filter(c => c.url).slice(0, 5).map((cit, idx) => (
+                    <a
+                      key={idx}
+                      href={cit.url!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-violet-600 hover:text-violet-800 bg-violet-50/70 border border-violet-200/60 px-2 py-0.5 rounded-md text-[11px] font-semibold"
+                    >
+                      <CitationIcon type={cit.type} />
+                      <span className="truncate max-w-[180px]">{cit.title}</span>
                       <ExternalLink className="w-2.5 h-2.5" />
                     </a>
                   ))}
@@ -204,4 +243,62 @@ export function ChatMessage({
       </div>
     </div>
   );
+}
+
+// ─── BDW Helper Components ────────────────────────────────────────────────
+
+const DOMAIN_CONFIG: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
+  opportunity_search: { label: "Opportunity Search", icon: <Search className="w-3 h-3" />, color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  organization_search: { label: "Organization Lookup", icon: <Building2 className="w-3 h-3" />, color: "bg-blue-50 text-blue-700 border-blue-200" },
+  eligibility_check: { label: "Eligibility Analysis", icon: <Target className="w-3 h-3" />, color: "bg-amber-50 text-amber-700 border-amber-200" },
+  career_planning: { label: "Career Planning", icon: <Map className="w-3 h-3" />, color: "bg-violet-50 text-violet-700 border-violet-200" },
+  skill_gap: { label: "Skill Gap Analysis", icon: <Wrench className="w-3 h-3" />, color: "bg-rose-50 text-rose-700 border-rose-200" },
+  news_update: { label: "News & Updates", icon: <Newspaper className="w-3 h-3" />, color: "bg-cyan-50 text-cyan-700 border-cyan-200" },
+};
+
+function DomainBadge({ domain }: { domain: string }) {
+  const config = DOMAIN_CONFIG[domain];
+  if (!config) return null;
+
+  return (
+    <div className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border ${config.color}`}>
+      {config.icon}
+      <span>{config.label}</span>
+    </div>
+  );
+}
+
+function ToolActivityIndicator({ toolResults }: { toolResults: Array<{ tool: string; result: unknown }> }) {
+  const toolLabels: Record<string, string> = {
+    search_opportunities: "Searched opportunities",
+    search_organizations: "Searched organizations",
+    check_eligibility: "Checked eligibility",
+    get_required_skills: "Retrieved skills",
+    find_related_opportunities: "Found related roles",
+    get_career_roadmap: "Generated career roadmap",
+    search_news: "Searched news",
+  };
+
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap">
+      {toolResults.map((tr, idx) => (
+        <span
+          key={idx}
+          className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full"
+        >
+          <Wrench className="w-2.5 h-2.5" />
+          {toolLabels[tr.tool] || tr.tool}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function CitationIcon({ type }: { type: string }) {
+  switch (type) {
+    case "opportunity": return <Search className="w-2.5 h-2.5" />;
+    case "organization": return <Building2 className="w-2.5 h-2.5" />;
+    case "news": return <Newspaper className="w-2.5 h-2.5" />;
+    default: return <BookOpen className="w-2.5 h-2.5" />;
+  }
 }

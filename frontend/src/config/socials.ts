@@ -25,6 +25,13 @@ export const SOCIAL_LINKS: SocialLink[] = [
     hoverColor: "blue-600",
   },
   {
+    platform: "github",
+    label: "GitHub",
+    url: "https://github.com/amitkr26/BerojgarDegreeWala",
+    handle: "amitkr26/BerojgarDegreeWala",
+    hoverColor: "slate-900",
+  },
+  {
     platform: "instagram",
     label: "Instagram",
     url: "https://www.instagram.com/rankrseo",

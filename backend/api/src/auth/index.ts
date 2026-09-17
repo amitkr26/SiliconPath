@@ -214,13 +214,13 @@ export async function requireAuth(request: RequestLike): Promise<AuthUser> {
 }
 
 export async function requireAdmin(request: RequestLike): Promise<AuthUser> {
-  const adminPassword = process.env.ADMIN_PASSWORD || "amitkr2622002";
+  const adminPassword = process.env.ADMIN_PASSWORD;
   const cronSecret = process.env.CRON_SECRET;
 
   if (!adminPassword && !cronSecret) throw forbidden("Server keys are missing");
 
   const directPassword = request.headers.get("x-admin-password");
-  if (directPassword && (safeEqual(directPassword, adminPassword) || safeEqual(directPassword, "amitkr2622002") || safeEqual(directPassword, "siliconpath-admin-2026"))) {
+  if (directPassword && adminPassword && safeEqual(directPassword, adminPassword)) {
     return { id: "admin", email: "admin", role: "admin", global_role: "platform_admin" };
   }
 
@@ -228,10 +228,10 @@ export async function requireAdmin(request: RequestLike): Promise<AuthUser> {
   const match = authHeader.match(/^Bearer\s+(.+)$/);
   if (match) {
     const token = match[1];
-    if (safeEqual(token, adminPassword) || safeEqual(token, "amitkr2622002") || safeEqual(token, "siliconpath-admin-2026")) {
+    if (adminPassword && safeEqual(token, adminPassword)) {
       return { id: "admin", email: "admin", role: "admin", global_role: "platform_admin" };
     }
-    if (await verifyAdminToken(token, adminPassword)) {
+    if (adminPassword && await verifyAdminToken(token, adminPassword)) {
       return { id: "admin", email: "admin", role: "admin", global_role: "platform_admin" };
     }
     if (cronSecret && safeEqual(token, cronSecret)) {

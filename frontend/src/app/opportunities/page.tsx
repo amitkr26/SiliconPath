@@ -30,18 +30,20 @@ function isDisplayableOpportunity(o: { title?: string | null }): boolean {
 export default async function OpportunitiesPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ search?: string; category?: string }> | { search?: string; category?: string };
+  searchParams?: Promise<{ search?: string; category?: string; field?: string }> | { search?: string; category?: string; field?: string };
 }) {
   let initialData: ReturnType<typeof mapDbOpportunityToClient>[] = [];
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const searchVal = resolvedSearchParams.search || "";
   const categoryVal = resolvedSearchParams.category || "All";
+  const fieldVal = resolvedSearchParams.field || "All";
 
   if (supabaseAdmin?.from) {
     try {
       const { data } = await searchOpportunities({
         search: searchVal,
         category: categoryVal,
+        field: fieldVal,
         limit: 30,
         page: 1,
       });
@@ -71,8 +73,8 @@ export default async function OpportunitiesPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
       />
       <Suspense fallback={
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
-          <p className="text-gray-600 font-medium text-sm">Loading opportunities...</p>
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8">
+          <p className="text-slate-600 font-medium text-sm">Loading opportunities...</p>
         </div>
       }>
         <OpportunitiesClient initialData={initialData} />

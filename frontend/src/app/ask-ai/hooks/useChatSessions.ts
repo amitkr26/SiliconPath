@@ -8,7 +8,10 @@ export interface ChatMessageItem {
   content: string;
   timestamp: string;
   opportunities?: GroundedRecord[];
-  sources?: Array<{ name: string; url: string; tier?: string }>;
+  sources?: Array<{ name: string; url: string; tier?: string; type?: string }>;
+  citations?: Array<{ type: string; id: string; title: string; url: string | null }>;
+  domain?: string;
+  toolResults?: Array<{ tool: string; result: unknown }>;
 }
 
 export interface ChatSession {

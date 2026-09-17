@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
       page,
       limit,
       category,
+      field: searchParams.get("field") || "All",
       eligibility: searchParams.get("eligibility") || "All",
       location: searchParams.get("location") || "All",
       deadline: searchParams.get("deadline") || "All",

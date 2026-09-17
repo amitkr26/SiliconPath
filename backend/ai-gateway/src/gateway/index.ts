@@ -1,5 +1,6 @@
 import type { ChatMessage } from "../types/provider";
 import type { GatewayRequest, GatewayResponse } from "../types/gateway";
+import { loadBDWConfig, isBDWConfigValid, callBDWEndpoint } from "../providers/bdw";
 
 const COOLDOWN_MS = 10 * 60 * 1000;
 const providerCooldowns: Record<string, number> = {};
@@ -24,10 +25,11 @@ async function json(res: Response): Promise<any> {
   return (await res.json()) as any;
 }
 
-export type AIProvider = "bedrock" | "groq" | "nvidia" | "gemini" | "openrouter" | "cloudflare" | "huggingface" | "agentrouter" | "omnirouter";
+export type AIProvider = "bdw" | "bedrock" | "groq" | "nvidia" | "gemini" | "openrouter" | "cloudflare" | "huggingface" | "agentrouter" | "omnirouter";
 
 export const PROVIDER_CONFIG: Record<AIProvider, { model: string; envKey: string; extraEnv?: string; costPer1kTokens?: number }> = {
-  bedrock:     { model: "openai.gpt-oss-120b",              envKey: "AWS_BEARER_TOKEN_BEDROCK", costPer1kTokens: 0.003 },
+  bdw:          { model: "bdw-career-ai",                     envKey: "BDW_AI_BASE_URL",            costPer1kTokens: 0 },
+  bedrock:      { model: "openai.gpt-oss-120b",              envKey: "AWS_BEARER_TOKEN_BEDROCK", costPer1kTokens: 0.003 },
   groq:        { model: "qwen/qwen3.6-27b",                 envKey: "GROQ_API_KEY",              costPer1kTokens: 0 },
   nvidia:      { model: "meta/llama-3.1-8b-instruct",       envKey: "NVIDIA_NIM_API_KEY",        costPer1kTokens: 0 },
   gemini:      { model: "gemini-1.5-flash",                 envKey: "GEMINI_API_KEY",            costPer1kTokens: 0.000075 },
@@ -53,6 +55,7 @@ function estimateCost(provider: AIProvider, promptLen: number, responseLen: numb
 }
 
 export const DEFAULT_PROVIDER_ORDER: AIProvider[] = [
+  "bdw",
   "groq",
   "gemini",
   "openrouter",
@@ -94,7 +97,11 @@ export class AIGateway {
 
       const cfg = PROVIDER_CONFIG[provider];
       if (!cfg) continue;
-      if (provider !== "omnirouter" && (!process.env[cfg.envKey] || (cfg.extraEnv && !process.env[cfg.extraEnv]))) continue;
+      // BDW requires BDW_AI_ENABLED=true in addition to BDW_AI_BASE_URL
+      if (provider === "bdw") {
+        const bdwConfig = loadBDWConfig();
+        if (!isBDWConfigValid(bdwConfig)) continue;
+      } else if (provider !== "omnirouter" && (!process.env[cfg.envKey] || (cfg.extraEnv && !process.env[cfg.extraEnv]))) continue;
 
       try {
         const rawText = await this.callProvider(provider, promptText, systemPrompt);
@@ -116,7 +123,11 @@ export class AIGateway {
       if (providerCooldowns[provider] && now - providerCooldowns[provider] < COOLDOWN_MS) continue;
       const cfg = PROVIDER_CONFIG[provider];
       if (!cfg) continue;
-      if (provider !== "omnirouter" && (!process.env[cfg.envKey] || (cfg.extraEnv && !process.env[cfg.extraEnv]))) continue;
+      // BDW requires BDW_AI_ENABLED=true in addition to BDW_AI_BASE_URL
+      if (provider === "bdw") {
+        const bdwConfig = loadBDWConfig();
+        if (!isBDWConfigValid(bdwConfig)) continue;
+      } else if (provider !== "omnirouter" && (!process.env[cfg.envKey] || (cfg.extraEnv && !process.env[cfg.extraEnv]))) continue;
       try {
         const rawText = await this.callProvider(provider, prompt, systemPrompt);
         const text = stripReasoningTags(rawText);
@@ -133,6 +144,7 @@ export class AIGateway {
 
   private async callProvider(provider: AIProvider, prompt: string, systemPrompt?: string): Promise<string> {
     switch (provider) {
+      case "bdw": return this.callBdw(prompt, systemPrompt);
       case "bedrock": return this.callBedrock(prompt, systemPrompt);
       case "groq": return this.callGroq(prompt, systemPrompt);
       case "nvidia": return this.callNvidia(prompt, systemPrompt);
@@ -143,6 +155,14 @@ export class AIGateway {
       case "agentrouter": return this.callAgentRouter(prompt, systemPrompt);
       case "omnirouter": return this.callOmniRouter(prompt, systemPrompt);
     }
+  }
+
+  private async callBdw(prompt: string, systemPrompt?: string): Promise<string> {
+    const config = loadBDWConfig();
+    if (!isBDWConfigValid(config)) {
+      throw new Error("BDW AI provider is not configured or disabled");
+    }
+    return callBDWEndpoint(config, prompt, systemPrompt);
   }
 
   private async callAgentRouter(prompt: string, systemPrompt?: string): Promise<string> {

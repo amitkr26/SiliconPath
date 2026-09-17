@@ -15,11 +15,13 @@ import {
   GraduationCap,
   TrendingUp,
   Sparkles,
-  Linkedin,
   X,
   CheckCircle2,
   ChevronDown,
 } from "lucide-react";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
+import { LinkedInIcon, GitHubIcon } from "@/components/ui/SocialIcons";
+import { cn } from "@/lib/utils";
 
 interface StatItem {
   value: string;
@@ -31,46 +33,48 @@ interface StatItem {
 interface TeamMember {
   name: string;
   role: string;
-  image?: string;
-  initials: string;
+  headline: string;
   linkedin: string;
+  github?: string;
+  badgeColor: string;
 }
 
 const TEAM_MEMBERS: TeamMember[] = [
   {
-    name: "Aarav Sharma",
-    role: "Founder & CEO",
-    image: "/images/study-learning-male.png",
-    initials: "AS",
-    linkedin: "https://linkedin.com",
+    name: "Amit Kumar",
+    role: "Founder & Lead Architect",
+    headline: "Full-stack system architecture, hardware opportunity intelligence, and platform engineering for India's semiconductor workforce.",
+    linkedin: "https://www.linkedin.com/in/amitkr26",
+    github: "https://github.com/amitkr26",
+    badgeColor: "bg-blue-50 text-blue-700 border-blue-200/80",
   },
   {
-    name: "Priya Nair",
-    role: "Content & Partnerships",
-    image: "/images/study-learning-female.png",
-    initials: "PN",
-    linkedin: "https://linkedin.com",
+    name: "Azad Gupta",
+    role: "Core Team — Systems & Platform",
+    headline: "Platform engineering, distributed scraper pipelines, and high-availability cloud infrastructure.",
+    linkedin: "https://www.linkedin.com/in/azad-gupta-6619692ba",
+    badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200/80",
   },
   {
-    name: "Rohan Verma",
-    role: "Product & Tech",
-    image: "/images/study-learning-male.png",
-    initials: "RV",
-    linkedin: "https://linkedin.com",
+    name: "Rohit Maurya",
+    role: "Core Team — Research & Intelligence",
+    headline: "Semiconductor opportunity pipelines, VLSI career intelligence, and national research lab vacancies curation.",
+    linkedin: "https://www.linkedin.com/in/rohit-maurya-rm721",
+    badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200/80",
   },
   {
-    name: "Sneha Iyer",
-    role: "Design & User Experience",
-    image: "/images/hero-student-campus.png",
-    initials: "SI",
-    linkedin: "https://linkedin.com",
+    name: "Sanju",
+    role: "Core Team — Community & Partnerships",
+    headline: "Nationwide student outreach, academic alliances, community growth, and student career advocacy.",
+    linkedin: "https://www.linkedin.com/in/sanju3100",
+    badgeColor: "bg-amber-50 text-amber-800 border-amber-200/80",
   },
   {
-    name: "Karan Mehta",
-    role: "Community & Outreach",
-    image: "/images/study-learning-male.png",
-    initials: "KM",
-    linkedin: "https://linkedin.com",
+    name: "Rohit Pratap",
+    role: "Core Team — Product & Operations",
+    headline: "Deep-tech hardware career operations, verification pipeline integrity, and platform product management.",
+    linkedin: "https://www.linkedin.com/in/rohit-pratap-866294212",
+    badgeColor: "bg-purple-50 text-purple-700 border-purple-200/80",
   },
 ];
 
@@ -153,26 +157,26 @@ export default function AboutClient() {
 
   const stats: StatItem[] = [
     {
-      value: "10,000+",
-      label: "Students Empowered",
+      value: "Free",
+      label: "For All Students",
       icon: Users,
       color: "text-blue-600 bg-blue-50 border-blue-100",
     },
     {
-      value: "500+",
-      label: "Trusted Organizations",
+      value: "Verified",
+      label: "Opportunity Listings",
       icon: Building2,
       color: "text-purple-600 bg-purple-50 border-purple-100",
     },
     {
-      value: "100+",
-      label: "Opportunity Categories",
+      value: "Daily",
+      label: "New Opportunities",
       icon: Globe,
       color: "text-teal-600 bg-teal-50 border-teal-100",
     },
     {
-      value: "1 Million+",
-      label: "Brighter Tomorrows",
+      value: "AI-Powered",
+      label: "Search & Matching",
       icon: Star,
       color: "text-amber-600 bg-amber-50 border-amber-100",
     },
@@ -256,6 +260,26 @@ export default function AboutClient() {
                 unoptimized
                 className="object-cover"
               />
+
+              {/* Floating cursive accent badge */}
+              <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-lg border border-white/60 text-right hidden sm:block">
+                <p className="font-serif italic text-blue-950 text-base sm:text-lg font-bold leading-tight">
+                  Same Students.
+                </p>
+                <p className="font-serif italic text-blue-600 text-base sm:text-lg font-bold leading-tight">
+                  Brighter Futures.
+                </p>
+                <div className="w-20 h-1 bg-amber-400 rounded-full mt-1.5 ml-auto" />
+              </div>
+
+              {/* Bottom-left overlay text */}
+              <div className="absolute bottom-4 left-4 hidden sm:block">
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2 shadow-sm border border-white/60">
+                  <p className="font-serif italic text-xs font-bold text-slate-800 leading-tight">
+                    Learn &bull; Explore<br />Grow &bull; Succeed<br />Together
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -382,8 +406,53 @@ export default function AboutClient() {
         </div>
       </section>
 
-      {/* 4. OUR VALUES SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* 4. FREQUENTLY ASKED QUESTIONS (PRESERVING SEO & ACCESSIBILITY) */}
+      <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>PLATFORM FAQS</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            Frequently Asked Questions
+          </h2>
+        </div>
+
+        <div className="space-y-3">
+          {FAQ_ITEMS.map((faq, idx) => {
+            const isExpanded = expandedFaq === idx;
+            return (
+              <div
+                key={faq.q}
+                className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-2xs transition-colors"
+              >
+                <button
+                  onClick={() => setExpandedFaq(isExpanded ? null : idx)}
+                  className="w-full text-left p-5 flex items-center justify-between gap-4 focus:outline-none"
+                  aria-expanded={isExpanded}
+                >
+                  <span className="text-sm sm:text-base font-bold text-slate-900">
+                    {faq.q}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-blue-600 transition-transform duration-200 shrink-0 ${
+                      isExpanded ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {isExpanded && (
+                  <div className="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 5. OUR VALUES SECTION */}
+      <section id="help" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">
             <div className="w-8 h-1 bg-blue-600 rounded-full" />
@@ -435,7 +504,7 @@ export default function AboutClient() {
               The People Behind <span className="text-blue-600">BDW</span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 font-normal mt-1 max-w-xl">
-              A passionate team of students, creators and career enthusiasts working to make opportunities accessible for all.
+              A passionate team of engineers, researchers, and ecosystem builders driving India&apos;s semiconductor, VLSI, and deep-tech hardware career landscape.
             </p>
           </div>
 
@@ -448,48 +517,93 @@ export default function AboutClient() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
+        {/* Real Team Members Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {TEAM_MEMBERS.map((member) => (
             <div
               key={member.name}
-              className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs hover:shadow-md hover:border-slate-300 transition-all duration-200 text-center flex flex-col items-center justify-between group"
+              className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs hover:shadow-md hover:border-blue-200 transition-all duration-200 flex flex-col justify-between"
             >
               <div>
-                <div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 mx-auto border-2 border-slate-100 bg-blue-50 shadow-xs">
-                  {member.image ? (
-                    <Image
-                      src={member.image}
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <div className="p-1 rounded-full bg-slate-50 border border-slate-200/70 inline-block shadow-2xs">
+                    <ImageWithFallback
+                      name={member.name}
                       alt={member.name}
-                      fill
-                      unoptimized
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      variant="avatar"
+                      size={54}
+                      className="text-base font-bold"
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center font-bold text-blue-600 text-lg">
-                      {member.initials}
-                    </div>
-                  )}
+                  </div>
+                  <span className={cn("inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full border text-center", member.badgeColor)}>
+                    {member.role}
+                  </span>
                 </div>
 
-                <h3 className="text-sm font-bold text-slate-900 leading-snug mb-1">
+                <h3 className="text-lg font-bold text-slate-900 tracking-tight">
                   {member.name}
                 </h3>
-                <p className="text-xs text-slate-500 font-medium leading-tight mb-3">
-                  {member.role}
+
+                <p className="text-xs text-slate-600 font-normal leading-relaxed mt-2.5">
+                  {member.headline}
                 </p>
               </div>
 
-              <a
-                href={member.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${member.name} LinkedIn profile`}
-                className="w-7 h-7 rounded-full bg-slate-50 hover:bg-blue-50 text-slate-500 hover:text-blue-600 flex items-center justify-center transition"
-              >
-                <Linkedin className="w-3.5 h-3.5" />
-              </a>
+              <div className="pt-4 mt-5 border-t border-slate-100 flex items-center gap-2">
+                <a
+                  href={member.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${member.name} on LinkedIn`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#0A66C2] bg-blue-50/70 hover:bg-[#0A66C2] hover:text-white border border-blue-100/80 transition-colors"
+                >
+                  <LinkedInIcon className="w-3.5 h-3.5" />
+                  <span>LinkedIn</span>
+                </a>
+
+                {member.github && (
+                  <a
+                    href={member.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${member.name} on GitHub`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100/80 hover:bg-slate-900 hover:text-white border border-slate-200 transition-colors"
+                  >
+                    <GitHubIcon className="w-3.5 h-3.5" />
+                    <span>GitHub</span>
+                  </a>
+                )}
+              </div>
             </div>
           ))}
+
+          {/* 6th Card: Join Our Mission */}
+          <div className="bg-gradient-to-br from-blue-50/70 via-indigo-50/40 to-slate-50 rounded-2xl border border-dashed border-blue-200 p-6 flex flex-col justify-between">
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center mb-4 shadow-xs">
+                <Users className="w-6 h-6" />
+              </div>
+              <div className="inline-block text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-100/80 text-blue-700 mb-2 border border-blue-200/60">
+                We&apos;re Growing
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+                Join Our Mission
+              </h3>
+              <p className="text-xs text-slate-600 font-normal leading-relaxed mt-2.5">
+                Passionate about semiconductors, VLSI, embedded systems, or platform engineering? Help us connect India&apos;s next generation of engineers with world-class opportunities.
+              </p>
+            </div>
+
+            <div className="pt-4 mt-5 border-t border-blue-100/60">
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-2xs transition"
+              >
+                <span>Get in Touch</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -507,7 +621,7 @@ export default function AboutClient() {
 
               <div className="pt-2">
                 <Link
-                  href="/auth/register"
+                  href="/signup"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-xs transition"
                 >
                   <span>Create Your Account</span>
@@ -539,52 +653,7 @@ export default function AboutClient() {
         </div>
       </section>
 
-      {/* 7. FREQUENTLY ASKED QUESTIONS (PRESERVING SEO & ACCESSIBILITY) */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>PLATFORM FAQS</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-            Frequently Asked Questions
-          </h2>
-        </div>
-
-        <div className="space-y-3">
-          {FAQ_ITEMS.map((faq, idx) => {
-            const isExpanded = expandedFaq === idx;
-            return (
-              <div
-                key={faq.q}
-                className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-2xs transition-colors"
-              >
-                <button
-                  onClick={() => setExpandedFaq(isExpanded ? null : idx)}
-                  className="w-full text-left p-5 flex items-center justify-between gap-4 focus:outline-none"
-                  aria-expanded={isExpanded}
-                >
-                  <span className="text-sm sm:text-base font-bold text-slate-900">
-                    {faq.q}
-                  </span>
-                  <ChevronDown
-                    className={`w-4 h-4 text-blue-600 transition-transform duration-200 shrink-0 ${
-                      isExpanded ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {isExpanded && (
-                  <div className="px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-                    {faq.a}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 8. WATCH OUR STORY MODAL */}
+      {/* 7. WATCH OUR STORY MODAL */}
       {showStoryModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"
@@ -628,7 +697,7 @@ export default function AboutClient() {
               </div>
               <div className="flex items-start gap-2.5 text-xs text-slate-700">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span>Empowering over 10,000+ engineers, researchers, and scholars</span>
+                <span>Empowering engineers, researchers, and scholars across India</span>
               </div>
             </div>
 

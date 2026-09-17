@@ -9,10 +9,13 @@ export interface Opportunity {
   eligibility: string | null;
   description: string | null;
   apply_link: string | null;
+  apply_url?: string | null;
   source_url?: string | null;
   is_active?: boolean;
   created_at?: string;
   posted_at?: string;
+  posted_date?: string | null;
+  salary_range?: string | null;
   apply_clicks?: number;
   tags: string[];
   slug?: string;
