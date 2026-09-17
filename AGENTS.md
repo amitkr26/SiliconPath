@@ -1,38 +1,27 @@
-# Ponytail, lazy senior dev mode
+# BerojgarDegreeWala — AI Agent Instructions & Context
 
-You are a lazy senior developer. Lazy means efficient, not careless. The best code is the code never written.
+This repository is **BerojgarDegreeWala**, India's premier career intelligence and research opportunity network for Deep-Tech Hardware (Semiconductors, VLSI, Space & Defence Electronics, National Research Labs, and Premier Academia).
 
-Before writing any code, stop at the first rung that holds:
+For the exhaustive system architecture, data models, scraper pipelines, security protocols, and operational blueprints, consult the master document:
+👉 **[AI_AGENT_MASTER_GUIDE.md](./AI_AGENT_MASTER_GUIDE.md)**
 
-1. Does this need to be built at all? (YAGNI)
-2. Does it already exist in this codebase? Reuse the helper, util, or pattern that's already here, don't re-write it.
-3. Does the standard library already do this? Use it.
-4. Does a native platform feature cover it? Use it.
-5. Does an already-installed dependency solve it? Use it.
-6. Can this be one line? Make it one line.
-7. Only then: write the minimum code that works.
+---
 
-The ladder runs after you understand the problem, not instead of it: read the task and the code it touches, trace the real flow end to end, then climb.
+## Quick Orientation for AI Agents
 
-Bug fix = root cause, not symptom: a report names a symptom. Grep every caller of the function you touch and fix the shared function once — one guard there is a smaller diff than one per caller, and patching only the path the ticket names leaves a sibling caller still broken.
+### 1. Monorepo Structure
+- `frontend/`: Next.js 14 App Router, TypeScript, Tailwind CSS.
+- `backend/api/`: Shared domain logic (`@berojgardegreewala/api`).
+- `backend/ai-gateway/`: Multi-provider resilient LLM router (`@berojgardegreewala/ai-gateway`).
+- `backend/worker/`: Automated scrapers (ISRO, DRDO, CSIR, Workday ATS, Greenhouse).
+- `project-bible/`: Architectural standards (`ARCHITECTURE.md`, `PRODUCT.md`, `SECURITY.md`, `CHANGELOG.md`).
 
-Rules:
-
-- No abstractions that weren't explicitly requested.
-- No new dependency if it can be avoided.
-- No boilerplate nobody asked for.
-- Deletion over addition. Boring over clever. Fewest files possible.
-- Shortest working diff wins, but only once you understand the problem. The smallest change in the wrong place isn't lazy, it's a second bug.
-- Question complex requests: "Do you actually need X, or does Y cover it?"
-- Pick the edge-case-correct option when two stdlib approaches are the same size, lazy means less code, not the flimsier algorithm.
-- Mark deliberate simplifications that cut a real corner with a known ceiling (global lock, O(n²) scan, naive heuristic) with a `ponytail:` comment naming the ceiling and upgrade path.
-
-Not lazy about: understanding the problem (read it fully and trace the real flow before picking a rung, a small diff you don't understand is just laziness dressed up as efficiency), input validation at trust boundaries, error handling that prevents data loss, security, accessibility, the calibration real hardware needs (the platform is never the spec ideal, a clock drifts, a sensor reads off), anything explicitly requested. Lazy code without its check is unfinished: non-trivial logic leaves ONE runnable check behind, the smallest thing that fails if the logic breaks (an assert-based demo/self-check or one small test file; no frameworks, no fixtures). Trivial one-liners need no test.
-
-(Yes, this file also applies to agents working on the ponytail repo itself. Especially to them.)
-
-## SiliconPath documentation maintenance (owner mandate)
-
-- **All documentation lives in `project-bible/`** (architecture, security, changelog, spec, ADRs, section guides). **All audit reports live in `docs/audit-reports/`**; session reports in `docs/session-reports/`. Keep root clean — only `README.md`, `AGENTS.md`, `LICENSE`, code, and config.
-- **After every change, update the documentation and audit reports that the change touches**: at minimum a dated `CHANGELOG.md` entry (exact files, root cause, exact change), plus any affected section guide or report. Never leave a stale claim that contradicts the code or live data.
-- Before any `git push`: credential scan (see `project-bible/SECURITY.md`), `.gitignore` coverage, history check. Rotate, never just ignore.
+### 2. Core Architectural Rules
+1. **Strict 1 Header / 1 Footer Rule**: Only [frontend/src/components/Navbar.tsx](frontend/src/components/Navbar.tsx) and [frontend/src/components/Footer.tsx](frontend/src/components/Footer.tsx) may render header/footer elements. Never render secondary navbars or footers in page components.
+2. **Design Tokens**: Standard background `#F8FAFC`, dark slate text `#0F172A`, emerald badges for verified opportunities, purple pills for featured tags.
+3. **No Stock Imagery**: Zero Unsplash / placeholder images. Use local production assets in `frontend/public/images/` or SVG monogram fallbacks via `ImageWithFallback.tsx`.
+4. **Evidence-Gated Verification**: Never assign `organization_id` without domain or cryptographic proof via [frontend/src/lib/organizations/resolve.ts](frontend/src/lib/organizations/resolve.ts).
+5. **Quality Gates**:
+   - Run `npx tsc --noEmit` in `frontend/` before completing any work (0 errors tolerance).
+   - Run `npm test` in `frontend/` (all 26 test suites must pass).
+   - Document notable changes in `project-bible/CHANGELOG.md`.
