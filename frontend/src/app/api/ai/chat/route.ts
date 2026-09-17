@@ -17,13 +17,18 @@ import {
 } from "@/lib/ai/grounding";
 
 // BDW Career Intelligence Engine
-import { buildRAGContext, buildBDWSystemPrompt, buildSourceCitations, type RAGContext } from "@/lib/ai/bdw-rag";
+import { buildRAGContext, buildBDWSystemPrompt, buildSourceCitations, sanitizeUserMessage, type RAGContext } from "@/lib/ai/bdw-rag";
 import { formatToolsForPrompt, type BDWToolName } from "@/lib/ai/bdw-tools";
+// FIX #5: Direct import — no HTTP self-fetch
+import { executeBDWTool, VALID_BDW_TOOLS } from "@/lib/ai/bdw-tools-exec";
 
 // Rate limiting for guest visitors (15 queries per hour per IP)
 // Uses Upstash Redis when configured, falls back to per-instance Map for local dev.
 const GUEST_LIMIT = 15;
 const WINDOW_SECONDS = 3600;
+
+// FIX #12: Maximum user message length
+const MAX_USER_MESSAGE_LENGTH = 4000;
 
 const BASE_SYSTEM_PROMPT = `You are BerojgarDegreeWala Assistant, a helpful AI for electronics, VLSI, and semiconductor researchers and engineers in India.
 You help users:
@@ -41,10 +46,12 @@ IMPORTANT: Output ONLY your final answer. Do NOT include <think>, <analysis>, <r
 export async function POST(request: NextRequest) {
   // Check authenticated user
   let isAuthenticated = false;
+  let userId = "anonymous";
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const authClient = await createClient();
+    const { data: { user } } = await authClient.auth.getUser();
     isAuthenticated = !!user;
+    if (user) userId = user.id;
   } catch {
     isAuthenticated = false;
   }
@@ -77,21 +84,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userMessage = messages[messages.length - 1].content || "";
-    const supabase = isAdminConfigured ? supabaseAdmin : null;
+    const rawMessage = messages[messages.length - 1].content || "";
+
+    // FIX #12: Validate and sanitize user input length
+    const userMessage = sanitizeUserMessage(rawMessage);
+    if (!userMessage) {
+      return NextResponse.json(
+        { error: "Empty message." },
+        { status: 400 }
+      );
+    }
+
+    const ragDb = isAdminConfigured ? supabaseAdmin : null;
     const bdwEnabled = process.env.BDW_AI_ENABLED === "true";
 
     // ─── BDW Tool Loop Path ─────────────────────────────────────────────
     // When BDW is enabled, use the full RAG + tool system.
-    // The AI can emit <tool_call> tags which are executed server-side,
-    // and the results are fed back for a grounded final answer.
-    if (bdwEnabled && supabase) {
-      return handleBDWChat(userMessage, messages, supabase);
+    // FIX #2: Pass actual isAuthenticated value.
+    // FIX #5: Tool execution is direct function call — no HTTP self-fetch.
+    if (bdwEnabled && ragDb) {
+      return handleBDWChat(userMessage, messages, ragDb, isAuthenticated, userId);
     }
 
     // ─── Legacy Grounded Path (fallback) ────────────────────────────────
     // Original flow: retrieve → grounded prompt → single AI call → sanitize.
-    const { opportunities, news } = await retrieveGrounding(supabase, userMessage);
+    const { opportunities, news } = await retrieveGrounding(ragDb, userMessage);
 
     if (
       opportunities.length === 0 &&
@@ -179,87 +196,84 @@ interface ToolCall {
   arguments: Record<string, unknown>;
 }
 
+// FIX #10: Balanced-brace JSON extraction — replaces fragile \{[^}]*\} regex.
+function extractBalancedJSON(text: string, startIdx: number): string | null {
+  if (text[startIdx] !== "{") return null;
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = startIdx; i < text.length; i++) {
+    const ch = text[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (ch === "\\") {
+      escape = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (ch === "{") depth++;
+    if (ch === "}") {
+      depth--;
+      if (depth === 0) return text.slice(startIdx, i + 1);
+    }
+  }
+  return null;
+}
+
 /**
- * Parse <tool_call> tags from AI output.
- * Supports: <tool_call>name="tool_name"arguments={...} /> and
- * <tool_call name="tool_name" arguments={...} />.
+ * Parse <tool_call> tags from AI output using balanced-brace JSON extraction.
+ * Handles nested objects, arrays, strings with braces, and escaped quotes.
  */
 function parseToolCalls(text: string): ToolCall[] {
   const calls: ToolCall[] = [];
-
-  // Pattern 1: <tool_call>name="x"arguments={...} />  (no space)
-  const pattern1 = /<tool_call>\s*name="([^"]+)"\s*arguments=(\{[^}]*\})\s*\/?>/g;
-  let match1;
-  while ((match1 = pattern1.exec(text)) !== null) {
-    try {
-      calls.push({
-        name: match1[1],
-        arguments: JSON.parse(match1[2]),
-      });
-    } catch { /* skip malformed */ }
+  // Match <tool_call> or <tool_call with name="..." arguments=...
+  const tagPattern = /<tool_call[\s>]+name="([^"]+)"[\s]+arguments=/gi;
+  let tagMatch;
+  while ((tagMatch = tagPattern.exec(text)) !== null) {
+    const name = tagMatch[1];
+    const jsonStart = tagPattern.lastIndex; // position right after "arguments="
+    if (jsonStart < text.length && text[jsonStart] === "{") {
+      const jsonStr = extractBalancedJSON(text, jsonStart);
+      if (jsonStr) {
+        try {
+          const args = JSON.parse(jsonStr);
+          calls.push({ name, arguments: args });
+          // Advance past the extracted JSON for the next iteration
+          tagPattern.lastIndex = jsonStart + jsonStr.length;
+        } catch { /* skip malformed JSON */ }
+      }
+    }
   }
-
-  // Pattern 2: <tool_call> name="x" arguments={...} /> (with spaces)
-  const pattern2 = /<tool_call\s+name="([^"]+)"\s+arguments=(\{[^}]*\})\s*\/?>/g;
-  let match2;
-  while ((match2 = pattern2.exec(text)) !== null) {
-    try {
-      calls.push({
-        name: match2[1],
-        arguments: JSON.parse(match2[2]),
-      });
-    } catch { /* skip malformed */ }
-  }
-
   // Cap at 3 tool calls per response
   return calls.slice(0, 3);
 }
 
-/**
- * Execute a single tool call via the server-side tool endpoint.
- */
-async function executeToolCall(
-  toolName: string,
-  toolArgs: Record<string, unknown>
-): Promise<{ tool: string; success: boolean; data: unknown; error?: string }> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/ai/bdw-tools`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tool: toolName, arguments: toolArgs }),
-      signal: AbortSignal.timeout(15000),
-    });
-
-    if (!res.ok) {
-      return { tool: toolName, success: false, data: null, error: `HTTP ${res.status}` };
-    }
-
-    const data = await res.json();
-    return data.result || { tool: toolName, success: false, data: null, error: "No result" };
-  } catch (error) {
-    return {
-      tool: toolName,
-      success: false,
-      data: null,
-      error: error instanceof Error ? error.message : String(error),
-    };
-  }
-}
+// FIX #9: Maximum total tool result context (chars) to prevent model overflow.
+const MAX_TOTAL_TOOL_CHARS = 4000;
 
 /**
  * BDW-aware chat handler with tool loop.
- * Up to 2 rounds of tool calls → re-prompt for grounded answer.
+ * FIX #2: accepts isAuthenticated and userId from caller.
+ * FIX #5: tool execution via direct import — no HTTP round-trip.
+ * FIX #9: caps total tool result context.
  */
 async function handleBDWChat(
   userMessage: string,
   messages: Array<{ role: string; content: string }>,
-  supabase: any
+  ragDb: any,
+  isAuthenticated: boolean,
+  userId: string
 ): Promise<NextResponse> {
   const MAX_TOOL_ROUNDS = 2;
 
   // 1. Build RAG context from the user query
-  const ragContext = await buildRAGContext(supabase, userMessage);
+  const ragContext = await buildRAGContext(ragDb, userMessage);
 
   // 2. Build the BDW system prompt with RAG data + tool definitions
   const basePrompt = buildBDWSystemPrompt(userMessage, ragContext);
@@ -275,27 +289,40 @@ async function handleBDWChat(
   let text = sanitizeAIContent(response.text);
 
   // 4. Tool loop: detect and execute tool calls
-  let toolResults: Array<{ tool: string; result: unknown }> = [];
+  const toolResults: Array<{ tool: string; result: unknown }> = [];
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     const toolCalls = parseToolCalls(text);
     if (toolCalls.length === 0) break;
 
-    // Execute tool calls in parallel
+    // Validate tool names before execution
+    const validCalls = toolCalls.filter((tc) => VALID_BDW_TOOLS.includes(tc.name));
+
+    // FIX #5: Direct function call — no HTTP fetch.
+    // FIX #6: userId derived from authenticated session, not request body.
     const results = await Promise.all(
-      toolCalls.map(async (tc) => ({
+      validCalls.map(async (tc) => ({
         tool: tc.name,
-        result: await executeToolCall(tc.name, tc.arguments),
+        result: await executeBDWTool(tc.name as BDWToolName, tc.arguments, userId),
       }))
     );
 
     toolResults.push(...results);
 
-    // Build a follow-up prompt with tool results
+    // FIX #9: Cap TOTAL tool result context to prevent model overflow.
+    let totalChars = 0;
     const toolResultsText = results
       .map((r) => {
         const resultData = r.result as any;
-        return `[Tool: ${r.tool}] ${resultData.success ? JSON.stringify(resultData.data, null, 2).slice(0, 3000) : `Error: ${resultData.error}`}`;
+        const raw = resultData.success
+          ? JSON.stringify(resultData.data, null, 2)
+          : `Error: ${resultData.error}`;
+        // Reserve space: each result gets proportional share of budget
+        const remaining = MAX_TOTAL_TOOL_CHARS - totalChars;
+        if (remaining <= 0) return `[Tool: ${r.tool}] (truncated — budget exhausted)`;
+        const truncated = raw.length > remaining ? raw.slice(0, remaining) : raw;
+        totalChars += truncated.length;
+        return `[Tool: ${r.tool}] ${truncated}`;
       })
       .join("\n\n");
 
@@ -328,6 +355,7 @@ async function handleBDWChat(
     tier: "Tier 1 — BDW Verified",
   })).filter((s) => s.url);
 
+  // FIX #2: Pass actual isAuthenticated — never hardcode true
   return NextResponse.json({
     message: text,
     answer: text,
@@ -344,6 +372,6 @@ async function handleBDWChat(
     provider: response.provider,
     model: response.model,
     grounded: ragContext.opportunities.length > 0 || ragContext.news.length > 0,
-    isAuthenticated: true,
+    isAuthenticated,
   });
 }

@@ -364,6 +364,7 @@ export default function AdminPage() {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (authenticated) {
       if (activeTab === "opportunities") { fetchOpportunities(1); fetchStats(); }

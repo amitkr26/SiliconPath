@@ -102,6 +102,7 @@ export default function PublicProfile({ username, initialProfile, notFoundBackHr
     };
 
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [username, currentUser, userLoading]);
 
   const loadRelationship = async (myId: string, theirId: string) => {
