@@ -53,6 +53,20 @@ const DOMAIN_DISPLAY_NAMES: Record<string, string> = {
   "iisc.ac.in": "IISc Bangalore",
   "scl.gov.in": "SCL Mohali",
   "cdac.in": "C-DAC",
+  "mindgrovetech.in": "Mindgrove Technologies",
+  "saankhyalabs.com": "Saankhya Labs",
+  "signalchip.com": "Signalchip",
+  "incoresemi.com": "InCore Semiconductors",
+  "tessolve.com": "Tessolve Semiconductor",
+  "aurasemi.com": "Aura Semiconductor",
+  "centumelectronics.com": "Centum Electronics",
+  "mirafra.com": "Mirafra Technologies",
+  "einfochips.com": "eInfochips",
+  "truechip.net": "Truechip Solutions",
+  "kaynestechnology.net": "Kaynes Semicon",
+  "insemitech.com": "InSemi Technology",
+  "morphingmachines.com": "Morphing Machines",
+  "fermionic.design": "FermionIC Design",
 };
 
 const ORG_KEYWORD =

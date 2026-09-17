@@ -6,6 +6,7 @@ import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from
 import type { Opportunity } from "@/types";
 import OpportunityCard from "@/components/OpportunityCard";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
+import { getStaticOrgBySlug } from "@/data/semiconductor-orgs";
 
 interface Props {
   params: { slug: string };
@@ -31,7 +32,20 @@ interface OrgDetails {
 async function getOrganizationOpportunities(
   slug: string
 ): Promise<OrgDetails | null> {
-  if (!supabaseAdmin?.from) return null;
+  const staticOrg = getStaticOrgBySlug(slug);
+
+  if (!supabaseAdmin?.from) {
+    if (!staticOrg) return null;
+    return {
+      name: staticOrg.name,
+      logo_url: staticOrg.logo_url || null,
+      website: staticOrg.website || null,
+      location: staticOrg.location || null,
+      type: staticOrg.type || null,
+      description: staticOrg.description || null,
+      opportunities: [],
+    };
+  }
 
   // 1. Fetch organization by slug
   const { data: orgData } = await supabaseAdmin
@@ -41,6 +55,17 @@ async function getOrganizationOpportunities(
     .maybeSingle();
 
   if (!orgData) {
+    if (staticOrg) {
+      return {
+        name: staticOrg.name,
+        logo_url: staticOrg.logo_url || null,
+        website: staticOrg.website || null,
+        location: staticOrg.location || null,
+        type: staticOrg.type || null,
+        description: staticOrg.description || null,
+        opportunities: [],
+      };
+    }
     return null;
   }
 
