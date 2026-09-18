@@ -12,7 +12,8 @@ For the exhaustive system architecture, data models, scraper pipelines, security
 ### 1. Monorepo Structure
 - `frontend/`: Next.js 14 App Router, TypeScript, Tailwind CSS.
 - `backend/api/`: Shared domain logic (`@berojgardegreewala/api`).
-- `backend/ai-gateway/`: Multi-provider resilient LLM router (`@berojgardegreewala/ai-gateway`).
+- `backend/ai-gateway/`: Multi-provider resilient LLM router (`@berojgardegreewala/ai-gateway`) — 10 providers including BDW.
+- `backend/server/`: Standalone Express API replica.
 - `backend/worker/`: Automated scrapers (ISRO, DRDO, CSIR, Workday ATS, Greenhouse).
 - `project-bible/`: Architectural standards (`ARCHITECTURE.md`, `PRODUCT.md`, `SECURITY.md`, `CHANGELOG.md`).
 
@@ -21,7 +22,16 @@ For the exhaustive system architecture, data models, scraper pipelines, security
 2. **Design Tokens**: Standard background `#F8FAFC`, dark slate text `#0F172A`, emerald badges for verified opportunities, purple pills for featured tags.
 3. **No Stock Imagery**: Zero Unsplash / placeholder images. Use local production assets in `frontend/public/images/` or SVG monogram fallbacks via `ImageWithFallback.tsx`.
 4. **Evidence-Gated Verification**: Never assign `organization_id` without domain or cryptographic proof via [frontend/src/lib/organizations/resolve.ts](frontend/src/lib/organizations/resolve.ts).
-5. **Quality Gates**:
+5. **BDW AI Tools are server-only**: Tool execution logic lives in `frontend/src/lib/ai/bdw-tools-exec.ts` (server-only). Never import tool execution into client components.
+6. **Quality Gates**:
    - Run `npx tsc --noEmit` in `frontend/` before completing any work (0 errors tolerance).
-   - Run `npm test` in `frontend/` (all 26 test suites must pass).
+   - Run `npm test` in `frontend/` (all test suites must pass).
    - Document notable changes in `project-bible/CHANGELOG.md`.
+
+### 3. Security Rules for AI Agents
+- **Never hardcode credentials, API keys, or tokens** in source code.
+- **Never commit `.env*` files** — they are gitignored.
+- **Never store secrets in documentation** — reference environment variable names only.
+- **SQL ILIKE queries** must escape `%`, `_`, and `\` via `escapeILIKE()` from `bdw-rag.ts`.
+- **User input** must be sanitized via `sanitizeUserMessage()` (4000-char max) before injection into prompts.
+- **Tool names** must be validated against `VALID_BDW_TOOLS` whitelist before execution.

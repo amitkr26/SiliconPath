@@ -1,7 +1,7 @@
 # BerojgarDegreeWala — Master AI Agent & Engineering Guide
 **Unified Architectural Blueprint, Product Vision, Codebase Map, and Debugging Playbook**
 
-*Document Version: 2026-09-17*  
+*Document Version: 2026-09-18*  
 *Repository: https://github.com/amitkr26/BerojgarDegreeWala*  
 *Production URL: https://berojgardegreewala.vercel.app/*  
 
@@ -306,9 +306,54 @@ Any engineer or AI agent working on the frontend must strictly adhere to these d
 
 ---
 
-## 9. Developer & AI Agent Playbook
+## 9. BDW AI Career Intelligence Engine
 
-### 9.1 Environment Variables Setup
+### 9.1 Architecture Overview
+
+The BDW AI system provides grounded career intelligence via Retrieval-Augmented Generation (RAG) with tool-use capabilities:
+
+```
+User Query → Intent Detection → RAG Retrieval → System Prompt Build → AI Model → Tool Loop (optional) → Response + Citations
+```
+
+### 9.2 Key Files
+
+| File | Purpose |
+| :--- | :--- |
+| `backend/ai-gateway/src/providers/bdw.ts` | BDW AI provider — HTTP client, config, health check |
+| `backend/ai-gateway/src/gateway/index.ts` | Core gateway — `"bdw"` provider, `callBdw()` method |
+| `frontend/src/lib/ai/bdw-rag.ts` | RAG system — intent detection, retrieval, system prompts |
+| `frontend/src/lib/ai/bdw-tools.ts` | 7 tool definitions (OpenAI function-calling schema) |
+| `frontend/src/lib/ai/bdw-tools-exec.ts` | **Server-only** tool execution logic |
+| `frontend/src/app/api/ai/chat/route.ts` | Chat endpoint — RAG + tool loop + fallback |
+| `frontend/src/app/api/ai/bdw-tools/route.ts` | HTTP adapter — requires auth |
+| `frontend/src/app/ask-ai/components/ChatMessage.tsx` | Domain badges, citations, tool indicators |
+
+### 9.3 Security Rules (CRITICAL)
+
+1. **Tool execution is server-only** — `bdw-tools-exec.ts` must never be imported into client components
+2. **`VALID_BDW_TOOLS` whitelist** — only 7 tools: `search_opportunities`, `search_organizations`, `check_eligibility`, `get_required_skills`, `find_related_opportunities`, `get_career_roadmap`, `search_news`
+3. **Input sanitization** — `sanitizeUserMessage()` enforces 4000-char max
+4. **SQL ILIKE safety** — `escapeILIKE()` escapes `%`, `_`, `\` in all search queries
+5. **Prompt injection defense** — user query wrapped in `<user_query>` delimiters with anti-injection rules
+6. **Auth required** — `/api/ai/bdw-tools` requires Supabase JWT
+7. **Context overflow cap** — total tool results capped at 4000 chars per round
+
+### 9.4 Environment Variables
+
+```env
+BDW_AI_ENABLED=true
+BDW_AI_BASE_URL=https://your-bdw-endpoint
+BDW_AI_MODEL=your-model
+BDW_AI_API_KEY=your-key
+BDW_AI_TIMEOUT_MS=30000
+```
+
+---
+
+## 10. Developer & AI Agent Playbook
+
+### 10.1 Environment Variables Setup
 To run the full stack locally with Supabase, create `frontend/.env.local`:
 ```env
 # Supabase Configuration
@@ -326,7 +371,7 @@ GROQ_API_KEY=your-groq-key
 ```
 *(Note: If `.env.local` is absent, the frontend runs in graceful fallback mode using static datasets).*
 
-### 9.2 Essential Commands
+### 10.2 Essential Commands
 ```bash
 # 1. Start Frontend Dev Server
 cd frontend
@@ -342,17 +387,18 @@ npm test
 npm run build
 ```
 
-### 9.3 Golden Rules for AI Agents Modifying This Codebase
+### 10.3 Golden Rules for AI Agents Modifying This Codebase
 1. **Always Type-Check First**: After making changes in `frontend/`, immediately run `npx tsc --noEmit`. Fix any typing discrepancy before committing.
-2. **Never Break Test Suites**: Run `npm test`. All 26 test suites (259+ tests) must pass.
+2. **Never Break Test Suites**: Run `npm test`. All test suites must pass (317 frontend + 19 gateway tests).
 3. **Preserve Navigation Singletons**: Do not insert arbitrary navbars or footers into page components.
 4. **Follow Seed Conventions**: When adding organizations or opportunities, use idempotent SQL (`ON CONFLICT (slug) DO UPDATE SET ...`).
 5. **Update CHANGELOG.md**: Document every architectural or visual change in `project-bible/CHANGELOG.md`.
 6. **No Breaking Migrations**: Do not drop columns in Supabase migrations without a corresponding phased deprecation strategy.
+7. **BDW AI Security**: Never import `bdw-tools-exec.ts` into client code. Always validate tool names against `VALID_BDW_TOOLS`. Always escape ILIKE wildcards.
 
 ---
 
-## 10. Key File Quick-Reference Directory
+## 11. Key File Quick-Reference Directory
 
 | File / Path | Core Responsibility |
 | :--- | :--- |
@@ -364,6 +410,10 @@ npm run build
 | `frontend/src/data/semiconductor-orgs.ts` | 106 verified organizations static directory |
 | `frontend/src/lib/organizations/resolve.ts` | Anti-hallucination domain resolver |
 | `frontend/src/lib/availability.ts` | IST date calculations & availability filters |
+| `frontend/src/lib/ai/bdw-rag.ts` | BDW AI RAG system — intent, retrieval, prompts |
+| `frontend/src/lib/ai/bdw-tools.ts` | BDW AI tool definitions (7 tools) |
+| `frontend/src/lib/ai/bdw-tools-exec.ts` | BDW AI tool execution (SERVER-ONLY) |
+| `frontend/src/app/api/ai/chat/route.ts` | Chat endpoint — RAG + tool loop |
 | `frontend/src/middleware.ts` | Universal session refresh & route protection |
 | `frontend/supabase/seed/05_semiconductor_bangalore_100.sql` | 100 verified semiconductor organizations seed |
 | `project-bible/CHANGELOG.md` | Full historical change log |

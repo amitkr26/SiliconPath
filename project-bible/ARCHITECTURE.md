@@ -1,6 +1,6 @@
 # BerojgarDegreeWala — Technical Architecture
 
-**Version:** 2026-09-12 (Production Certified & UI/UX Redesigned) · **Pattern:** Modular Monolith on Next.js & Supabase + Dedicated Employer Suite & Independent Backend Replication
+**Version:** 2026-09-18 (BDW AI + Security Hardening) · **Pattern:** Modular Monolith on Next.js & Supabase + Dedicated Employer Suite & Independent Backend Replication
 
 ---
 
@@ -189,11 +189,39 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
 
 ---
 
-## 8. Verification Baseline
+## 8. BDW AI Career Intelligence Engine
 
-- **TypeScript Type Safety**: `npm run typecheck` (0 errors across all 5 monorepo workspaces: `api`, `ai-gateway`, `server`, `worker`, `frontend`)
-- **Unit & Integration Tests**: 26 frontend test suites, 259 tests passing (including 20 dedicated SEO/AEO/GEO tests in `seo-aeo-geo.test.tsx` and 21 comprehensive media tests in `image-system.test.tsx`); 350 tests passing monorepo-wide (46 server + 15 ai-gateway + 30 worker + 259 frontend)
-- **Production Build**: `npm run build` (compiles cleanly, 280 static and dynamic routes generated)
-- **Browser Audit**: Verified across desktop (1280x800) and mobile (375x812) viewports on `/`, `/opportunities`, `/organizations`, `/news` with zero broken image icon boxes and zero layout shifts.
-- **Security & Boundaries**: Fail-closed IDOR protection, message participant guards, company claim integrity, media magic byte validation, RBAC middleware, RLS, CSRF protection, and robots/sitemap boundary separation.
+### 8.1 Architecture
+
+```
+User Query → Intent Detection (7 domains) → RAG Retrieval (opportunities, orgs, news, resources)
+→ System Prompt Build (RETRIEVED_DATA + hard rules) → AI Model (BDW/Groq/Gemini)
+→ Tool Loop (max 2 rounds, 7 tools) → Response + Citations
+```
+
+### 8.2 Key Components
+
+- **BDW Provider** (`backend/ai-gateway/src/providers/bdw.ts`): OpenAI-compatible HTTP client with cooldown and health-check
+- **RAG System** (`frontend/src/lib/ai/bdw-rag.ts`): Domain intent detection, structured search extraction, multi-entity retrieval, system prompt builder
+- **AI Tools** (`frontend/src/lib/ai/bdw-tools.ts` + `bdw-tools-exec.ts`): 7 tools with server-only execution
+- **Chat Route** (`frontend/src/app/api/ai/chat/route.ts`): RAG + tool loop with legacy fallback
+
+### 8.3 Security Controls
+
+- Tool execution server-only (`bdw-tools-exec.ts` never imported into client)
+- Auth required on `/api/ai/bdw-tools` (Supabase JWT)
+- Input capped at 4000 chars via `sanitizeUserMessage()`
+- ILIKE wildcards escaped via `escapeILIKE()`
+- Prompt injection defense via `<user_query>` delimiters
+- Tool context overflow cap (4000 chars per round)
+- Balanced-brace JSON parser for tool call extraction
+
+---
+
+## 9. Verification Baseline
+
+- **TypeScript Type Safety**: `npm run typecheck` (0 errors across all 5 monorepo workspaces)
+- **Unit & Integration Tests**: Frontend 317 tests (33 suites including 31 security regression tests + 55 SEO tests); AI Gateway 19 tests; Backend API 100 tests — all PASS
+- **Production Build**: `npm run build` (338+ routes compiled)
+- **Security**: Fail-closed IDOR, prompt injection defense, SQL ILIKE escaping, auth on AI tool endpoints, RLS, CSP headers
 

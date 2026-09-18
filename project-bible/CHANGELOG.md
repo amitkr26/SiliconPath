@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-18 — BDW AI Security Hardening + Documentation Cleanup:**
+  - **16 security findings fixed** from production-readiness audit:
+    - CRITICAL: Self-referential HTTP fetch removed — tool execution via direct import (`bdw-tools-exec.ts`)
+    - CRITICAL: `/api/ai/bdw-tools` now requires Supabase JWT (401 for anonymous)
+    - HIGH: `isAuthenticated` passed from actual auth state, never hardcoded
+    - HIGH: Prompt injection defense — `<user_query>` delimiters + anti-injection rules
+    - HIGH: SQL ILIKE wildcard injection — `escapeILIKE()` escapes `%`, `_`, `\`
+    - HIGH: Rate-limit userId spoofing — derived from session, not request body
+    - MEDIUM: Tool result context overflow cap (4000 chars total)
+    - MEDIUM: Balanced-brace JSON parser replaces fragile regex for tool calls
+    - MEDIUM: Standardized Supabase clients (cookie-based for routes, service-role for exec)
+    - MEDIUM: Input length validation — `sanitizeUserMessage()` 4000-char max
+    - LOW: Merged duplicate STOPWORDS, removed variable shadowing, sanitized errors
+  - **31 security regression tests** added (`frontend/src/__tests__/ai/bdw-security.test.ts`)
+  - **Documentation cleanup**: Deleted 5 outdated audit reports, updated all .md files
+  - Quality gates: TypeScript 0 errors, 317/317 tests pass, 19/19 gateway tests pass
+
 - **2026-09-18 — BDW SEO Intelligence System v1 (original engine, not a Seobility clone):**
   - **Pure audit engine (`frontend/src/lib/seo/`)**: `types.ts`, `registry.ts` (static hubs + 7 categories + 6 locations + 9 resources mirror of sitemap), `gate.ts` (programmatic quality gate, threshold ≥3), `keyword-intent.ts` (4-bucket intent lexicons + expected-intent mapping), `cannibalization.ts` (Jaccard cluster detection, advisory-only, threshold 0.6), `score.ts` (penalty model: 🔴 −8 / 🟠 −5 / 🟡 −2 / 🟢 ±0), `checks.ts` (40+ checks across 16 audit groups, skipped-not-faked when data is absent), `data-loader.ts` (Supabase-backed `AuditDataset`, the only DB-touching module), `engine.ts` (`buildContext`/`auditPage`/`runSiteAudit` orchestration, gate-violation reporting, worst-pages ranking, score buckets).
   - **Anti-gaming contract**: scores are penalty-derived only — `score = max(0, 100 − penalties)`. Adding keywords, filler FAQs, redundant schema, or extra links can never raise a score (locked in by `seo-anti-gaming.test.ts`). A lean page that passes every applicable check scores 100.

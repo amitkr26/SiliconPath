@@ -1,39 +1,51 @@
-# `@berojgardegreewala/ai-gateway`
+# @berojgardegreewala/ai-gateway
 
-Centralized AI Provider Abstraction Layer & Fallback Engine for BerojgarDegreeWala.
+Multi-provider resilient LLM router for BerojgarDegreeWala.
 
 ## Overview
-`@berojgardegreewala/ai-gateway` provides unified model routing, structured JSON response parsing, error isolation, and multi-tier provider fallbacks.
 
-## Optimal AI Provider Fallback Chain
+The AI Gateway provides a unified interface to 10 LLM providers with automatic fallback, cooldown management, and telemetry:
 
-```text
-1. Groq (qwen/qwen3.6-27b — 2026-08-20; was llama-3.1-8b-instant, retired by Groq) / ~800 tokens/sec ultra-fast)
-   └─► 2. Gemini 1.5 Flash (Google AI Studio)
-         └─► 3. OpenRouter (Meta Llama 3.1 8B Instruct / Free)
-               └─► 4. NVIDIA NIM (meta/llama-3.1-8b-instruct)
-                     └─► 5. AgentRouter (gpt-3.5-turbo endpoint)
-                           └─► 6. OmniRouter Local Proxy (http://localhost:20128/v1)
-                                 └─► 7. Cloudflare Workers AI (@cf/meta/llama-3.1-8b-instruct)
-                                       └─► 8. AWS Bedrock (openai.gpt-oss-120b)
-                                             └─► 9. HuggingFace Serverless API
-```
+1. **BDW** — OpenAI-compatible endpoint (BDW Career Intelligence)
+2. **Groq** — `qwen/qwen3.6-27b`
+3. **Gemini** — Google AI
+4. **NVIDIA NIM** — NVIDIA inference
+5. **OpenRouter** — Multi-model router
+6. **Cloudflare** — Workers AI
+7. **HuggingFace** — Inference API
+8. **AWS Bedrock** — Amazon managed models
+9. **AgentRouter** — Agent-based routing
+10. **OmniRouter** — Local fallback
 
-## Features
-- **Maximum Speed & Zero-Cost Priority**: Prioritizes Groq (~800 tokens/sec) and Gemini 1.5 Flash first for near-instant responses.
-- **Guaranteed Zero-Cost Uptime**: If external provider quotas run out, fallback routes automatically to local OmniRouter proxy server running on port 20128.
-- **Structured JSON Parsing**: Sanitizes markdown code blocks and raw responses into validated JSON.
-- **Neon Usage Logging**: Automatically logs AI call metrics, token estimates, response latency, and provider used to Neon PostgreSQL `ai_usage_log` table.
-
-## Usage Example
+## Usage
 
 ```typescript
-import { completeText } from "@berojgardegreewala/ai-gateway";
+import { AIGateway } from "@berojgardegreewala/ai-gateway";
 
-const response = await completeText({
-  prompt: "Explain SystemVerilog constraint randomization for ASIC verification.",
-  featureName: "chat-assistant",
-});
-
-console.log(response.text);
+const gateway = new AIGateway();
+const response = await gateway.generate("What JRF positions are available in VLSI?", systemPrompt);
 ```
+
+## BDW Provider
+
+When `BDW_AI_ENABLED=true` and `BDW_AI_BASE_URL` is set, the gateway routes through the BDW Career Intelligence endpoint first. Falls back to other providers gracefully when BDW is unavailable.
+
+## Environment Variables
+
+| Variable | Required | Description |
+| :--- | :--- | :--- |
+| `BDW_AI_ENABLED` | No | Set to `true` to enable BDW provider |
+| `BDW_AI_BASE_URL` | Yes (if enabled) | BDW AI endpoint URL |
+| `BDW_AI_MODEL` | No | Model name (default: auto) |
+| `BDW_AI_API_KEY` | Yes (if enabled) | BDW AI API key |
+| `BDW_AI_TIMEOUT_MS` | No | Request timeout (default: 30000) |
+| `GROQ_API_KEY` | No | Groq API key |
+| `GEMINI_API_KEY` | No | Google AI key |
+
+## Testing
+
+```bash
+npm test
+```
+
+19 tests covering provider selection, cooldown, health checks, and BDW integration.

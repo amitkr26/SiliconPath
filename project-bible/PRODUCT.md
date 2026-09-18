@@ -2,65 +2,67 @@
 
 ## Overview
 
-**BerojgarDegreeWala** is India's career intelligence and opportunity infrastructure for Electronics, Semiconductor, VLSI, Embedded Systems, Research (JRF/SRF/Postdoc), and Academia (M.Tech/PhD).
+**BerojgarDegreeWala** is India's career intelligence and opportunity infrastructure for Electronics, Semiconductor, VLSI, Embedded Systems, Research (JRF/SRF/Postdoc), and Academia.
 
-It aggregates verified opportunities across premier institutions (ISRO, DRDO, CSIR, BARC, IITs, NITs, IIITs, Central Universities) and private semiconductor fabless/fab leaders (Qualcomm, Intel, NVIDIA, AMD, TI, Synopsys, Cadence, ARM, Micron, Tata Electronics, CG Power), eliminating the friction of manual cross-portal job hunting.
+It aggregates verified opportunities across premier institutions (ISRO, DRDO, CSIR, BARC, IITs, NITs) and private semiconductor leaders (Qualcomm, Intel, NVIDIA, AMD, TI, Synopsys, Cadence, Micron, Tata Electronics), eliminating the friction of manual cross-portal job hunting.
 
 ---
 
-## 1. Product Surfaces & Workflows
+## 1. Product Surfaces
 
 ### A. Public Discovery & Opportunity Intelligence
-- **Homepage (`/`)**: Direct value proposition, unified opportunity discovery search, high-density opportunity cards, curated institutional domain pathways (Government/PSU, Private VLSI/Embedded, JRF/SRF, PhD/Master's), verified editorial news, and transparent platform metrics without marketing fluff.
-- **Opportunities Directory (`/opportunities`)**: Dynamic listing with multi-parameter filtering (Category: Jobs, Internships, Research/JRF/SRF, PhD/Academic, Hackathons; Work Mode: On-site, Hybrid, Remote; Experience level; Location; Verification status). Table and high-density card layouts.
-- **Opportunity Intelligence Engine (`/ask-ai`)**: Context-aware natural language search and semantic matching with 4 operational modes (Ask AI, Discover, Saved, Alerts), strict date-aware freshness checks, and institutional source tracking.
-- **Organizations Directory (`/organizations`)**: Curated database of semiconductor firms, national research labs, and academic institutions with active opportunity counts.
-- **Editorial News & Resources (`/news`, `/resources/*`)**: Domain-specific recruitment guides, GATE/NET comparisons, DRDO/ISRO examination roadmaps, and international semiconductor fellowships.
+- **Homepage (`/`)**: Value proposition, opportunity search, domain categories (Semiconductors, Space/Defence, National Labs, Academia), featured opportunities, verified news, FAQ.
+- **Opportunities Directory (`/opportunities`)**: Multi-parameter filtering (Category, Field, Location, Eligibility), grid/list views, deadline countdowns, verification badges.
+- **Opportunity Intelligence Engine (`/ask-ai`)**: BDW AI Career Intelligence — natural language search with RAG-backed responses, 7 AI tools, source citations, domain badges.
+- **Organizations Directory (`/organizations`)**: 106+ verified semiconductor companies, research labs, and academic institutions with active opportunity counts.
+- **Academy (`/academy`)**: Free video courses, learning paths, and VLSI skill development.
+- **News & Resources (`/news`, `/resources`)**: Deep-tech recruitment guides, GATE/NET comparisons, DRDO/ISRO roadmaps, international fellowships.
 
 ### B. Candidate Career Cockpit
-- **Dashboard (`/dashboard`)**: Unified candidate command center showing active applications, saved opportunities, upcoming deadlines, and profile completion.
-- **Profile & Resume (`/profile`, `/resume`)**: Verified skills, educational history, research publications, portfolio links, and privacy/visibility controls (`is_profile_public`).
-- **Applications Tracking (`/applications`)**: Real-time status tracking across recruitment stages (Submitted, Under Review, Interview, Selected, Rejected).
-- **Saved Opportunities (`/saved`)**: Personal opportunity bookmarks with deadline countdowns.
-- **Professional Network & Feed (`/network`, `/feed`)**: Technical discussions, peer connections, follow/connection requests, and post reactions/comments.
-- **Notifications (`/notifications`)**: Real-time alerts for application status changes, connection acceptances, and direct messages.
+- **Dashboard (`/dashboard`)**: Active applications, saved opportunities, upcoming deadlines, profile completion.
+- **Profile & Resume (`/profile`, `/resume`)**: Verified skills, educational history, research publications, portfolio links.
+- **Applications Tracking (`/applications`)**: Real-time status across recruitment stages.
+- **Professional Network (`/network`, `/feed`)**: Technical discussions, peer connections, post reactions.
+- **Messaging (`/messages`)**: Real-time 1-on-1 candidate messaging.
 
 ### C. Employer / Recruiter Suite
-- **Recruitment Cockpit (`/employer/dashboard`)**: Active listings overview, total applicants, unread applications, and time-to-hire velocity.
-- **Job Studio (`/employer/post-job`, `/employer/jobs/[id]/edit`)**: Multi-step opportunity creation with role classification, eligibility criteria, compensation/stipend ranges, work modes, and application destination (Direct apply URL or platform ATS).
-- **Multi-Stage ATS Pipeline (`/employer/applicants`, `/employer/jobs/[id]/applicants`)**: Kanban and table pipelines for candidate evaluation, note taking, status progression, and rejection/shortlisting.
-- **Talent Discovery (`/employer/talent`)**: Candidate search across verified engineering domains with profile preview and direct messaging.
-- **Company Branding & Team (`/employer/company`, `/employer/team`, `/employer/settings`)**: Company verification badges, claim requests, team seat management, and notification preferences.
+- **Recruitment Cockpit (`/employer/dashboard`)**: Active listings, total applicants, pipeline overview.
+- **Job Studio (`/employer/post-job`)**: Multi-step opportunity creation with role classification.
+- **ATS Pipeline (`/employer/applicants`)**: Kanban/table pipeline with 6-stage state machine.
+- **Talent Discovery (`/employer/talent`)**: Candidate search with skill/experience filters.
+- **Company Branding (`/employer/company`, `/employer/team`)**: Verification badges, team seat management.
 
-### D. Admin Moderation & Infrastructure Console
-- **Admin Command Center (`/admin`)**: Platform health, user activity metrics, opportunity verification queue, and moderation audit trail.
-- **Scraper & Fleet Health (`/admin/scrape-health`)**: Status of automated crawlers, source health, last ingestion timestamps, and error rate diagnostics.
-- **User & Company Management (`/admin/users`, `/admin/companies`)**: User privilege governance, company verification review, and organization claim dispute resolution.
+### D. Admin Console
+- **Admin Command Center (`/admin`)**: Platform health, verification queue, moderation.
+- **Scraper Fleet (`/admin/scrape-health`)**: Source health, error diagnostics, ingestion timestamps.
+- **SEO Intelligence (`/admin/seo`)**: Site audit scores, gate violations, cannibalization detection.
 
 ---
 
 ## 2. User Tiers & Feature Matrix
 
-| Feature | Guest | Candidate | Employer / Recruiter | Admin |
+| Feature | Guest | Candidate | Employer | Admin |
 | :--- | :---: | :---: | :---: | :---: |
 | Browse opportunities & search | ✓ | ✓ | ✓ | ✓ |
-| Opportunity Intelligence (`/ask-ai`) | ✓ | ✓ | ✓ | ✓ |
-| View organizations & editorial news | ✓ | ✓ | ✓ | ✓ |
-| Save opportunities & deadline tracking | — | ✓ | — | ✓ |
-| Profile, Resume & Network connection | — | ✓ | ✓ | ✓ |
-| Feed interactions (posts, comments, reposts) | — | ✓ | ✓ | ✓ |
-| Direct Messaging (real-time) | — | ✓ | ✓ | ✓ |
-| Post opportunities & ATS management | — | — | ✓ | ✓ |
-| Talent pool search & candidate sourcing | — | — | ✓ | ✓ |
-| Company claim & team seat management | — | — | ✓ | ✓ |
-| Scraper fleet monitoring & moderation | — | — | — | ✓ |
+| Ask AI (Career Intelligence) | ✓ | ✓ | ✓ | ✓ |
+| View organizations & news | ✓ | ✓ | ✓ | ✓ |
+| Save opportunities | — | ✓ | — | ✓ |
+| Profile & Resume | — | ✓ | ✓ | ✓ |
+| Applications tracking | — | ✓ | — | ✓ |
+| Professional network & feed | — | ✓ | ✓ | ✓ |
+| Messaging | — | ✓ | ✓ | ✓ |
+| Post opportunities & ATS | — | — | ✓ | ✓ |
+| Talent sourcing | — | — | ✓ | ✓ |
+| Company claim & team seats | — | — | ✓ | ✓ |
+| Scraper fleet & moderation | — | — | — | ✓ |
+| SEO intelligence dashboard | — | — | — | ✓ |
 
 ---
 
-## 3. Data Integrity & Verification Standard
+## 3. Data Integrity Standards
 
-1. **Zero Fabricated Content**: BDW contains no fake testimonials, fabricated company reviews, or artificial user counts. Metrics displayed derive from database counts.
-2. **Primary Official Sources**: Every aggregated listing links directly to the official government portal, institutional career page, or company ATS.
-3. **Institutional Trust Strip**: Listings visibly attribute source domain, verification timestamp, and clear disclaimers affirming non-affiliation with government hiring bodies.
-4. **Data Freshness**: Scrapers normalize deadlines, enforce expiration filters, and flag expired posts to prevent user application fatigue.
-5. **Media Truthfulness & Minimalist Visual Identity**: BDW prohibits generic stock photos and AI-generated decorative illustrations. Organization identity relies on official verified logos or deterministic monograms derived from name hashes. Editorial news defaults to designed metadata banners rather than arbitrary scraped images. Logo uploads update visual branding only and never grant automatic institutional verification.
+1. **Zero Fabricated Content**: No fake testimonials, fabricated reviews, or artificial user counts.
+2. **Primary Official Sources**: Every listing links to the official portal, career page, or company ATS.
+3. **Evidence-Gated Verification**: No organization is verified without domain or cryptographic proof.
+4. **Data Freshness**: Scrapers normalize deadlines, enforce expiration, flag stale posts.
+5. **Media Truthfulness**: No stock imagery. Organization identity via verified logos or deterministic monograms.
