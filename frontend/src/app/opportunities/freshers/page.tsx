@@ -111,7 +111,7 @@ export default async function FreshersHubPage() {
         <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-slate-500 font-medium">
           <span className="text-slate-400">
             <span className="font-medium">Eligibility:</span>
-            JRF (Junior Research Fellowship) positions typically require a valid GATE/NET score and a Master's degree in electronics, VLSI, or a related field. These are funded research roles with a stipend of ₹37,000/month (as per DST norms).
+            JRF (Junior Research Fellowship) positions typically require a valid GATE/NET score and a Master&apos;s degree in electronics, VLSI, or a related field. These are funded research roles with a stipend of ₹37,000/month (as per DST norms).
           </span>
         </div>
 
