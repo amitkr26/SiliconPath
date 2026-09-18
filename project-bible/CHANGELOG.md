@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-18 — BDW AI Phase 7: Model Integration Runbook (docs only, no code changes):**
+  - Added `project-bible/BDW_MODEL_INTEGRATION.md` — full runbook for connecting an OpenAI-compatible model endpoint to the existing BDW provider without modifying application logic.
+  - Documents the exact endpoint contract (POST `{BDW_AI_BASE_URL}/chat/completions`, response `choices[0].message.content`), local (Ollama/vLLM) + staging config examples, production env checklist, and procedures for: health check, first smoke test, RAG verification, tool-calling verification, hallucination tests, prompt-injection regression, and fallback testing.
+  - Explicit activation gate: `BDW_AI_ENABLED` must remain `false` until the operator provides a live endpoint and signs off. No deployment, no activation, no secrets added.
+  - `.env.example` files (frontend + backend/server) updated with clarifying BDW contract comments — placeholders only, no real values.
+
 - **2026-09-18 — BDW AI Security Hardening + Documentation Cleanup:**
   - **16 security findings fixed** from production-readiness audit:
     - CRITICAL: Self-referential HTTP fetch removed — tool execution via direct import (`bdw-tools-exec.ts`)
