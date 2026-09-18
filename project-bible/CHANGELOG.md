@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-18 — Merged `bdw-main` (unrelated history) + Re-Applied Security Hardening:**
+  - Merged remote branch `bdw-main` into `main` via `--allow-unrelated-histories` (61 file conflicts resolved in favor of `bdw-main`); restored feature work from `origin/bdw-main` (317/317 frontend tests) on top of local main (396 commits). Pre-merge checkpoint preserved on `backup-pre-bdw-merge`.
+  - Re-applied hardening that bdw-main did not carry:
+    - `POST /api/employer/company/logo`, `GET/PATCH /api/employer/company`, and `GET /api/employer/talent/[username]` now enforce `requireEmployerRole` (401 anon / 403 non-employer) instead of login-only checks.
+    - `GET /api/people/search` selects only `PUBLIC_PROFILE_FIELDS` (no `*` — prevents email harvest) and sanitizes `.or()` inputs.
+    - `/api/employer/talent` filters `is_profile_public = true` and sanitizes the search term.
+    - `PUT`-style role change in `profile/me` now writes role to server-controlled `app_metadata` via the service-role admin client; middleware employer gate also trusts `app_metadata.role` `employer`/`provider`.
+    - `verified=false` filter now maps to `!= 'verified'` (was auto-coerced to `=' = verified'`).
+    - PostgREST filter metacharacter sanitization added to `backend/server` search routes + `opportunities` repository.
+  - UI: dark `slate-900` footer with newsletter CTA band (retains `Hardware Career Radar` column); Navbar search + CTA corners aligned to `rounded-xl`.
+  - Quality gates: `npm run typecheck` 0 errors; frontend 28 suites / 317 tests; backend `api` 8 suites / 100 tests — all PASS.
+
 - **2026-09-17 — Opportunity Data Hardening, 5-State Availability Engine, Scraper Expansion & UI Harmonization:**
   - **Canonical 5-State Opportunity Availability Lifecycle Engine (`frontend/src/lib/availability.ts`)**:
     - Implemented formal 5-state availability model: `AVAILABLE`, `EXPIRING_SOON`, `EXPIRED`, `UNAVAILABLE`, `UNKNOWN`.

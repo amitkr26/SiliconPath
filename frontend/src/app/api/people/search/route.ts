@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { apiError } from "@/lib/api-utils";
+import { PUBLIC_PROFILE_FIELDS } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -13,14 +14,16 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from("user_profiles")
-    .select("*", { count: "exact" })
+    .select(PUBLIC_PROFILE_FIELDS, { count: "exact" })
     .eq("is_profile_public", true);
 
   if (q) {
-    query = query.or(`display_name.ilike.%${q}%,headline.ilike.%${q}%,current_org.ilike.%${q}%,about.ilike.%${q}%`);
+    const cleanQ = q.replace(/[{}()"\\,.]/g, "").slice(0, 100);
+    query = query.or(`display_name.ilike.%${cleanQ}%,headline.ilike.%${cleanQ}%,current_org.ilike.%${cleanQ}%,about.ilike.%${cleanQ}%`);
   }
   if (location) {
-    query = query.or(`city.ilike.%${location}%,preferred_location.ilike.%${location}%`);
+    const cleanLocation = location.replace(/[{}()"\\,.]/g, "").slice(0, 100);
+    query = query.or(`city.ilike.%${cleanLocation}%,preferred_location.ilike.%${cleanLocation}%`);
   }
   if (skills) {
     query = query.contains("skills", skills.split(","));

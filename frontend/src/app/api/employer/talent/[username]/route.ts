@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireEmployerRole } from "@/lib/employer-auth";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import {
   getCandidateExperiences,
@@ -19,9 +19,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { username: string } | Promise<{ username: string }> }
 ) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const user = await requireEmployerRole(request);
+  if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });

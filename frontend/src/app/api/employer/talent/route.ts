@@ -40,11 +40,13 @@ export async function GET(request: NextRequest) {
         website_url,
         created_at
       `)
+      .eq("is_profile_public", true)
       .order("created_at", { ascending: false })
       .limit(60);
 
     if (query) {
-      q = q.or(`display_name.ilike.%${query}%,headline.ilike.%${query}%,bio.ilike.%${query}%,username.ilike.%${query}%`);
+      const cleanQuery = query.replace(/[{}()"\\,.]/g, "").trim().slice(0, 100);
+      q = q.or(`display_name.ilike.%${cleanQuery}%,headline.ilike.%${cleanQuery}%,bio.ilike.%${cleanQuery}%,username.ilike.%${cleanQuery}%`);
     }
 
     if (minExp && Number(minExp) > 0) {

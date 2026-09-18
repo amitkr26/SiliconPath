@@ -185,8 +185,8 @@ describe('Production Image & Media System Test Suite', () => {
     const routePath = path.resolve(__dirname, '../../app/api/employer/company/logo/route.ts');
     const routeContent = fs.readFileSync(routePath, 'utf8');
 
-    expect(routeContent).toContain('if (!user)');
-    expect(routeContent).toContain('NextResponse.json({ error: "Unauthorized" }, { status: 401 })');
+    expect(routeContent).toContain('requireEmployerRole');
+    expect(routeContent).toContain('NextResponse.json({ error: "Forbidden" }, { status: 403 })');
     expect(routeContent).toContain('if (!isCreator && !isClaimant)');
     expect(routeContent).toContain('status: 403');
   });
