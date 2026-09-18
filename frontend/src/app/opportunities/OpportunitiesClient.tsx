@@ -133,7 +133,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   const [field, setField] = useState("All");
   const [location, setLocation] = useState("All");
   const [eligibility, setEligibility] = useState("All");
-  const [sort, setSort] = useState("newest");
+  const [sort, setSort] = useState("fresher");
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(initialData.length);
   const [totalPages, setTotalPages] = useState(Math.max(1, Math.ceil(initialData.length / 8)));
@@ -506,6 +506,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                   onChange={(e) => setSort(e.target.value)}
                   className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 >
+                  <option value="fresher">Fresher &amp; Entry Level First</option>
                   <option value="newest">Most Recent First</option>
                   <option value="closing_soon">Closing Soon</option>
                 </select>

@@ -35,6 +35,7 @@ const CORE_HARDWARE_KEYWORDS = [
   "ece", "eee", "telecom", "radar", "antenna", "instrumentation", "power electronics",
   "avionics", "sensor", "photonics", "optics", "laser", "bel", "ecil", "sameer",
   "isro", "drdo", "jrf", "srf", "phd", "research associate", "project assistant",
+  "microelectronics", "micro-electronics", "nanotechnology", "fellow",
   "iit", "iisc", "bits pilani", "nit"
 ];
 
@@ -44,6 +45,15 @@ const DISALLOWED_OPP_PATTERNS = [
   /\b(civil engineer|civil engineering|textile|agriculture|horticulture|zoology|botany)\b/i,
   /\b(banking|vkyc|kyc|insurance|wealth management|financial advisor)\b/i,
   /\b(publication of select list|publication of result|wait list against advt|result of walk-in)\b/i,
+  /\b(compensation|benefits|payroll|talent acquisition|recruiter|human resources|hr generalist|hr business partner|hr specialist)\b/i,
+  /\b(supply planner|sourcing manager|strategic sourcing|procurement|purchasing|commodity manager|global supply planner)\b/i,
+  /\b(information technology|it desktop|it support|helpdesk|service desk|workplace technology|sysadmin)\b/i,
+  /\b(accountant|accounting|financial analyst|finance manager|tax manager|treasury|audit|bookkeeper)\b/i,
+  /\b(legal counsel|paralegal|contracts manager|compliance officer|patent agent)\b/i,
+  /\b(real estate|facilities specialist|workplace experience|office manager|executive assistant|administrative assistant)\b/i,
+  /\b(sales manager|sales representative|business development|account executive|marketing manager|brand manager)\b/i,
+  /\b(chief of staff|business operations manager|program manager, product software|program manager, architecture)\b/i,
+  /\b(vp of information technology|staff compensation analyst|staff npi global supply planner)\b/i,
   /undefined/i
 ];
 
@@ -63,6 +73,79 @@ export function isHardwareOpportunity(opp: any): boolean {
     const reg = new RegExp(`\\b${term.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, "\\$&")}\\b`, "i");
     return reg.test(combined);
   });
+}
+
+/**
+ * Assigns a fresher-relevance tier score (lower number = higher priority).
+ * Tier 1: Pure entry-level, fresher, intern, trainee, JRF/SRF, graduate, apprentice, 0-1/0-2 years.
+ * Tier 2: Junior engineer, associate engineer, engineer 1.
+ * Tier 3: Core hardware/electronics engineer roles.
+ * Tier 4: Senior, Staff, Lead, Principal, Architect, Director, Manager.
+ */
+export function getFresherPriorityTier(opp: any): number {
+  const title = (opp.title || "").toLowerCase();
+  const cat = (opp.category || "").toLowerCase();
+  const elig = (opp.eligibility || "").toLowerCase();
+  const combined = `${title} ${cat} ${elig}`;
+
+  if (
+    /\b(intern|internship|co-op|coop|trainee|apprentice|fresher|graduate|campus|college|jrf|srf|fellow|fellowship|phd|m\.?tech|b\.?tech|0\s*-\s*1|0\s*-\s*2|entry\s*level|entry-level)\b/i.test(combined)
+  ) {
+    if (!/\b(senior|lead|principal|staff|director|manager|architect|head|vp)\b/i.test(title)) {
+      return 1;
+    }
+  }
+  if (/\b(junior|associate|engineer\s*1|engineer\s*i\b|level\s*1|level\s*i\b)\b/i.test(title)) {
+    return 2;
+  }
+  if (/\b(senior|sr\b|principal|staff|chief|lead|architect|director|head|vp|manager)\b/i.test(title)) {
+    return 4;
+  }
+  return 3;
+}
+
+/**
+ * Interleaves opportunities so that no single organization has more than
+ * maxConsecutive opportunities in a row, ensuring high employer diversity in the feed.
+ */
+export function interleaveByOrganization(opps: any[], maxConsecutive = 2): any[] {
+  if (opps.length <= 2) return opps;
+
+  const result: any[] = [];
+  const pool = [...opps];
+  const orgConsecutiveCount: Record<string, number> = {};
+  let lastOrg: string | null = null;
+
+  while (pool.length > 0) {
+    let chosenIndex = -1;
+
+    for (let i = 0; i < pool.length; i++) {
+      const oppOrg = (pool[i].organization || pool[i].organizations?.name || "Other").trim().toLowerCase();
+      const currentConsecutive = lastOrg === oppOrg ? (orgConsecutiveCount[oppOrg] || 0) : 0;
+      if (currentConsecutive < maxConsecutive) {
+        chosenIndex = i;
+        break;
+      }
+    }
+
+    if (chosenIndex === -1) {
+      chosenIndex = 0;
+    }
+
+    const [chosen] = pool.splice(chosenIndex, 1);
+    const chosenOrg = (chosen.organization || chosen.organizations?.name || "Other").trim().toLowerCase();
+
+    if (lastOrg === chosenOrg) {
+      orgConsecutiveCount[chosenOrg] = (orgConsecutiveCount[chosenOrg] || 0) + 1;
+    } else {
+      lastOrg = chosenOrg;
+      orgConsecutiveCount[chosenOrg] = 1;
+    }
+
+    result.push(chosen);
+  }
+
+  return result;
 }
 
 export interface OpportunityQueryResult {
@@ -302,8 +385,10 @@ export async function searchOpportunities(
       .order("id", { ascending: false });
   }
 
-  // Paginate
-  supabaseQuery = supabaseQuery.range(start, end);
+  // To support fresher-first tiering and organization interleaving without
+  // single-employer clustering, fetch a wide candidate window:
+  const fetchLimit = Math.min(800, Math.max(end + 1, 150));
+  supabaseQuery = supabaseQuery.range(0, fetchLimit - 1);
 
   const { data, count, error } = await supabaseQuery;
   if (error) {
@@ -312,9 +397,36 @@ export async function searchOpportunities(
   }
 
   // Post-filter: canonical availability & strict hardware domain logic
-  const filtered = (data || [])
+  let filtered = (data || [])
     .filter((opp: any) => includeExpired || isCurrentlyAvailable(opp, today))
     .filter((opp: any) => isHardwareOpportunity(opp));
 
-  return { data: filtered, count: count !== null && count !== undefined ? count : filtered.length };
+  // Sort: Fresher priority first (Tier 1 -> Tier 2 -> Tier 3 -> Tier 4)
+  if (sort === "fresher") {
+    filtered.sort((a: any, b: any) => {
+      const tierA = getFresherPriorityTier(a);
+      const tierB = getFresherPriorityTier(b);
+      if (tierA !== tierB) return tierA - tierB;
+      const dateA = a.posted_date || a.created_at || "1970-01-01";
+      const dateB = b.posted_date || b.created_at || "1970-01-01";
+      return dateB.localeCompare(dateA);
+    });
+  } else if (sort === "closing_soon") {
+    filtered.sort((a: any, b: any) => {
+      const dA = a.deadline || "9999-12-31";
+      const dB = b.deadline || "9999-12-31";
+      return dA.localeCompare(dB);
+    });
+  }
+
+  // Apply Organization Interleaving so no company monopolizes the feed (max 2 consecutive)
+  const diversified = interleaveByOrganization(filtered, 2);
+
+  // Return the paged slice
+  const paged = diversified.slice(start, end + 1);
+
+  return {
+    data: paged,
+    count: count !== null && count !== undefined ? count : diversified.length,
+  };
 }

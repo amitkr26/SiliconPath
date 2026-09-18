@@ -335,7 +335,8 @@ async function main() {
         const desc = p.jobDescriptionSnippet || `Position available at official ${target.name} careers portal. Requisition: ${p.jobRequisitionId || 'N/A'}`;
         if (!isHardwareRole(title, desc)) continue;
 
-        const applyUrl = p.externalPath ? `${new URL(target.endpoint).origin}${p.externalPath}` : target.url;
+        const careerSitePath = new URL(target.url).pathname.replace(/\/$/, '');
+        const applyUrl = p.externalPath ? `${new URL(target.endpoint).origin}/en-US${careerSitePath}${p.externalPath}` : target.url;
         const normalizedApplyUrl = applyUrl.toLowerCase().trim();
         const orgTitleKey = orgId ? `${orgId}:${title.toLowerCase().trim()}` : null;
 
