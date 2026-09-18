@@ -62,17 +62,26 @@ export async function GET(request: NextRequest) {
     for (const result of results) {
       // Canonical evidence ledger (P0.2)
       const contentHash = createHash("sha256").update(result.url).digest("hex").slice(0, 32);
-      const { error: vErr } = await supabaseAdmin
-        .from("opportunity_verifications")
-        .insert({
-          opportunity_id: result.id,
-          check_type: "link",
-          status: result.reachable ? "pass" : "fail",
-          source_url: result.url || null,
-          http_status: result.status,
-          content_hash: contentHash,
-          metadata: { via: "cron-check-links" },
-        });
+      // opportunity_verifications comes from migration 20260816000001; if it
+      // hasn't been applied on the target DB, the insert throws. Degrade
+      // gracefully so one missing table can't abort the whole sweep.
+      let vErr: { message: string } | null = null;
+      try {
+        const { error } = await supabaseAdmin
+          .from("opportunity_verifications")
+          .insert({
+            opportunity_id: result.id,
+            check_type: "link",
+            status: result.reachable ? "pass" : "fail",
+            source_url: result.url || null,
+            http_status: result.status,
+            content_hash: contentHash,
+            metadata: { via: "cron-check-links" },
+          });
+        vErr = error;
+      } catch (e: any) {
+        vErr = e;
+      }
       if (!vErr) evidenceWritten++;
       else console.error("opportunity_verifications insert error:", vErr.message);
 

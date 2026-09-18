@@ -208,7 +208,7 @@ export async function runIsroScrape(deps: RunIsroDeps = {}): Promise<RunIsroSumm
     const nowIso = now().toISOString();
     const { data: existing } = await client
       .from("scrape_sources")
-      .select("id, consecutive_failures")
+      .select("id, consecutive_failures, total_runs, total_results")
       .eq("name", ISRO_SOURCE_NAME)
       .maybeSingle();
     let sourceId = existing?.id ?? null;
@@ -220,6 +220,8 @@ export async function runIsroScrape(deps: RunIsroDeps = {}): Promise<RunIsroSumm
           last_success_at: nowIso,
           consecutive_failures: 0,
           last_error: null,
+          total_runs: (existing?.total_runs ?? 0) + 1,
+          total_results: (existing?.total_results ?? 0) + rows.length,
         })
         .eq("name", ISRO_SOURCE_NAME);
     } else {
@@ -236,6 +238,8 @@ export async function runIsroScrape(deps: RunIsroDeps = {}): Promise<RunIsroSumm
             last_success_at: nowIso,
             consecutive_failures: 0,
             last_error: null,
+            total_runs: 1,
+            total_results: rows.length,
           },
         ])
         .select("id")

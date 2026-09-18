@@ -364,12 +364,12 @@ export default function AdminPage() {
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (authenticated) {
       if (activeTab === "opportunities") { fetchOpportunities(1); fetchStats(); }
       if (activeTab === "subscribers") fetchSubscribers();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated, activeTab]);
 
   // LOGIN SCREEN (DARK EXECUTIVE ADMIN THEME)

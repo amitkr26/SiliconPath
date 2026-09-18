@@ -59,7 +59,12 @@ export async function POST(request: NextRequest) {
     // P0.2: a reachable link is evidence, not verification. Write the evidence
     // ledger and only demote on unreachable — never promote to verified here
     // (that requires the admin verification queue + source validation).
-    if (supabaseAdmin.from("opportunity_verifications")) {
+    // NOTE: opportunity_verifications comes from migration 20260816000001; if
+    // that migration hasn't been applied on the target DB, the insert throws
+    // (PostgREST "Could not find the table"). Degrade gracefully — log and
+    // continue — so the recheck still writes link_check_logs + updates the
+    // opportunity instead of failing the whole request.
+    try {
       const { error: vErr } = await supabaseAdmin.from("opportunity_verifications").insert([
         {
           opportunity_id: opp.id,
@@ -72,6 +77,8 @@ export async function POST(request: NextRequest) {
         },
       ]);
       if (vErr) console.error("opportunity_verifications insert error:", vErr.message);
+    } catch (e: any) {
+      console.error("opportunity_verifications unavailable (migration 20260816000001 pending?):", e.message);
     }
 
     await supabaseAdmin

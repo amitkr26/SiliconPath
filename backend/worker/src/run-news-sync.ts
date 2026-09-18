@@ -53,7 +53,7 @@ async function persistRunHealth(
       const now = new Date().toISOString();
       const { data: existing } = await client
         .from("scrape_sources")
-        .select("id, consecutive_failures")
+        .select("id, consecutive_failures, is_active, total_runs, total_results")
         .eq("name", r.source)
         .maybeSingle();
       const health: { last_success_at?: string; consecutive_failures: number; last_error: string | null } =
@@ -70,13 +70,20 @@ async function persistRunHealth(
         last_success_at?: string;
         consecutive_failures: number;
         last_error: string | null;
+        total_runs: number;
+        total_results: number;
       } = {
         name: r.source,
         url: src.url,
         adapter: "rss",
         category: "news",
-        is_active: true,
+        // Preserve DB state instead of force-re-enabling: an admin may
+        // deactivate a source (dead feed) and the next cron run must not
+        // silently flip it back to active.
+        is_active: existing?.is_active ?? true,
         last_scrape_at: now,
+        total_runs: (existing?.total_runs ?? 0) + 1,
+        total_results: (existing?.total_results ?? 0) + r.accepted,
         ...health,
       };
       // ponytail: scrape_sources.name has no unique key, so this is a
