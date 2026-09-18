@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const filters = await parseSearchQuery(query);
+    const sanitizedQuery = query.slice(0, 500);
+    const filters = await parseSearchQuery(sanitizedQuery);
 
     let dbQuery = supabaseAdmin
       .from("opportunities")

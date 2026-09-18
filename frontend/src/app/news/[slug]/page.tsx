@@ -41,7 +41,11 @@ async function lookupArticle(slug: string): Promise<NewsArticle | null> {
     .maybeSingle();
 
   if (error || !data) return null;
-  return data as NewsArticle;
+  return {
+    ...data,
+    source: data.source_name || data.source || "Official Source",
+    source_url: data.url || data.source_url || null,
+  } as NewsArticle;
 }
 
 function formatDate(dateStr: string): string {

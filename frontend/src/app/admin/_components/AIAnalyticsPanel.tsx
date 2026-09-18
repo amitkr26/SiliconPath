@@ -24,39 +24,21 @@ interface AIUsageStats {
   thisWeek: number;
 }
 
-const FALLBACK_AI_STATS: AIUsageStats = {
-  total: 1482,
-  success: 1468,
-  failed: 14,
-  byProvider: {
-    groq: 620,
-    gemini: 410,
-    openrouter: 280,
-    nvidia_nim: 110,
-    cloudflare: 42,
-    huggingface: 20
-  },
-  byFeature: {
-    "AI Career Assistant (/chat)": 780,
-    "Opportunity Verification Scraper": 420,
-    "News Article Summarizer": 190,
-    "Resume AI Builder": 92
-  },
-  today: 142,
-  thisWeek: 940
+const EMPTY_STATS: AIUsageStats = {
+  total: 0,
+  success: 0,
+  failed: 0,
+  byProvider: {},
+  byFeature: {},
+  today: 0,
+  thisWeek: 0
 };
 
-const FALLBACK_LOGS: LogRow[] = [
-  { id: "log-101", feature: "AI Career Assistant (/chat)", provider: "groq", success: true, prompt_length: 240, response_length: 512, created_at: new Date(Date.now() - 2 * 60 * 1000).toISOString() },
-  { id: "log-102", feature: "Opportunity Verification Scraper", provider: "gemini", success: true, prompt_length: 890, response_length: 320, created_at: new Date(Date.now() - 8 * 60 * 1000).toISOString() },
-  { id: "log-103", feature: "News Article Summarizer", provider: "openrouter", success: true, prompt_length: 1200, response_length: 410, created_at: new Date(Date.now() - 15 * 60 * 1000).toISOString() },
-  { id: "log-104", feature: "AI Career Assistant (/chat)", provider: "nvidia_nim", success: true, prompt_length: 310, response_length: 640, created_at: new Date(Date.now() - 24 * 60 * 1000).toISOString() },
-  { id: "log-105", feature: "Resume AI Builder", provider: "groq", success: true, prompt_length: 1540, response_length: 980, created_at: new Date(Date.now() - 40 * 60 * 1000).toISOString() },
-];
+const EMPTY_LOGS: LogRow[] = [];
 
 export default function AIAnalyticsPanel() {
-  const [stats, setStats] = useState<AIUsageStats>(FALLBACK_AI_STATS);
-  const [logs, setLogs] = useState<LogRow[]>(FALLBACK_LOGS);
+  const [stats, setStats] = useState<AIUsageStats>(EMPTY_STATS);
+  const [logs, setLogs] = useState<LogRow[]>(EMPTY_LOGS);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -83,15 +65,15 @@ export default function AIAnalyticsPanel() {
           }
 
           setStats({
-            total: success + failed || FALLBACK_AI_STATS.total,
-            success: success || FALLBACK_AI_STATS.success,
-            failed: failed || FALLBACK_AI_STATS.failed,
-            byProvider: Object.keys(byProvider).length ? byProvider : FALLBACK_AI_STATS.byProvider,
-            byFeature: Object.keys(byFeature).length ? byFeature : FALLBACK_AI_STATS.byFeature,
-            today: 142,
-            thisWeek: 940
+            total: success + failed || 0,
+            success: success || 0,
+            failed: failed || 0,
+            byProvider: Object.keys(byProvider).length ? byProvider : {},
+            byFeature: Object.keys(byFeature).length ? byFeature : {},
+            today: 0,
+            thisWeek: 0
           });
-          setLogs(allLogs.length ? allLogs.slice(0, 10) : FALLBACK_LOGS);
+          setLogs(allLogs.length ? allLogs.slice(0, 10) : []);
         }
       } catch {
       // Keep fallback stats

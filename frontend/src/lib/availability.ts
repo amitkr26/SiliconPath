@@ -168,3 +168,150 @@ export function buildStrictAvailabilityDbFilter(today: string): string {
   // Fallback: use the simpler filter and rely on post-filter.
   return `deadline.gte.${today},and(deadline.is.null,category.in.(industry,private,job,international))`;
 }
+
+/**
+ * 5-state canonical opportunity availability status.
+ * Required by Platform Integrity Mandate §3.
+ */
+export type OpportunityAvailabilityStatus =
+  | "AVAILABLE"
+  | "EXPIRING_SOON"
+  | "EXPIRED"
+  | "UNAVAILABLE"
+  | "UNKNOWN";
+
+export interface OpportunityAvailabilityResult {
+  status: OpportunityAvailabilityStatus;
+  label: string;
+  isUrgent: boolean;
+  isRolling: boolean;
+  daysRemaining: number | null;
+  formattedDeadline: string;
+}
+
+/**
+ * Authoritative availability evaluator returning full telemetry.
+ */
+export function getOpportunityAvailability(
+  opp: {
+    deadline?: string | null;
+    category?: string | null;
+    verification_status?: string | null;
+    is_active?: boolean | null;
+    posted_at?: string | null;
+    posted_date?: string | null;
+    created_at?: string | null;
+    last_link_checked?: string | null;
+  },
+  todayOverride?: string
+): OpportunityAvailabilityResult {
+  // 1. Inactive or explicitly unavailable / rejected
+  if (opp.is_active === false || opp.is_active === null) {
+    return {
+      status: "UNAVAILABLE",
+      label: "Unavailable",
+      isUrgent: false,
+      isRolling: false,
+      daysRemaining: null,
+      formattedDeadline: "Closed",
+    };
+  }
+
+  if (opp.verification_status === "rejected" || opp.verification_status === "link_unavailable") {
+    return {
+      status: "UNAVAILABLE",
+      label: "Unavailable",
+      isUrgent: false,
+      isRolling: false,
+      daysRemaining: null,
+      formattedDeadline: "Closed",
+    };
+  }
+
+  if (opp.verification_status === "expired") {
+    return {
+      status: "EXPIRED",
+      label: "Expired",
+      isUrgent: false,
+      isRolling: false,
+      daysRemaining: 0,
+      formattedDeadline: "Application Closed",
+    };
+  }
+
+  const today = todayOverride || computeIstToday();
+  const deadlineStr = opp.deadline;
+
+  // 2. Deadline-based checks
+  if (deadlineStr) {
+    if (deadlineStr < today) {
+      return {
+        status: "EXPIRED",
+        label: "Application Closed",
+        isUrgent: false,
+        isRolling: false,
+        daysRemaining: 0,
+        formattedDeadline: "Application Closed",
+      };
+    }
+
+    try {
+      const d = new Date(deadlineStr);
+      if (!isNaN(d.getTime())) {
+        const now = new Date(today);
+        const diffDays = Math.ceil((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        const formatted = d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+        if (diffDays >= 0 && diffDays <= 5) {
+          return {
+            status: "EXPIRING_SOON",
+            label: "Closing Soon",
+            isUrgent: true,
+            isRolling: false,
+            daysRemaining: diffDays,
+            formattedDeadline: `Apply by ${formatted} (${diffDays}d left)`,
+          };
+        }
+        return {
+          status: "AVAILABLE",
+          label: "Open for Applications",
+          isUrgent: false,
+          isRolling: false,
+          daysRemaining: diffDays,
+          formattedDeadline: `Apply by ${formatted}`,
+        };
+      }
+    } catch {
+      // Fallback
+    }
+
+    return {
+      status: "AVAILABLE",
+      label: "Open for Applications",
+      isUrgent: false,
+      isRolling: false,
+      daysRemaining: null,
+      formattedDeadline: `Apply by ${deadlineStr}`,
+    };
+  }
+
+  // 3. Open-ended / Rolling checks
+  if (isOpenEndedCategory(opp.category) && hasRecentEvidence(opp)) {
+    return {
+      status: "AVAILABLE",
+      label: "Rolling Opportunity",
+      isUrgent: false,
+      isRolling: true,
+      daysRemaining: null,
+      formattedDeadline: "Rolling Applications",
+    };
+  }
+
+  return {
+    status: "UNKNOWN",
+    label: "Deadline not specified",
+    isUrgent: false,
+    isRolling: false,
+    daysRemaining: null,
+    formattedDeadline: "Deadline not specified",
+  };
+}

@@ -4,12 +4,6 @@ import type { Deps } from "../types.js";
 import { rateLimit } from "../middleware/rate-limit.js";
 import { listOpportunities } from "../repositories/opportunities.js";
 
-// Strip PostgREST filter metacharacters (commas, quotes, parens, dots) that
-// could be used to inject arbitrary filter expressions into .or() chains.
-function sanitizeSearchTerm(input: string): string {
-  return input.replace(/[{}()"\\,.]/g, "").trim().slice(0, 100);
-}
-
 // GET /api/v1/search — opportunities + people in one endpoint
 // (mirrors /api/search which wraps opportunity search + people search).
 export function searchRouter(deps: Deps): Router {
@@ -33,12 +27,11 @@ export function searchRouter(deps: Deps): Router {
       });
 
       // People on public profiles (mirrors /api/people/search semantics).
-      const cleanQ = sanitizeSearchTerm(q);
       const { data: people, error } = await deps.supabaseAdmin
         .from("user_profiles")
         .select("id, username, display_name, headline, current_company, location, skills")
         .eq("is_profile_public", true)
-        .or(`display_name.ilike.%${cleanQ}%,headline.ilike.%${cleanQ}%,current_company.ilike.%${cleanQ}%,skills.cs.{${cleanQ}}`)
+        .or(`display_name.ilike.%${q}%,headline.ilike.%${q}%,current_company.ilike.%${q}%,skills.cs.{${q}}`)
         .order("connection_count", { ascending: false })
         .limit(10);
       if (error) throw error;
@@ -58,12 +51,11 @@ export function searchRouter(deps: Deps): Router {
         res.json({ success: true, data: [] });
         return;
       }
-      const cleanQ = sanitizeSearchTerm(q);
       const { data, error } = await deps.supabaseAdmin
         .from("user_profiles")
         .select("id, username, display_name, headline, current_company, location, skills")
         .eq("is_profile_public", true)
-        .or(`display_name.ilike.%${cleanQ}%,headline.ilike.%${cleanQ}%,current_company.ilike.%${cleanQ}%`)
+        .or(`display_name.ilike.%${q}%,headline.ilike.%${q}%,current_company.ilike.%${q}%`)
         .order("connection_count", { ascending: false })
         .limit(10);
       if (error) throw error;

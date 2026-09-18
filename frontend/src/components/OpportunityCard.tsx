@@ -2,14 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, IndianRupee, ExternalLink, Heart } from "lucide-react";
+import Link from "next/link";
+import {
+  MapPin,
+  ExternalLink,
+  Bookmark,
+  BookmarkCheck,
+  Clock,
+  Calendar,
+  Briefcase,
+  CheckCircle2,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
 import type { Opportunity } from "@/types";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import CategoryBadge from "./CategoryBadge";
-import DeadlineCountdown from "./DeadlineCountdown";
-import { cn, getDaysAgo, isNew, isExpired } from "@/lib/utils";
-import ShareButtons from "./ShareButtons";
-import VerificationBadge from "./VerificationBadge";
+import { cn, formatPostedDate, formatDeadlineTelemetry } from "@/lib/utils";
+import { getOpportunityAvailability } from "@/lib/availability";
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -24,31 +34,9 @@ interface BookmarkResponse {
   id: string;
 }
 
-const ORG_COLORS: Record<string, string> = {
-  isro: "bg-org-isro",
-  intel: "bg-org-intel",
-  tifr: "bg-org-tifr",
-  tata: "bg-org-tata",
-  drdo: "bg-org-drdo",
-};
-
-function getOrgColor(org?: string): string {
-  if (!org) return "bg-accent/20";
-  const key = org.toLowerCase().replace(/[^a-z]/g, "");
-  for (const [k, v] of Object.entries(ORG_COLORS)) {
-    if (key.includes(k)) return v;
-  }
-  return "bg-accent/20";
-}
-
-function getInitials(name?: string): string {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .substring(0, 2)
-    .toUpperCase();
+interface BookmarksApiResponse {
+  bookmarks: BookmarkResponse[];
+  count: number;
 }
 
 function getLocalBookmarks(): string[] {
@@ -67,18 +55,32 @@ function setLocalBookmarks(ids: string[]) {
 
 export default function OpportunityCard({ opportunity, compact = false, className }: OpportunityCardProps) {
   const router = useRouter();
-  const oppId = opportunity.id!;
+  const oppId = opportunity.id || "";
   const { user, loading: userLoading } = useUser();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [bookmarkId, setBookmarkId] = useState<string | null>(null);
-  const linkUnavailable = opportunity.verification_status === "link_unavailable" || opportunity.verification_status === "expired";
+
+  const availability = getOpportunityAvailability(opportunity);
+  const isAvailable = availability.status === "AVAILABLE" || availability.status === "EXPIRING_SOON";
+  const postedDateFormatted = formatPostedDate(opportunity.posted_date || opportunity.posted_at || opportunity.created_at);
+  const deadlineTelemetry = formatDeadlineTelemetry(opportunity.deadline);
+
+  const isVerified = opportunity.verification_status === "verified" || !opportunity.verification_status;
+  const isIntern = /intern|co-op|apprentice|student|trainee/i.test(opportunity.title) || opportunity.category?.toLowerCase() === "internship";
+  const isFresher = isIntern || /fresher|entry|junior|graduate|associate|0-1|0-2/i.test(
+    `${opportunity.title} ${opportunity.eligibility || ""} ${opportunity.experience_required || ""}`
+  );
+
+  const applyUrl = opportunity.apply_url || opportunity.apply_link || opportunity.source_url || `/opportunities/${opportunity.slug || oppId}`;
+  const isExternal = !!(opportunity.apply_url || opportunity.apply_link || opportunity.source_url);
 
   useEffect(() => {
-    if (userLoading) return;
+    if (!oppId || userLoading) return;
     if (user) {
       api
-        .get<BookmarkResponse[]>("/api/bookmarks", { params: { opportunityId: oppId } })
-        .then((bookmarks) => {
+        .get<BookmarksApiResponse>("/api/bookmarks", { params: { opportunityId: oppId } })
+        .then((res) => {
+          const bookmarks = res.bookmarks || [];
           if (bookmarks.length > 0) {
             setIsBookmarked(true);
             setBookmarkId(bookmarks[0].id);
@@ -99,165 +101,201 @@ export default function OpportunityCard({ opportunity, compact = false, classNam
   const handleBookmark = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (user) {
+    if (user && oppId) {
       if (isBookmarked && bookmarkId) {
         await api.delete(`/api/bookmarks/${bookmarkId}`);
         setIsBookmarked(false);
         setBookmarkId(null);
+        toast.info("Opportunity removed from bookmarks");
       } else {
-        const res = await api.post<BookmarkResponse>("/api/bookmarks", { opportunityId: oppId });
+        const res = await api.post<{ bookmark: BookmarkResponse }>("/api/bookmarks", { opportunityId: oppId });
         setIsBookmarked(true);
-        setBookmarkId(res.id);
+        setBookmarkId(res.bookmark?.id || null);
+        toast.success("Opportunity bookmarked");
       }
-    } else {
+    } else if (oppId) {
       const bookmarks = getLocalBookmarks();
       const idx = bookmarks.indexOf(oppId);
       if (idx === -1) {
         bookmarks.push(oppId);
         setLocalBookmarks(bookmarks);
         setIsBookmarked(true);
+        toast.success("Opportunity saved to device bookmarks");
       } else {
         bookmarks.splice(idx, 1);
         setLocalBookmarks(bookmarks);
         setIsBookmarked(false);
+        toast.info("Opportunity removed from bookmarks");
       }
-      toast.info("Sign in to sync your saved opportunities across devices");
     }
   };
 
   const handleCardClick = () => {
-    router.push(`/opportunities/${opportunity.slug}`);
+    router.push(`/opportunities/${opportunity.slug || oppId}`);
   };
 
   return (
     <div
       onClick={handleCardClick}
-      className={cn("block group cursor-pointer", linkUnavailable && "opacity-70", className)}
+      className={cn(
+        "group cursor-pointer rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs hover:border-blue-300 hover:shadow-md transition-all flex flex-col justify-between relative",
+        !isAvailable && "opacity-75 bg-slate-50/70",
+        compact ? "p-4" : "p-5",
+        className
+      )}
     >
-      <div className={cn(
-        "bg-white border border-slate-200 rounded-xl shadow-xs hover:border-slate-300 hover:shadow-sm transition-all h-full flex flex-col justify-between",
-        compact ? "p-4" : "p-5"
-      )}>
-        <div className="flex items-start gap-3.5">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+      <div>
+        {/* Top Row: Organization, Verified Badge, Domain/Category Pill, Bookmark */}
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2 min-w-0">
             <ImageWithFallback
               src={opportunity.organization_logo_url}
               alt={`${opportunity.organization || "Organization"} logo`}
-              name={opportunity.organization}
+              name={opportunity.organization || "BDW"}
               variant="logo"
-              width={40}
-              height={40}
-              className="w-10 h-10 rounded-lg object-contain p-0.5"
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded-lg object-contain p-0.5 border border-slate-200 shrink-0"
             />
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-xs font-bold text-slate-900 truncate">
+                {opportunity.organization || "Hardware Employer"}
+              </span>
+              {isVerified && (
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">
+                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                  Verified
+                </span>
+              )}
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <h3 className="text-slate-900 font-bold text-sm sm:text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
-                  {opportunity.title}
-                </h3>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  {opportunity.organization ? (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        router.push(`/opportunities?search=${encodeURIComponent(opportunity.organization!)}`);
-                      }}
-                      className="text-xs text-slate-600 hover:text-blue-600 font-semibold hover:underline transition-colors text-left"
-                      title={`View all opportunities from ${opportunity.organization}`}
-                    >
-                      {opportunity.organization}
-                    </button>
-                  ) : null}
-                  {opportunity.verification_status && (
-                    <VerificationBadge status={opportunity.verification_status} compact />
-                  )}
-                </div>
-              </div>
-              <button
-                onClick={handleBookmark}
-                className={`transition-colors flex-shrink-0 p-1.5 rounded-lg border border-slate-200 ${
-                  isBookmarked ? "bg-red-500 text-white border-red-500" : "bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-red-500"
-                }`}
-                title={isBookmarked ? "Remove bookmark" : "Bookmark"}
-              >
-                <Heart className={`w-4 h-4 ${isBookmarked ? "fill-white" : ""}`} />
-              </button>
-            </div>
-            
-            <div className="flex flex-wrap items-center gap-2 mt-3">
-              <CategoryBadge category={opportunity.category} />
-              {opportunity.experience_required ? (
-                <span className="flex items-center gap-1 text-amber-800 text-xs font-medium bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                  {opportunity.experience_required}
-                </span>
-              ) : opportunity.category === "JRF" || opportunity.category === "Internship" || (opportunity.category as string) === "Trainee" ? (
-                <span className="flex items-center gap-1 text-emerald-800 text-[11px] font-medium bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                  Fresher Eligible
-                </span>
-              ) : null}
-              {opportunity.location && (
-                <span className="flex items-center gap-1 text-slate-600 text-xs font-medium bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
-                  <MapPin className="w-3 h-3" />
-                  {opportunity.location}
-                </span>
-              )}
-              {opportunity.stipend && (
-                <span className="flex items-center gap-1 text-blue-800 text-xs font-medium bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
-                  <IndianRupee className="w-3 h-3 text-blue-600" />
-                  {opportunity.stipend}
-                </span>
-              )}
-            </div>
 
-            {opportunity.eligibility && !compact && (
-              <div className="flex flex-wrap gap-1.5 mt-2.5">
-                {opportunity.eligibility
-                  .split(",")
-                  .map((e) => e.trim())
-                  .filter((e) => e.length > 0)
-                  .slice(0, 3)
-                  .map((e, i) => (
-                    <span
-                      key={`${e}-${i}`}
-                      className="px-2 py-0.5 bg-slate-50 border border-slate-200 rounded text-slate-600 text-[10px] font-medium"
-                    >
-                      {e}
-                    </span>
-                  ))}
-              </div>
+          <button
+            type="button"
+            onClick={handleBookmark}
+            aria-label={isBookmarked ? "Remove bookmark" : "Bookmark opportunity"}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-slate-50 transition-colors shrink-0"
+          >
+            {isBookmarked ? (
+              <BookmarkCheck className="w-4 h-4 text-blue-600 fill-current" />
+            ) : (
+              <Bookmark className="w-4 h-4" />
             )}
-          </div>
+          </button>
         </div>
 
-        <div className={cn("border-t border-slate-100 flex items-center justify-between", compact ? "mt-3 pt-2.5" : "mt-4 pt-3")}>
-          {opportunity.deadline ? (
-            <DeadlineCountdown deadline={opportunity.deadline} />
-          ) : (
-            <span className="text-[11px] font-medium text-slate-500">Regular Active Listing</span>
-          )}
-          {isExpired(opportunity.deadline) || opportunity.verification_status === "expired" ? (
-            <span className="text-slate-400 text-xs font-semibold flex items-center gap-1">
-              Closed
+        {/* Badges: Category & Fresher Highlights */}
+        <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+          <CategoryBadge category={opportunity.category} />
+          {isFresher && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase bg-purple-50 text-purple-700 border border-purple-200">
+              <Sparkles className="w-2.5 h-2.5" />
+              Fresher / Student
             </span>
-          ) : opportunity.apply_link ? (
+          )}
+          {opportunity.experience_required && (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+              {opportunity.experience_required}
+            </span>
+          )}
+        </div>
+
+        {/* Title */}
+        <h3 className="text-slate-900 font-bold text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-2 mb-3">
+          <Link href={`/opportunities/${opportunity.slug || oppId}`} onClick={(e) => e.stopPropagation()}>
+            {opportunity.title}
+          </Link>
+        </h3>
+
+        {/* Telemetry & Dates Block */}
+        <div className="space-y-1.5 text-xs text-slate-500 font-normal mb-3">
+          {/* Posted Date */}
+          <div className="flex items-center gap-1.5 text-slate-600">
+            <Clock className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            <span className="font-semibold text-slate-700">{postedDateFormatted}</span>
+          </div>
+
+          {/* Deadline / Availability */}
+          <div className="flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span
+              className={cn(
+                "font-medium",
+                deadlineTelemetry.isUrgent
+                  ? "text-amber-700 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200"
+                  : deadlineTelemetry.isRolling
+                  ? "text-teal-700 font-medium bg-teal-50 px-1.5 py-0.5 rounded"
+                  : "text-slate-600"
+              )}
+            >
+              {deadlineTelemetry.text}
+            </span>
+          </div>
+
+          {/* Location */}
+          {opportunity.location && (
+            <div className="flex items-center gap-1.5 truncate">
+              <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span className="truncate">{opportunity.location}</span>
+            </div>
+          )}
+
+          {/* Compensation / Stipend */}
+          {(opportunity.stipend || opportunity.salary_range) && (
+            <div className="flex items-center gap-1.5 text-emerald-700 font-semibold truncate">
+              <Briefcase className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{opportunity.stipend || opportunity.salary_range}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Eligibility Pill */}
+        {opportunity.eligibility && !compact && (
+          <div className="mt-2 text-[11px] text-slate-500 line-clamp-1 bg-slate-50 rounded px-2 py-1 border border-slate-100">
+            <span className="font-semibold text-slate-600">Eligibility: </span>
+            <span>{opportunity.eligibility}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Action Row: Details + Direct Apply */}
+      <div className="pt-3.5 mt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+        <Link
+          href={`/opportunities/${opportunity.slug || oppId}`}
+          onClick={(e) => e.stopPropagation()}
+          className="text-xs font-bold text-slate-600 hover:text-blue-600 inline-flex items-center gap-1 group/btn transition-colors"
+        >
+          <span>View Details</span>
+          <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-0.5 transition-transform" />
+        </Link>
+
+        {isAvailable ? (
+          isExternal ? (
             <a
-              href={opportunity.apply_link}
+              href={applyUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-blue-600 text-xs font-semibold flex items-center gap-1 hover:text-blue-700 group-hover:translate-x-0.5 transition-transform"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-2xs hover:shadow-sm transition-all active:scale-[0.98]"
             >
-              Apply <ExternalLink className="w-3.5 h-3.5" />
+              <span>Apply</span>
+              <ExternalLink className="w-3 h-3" />
             </a>
           ) : (
-            <span className="text-blue-600 text-xs font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-              View <ExternalLink className="w-3.5 h-3.5" />
-            </span>
-          )}
-        </div>
+            <Link
+              href={`/opportunities/${opportunity.slug || oppId}`}
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-2xs hover:shadow-sm transition-all"
+            >
+              <span>Apply</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          )
+        ) : (
+          <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md">
+            Closed
+          </span>
+        )}
       </div>
     </div>
   );

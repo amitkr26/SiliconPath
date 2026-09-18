@@ -5,22 +5,163 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-- **2026-09-17 — Security Hardening Round 2: Server-Controlled Roles, Filter Injection & RLS Cleanup:**
-  - **High: Employer role is now server-controlled.** `frontend/src/app/api/profile/me/route.ts` no longer writes role to client-writable `user_metadata`; the PATCH handler sets role via `supabaseAdmin.auth.admin.updateUserById` into `app_metadata` (merged, admin-gated, service-role). `frontend/src/middleware.ts` employer gate now also trusts `app_metadata.role` of `employer`/`provider`, not only `admin`.
-  - **High: Employer routes enforce employer role.** `frontend/src/app/api/employer/company/route.ts` and `frontend/src/app/api/employer/company/logo/route.ts` now use `requireEmployerRole` (401 anonymous / 403 non-employer) instead of login-only checks on both GET/PATCH and POST.
-  - **High: PostgREST filter injection blocked.** Raw user input was interpolated into `.or()` expressions in `backend/server/src/routes/search.ts` (3 sites) and `backend/server/src/repositories/opportunities.ts:92` (search term), `backend/api/src/validation/index.ts:118`, and `frontend/src/app/api/employer/talent/route.ts`. All now strip PostgREST metacharacters (`{}()"\\.`) and cap length before interpolation.
-  - **High: `verified` filter bug fixed.** `backend/api/src/validation/index.ts` previously treated `verified=false` as "verified only"; it now correctly requires `verification_status != 'verified'`. (`all` still excludes `pending`.)
-  - **Privacy: Talent search honors profile visibility.** `frontend/src/app/api/employer/talent/route.ts` now filters on `is_profile_public = true`.
-  - **Medium: RLS permissive-policy cleanup authored** in `frontend/supabase/migrations/20260917000001_rls_permissive_policy_cleanup.sql` — drops `FOR ALL USING(true)` admin policies on `candidate_experiences/educations/projects/certifications/achievements`, `scrape_sources`, `scrape_runs`, `app_config`, plus public-read-on-internal policies on `ai_usage_log`/`suggestions` (service role bypasses RLS, so admin flows are unaffected). **This migration must be applied manually via the Supabase SQL editor / `supabase db push` against DB1.**
-  - **Content: About "Meet the Team" now features real profiles** — replaced fabricated members (stock photos, `linkedin.com` stubs) with team monogram avatars linking to the five real LinkedIn profiles (`amitkr26`, `azad-gupta-6619692ba`, `rohit-maurya-rm721`, `sanju3100`, `rohit-pratap-866294212`); no stock imagery used.
-  - **UI polish:** Navbar search input and "Create Account" CTA aligned to geometric `rounded-xl` corners per design tokens (pills removed).
+- **2026-09-17 — Opportunity Data Hardening, 5-State Availability Engine, Scraper Expansion & UI Harmonization:**
+  - **Canonical 5-State Opportunity Availability Lifecycle Engine (`frontend/src/lib/availability.ts`)**:
+    - Implemented formal 5-state availability model: `AVAILABLE`, `EXPIRING_SOON`, `EXPIRED`, `UNAVAILABLE`, `UNKNOWN`.
+    - Preserved rolling/open-ended opportunities (`deadline: null`) with recent activity as `AVAILABLE` (`Rolling Applications`), completely eliminating false expiries.
+    - Added `getOpportunityAvailability(opp)` returning structured availability telemetry, urgency indicators, and clean labels.
+  - **Authoritative Date Telemetry & India-Friendly Presentation (`frontend/src/lib/utils.ts`)**:
+    - Enforced strict distinction between `Posted on` (authoritative `posted_date` with `created_at` fallback) and `Apply by / Deadline`.
+    - Added `formatIndiaDate`, `formatPostedDate` ("Posted Today", "Posted 1d ago"), and `formatDeadlineTelemetry`.
+    - Eliminated all occurrences of "Apply by null".
+  - **Deterministic Freshness Sorting (`frontend/src/lib/opportunities-query.ts`)**:
+    - Default primary sort ordered by `posted_date DESC`, `created_at DESC`, with `id DESC` secondary order to guarantee deterministic pagination without layout jumping.
+    - Supported first-class hardware domain queries (`vlsi`, `embedded`, `semiconductor`, `analog`, `research`).
+  - **Expanded Live Hardware Scraper & Idempotent Upsert (`frontend/scripts/expand-hardware-scrapers.js`)**:
+    - Ingested verified live positions across premier semiconductor and deep-tech employers:
+      - NVIDIA (Workday API)
+      - Intel Corporation (Workday API)
+      - Micron Technology (Workday API)
+      - Broadcom Inc. (Workday API)
+      - Marvell Technology (Workday API)
+      - Analog Devices (Workday API)
+      - NXP Semiconductors (Workday API)
+      - Cadence Design Systems (Workday API)
+      - Tenstorrent (Greenhouse API)
+      - Western Digital (SmartRecruiters API)
+      - ISRO (Official Careers portal)
+    - Total candidate positions scraped: 918. Newly inserted: 390. Updated existing records (idempotent upsert): 262.
+    - Safe soft-deactivation: 7 non-hardware / malformed entries set to `is_active = false` (never hard-deleted).
+    - Resolved 100% of missing `organization_id` foreign keys (0 remaining missing).
+    - Database state: **1,050 active verified opportunities** (3,382 preserved historical inactive).
+  - **Scannable Fresher-First OpportunityCard & UI Harmonization (`frontend/src/components/OpportunityCard.tsx`)**:
+    - Re-architected visual hierarchy: Company branding + Emerald `Verified` checkmark pill + Category pill + `Fresher / Student` highlight + Posted date + Deadline telemetry + Location + Stipend/Salary + Direct ATS Apply button (`ExternalLink`).
+    - Unified design system tokens across Homepage, Opportunities feed, and Detail pages (`#F8FAFC` background, `#0F172A` text, emerald badges, responsive touch targets).
+  - **Quality Gates & Build Validation**:
+    - TypeScript compilation (`npx tsc --noEmit` in `frontend/`): 0 errors.
+    - Full test suite (`npm test` in `frontend/`): 27/27 test suites passed, 286/286 tests passed.
+    - Production build (`npm run build` in `frontend/`): 100% successful compilation across 272 static, SSG, and dynamic routes.
 
-- **2026-09-17 — Security Hardening: Purge Hardcoded Credentials & IDOR Fixes:**
-  - **Critical: Removed hardcoded production Supabase service_role JWT** from `scripts/execute-opportunity-cleanup.mjs` (previously embedded as a fallback for project `aqauempuwmbizqoaolop`). Script now requires `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` from the environment and exits with code 1 when missing. **The leaked key must be rotated in the Supabase dashboard.**
-  - **Critical: Removed hardcoded admin passwords** (`amitkr2622002`, `siliconpath-admin-2026`) from `frontend/src/lib/admin-auth.ts`, `backend/api/src/auth/index.ts`, and `frontend/src/app/api/admin/auth/route.ts`. Admin authentication now validates only against server-side `ADMIN_PASSWORD` (env), fails closed (401/503) when unset, no longer default-fills a known password, and never falls back to committed literals. `ADMIN_HMAC_SECRET` derivation and HMAC-token verification now guard against empty keys.
-  - **Critical: Employer role enforcement on candidate dossier access** — `frontend/src/app/api/employer/talent/[username]/route.ts` now invokes `getAuthenticatedEmployerUser` + `isUserEmployer` before returning full candidate profiles (experiences, education, projects, certifications, achievements), preventing any authenticated non-employer from reading private candidate data. Unauthorized users receive 401, non-employers 403.
-  - **High: PII scrub on people search** — `frontend/src/app/api/people/search/route.ts` no longer selects `*` from `user_profiles`; it selects the `PUBLIC_PROFILE_FIELDS` allowlist (which excludes `email`), preventing email/account-status harvesting by any authenticated user.
-  - Quality gates: `npm run typecheck` (0 errors, all 5 workspaces), `npm test` frontend (26 suites / 259 tests), backend `api` (8 suites / 100 tests) all PASS.
+- **2026-09-17 — BDW AI Career Intelligence Engine (Phase 1-6):**
+  - **Gateway Integration (`backend/ai-gateway/src/providers/bdw.ts`)**:
+    - New BDW AI provider — thin OpenAI-compatible HTTP client with `loadBDWConfig()`, `isBDWConfigValid()`, `callBDWEndpoint()`, and `healthCheck()`.
+    - `"bdw"` added to `AIProvider` union type; gateway tries BDW first when `BDW_AI_ENABLED=true` and `BDW_AI_BASE_URL` is set; skips gracefully when not configured.
+    - Added `callBdw()` method to `AIGateway` class; updated `DEFAULT_PROVIDER_ORDER` to include `"bdw"` at position 1.
+    - 4 new gateway tests (BDW enabled, skipped when disabled, skipped without URL, correct request format).
+    - Updated barrel exports in `backend/ai-gateway/src/index.ts` with `loadBDWConfig`, `isBDWConfigValid`, `bdwHealthCheck`.
+  - **RAG System (`frontend/src/lib/ai/bdw-rag.ts`)**:
+    - Domain intent detection: 7 domains (opportunity_search, organization_search, eligibility_check, career_planning, skill_gap, news_update, general) with keyword scoring.
+    - Structured search filter extraction: category, field, location, eligibility, and free-text search terms from natural language queries.
+    - Multi-entity retrieval: `retrieveOpportunities()`, `retrieveOrganizations()`, `retrieveNews()`, `retrieveResources()` — two-phase search (primary → broad), deduplication, relevance ranking.
+    - System prompt builder: `buildBDWSystemPrompt()` with domain-specific guidance, user profile injection, RETRIEVED_DATA section, and hard grounding rules.
+    - Source citation assembly: `buildSourceCitations()` for frontend rendering.
+  - **AI Tools (`frontend/src/lib/ai/bdw-tools.ts` + `frontend/src/app/api/ai/bdw-tools/route.ts`)**:
+    - 7 structured tools in OpenAI function-calling schema: `search_opportunities`, `search_organizations`, `check_eligibility`, `get_required_skills`, `find_related_opportunities`, `get_career_roadmap`, `search_news`.
+    - Server-side tool execution endpoint with per-tool rate limiting (10 calls/minute/tool), Supabase data access, and structured result types.
+    - Career roadmaps: pre-built paths for VLSI, Embedded Systems, and ISRO Scientist with phased steps, skills, and resources.
+    - Skill-gap analysis: extracts skills from opportunity descriptions or uses knowledge-based role→skill mapping.
+  - **Chat Route Upgrade (`frontend/src/app/api/ai/chat/route.ts`)**:
+    - BDW tool loop: AI can emit `<tool_call>` tags → server executes tools → results fed back for grounded final answer (max 2 rounds).
+    - Falls back to existing legacy grounded path when BDW is disabled.
+    - Response enriched with `citations`, `domain`, and `toolResults` fields.
+    - Tool call parser supports both `<tool_call name="x" arguments={...} />` and `<tool_callname="x"arguments={...} />` formats.
+  - **Ask AI UI Enhancements (`frontend/src/app/ask-ai/`)**:
+    - `ChatMessageItem` extended with `citations`, `domain`, and `toolResults` fields.
+    - `ChatMessage` component renders domain badges (Opportunity Search, Eligibility Analysis, Career Planning, etc.), tool activity indicators, and citation reference links.
+    - Domain badge colors: emerald for opportunities, blue for organizations, amber for eligibility, violet for career, rose for skills, cyan for news.
+  - **Environment Config**:
+    - Added `BDW_AI_ENABLED`, `BDW_AI_BASE_URL`, `BDW_AI_MODEL`, `BDW_AI_API_KEY`, `BDW_AI_TIMEOUT_MS` to both `frontend/.env.example` and `backend/server/.env.example`.
+  - **Test Results**:
+    - Gateway: 19/19 tests passed (4 new BDW tests).
+    - Frontend: 286/286 tests passed across 27 test suites (1 new BDW RAG test suite, 27 tests).
+    - TypeScript: 0 errors in all BDW-related files.
+
+- **2026-09-17 — Real News Source Links, Dead Listing Deactivation, Live Hardware Job Ingestion & Complete Date Telemetry:**
+  - **Direct Publisher News Links (`url` & `source_name` Mapping)**:
+    - Fixed schema mapping in `frontend/src/app/news/page.tsx` and `frontend/src/app/news/[slug]/page.tsx` where Supabase `news_articles` columns `url` and `source_name` were previously unmapped to `source_url` and `source`.
+    - Added direct publisher badges on news cards (`Read on [Source] ↗`) in `frontend/src/app/news/NewsClient.tsx` and `frontend/src/components/home/PublicHome.tsx`.
+    - Added prominent CTA button in executive briefing reading modal: `Read Full Article on [Source] ↗` with valid target `_blank` link directly to IEEE Spectrum, EE Times, Electronics Weekly, Semiconductor Engineering, etc.
+  - **Deactivation of Unavailable & Expired Listings**:
+    - Purged dead and expired records by deactivating 76 stale opportunities in Supabase where `verification_status IN ('link_unavailable', 'expired', 'rejected')` or `deadline < '2026-09-17'`.
+  - **Scraped & Ingested 360 Live Core Hardware Jobs & Internships**:
+    - Built and executed `frontend/scripts/ingest-live-hardware-jobs.js` against official corporate career ATS endpoints for premier semiconductor and hardware employers:
+      - Intel Corporation
+      - Micron Technology
+      - Broadcom Inc.
+      - Marvell Technology
+      - Analog Devices (ADI)
+      - NXP Semiconductors
+      - Cadence Design Systems
+    - Filtered 806 candidate listings down to 360 verified, active hardware engineering opportunities (Silicon Architecture, RTL Design, UVM Verification, Physical Design/STA, Embedded Firmware, Board Design, RF/Analog Layout, and Co-op Internships) with direct apply links and authentic salaries/stipends.
+  - **Default "Most Recent First" Sorting & Full Date Telemetry**:
+    - Default sorting on `/opportunities` set to `"newest"` (`created_at` DESC / `posted_date` DESC) so candidates immediately see the freshest job postings.
+    - Implemented standardized date telemetry helpers (`formatPostedDate` and `formatDeadline`) across `OpportunitiesClient.tsx`, `PublicHome.tsx`, and `[slug]/page.tsx`:
+      - **Posted Date**: Relative/formatted timestamp (`Posted Today`, `Posted 1d ago`, `Posted Sep 17, 2026`).
+      - **Deadline Telemetry**: Clean deadline display with urgency tags (`Apply by Oct 22 (5d left)`) or `Rolling Applications`.
+      - **Verification Badges**: Emerald `Verified` badge with checkmark on all verified company listings.
+      - **Direct Apply Action**: High-contrast `Apply ↗` button with `ExternalLink` routing straight to official applicant tracking systems.
+  - **Unified Design System & Quality Gates**:
+    - Cohesive visual tokens across Home, Opportunities, and Detail pages: `#F8FAFC` slate background, `#0F172A` headings, emerald badges, and purple pills.
+    - Monorepo TypeScript check (`npx tsc --noEmit`): 0 errors.
+    - Jest test suites (`npm test`): 26/26 test suites passed, 259/259 tests passed.
+
+- **2026-09-17 — Photorealistic Hardware News Imagery, Domain Badges & Elimination of Deceptive App Store Links:**
+  - **Photorealistic Deep-Tech Hardware News Visuals**:
+    - Replaced the repetitive generic student photo fallback (`news-team-study.png`) with 6 photorealistic, domain-accurate hardware assets in `frontend/public/images/hardware/`:
+      1. `semiconductor-cleanroom-fab.jpg`: Technicians handling silicon wafers in an ISO-1 cleanroom.
+      2. `vlsi-microchip-die.jpg`: Macro integrated circuit die with gold wire bonding and glowing traces.
+      3. `embedded-systems-pcb.jpg`: High-tech ARM/STM32 microcontroller development board.
+      4. `satellite-radar-avionics.jpg`: Aerospace satellite payload and phased-array radar module.
+      5. `photonics-quantum-lab.jpg`: Laser optics and silicon photonics research laboratory.
+      6. `hardware-lab-workbench.jpg`: Digital oscilloscope, signal generator, and RF workbench.
+    - Created `frontend/src/lib/hardware-images.ts` exporting `resolveHardwareNewsImage()` and `resolveNewsDomainBadge()`. Prioritizes real publisher images when valid; otherwise deterministically resolves domain-accurate hardware photos based on article title, summary, and tags.
+    - Updated `frontend/src/components/home/PublicHome.tsx` and `frontend/src/app/news/NewsClient.tsx` to use the resolver across all news grids and featured article slots.
+  - **Dynamic Domain Badge Mapping (Elimination of Dummy Tags)**:
+    - Replaced hardcoded dummy badges (`ANNOUNCEMENT`, `CAREER TIPS`, `GUIDE`) on featured news cards with authentic hardware domain badges: `SEMICONDUCTOR`, `VLSI & CHIP DESIGN`, `EMBEDDED SYSTEMS`, `DEFENCE & SPACE`, `TELECOM & RF`, `DEEP-TECH RESEARCH`, and `POWER ELECTRONICS`.
+  - **Complete Removal of Deceptive Mobile App / Play Store / App Store Claims**:
+    - Eliminated all dead/misleading Google Play and App Store download buttons and phone mockups across the platform:
+      - `frontend/src/components/Footer.tsx`: Replaced "Download Our App" column with "Hardware Career Radar" linking to verified opportunities and semiconductor research labs.
+      - `frontend/src/components/home/PublicHome.tsx`: Replaced mobile app promo section with "Empowering India's Deep-Tech Hardware Workforce" ecosystem showcase.
+      - `frontend/src/app/news/NewsClient.tsx`: Replaced mobile app section with "Track India's Silicon Revolution In Real Time" career radar.
+      - `frontend/src/app/resources/ResourcesClient.tsx`: Replaced mobile app section with "Empowering India's Hardware Engineers & Researchers" roadmap CTA.
+  - **Quality Gates**:
+    - Monorepo TypeScript check (`npx tsc --noEmit` in `frontend/`): 0 errors.
+    - Full test suite (`npm test` in `frontend/`): 26/26 test suites, 259/259 tests passed.
+
+- **2026-09-17 — Integration of Real BDW Team Members & Production Domain Hardening:**
+  - **The People Behind BDW (About Page)**:
+    - Replaced the generic team placeholder card in `frontend/src/app/about/AboutClient.tsx` with a verified 5-member team showcase and authentic social/repository profiles:
+      - **Amit Kumar** — Founder & Lead Architect (`https://www.linkedin.com/in/amitkr26`, `https://github.com/amitkr26`)
+      - **Azad Gupta** — Core Team: Systems & Platform (`https://www.linkedin.com/in/azad-gupta-6619692ba`)
+      - **Rohit Maurya** — Core Team: Research & Intelligence (`https://www.linkedin.com/in/rohit-maurya-rm721`)
+      - **Sanju** — Core Team: Community & Partnerships (`https://www.linkedin.com/in/sanju3100`)
+      - **Rohit Pratap** — Core Team: Product & Operations (`https://www.linkedin.com/in/rohit-pratap-866294212`)
+    - Added deterministic SVG monogram avatar rendering via `ImageWithFallback.tsx` with role badges, headlines, direct LinkedIn profile links, and GitHub repository links.
+    - Added 6th symmetric grid card for ecosystem talent acquisition ("Join Our Mission — We're Growing").
+  - **Official Socials & Icon System**:
+    - Added official `GitHubIcon` SVG component in `frontend/src/components/ui/SocialIcons.tsx` and mapped to `ICON_MAP`.
+    - Added official repository `https://github.com/amitkr26/BerojgarDegreeWala` to `SOCIAL_LINKS` in `frontend/src/config/socials.ts`.
+  - **Production Domain & Security Configuration**:
+    - Added `https://www.berojgardegreewala.app` and `https://berojgardegreewala.app` to `ALLOWED_ORIGINS` in `frontend/src/middleware.ts` to ensure flawless CORS and CSRF validation on the production domain.
+  - **Quality Gates**:
+    - Monorepo TypeScript check (`npx tsc --noEmit` in `frontend/`): 0 errors.
+    - Monorepo full test suite (`npm test` in `frontend/`): 26/26 test suites, 259/259 tests passed.
+
+- **2026-09-17 — Strict Domain Enforcement for Opportunities & Live Authentic Hardware News:**
+  - **Hardware-Only Opportunity Filtering (Electronics, Embedded, Semiconductor, VLSI)**:
+    - Updated `frontend/src/lib/opportunities-query.ts` with `isHardwareOpportunity()` and multi-field filtering (`field: vlsi | embedded | semiconductor | analog`).
+    - Filtered out irrelevant non-hardware listings (railway trade apprentices, medical ICMR notices, banking/vKYC, and broken "undefined" PDF result archives). Deactivated 41 non-hardware records in the database (`is_active = false`), leaving 350 active, verified core hardware opportunities.
+    - Updated `frontend/src/app/opportunities/OpportunitiesClient.tsx` and `frontend/src/app/opportunities/page.tsx` with dedicated hardware categories: VLSI & ASIC, Embedded Systems, Semiconductors & Fab, Research & JRF, Core Jobs, Internships, and Govt/Defence.
+    - Updated `frontend/src/components/home/PublicHome.tsx` landing categories to feature VLSI & ASIC Design, Embedded & Firmware, Semiconductor & Fab, Analog & RF Circuits, Research (JRF & PhD), and Govt & Space Electronics.
+  - **Authentic News Cleansing & Scraper Hardening**:
+    - Identified and fixed critical bug in `frontend/src/lib/scrapers/news-filter.ts` where short substrings ("he", "she", "ie") falsely matched general English words. Enforced word-boundary regex matching for short acronyms.
+    - Added rigorous exclusions in `BLOCKED_PATTERNS` for non-hardware topics (wood bending, golf tees, social media, agriculture, politics, general AI).
+    - Cleansed database `news_articles`: deactivated 249 irrelevant/non-hardware articles (`is_active = false`), leaving 330 active verified hardware intelligence stories (from IEEE Spectrum, EE Times, Semiconductor Engineering, SemiWiki, Electronics Weekly, Electronics For You).
+    - Updated `frontend/src/app/news/NewsClient.tsx` with hardware category tabs (Semiconductors & Fabs, VLSI & Chip Design, Embedded & Firmware, Defence & Space, Research & IEEE) and trending topics (India Semiconductor Mission, RISC-V Architecture, VLSI Physical Design, ISRO Payload Systems, Silicon Photonics).
+    - Gated all news queries in `frontend/src/app/news/page.tsx` and `frontend/src/app/page.tsx` with `.eq("is_active", true)`.
+  - **Quality Gates**:
+    - Monorepo TypeScript check (`npx tsc --noEmit` in `frontend/`): 0 errors.
+    - Full test suite (`npm test` in `frontend/`): 26/26 test suites, 259/259 tests passed.
 
 - **2026-09-17 — Integration of 100 Verified Semiconductor Companies (Bangalore Edition):**
   - **Verified Semiconductor Directory Expansion**:

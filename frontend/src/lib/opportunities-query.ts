@@ -10,6 +10,7 @@ export interface OpportunityQueryParams {
   page?: number;
   limit?: number;
   category?: string;
+  field?: string;
   eligibility?: string;
   location?: string;
   deadline?: string;
@@ -17,6 +18,51 @@ export interface OpportunityQueryParams {
   sort?: string;
   search?: string;
   includeExpired?: boolean;
+}
+
+const CORE_HARDWARE_KEYWORDS = [
+  "vlsi", "asic", "fpga", "rtl", "verilog", "systemverilog", "vhdl", "soc",
+  "system-on-chip", "system on chip", "physical design", "dft", "design verification",
+  "uvm", "sta", "static timing", "synthesis", "cadence", "synopsys", "mentor",
+  "vivado", "quartus", "layout", "drc", "lvs", "gdsii", "analog design", "rfic",
+  "embedded", "firmware", "microcontroller", "microprocessor", "mcu", "rtos",
+  "arm", "risc-v", "device driver", "bsp", "iot", "bare-metal", "dsp",
+  "semiconductor", "chip", "chips", "wafer", "fab", "foundry", "lithography",
+  "cleanroom", "mems", "packaging", "tsmc", "intel", "amd", "nvidia", "qualcomm",
+  "texas instruments", "micron", "applied materials", "lam research", "stmicro",
+  "nxp", "infineon", "graphcore", "tenstorrent", "tata electronics", "scl mohali",
+  "electronics", "electronic", "analog", "rf", "pcb", "circuits", "hardware",
+  "ece", "eee", "telecom", "radar", "antenna", "instrumentation", "power electronics",
+  "avionics", "sensor", "photonics", "optics", "laser", "bel", "ecil", "sameer",
+  "isro", "drdo", "jrf", "srf", "phd", "research associate", "project assistant",
+  "iit", "iisc", "bits pilani", "nit"
+];
+
+const DISALLOWED_OPP_PATTERNS = [
+  /\b(fitter|welder|carpenter|plumber|painter|mason|machinist|turner|draughtsman|stenographer|typist)\b/i,
+  /\b(clerk|peon|chowkidar|safaiwala|cook|driver|nurse|nursing|hospital|medical|doctor|mbbs)\b/i,
+  /\b(civil engineer|civil engineering|textile|agriculture|horticulture|zoology|botany)\b/i,
+  /\b(banking|vkyc|kyc|insurance|wealth management|financial advisor)\b/i,
+  /\b(publication of select list|publication of result|wait list against advt|result of walk-in)\b/i,
+  /undefined/i
+];
+
+export function isHardwareOpportunity(opp: any): boolean {
+  if (!opp) return false;
+  const title = (opp.title || "").trim();
+  const desc = (opp.description || "").trim();
+  const org = (opp.organization || opp.organizations?.name || "").trim();
+  const tags = Array.isArray(opp.tags) ? opp.tags.join(" ") : "";
+  const combined = `${title} ${desc} ${org} ${tags}`.toLowerCase();
+
+  for (const dis of DISALLOWED_OPP_PATTERNS) {
+    if (dis.test(title)) return false;
+  }
+
+  return CORE_HARDWARE_KEYWORDS.some((term) => {
+    const reg = new RegExp(`\\b${term.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, "\\$&")}\\b`, "i");
+    return reg.test(combined);
+  });
 }
 
 export interface OpportunityQueryResult {
@@ -36,6 +82,7 @@ export async function searchOpportunities(
   const page = Math.max(1, params.page || 1);
   const limit = Math.min(100, Math.max(1, params.limit || 20));
   const category = params.category || "All";
+  const field = params.field || "All";
   const eligibility = params.eligibility || "All";
   const location = params.location || "All";
   const deadline = params.deadline || "All";
@@ -93,6 +140,28 @@ export async function searchOpportunities(
       );
     } else {
       supabaseQuery = supabaseQuery.or(`category.ilike.%${category}%,title.ilike.%${category}%`);
+    }
+  }
+
+  // 1b. HARDWARE FIELD FILTER (VLSI, Semiconductor, Embedded, Analog)
+  if (field && field !== "All") {
+    const f = field.toLowerCase();
+    if (f === "vlsi") {
+      supabaseQuery = supabaseQuery.or(
+        "title.ilike.%VLSI%,title.ilike.%ASIC%,title.ilike.%FPGA%,title.ilike.%RTL%,title.ilike.%Verilog%,title.ilike.%SystemVerilog%,title.ilike.%Physical Design%,title.ilike.%DFT%,title.ilike.%Verification%,title.ilike.%EDA%,title.ilike.%Synthesis%"
+      );
+    } else if (f === "semiconductor") {
+      supabaseQuery = supabaseQuery.or(
+        "title.ilike.%Semiconductor%,title.ilike.%Fab%,title.ilike.%Foundry%,title.ilike.%Wafer%,title.ilike.%Lithography%,title.ilike.%Cleanroom%,title.ilike.%MEMS%,title.ilike.%Packaging%,title.ilike.%Silicon%"
+      );
+    } else if (f === "embedded") {
+      supabaseQuery = supabaseQuery.or(
+        "title.ilike.%Embedded%,title.ilike.%Firmware%,title.ilike.%Microcontroller%,title.ilike.%RTOS%,title.ilike.%ARM%,title.ilike.%RISC-V%,title.ilike.%Driver%,title.ilike.%DSP%"
+      );
+    } else if (f === "analog") {
+      supabaseQuery = supabaseQuery.or(
+        "title.ilike.%Analog%,title.ilike.%RF%,title.ilike.%RFIC%,title.ilike.%Mixed%,title.ilike.%Circuits%,title.ilike.%Power Electronics%"
+      );
     }
   }
 
@@ -216,12 +285,21 @@ export async function searchOpportunities(
     // Closing soon: prioritize deadlines that are closest to today
     supabaseQuery = supabaseQuery
       .order("deadline", { ascending: true, nullsFirst: false })
-      .order("created_at", { ascending: false });
-  } else if (sort === "newest") {
-    supabaseQuery = supabaseQuery.order("created_at", { ascending: false });
+      .order("posted_date", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false });
+  } else if (sort === "newest" || sort === "fresher") {
+    // Freshness first: Authoritative posted_date DESC, fallback to created_at DESC, deterministic id DESC
+    supabaseQuery = supabaseQuery
+      .order("posted_date", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false });
   } else {
-    // Default "fresher" prioritization: newest verified openings
-    supabaseQuery = supabaseQuery.order("created_at", { ascending: false });
+    // Default: newest authoritative openings first
+    supabaseQuery = supabaseQuery
+      .order("posted_date", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false });
   }
 
   // Paginate
@@ -233,10 +311,10 @@ export async function searchOpportunities(
     return { data: [], count: 0 };
   }
 
-  // Post-filter: canonical availability logic
-  const filtered = includeExpired
-    ? (data || [])
-    : (data || []).filter((opp: any) => isCurrentlyAvailable(opp, today));
+  // Post-filter: canonical availability & strict hardware domain logic
+  const filtered = (data || [])
+    .filter((opp: any) => includeExpired || isCurrentlyAvailable(opp, today))
+    .filter((opp: any) => isHardwareOpportunity(opp));
 
   return { data: filtered, count: count !== null && count !== undefined ? count : filtered.length };
 }

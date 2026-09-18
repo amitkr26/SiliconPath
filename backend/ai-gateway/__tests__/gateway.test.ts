@@ -85,6 +85,11 @@ afterEach(() => {
   delete process.env.CLOUDFLARE_ACCOUNT_ID;
   delete process.env.OMNIROUTER_BASE_URL;
   delete process.env.OMNIROUTER_API_KEY;
+  delete process.env.BDW_AI_ENABLED;
+  delete process.env.BDW_AI_BASE_URL;
+  delete process.env.BDW_AI_MODEL;
+  delete process.env.BDW_AI_API_KEY;
+  delete process.env.BDW_AI_TIMEOUT_MS;
 });
 
 describe("AI gateway — success path", () => {
@@ -228,6 +233,89 @@ describe("AI gateway — failure handling", () => {
 
     const result = await gateway.generateAdvanced("prompt", undefined, "test-advanced");
     expect(result.provider).toBe("gemini");
+  });
+});
+
+describe("AI gateway — BDW provider", () => {
+  test("BDW provider is tried first when BDW_AI_ENABLED=true and BDW_AI_BASE_URL is set", async () => {
+    setProviderKeys("groq"); // groq has a key
+    process.env.BDW_AI_ENABLED = "true";
+    process.env.BDW_AI_BASE_URL = "http://localhost:8000/v1";
+    const { calls } = stubFetch({
+      groq: OPENAI_OK("from groq"),
+    });
+    const gateway = freshGateway();
+
+    // BDW should be tried first but fail (no real server), then groq should succeed
+    // The stub doesn't handle BDW URL, so it returns 500 (unexpected provider)
+    const result = await gateway.generate({ messages: [MSG] }, "test-feature");
+    // BDW fails (500 from stub), groq succeeds
+    expect(result.provider).toBe("groq");
+    expect(calls[0]).toContain("localhost:8000");
+    expect(calls[1]).toBe(URLS.groq);
+  });
+
+  test("BDW provider is skipped when BDW_AI_ENABLED is not set", async () => {
+    setProviderKeys("groq");
+    delete process.env.BDW_AI_ENABLED;
+    delete process.env.BDW_AI_BASE_URL;
+    const { calls } = stubFetch({ groq: OPENAI_OK("from groq") });
+    const gateway = freshGateway();
+
+    const result = await gateway.generate({ messages: [MSG] }, "test-feature");
+    expect(result.provider).toBe("groq");
+    // BDW should NOT be called (skipped due to not enabled)
+    expect(calls).toEqual([URLS.groq]);
+  });
+
+  test("BDW provider is skipped when BDW_AI_BASE_URL is empty", async () => {
+    setProviderKeys("groq");
+    process.env.BDW_AI_ENABLED = "true";
+    process.env.BDW_AI_BASE_URL = "";
+    const { calls } = stubFetch({ groq: OPENAI_OK("from groq") });
+    const gateway = freshGateway();
+
+    const result = await gateway.generate({ messages: [MSG] }, "test-feature");
+    expect(result.provider).toBe("groq");
+    // BDW should NOT be called (no base URL)
+    expect(calls).toEqual([URLS.groq]);
+  });
+
+  test("BDW provider sends correct request format to OpenAI-compatible endpoint", async () => {
+    setProviderKeys("groq");
+    process.env.BDW_AI_ENABLED = "true";
+    process.env.BDW_AI_BASE_URL = "http://localhost:8000/v1";
+    process.env.BDW_AI_MODEL = "custom-model";
+    process.env.BDW_AI_API_KEY = "bdw-test-key";
+
+    const bdwCalls: string[] = [];
+    const fn = jest.fn(async (url: string, init?: RequestInit) => {
+      bdwCalls.push(url);
+      if (url.includes("localhost:8000")) {
+        const body = JSON.parse(init?.body as string);
+        // Verify OpenAI-compatible format
+        expect(body.model).toBe("custom-model");
+        expect(body.messages).toBeDefined();
+        expect(Array.isArray(body.messages)).toBe(true);
+        return OPENAI_OK("from bdw");
+      }
+      return jsonResponse({ error: "unexpected" }, 500);
+    });
+    globalThis.fetch = fn as unknown as typeof fetch;
+
+    const gateway = freshGateway();
+    const result = await gateway.generate(
+      { messages: [MSG], systemPrompt: "Be a career advisor" },
+      "test-feature"
+    );
+
+    expect(result.provider).toBe("bdw");
+    expect(result.text).toBe("from bdw");
+    expect(bdwCalls[0]).toContain("localhost:8000/v1/chat/completions");
+
+    // Verify Authorization header
+    const [, init] = fn.mock.calls[0] as [string, RequestInit];
+    expect((init.headers as Record<string, string>).Authorization).toBe("Bearer bdw-test-key");
   });
 });
 

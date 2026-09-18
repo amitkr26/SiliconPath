@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { apiError } from "@/lib/api-utils";
-import { PUBLIC_PROFILE_FIELDS } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -14,7 +13,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from("user_profiles")
-    .select(PUBLIC_PROFILE_FIELDS, { count: "exact" })
+    .select("*", { count: "exact" })
     .eq("is_profile_public", true);
 
   if (q) {

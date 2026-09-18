@@ -158,6 +158,9 @@ export default function OpportunityIntelligencePage() {
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         opportunities: data.opportunities || [],
         sources: data.sources || [],
+        citations: data.citations || [],
+        domain: data.domain || undefined,
+        toolResults: data.toolResults || undefined,
       };
 
       updateActiveMessages([...updatedMessages, assistantMsg]);

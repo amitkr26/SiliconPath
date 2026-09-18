@@ -104,8 +104,7 @@ async function computeHmacSha256Hex(secret: string, data: string): Promise<strin
 }
 
 async function verifyAdminToken(token: string, adminPassword: string): Promise<boolean> {
-  const HMAC_KEY = process.env.ADMIN_HMAC_SECRET || adminPassword || "";
-  if (!HMAC_KEY) return false;
+  const HMAC_KEY = process.env.ADMIN_HMAC_SECRET || adminPassword;
   const parts = token.split(".");
   if (parts.length !== 3) return false;
   const [sessionId, expiry, sig] = parts;
@@ -221,10 +220,8 @@ export async function requireAdmin(request: RequestLike): Promise<AuthUser> {
   if (!adminPassword && !cronSecret) throw forbidden("Server keys are missing");
 
   const directPassword = request.headers.get("x-admin-password");
-  if (directPassword) {
-    if (adminPassword && safeEqual(directPassword, adminPassword)) {
-      return { id: "admin", email: "admin", role: "admin", global_role: "platform_admin" };
-    }
+  if (directPassword && adminPassword && safeEqual(directPassword, adminPassword)) {
+    return { id: "admin", email: "admin", role: "admin", global_role: "platform_admin" };
   }
 
   const authHeader = request.headers.get("authorization") || "";
@@ -234,7 +231,7 @@ export async function requireAdmin(request: RequestLike): Promise<AuthUser> {
     if (adminPassword && safeEqual(token, adminPassword)) {
       return { id: "admin", email: "admin", role: "admin", global_role: "platform_admin" };
     }
-    if (adminPassword && (await verifyAdminToken(token, adminPassword))) {
+    if (adminPassword && await verifyAdminToken(token, adminPassword)) {
       return { id: "admin", email: "admin", role: "admin", global_role: "platform_admin" };
     }
     if (cronSecret && safeEqual(token, cronSecret)) {

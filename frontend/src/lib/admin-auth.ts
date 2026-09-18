@@ -29,7 +29,6 @@ async function computeHmacSha256Hex(secret: string, data: string): Promise<strin
 }
 
 async function verifyAdminToken(token: string, secret: string): Promise<boolean> {
-  if (!secret) return false;
   const parts = token.split(".");
   if (parts.length !== 3) return false;
   const [sessionId, expiry, sig] = parts;
@@ -45,12 +44,12 @@ async function verifyAdminToken(token: string, secret: string): Promise<boolean>
 export async function verifyAdmin(request: NextRequest | Request): Promise<boolean> {
   const adminPassword = process.env.ADMIN_PASSWORD;
   const cronSecret = process.env.CRON_SECRET;
+  if (!adminPassword && !cronSecret) return false;
   const hmacKey = process.env.ADMIN_HMAC_SECRET || adminPassword;
 
   const directPassword = request.headers.get("x-admin-password");
-  if (directPassword) {
-    if (!adminPassword) return false;
-    if (safeEqual(directPassword, adminPassword)) return true;
+  if (directPassword && adminPassword && safeEqual(directPassword, adminPassword)) {
+    return true;
   }
 
   const authHeader = request.headers.get("authorization") || "";

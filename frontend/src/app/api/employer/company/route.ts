@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isUserAdmin, requireEmployerRole } from "@/lib/employer-auth";
+import { isUserAdmin } from "@/lib/employer-auth";
+import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const user = await requireEmployerRole(request);
-  if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });
@@ -45,8 +47,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const user = await requireEmployerRole(request);
-  if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!isAdminConfigured || !supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 503 });

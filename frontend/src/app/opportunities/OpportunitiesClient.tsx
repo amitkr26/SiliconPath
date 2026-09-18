@@ -10,20 +10,20 @@ import {
   Search, X, MapPin, Calendar, ArrowRight, Bookmark, BookmarkCheck,
   ChevronLeft, ChevronRight, LayoutGrid, List, Microscope, Briefcase,
   UserCheck, GraduationCap, Star, Globe, Trophy, Zap, Mail, Shield,
-  Users, Loader2, CheckCircle2, Sparkles, Building2
+  Users, Loader2, CheckCircle2, Sparkles, Building2, Clock, IndianRupee, ExternalLink
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const CATEGORY_TABS = [
   { id: "All", label: "All", icon: LayoutGrid },
-  { id: "jrf", label: "Research", icon: Microscope },
-  { id: "internship", label: "Internships", icon: Briefcase },
-  { id: "job", label: "Jobs", icon: UserCheck },
-  { id: "scholarship", label: "Scholarships", icon: GraduationCap },
-  { id: "fellowship", label: "Fellowships", icon: Star },
-  { id: "study-abroad", label: "Study Abroad", icon: Globe },
-  { id: "competition", label: "Competitions", icon: Trophy },
+  { id: "vlsi", label: "VLSI & ASIC", icon: Sparkles },
+  { id: "embedded", label: "Embedded", icon: Briefcase },
+  { id: "semiconductor", label: "Semiconductors", icon: Building2 },
+  { id: "jrf", label: "Research & JRF", icon: Microscope },
+  { id: "job", label: "Core Jobs", icon: UserCheck },
+  { id: "internship", label: "Internships", icon: Star },
+  { id: "govt-job", label: "Govt & Defence", icon: Trophy },
 ];
 
 const TYPE_OPTIONS = [
@@ -45,7 +45,6 @@ const FIELD_OPTIONS = [
   { value: "embedded", label: "Embedded Systems & Firmware" },
   { value: "verification", label: "Design Verification (UVM)" },
   { value: "analog", label: "Analog & Mixed Signal" },
-  { value: "software", label: "Software & AI Systems" },
   { value: "research", label: "Applied Research & JRF" },
 ];
 
@@ -85,6 +84,43 @@ function setLocalBookmarks(ids: string[]) {
   localStorage.setItem("BerojgarDegreeWala_bookmarks", JSON.stringify(ids));
 }
 
+function formatPostedDate(dateStr?: string | null): string {
+  if (!dateStr) return "Recently Posted";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return "Recently Posted";
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 0) return "Posted Today";
+    if (diffDays === 1) return "Posted 1d ago";
+    if (diffDays < 7) return `Posted ${diffDays}d ago`;
+    return `Posted ${d.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+  } catch {
+    return "Recently Posted";
+  }
+}
+
+function formatDeadline(deadlineStr?: string | null): { text: string; isUrgent: boolean; isRolling: boolean } {
+  if (!deadlineStr) {
+    return { text: "Rolling Applications", isUrgent: false, isRolling: true };
+  }
+  try {
+    const d = new Date(deadlineStr);
+    if (isNaN(d.getTime())) {
+      return { text: "Rolling Applications", isUrgent: false, isRolling: true };
+    }
+    const now = new Date();
+    const diffDays = Math.ceil((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const formatted = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    if (diffDays > 0 && diffDays <= 5) {
+      return { text: `Apply by ${formatted} (${diffDays}d left)`, isUrgent: true, isRolling: false };
+    }
+    return { text: `Apply by ${formatted}`, isUrgent: false, isRolling: false };
+  } catch {
+    return { text: "Rolling Applications", isUrgent: false, isRolling: true };
+  }
+}
+
 export default function OpportunitiesClient({ initialData }: { initialData: Opportunity[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -97,7 +133,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
   const [field, setField] = useState("All");
   const [location, setLocation] = useState("All");
   const [eligibility, setEligibility] = useState("All");
-  const [sort, setSort] = useState("fresher");
+  const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(initialData.length);
   const [totalPages, setTotalPages] = useState(Math.max(1, Math.ceil(initialData.length / 8)));
@@ -155,27 +191,23 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
         params.set("page", String(pageNum));
         params.set("limit", String(PAGE_LIMIT));
 
-        // Priority for type/category
+        // Priority for type/category/field
         if (oppType !== "All") {
           params.set("category", oppType);
-        } else if (category !== "All" && category !== "study-abroad" && category !== "competition") {
-          params.set("category", category);
+        } else if (category !== "All") {
+          if (["vlsi", "embedded", "semiconductor"].includes(category)) {
+            params.set("field", category);
+          } else {
+            params.set("category", category);
+          }
         }
 
+        if (field !== "All") params.set("field", field);
         if (eligibility !== "All") params.set("eligibility", eligibility);
         if (location !== "All") params.set("location", location);
-        if (sort !== "fresher") params.set("sort", sort);
+        if (sort) params.set("sort", sort);
 
-        // Build combined query from search, field, and study abroad / competition
-        let combinedSearch = search.trim();
-        if (field !== "All") {
-          combinedSearch = combinedSearch ? `${combinedSearch} ${field}` : field;
-        }
-        if (category === "study-abroad") {
-          combinedSearch = combinedSearch ? `${combinedSearch} study abroad` : "study abroad";
-        } else if (category === "competition") {
-          combinedSearch = combinedSearch ? `${combinedSearch} competition` : "competition";
-        }
+        const combinedSearch = search.trim();
         if (combinedSearch) {
           params.set("search", combinedSearch);
         }
@@ -474,9 +506,8 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                   onChange={(e) => setSort(e.target.value)}
                   className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 >
-                  <option value="fresher">Latest First</option>
+                  <option value="newest">Most Recent First</option>
                   <option value="closing_soon">Closing Soon</option>
-                  <option value="newest">Newest First</option>
                 </select>
               </div>
 
@@ -546,32 +577,43 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                 const oppTitle = opp.title || "Opportunity";
                 const isSaved = !!bookmarkedIds[oppId];
                 const catLabel = opp.category ? opp.category.toUpperCase() : "OPPORTUNITY";
+                const deadlineInfo = formatDeadline(opp.deadline);
+                const postedDateText = formatPostedDate((opp as any).posted_date || (opp as any).posted_at || opp.created_at);
 
                 return (
                   <div
                     key={oppId}
-                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs hover:shadow-lg hover:border-blue-200 transition-all flex flex-col justify-between group"
+                    className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs hover:shadow-lg hover:border-blue-200 transition-all flex flex-col justify-between group"
                   >
                     <div>
                       {/* Top Row: Logo & Category Badge & Bookmark */}
                       <div className="flex items-start justify-between gap-2 mb-3">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-slate-100 bg-slate-50 flex items-center justify-center">
-                          <ImageWithFallback
-                            src={opp.organization_logo_url}
-                            alt={`${opp.organization || "Organization"} logo`}
-                            name={opp.organization}
-                            variant="logo"
-                            width={40}
-                            height={40}
-                            className="w-10 h-10 rounded-lg object-contain p-0.5"
-                          />
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-slate-100 bg-slate-50 flex items-center justify-center">
+                            <ImageWithFallback
+                              src={opp.organization_logo_url}
+                              alt={`${opp.organization || "Organization"} logo`}
+                              name={opp.organization}
+                              variant="logo"
+                              width={40}
+                              height={40}
+                              className="w-10 h-10 rounded-xl object-contain p-1"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <p className="text-xs font-bold text-slate-800 uppercase tracking-wider truncate max-w-[130px]">
+                                {opp.organization || "Verified Org"}
+                              </p>
+                              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-200 shrink-0">
+                                <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                                <span>Verified</span>
+                              </span>
+                            </div>
+                          </div>
                         </div>
 
-                        <div className="flex items-center gap-1.5">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider bg-blue-50 text-blue-700 border-blue-200">
-                            {catLabel}
-                          </span>
-
+                        <div className="flex items-center gap-1 shrink-0">
                           <button
                             type="button"
                             onClick={() => toggleBookmark(oppId, oppTitle)}
@@ -587,10 +629,12 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                         </div>
                       </div>
 
-                      {/* Organization Name */}
-                      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider truncate mb-1">
-                        {opp.organization || "Verified Organization"}
-                      </p>
+                      {/* Category Pill */}
+                      <div className="mb-2">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider bg-blue-50 text-blue-700 border-blue-200">
+                          {catLabel}
+                        </span>
+                      </div>
 
                       {/* Role Title */}
                       <Link href={`/opportunities/${opp.slug || oppId}`}>
@@ -599,42 +643,67 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                         </h3>
                       </Link>
 
-                      {/* Snippet / Description */}
-                      <p className="text-xs text-slate-500 font-normal line-clamp-2 leading-relaxed mb-4">
+                      {/* Snippet */}
+                      <p className="text-xs text-slate-500 font-normal line-clamp-2 leading-relaxed mb-3">
                         {opp.description ||
-                          `Explore verified opening at ${opp.organization || "top institution"} with career mentorship.`}
+                          `Explore verified opening at ${opp.organization || "top institution"} with direct application channels.`}
                       </p>
 
-                      {/* Key Metadata */}
-                      <div className="space-y-1.5 text-xs text-slate-600 border-t border-slate-100 pt-3">
-                        <div className="flex items-center gap-1.5 truncate">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span className="truncate">{opp.location || "Multiple Locations, India"}</span>
+                      {/* Complete Date & Telemetry Block */}
+                      <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-100 mb-3 space-y-2">
+                        <div className="flex items-center justify-between text-[11px] gap-1">
+                          <div className="flex items-center gap-1.5 text-slate-500 font-medium">
+                            <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span>{postedDateText}</span>
+                          </div>
+                          <div className={`flex items-center gap-1 font-semibold text-[11px] truncate max-w-[130px] ${deadlineInfo.isUrgent ? 'text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200' : 'text-slate-600'}`}>
+                            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span className="truncate">{deadlineInfo.text}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1.5 truncate">
-                          <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span className="truncate">{opp.category || "Full-time"}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 truncate">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span className="truncate">
-                            {opp.deadline
-                              ? new Date(opp.deadline).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
-                              : "Rolling Applications"}
-                          </span>
+
+                        <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-slate-200/60 gap-1">
+                          <div className="flex items-center gap-1 text-slate-600 truncate max-w-[125px]">
+                            <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span className="truncate">{opp.location || "Multiple Locations"}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-slate-700 font-semibold truncate max-w-[135px]">
+                            <Briefcase className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span className="truncate">{opp.salary_range || (opp as any).stipend || "Industry Standard"}</span>
+                          </div>
                         </div>
                       </div>
+
+                      {/* Eligibility / Education */}
+                      {opp.eligibility && (
+                        <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mb-3">
+                          <GraduationCap className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">{opp.eligibility}</span>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Bottom CTA Link */}
-                    <div className="pt-4 mt-2 border-t border-slate-100">
+                    {/* Bottom Actions: View Details + Direct Apply */}
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                       <Link
                         href={`/opportunities/${opp.slug || oppId}`}
-                        className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center justify-between group/link"
+                        className="text-xs font-bold text-slate-700 hover:text-blue-600 flex items-center gap-1 transition-colors"
                       >
                         <span>View Details</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover/link:translate-x-1 transition-transform" />
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
+
+                      {(opp.apply_url || (opp as any).apply_link) && (
+                        <a
+                          href={opp.apply_url || (opp as any).apply_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition shadow-2xs"
+                        >
+                          <span>Apply</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
                     </div>
                   </div>
                 );
@@ -647,12 +716,15 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                 const oppId = (opp.id || opp.slug || `opp-list-${idx}`).toString();
                 const oppTitle = opp.title || "Opportunity";
                 const isSaved = !!bookmarkedIds[oppId];
+                const deadlineInfo = formatDeadline(opp.deadline);
+                const postedDateText = formatPostedDate((opp as any).posted_date || (opp as any).posted_at || opp.created_at);
+
                 return (
                   <div
                     key={oppId}
-                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs hover:shadow-md hover:border-blue-200 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+                    className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs hover:shadow-md hover:border-blue-200 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
                   >
-                    <div className="flex items-start gap-4 min-w-0">
+                    <div className="flex items-start gap-4 min-w-0 flex-1">
                       <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-slate-100 bg-slate-50 flex items-center justify-center">
                         <ImageWithFallback
                           src={opp.organization_logo_url}
@@ -665,10 +737,14 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                         />
                       </div>
 
-                      <div className="min-w-0 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      <div className="min-w-0 space-y-1.5 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                             {opp.organization || "Verified Organization"}
+                          </span>
+                          <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-200">
+                            <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                            <span>Verified</span>
                           </span>
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider bg-blue-50 text-blue-700 border-blue-200">
                             {opp.category || "OPPORTUNITY"}
@@ -681,22 +757,34 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
                           </h3>
                         </Link>
 
-                        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                          <span className="flex items-center gap-1 font-medium text-slate-600">
+                            <Clock className="w-3.5 h-3.5 text-slate-400" />
+                            {postedDateText}
+                          </span>
+                          <span className={`flex items-center gap-1 font-semibold ${deadlineInfo.isUrgent ? 'text-amber-700' : 'text-slate-600'}`}>
+                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                            {deadlineInfo.text}
+                          </span>
                           <span className="flex items-center gap-1">
                             <MapPin className="w-3.5 h-3.5 text-slate-400" />
                             {opp.location || "Multiple Locations"}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                            {opp.deadline
-                              ? new Date(opp.deadline).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
-                              : "Rolling Applications"}
+                          <span className="flex items-center gap-1 text-slate-700 font-semibold">
+                            <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+                            {opp.salary_range || (opp as any).stipend || "Industry Standard"}
                           </span>
+                          {opp.eligibility && (
+                            <span className="flex items-center gap-1 text-slate-500">
+                              <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
+                              <span className="truncate max-w-[200px]">{opp.eligibility}</span>
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 shrink-0 pt-2 sm:pt-0">
+                    <div className="flex items-center gap-2.5 shrink-0 pt-2 sm:pt-0">
                       <button
                         type="button"
                         onClick={() => toggleBookmark(oppId, oppTitle)}
@@ -712,11 +800,22 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
 
                       <Link
                         href={`/opportunities/${opp.slug || oppId}`}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors flex items-center gap-1.5 shadow-2xs"
+                        className="px-3.5 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs rounded-lg transition-colors"
                       >
-                        <span>View Details</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
+                        Details
                       </Link>
+
+                      {(opp.apply_url || (opp as any).apply_link) && (
+                        <a
+                          href={opp.apply_url || (opp as any).apply_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors flex items-center gap-1.5 shadow-2xs"
+                        >
+                          <span>Apply</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
                     </div>
                   </div>
                 );
@@ -929,7 +1028,7 @@ export default function OpportunitiesClient({ initialData }: { initialData: Oppo
               </div>
               <h4 className="font-bold text-slate-900 text-sm mb-1">Join Our Community</h4>
               <p className="text-xs text-slate-500 leading-relaxed">
-                10,000+ students &amp; scholars actively advancing.
+                Students &amp; scholars actively advancing.
               </p>
             </div>
 

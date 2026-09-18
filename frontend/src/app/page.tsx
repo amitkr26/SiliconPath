@@ -104,6 +104,7 @@ async function getLatestNews(): Promise<NewsArticle[]> {
     const { data } = await supabaseAdmin
       .from("news_articles")
       .select("*")
+      .eq("is_active", true)
       .order("published_at", { ascending: false })
       .limit(6);
 

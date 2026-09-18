@@ -154,7 +154,7 @@ export default function PostJobPage() {
             <Plus className="w-7 h-7 text-blue-600" /> Post New Position or Research Fellowship
           </h1>
           <p className="text-slate-600 text-xs sm:text-sm font-medium">
-            Publish government research fellowships (JRF/SRF), PhD research posts, or chip engineering openings to 10,000+ verified scholars.
+            Publish government research fellowships (JRF/SRF), PhD research posts, or chip engineering openings to verified scholars.
           </p>
         </div>
 

@@ -108,10 +108,10 @@ export function applyFilters(query: any, filters: FilterParams) {
   }
   if (filters.verified === "true") {
     query = query.eq("verification_status", "verified");
-  } else if (filters.verified === "false") {
-    query = query.neq("verification_status", "verified");
   } else if (filters.verified === "all") {
     query = query.neq("verification_status", "pending");
+  } else {
+    query = query.eq("verification_status", "verified");
   }
   if (filters.search) {
     const clean = filters.search.replace(/[{}()"\\,.]/g, "").slice(0, 100);

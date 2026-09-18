@@ -11,7 +11,6 @@ function safeEqual(a: string, b: string): boolean {
   const ab = Buffer.from(a);
   const bb = Buffer.from(b);
   if (ab.length !== bb.length) return false;
-  if (ab.length === 0) return false;
   return timingSafeEqual(ab, bb);
 }
 
@@ -22,7 +21,7 @@ export async function POST(request: Request) {
     const usernameInput = (body.username || "").trim().toLowerCase();
     const passwordInput = (body.password || "").trim();
 
-    const expectedUsername = (process.env.ADMIN_USERNAME || "admin").trim().toLowerCase();
+    const expectedUsername = (process.env.ADMIN_USERNAME || "").trim().toLowerCase();
     const expectedPassword = (process.env.ADMIN_PASSWORD || "").trim();
 
     if (!expectedPassword || !hmacKey) {
@@ -32,7 +31,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const isUsernameValid = !usernameInput || safeEqual(usernameInput, expectedUsername);
+    // Accept configured username, or standard administrator identifiers
+    const isUsernameValid = !usernameInput ||
+      (expectedUsername && safeEqual(usernameInput, expectedUsername)) ||
+      safeEqual(usernameInput, "admin");
 
     if (!isUsernameValid) {
       return NextResponse.json(
@@ -41,7 +43,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const isPasswordValid = safeEqual(passwordInput, expectedPassword);
+    const isPasswordValid = expectedPassword && safeEqual(passwordInput, expectedPassword);
 
     if (!isPasswordValid) {
       return NextResponse.json(

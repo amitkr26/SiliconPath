@@ -7,14 +7,14 @@ import { useRouter } from "next/navigation";
 import {
   Search, ArrowRight, Microscope, Briefcase, UserCheck, GraduationCap,
   Star, Globe, Trophy, Bookmark, BookmarkCheck, Calendar, MapPin,
-  Bell, Mail, Play, ChevronLeft, ChevronRight, CheckCircle2,
-  ExternalLink, Sparkles, Building2, Users
+  Bell, Mail, Play, CheckCircle2, Clock, AlertCircle,
+  ExternalLink, Sparkles, Building2, Users, Zap
 } from "lucide-react";
 import type { Opportunity, NewsArticle } from "@/types";
 import { toast } from "sonner";
-import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import { FOOTER_SOCIAL_LINKS } from "@/config/socials";
 import { SocialIcon } from "@/components/ui/SocialIcons";
+import { resolveHardwareNewsImage, resolveNewsDomainBadge } from "@/lib/hardware-images";
 
 interface PublicHomeProps {
   stats: {
@@ -31,160 +31,79 @@ interface PublicHomeProps {
 
 const CATEGORIES = [
   {
-    name: "Research",
-    count: "2,500+",
+    name: "VLSI & ASIC Design",
+    href: "/opportunities?field=vlsi",
+    icon: Sparkles,
+    iconBg: "bg-indigo-50 text-indigo-600",
+  },
+  {
+    name: "Embedded & Firmware",
+    href: "/opportunities?field=embedded",
+    icon: Briefcase,
+    iconBg: "bg-blue-50 text-blue-600",
+  },
+  {
+    name: "Semiconductor & Fab",
+    href: "/opportunities?field=semiconductor",
+    icon: Building2,
+    iconBg: "bg-emerald-50 text-emerald-600",
+  },
+  {
+    name: "Analog & RF Circuits",
+    href: "/opportunities?field=analog",
+    icon: Zap,
+    iconBg: "bg-amber-50 text-amber-600",
+  },
+  {
+    name: "Research (JRF & PhD)",
     href: "/opportunities?category=jrf",
     icon: Microscope,
     iconBg: "bg-teal-50 text-teal-600",
   },
   {
-    name: "Internships",
-    count: "3,000+",
-    href: "/opportunities?category=internship",
-    icon: Briefcase,
-    iconBg: "bg-blue-50 text-blue-600",
-  },
-  {
-    name: "Jobs",
-    count: "1,500+",
-    href: "/opportunities?category=full-time",
-    icon: UserCheck,
-    iconBg: "bg-emerald-50 text-emerald-600",
-  },
-  {
-    name: "Scholarships",
-    count: "800+",
-    href: "/opportunities?category=scholarship",
-    icon: GraduationCap,
-    iconBg: "bg-amber-50 text-amber-600",
-  },
-  {
-    name: "Fellowships",
-    count: "600+",
-    href: "/opportunities?category=fellowship",
+    name: "Govt & Space Electronics",
+    href: "/opportunities?category=govt-job",
     icon: Star,
-    iconBg: "bg-yellow-50 text-yellow-600",
-  },
-  {
-    name: "Study Abroad",
-    count: "400+",
-    href: "/opportunities?category=fellowship",
-    icon: Globe,
-    iconBg: "bg-sky-50 text-sky-600",
-  },
-  {
-    name: "Competitions",
-    count: "300+",
-    href: "/opportunities?category=govt",
-    icon: Trophy,
     iconBg: "bg-purple-50 text-purple-600",
   },
 ];
 
-const DEFAULT_FEATURED = [
-  {
-    id: "isro-internship",
-    title: "Research Internship at ISRO",
-    organization: "ISRO",
-    category: "Research",
-    categoryClass: "bg-cyan-50 text-cyan-700 border-cyan-200",
-    location: "Bengaluru, India",
-    deadline: "Oct 15, 2026",
-    logoText: "ISRO",
-    logoBg: "bg-orange-50 text-orange-600 border-orange-100",
-    slug: "research-internship-at-isro",
-  },
-  {
-    id: "google-swe",
-    title: "Software Engineering Internship 2026",
-    organization: "Google",
-    category: "Internship",
-    categoryClass: "bg-blue-50 text-blue-700 border-blue-200",
-    location: "Multiple Locations",
-    deadline: "Oct 20, 2026",
-    logoText: "G",
-    logoBg: "bg-blue-50 text-blue-600 border-blue-100",
-    slug: "software-engineering-internship-2026",
-  },
-  {
-    id: "msft-pm",
-    title: "Associate Product Manager",
-    organization: "Microsoft",
-    category: "Job",
-    categoryClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    location: "Bengaluru, India",
-    deadline: "Oct 25, 2026",
-    logoText: "MS",
-    logoBg: "bg-emerald-50 text-emerald-600 border-emerald-100",
-    slug: "associate-product-manager",
-  },
-  {
-    id: "tata-scholars",
-    title: "Tata Scholars Program 2026",
-    organization: "Tata Trusts",
-    category: "Scholarship",
-    categoryClass: "bg-purple-50 text-purple-700 border-purple-200",
-    location: "Across India",
-    deadline: "Nov 05, 2026",
-    logoText: "TATA",
-    logoBg: "bg-purple-50 text-purple-600 border-purple-100",
-    slug: "tata-scholars-program-2026",
-  },
-];
+function formatPostedDate(dateStr?: string | null): string {
+  if (!dateStr) return "Recently Posted";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return "Recently Posted";
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 0) return "Posted Today";
+    if (diffDays === 1) return "Posted 1d ago";
+    if (diffDays < 7) return `Posted ${diffDays}d ago`;
+    return `Posted ${d.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+  } catch {
+    return "Recently Posted";
+  }
+}
 
-const TESTIMONIALS = [
-  {
-    name: "Ananya Sharma",
-    role: "Research Intern, IISc",
-    quote: "BDW helped me find a research internship at IISc. It was the perfect start to my career!",
-    avatar: "",
-    rating: 5,
-  },
-  {
-    name: "Rohan Mehta",
-    role: "Software Engineer, Google",
-    quote: "I found my dream job through BerojgarDegreeWala. The platform is truly a game-changer!",
-    avatar: "",
-    rating: 5,
-  },
-  {
-    name: "Priya Nair",
-    role: "MS Student, University of Toronto",
-    quote: "The scholarship opportunities on BDW helped me pursue my higher studies abroad.",
-    avatar: "",
-    rating: 5,
-  },
-];
-
-const FALLBACK_NEWS = [
-  {
-    id: "isro-fellowship-2026",
-    slug: "isro-announces-new-research-fellowship-program-2026",
-    title: "ISRO Announces New Research Fellowship Program 2026",
-    tag: "ANNOUNCEMENT",
-    tagClass: "bg-blue-600 text-white",
-    date: "Sep 12, 2026",
-    image: "https://images.unsplash.com/photo-1517976487502-520f92475c74?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "top-10-skills-2026",
-    slug: "top-10-skills-to-boost-your-career-in-2026",
-    title: "Top 10 Skills to Boost Your Career in 2026",
-    tag: "CAREER TIPS",
-    tagClass: "bg-indigo-600 text-white",
-    date: "Sep 10, 2026",
-    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: "study-abroad-guide-2026",
-    slug: "complete-guide-to-study-abroad-opportunities",
-    title: "Complete Guide to Study Abroad Opportunities",
-    tag: "GUIDE",
-    tagClass: "bg-amber-600 text-white",
-    date: "Sep 08, 2026",
-    image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80",
-  },
-];
+function formatDeadline(deadlineStr?: string | null): { text: string; isUrgent: boolean; isRolling: boolean } {
+  if (!deadlineStr) {
+    return { text: "Rolling Applications", isUrgent: false, isRolling: true };
+  }
+  try {
+    const d = new Date(deadlineStr);
+    if (isNaN(d.getTime())) {
+      return { text: "Rolling Applications", isUrgent: false, isRolling: true };
+    }
+    const now = new Date();
+    const diffDays = Math.ceil((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const formatted = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    if (diffDays > 0 && diffDays <= 5) {
+      return { text: `Apply by ${formatted} (${diffDays}d left)`, isUrgent: true, isRolling: false };
+    }
+    return { text: `Apply by ${formatted}`, isUrgent: false, isRolling: false };
+  } catch {
+    return { text: "Rolling Applications", isUrgent: false, isRolling: true };
+  }
+}
 
 export default function PublicHome({ stats, latestOpenings, latestNews = [] }: PublicHomeProps) {
   const router = useRouter();
@@ -194,7 +113,6 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
   const [newsletterAgreed, setNewsletterAgreed] = useState(true);
   const [newsletterSubmitting, setNewsletterSubmitting] = useState(false);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
-  const [testimonialIndex, setTestimonialIndex] = useState(0);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -253,15 +171,22 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
     }
   };
 
-  // Prepare 4 featured opportunities from DB or clean defaults
-  const displayOpportunities = (latestOpenings && latestOpenings.length >= 4)
+  // Use only real data from DB — no fake fallbacks
+  const displayOpportunities = (latestOpenings && latestOpenings.length > 0)
     ? latestOpenings.slice(0, 4).map((opp, idx) => {
         const oppId = opp.id || `opp-${idx}`;
         const orgName = opp.organization || "Verified Organization";
+        const postedDateStr = formatPostedDate(opp.posted_date || (opp as any).posted_at || (opp as any).created_at);
+        const deadlineInfo = formatDeadline(opp.deadline);
+        const isVerified = (opp as any).verification_status === "verified" || !(opp as any).verification_status;
+        const applyLink = opp.apply_url || (opp as any).apply_link || opp.source_url || `/opportunities/${opp.slug || oppId}`;
+        const isExternalApply = !!(opp.apply_url || (opp as any).apply_link || opp.source_url);
+
         return {
           id: oppId,
           title: opp.title || "Opportunity",
           organization: orgName,
+          isVerified,
           category: opp.category ? opp.category.toUpperCase() : "OPPORTUNITY",
           categoryClass: idx % 4 === 0
             ? "bg-cyan-50 text-cyan-700 border-cyan-200"
@@ -271,9 +196,11 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
             ? "bg-emerald-50 text-emerald-700 border-emerald-200"
             : "bg-purple-50 text-purple-700 border-purple-200",
           location: opp.location || "Multiple Locations, India",
-          deadline: opp.deadline
-            ? new Date(opp.deadline).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
-            : "Rolling Applications",
+          postedDate: postedDateStr,
+          deadlineInfo,
+          compensation: (opp as any).salary || (opp as any).stipend || (opp as any).salary_range || null,
+          applyLink,
+          isExternalApply,
           logoText: orgName.slice(0, 4).toUpperCase(),
           logoBg: idx % 4 === 0
             ? "bg-orange-50 text-orange-600 border-orange-100"
@@ -285,22 +212,27 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
           slug: opp.slug || oppId,
         };
       })
-    : DEFAULT_FEATURED;
+    : [];
 
-  // Prepare news articles (top 3)
-  const displayNews = (latestNews && latestNews.length >= 3)
-    ? latestNews.slice(0, 3).map((item, idx) => ({
-        id: item.id,
-        slug: item.slug || item.id,
-        title: item.title,
-        tag: idx === 0 ? "ANNOUNCEMENT" : idx === 1 ? "CAREER TIPS" : "GUIDE",
-        tagClass: idx === 0 ? "bg-blue-600 text-white" : idx === 1 ? "bg-indigo-600 text-white" : "bg-amber-600 text-white",
-        date: item.published_at
-          ? new Date(item.published_at).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
-          : "Recent",
-        image: item.image_url || FALLBACK_NEWS[idx % 3].image,
-      }))
-    : FALLBACK_NEWS;
+  // Use only real news from DB with authentic hardware imagery & real domain tags
+  const displayNews = (latestNews && latestNews.length > 0)
+    ? latestNews.slice(0, 3).map((item, idx) => {
+        const badge = resolveNewsDomainBadge(item);
+        return {
+          id: item.id,
+          slug: item.slug || item.id,
+          title: item.title,
+          tag: badge.label,
+          tagClass: badge.badgeClass,
+          source: item.source || (item as any).source_name || "Official Source",
+          source_url: item.source_url || (item as any).url || null,
+          date: item.published_at
+            ? new Date(item.published_at).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
+            : "Recent",
+          image: resolveHardwareNewsImage(item, idx),
+        };
+      })
+    : [];
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans selection:bg-blue-100 selection:text-blue-900">
@@ -360,7 +292,7 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
                 </div>
                 <div>
                   <div className="font-extrabold text-slate-900 text-sm sm:text-base leading-tight">
-                    10,000+
+                    {stats.total > 0 ? `${stats.total.toLocaleString()}+` : "—"}
                   </div>
                   <div className="text-[11px] sm:text-xs text-slate-500 font-medium">
                     Active Opportunities
@@ -375,7 +307,7 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
                 </div>
                 <div>
                   <div className="font-extrabold text-slate-900 text-sm sm:text-base leading-tight">
-                    {stats.orgs ? `${stats.orgs}+` : "500+"}
+                    {stats.orgs ? `${stats.orgs.toLocaleString()}+` : "—"}
                   </div>
                   <div className="text-[11px] sm:text-xs text-slate-500 font-medium">
                     Trusted Organizations
@@ -383,32 +315,32 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
                 </div>
               </div>
 
-              {/* 3. Categories */}
+              {/* 3. JRF/PhD */}
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                   <GraduationCap className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="font-extrabold text-slate-900 text-sm sm:text-base leading-tight">
-                    100+
+                    {(stats.jrf + stats.phd) > 0 ? `${(stats.jrf + stats.phd).toLocaleString()}+` : "—"}
                   </div>
                   <div className="text-[11px] sm:text-xs text-slate-500 font-medium">
-                    Categories
+                    Research &amp; PhD
                   </div>
                 </div>
               </div>
 
-              {/* 4. Global */}
+              {/* 4. Verified */}
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                   <Globe className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="font-extrabold text-slate-900 text-sm sm:text-base leading-tight">
-                    Global
+                    {stats.verified > 0 ? `${stats.verified.toLocaleString()}+` : "—"}
                   </div>
                   <div className="text-[11px] sm:text-xs text-slate-500 font-medium">
-                    Opportunities
+                    Verified Listings
                   </div>
                 </div>
               </div>
@@ -429,6 +361,31 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
                 className="object-cover object-center"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
+
+              {/* Floating cursive accent badge */}
+              <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-lg border border-white/60 text-right hidden sm:block">
+                <p className="font-serif italic text-blue-950 text-base sm:text-lg font-bold leading-tight">
+                  Opportunities Today.
+                </p>
+                <p className="font-serif italic text-blue-600 text-base sm:text-lg font-bold leading-tight">
+                  A Brighter Tomorrow.
+                </p>
+                <div className="w-20 h-1 bg-amber-400 rounded-full mt-1.5 ml-auto" />
+              </div>
+
+              {/* Bottom-left overlay items */}
+              <div className="absolute bottom-4 left-4 hidden sm:flex items-center gap-3">
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2 shadow-sm border border-white/60">
+                  <p className="font-serif italic text-xs font-bold text-slate-800 leading-tight">
+                    Learn<br />Explore<br />Grow<br />Succeed
+                  </p>
+                </div>
+                <div className="bg-blue-600/90 backdrop-blur-sm rounded-xl px-3 py-2 shadow-sm">
+                  <p className="text-[10px] font-bold text-white leading-tight">
+                    Better Skills<br />Brighter Futures
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -464,7 +421,7 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
 
           {/* 7-Card Responsive Row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
-            {CATEGORIES.map(({ name, count, href, icon: Icon, iconBg }) => (
+            {CATEGORIES.map(({ name, href, icon: Icon, iconBg }) => (
               <Link
                 key={name}
                 href={href}
@@ -479,7 +436,6 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
                 </div>
 
                 <div className="text-xs font-semibold text-slate-400 group-hover:text-blue-600 flex items-center gap-1 transition-colors">
-                  <span>{count}</span>
                   <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </Link>
@@ -517,31 +473,35 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
           </div>
 
           {/* 4 Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-            {displayOpportunities.map((opp) => {
-              const isBookmarked = opp.id ? !!bookmarkedIds[opp.id] : false;
-              return (
-                <div
-                  key={opp.id}
-                  className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs hover:shadow-lg hover:border-blue-200 transition-all flex flex-col justify-between group"
-                >
-                  <div>
-                    {/* Top Row: Logo, Tag & Bookmark */}
-                    <div className="flex items-center justify-between gap-2 mb-4">
-                      <div className={`px-2.5 py-1 rounded-md text-xs font-bold border ${opp.logoBg}`}>
-                        {opp.logoText}
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${opp.categoryClass}`}>
-                          {opp.category}
-                        </span>
+          {displayOpportunities.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+              {displayOpportunities.map((opp) => {
+                const isBookmarked = opp.id ? !!bookmarkedIds[opp.id] : false;
+                return (
+                  <div
+                    key={opp.id}
+                    className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs hover:shadow-lg hover:border-blue-200 transition-all flex flex-col justify-between group"
+                  >
+                    <div>
+                      {/* Top Row: Organization, Verified Badge, Bookmark */}
+                      <div className="flex items-center justify-between gap-2 mb-2.5">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="text-xs font-bold text-slate-900 truncate">
+                            {opp.organization}
+                          </span>
+                          {opp.isVerified && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">
+                              <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                              Verified
+                            </span>
+                          )}
+                        </div>
 
                         <button
                           type="button"
                           onClick={() => opp.id && toggleBookmark(opp.id, opp.title)}
                           aria-label={isBookmarked ? "Remove bookmark" : "Bookmark opportunity"}
-                          className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
+                          className="p-1 text-slate-400 hover:text-blue-600 transition-colors shrink-0"
                         >
                           {isBookmarked ? (
                             <BookmarkCheck className="w-4 h-4 text-blue-600 fill-current" />
@@ -550,43 +510,93 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
                           )}
                         </button>
                       </div>
+
+                      {/* Category pill */}
+                      <div className="mb-2.5">
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${opp.categoryClass}`}>
+                          {opp.category}
+                        </span>
+                      </div>
+
+                      {/* Role Title */}
+                      <h3 className="font-bold text-slate-900 text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-2 mb-3">
+                        <Link href={`/opportunities/${opp.slug}`}>
+                          {opp.title}
+                        </Link>
+                      </h3>
+
+                      {/* Meta info with explicit Dates */}
+                      <div className="space-y-1.5 text-xs text-slate-500 font-normal">
+                        <div className="flex items-center gap-1.5 text-slate-600">
+                          <Clock className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                          <span className="font-semibold text-slate-700">{opp.postedDate}</span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className={opp.deadlineInfo.isUrgent ? "text-amber-700 font-bold bg-amber-50 px-1.5 py-0.5 rounded" : "text-slate-600"}>
+                            {opp.deadlineInfo.text}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 truncate">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">{opp.location}</span>
+                        </div>
+
+                        {opp.compensation && (
+                          <div className="flex items-center gap-1.5 text-emerald-700 font-semibold truncate">
+                            <Briefcase className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{opp.compensation}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Role Title */}
-                    <h3 className="font-bold text-slate-900 text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-2 mb-3">
-                      <Link href={`/opportunities/${opp.slug}`}>
-                        {opp.title}
+                    {/* Bottom Action: View Details & Direct Apply */}
+                    <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                      <Link
+                        href={`/opportunities/${opp.slug}`}
+                        className="text-xs font-bold text-slate-600 hover:text-blue-600 inline-flex items-center gap-1 group/btn"
+                      >
+                        <span>Details</span>
+                        <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-0.5 transition-transform" />
                       </Link>
-                    </h3>
 
-                    {/* Meta info */}
-                    <div className="space-y-1.5 text-xs text-slate-500 font-normal">
-                      <div className="flex items-center gap-1.5 truncate">
-                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span className="truncate">{opp.location}</span>
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span>{opp.deadline}</span>
-                      </div>
+                      {opp.isExternalApply ? (
+                        <a
+                          href={opp.applyLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-2xs hover:shadow-sm transition-all"
+                        >
+                          <span>Apply</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      ) : (
+                        <Link
+                          href={`/opportunities/${opp.slug}`}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-2xs hover:shadow-sm transition-all"
+                        >
+                          <span>Apply</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </Link>
+                      )}
                     </div>
                   </div>
-
-                  {/* Bottom Action */}
-                  <div className="pt-4 mt-4 border-t border-slate-100">
-                    <Link
-                      href={`/opportunities/${opp.slug}`}
-                      className="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 group/btn"
-                    >
-                      <span>View Details</span>
-                      <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-0.5 transition-transform" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-white rounded-2xl border border-slate-200/80 shadow-2xs">
+              <Building2 className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+              <p className="text-sm font-semibold text-slate-700">No featured opportunities at the moment.</p>
+              <Link href="/opportunities" className="text-xs font-bold text-blue-600 hover:text-blue-700 mt-2 inline-flex items-center gap-1">
+                <span>Browse all opportunities</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+          )}
 
         </div>
       </section>
@@ -661,12 +671,27 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
                     <Calendar className="w-3.5 h-3.5" />
                     <span>{article.date}</span>
                   </div>
-                  <Link
-                    href={`/news/${article.slug}`}
-                    className="p-1 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all"
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    {article.source_url && (
+                      <a
+                        href={article.source_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 bg-blue-50/80 px-2 py-0.5 rounded-md hover:bg-blue-100 transition"
+                        title={`Read on ${article.source}`}
+                      >
+                        <span className="truncate max-w-[85px]">{article.source}</span>
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
+                    )}
+                    <Link
+                      href={`/news/${article.slug}`}
+                      className="p-1 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all"
+                      aria-label={`Read article ${article.title}`}
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
                 </div>
               </article>
             ))}
@@ -724,227 +749,98 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
 
 
       {/* ========================================================================= */}
-      {/* 5. SUCCESS STORIES                                                        */}
-      {/* ========================================================================= */}
-      <section className="py-12 sm:py-16 bg-slate-50/50 border-t border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Section Header */}
-          <div className="flex items-end justify-between gap-4 mb-8 sm:mb-10">
-            <div>
-              <span className="text-xs font-bold tracking-widest text-slate-500 uppercase">
-                SUCCESS STORIES
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
-                Real People. <span className="text-blue-600">Real Progress.</span>
-              </h2>
-            </div>
-
-            {/* Navigation Arrows */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setTestimonialIndex((prev) => (prev > 0 ? prev - 1 : TESTIMONIALS.length - 1))}
-                aria-label="Previous story"
-                className="w-9 h-9 rounded-full border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors shadow-2xs"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setTestimonialIndex((prev) => (prev < TESTIMONIALS.length - 1 ? prev + 1 : 0))}
-                aria-label="Next story"
-                className="w-9 h-9 rounded-full border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors shadow-2xs"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* 3 Testimonials Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t, idx) => (
-              <div
-                key={t.name}
-                className={`bg-white rounded-2xl border p-6 shadow-2xs transition-all flex items-start gap-4 ${
-                  idx === testimonialIndex ? "border-blue-300 ring-2 ring-blue-500/10" : "border-slate-200/80"
-                }`}
-              >
-                <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 border border-slate-200">
-                  <ImageWithFallback
-                    src={t.avatar}
-                    alt={t.name}
-                    name={t.name}
-                    fallbackType="avatar"
-                    fill
-                  />
-                </div>
-
-                <div className="space-y-2 flex-1">
-                  <p className="text-xs sm:text-sm text-slate-700 font-normal leading-relaxed italic">
-                    &ldquo;{t.quote}&rdquo;
-                  </p>
-
-                  <div>
-                    <div className="font-bold text-slate-900 text-sm">
-                      {t.name}
-                    </div>
-                    <div className="text-xs text-slate-500 font-medium">
-                      {t.role}
-                    </div>
-                    <div className="flex items-center gap-0.5 text-amber-400 text-xs mt-1">
-                      {Array.from({ length: t.rating }).map((_, i) => (
-                        <span key={i}>★</span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-        </div>
-      </section>
-
-
-      {/* ========================================================================= */}
-      {/* 6. MOBILE APP PROMO ("Take Opportunities With You Everywhere")             */}
+      {/* 5. DEEP-TECH HARDWARE NETWORK BANNER                                      */}
       {/* ========================================================================= */}
       <section className="py-12 sm:py-16 bg-white border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-blue-50/90 via-sky-50 to-blue-100/60 border border-blue-100 p-8 sm:p-12 lg:p-16">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              
-              {/* LEFT: TEXT & STORE BUTTONS (~60%) */}
-              <div className="lg:col-span-7 space-y-4">
-                <div className="w-12 h-1 bg-blue-600 rounded-full" />
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white p-8 sm:p-12 lg:p-16 shadow-xl border border-slate-800">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#60a5fa_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
 
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                  Take Opportunities <br />
-                  With You <span className="text-blue-600">Everywhere</span>
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              
+              {/* LEFT: TEXT & CALL TO ACTIONS (~60%) */}
+              <div className="lg:col-span-7 space-y-5">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold">
+                  <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                  <span>INDIA SEMICONDUCTOR &amp; HARDWARE NETWORK</span>
+                </div>
+
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">
+                  Accelerate Your Path in <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300">
+                    Semiconductors &amp; Deep-Tech
+                  </span>
                 </h2>
 
-                <p className="text-slate-600 text-sm sm:text-base font-normal max-w-md">
-                  Download our mobile app and never miss an opportunity.
+                <p className="text-slate-300 text-sm sm:text-base font-normal leading-relaxed max-w-lg">
+                  Direct access to verified DRDO, ISRO, and CSIR research circulars, VLSI chip design openings, and premier fabrication careers &mdash; 100% free and verified with zero middle-agents.
                 </p>
 
-                {/* APP STORE BUTTONS */}
-                <div className="pt-3 flex flex-wrap items-center gap-3">
-                  
-                  {/* Google Play Button */}
-                  <a
-                    href="#"
-                    onClick={(e) => { e.preventDefault(); toast.info("Android app releasing soon on Google Play!"); }}
-                    className="inline-flex items-center gap-3 px-4 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl shadow-md transition-all active:scale-[0.98]"
+                {/* ACTION BUTTONS */}
+                <div className="pt-2 flex flex-wrap items-center gap-3">
+                  <Link
+                    href="/opportunities"
+                    className="inline-flex items-center gap-2.5 px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition-all active:scale-[0.98]"
                   >
-                    {/* Google Play Icon */}
-                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                      <path d="M3.609 1.814L13.793 12 3.61 22.186a1.993 1.993 0 0 1-.61-1.428V3.242c0-.555.228-1.057.609-1.428zm11.605 11.607l2.253 2.253-11.96 6.905 9.707-9.158zm0-2.842L5.507 1.421l11.96 6.905-2.253 2.253zm1.421 1.421l3.774 2.18c.995.575.995 1.512 0 2.087l-3.774 2.18-2.127-2.127 2.127-2.12z" />
-                    </svg>
-                    <div className="text-left">
-                      <div className="text-[9px] uppercase tracking-wider text-slate-300 leading-none">
-                        GET IT ON
-                      </div>
-                      <div className="text-xs sm:text-sm font-bold leading-tight">
-                        Google Play
-                      </div>
-                    </div>
-                  </a>
+                    <span>Browse All Opportunities</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
 
-                  {/* App Store Button */}
-                  <a
-                    href="#"
-                    onClick={(e) => { e.preventDefault(); toast.info("iOS app releasing soon on the App Store!"); }}
-                    className="inline-flex items-center gap-3 px-4 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl shadow-md transition-all active:scale-[0.98]"
+                  <Link
+                    href="/organizations"
+                    className="inline-flex items-center gap-2.5 px-5 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold text-sm rounded-xl border border-white/20 backdrop-blur-xs transition-all active:scale-[0.98]"
                   >
-                    {/* Apple Icon */}
-                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.66-.82 1.11-1.95.99-3.08-1 .04-2.14.67-2.82 1.48-.59.69-1.12 1.83-.98 2.93 1.11.09 2.19-.57 2.81-1.33z" />
-                    </svg>
-                    <div className="text-left">
-                      <div className="text-[9px] uppercase tracking-wider text-slate-300 leading-none">
-                        Download on the
-                      </div>
-                      <div className="text-xs sm:text-sm font-bold leading-tight">
-                        App Store
-                      </div>
-                    </div>
-                  </a>
-
+                    <Building2 className="w-4 h-4 text-blue-300" />
+                    <span>100+ Verified Labs</span>
+                  </Link>
                 </div>
               </div>
 
-              {/* RIGHT: SMARTPHONE MOCKUP (~40%) */}
-              <div className="lg:col-span-5 flex items-center justify-center lg:justify-end relative">
-                
-                {/* Decorative background glow circles */}
-                <div className="absolute w-64 h-64 rounded-full bg-blue-300/30 blur-2xl pointer-events-none" />
-
-                {/* Smartphone Device Frame */}
-                <div className="relative w-56 sm:w-64 bg-slate-900 p-2.5 rounded-[2.5rem] shadow-2xl border-4 border-slate-800 rotate-[-4deg] hover:rotate-0 transition-transform duration-300">
-                  {/* Phone Speaker & Camera Notch */}
-                  <div className="w-20 h-4 bg-slate-900 rounded-full mx-auto mb-1.5 flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-slate-700 mr-2" />
-                    <div className="w-8 h-1 bg-slate-700 rounded-full" />
+              {/* RIGHT: HARDWARE SHOWCASE CARD (~40%) */}
+              <div className="lg:col-span-5 relative">
+                <div className="relative rounded-2xl overflow-hidden border border-white/20 shadow-2xl bg-slate-900/80 backdrop-blur-md">
+                  <div className="relative w-full h-48 sm:h-56 overflow-hidden">
+                    <Image
+                      src="/images/hardware/semiconductor-cleanroom-fab.jpg"
+                      alt="Semiconductor Fabrication Facility"
+                      fill
+                      unoptimized
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 40vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                    <div className="absolute top-3 left-3">
+                      <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-600/90 text-white backdrop-blur-xs">
+                        LIVE RADAR
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Phone Screen */}
-                  <div className="bg-white rounded-[2rem] p-3 pt-4 overflow-hidden text-slate-800 space-y-2.5">
-                    {/* App Header */}
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-5 h-5 rounded bg-blue-600 flex items-center justify-center text-white text-[9px] font-bold">
-                          B
-                        </div>
-                        <span className="font-bold text-[11px] text-slate-900">
-                          Berojgar<span className="text-blue-600">DegreeWala</span>
-                        </span>
-                      </div>
+                  <div className="p-5 space-y-3">
+                    <div className="flex items-center justify-between text-xs text-slate-300">
+                      <span className="font-semibold text-white">Silicon Bharat Intelligence</span>
+                      <span className="text-emerald-400 font-bold flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Active
+                      </span>
                     </div>
 
-                    {/* App Hero Callout */}
-                    <div className="bg-blue-50/80 rounded-xl p-2.5">
-                      <div className="text-[10px] font-extrabold text-slate-900 leading-tight">
-                        Explore Opportunities Anywhere, Anytime.
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10 text-center">
+                      <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+                        <div className="text-base font-extrabold text-white">350+</div>
+                        <div className="text-[10px] text-slate-400">Core Vacancies</div>
                       </div>
-                    </div>
-
-                    {/* App Sample Quick Buttons */}
-                    <div className="space-y-1.5 text-[10px] font-medium text-slate-600">
-                      <div className="p-1.5 rounded-lg border border-slate-100 flex items-center justify-between">
-                        <span className="flex items-center gap-1.5">
-                          <Briefcase className="w-3 h-3 text-blue-600" />
-                          <span>Internships</span>
-                        </span>
-                        <ArrowRight className="w-2.5 h-2.5 text-slate-400" />
+                      <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+                        <div className="text-base font-extrabold text-blue-400">100+</div>
+                        <div className="text-[10px] text-slate-400">Labs &amp; Fabs</div>
                       </div>
-                      <div className="p-1.5 rounded-lg border border-slate-100 flex items-center justify-between">
-                        <span className="flex items-center gap-1.5">
-                          <UserCheck className="w-3 h-3 text-emerald-600" />
-                          <span>Jobs</span>
-                        </span>
-                        <ArrowRight className="w-2.5 h-2.5 text-slate-400" />
-                      </div>
-                      <div className="p-1.5 rounded-lg border border-slate-100 flex items-center justify-between">
-                        <span className="flex items-center gap-1.5">
-                          <GraduationCap className="w-3 h-3 text-amber-600" />
-                          <span>Scholarships</span>
-                        </span>
-                        <ArrowRight className="w-2.5 h-2.5 text-slate-400" />
+                      <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+                        <div className="text-base font-extrabold text-emerald-400">100%</div>
+                        <div className="text-[10px] text-slate-400">Free Forever</div>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Cursive Brand Tagline */}
-                <div className="absolute right-0 top-2 sm:-top-4 translate-x-4 sm:translate-x-8 -rotate-6 pointer-events-none hidden sm:block">
-                  <div className="font-serif italic font-bold text-lg sm:text-xl text-slate-800 leading-none drop-shadow-xs">
-                    Same Students. <br />
-                    <span className="text-blue-600">Brighter Tomorrows.</span>
-                  </div>
-                </div>
-
               </div>
 
             </div>

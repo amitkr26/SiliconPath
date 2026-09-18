@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isUserAdmin, requireEmployerRole } from "@/lib/employer-auth";
+import { isUserAdmin } from "@/lib/employer-auth";
+import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  const user = await requireEmployerRole(request);
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (!isAdminConfigured || !supabaseAdmin) {

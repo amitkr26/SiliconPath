@@ -28,6 +28,7 @@ async function getInitialNews(): Promise<{ articles: NewsArticle[]; lastSynced: 
     const { data } = await supabaseAdmin
       .from("news_articles")
       .select("*")
+      .eq("is_active", true)
       .order("published_at", { ascending: false, nullsFirst: false })
       .limit(40);
 
@@ -36,8 +37,21 @@ async function getInitialNews(): Promise<{ articles: NewsArticle[]; lastSynced: 
     const lastArticle = data[0];
     const lastSynced = lastArticle?.published_at || lastArticle?.created_at || null;
 
+    const mappedArticles: NewsArticle[] = data.map((item: any) => ({
+      id: item.id,
+      title: item.title,
+      summary: item.summary || null,
+      source: item.source_name || item.source || "Official Source",
+      source_url: item.url || item.source_url || null,
+      published_at: item.published_at || item.created_at || null,
+      image_url: item.image_url || null,
+      tags: Array.isArray(item.tags) ? item.tags : [],
+      slug: item.slug || item.id,
+      created_at: item.created_at || null,
+    }));
+
     return {
-      articles: data as NewsArticle[],
+      articles: mappedArticles,
       lastSynced,
     };
   } catch (err) {

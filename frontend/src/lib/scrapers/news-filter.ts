@@ -48,6 +48,18 @@ const BLOCKED_PATTERNS = [
   /pc\s+build/i,
   /tktk/i,
   /tom's\s+hardware/i,
+  // Non-hardware science / nature / general industry
+  /golf/i,
+  /lobster/i,
+  /shellfish/i,
+  /sustainable\s+treatment\s+for\s+shaping\s+wood/i,
+  /steelmaking\s+waste/i,
+  /aircraft\s+deicing/i,
+  /social\s+media\s+addiction/i,
+  /under-age\s+internet/i,
+  /democracy\s+stabilises/i,
+  /nuclear\s+reactor\s+pressure\s+tubes/i,
+  /fire\s+safety\s+assessments\s+for\s+steel/i,
 ];
 
 // ── ELECTRONICS KEYWORD WHITELIST ──
@@ -316,10 +328,6 @@ const ELECTRONICS_KEYWORDS = [
   "epitaxy",
   "mbe",
   "mocvd",
-  "hid",
-  "he",
-  "she",
-  "ie",
   "ieee",
   "phd",
   "fellowship",
@@ -395,7 +403,13 @@ const ELECTRONICS_KEYWORDS = [
 // ── MATCH HELPER ──
 function matchesAny(text: string, patterns: string[]): boolean {
   const lower = text.toLowerCase();
-  return patterns.some((pat) => lower.includes(pat));
+  return patterns.some((pat) => {
+    if (pat.length <= 4) {
+      const reg = new RegExp(`\\b${pat.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, "\\$&")}\\b`, "i");
+      return reg.test(lower);
+    }
+    return lower.includes(pat);
+  });
 }
 
 // ── HARD CHECK ──

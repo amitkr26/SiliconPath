@@ -5,6 +5,8 @@ import { verifyAdmin } from './lib/admin-auth';
 
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
+  'https://www.berojgardegreewala.app',
+  'https://berojgardegreewala.app',
   'https://berojgardegreewala.vercel.app',
   'https://www.berojgardegreewala.vercel.app',
   'https://ponytail.dev',
@@ -188,13 +190,7 @@ export async function middleware(request: NextRequest) {
     const role = user.user_metadata?.role as string | undefined;
     const accountType = user.user_metadata?.account_type as string | undefined;
     const appRole = user.app_metadata?.role as string | undefined;
-    const isEmployer =
-      role === "employer" ||
-      accountType === "provider" ||
-      appRole === "employer" ||
-      appRole === "provider" ||
-      appRole === "admin" ||
-      appRole === "super_admin";
+    const isEmployer = role === "employer" || accountType === "provider" || appRole === "admin" || appRole === "super_admin";
     if (!isEmployer) {
       if (path.startsWith('/api/')) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

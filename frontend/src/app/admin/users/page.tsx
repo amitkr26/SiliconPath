@@ -67,6 +67,7 @@ export default function AdminUsersPage() {
     setLoading(false);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (authed) load(); }, [authed, statusFilter]);
 
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); load(); };
