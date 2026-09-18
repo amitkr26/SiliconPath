@@ -14,7 +14,8 @@ import {
   LogOut,
   Cpu,
   UserCheck,
-  Plus
+  Plus,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -44,6 +45,7 @@ export default function AdminNav({ title, subtitle, icon: Icon }: AdminNavProps)
     { href: "/admin/users", label: "Users", icon: Users },
     { href: "/admin/performance", label: "Performance", icon: Activity },
     { href: "/admin/scrape-health", label: "Scrapers", icon: Radio },
+    { href: "/admin/seo", label: "SEO", icon: Search },
   ];
 
   return (

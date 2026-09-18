@@ -19,7 +19,68 @@ import { metadata as signupMetadata } from '@/app/signup/layout';
 import { metadata as companiesMetadata } from '@/app/companies/layout';
 import { metadata as opportunitiesMetadata } from '@/app/opportunities/page';
 
-// Mock Supabase admin for sitemap execution
+// Mock Supabase admin for sitemap execution. The programmatic quality gate
+// requires >= 3 active verified, currently-available opportunities per category
+// AND per city for category/location URLs to be emitted, so the mock supplies a
+// full grid (3 rows per category + 3 rows per city, all available).
+function gateRow(slug: string, category: string, location: string) {
+  return {
+    slug,
+    created_at: '2026-03-01T00:00:00Z',
+    category,
+    location,
+    deadline: '2027-01-01',
+    verification_status: 'verified',
+    is_active: true,
+    posted_date: '2026-03-01',
+    last_link_checked: '2026-09-01T00:00:00Z',
+  };
+}
+
+const OPPORTUNITY_ROWS = [
+  // 3 rows per category so every category page passes the gate.
+  gateRow('drdo-jrf-vlsi-2026', 'jrf', 'bengaluru'),
+  gateRow('csir-jrf-electronics-2026', 'jrf', 'hyderabad'),
+  gateRow('iit-jrf-mems-2026', 'jrf', 'pune'),
+  gateRow('isro-srf-signal-2026', 'srf', 'chennai'),
+  gateRow('drdo-srf-antenna-2026', 'srf', 'ahmedabad'),
+  gateRow('ncl-srf-nascent-2026', 'srf', 'noida'),
+  gateRow('iisc-phd-vlsi-2026', 'phd', 'bengaluru'),
+  gateRow('iit-phd-electronics-2026', 'phd', 'bengaluru'),
+  gateRow('iitb-phd-microelectronics-2026', 'phd', 'bengaluru'),
+  gateRow('rac-scientist-b-2026', 'government', 'noida'),
+  gateRow('isro-scientist-eng-2026', 'government', 'noida'),
+  gateRow('drdo-trainee-2026', 'government', 'noida'),
+  gateRow('dst-inspire-fellowship-2026', 'fellowship', 'pune'),
+  gateRow('serb-project-fellow-2026', 'fellowship', 'pune'),
+  gateRow('csir-ugc-net-jrf-2026', 'fellowship', 'pune'),
+  gateRow('qualcomm-vlsi-engineer-2026', 'private', 'hyderabad'),
+  gateRow('intel-rtl-design-2026', 'private', 'hyderabad'),
+  gateRow('ti-analog-engineer-2026', 'private', 'hyderabad'),
+  gateRow('singa-phd-scholarship-2026', 'international', 'ahmedabad'),
+  gateRow('daad-phd-germany-2026', 'international', 'ahmedabad'),
+  gateRow('mext-japan-research-2026', 'international', 'ahmedabad'),
+  // 3 rows per city so every location hub passes the gate.
+  gateRow('bengaluru-chip-design-2026', 'private', 'bengaluru'),
+  gateRow('bengaluru-verification-2026', 'job', 'bengaluru'),
+  gateRow('bengaluru-physical-design-2026', 'private', 'bengaluru'),
+  gateRow('hyderabad-embedded-2026', 'private', 'hyderabad'),
+  gateRow('hyderabad-dft-2026', 'private', 'hyderabad'),
+  gateRow('hyderabad-soc-design-2026', 'private', 'hyderabad'),
+  gateRow('noida-scientist-c-2026', 'government', 'noida'),
+  gateRow('noida-electronics-officer-2026', 'government', 'noida'),
+  gateRow('noida-laser-engineer-2026', 'private', 'noida'),
+  gateRow('pune-power-electronics-2026', 'private', 'pune'),
+  gateRow('pune-fpga-engineer-2026', 'private', 'pune'),
+  gateRow('pune-radio-frequency-2026', 'private', 'pune'),
+  gateRow('chennai-embedded-systems-2026', 'private', 'chennai'),
+  gateRow('chennai-medical-electronics-2026', 'private', 'chennai'),
+  gateRow('chennai-semiconductor-fab-2026', 'job', 'chennai'),
+  gateRow('ahmedabad-solar-electronics-2026', 'private', 'ahmedabad'),
+  gateRow('ahmedabad-smart-meter-2026', 'private', 'ahmedabad'),
+  gateRow('ahmedabad-control-electronics-2026', 'industry', 'ahmedabad'),
+];
+
 jest.mock('@/lib/supabase-admin', () => ({
   supabaseAdmin: {
     from: jest.fn((table: string) => {
@@ -27,18 +88,10 @@ jest.mock('@/lib/supabase-admin', () => ({
         return {
           select: jest.fn().mockReturnThis(),
           eq: jest.fn().mockReturnThis(),
-          or: jest.fn().mockResolvedValue({
-            data: [
-              {
-                slug: 'drdo-jrf-vlsi-2026',
-                created_at: '2026-03-01T00:00:00Z',
-                category: 'jrf',
-                deadline: '2026-12-31',
-                verification_status: 'verified',
-                is_active: true,
-              },
-            ],
-          }),
+          // loadProgrammaticCounts chain ends with .limit(3000)
+          limit: jest.fn().mockResolvedValue({ data: OPPORTUNITY_ROWS }),
+          // sitemap detail chain ends with .or(buildAvailabilityDbFilter(...))
+          or: jest.fn().mockResolvedValue({ data: OPPORTUNITY_ROWS }),
         };
       }
       if (table === 'organizations') {

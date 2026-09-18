@@ -1,6 +1,8 @@
 import { MetadataRoute } from "next";
 import { supabaseAdmin, isAdminConfigured } from "@/lib/supabase-admin";
 import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
+import { loadProgrammaticCounts, programmaticCountKey } from "@/lib/seo/data-loader";
+import { evaluateProgrammaticGate, PROGRAMMATIC_INDEX_THRESHOLD } from "@/lib/seo/gate";
 
 const STATIC_PAGES: { url: string; freq: "daily" | "hourly" | "weekly" | "monthly"; priority: number }[] = [
   { url: "https://berojgardegreewala.vercel.app", freq: "daily", priority: 1 },
@@ -38,8 +40,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: p.priority,
   }));
 
+  // Programmatic quality gate: only index Category × Location combinations
+  // backed by >= threshold active verified opportunities. Sub-threshold pages
+  // must NOT appear in sitemap.xml (fail closed, see ARCHITECTURE.md §Programmatic).
+  const counts = await loadProgrammaticCounts();
+
   // Category pages
   for (const cat of CATEGORY_PAGES) {
+    const gate = evaluateProgrammaticGate({ category: cat }, counts[programmaticCountKey({ category: cat })] ?? 0);
+    if (!gate?.indexable) continue;
     urls.push({
       url: `https://berojgardegreewala.vercel.app/category/${cat}`,
       lastModified: new Date(),
@@ -50,6 +59,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Location Hub pages
   for (const city of LOCATION_HUBS) {
+    const gate = evaluateProgrammaticGate({ location: city }, counts[programmaticCountKey({ location: city })] ?? 0);
+    if (!gate?.indexable) continue;
     urls.push({
       url: `https://berojgardegreewala.vercel.app/opportunities/location/${city}`,
       lastModified: new Date(),

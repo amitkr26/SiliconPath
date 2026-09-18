@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
+import { countProgrammatic } from "@/lib/seo/data-loader";
+import { evaluateProgrammaticGate } from "@/lib/seo/gate";
 import CategoryClient from "./CategoryClient";
 
 export const revalidate = 3600;
@@ -102,7 +104,18 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const config = resolveCategoryConfig(params.category);
-  const canonicalUrl = `https://berojgardegreewala.vercel.app/category/${params.category.toLowerCase()}`;
+  const slug = params.category.toLowerCase();
+  const canonicalUrl = `https://berojgardegreewala.vercel.app/category/${slug}`;
+
+  // Programmatic quality gate: category pages with < 3 active verified
+  // opportunities must fail closed with noindex,follow (thin/doorway guard).
+  let robots;
+  try {
+    const gate = evaluateProgrammaticGate({ category: slug }, await countProgrammatic({ category: slug }));
+    if (!gate?.indexable) robots = { index: false, follow: true } as const;
+  } catch {
+    robots = { index: false, follow: true } as const;
+  }
 
   return {
     title: config.title,
@@ -110,6 +123,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: canonicalUrl,
     },
+    ...(robots ? { robots } : {}),
     openGraph: {
       title: `${config.title} | BerojgarDegreeWala`,
       description: config.description.slice(0, 160),

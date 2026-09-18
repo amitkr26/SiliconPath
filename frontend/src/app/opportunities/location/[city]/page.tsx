@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowLeft, MapPin, Briefcase } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { isCurrentlyAvailable, computeIstToday, buildAvailabilityDbFilter } from "@/lib/availability";
+import { countProgrammatic } from "@/lib/seo/data-loader";
+import { evaluateProgrammaticGate } from "@/lib/seo/gate";
 import OpportunityCard from "@/components/OpportunityCard";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -23,10 +25,22 @@ function formatCity(citySlug: string): string {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { city } = await params;
   const cityName = formatCity(city);
+
+  // Programmatic quality gate: city hubs with < 3 active verified
+  // opportunities fail closed with noindex,follow.
+  let robots;
+  try {
+    const gate = evaluateProgrammaticGate({ location: city.toLowerCase() }, await countProgrammatic({ location: city.toLowerCase() }));
+    if (!gate?.indexable) robots = { index: false, follow: true } as const;
+  } catch {
+    robots = { index: false, follow: true } as const;
+  }
+
   return {
     title: `VLSI & Semiconductor Jobs in ${cityName}`,
     description: `Browse verified VLSI, embedded systems, and semiconductor jobs and internships in ${cityName}. Find active opportunities from top organizations.`,
     alternates: { canonical: `https://berojgardegreewala.vercel.app/opportunities/location/${city.toLowerCase()}` },
+    ...(robots ? { robots } : {}),
   };
 }
 
