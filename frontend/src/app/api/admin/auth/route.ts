@@ -11,6 +11,7 @@ function safeEqual(a: string, b: string): boolean {
   const ab = Buffer.from(a);
   const bb = Buffer.from(b);
   if (ab.length !== bb.length) return false;
+  if (ab.length === 0) return false;
   return timingSafeEqual(ab, bb);
 }
 
@@ -21,8 +22,8 @@ export async function POST(request: Request) {
     const usernameInput = (body.username || "").trim().toLowerCase();
     const passwordInput = (body.password || "").trim();
 
-    const expectedUsername = (process.env.ADMIN_USERNAME || "amitkr26").trim().toLowerCase();
-    const expectedPassword = (process.env.ADMIN_PASSWORD || "amitkr2622002").trim();
+    const expectedUsername = (process.env.ADMIN_USERNAME || "admin").trim().toLowerCase();
+    const expectedPassword = (process.env.ADMIN_PASSWORD || "").trim();
 
     if (!expectedPassword || !hmacKey) {
       return NextResponse.json(
@@ -31,11 +32,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Accept configured username, or standard administrator identifiers
-    const isUsernameValid = !usernameInput ||
-      safeEqual(usernameInput, expectedUsername) ||
-      safeEqual(usernameInput, "amitkr26") ||
-      safeEqual(usernameInput, "admin");
+    const isUsernameValid = !usernameInput || safeEqual(usernameInput, expectedUsername);
 
     if (!isUsernameValid) {
       return NextResponse.json(
@@ -44,9 +41,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const isPasswordValid = safeEqual(passwordInput, expectedPassword) ||
-      safeEqual(passwordInput, "amitkr2622002") ||
-      safeEqual(passwordInput, "siliconpath-admin-2026");
+    const isPasswordValid = safeEqual(passwordInput, expectedPassword);
 
     if (!isPasswordValid) {
       return NextResponse.json(

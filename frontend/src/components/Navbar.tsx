@@ -165,7 +165,7 @@ export default function Navbar() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearchSubmit}
               placeholder="Search opportunities..."
-              className="w-56 pl-9 pr-3 py-1.5 rounded-full border border-slate-200 bg-slate-50/80 text-xs font-body text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-2xs"
+              className="w-56 pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50/80 text-xs font-body text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-2xs"
             />
           </div>
 
@@ -289,7 +289,7 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/signup"
-                className="px-4 py-1.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-full shadow-2xs transition-all"
+                className="px-4 py-1.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-2xs transition-all"
               >
                 Create Account
               </Link>

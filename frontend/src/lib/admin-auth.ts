@@ -29,6 +29,7 @@ async function computeHmacSha256Hex(secret: string, data: string): Promise<strin
 }
 
 async function verifyAdminToken(token: string, secret: string): Promise<boolean> {
+  if (!secret) return false;
   const parts = token.split(".");
   if (parts.length !== 3) return false;
   const [sessionId, expiry, sig] = parts;
@@ -42,20 +43,21 @@ async function verifyAdminToken(token: string, secret: string): Promise<boolean>
 }
 
 export async function verifyAdmin(request: NextRequest | Request): Promise<boolean> {
-  const adminPassword = process.env.ADMIN_PASSWORD || "amitkr2622002";
+  const adminPassword = process.env.ADMIN_PASSWORD;
   const cronSecret = process.env.CRON_SECRET;
   const hmacKey = process.env.ADMIN_HMAC_SECRET || adminPassword;
 
   const directPassword = request.headers.get("x-admin-password");
-  if (directPassword && (safeEqual(directPassword, adminPassword) || safeEqual(directPassword, "amitkr2622002") || safeEqual(directPassword, "siliconpath-admin-2026"))) {
-    return true;
+  if (directPassword) {
+    if (!adminPassword) return false;
+    if (safeEqual(directPassword, adminPassword)) return true;
   }
 
   const authHeader = request.headers.get("authorization") || "";
   const match = authHeader.match(/^Bearer\s+(.+)$/);
   if (match) {
     const token = match[1];
-    if (safeEqual(token, adminPassword) || safeEqual(token, "amitkr2622002") || safeEqual(token, "siliconpath-admin-2026")) return true;
+    if (adminPassword && safeEqual(token, adminPassword)) return true;
     if (hmacKey && (await verifyAdminToken(token, hmacKey))) return true;
     if (cronSecret && safeEqual(token, cronSecret)) return true;
   }

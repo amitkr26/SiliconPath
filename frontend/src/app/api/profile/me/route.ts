@@ -92,14 +92,27 @@ export async function PATCH(request: NextRequest) {
   const { role, ...profileUpdates } = body;
 
   // P0.5 RBAC: "admin" is never client-settable — it was a self-serve
-  // privilege escalation. employer/candidate remain self-service; admin is
-  // granted out-of-band only (server-side secret-based admin console).
+  // privilege escalation. Employer role is written to app_metadata via the
+  // service-role client (server-controlled), so clients cannot self-assert it
+  // by writing user_metadata. Admin is granted out-of-band only.
   if (role === "admin") {
     return NextResponse.json({ error: "Forbidden: admin role cannot be self-assigned" }, { status: 403 });
   }
   if (role && (role === "employer" || role === "candidate")) {
-    const { error: authError } = await supabase.auth.updateUser({
-      data: { role }
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+    }
+    const { data: current, error: fetchError } = await supabaseAdmin.auth.admin.getUserById(user.id);
+    if (fetchError || !current?.user) {
+      return NextResponse.json({ error: fetchError?.message || "Failed to resolve user" }, { status: 500 });
+    }
+    const existingAppMeta = current.user.app_metadata || {};
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+      app_metadata: {
+        ...existingAppMeta,
+        role,
+        updated_at: new Date().toISOString(),
+      },
     });
     if (authError) return NextResponse.json({ error: authError.message }, { status: 500 });
   }

@@ -88,7 +88,7 @@ export async function listOpportunities(
       .order("deadline", { ascending: true });
   }
   if (params.search && params.search.trim()) {
-    const q = params.search.trim();
+    const q = params.search.trim().replace(/[{}()"\\,.]/g, "").slice(0, 100);
     query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`);
   }
 

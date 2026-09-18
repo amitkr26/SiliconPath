@@ -31,46 +31,46 @@ interface StatItem {
 interface TeamMember {
   name: string;
   role: string;
-  image?: string;
   initials: string;
   linkedin: string;
+  avatarClass: string;
 }
 
 const TEAM_MEMBERS: TeamMember[] = [
   {
-    name: "Aarav Sharma",
+    name: "Amit Kumar",
     role: "Founder & CEO",
-    image: "/images/study-learning-male.png",
-    initials: "AS",
-    linkedin: "https://linkedin.com",
+    initials: "AK",
+    linkedin: "https://www.linkedin.com/in/amitkr26",
+    avatarClass: "from-blue-600 to-indigo-600",
   },
   {
-    name: "Priya Nair",
-    role: "Content & Partnerships",
-    image: "/images/study-learning-female.png",
-    initials: "PN",
-    linkedin: "https://linkedin.com",
+    name: "Azad Gupta",
+    role: "Core Team",
+    initials: "AG",
+    linkedin: "https://www.linkedin.com/in/azad-gupta-6619692ba",
+    avatarClass: "from-emerald-600 to-teal-600",
   },
   {
-    name: "Rohan Verma",
-    role: "Product & Tech",
-    image: "/images/study-learning-male.png",
-    initials: "RV",
-    linkedin: "https://linkedin.com",
+    name: "Rohit Maurya",
+    role: "Core Team",
+    initials: "RM",
+    linkedin: "https://www.linkedin.com/in/rohit-maurya-rm721",
+    avatarClass: "from-purple-600 to-violet-600",
   },
   {
-    name: "Sneha Iyer",
-    role: "Design & User Experience",
-    image: "/images/hero-student-campus.png",
-    initials: "SI",
-    linkedin: "https://linkedin.com",
+    name: "Sanju",
+    role: "Core Team",
+    initials: "S",
+    linkedin: "https://www.linkedin.com/in/sanju3100",
+    avatarClass: "from-amber-500 to-orange-600",
   },
   {
-    name: "Karan Mehta",
-    role: "Community & Outreach",
-    image: "/images/study-learning-male.png",
-    initials: "KM",
-    linkedin: "https://linkedin.com",
+    name: "Rohit Pratap",
+    role: "Core Team",
+    initials: "RP",
+    linkedin: "https://www.linkedin.com/in/rohit-pratap-866294212",
+    avatarClass: "from-cyan-600 to-blue-600",
   },
 ];
 
@@ -455,20 +455,12 @@ export default function AboutClient() {
               className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs hover:shadow-md hover:border-slate-300 transition-all duration-200 text-center flex flex-col items-center justify-between group"
             >
               <div>
-                <div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 mx-auto border-2 border-slate-100 bg-blue-50 shadow-xs">
-                  {member.image ? (
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      fill
-                      unoptimized
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center font-bold text-blue-600 text-lg">
-                      {member.initials}
-                    </div>
-                  )}
+                <div
+                  className={`relative w-20 h-20 rounded-full overflow-hidden mb-4 mx-auto border-2 border-white shadow-md bg-gradient-to-br ${member.avatarClass} group-hover:scale-105 transition-transform duration-300`}
+                >
+                  <div className="w-full h-full flex items-center justify-center font-bold text-white text-lg tracking-wide">
+                    {member.initials}
+                  </div>
                 </div>
 
                 <h3 className="text-sm font-bold text-slate-900 leading-snug mb-1">
@@ -484,9 +476,10 @@ export default function AboutClient() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`${member.name} LinkedIn profile`}
-                className="w-7 h-7 rounded-full bg-slate-50 hover:bg-blue-50 text-slate-500 hover:text-blue-600 flex items-center justify-center transition"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-blue-600 text-slate-500 hover:text-white text-[10px] font-semibold transition-colors"
               >
-                <Linkedin className="w-3.5 h-3.5" />
+                <Linkedin className="w-3 h-3" />
+                <span>LinkedIn</span>
               </a>
             </div>
           ))}
