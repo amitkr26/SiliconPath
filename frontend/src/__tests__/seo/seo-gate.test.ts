@@ -84,12 +84,12 @@ describe("runSiteAudit gate enforcement", () => {
   it("flags every sub-threshold programmatic page as a gate violation", () => {
     const result = runSiteAudit(emptyDataset(), { now: NOW });
     const programmatic = result.reports.filter((r) => r.pageType === "category" || r.pageType === "location");
-    expect(programmatic.length).toBe(13); // 7 categories + 6 locations
+    expect(programmatic.length).toBe(18); // 7 categories + 6 locations + 5 role hubs
     expect(programmatic.every((r) => r.indexable === false)).toBe(true);
-    expect(result.gateViolations.length).toBe(13);
-    expect(result.summary.gatedPages).toBe(13);
-    expect(result.summary.indexablePages).toBe(result.summary.auditedPages - 13);
-    expect(result.summary.gateViolations.length).toBe(13);
+    expect(result.gateViolations.length).toBe(18);
+    expect(result.summary.gatedPages).toBe(18);
+    expect(result.summary.indexablePages).toBe(result.summary.auditedPages - 18);
+    expect(result.summary.gateViolations.length).toBe(18);
     expect(result.summary.gateViolations[0].kind).toBe("sub-threshold-programmatic-page");
     expect(result.summary.gateViolations[0].threshold).toBe(PROGRAMMATIC_INDEX_THRESHOLD);
   });
@@ -101,6 +101,9 @@ describe("runSiteAudit gate enforcement", () => {
     }
     for (const city of ["bengaluru", "hyderabad", "noida", "pune", "chennai", "ahmedabad"]) {
       counts["loc:" + city] = 3;
+    }
+    for (const role of ["physical-design", "rtl-design", "design-verification", "dft", "embedded-systems"]) {
+      counts["role:" + role] = 3;
     }
     const result = runSiteAudit({ ...emptyDataset(), counts }, { now: NOW });
     expect(result.reports.filter((r) => r.pageType === "category" || r.pageType === "location").every((r) => r.indexable)).toBe(true);

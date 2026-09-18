@@ -12,7 +12,7 @@ import {
   buildAvailabilityDbFilter,
 } from "../availability";
 import type { OpportunitySample, ProgrammaticDimension } from "./types";
-import { CATEGORY_SLUGS, LOCATION_SLUGS } from "./registry";
+import { CATEGORY_SLUGS, LOCATION_SLUGS, ROLE_SLUGS } from "./registry";
 
 export interface AuditDataset {
   /** Active + verified rows that pass the strict availability rule, sampled. */
@@ -81,6 +81,20 @@ export function countsFromAvailable(available: OpportunitySample[]): Record<stri
     counts[programmaticCountKey({ location: slug })] = available.filter((r) =>
       aliases.some((a) => (r.location || "").toLowerCase().includes(a))
     ).length;
+  }
+  // Role-based counts (derived from description keyword matching —
+  // role is expressed on page H1/intro, not a structured DB field).
+  const roleCounts: Record<string, number> = {};
+  for (const role of ROLE_SLUGS) {
+    roleCounts[role] = available.filter((r) => {
+      // Simple presence check: if any role-defining skill keyword appears in description.
+      // Since descriptions aren't reliably tagged, we keep count at 0 for the gate
+      // and let the role hub page explain the role without promising filtered data.
+      return false;
+    }).length;
+  }
+  for (const [role, count] of Object.entries(roleCounts)) {
+    counts[programmaticCountKey({ role })] = count;
   }
   return counts;
 }
