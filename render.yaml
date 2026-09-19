@@ -29,7 +29,7 @@ services:
     name: siliconpath-backend
     runtime: docker
     repo: https://github.com/amitkr26/SiliconPath
-    dockerfilePath: ./backend/server/Dockerfile
+    dockerfilePath: ./legacy/backend/server/Dockerfile
     dockerContext: .
     plan: free
     healthCheckPath: /health

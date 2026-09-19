@@ -25,12 +25,6 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "@berojgardegreewala/api": [
-        "../backend/api/src/index.ts"
-      ],
-      "@berojgardegreewala/api/*": [
-        "../backend/api/src/*"
       ]
     }
   },
@@ -43,6 +37,7 @@
   "exclude": [
     "node_modules",
     "scripts",
+    "legacy",
     ".next"
   ]
 }

@@ -11,7 +11,7 @@ const { NEXT_PUBLIC_SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = {
 };
 
 if (!url || !key) {
-  console.error("supabase MCP: SUPABASE_URL/SERVICE_ROLE_KEY missing (frontend/.env.local)");
+  console.error("supabase MCP: SUPABASE_URL/SERVICE_ROLE_KEY missing (.env.local)");
   process.exit(1);
 }
 

@@ -1,18 +1,17 @@
 # The build stage npm ci's fresh node_modules in the container — never copy
-# the host's (Windows junctions + win32 binaries break the linux image).
+# the host's binaries. legacy/ stays in the image only so npm ci can resolve
+# the @berojgardegreewala/* workspace packages declared in package-lock.json.
 node_modules
 .git
 .opencode
 .vercel
 docs
 project-bible
-k8s
-neon
-scripts
-backend/*/dist
-backend/*/.tsbuildinfo
-frontend/.next
-e2e
+legacy/**/dist
+legacy/**/*.tsbuildinfo
+.next
+dist
+*.tsbuildinfo
 *.log
 .env
 .env.*

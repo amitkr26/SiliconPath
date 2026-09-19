@@ -12,6 +12,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 *.log
+*.pem
 
 # local env & secrets
 .env
@@ -29,12 +30,16 @@ Thumbs.db
 .vercel
 
 # typescript build output
-/backend/server/dist/
-/backend/worker/dist/
+legacy/**/dist/
+legacy/**/*.tsbuildinfo
+legacy/**/node_modules/
 *.tsbuildinfo
 
 # test & coverage artifacts
 /coverage/
 /.nyc_output/
+/playwright-report/
+/test-results/
 scripts/scratch/
 .env*
+!.env.example

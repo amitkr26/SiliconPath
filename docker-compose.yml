@@ -3,7 +3,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: frontend/Dockerfile
+      dockerfile: ./Dockerfile
     container_name: siliconpath_frontend
     ports:
       - "3000:3000"
@@ -24,7 +24,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: backend/server/Dockerfile
+      dockerfile: ./legacy/backend/server/Dockerfile
     container_name: siliconpath_api
     ports:
       - "8080:8080"

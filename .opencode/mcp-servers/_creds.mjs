@@ -1,6 +1,6 @@
 // Shared credential lookup for MCP servers.
 // Single source of truth: siliconpath-credentials.txt (gitignored, workspace
-// root) + frontend/.env.local. No secrets are duplicated into new files.
+// root) + .env.local. No secrets are duplicated into new files.
 
 import { readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
@@ -27,7 +27,7 @@ export function readCredentialsFile() {
 }
 
 export function readEnvLocal(keys) {
-  const file = resolve(ROOT, "frontend/.env.local");
+  const file = resolve(ROOT, ".env.local");
   if (!existsSync(file)) return {};
   const out = {};
   for (const line of readFileSync(file, "utf8").split("\n")) {

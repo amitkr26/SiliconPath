@@ -1,6 +1,6 @@
 const { createClient } = require("@supabase/supabase-js");
 
-// Credentials come from frontend/.env.local (never commit keys).
+// Credentials come from .env.local (never commit keys).
 const fs = require("fs");
 const path = require("path");
 const env = fs.readFileSync(path.join(__dirname, "..", ".env.local"), "utf8")

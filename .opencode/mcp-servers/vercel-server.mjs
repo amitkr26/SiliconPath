@@ -65,7 +65,7 @@ startMcpServer({
           dir: { type: "string", description: "Directory to deploy (default: frontend)" },
         },
       },
-      handler: async ({ prod = true, dir = "frontend" }) => {
+      handler: async ({ prod = true, dir = "." }) => {
         const args = ["deploy", dir];
         if (prod) args.push("--prod");
         args.push("--yes");

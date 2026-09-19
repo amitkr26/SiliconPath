@@ -10,7 +10,8 @@ const config = {
     // ".js" import specifiers — map them back to extensionless for jest.
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
-  testMatch: ['**/__tests__/**/*.test.(ts|tsx)'],
+  testMatch: ['<rootDir>/src/**/__tests__/**/*.test.(ts|tsx)'],
+  testPathIgnorePatterns: ['/node_modules/', '/legacy/'],
 };
 
 module.exports = config;

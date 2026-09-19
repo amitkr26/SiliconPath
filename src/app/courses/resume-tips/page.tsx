@@ -104,7 +104,7 @@ export default function ResumeTipsPage() {
               <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Rule 1</span>
               <h4 className="font-semibold text-slate-900 text-sm">Always Specify Node & Metrics</h4>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Never just write "Physical Design project". Always include the technology node (e.g. 130nm, 45nm, 7nm), target frequency (e.g. 200 MHz), gate count, and timing slack results.
+                Never just write “Physical Design project”. Always include the technology node (e.g. 130nm, 45nm, 7nm), target frequency (e.g. 200 MHz), gate count, and timing slack results.
               </p>
             </div>
 
@@ -112,7 +112,7 @@ export default function ResumeTipsPage() {
               <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Rule 2</span>
               <h4 className="font-semibold text-slate-900 text-sm">Name Specific EDA Tools</h4>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Hiring ATS filters and technical screeners scan for precise tools: PrimeTime, Innovus, ICC2, OpenROAD, Calibre, VCS, ModelSim. "CAD Tools" gets rejected.
+                Hiring ATS filters and technical screeners scan for precise tools: PrimeTime, Innovus, ICC2, OpenROAD, Calibre, VCS, ModelSim. “CAD Tools” gets rejected.
               </p>
             </div>
 
@@ -120,7 +120,7 @@ export default function ResumeTipsPage() {
               <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Rule 3</span>
               <h4 className="font-semibold text-slate-900 text-sm">Quantify Optimization Impact</h4>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Use numbers: "Reduced leakage by 18% using high-Vt swap", "improved clock skew from 280ps to 95ps", "achieved 100% DRC/LVS clean tapeout".
+                Use numbers: “Reduced leakage by 18% using high-Vt swap”, “improved clock skew from 280ps to 95ps”, “achieved 100% DRC/LVS clean tapeout”.
               </p>
             </div>
 
@@ -178,7 +178,7 @@ export default function ResumeTipsPage() {
               <Layers className="w-5 h-5 text-blue-600" /> Recommended Skills Matrix Format
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Structure your resume's technical skills section into clean, categorized rows rather than one giant comma-separated list.
+              Structure your resume’s technical skills section into clean, categorized rows rather than one giant comma-separated list.
             </p>
           </div>
 

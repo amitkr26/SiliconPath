@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased] — 2026-09-19
+
+### Changed
+- **Repository restructured into a single Next.js application at the repo root** (was: monorepo with `frontend/` + legacy BDW backend at root):
+  - Flattened the app: `frontend/{src,public,supabase,scripts,next.config.mjs,tailwind.config.ts,postcss.config.mjs,jest.config.js,tsconfig*.json,next-env.d.ts,Dockerfile,vercel.json}` → repo root; `frontend/package.json` + lock merged into a rewritten root `package.json` (name `siliconpath`, app scripts at root, `workspaces: ["legacy/backend/*"]`).
+  - Dropped the dead `file:` deps `@berojgardegreewala/{api,ai-gateway}` from the app manifest (no imports existed in `src/`) and removed their stale `tsconfig` `paths` aliases.
+  - Quarantined all non-app code under `legacy/` (nothing deleted, history preserved via `git mv`): `backend/` → `legacy/backend/` (workspaces still `@berojgardegreewala/*`), `k8s/` + `neon/` → `legacy/`, legacy root `scripts/` (scrapers, DB maintenance) → `legacy/scripts/`, `frontend/tests/e2e` + `playwright.config.ts` (BDW UI tests for `/login` flows that no longer exist) → `legacy/e2e-tests/`.
+  - `docker-compose.yml` + `render.yaml` kept at root (Vercel/Render/Compose discovery reads root-level configs); embedded paths updated to `./Dockerfile` / `./legacy/backend/server/Dockerfile`.
+  - Root `Dockerfile` rewritten for the standalone single-app layout (`npm ci` at root, `npm run build`, `.next/standalone` runner); `.dockerignore` updated (legacy source kept in image so `npm ci` can resolve the workspace glob).
+  - `.github/workflows/ci.yml`: app job (lint/test/build) now runs at root (no `--workspace=frontend`); legacy backend jobs unchanged (workspaces resolve via the new glob).
+  - `.opencode/mcp-servers/{_creds,supabase-server,vercel-server}.mjs`: env path `frontend/.env.local` → `.env.local` (root), Vercel MCP default dir `frontend` → `.`.
+  - `project-bible/DEVELOPMENT.md` rewritten (single-app layout, root commands, `legacy:*` scripts, deployment section); root `README.md` rewritten with the new repo-layout table and root quickstart.
+  - Verified end to end: `tsc` 0 errors, jest 6/6, `@berojgardegreewala/server` workspace test pass, `next build` green, dev server serves `/`, `/academy`, `/learn`, `/learn/video-courses`, `/resources`, `/sta-interview-questions`, `/courses`, `/about`, `/engineering-lab` (all 200).
+- **Audit & session reports**: added `docs/audit-reports/2026-09-19-repo-restructure-audit.md` and `docs/session-reports/2026-09-19-repo-restructure.md`.
+
+---
+
 ## [Unreleased] — 2026-09-16
 
 ### Added
