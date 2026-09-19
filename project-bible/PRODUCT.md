@@ -66,3 +66,4 @@ It aggregates verified opportunities across premier institutions (ISRO, DRDO, CS
 3. **Evidence-Gated Verification**: No organization is verified without domain or cryptographic proof.
 4. **Data Freshness**: Scrapers normalize deadlines, enforce expiration, flag stale posts.
 5. **Media Truthfulness**: No stock imagery. Organization identity via verified logos or deterministic monograms.
+6. **2026-09-18 DB1 data-quality pass**: 2,941 zombie/inactive/rejected duplicate rows deleted (`opportunities` 4,849 → 1,908; ≈1,009 active verified live). Provable per-job duplicates deactivated (5, reversible). **84 ambiguous duplicate groups** (identical titles on shared Workday/ATS board URLs) queued for human admin review in `project-bible/DUPLICATE_REVIEW_2026-09-18.csv` — never auto-deleted because one ATS board URL legitimately hosts many distinct jobs.

@@ -24,3 +24,8 @@ npm run start
 ```
 
 For full environment variable configuration and system architecture details, please refer to the [Root README](../README.md).
+
+## Notes
+- **News RSS fleet** (`frontend/src/lib/scrapers/rss-parser.ts`): 10 live `NEWS_SOURCES` feeds (IEEE Spectrum, Semiconductor Engineering, EE Times, Electronics Weekly, SemiWiki, Electronics For You, Power Electronics News, Science Daily — Electronics, Phys.org — Engineering, Scholarship Roar). Health is persisted to `scrape_sources`/`scrape_runs` by `/api/news/sync` (the scheduled Vercel cron runner).
+- **Opportunity scraper** (`frontend/src/lib/scrapers/opportunity-scraper-impl.ts`): `updateSourceHealth` increments `total_runs`/`total_results` and no-ops cleanly (`maybeSingle`) for sources without a DB row.
+- See `project-bible/CHANGELOG.md` for the full change history.

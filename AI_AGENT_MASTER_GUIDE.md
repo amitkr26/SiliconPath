@@ -1,8 +1,8 @@
 # BerojgarDegreeWala — Master AI Agent & Engineering Guide
 **Unified Architectural Blueprint, Product Vision, Codebase Map, and Debugging Playbook**
 
-*Document Version: 2026-09-18*  
-*Repository: https://github.com/amitkr26/BerojgarDegreeWala*  
+*Document Version: 2026-09-19*
+*Repository: https://github.com/amitkr26/BerojgarDegreeWala*
 *Production URL: https://berojgardegreewala.vercel.app/*  
 
 ---
@@ -71,7 +71,7 @@ BerojgarDegreeWala/
 │   │   │       ├── organizations/          # Organization directory APIs
 │   │   │       ├── employer/               # Employer portal endpoints (IDOR-protected)
 │   │   │       ├── ai/                     # Classification, AI search, resume parsing
-│   │   │       ├── cron/                   # Scheduled scrapers (scrape-india, scrape-global)
+│   │   │       ├── cron/                   # Scheduled jobs (scrape-opportunities 00:00, check-links 08:00, news-sync 06:00) via vercel.json
 │   │   │       └── admin/                  # Verification, scrape-health, metrics
 │   │   ├── components/                     # Reusable React UI Components
 │   │   │   ├── Navbar.tsx                  # The SINGLE authoritative header across all public routes
@@ -131,7 +131,7 @@ BerojgarDegreeWala/
 | **Database (Analytics)** | **Neon Serverless PostgreSQL** | Click events, page views, query telemetry, trending search cache |
 | **AI Ingestion Gateway** | **Gemini, Groq, Claude, Document AI**| PDF circular parsing, classification, reasoning sanitization |
 | **Object Storage** | **Google Cloud Storage / Supabase Storage** | Resumes, company logos, circular attachments |
-| **Testing & Quality** | **Jest, Playwright, TypeScript (`tsc`)** | 26 test suites (259+ unit tests), E2E flows, strict compile checks |
+| **Testing & Quality** | **Jest, TypeScript (`tsc`)** | 34 suites / 361 frontend tests + worker 31/31 + api 8/100 + gateway 19/19, strict compile checks |
 | **Monitoring** | **Sentry Next.js SDK** | Production error catching and performance tracing |
 
 ---
@@ -170,7 +170,8 @@ BerojgarDegreeWala/
 
 ### 4.4 Surface 4: Admin Verification & Operations Console
 - Located under `/admin/*` (`/admin`, `/admin/scrape-health`, `/admin/opportunities`, `/admin/organizations`).
-- Scraping health telemetry: tracks consecutive failures, total results, and duration across 40+ scrapers.
+- Scraping health telemetry: `scrape_sources` per-source health (name, `is_active`, consecutive failures, `total_runs`/`total_results`, last success timestamps). Every scheduled run persists health + inserts a `scrape_runs` row — the Vercel cron routes (`/api/cron/*`) are the only schedulers (`frontend/vercel.json`); the Render worker is intentionally not scheduled.
+- News ingestion fleet: frontend RSS pipeline (`frontend/src/lib/scrapers/rss-parser.ts`) monitors **10 live feeds** (IEEE Spectrum, Semiconductor Engineering, EE Times, Electronics Weekly, SemiWiki, Electronics For You, Power Electronics News, Science Daily — Electronics, Phys.org — Engineering, Scholarship Roar); the backend replica (`backend/api/src/content/news-sync.ts`) monitors **8 feeds** (dead feeds removed 2026-09-18: Chip Design Magazine, The Electronics Media, The Register — Hardware, Science Daily's dead `computers_math` URL cluster). Deactivated sources stay visible in `scrape_sources` with `is_active=false`.
 - Opportunity verification queue: human-in-the-loop review to verify AI-parsed PDF circulars before public publication.
 
 ---
@@ -233,11 +234,17 @@ CREATE TABLE opportunities (
 ### 5.3 Availability & Freshness Logic
 - Located in `frontend/src/lib/availability.ts`.
 - Computes Indian Standard Time (IST, UTC+5:30) today: `computeIstToday()`.
-- Filter: An opportunity is active and visible if `is_active = true`, `verification_status = 'verified'`, and `(deadline >= today OR deadline IS NULL)`.
+- **Canonical 5-State Availability Lifecycle Engine** (`getOpportunityAvailability`): `AVAILABLE`, `EXPIRING_SOON`, `EXPIRED`, `UNAVAILABLE`, `UNKNOWN`. Rolling/open-ended opportunities (`deadline IS NULL`) with recent activity are preserved as `AVAILABLE` ("Rolling Applications"), eliminating false expiries.
 - **Deadline Countdown**: `DeadlineCountdown.tsx` automatically displays:
   - `< 24 hours`: Red pulsing alert badge ("Closing Today").
   - `<= 3 days`: Amber warning ("Closes in X days").
   - `> 3 days`: Slate information badge.
+
+### 5.4 Production DB1 — Applied Migration Ledger & RLS Posture (2026-09-18/19)
+- **Migration ledger**: `supabase_migrations.schema_migrations` now carries **13 records** (Applied `created_by = 'supabase_mgmt_api'`, never re-run). Executed via the Supabase **Management API** — `POST https://api.supabase.com/v1/projects/{ref}/database/query` with `Authorization: Bearer <SUPABASE_MGMT_TOKEN>` — the same DDL-capable path `supabase db push` uses.
+- **Tables created on DB1**: `announcements` (`20260714_001`), `opportunity_verifications` (`20260816000001`), `user_roles` + `user_permissions` + `audit_logs` + quality/lifecycle columns (`quality_score`, `last_verified_at`, `verification_source`, `audit_notes`) on `opportunities` (`20260828000001`).
+- **RLS lockdown**: all internal tables are locked to anonymous access — verified via `HEAD` + `Prefer: count=exact` probes (Content-Range `*/0`): `app_config` (was holding the Greenhouse ATS token — **rotate immediately**), `ai_usage_log`, `suggestions`, `employer_settings`, `scrape_runs`, `scrape_sources`, `audit_logs`, `user_roles`, `user_permissions`, `opportunity_verifications`, `applications`, `company_claims`, `recruiter_saved_candidates`, `workspace_members`. **Public-by-design only**: `opportunities` (≈1,009 active), `organizations`, `user_profiles`, `news_articles`, `feed_posts` family, `user_follows`, `skill_endorsements`, `announcements` (public-read policy).
+- **Data-quality cleanup** (`20260918000003`): **2,941 zombie rows** (inactive / rejected / expired, unreferenced) deleted — opportunities `4,849 → 1,908`. Provable per-job duplicates deactivated (5, reversible via `audit_notes` tag); **84 ambiguous groups** (same title on shared Workday/ATS board URL) exported to `project-bible/DUPLICATE_REVIEW_2026-09-18.csv` for human admin review; 417 rejected rows retained for FK integrity.
 
 ---
 
@@ -389,12 +396,13 @@ npm run build
 
 ### 10.3 Golden Rules for AI Agents Modifying This Codebase
 1. **Always Type-Check First**: After making changes in `frontend/`, immediately run `npx tsc --noEmit`. Fix any typing discrepancy before committing.
-2. **Never Break Test Suites**: Run `npm test`. All test suites must pass (317 frontend + 19 gateway tests).
+2. **Never Break Test Suites**: Run `npm test`. All test suites must pass (frontend 34 suites / 361 tests, worker 31/31, backend api 8 suites / 100 tests, gateway 19/19).
 3. **Preserve Navigation Singletons**: Do not insert arbitrary navbars or footers into page components.
 4. **Follow Seed Conventions**: When adding organizations or opportunities, use idempotent SQL (`ON CONFLICT (slug) DO UPDATE SET ...`).
 5. **Update CHANGELOG.md**: Document every architectural or visual change in `project-bible/CHANGELOG.md`.
-6. **No Breaking Migrations**: Do not drop columns in Supabase migrations without a corresponding phased deprecation strategy.
+6. **No Breaking Migrations**: Do not drop columns in Supabase migrations without a corresponding phased deprecation strategy. Production DB1 migrations are already APPLIED — new schema changes require new sequential migration files executed via the Management API (never re-run applied ones).
 7. **BDW AI Security**: Never import `bdw-tools-exec.ts` into client code. Always validate tool names against `VALID_BDW_TOOLS`. Always escape ILIKE wildcards.
+8. **RLS is a Zero-Tolerance Regression**: Never add or re-enable `FOR ALL USING(true)` (or `TO PUBLIC`) policies on internal tables. Verify with anonymous HEAD probes + `Prefer: count=exact` after any policy/migration work.
 
 ---
 
@@ -415,5 +423,9 @@ npm run build
 | `frontend/src/lib/ai/bdw-tools-exec.ts` | BDW AI tool execution (SERVER-ONLY) |
 | `frontend/src/app/api/ai/chat/route.ts` | Chat endpoint — RAG + tool loop |
 | `frontend/src/middleware.ts` | Universal session refresh & route protection |
+| `frontend/vercel.json` | Cron schedule — scrape-opportunities (00:00), check-links (08:00), news-sync (06:00) — the only scheduled runners |
+| `frontend/src/lib/scrapers/rss-parser.ts` | Frontend news RSS pipeline — 10 live `NEWS_SOURCES` (image + media RSS extraction) |
+| `backend/api/src/content/news-sync.ts` | Backend news sync replica — 8 live `NEWS_SOURCES` with per-source health upserts |
+| `frontend/supabase/migrations/` | 40+ migration files — all production-applied (ledger = 13 records) |
 | `frontend/supabase/seed/05_semiconductor_bangalore_100.sql` | 100 verified semiconductor organizations seed |
 | `project-bible/CHANGELOG.md` | Full historical change log |

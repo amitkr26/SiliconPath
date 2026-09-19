@@ -1,6 +1,6 @@
 # BerojgarDegreeWala — Technical Architecture
 
-**Version:** 2026-09-18 (BDW AI + Security Hardening) · **Pattern:** Modular Monolith on Next.js & Supabase + Dedicated Employer Suite & Independent Backend Replication
+**Version:** 2026-09-19 (BDW AI + Security Hardening + DB1 Remediation / RLS Lockdown) · **Pattern:** Modular Monolith on Next.js & Supabase + Dedicated Employer Suite & Independent Backend Replication
 
 ---
 
@@ -36,7 +36,10 @@ The application serves four discrete, authoritative user experiences from a sing
   • applications + messages                  • trending_cache
   • notifications + community_posts          • keyword_stats
   • ai_usage_log + skill_endorsements
-  • scraper_sources + company_claims
+  • scrape_sources + company_claims
+  • user_roles + user_permissions            (RLS-locked internal surface:
+  • audit_logs + opportunity_verifications    app_config, workloads, audit,
+  • announcements + employer_settings         roles — anon exposure = 0)
 ```
 
 ---
@@ -87,7 +90,8 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
 ### DB1 — Supabase (Consolidated Platform & User Data)
 - **Provider**: Supabase Project 1 (`aqauempuwmbizqoaolop`)
 - **Role**: Production authoritative database hosting core platform, opportunities, organizations, news, admin logs, user profiles, social features, applications, and workspace settings.
-- **Key Tables**: `opportunities`, `organizations`, `news_articles`, `user_profiles`, `applications`, `saved_opportunities`, `feed_posts`, `company_claims`, `recruiter_saved_candidates`, `employer_settings`, `workspace_members`, `ai_usage_log`.
+- **Key Tables**: `opportunities` (+ quality columns `quality_score`, `last_verified_at`, `verification_source`, `audit_notes`), `organizations`, `news_articles`, `user_profiles`, `applications`, `saved_opportunities`, `feed_posts`, `company_claims`, `recruiter_saved_candidates`, `employer_settings`, `workspace_members`, `ai_usage_log`, `scrape_sources`, `scrape_runs`, and the RBAC/lifecycle surface created 2026-09-18: `announcements`, `opportunity_verifications`, `user_roles`, `user_permissions`, `audit_logs`.
+- **Migration ledger**: `supabase_migrations.schema_migrations` = **13 records**, all applied to production (`created_by = 'supabase_mgmt_api'`). Schema changes are applied via the Supabase **Management API** (`POST /v1/projects/{ref}/database/query` with `SUPABASE_MGMT_TOKEN`), never re-run ad hoc.
 
 ### DB2 — Supabase (Legacy Split Architecture)
 - **Provider**: Supabase Project 2 (`jbqjipwanfsxyqkfrrpx` — optional / legacy)
@@ -97,6 +101,18 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
 - **Provider**: Neon PostgreSQL
 - **Role**: Analytics, click tracking, trending cache
 - **Key Tables**: `page_views`, `search_queries`, `click_events`, `trending_cache`, `keyword_stats`
+
+---
+
+## 4b. Scheduled Pipeline & Scrape Telemetry
+
+- **Schedulers (Vercel cron, `frontend/vercel.json`)**: `/api/cron/scrape-opportunities` (00:00 IST), `/api/cron/check-links` (08:00), `/api/news/sync` (06:00) — these are the **only** scheduled runners in the fleet. The Render worker (`render.yaml`) is deliberately **not** scheduled.
+- **News ingestion fleet**:
+  - Frontend RSS pipeline (`frontend/src/lib/scrapers/rss-parser.ts`): **10 live feeds** — IEEE Spectrum, Semiconductor Engineering, EE Times, Electronics Weekly, SemiWiki, Electronics For You, Power Electronics News, Science Daily — Electronics (`matter_energy/electronics.xml`, verified live), Phys.org — Engineering, Scholarship Roar.
+  - Backend replica (`backend/api/src/content/news-sync.ts`): **8 live feeds** (subset above minus the dead ones). Dead feeds were removed from config 2026-09-18 (Chip Design Magazine, The Electronics Media, The Register — Hardware, Science Daily's dead `computers_math/semiconductors.xml`), never hard-deleted — they persist as `is_active=false` rows in `scrape_sources`.
+  - Dead feed handling: 404/DNS/parse failures accumulate `consecutive_failures` (threshold 5 → admin deactivation).
+- **Health telemetry write-path**: `/api/news/sync` persists per-source accepted counts, increments `total_runs`/`total_results`, resets `last_scrape_at`/`last_success_at`, and inserts a `scrape_runs` row on every run. The worker (`run-news-sync.ts`, `run-isro-scrape.ts`) mirrors this and preserves admin-set `is_active` state. `opportunity-scraper-impl.ts` `updateSourceHealth` increments counters with `maybeSingle` (clean no-op when no DB row exists).
+- **Data quality (2026-09-18)**: `20260918000003_dedup_zombie_opportunities.sql` deleted **2,941** inactive/rejected/expired unreferenced rows (`opportunities` 4,849 → 1,908; ≈1,009 active verified live). Workday ATS board URLs represent many DISTINCT jobs (not deletable by URL); 5 provable per-job duplicates deactivated (reversible), **84 ambiguous groups** flagged in `project-bible/DUPLICATE_REVIEW_2026-09-18.csv` for human admin review.
 
 ---
 
@@ -118,7 +134,12 @@ The live database infrastructure uses a dual-Supabase + Neon architecture:
    - Role-based access control with three roles: `candidate`, `employer`, `admin`.
    - Capability-based progressive permissions model.
    - Middleware enforces role checks at route boundaries.
-5. **Security Response Headers**:
+5. **Row-Level Security (RLS) Lockdown — 2026-09-18/19**:
+   - All internal tables are locked for anonymous access, verified empirically with anonymous `HEAD` probes + `Prefer: count=exact` (Content-Range `*/0` rows): `app_config` (held the Greenhouse ATS token — rotate), `ai_usage_log`, `suggestions`, `employer_settings`, `scrape_runs`, `scrape_sources`, `audit_logs`, `user_roles`, `user_permissions`, `opportunity_verifications`, `applications`, `company_claims`, `recruiter_saved_candidates`, `workspace_members`.
+   - Technical nuance: the toxic policies were declared `TO PUBLIC` (Postgres pseudo-role), so policy cleanup must use named `DROP POLICY IF EXISTS` (role-LIKE scans miss them).
+   - **Public-by-design surfaces only**: `opportunities` (≈1,009 active), `organizations`, `user_profiles`, `news_articles`, `feed_posts`/`comments`/`likes`, `company_pages`, `candidate_*`, `user_follows`, `skill_endorsements`, `announcements` (explicit public-read policy).
+   - Treat any re-exposure as a zero-tolerance regression: verify after every migration/policy change.
+6. **Security Response Headers**:
    - `X-Frame-Options: DENY`
    - `X-Content-Type-Options: nosniff`
    - `Referrer-Policy: strict-origin-when-cross-origin`
@@ -221,7 +242,8 @@ User Query → Intent Detection (7 domains) → RAG Retrieval (opportunities, or
 ## 9. Verification Baseline
 
 - **TypeScript Type Safety**: `npm run typecheck` (0 errors across all 5 monorepo workspaces)
-- **Unit & Integration Tests**: Frontend 317 tests (33 suites including 31 security regression tests + 55 SEO tests); AI Gateway 19 tests; Backend API 100 tests — all PASS
+- **Unit & Integration Tests**: Frontend 34 suites / 361 tests (incl. 31 security regression + 55 SEO tests); Worker 31/31; Backend API 8 suites / 100; AI Gateway 19/19 — all PASS (verified 2026-09-19)
 - **Production Build**: `npm run build` (338+ routes compiled)
-- **Security**: Fail-closed IDOR, prompt injection defense, SQL ILIKE escaping, auth on AI tool endpoints, RLS, CSP headers
+- **Security**: Fail-closed IDOR, prompt injection defense, SQL ILIKE escaping, auth on AI tool endpoints, CSP headers
+- **Database**: DB1 RLS exposure = 0 (anonymous probes show `*/0` on all internal tables); migration ledger = 13 applied records; zombies deduped (4,849 → 1,908)
 

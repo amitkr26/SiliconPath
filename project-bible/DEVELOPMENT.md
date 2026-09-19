@@ -64,6 +64,40 @@ cd backend/ai-gateway
 npm test
 ```
 
+### Worker & Backend API Tests
+```bash
+cd backend/worker
+npm test        # 31/31 (incl. news deactivated-source preservation + counter assertions)
+npm run typecheck
+
+cd backend/api
+npm test        # 8 suites / 100 tests
+npm run typecheck
+```
+
+## Applying Database Migrations (Production DB1)
+
+**Status: all migrations are APPLIED** (ledger = 13 records in `supabase_migrations.schema_migrations`). Do **not** re-run or edit applied migrations; new schema changes require new sequential migration files.
+
+Execution path (full DDL support — the same endpoint `supabase db push` uses):
+
+```bash
+# Reads secret from frontend/.env.local — never print values
+$token  = (Select-String -Path frontend/.env.local -Pattern '^SUPABASE_MGMT_TOKEN=').Line.Split('=')[1]
+$ref    = (Select-String -Path frontend/.env.local -Pattern '^SUPABASE_PROJECT_REF=').Line.Split('=')[1]
+$sql    = Get-Content -Raw -Encoding UTF8 -LiteralPath "frontend/supabase/migrations/<file>.sql"
+$body   = @{ query = $sql } | ConvertTo-Json -Compress
+Invoke-RestMethod -Method Post -Uri "https://api.supabase.com/v1/projects/$ref/database/query" `
+  -Headers @{ Authorization = "Bearer $token"; "Content-Type" = "application/json" } -Body $body
+```
+
+Operating notes (learned in the 2026-09-18 execution round):
+- **UTF-8 boxing hazard**: PowerShell 5.1 mangles non-ASCII characters — if the SQL file contains box-drawing glyphs (`═══`), the API returns `400 "Expected ',' or '}' after property value in JSON"`. Sanitize first: `[regex]::Replace($raw, '[^\x00-\x7F]', '-')`.
+- Multi-statement query strings run atomically (single implicit transaction).
+- Inspect server SQL errors via `$_.ErrorDetails.Message`, not `Exception.Message`.
+- RLS exposure checks must use anonymous `HEAD` probes + `Prefer: count=exact` and read the `Content-Range` header (`*/0` = locked/0 rows). Do not rely on `select=id` (400s on non-`id` PKs) or on `@($null).Count` edge cases.
+- Toxics policies are often declared `TO PUBLIC` — always `DROP POLICY IF EXISTS` by name.
+
 ## AI Agent Operating Contract
 
 All AI coding agents and human contributors must follow these tenets:
@@ -84,6 +118,8 @@ See `frontend/.env.example` and `backend/server/.env.example` for the full list.
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role (server-only) |
+| `SUPABASE_MGMT_TOKEN` | Supabase **Management API** token — DDL-capable `POST /v1/projects/{ref}/database/query` (migration execution; shell-only, never print) |
+| `SUPABASE_PROJECT_REF` | Production project ref (`aqauempuwmbizqoaolop`) |
 | `BDW_AI_ENABLED` | Enable BDW AI Career Intelligence Engine |
 | `BDW_AI_BASE_URL` | BDW AI endpoint URL |
 | `BDW_AI_API_KEY` | BDW AI API key |

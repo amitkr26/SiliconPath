@@ -9,6 +9,7 @@ This workspace provides shared infrastructure consumed across the monorepo:
 - **`src/validation`**: Zod schemas for opportunities, pagination, sorting, query filtering, and payload sanitization.
 - **`src/rate-limit`**: Memory-bounded LRU rate limiters with expired-entry pruning.
 - **`src/response`**: Standardized JSON response envelopes (`success`, `created`, `unauthorized`, `forbidden`, `notFound`, etc.).
+- **`src/content`**: News ingestion replica — `news-sync.ts` (`NEWS_SOURCES`, **8 live feeds** after the 2026-09-18 dead-feed purge; per-source health upserts into `scrape_sources`/`scrape_runs`), RSS parsing, dedup (`canonicalUrl`), provenance, and source classification.
 - **`src/openapi`**: Dynamic OpenAPI 3.0 specification generators.
 
 ## Commands

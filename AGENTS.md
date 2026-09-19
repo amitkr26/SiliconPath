@@ -23,9 +23,10 @@ For the exhaustive system architecture, data models, scraper pipelines, security
 3. **No Stock Imagery**: Zero Unsplash / placeholder images. Use local production assets in `frontend/public/images/` or SVG monogram fallbacks via `ImageWithFallback.tsx`.
 4. **Evidence-Gated Verification**: Never assign `organization_id` without domain or cryptographic proof via [frontend/src/lib/organizations/resolve.ts](frontend/src/lib/organizations/resolve.ts).
 5. **BDW AI Tools are server-only**: Tool execution logic lives in `frontend/src/lib/ai/bdw-tools-exec.ts` (server-only). Never import tool execution into client components.
-6. **Quality Gates**:
+6. **Production DB1 migrations are APPLIED** (ledger = 13 records, incl. `20260918000001` RLS lockdown and `20260918000003` dedup). Do not re-run migrations ad hoc; schema changes go through new sequential migration files applied via the Supabase Management API (`SUPABASE_MGMT_TOKEN` + `SUPABASE_PROJECT_REF`, `POST /v1/projects/{ref}/database/query`). RLS exposure of internal tables is a zero-tolerance regression — verify with anonymous `HEAD` probes + `Prefer: count=exact`.
+7. **Quality Gates**:
    - Run `npx tsc --noEmit` in `frontend/` before completing any work (0 errors tolerance).
-   - Run `npm test` in `frontend/` (all test suites must pass).
+   - Run `npm test` in `frontend/` (34 suites / 361 tests) **and** `npm test` in `backend/worker` (31/31) **and** `npm test` in `backend/api` (8 suites / 100 tests).
    - Document notable changes in `project-bible/CHANGELOG.md`.
 
 ### 3. Security Rules for AI Agents

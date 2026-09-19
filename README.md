@@ -8,7 +8,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-Primary%20DB-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
 [![Neon](https://img.shields.io/badge/Neon-Analytics%20DB-00E599?style=for-the-badge&logo=postgresql)](https://neon.tech/)
 [![Deployment](https://img.shields.io/badge/Vercel-Live-000000?style=for-the-badge&logo=vercel)](https://berojgardegreewala.vercel.app)
-[![Tests](https://img.shields.io/badge/Tests-317%2F317%20PASS-brightgreen?style=for-the-badge)](https://github.com/amitkr26/BerojgarDegreeWala)
+[![Tests](https://img.shields.io/badge/Tests-361%2F361%20PASS-brightgreen?style=for-the-badge)](https://github.com/amitkr26/BerojgarDegreeWala)
 [![Typecheck](https://img.shields.io/badge/Typecheck-0%20Errors-brightgreen?style=for-the-badge)](https://github.com/amitkr26/BerojgarDegreeWala)
 
 [**Live Platform**](https://berojgardegreewala.vercel.app) | [**Opportunities**](https://berojgardegreewala.vercel.app/opportunities) | [**Ask AI**](https://berojgardegreewala.vercel.app/ask-ai) | [**Academy**](https://berojgardegreewala.vercel.app/academy) | [**Admin**](https://berojgardegreewala.vercel.app/admin)
@@ -87,10 +87,13 @@ npm run build        # Production build
 
 | Gate | Command | Status |
 | :--- | :--- | :--- |
-| TypeScript | `npx tsc --noEmit` | 0 errors |
-| Frontend Tests | `npm test` | 317/317 pass |
+| TypeScript | `npx tsc --noEmit` | 0 errors (all workspaces) |
+| Frontend Tests | `npm test` | 34 suites / 361 pass |
+| Worker Tests | `npm test` (backend/worker) | 31/31 pass |
+| Backend API Tests | `npm test` (backend/api) | 8 suites / 100 pass |
 | Gateway Tests | `npm test` (ai-gateway) | 19/19 pass |
 | Production Build | `npm run build` | 338+ routes compiled |
+| DB1 RLS Exposure | anon probes (`Prefer: count=exact`) | 0 exposed internal tables |
 
 ---
 
@@ -100,4 +103,4 @@ See [project-bible/SECURITY.md](project-bible/SECURITY.md) for credential manage
 
 ---
 
-*Last Updated: September 18, 2026 — BDW AI Career Intelligence Engine + Production Security Hardening*
+*Last Updated: September 19, 2026 — BDW AI Career Intelligence Engine + Production Security Hardening + DB1 Migration Execution & RLS Lockdown*
