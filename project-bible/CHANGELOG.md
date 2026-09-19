@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — 2026-09-19
 
+### Removed
+- **`legacy/` deleted entirely** (per owner request) — the BerojgarDegreeWala-derived job-platform code, `k8s/` + `neon/` infra, legacy scrapers (previously at `legacy/scripts/`), and archived BDW e2e tests (previously at `legacy/e2e-tests/`). History remains in git for reference.
+- **All BDW database artifacts removed** (`supabase/`): deleted 36 of 38 migrations (kept only `20260705000001_academy_learning_path.sql` + `20260705000002_academy_content_seed.sql`), the entire `rollback/` dir, and all 3 seed files (organizations/resources data for the removed job platform). The app's query layer reads only the `learning_*`/`academy_*` tables those 2 migrations create.
+- **`scripts/` removed** (4 BDW data-maintenance utilities: delete-fake-jobs, org-backfill, category-normalize, backfill-organization-ids) and the `clean:test-data` npm script that ran one of them.
+- **`.env.example` rewritten** to the 3 vars the app actually reads (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) — was a 90-line BDW template (AI providers, Telegram, Upstash, GCP resume parsing, admin HMAC, bdjw emails).
+- **Root configs scrubbed of legacy references**: `package.json` dropped `workspaces: ["legacy/backend/*"]`, the `legacy:backend:*` scripts, and the `@swc/core`/`@swc/jest` devDeps (existed only for legacy backend tests); `.github/workflows/ci.yml` removed the `ai-gateway` + `backend` jobs (leaving a single `app` job); `docker-compose.yml` trimmed to the app container (legacy API + Postgres + Redis services removed); `render.yaml` removed (deployed the deleted backend); `.gitignore`/`.dockerignore`/`tsconfig.json` legacy entries removed.
+- `package-lock.json` regenerated without workspace/dep entries for the removed packages.
+
 ### Changed
 - **Repository restructured into a single Next.js application at the repo root** (was: monorepo with `frontend/` + legacy BDW backend at root):
   - Flattened the app: `frontend/{src,public,supabase,scripts,next.config.mjs,tailwind.config.ts,postcss.config.mjs,jest.config.js,tsconfig*.json,next-env.d.ts,Dockerfile,vercel.json}` → repo root; `frontend/package.json` + lock merged into a rewritten root `package.json` (name `siliconpath`, app scripts at root, `workspaces: ["legacy/backend/*"]`).

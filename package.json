@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "description": "SiliconPath — 100% free VLSI learning platform: 7 academy tracks, 15 learning paths / 150 modules, embedded NPTEL + YouTube lectures, 55 STA interview questions.",
-  "workspaces": [
-    "legacy/backend/*"
-  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -14,11 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "clean:test-data": "node scripts/delete-fake-jobs.js",
-    "legacy:backend:server": "npm run start --workspace @berojgardegreewala/server",
-    "legacy:backend:worker": "npm run start:worker --workspace @berojgardegreewala/worker",
-    "legacy:backend:test": "npm run test --workspaces --if-present"
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@google-cloud/documentai": "^9.6.2",
@@ -49,8 +42,6 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
-    "@swc/core": "^1.11.21",
-    "@swc/jest": "^0.2.37",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

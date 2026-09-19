@@ -1,14 +1,11 @@
 # The build stage npm ci's fresh node_modules in the container — never copy
-# the host's binaries. legacy/ stays in the image only so npm ci can resolve
-# the @berojgardegreewala/* workspace packages declared in package-lock.json.
+# the host's binaries.
 node_modules
 .git
 .opencode
 .vercel
 docs
 project-bible
-legacy/**/dist
-legacy/**/*.tsbuildinfo
 .next
 dist
 *.tsbuildinfo

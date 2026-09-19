@@ -4,7 +4,7 @@
 
 SiliconPath is a 100% free learning platform for VLSI and semiconductor engineers. No paywalls, no premium tiers, no course selling, no login required. Live at [siliconpath.in](https://siliconpath.in) · hosted on Vercel ([siliconpath.vercel.app](https://siliconpath.vercel.app)).
 
-This repository **is** the Next.js web application — the app lives at the repo root (`src/`, `public/`, `package.json`). All non-app code is quarantined under [`legacy/`](#legacy).
+This repository **is** the Next.js web application — the app lives at the repo root (`src/`, `public/`, `package.json`), with support dirs (`project-bible/`, `docs/`) alongside.
 
 ## Features
 
@@ -38,7 +38,7 @@ This repository **is** the Next.js web application — the app lives at the repo
 - **UI:** React 18 + TypeScript + Tailwind CSS (central design tokens in `src/styles/design-tokens.ts`)
 - **Database:** Supabase (optional, with client-side fallbacks)
 - **Hosting:** Vercel (root deployment, `vercel.json`), Docker image for self-hosting
-- **CI:** GitHub Actions (gitleaks security scan + typecheck/test/build for app and legacy workspaces)
+- **CI:** GitHub Actions (gitleaks security scan + typecheck/test/build)
 
 ## Repo Layout
 
@@ -46,29 +46,17 @@ This repository **is** the Next.js web application — the app lives at the repo
 |---|---|
 | `src/` | The app: App Router pages, components, lib, styles |
 | `public/` | Static assets (`llms.txt`, `manifest.json`, icons) |
-| `supabase/` | Supabase migrations + seed data (migrations are immutable) |
-| `scripts/` | Content maintenance utilities (category normalize, org backfill, fake-job cleanup) |
-| `legacy/` | Everything that is **not** the app — see below |
+| `supabase/` | 2 academy migrations (learning tracks/days/questions/results) |
 | `project-bible/` | Architecture, security, changelog, product docs (owner mandate) |
 | `docs/` | Audit reports (`audit-reports/`) and session reports (`session-reports/`) |
 
-### Legacy
-
-`legacy/` holds the BerojgarDegreeWala-derived job-platform code, preserved unmodified for reference and compatibility. It is not part of the SiliconPath product surface:
-
-| Path | What it is |
-|---|---|
-| `legacy/backend/` | `@berojgardegreewala/{api,ai-gateway,server,worker}` npm workspaces (legacy Express API, LLM router, worker, scrapers) |
-| `legacy/k8s/`, `legacy/neon/` | Legacy deployment manifests and DB schema |
-| `legacy/scripts/` | Legacy production scrapers and DB maintenance utilities |
-| `legacy/e2e-tests/` | Archived BDW UI test suite (targets `/login` flows that no longer exist; kept for reference, not run) |
-
-> Legacy backend workspaces are intentionally still named `@berojgardegreewala/*`; they are the unmodified legacy application. Legacy scripts run via `npm run legacy:backend:*`.
+## Getting Started
+| `docs/` | Audit reports (`audit-reports/`) and session reports (`session-reports/`) |
 
 ## Getting Started
 
 ```bash
-# Install dependencies (app + legacy workspaces)
+# Install dependencies
 npm install
 
 # Run the development server

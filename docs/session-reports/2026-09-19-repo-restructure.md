@@ -27,8 +27,22 @@ The app manifest previously declared `@berojgardegreewala/api` and `@berojgardeg
 ### Docs
 `README.md` + `project-bible/DEVELOPMENT.md` rewritten for the new layout; CHANGELOG entry; audit + session reports.
 
+## Follow-up (same day, owner: "remove everything that is not relevant to SiliconPath")
+
+Deleted all remaining BDW artifacts after classifying by actual app usage:
+
+| Deleted | What it was | Why |
+|---|---|---|
+| `legacy/` (110 files) | BDW backend, k8s/neon infra, scrapers, archived e2e | owner-directed; nothing in `src/` referenced it (grep-verified) |
+| 36 supabase migrations + `rollback/` + 3 seeds | opportunities, profiles, messages, social, employers, resumes, news, scrapers, RBAC/security, audit tables | app queries only the `learning_*` set that the 2 kept academy migrations create |
+| `scripts/` (4 files) + `clean:test-data` | BDW data maintenance (org backfill, category normalize, fake-job cleanup) | operate on tables that no longer exist in this repo |
+| `.env.example` (rewritten 90 lines → 3 vars) | BDW env template (AI providers, Telegram, Upstash, GCP, admin HMAC) | app reads exactly 3 vars (grep-verified) |
+| `render.yaml` | Render blueprint for the deleted backend | deploys nothing now |
+
+Repository now contains only SiliconPath: the Next.js app (`src/`, `public/`, `supabase/` x2 academy migrations), deploy config (Dockerfile, compose, vercel.json, ci.yml), and docs (`project-bible/`, `docs/`).
+
 ## Verification
-tsc 0 · jest 6/6 · backend server workspace tests pass · `next build` green · dev server all key routes 200 · `git diff --check` clean.
+tsc 0 · jest 6/6 · `next build` green · dev server key routes 200 · lock regenerated without BDW refs (grep 0) · `git diff --check` clean.
 
 ## Open Items for the User
 1. Move any local `frontend/.env.local` to `.env.local` at repo root after pulling (gitignored on both sides; this clone never had one — builds used CI placeholders).

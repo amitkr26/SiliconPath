@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-SiliconPath is a single Next.js 14 (App Router) application. The repo root **is** the app — package.json, tsconfig, next.config, tailwind config, `src/`, `public/`, `supabase/` all live at root. Everything that is not the app (the legacy BerojgarDegreeWala-derived backend, infra, archived test suites) lives under `legacy/`.
+SiliconPath is a single Next.js 14 (App Router) application. The repo root **is** the app — package.json, tsconfig, next.config, tailwind config, `src/`, `public/`, `supabase/` all live at root.
 
 ### Prerequisites
 - Node.js >= 20
@@ -11,10 +11,6 @@ SiliconPath is a single Next.js 14 (App Router) application. The repo root **is*
 
 ### Repo Layout
 - Root (`/`): the Next.js 14 application — `src/` (app router, components, lib, styles), `public/`, `supabase/` (migrations + seed), `scripts/` (content maintenance utilities)
-- `legacy/backend/*`: `@berojgardegreewala/{api,ai-gateway,server,worker}` — the unmodified legacy job-platform backend, kept as npm workspaces for typing/CI but not part of the product surface
-- `legacy/k8s/`, `legacy/neon/`: legacy backend infrastructure manifests and DB schema
-- `legacy/scripts/`: legacy production scraper triggers and DB maintenance utilities
-- `legacy/e2e-tests/`: archived BerojgarDegreeWala UI tests (they exercise `/login` and BDW flows that no longer exist — preserved for reference, not run)
 - `docs/`: audit reports (`docs/audit-reports/`) and session reports (`docs/session-reports/`)
 - `project-bible/`: architecture, security, changelog, spec, ADRs (owner mandate: update after every change)
 
@@ -25,44 +21,30 @@ SiliconPath is a single Next.js 14 (App Router) application. The repo root **is*
 npm install
 ```
 
-### Development Server (the app)
+### Development Server
 ```bash
 npm run dev              # http://localhost:3000
-```
-
-### Legacy backend (optional, local only)
-```bash
-npm run legacy:backend:server   # Express API replica on :8080
-npm run legacy:backend:worker   # background worker
 ```
 
 ### Quality & Verification Gates
 Run all three gates before submitting changes:
 
 ```bash
-# 1. Typecheck (app scope; legacy is excluded from the root tsconfig)
+# 1. Typecheck
 npm run typecheck
 
-# 2. Automated test suites (app jest suite: src/**/__tests__)
+# 2. Automated tests (jest suite: src/**/__tests__)
 npm test
 
 # 3. Production build
 npm run build
 ```
 
-Legacy backend gates (CI only, run against the workspaces directly):
-```bash
-npm run typecheck --workspace=@berojgardegreewala/ai-gateway
-npm test --workspace=@berojgardegreewala/api --workspace=@berojgardegreewala/server --workspace=@berojgardegreewala/worker
-npm run build --workspace=@berojgardegreewala/server --workspace=@berojgardegreewala/worker
-```
-
 ## Deployment
 
 - **Production**: Vercel, connected to the repo root (`vercel.json`: `framework: nextjs`). Live at https://siliconpath.vercel.app
 - **Docker**: `docker build -t siliconpath .` (multi-stage, Next.js standalone output, port 3000)
-- `docker-compose.yml` (root) runs the app container + legacy Express API + Postgres + Redis for local full-stack work
-- `render.yaml` (root) documents the optional independent Render replica of the legacy backend
+- `docker-compose.yml` (root): `docker compose up --build` runs the production-mode app container on :3000
 
 ## AI Agent Operating Contract
 
