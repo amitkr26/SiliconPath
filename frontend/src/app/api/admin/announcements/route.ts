@@ -25,14 +25,23 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  try { await requireAdmin(request); } catch (e) { return e instanceof Response ? e : NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
+  let admin;
+  try { admin = await requireAdmin(request); } catch (e) { return e instanceof Response ? e : NextResponse.json({ error: "Unauthorized" }, { status: 401 }); }
   const body = await request.json();
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid input" }, { status: 400 });
 
+  // announcements.created_by references user_profiles(id). requireAdmin()
+  // returns the AuthUser id, which is a real Supabase user id for JWT admins
+  // but the literal "admin" string for password/token auth paths — only pass
+  // it when it is a valid UUID, otherwise leave the nullable column NULL.
+  const created_by = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(admin.id)
+    ? admin.id
+    : null;
+
   const { data, error } = await supabaseAdmin!
     .from("announcements")
-    .insert(parsed.data)
+    .insert({ ...parsed.data, created_by })
     .select()
     .single();
   if (error) {

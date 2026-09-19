@@ -55,6 +55,13 @@ ALTER TABLE opportunities ADD COLUMN IF NOT EXISTS audit_notes text;
 CREATE INDEX IF NOT EXISTS idx_opportunities_quality_score ON opportunities(quality_score);
 CREATE INDEX IF NOT EXISTS idx_opportunities_verification_status ON opportunities(verification_status);
 
+-- NOTE (2026-09-18): the three permissive policies created above (no TO
+-- clause = TO PUBLIC) are dropped at the end of this file (section 6). These
+-- tables are admin-only and are written/read exclusively through the
+-- service-role API routes (which bypass RLS), so the broad policies add
+-- attack surface without serving anyone. Kept in-file for history/portability;
+-- the drops make the applied state match the lockdown elsewhere in the schema.
+
 -- 5. Seed default user role for existing user profiles if missing
 INSERT INTO user_roles (user_id, role)
 SELECT id, CASE 
@@ -64,3 +71,12 @@ SELECT id, CASE
 END
 FROM user_profiles
 ON CONFLICT (user_id, role) DO NOTHING;
+
+-- 6. Drop the three permissive policies created above (APPLIED 2026-09-18 on
+-- prod DB1 via Management API). These tables are admin-only and are only
+-- ever touched through the service-role routes (which bypass RLS), so the
+-- broad public policies created above add attack surface without serving
+-- anyone. Self-read policies ("Users can read own roles/permissions") stay.
+DROP POLICY IF EXISTS "Admin and Owner manage roles" ON user_roles;
+DROP POLICY IF EXISTS "Admin manage permissions" ON user_permissions;
+DROP POLICY IF EXISTS "Admin view audit logs" ON audit_logs;

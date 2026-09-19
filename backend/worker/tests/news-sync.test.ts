@@ -296,8 +296,26 @@ test("orchestrator: existing source keeps its id and failure bumps consecutive_f
   const update = db.ops.find((o) => o.kind === "update" && o.table === "scrape_sources") as { payload: any };
   assert.equal(update.payload.consecutive_failures, 3);
   assert.equal(update.payload.last_error, "down");
+  assert.equal(update.payload.is_active, true, "is_active defaults to true when the DB row has no value");
+  assert.equal(update.payload.total_runs, 1, "total_runs increments once for this run");
   const run = db.ops.find((o) => o.kind === "insert" && o.table === "scrape_runs") as { rows: any[] };
   assert.equal(run.rows[0].source_id, "src-1");
+});
+
+test("orchestrator: an admin-deactivated source stays deactivated and counters increment on success", async () => {
+  const db = new FakeDb();
+  db.existingSources = [{ id: "src-1", name: SRC.name, consecutive_failures: 0, is_active: false }];
+  await runNewsSync({
+    client: db as any,
+    sources: [SRC],
+    fetchAll: async () => [
+      await fetchNewsFeed(SRC, { fetchFeed: async () => [item("https://x.com/1")] }),
+    ],
+  });
+  const update = db.ops.find((o) => o.kind === "update" && o.table === "scrape_sources") as { payload: any };
+  assert.equal(update.payload.is_active, false, "health write must not silently re-enable a deactivated source");
+  assert.equal(update.payload.total_runs, 1);
+  assert.equal(update.payload.total_results, 1, "accepted count is summed into total_results");
 });
 
 test("module defaults: concurrency 4 and 2 retries are exported for ops visibility", () => {

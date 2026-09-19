@@ -52,12 +52,8 @@ export const NEWS_SOURCES: NewsSourceConfig[] = [
     relevance_tier: 1,
   },
   // ── TIER 2: Semiconductor Industry News ──
-  {
-    name: "The Register — Hardware",
-    url: "https://www.theregister.com/hardware/semiconductors/headlines.atom",
-    tags: ["semiconductor", "industry", "business"],
-    relevance_tier: 2,
-  },
+  // (The Register — Hardware removed: theregister.com/hardware/...
+  //   /headlines.atom has returned 404 since 2026-08-20 — worker scrape log.)
   {
     name: "Power Electronics News",
     url: "https://www.powerelectronicsnews.com/feed/",

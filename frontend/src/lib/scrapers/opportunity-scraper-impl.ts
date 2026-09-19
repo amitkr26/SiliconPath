@@ -26,24 +26,30 @@ async function logScrapeRun(runId: string, sourceName: string, status: string, s
   } catch { /* log silently */ }
 }
 
-async function updateSourceHealth(sourceName: string, success: boolean, errorMsg?: string) {
-  // ponytail: non-atomic read-then-write for consecutive_failures.
+async function updateSourceHealth(sourceName: string, success: boolean, errorMsg?: string, resultsCount?: number) {
+  // ponytail: non-atomic read-then-write for counters + consecutive_failures.
   // Upgrade to in-DB increment when the project has a dedicated migration runner.
   if (!supabaseAdmin?.from) return;
   try {
+    const { data } = await supabaseAdmin.from("scrape_sources")
+      .select("consecutive_failures, total_runs, total_results")
+      .eq("name", sourceName)
+      .maybeSingle();
     if (success) {
       await supabaseAdmin.from("scrape_sources").update({
         last_scrape_at: new Date().toISOString(),
         last_success_at: new Date().toISOString(),
         consecutive_failures: 0,
         last_error: null,
+        total_runs: (data?.total_runs ?? 0) + 1,
+        total_results: (data?.total_results ?? 0) + (resultsCount ?? 0),
       }).eq("name", sourceName);
     } else {
-      const { data } = await supabaseAdmin.from("scrape_sources").select("consecutive_failures").eq("name", sourceName).single();
       await supabaseAdmin.from("scrape_sources").update({
         last_scrape_at: new Date().toISOString(),
         consecutive_failures: (data?.consecutive_failures ?? 0) + 1,
         last_error: errorMsg || null,
+        total_runs: (data?.total_runs ?? 0) + 1,
       }).eq("name", sourceName);
     }
   } catch { /* log silently */ }
@@ -212,7 +218,7 @@ export async function scrapeAllOpportunities(): Promise<{
       allResults.push(...results);
 
       await logScrapeRun(runId, source.name, "success", startTime, opportunities.length, null);
-      await updateSourceHealth(source.name, true);
+      await updateSourceHealth(source.name, true, undefined, opportunities.length);
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       allResults.push({ source: source.name, success: false, count: 0, error: msg });
@@ -228,7 +234,7 @@ export async function scrapeAllOpportunities(): Promise<{
     try {
       const opps = await withRetry(() => source.scraper(), source.name, 3);
       await logScrapeRun(runId, source.name, "success", startedAt, opps.length, null);
-      await updateSourceHealth(source.name, true);
+      await updateSourceHealth(source.name, true, undefined, opps.length);
       return { source: source.name, success: true, count: opps.length, opportunities: opps };
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);

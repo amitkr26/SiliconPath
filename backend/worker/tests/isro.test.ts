@@ -280,4 +280,7 @@ test("pipeline: existing scrape_sources row is updated, not duplicated", async (
   assert.ok(!db.ops.some((o) => o.kind === "insert" && o.table === "scrape_sources"), "no duplicate scrape_sources row");
   const runInsert = db.ops.find((o) => o.kind === "insert" && o.table === "scrape_runs") as { rows: Array<{ source_id: string }> };
   assert.equal(runInsert.rows[0].source_id, "src-existing");
+  const update = db.ops.find((o) => o.kind === "update" && o.table === "scrape_sources") as { payload: any };
+  assert.equal(update.payload.total_runs, 1, "total_runs increments on the existing source");
+  assert.equal(update.payload.total_results, 7, "total_results sums the fetched row count");
 });

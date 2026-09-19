@@ -20,18 +20,20 @@ export interface NewsSourceConfig {
   relevance_tier?: number;
 }
 
+// Dead feeds removed 2026-09-18 (worker scrape errors, 2026-08-20 batch):
+//   - Chip Design Magazine      — chipdesignmag.com/feed (not recognized as RSS)
+//   - The Electronics Media     — DNS ENOTFOUND (domain gone)
+//   - The Register — Hardware   — headlines.atom returns 404
+//   - Science Daily (semicon)   — semiconductors.xml returns 404 (the working
+//     Science Daily URL lives in the frontend config: matter_energy/electronics.xml)
 export const NEWS_SOURCES: NewsSourceConfig[] = [
   { name: "IEEE Spectrum", url: "https://spectrum.ieee.org/feeds/feed.rss", tags: ["IEEE", "electronics", "engineering"], relevance_tier: 1 },
   { name: "Semiconductor Engineering", url: "https://semiengineering.com/feed/", tags: ["semiconductor", "chip design", "EDA"], relevance_tier: 1 },
   { name: "EE Times", url: "https://www.eetimes.com/feed/", tags: ["electronics", "semiconductor", "industry"], relevance_tier: 1 },
   { name: "Electronics Weekly", url: "https://www.electronicsweekly.com/feed/", tags: ["electronics", "components", "UK"], relevance_tier: 1 },
-  { name: "Chip Design Magazine", url: "https://chipdesignmag.com/feed/", tags: ["chip design", "VLSI", "ASIC"], relevance_tier: 1 },
   { name: "SemiWiki", url: "https://semiwiki.com/feed/", tags: ["semiconductor", "EDA", "IP"], relevance_tier: 1 },
   { name: "Electronics For You", url: "https://www.electronicsforu.com/feed", tags: ["electronics", "India", "DIY"], relevance_tier: 1 },
-  { name: "The Electronics Media", url: "https://theelectronicsmedia.com/feed/", tags: ["electronics", "India", "industry"], relevance_tier: 1 },
-  { name: "The Register — Hardware", url: "https://www.theregister.com/hardware/semiconductors/headlines.atom", tags: ["semiconductor", "industry", "business"], relevance_tier: 2 },
   { name: "Power Electronics News", url: "https://www.powerelectronicsnews.com/feed/", tags: ["power", "electronics", "EV"], relevance_tier: 1 },
-  { name: "Science Daily — Electronics", url: "https://www.sciencedaily.com/rss/computers_math/semiconductors.xml", tags: ["research", "academic", "electronics"], relevance_tier: 1 },
   { name: "Phys.org — Engineering", url: "https://phys.org/rss-feed/technology-news/engineering/", tags: ["research", "technology", "electronics"], relevance_tier: 1 },
 ];
 

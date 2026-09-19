@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS announcements (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
   body TEXT NOT NULL,
-  created_by UUID NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  created_by UUID REFERENCES user_profiles(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
