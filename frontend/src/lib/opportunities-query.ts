@@ -47,13 +47,15 @@ const DISALLOWED_OPP_PATTERNS = [
   /\b(publication of select list|publication of result|wait list against advt|result of walk-in)\b/i,
   /\b(compensation|benefits|payroll|talent acquisition|recruiter|human resources|hr generalist|hr business partner|hr specialist)\b/i,
   /\b(supply planner|sourcing manager|strategic sourcing|procurement|purchasing|commodity manager|global supply planner)\b/i,
-  /\b(information technology|it desktop|it support|helpdesk|service desk|workplace technology|sysadmin)\b/i,
-  /\b(accountant|accounting|financial analyst|finance manager|tax manager|treasury|audit|bookkeeper)\b/i,
+  /\b(information technology|it desktop|it support|helpdesk|service desk|workplace technology|sysadmin|data center technician, it|it technician)\b/i,
+  /\b(accountant|accounting|financial analyst|finance manager|tax manager|treasury|audit|bookkeeper|ap analyst|ar analyst|accounts payable|accounts receivable|financial operations|corporate controller|financial controller)\b/i,
   /\b(legal counsel|paralegal|contracts manager|compliance officer|patent agent)\b/i,
   /\b(real estate|facilities specialist|workplace experience|office manager|executive assistant|administrative assistant)\b/i,
-  /\b(sales manager|sales representative|business development|account executive|marketing manager|brand manager)\b/i,
+  /\b(sales manager|sales representative|business development|account executive|marketing manager|brand manager|deal desk|sales account manager|business devlopment)\b/i,
   /\b(chief of staff|business operations manager|program manager, product software|program manager, architecture)\b/i,
+  /\b(corporate development|strategy and solutions|strategy & solutions|erp implementation|agentic workflows)\b/i,
   /\b(vp of information technology|staff compensation analyst|staff npi global supply planner)\b/i,
+  /[\u0E00-\u0E7F]/,
   /undefined/i
 ];
 
@@ -63,16 +65,31 @@ export function isHardwareOpportunity(opp: any): boolean {
   const desc = (opp.description || "").trim();
   const org = (opp.organization || opp.organizations?.name || "").trim();
   const tags = Array.isArray(opp.tags) ? opp.tags.join(" ") : "";
-  const combined = `${title} ${desc} ${org} ${tags}`.toLowerCase();
+  const combined = `${title} ${desc} ${tags}`.toLowerCase();
 
   for (const dis of DISALLOWED_OPP_PATTERNS) {
     if (dis.test(title)) return false;
   }
 
-  return CORE_HARDWARE_KEYWORDS.some((term) => {
+  // 1. Primary: Job content itself (title, description, tags) matches core hardware domain keywords
+  const jobMatchesHardware = CORE_HARDWARE_KEYWORDS.some((term) => {
     const reg = new RegExp(`\\b${term.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, "\\$&")}\\b`, "i");
     return reg.test(combined);
   });
+
+  if (jobMatchesHardware) return true;
+
+  // 2. Secondary: Organization is a semiconductor company, but role must be engineering/technical/research
+  const orgMatchesHardware = CORE_HARDWARE_KEYWORDS.some((term) => {
+    const reg = new RegExp(`\\b${term.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, "\\$&")}\\b`, "i");
+    return reg.test(org.toLowerCase());
+  });
+
+  if (orgMatchesHardware) {
+    return /\b(engineer|engineering|technologist|developer|scientist|researcher|architect|fellow|intern|specialist)\b/i.test(title);
+  }
+
+  return false;
 }
 
 /**
