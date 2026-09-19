@@ -99,7 +99,7 @@ export default async function OrganizationsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
@@ -109,6 +109,6 @@ export default async function OrganizationsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
       />
       <OrganizationsClient initialOrganizations={organizations} />
-    </main>
+    </div>
   );
 }

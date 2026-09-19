@@ -74,9 +74,9 @@ export default function Footer() {
 
           {/* 2. QUICK LINKS */}
           <div className="lg:col-span-2 space-y-3">
-            <h4 className="text-sm font-bold text-white tracking-tight">
+            <h3 className="text-sm font-bold text-white tracking-tight">
               Quick Links
-            </h4>
+            </h3>
             <ul className="space-y-2 text-xs sm:text-sm font-normal text-slate-400">
               {QUICK_LINKS.map((link) => (
                 <li key={link.href}>
@@ -93,9 +93,9 @@ export default function Footer() {
 
           {/* 3. SUPPORT */}
           <div className="lg:col-span-2 space-y-3">
-            <h4 className="text-sm font-bold text-white tracking-tight">
+            <h3 className="text-sm font-bold text-white tracking-tight">
               Support
-            </h4>
+            </h3>
             <ul className="space-y-2 text-xs sm:text-sm font-normal text-slate-400">
               {SUPPORT_LINKS.map((link) => (
                 <li key={link.label}>
@@ -112,16 +112,16 @@ export default function Footer() {
 
           {/* 4. HARDWARE CAREER RADAR */}
           <div className="lg:col-span-3 space-y-3">
-            <h4 className="text-sm font-bold text-white tracking-tight">
+            <h3 className="text-sm font-bold text-white tracking-tight">
               Hardware Career Radar
-            </h4>
+            </h3>
             <p className="text-slate-400 text-xs font-normal leading-relaxed">
               India&apos;s verified intelligence pipeline for semiconductors, VLSI design, embedded firmware, and national research lab vacancies.
             </p>
             <div className="flex flex-col gap-2 pt-1">
               <Link
                 href="/opportunities"
-                className="inline-flex items-center justify-between px-3.5 py-2 rounded-xl bg-blue-600/15 hover:bg-blue-600/25 text-blue-300 text-xs font-semibold border border-blue-500/30 transition-colors group"
+                className="inline-flex items-center justify-between px-3.5 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 text-xs font-semibold border border-blue-400/40 transition-colors group"
               >
                 <span>Browse Verified Vacancies</span>
                 <span className="text-blue-300 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
@@ -131,7 +131,7 @@ export default function Footer() {
                 className="inline-flex items-center justify-between px-3.5 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700 transition-colors group"
               >
                 <span>Semiconductor R&amp;D Labs</span>
-                <span className="text-slate-400 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                <span className="text-slate-300 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
               </Link>
             </div>
           </div>
@@ -139,7 +139,7 @@ export default function Footer() {
         </div>
 
         {/* BOTTOM ROW */}
-        <div className="pt-8 pb-10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 border-t border-slate-800">
+        <div className="pt-8 pb-10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 border-t border-slate-800">
           <div className="flex items-center gap-1 font-medium">
             <span>Made with</span>
             <span className="text-red-500">❤️</span>

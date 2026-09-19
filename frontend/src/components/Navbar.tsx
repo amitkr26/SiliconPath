@@ -13,7 +13,7 @@ import { useUser } from "@/hooks/useUser";
 import { FOOTER_SOCIAL_LINKS } from "@/config/socials";
 import { SocialIcon } from "@/components/ui/SocialIcons";
 import { useNotificationCount } from "@/hooks/useNotifications";
-import { useConversations } from "@/hooks/useMessages";
+import { useUnreadMessageCount } from "@/hooks/useMessages";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 
@@ -29,12 +29,10 @@ export default function Navbar() {
   const joinRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: notifCountData } = useNotificationCount();
-  const { data: conversationsData } = useConversations();
+  const { data: notifCountData } = useNotificationCount(!!user);
+  const { data: unreadMsgData } = useUnreadMessageCount(!!user);
   const unreadNotifs = notifCountData?.count ?? 0;
-  const unreadMessages = (conversationsData?.conversations ?? []).filter(
-    (c: any) => c.unread_count > 0
-  ).length;
+  const unreadMessages = unreadMsgData?.unread_count ?? 0;
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -102,7 +100,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 lg:gap-4">
 
         {/* BRAND LOGO */}
         <Link
@@ -128,7 +126,7 @@ export default function Navbar() {
         </Link>
 
         {/* DESKTOP NAV LINKS */}
-        <nav className="hidden lg:flex items-center gap-0.5">
+        <nav className="hidden xl:flex items-center gap-0.5">
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || (href !== "/" && pathname.startsWith(href));
             return (
@@ -156,7 +154,7 @@ export default function Navbar() {
         <div className="hidden sm:flex items-center gap-2">
 
           {/* SEARCH (desktop) */}
-          <div className="hidden lg:flex items-center relative">
+          <div className="hidden xl:flex items-center relative">
             <Search className="absolute left-3 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
               ref={searchInputRef}
@@ -165,7 +163,8 @@ export default function Navbar() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearchSubmit}
               placeholder="Search opportunities..."
-              className="w-56 pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50/80 text-xs font-body text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-2xs"
+              aria-label="Search opportunities"
+              className="w-40 xl:w-44 2xl:w-56 pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50/80 text-xs font-body text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-2xs"
             />
           </div>
 
@@ -225,7 +224,7 @@ export default function Navbar() {
                     {username && (
                       <p className="text-xs text-blue-600 font-medium">@{username}</p>
                     )}
-                    <p className="text-[11px] text-slate-400 mt-0.5 font-medium">
+                    <p className="text-[11px] text-slate-600 mt-0.5 font-medium">
                       {isEmployer ? "Employer Account" : "Job Seeker Account"}
                     </p>
                   </div>
@@ -300,7 +299,7 @@ export default function Navbar() {
         {/* MOBILE MENU TOGGLE */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="lg:hidden p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+          className="xl:hidden p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
           aria-label="Toggle menu"
         >
           {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -309,7 +308,7 @@ export default function Navbar() {
 
       {/* MOBILE MENU DRAWER */}
       {menuOpen && (
-        <div className="lg:hidden border-t border-slate-100 bg-white px-4 pb-4 pt-2 space-y-1">
+        <div className="xl:hidden border-t border-slate-100 bg-white px-4 pb-4 pt-2 space-y-1">
           {/* MOBILE SEARCH */}
           <div className="flex items-center relative mb-3">
             <Search className="absolute left-3 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -325,6 +324,7 @@ export default function Navbar() {
                 }
               }}
               placeholder="Search..."
+              aria-label="Search"
               className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm font-body text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
             />
           </div>

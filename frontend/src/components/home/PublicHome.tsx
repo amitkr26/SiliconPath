@@ -666,7 +666,7 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
                 </div>
 
                 {/* Article Footer */}
-                <div className="p-4 pt-0 flex items-center justify-between text-xs text-slate-400">
+                <div className="p-4 pt-0 flex items-center justify-between text-xs text-slate-600">
                   <div className="flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5" />
                     <span>{article.date}</span>
@@ -715,6 +715,7 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
                       value={newsletterEmail}
                       onChange={(e) => setNewsletterEmail(e.target.value)}
                       placeholder="Enter your email"
+                      aria-label="Email address"
                       className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                     />
                   </div>
@@ -789,7 +790,7 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
 
                   <Link
                     href="/organizations"
-                    className="inline-flex items-center gap-2.5 px-5 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold text-sm rounded-xl border border-white/20 backdrop-blur-xs transition-all active:scale-[0.98]"
+                    className="inline-flex items-center gap-2.5 px-5 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm rounded-xl border border-white/20 transition-all active:scale-[0.98]"
                   >
                     <Building2 className="w-4 h-4 text-blue-300" />
                     <span>100+ Verified Labs</span>
@@ -828,15 +829,15 @@ export default function PublicHome({ stats, latestOpenings, latestNews = [] }: P
                     <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10 text-center">
                       <div className="p-2 rounded-lg bg-white/5 border border-white/10">
                         <div className="text-base font-extrabold text-white">350+</div>
-                        <div className="text-[10px] text-slate-400">Core Vacancies</div>
+                        <div className="text-[11px] text-slate-300">Core Vacancies</div>
                       </div>
                       <div className="p-2 rounded-lg bg-white/5 border border-white/10">
                         <div className="text-base font-extrabold text-blue-400">100+</div>
-                        <div className="text-[10px] text-slate-400">Labs &amp; Fabs</div>
+                        <div className="text-[11px] text-slate-300">Labs &amp; Fabs</div>
                       </div>
                       <div className="p-2 rounded-lg bg-white/5 border border-white/10">
                         <div className="text-base font-extrabold text-emerald-400">100%</div>
-                        <div className="text-[10px] text-slate-400">Free Forever</div>
+                        <div className="text-[11px] text-slate-300">Free Forever</div>
                       </div>
                     </div>
                   </div>

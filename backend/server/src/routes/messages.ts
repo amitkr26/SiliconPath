@@ -130,6 +130,19 @@ export function messagesRouter(deps: Deps): Router {
       const raw = req.body || {};
       const content = String(raw.content || raw.body || raw.message || "").trim();
       if (!content) throw new AppError("content is required", 400, "VALIDATION_ERROR");
+      if (content.length > 4000) throw new AppError("Message exceeds 4,000 characters limit", 400, "VALIDATION_ERROR");
+
+      const otherId = conv.participant_a === me ? conv.participant_b : conv.participant_a;
+      const { data: blockedConn } = await deps.supabaseAdmin
+        .from("connections")
+        .select("id, requester_id, addressee_id, status")
+        .or(`and(requester_id.eq.${me},addressee_id.eq.${otherId}),and(requester_id.eq.${otherId},addressee_id.eq.${me})`)
+        .eq("status", "blocked")
+        .maybeSingle();
+
+      if (blockedConn) {
+        throw new ForbiddenError("Cannot message this user because one of the parties has blocked communication");
+      }
 
       const { data: message, error } = await deps.supabaseAdmin
         .from("messages")

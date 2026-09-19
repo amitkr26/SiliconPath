@@ -3,10 +3,10 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
-import { Loader2, MessageCircle, Search, ArrowLeft, Send } from "lucide-react";
+import { Loader2, MessageCircle, Search, ArrowLeft, Send, Check, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@/hooks/useUser";
-import { useConversations, useConversationMessages, useSendMessage } from "@/hooks/useMessages";
+import { useConversations, useConversationMessages, useSendMessage, useMarkMessagesRead } from "@/hooks/useMessages";
 import EmptyState from "@/components/shared/EmptyState";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -30,6 +30,7 @@ interface Message {
   sender_id: string;
   body: string;
   created_at: string;
+  is_read?: boolean;
 }
 
 function initials(name?: string | null): string {
@@ -109,20 +110,70 @@ export default function MessagesPage() {
     (c) => !search || (c.other_user?.display_name || "").toLowerCase().includes(search.toLowerCase())
   );
 
+  const markRead = useMarkMessagesRead(activeConv ?? "");
+
+  // Mark messages as read when active conversation has unread messages
+  useEffect(() => {
+    if (activeConv && active && active.unread_count > 0) {
+      markRead.mutate({ markAllRead: true });
+    }
+  }, [activeConv, active?.unread_count]);
+
+  // Draft persistence across conversation switches and reloads, strictly scoped to user.id to prevent cross-user leakage
+  const draftKey = user?.id
+    ? activeConv
+      ? `bdw_draft_${user.id}_conv_${activeConv}`
+      : targetUser
+      ? `bdw_draft_${user.id}_user_${targetUser.id}`
+      : null
+    : null;
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !draftKey) return;
+    try {
+      const saved = localStorage.getItem(draftKey);
+      setText(saved || "");
+    } catch {}
+  }, [draftKey]);
+
+  const handleTextChange = (val: string) => {
+    setText(val);
+    if (typeof window !== "undefined" && draftKey) {
+      try {
+        if (val) {
+          // Cap persisted draft to 4,000 characters max to prevent localStorage bloating
+          localStorage.setItem(draftKey, val.slice(0, 4000));
+        } else {
+          localStorage.removeItem(draftKey);
+        }
+      } catch {}
+    }
+  };
+
   const send = () => {
     if (!text.trim() || !activeOtherUser) return;
+    if (text.length > 4000) {
+      toast.error("Message exceeds 4,000 characters limit");
+      return;
+    }
     sendMessage.mutate(
       { participantId: activeOtherUser.id, content: text.trim() },
       {
         onSuccess: (data) => {
           setText("");
+          if (typeof window !== "undefined" && draftKey) {
+            try { localStorage.removeItem(draftKey); } catch {}
+          }
           if (data?.conversation_id) {
             setActiveConv(data.conversation_id);
             setTargetUser(null);
           }
           toast.success("Message sent!");
         },
-        onError: () => toast.error("Failed to send message"),
+        onError: (err: any) => {
+          const msg = err?.response?.data?.error || err?.message || "Failed to send message";
+          toast.error(msg);
+        },
       }
     );
   };
@@ -325,9 +376,18 @@ export default function MessagesPage() {
                           )}
                         >
                           {msg.body}
-                          <p className={cn("text-[10px] mt-0.5", isMine ? "text-white/60 text-right" : "text-gray-400")}>
-                            {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
-                          </p>
+                          <div className={cn("text-[10px] mt-0.5 flex items-center gap-1", isMine ? "justify-end text-white/70" : "text-gray-400")}>
+                            <span>{formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}</span>
+                            {isMine && (
+                              <span title={msg.is_read ? "Read" : "Sent"} className="inline-flex items-center">
+                                {msg.is_read ? (
+                                  <CheckCheck size={12} className="text-sky-200" />
+                                ) : (
+                                  <Check size={12} className="text-white/60" />
+                                )}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
@@ -335,24 +395,32 @@ export default function MessagesPage() {
                 </div>
 
                 {/* Composer */}
-                <div className="border-t border-gray-200 p-3 bg-white flex items-end gap-2">
-                  <textarea
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={`Message ${activeOtherUser.display_name || ""}...`}
-                    rows={1}
-                    className="flex-1 resize-none bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg px-3.5 py-2.5 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent max-h-32 overflow-y-auto"
-                    style={{ minHeight: 40 }}
-                  />
-                  <button
-                    onClick={send}
-                    disabled={!text.trim() || sendMessage.isPending}
-                    aria-label="Send message"
-                    className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0"
-                  >
-                    {sendMessage.isPending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                  </button>
+                <div className="border-t border-gray-200 p-3 bg-white flex flex-col gap-1.5">
+                  {text.length > 3500 && (
+                    <div className={cn("text-[11px] text-right font-mono px-1", text.length >= 4000 ? "text-red-500 font-bold" : "text-slate-500")}>
+                      {text.length} / 4000
+                    </div>
+                  )}
+                  <div className="flex items-end gap-2">
+                    <textarea
+                      value={text}
+                      onChange={(e) => handleTextChange(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      maxLength={4000}
+                      placeholder={`Message ${activeOtherUser.display_name || ""}...`}
+                      rows={1}
+                      className="flex-1 resize-none bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg px-3.5 py-2.5 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent max-h-32 overflow-y-auto"
+                      style={{ minHeight: 40 }}
+                    />
+                    <button
+                      onClick={send}
+                      disabled={!text.trim() || sendMessage.isPending}
+                      aria-label="Send message"
+                      className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                    >
+                      {sendMessage.isPending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                    </button>
+                  </div>
                 </div>
               </>
             ) : (

@@ -150,6 +150,10 @@ describe("Message Participant Security & Company Claim Verification Lifecycle", 
           };
         }
         return {
+          select: jest.fn().mockReturnThis(),
+          or: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockReturnThis(),
+          maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
           insert: jest.fn().mockResolvedValue({ data: null, error: null }),
         };
       });

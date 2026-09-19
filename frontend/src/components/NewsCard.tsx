@@ -83,7 +83,7 @@ export default function NewsCard({ article }: NewsCardProps) {
 
             <div className="flex items-center gap-2.5 mt-2 flex-wrap text-xs">
               {article.published_at && (
-                <span className="flex items-center gap-1 text-slate-500 text-[11px] font-medium">
+                <span className="flex items-center gap-1 text-slate-600 text-xs font-medium">
                   <Clock size={12} />
                   {timeAgo(article.published_at)}
                 </span>
@@ -104,7 +104,7 @@ export default function NewsCard({ article }: NewsCardProps) {
               {tags.slice(0, 3).map((tag: string, i: number) => (
                 <span
                   key={`${tag}-${i}`}
-                  className="px-2 py-0.5 bg-slate-50 text-slate-600 rounded-md text-[10px] font-medium border border-slate-200"
+                  className="px-2 py-0.5 bg-slate-50 text-slate-600 rounded-md text-[11px] font-medium border border-slate-200"
                 >
                   #{tag}
                 </span>
@@ -160,7 +160,7 @@ export default function NewsCard({ article }: NewsCardProps) {
                 {sourceName}
               </span>
               {article.published_at && (
-                <span className="text-slate-500 text-xs font-medium flex items-center gap-1">
+                <span className="text-slate-600 text-xs font-medium flex items-center gap-1">
                   <Clock size={12} />
                   {timeAgo(article.published_at)}
                 </span>

@@ -33,18 +33,20 @@ export function useNotifications(unreadOnly = false, limit = 50) {
   return result;
 }
 
-export function useNotificationCount() {
+export function useNotificationCount(enabled = true) {
   const result = useQuery({
     queryKey: ["notifications", "count"],
     queryFn: () => api.get<NotificationCountResponse>("/api/notifications/count"),
+    enabled,
     staleTime: 30_000,
-    refetchInterval: 60_000,
+    refetchInterval: enabled ? 60_000 : undefined,
   });
 
-  useRealtimeChannel("notifications-count", {
+  useRealtimeChannel(enabled ? "notifications-count" : "notifications-count-disabled", {
     event: "INSERT",
     table: "notifications",
     queryKeys: [["notifications", "count"], ["notifications"]],
+    enabled,
   });
 
   return result;

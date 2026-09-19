@@ -20,6 +20,7 @@ export function useRealtimeChannel(
     table: string;
     filter?: string;
     queryKeys: string[][];
+    enabled?: boolean;
   },
 ) {
   const queryClient = useQueryClient();
@@ -28,6 +29,8 @@ export function useRealtimeChannel(
   queryKeysRef.current = config.queryKeys;
 
   useEffect(() => {
+    // Skip subscribing when the consumer opted out (e.g. anonymous Navbar).
+    if (config.enabled === false) return;
     const supabase = createClient();
     let channel: RealtimeChannel;
 
@@ -62,5 +65,5 @@ export function useRealtimeChannel(
   // ponytail: Only re-subscribe when table/filter/event changes, not queryKeys.
   // queryKeys are read from a stable ref that always points to latest values.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelName, config.event, config.schema, config.table, config.filter, queryClient]);
+  }, [channelName, config.event, config.schema, config.table, config.filter, config.enabled, queryClient]);
 }

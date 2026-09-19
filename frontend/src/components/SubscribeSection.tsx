@@ -39,7 +39,7 @@ export default function SubscribeSection() {
       <div className="bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 border border-blue-600/30 rounded-xl p-6 sm:p-8 lg:p-10 text-white shadow-sm relative overflow-hidden">
         
         {/* DECORATIVE BACKGROUND ACCENTS */}
-        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -right-6 -bottom-6 w-40 h-40 bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
           
@@ -90,6 +90,7 @@ export default function SubscribeSection() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address"
+                  aria-label="Email address"
                   className="flex-1 bg-white border border-slate-300 text-slate-900 font-medium text-sm rounded-lg px-4 py-2.5 outline-none placeholder:text-slate-400 transition-all focus:ring-2 focus:ring-white/40"
                 />
                 <button

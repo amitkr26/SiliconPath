@@ -113,7 +113,7 @@ export function ImageWithFallback({
             {editorialMeta?.sourceName || resolvedName || "Semiconductor Editorial"}
           </span>
           {editorialMeta?.category && (
-            <span className="text-[10px] font-semibold text-slate-400">
+            <span className="text-[10px] font-semibold text-slate-300">
               {editorialMeta.category}
             </span>
           )}
@@ -125,7 +125,7 @@ export function ImageWithFallback({
           </div>
         </div>
 
-        <div className="relative z-10 flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-white/10">
+        <div className="relative z-10 flex items-center justify-between text-[10px] text-slate-300 pt-2 border-t border-white/10">
           <span className="font-semibold text-blue-400">BerojgarDegreeWala Editorial</span>
           {editorialMeta?.date && <span>{editorialMeta.date}</span>}
         </div>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   Search, X, MapPin, ArrowRight, Building2, Sparkles, ChevronLeft,
-  ChevronRight, Bookmark, BookmarkCheck, Mail, CheckCircle2, ChevronDown,
+  ChevronRight, Bookmark, BookmarkCheck, CheckCircle2, ChevronDown,
   Layers, Compass, Globe2
 } from "lucide-react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
@@ -88,11 +88,6 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
 
   // Bookmarks
   const [bookmarkedOrgs, setBookmarkedOrgs] = useState<Record<string, boolean>>({});
-
-  // Newsletter
-  const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [newsletterAgreed, setNewsletterAgreed] = useState(true);
-  const [newsletterSubmitting, setNewsletterSubmitting] = useState(false);
 
   // Initialize bookmarks
   useMemo(() => {
@@ -190,38 +185,6 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
     setPage(1);
   };
 
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newsletterEmail || !newsletterEmail.includes("@")) {
-      toast.error("Please enter a valid email address.");
-      return;
-    }
-    if (!newsletterAgreed) {
-      toast.error("Please agree to receive updates.");
-      return;
-    }
-
-    setNewsletterSubmitting(true);
-    try {
-      const res = await fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: newsletterEmail }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        toast.success("Subscribed successfully! You will receive organization & partnership updates.");
-        setNewsletterEmail("");
-      } else {
-        toast.error(data.error || "Subscription failed. Please try again.");
-      }
-    } catch {
-      toast.error("Network error. Please try again.");
-    } finally {
-      setNewsletterSubmitting(false);
-    }
-  };
-
   return (
     <div className="space-y-12">
       {/* ========================================================================= */}
@@ -289,6 +252,7 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search organizations (e.g., Google, ISRO, Microsoft, TCS, DRDO, IIT)..."
+                aria-label="Search organizations"
                 className="w-full pl-11 pr-10 py-3 bg-slate-50/70 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all font-normal"
               />
               {search && (
@@ -309,10 +273,11 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               {/* 1. Organization Type */}
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <label htmlFor="org-type" className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   Organization Type
                 </label>
                 <select
+                  id="org-type"
                   value={typeFilter}
                   onChange={(e) => {
                     setTypeFilter(e.target.value);
@@ -328,10 +293,11 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
 
               {/* 2. Sector */}
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <label htmlFor="org-sector" className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   Sector
                 </label>
                 <select
+                  id="org-sector"
                   value={sectorFilter}
                   onChange={(e) => {
                     setSectorFilter(e.target.value);
@@ -347,10 +313,11 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
 
               {/* 3. Location */}
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <label htmlFor="org-location" className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   Location
                 </label>
                 <select
+                  id="org-location"
                   value={locationFilter}
                   onChange={(e) => {
                     setLocationFilter(e.target.value);
@@ -366,10 +333,11 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
 
               {/* 4. Opportunities */}
               <div className="space-y-1">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <label htmlFor="org-opps" className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   Opportunities
                 </label>
                 <select
+                  id="org-opps"
                   value={oppFilter}
                   onChange={(e) => {
                     setOppFilter(e.target.value);
@@ -524,8 +492,9 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
 
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                <span>Sort by</span>
+                <label htmlFor="org-sort">Sort by</label>
                 <select
+                  id="org-sort"
                   value={sort}
                   onChange={(e) => setSort(e.target.value as any)}
                   className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-blue-500/20"
@@ -606,7 +575,7 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
 
                       {/* Name */}
                       <Link href={`/opportunities?search=${encodeURIComponent(org.name)}`}>
-                        <h3 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors truncate mb-1">
+                        <h3 className="font-bold text-slate-900 text-[15px] group-hover:text-blue-600 transition-colors truncate mb-1">
                           {org.name}
                         </h3>
                       </Link>
@@ -708,77 +677,6 @@ export default function OrganizationsClient({ initialOrganizations }: Props) {
             </div>
           )}
 
-        </div>
-      </section>
-
-
-      {/* ========================================================================= */}
-      {/* 4. NEWSLETTER / SUBSCRIBE BANNER                                          */}
-      {/* ========================================================================= */}
-      <section className="py-8 bg-white border-t border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative rounded-3xl bg-linear-to-r from-blue-50/90 via-sky-50/60 to-blue-100/50 border border-blue-200/80 p-8 sm:p-12 overflow-hidden shadow-xs">
-            
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-              {/* Left Copy */}
-              <div className="lg:col-span-6 space-y-2">
-                <div className="w-10 h-1 rounded-full bg-blue-600 mb-4" />
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                  Stay Updated with New Organizations
-                </h3>
-                <p className="text-slate-600 text-sm font-normal max-w-md">
-                  Get the latest updates about new organizations, partnership announcements and exciting opportunities.
-                </p>
-              </div>
-
-              {/* Right Form & Graphic */}
-              <div className="lg:col-span-6 flex flex-col sm:flex-row items-center justify-end gap-6">
-                <form onSubmit={handleNewsletterSubmit} className="w-full sm:max-w-md space-y-2.5">
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <input
-                        type="email"
-                        value={newsletterEmail}
-                        onChange={(e) => setNewsletterEmail(e.target.value)}
-                        placeholder="Enter your email address"
-                        required
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all shadow-2xs"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={newsletterSubmitting}
-                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl transition-colors shrink-0 shadow-2xs disabled:opacity-60 cursor-pointer"
-                    >
-                      {newsletterSubmitting ? "..." : "Subscribe"}
-                    </button>
-                  </div>
-
-                  <label className="flex items-start gap-2 cursor-pointer pt-1">
-                    <input
-                      type="checkbox"
-                      checked={newsletterAgreed}
-                      onChange={(e) => setNewsletterAgreed(e.target.checked)}
-                      className="mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5"
-                    />
-                    <span className="text-[11px] text-slate-500 font-normal leading-tight">
-                      I agree to receive updates from BerojgarDegreeWala.
-                    </span>
-                  </label>
-                </form>
-
-                {/* Floating Note Badge */}
-                <div className="hidden sm:block text-center font-serif italic text-blue-800 rotate-6 shrink-0">
-                  <div className="text-xl sm:text-2xl font-bold leading-tight">
-                    More Partners <br />
-                    <span className="text-blue-600">More Opportunities for You!</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
         </div>
       </section>
     </div>

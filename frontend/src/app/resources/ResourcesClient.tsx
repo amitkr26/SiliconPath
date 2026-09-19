@@ -21,7 +21,6 @@ import {
   Briefcase,
   Layers,
   ChevronRight,
-  Mail,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -263,9 +262,6 @@ const DETAILED_GUIDES = [
 
 export default function ResourcesClient() {
   const [activeModal, setActiveModal] = useState<ToolModalData | null>(null);
-  const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [newsletterAgreed, setNewsletterAgreed] = useState(true);
-  const [newsletterSubmitting, setNewsletterSubmitting] = useState(false);
 
   const handleToolClick = (tool: (typeof TOOLS_AND_TEMPLATES)[0]) => {
     setActiveModal(tool.details);
@@ -274,40 +270,6 @@ export default function ResourcesClient() {
   const handleDownload = () => {
     toast.info("Download functionality coming soon — resources are being finalized.");
     setActiveModal(null);
-  };
-
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newsletterEmail || !newsletterEmail.includes("@")) {
-      toast.error("Please enter a valid email address.");
-      return;
-    }
-    if (!newsletterAgreed) {
-      toast.error("Please agree to receive updates.");
-      return;
-    }
-    setNewsletterSubmitting(true);
-    try {
-      const res = await fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: newsletterEmail }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        toast.success("Subscribed successfully! Check your inbox for weekly resource updates.");
-        setNewsletterEmail("");
-      } else if (res.status === 409) {
-        toast.info("This email is already subscribed to updates.");
-        setNewsletterEmail("");
-      } else {
-        toast.error(data.error || "Subscription failed. Please try again.");
-      }
-    } catch {
-      toast.error("Network error. Please try again.");
-    } finally {
-      setNewsletterSubmitting(false);
-    }
   };
 
   return (
@@ -409,7 +371,7 @@ export default function ResourcesClient() {
                   <h3 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-tight mb-1">
                     {cat.title}
                   </h3>
-                  <p className="text-[11px] font-medium text-slate-400">{cat.count}</p>
+                  <p className="text-[11px] font-medium text-slate-600">{cat.count}</p>
                 </div>
               </Link>
             );
@@ -456,7 +418,7 @@ export default function ResourcesClient() {
                   >
                     {item.tag}
                   </span>
-                  <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
+                  <span className="text-[11px] font-medium text-slate-600 flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     <span>{item.readTime}</span>
                   </span>
@@ -672,7 +634,7 @@ export default function ResourcesClient() {
                     </div>
                     <div>
                       <span className="text-xs font-bold text-slate-900 block leading-tight">Hardware Skill Radar</span>
-                      <span className="text-[10px] text-slate-400">Industry-Aligned Roadmaps</span>
+                      <span className="text-[11px] text-slate-600">Industry-Aligned Roadmaps</span>
                     </div>
                   </div>
                   <div className="w-2 h-2 rounded-full bg-emerald-500" />
@@ -704,71 +666,7 @@ export default function ResourcesClient() {
         </div>
       </section>
 
-      {/* 8. NEWSLETTER / SUBSCRIBE BANNER */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="relative rounded-3xl bg-linear-to-r from-blue-50/90 via-sky-50/60 to-blue-100/50 border border-blue-200/80 p-8 sm:p-12 overflow-hidden shadow-xs">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-            {/* Left Copy */}
-            <div className="lg:col-span-6 space-y-2">
-              <div className="w-10 h-1 rounded-full bg-blue-600 mb-4" />
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                Stay Updated with New Resources
-              </h3>
-              <p className="text-slate-600 text-sm font-normal max-w-md">
-                Get the latest guides, career tips, templates and scholarship opportunities delivered to your inbox.
-              </p>
-            </div>
-
-            {/* Right Form & Graphic */}
-            <div className="lg:col-span-6 flex flex-col sm:flex-row items-center justify-end gap-6">
-              <form onSubmit={handleNewsletterSubmit} className="w-full sm:max-w-md space-y-2.5">
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                      type="email"
-                      value={newsletterEmail}
-                      onChange={(e) => setNewsletterEmail(e.target.value)}
-                      placeholder="Enter your email address"
-                      required
-                      className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all shadow-2xs"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={newsletterSubmitting}
-                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl transition-colors shrink-0 shadow-2xs disabled:opacity-60 cursor-pointer"
-                  >
-                    {newsletterSubmitting ? "..." : "Subscribe"}
-                  </button>
-                </div>
-
-                <label className="flex items-start gap-2 cursor-pointer pt-1">
-                  <input
-                    type="checkbox"
-                    checked={newsletterAgreed}
-                    onChange={(e) => setNewsletterAgreed(e.target.checked)}
-                    className="mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5"
-                  />
-                  <span className="text-[11px] text-slate-500 font-normal leading-tight">
-                    I agree to receive updates from BerojgarDegreeWala.
-                  </span>
-                </label>
-              </form>
-
-              {/* Floating Note Badge */}
-              <div className="hidden sm:block text-center font-serif italic text-blue-800 rotate-6 shrink-0">
-                <div className="text-xl sm:text-2xl font-bold leading-tight">
-                  Learn Today. <br />
-                  <span className="text-blue-600">Succeed Tomorrow!</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. INTERACTIVE TOOL MODAL */}
+      {/* 8. INTERACTIVE TOOL MODAL */}
       {activeModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"

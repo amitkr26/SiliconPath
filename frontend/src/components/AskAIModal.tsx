@@ -193,6 +193,7 @@ export default function AskAIModal({ isOpen, onClose }: AskAIModalProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about jobs, JRF, ISRO exams, eligibility..."
+              aria-label="Ask about careers, jobs, and exams"
               className="flex-1 bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text)] text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
             />
             <button

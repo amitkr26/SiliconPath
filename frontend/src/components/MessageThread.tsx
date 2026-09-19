@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, KeyboardEvent } from "react";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, Check, CheckCheck } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ interface Message {
   sender_id: string;
   body: string;
   created_at: string;
+  is_read?: boolean;
 }
 
 interface MessageThreadProps {
@@ -96,9 +97,18 @@ export default function MessageThread({
                 )}
               >
                 {msg.body}
-                <p className={cn("text-[10px] mt-0.5", isMine ? "text-white/60 text-right" : "text-slate-400 font-medium")}>
-                  {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
-                </p>
+                <div className={cn("text-[10px] mt-0.5 flex items-center gap-1", isMine ? "justify-end text-white/70" : "text-slate-400 font-medium")}>
+                  <span>{formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}</span>
+                  {isMine && (
+                    <span title={msg.is_read ? "Read" : "Sent"} className="inline-flex items-center">
+                      {msg.is_read ? (
+                        <CheckCheck size={12} className="text-sky-200" />
+                      ) : (
+                        <Check size={12} className="text-white/60" />
+                      )}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           );

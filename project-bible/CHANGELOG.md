@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **2026-09-19 — BDW Messaging RPC Least-Privilege Execute Hardening (Final Closure):**
+  - **Applied & Reconciled Live Migration `20260919000003_rpc_least_privilege_execute_hardening.sql` via Supabase Management API**:
+    - **Principle of Least Privilege**: Revoked `EXECUTE` privileges on `public.get_unread_message_count(uuid)` and `public.get_user_conversations_overview(uuid)` from `PUBLIC`, `anon`, and `authenticated` roles.
+    - **Direct RPC Attack Surface Eliminated**: PostgREST RPC endpoints for both functions now strictly reject anonymous and authenticated client requests at the PostgreSQL privilege layer with error code `42501` (`permission denied for function ...`), eliminating unnecessary client-side exposure.
+    - **Trusted Server-Side Path Preserved**: Explicitly granted `EXECUTE` on both functions to `service_role` and `postgres`. Server-side Next.js route handlers (`GET /api/messages/unread-count` and `GET /api/messages`) continue functioning seamlessly with zero regression.
+    - **Supabase Security Advisor Cleared**: Confirmed 0 remaining target RPC lints; all 4 previous Security Advisor warnings (`anon_security_definer_function_executable` and `authenticated_security_definer_function_executable` across both functions) completely resolved.
+    - **Migration Ledger Synchronized**: Recorded `20260919000003` into `supabase_migrations.schema_migrations` (total ledger count = 16).
+
+- **2026-09-19 — BDW Messaging RPC Security Gate & Hardening (Phase 1 + Phase 2 Final Closure):**
+  - **Applied & Reconciled Live Migration `20260919000002_rpc_security_definer_cross_user_hardening.sql` via Supabase Management API**:
+    - **Cross-User Exfiltration Defense**: Replaced SQL-language RPC implementations with PL/pgSQL implementations enforcing strict caller identity verification. Authenticated callers attempting to pass a different user's UUID (`auth.role() = 'authenticated' AND (auth.uid() IS NULL OR auth.uid() != p_user_id)`) are rejected with PostgreSQL exception `42501` (PostgREST HTTP 403 Forbidden). Anonymous callers are rejected with `42501` (HTTP 401/403). Trusted server callers (`auth.role() = 'service_role'` or postgres superuser) remain permitted.
+    - **Empirical Direct API Validation**: Authenticated requests from User A (`amittest1`) targeting User B (`amittest2`) confirmed returning HTTP 403 Forbidden on both `public.get_unread_message_count` and `public.get_user_conversations_overview`. Authenticated requests targeting caller's own UUID confirmed returning HTTP 200 OK with correct counts and conversation payloads.
+    - **Search Path Hardening**: Explicitly configured `SET search_path = public, pg_temp` on both `SECURITY DEFINER` functions, eliminating vulnerability to search path manipulation and object shadowing attacks (`pg_proc.proconfig` verified in system catalogs).
+    - **Migration Ledger Synchronized**: Recorded `20260919000002` into `supabase_migrations.schema_migrations` (total ledger count = 15).
+
+- **2026-09-19 — BDW Messaging Hardening, Verification & Repair Gate (Phase 1 + Phase 2 Complete):**
+  - **Applied & Reconciled Live Migration `20260919000001_messaging_hardening_realtime_indexes.sql` via Supabase Management API**:
+    - **Realtime Publication Activated**: Added `public.messages` to `supabase_realtime` publication (`pg_publication_tables` verified active; DEFAULT replica identity proven sufficient for INSERT and UPDATE payloads).
+    - **Hardened Database RLS Policies**: Replaced permissive `send messages` INSERT policy on `public.messages` with fail-closed defense-in-depth policy verifying `auth.uid() = sender_id AND EXISTS (SELECT 1 FROM conversations c WHERE c.id = messages.conversation_id AND (c.participant_a = auth.uid() OR c.participant_b = auth.uid()))`. Added granular UPDATE policy `mark own received messages read` allowing users to only mark incoming messages read. Direct database-level RLS testing confirmed native rejection of forged sender IDs, non-participant injection, unauthenticated inserts, and cross-user update attempts.
+    - **Performance Composite Indexes**: Created partial index `idx_messages_unread_partial` on `messages(conversation_id, sender_id) WHERE (is_read = false)`, and participant sorting indexes `idx_conversations_participant_a_last_msg` and `idx_conversations_participant_b_last_msg`. Verified index usage with `EXPLAIN ANALYZE`.
+    - **High-Speed Postgres RPC Functions**: Authored and deployed `get_unread_message_count(p_user_id UUID)` (1.958 ms execution time) and `get_user_conversations_overview(p_user_id UUID)` (5.052 ms execution time for single-query enriched conversations list).
+    - **Migration Ledger Synchronized**: Recorded `20260919000001` into `supabase_migrations.schema_migrations` (ledger count = 14).
+  - **Eliminated N+1 Query Storm on Navbar & Conversations List**:
+    - Replaced `1 + 3N` sequential database query loop in `GET /api/messages` with single-query RPC call (`get_user_conversations_overview`), backed by a 3-query constant-time batching fallback.
+    - Created lightweight scalar endpoint `GET /api/messages/unread-count`. Updated `Navbar.tsx` to consume new `useUnreadMessageCount` hook, removing global conversation list fetching from every page.
+  - **Security Boundaries Enforced**:
+    - **Message Length Limit**: Enforced 4,000-character upper bound and empty/whitespace rejection across `POST /api/messages` and `POST /api/messages/[conversationId]`. Boundary tests verified 0, whitespace, 3999, 4000 (201 OK), and 4001 (400 Bad Request).
+    - **Rate Limiting**: Enforced 20 messages per authenticated user per rolling minute sliding window using `@/lib/rate-limiter`, returning HTTP 429 with `Retry-After` header. Evaluated strictly after validation to prevent quota leakage from malformed requests. User isolation verified.
+    - **Bidirectional Block Check**: Integrated canonical `connections` table (`status = 'blocked'`). Sending messages between blocked users is strictly prohibited in both directions (returns HTTP 403). Zero parallel tables introduced.
+  - **Query, Pagination & Client Hardening Repairs**:
+    - **Deterministic Composite Cursor Pagination**: Thread API enhanced to use `(created_at, id)` composite cursor (`${created_at}|${id}`) with compound `.or()` filter, eliminating message skipping or duplicate risks when timestamps coincide.
+    - **Polling Replaced with Pure Realtime Push**: Removed 30-second recurring timer polling from `useConversations` and `useUnreadMessageCount` (`refetchInterval: false`). Query caches are invalidated immediately by Realtime push events, with `refetchOnWindowFocus: true` for resilience.
+    - **User-Isolated Draft Persistence**: Hardened `draftKey` to include authenticated `user.id` (`bdw_draft_${user.id}_...`), preventing cross-user draft leakage on shared machines. Capped localStorage draft storage to 4,000 characters to prevent storage bloat.
+    - **Read-Only Thread GET & Explicit Read PATCH**: Verified GET does NOT mutate `is_read`. Explicit `PATCH` marks incoming messages read.
+  - **Empirical Browser Realtime Verification**:
+    - Verified concurrent two-session browser test using live canonical test accounts (`amittest1` & `amittest2`).
+    - Session A -> Session B message delivery confirmed in **2,610 ms** via Realtime WebSocket without page reload or polling. Exactly 1 DOM render verified.
+    - Session B -> Session A reverse message delivery confirmed in **3,636 ms** without page reload. Exactly 1 DOM render verified.
+    - Responsive layout verified on 375px mobile viewport.
+  - **Automated Tests & Quality Gates**:
+    - Comprehensive unit tests: `frontend/src/__tests__/api/messaging-phase1-phase2.test.ts` (19/19 tests PASS).
+    - Frontend test suite: **35 passed / 380 tests passed** (100% PASS).
+    - Frontend TypeScript (`npx tsc --noEmit`): **0 errors**.
+    - Backend test suites: Worker **31/31 PASS**, API **8/8 suites, 100/100 PASS**, Server **46/46 PASS** (Total: **557/557 tests passing** across monorepo).
+
 - **2026-09-19 — Repository-wide documentation sync with the executed DB1 remediation & current architecture (round 5, docs only):**
   - **`README.md`**: Tests badge 317 → **361/361 PASS**; Quality Gates table expanded with worker (31/31), backend api (8/100), and a **DB1 RLS Exposure = 0** row; Last-Updated line reflects the remediation.
   - **`AGENTS.md`**: Core rules now encode that **production DB1 migrations are APPLIED** (ledger = 13 records), schema changes go through the Management API (`SUPABASE_MGMT_TOKEN`), and RLS re-exposure is zero-tolerance (verify via anonymous `HEAD` + `Prefer: count=exact`). Quality gates updated to frontend 34/361 + worker 31/31 + api 8/100.
